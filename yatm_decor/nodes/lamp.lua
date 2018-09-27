@@ -7,7 +7,7 @@ local lamp_node_box = {
 }
 
 minetest.register_node("yatm_decor:lamp_white_off", {
-  description = "Lamp [off]",
+  description = "Lamp",
   groups = {cracky = 1},
   tiles = {
     "yatm_lamp_top.off.png",
@@ -24,8 +24,8 @@ minetest.register_node("yatm_decor:lamp_white_off", {
 })
 
 minetest.register_node("yatm_decor:lamp_white_on", {
-  description = "Lamp [on]",
-  groups = {cracky = 1},
+  description = "Lamp",
+  groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {
     "yatm_lamp_top.on.png",
     "yatm_lamp_bottom.on.png",

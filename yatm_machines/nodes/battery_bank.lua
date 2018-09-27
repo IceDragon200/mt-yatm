@@ -1,6 +1,27 @@
-minetest.register_node("yatm_machines:battery_bank", {
+local server_yatm_network = {
+  kind = "machine",
+  group = {machine = 1}
+}
+
+minetest.register_node("yatm_machines:battery_bank_off", {
   description = "Battery Bank",
   groups = {cracky = 1},
+  tiles = {
+    "yatm_battery_bank_top.off.png",
+    "yatm_battery_bank_bottom.png",
+    "yatm_battery_bank_side.png",
+    "yatm_battery_bank_side.png^[transformFX",
+    "yatm_battery_bank_back.level.0.png",
+    "yatm_battery_bank_front.level.0.png"
+  },
+  paramtype = "light",
+  paramtype2 = "facedir",
+  yatm_network = server_yatm_network,
+})
+
+minetest.register_node("yatm_machines:battery_bank_on", {
+  description = "Battery Bank",
+  groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {
     -- "yatm_battery_bank_top.on.png",
     {
@@ -20,4 +41,5 @@ minetest.register_node("yatm_machines:battery_bank", {
   },
   paramtype = "light",
   paramtype2 = "facedir",
+  yatm_network = server_yatm_network,
 })

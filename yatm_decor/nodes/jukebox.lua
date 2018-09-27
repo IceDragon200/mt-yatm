@@ -8,7 +8,7 @@ local jukebox_node_box = {
 }
 
 minetest.register_node("yatm_decor:jukebox_off", {
-  description = "Jukebox [off]",
+  description = "Jukebox",
   groups = {cracky = 1},
   tiles = {
     "yatm_jukebox_top.off.png",
@@ -20,13 +20,12 @@ minetest.register_node("yatm_decor:jukebox_off", {
   },
   paramtype = "light",
   paramtype2 = "facedir",
-  legacy_facedir_simple = true,
   drawtype = "nodebox",
   node_box = jukebox_node_box,
 })
 
 minetest.register_node("yatm_decor:jukebox_on", {
-  description = "Jukebox [on]",
+  description = "Jukebox",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {
     "yatm_jukebox_top.on.png",
@@ -38,7 +37,6 @@ minetest.register_node("yatm_decor:jukebox_on", {
   },
   paramtype = "light",
   paramtype2 = "facedir",
-  legacy_facedir_simple = true,
   drawtype = "nodebox",
   node_box = jukebox_node_box,
 })

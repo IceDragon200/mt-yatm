@@ -1,3 +1,14 @@
+local crystal_cauldron_yatm_network = {
+  kind = "machine",
+  group = {machine = 1},
+  states = {
+    conflict = "yatm_machines:crystal_cauldron_error",
+    error = "yatm_machines:crystal_cauldron_error",
+    off = "yatm_machines:crystal_cauldron_off",
+    on = "yatm_machines:crystal_cauldron_on",
+  }
+}
+
 local crysytal_cauldron_node_box = {
   type = "fixed",
   fixed = {
@@ -13,8 +24,8 @@ local crysytal_cauldron_node_box = {
   }
 }
 
-minetest.register_node("yatm_machines:crystal_cauldron_off", {
-  description = "Crystal Cauldron [off]",
+yatm_machines.register_network_device("yatm_machines:crystal_cauldron_off", {
+  description = "Crystal Cauldron",
   groups = {cracky = 1},
   tiles = {
     "yatm_crystal_cauldron_top.png",
@@ -28,10 +39,29 @@ minetest.register_node("yatm_machines:crystal_cauldron_off", {
   paramtype2 = "facedir",
   drawtype = "nodebox",
   node_box = crysytal_cauldron_node_box,
+  yatm_network = crystal_cauldron_yatm_network,
 })
 
-minetest.register_node("yatm_machines:crystal_cauldron_on", {
-  description = "Crystal Cauldron [on]",
+yatm_machines.register_network_device("yatm_machines:crystal_cauldron_error", {
+  description = "Crystal Cauldron",
+  groups = {cracky = 1, not_in_creative_inventory = 1},
+  tiles = {
+    "yatm_crystal_cauldron_top.png",
+    "yatm_crystal_cauldron_bottom.png",
+    "yatm_crystal_cauldron_side.error.png",
+    "yatm_crystal_cauldron_side.error.png",
+    "yatm_crystal_cauldron_side.error.png",
+    "yatm_crystal_cauldron_side.error.png",
+  },
+  paramtype = "light",
+  paramtype2 = "facedir",
+  drawtype = "nodebox",
+  node_box = crysytal_cauldron_node_box,
+  yatm_network = crystal_cauldron_yatm_network,
+})
+
+yatm_machines.register_network_device("yatm_machines:crystal_cauldron_on", {
+  description = "Crystal Cauldron",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {
     "yatm_crystal_cauldron_top.png",
@@ -45,4 +75,5 @@ minetest.register_node("yatm_machines:crystal_cauldron_on", {
   paramtype2 = "facedir",
   drawtype = "nodebox",
   node_box = crysytal_cauldron_node_box,
+  yatm_network = crystal_cauldron_yatm_network,
 })

@@ -5,24 +5,22 @@ minetest.register_node("yatm_machines:fluid_replicator", {
     "yatm_fluid_replicator_top.off.png",
     "yatm_fluid_replicator_bottom.png",
     "yatm_fluid_replicator_side.off.png",
-    "yatm_fluid_replicator_side.off.png",
+    "yatm_fluid_replicator_side.off.png^[transformFX",
     "yatm_fluid_replicator_back.off.png",
     "yatm_fluid_replicator_front.off.png",
   },
   paramtype = "light",
   paramtype2 = "facedir",
-  legacy_facedir_simple = true,
 })
 
 minetest.register_node("yatm_machines:fluid_replicator_on", {
-  description = "Fluid Replicator [on]",
+  description = "Fluid Replicator",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {
     "yatm_fluid_replicator_top.on.png",
     "yatm_fluid_replicator_bottom.png",
     "yatm_fluid_replicator_side.on.png",
-    "yatm_fluid_replicator_side.on.png",
-    -- "yatm_fluid_replicator_back.off.png",
+    "yatm_fluid_replicator_side.on.png^[transformFX",
     {
       name = "yatm_fluid_replicator_back.on.png",
       animation = {
@@ -32,7 +30,6 @@ minetest.register_node("yatm_machines:fluid_replicator_on", {
         length = 1.0
       },
     },
-    -- "yatm_fluid_replicator_front.off.png"
     {
       name = "yatm_fluid_replicator_front.on.png",
       animation = {
@@ -45,5 +42,4 @@ minetest.register_node("yatm_machines:fluid_replicator_on", {
   },
   paramtype = "light",
   paramtype2 = "facedir",
-  legacy_facedir_simple = true,
 })
