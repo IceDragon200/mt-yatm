@@ -1,4 +1,8 @@
+--[[
 
+
+
+]]
 local monitor_console_yatm_network = {
   kind = "monitor",
   groups = {
@@ -70,6 +74,11 @@ yatm_machines.register_network_device("yatm_machines:monitor_console_on", {
   yatm_network = monitor_console_yatm_network,
 })
 
+--[[
+
+
+
+]]
 local monitor_crafting_yatm_network = {
   kind = "monitor",
   groups = {
@@ -133,6 +142,11 @@ yatm_machines.register_network_device("yatm_machines:monitor_crafting_on", {
   yatm_network = monitor_crafting_yatm_network,
 })
 
+--[[
+
+
+
+]]
 local monitor_ele_yatm_network = {
   kind = "monitor",
   groups = {
@@ -196,6 +210,11 @@ yatm_machines.register_network_device("yatm_machines:monitor_ele_on", {
   yatm_network = monitor_ele_yatm_network,
 })
 
+--[[
+
+
+
+]]
 local monitor_inventory_yatm_network = {
   kind = "monitor",
   groups = {

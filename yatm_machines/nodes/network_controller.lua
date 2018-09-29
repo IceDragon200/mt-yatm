@@ -179,7 +179,7 @@ minetest.register_lbm({
     local meta = minetest.get_meta(pos)
     local network_id = yatm_core.Network.get_network_id(meta)
     if network_id then
-      yatm_core.Network.initialize_network(network_id)
+      yatm_core.Network.initialize_network(pos, network_id)
     end
     yatm_core.Network.schedule_refresh_network_topography(pos, {kind = "controller_load"})
   end

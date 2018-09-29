@@ -35,6 +35,22 @@ yatm_machines.register_network_device("yatm_machines:void_crate_off", {
   yatm_network = void_crate_yatm_network,
 })
 
+yatm_machines.register_network_device("yatm_machines:void_crate_error", {
+  description = "Void Crate",
+  groups = {cracky = 1, not_in_creative_inventory = 1},
+  tiles = {
+    "yatm_void_crate_top.error.png",
+    "yatm_void_crate_bottom.png",
+    "yatm_void_crate_side.error.png",
+    "yatm_void_crate_side.error.png^[transformFX",
+    "yatm_void_crate_back.error.png",
+    "yatm_void_crate_front.error.png",
+  },
+  paramtype = "light",
+  paramtype2 = "facedir",
+  yatm_network = void_crate_yatm_network,
+})
+
 yatm_machines.register_network_device("yatm_machines:void_crate_on", {
   description = "Void Crate",
   groups = {cracky = 1, not_in_creative_inventory = 1},

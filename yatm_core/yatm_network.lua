@@ -36,9 +36,11 @@ function Network.generate_network_id(pos)
   return network_id, ts
 end
 
-function Network.initialize_network(network_id)
+function Network.initialize_network(pos, network_id)
   Network.networks[network_id] = {
     id = network_id,
+    -- origin position of the controller, can be used tp index some features
+    pos = pos,
     -- {member_id = member_entry}
     members = {},
     -- {member_id = {group_id...}}
@@ -51,7 +53,7 @@ end
 
 function Network.create_network(pos)
   local network_id, ts = Network.generate_network_id(pos)
-  return Network.initialize_network(network_id), ts
+  return Network.initialize_network(pos, network_id), ts
 end
 
 function Network.destroy_network(network_id)
