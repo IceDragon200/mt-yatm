@@ -1,10 +1,12 @@
 local network_yatm_network = {
   kind = "controller",
-  groups = {controller = 1},
+  groups = {
+    controller = 1,
+  },
   states = {
     conflict = "yatm_machines:network_controller_error",
     error = "yatm_machines:network_controller_error",
-    on = "yatm_machines:network_controller",
+    on = "yatm_machines:network_controller_on",
     off = "yatm_machines:network_controller_off",
   }
 }
@@ -21,7 +23,6 @@ local function handle_on_destruct(pos, _old_node)
 end
 
 local function handle_on_network_changed(pos, node, ts, network_id, state)
-  print("NETWORK CHANGED ", pos.x, pos.y, pos.z, node.name, "TS", ts, "NID", network_id, "STATE", state)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef then
     if nodedef.yatm_network then
@@ -35,6 +36,7 @@ local function handle_on_network_changed(pos, node, ts, network_id, state)
           local new_name = nodedef.yatm_network.states[state]
           if new_name then
             if node.name ~= new_name then
+              print("TS", ts, "NETWORK CHANGED (controller)", pos.x, pos.y, pos.z, node.name, "to", new_name, "NID", network_id, "STATE", state)
               node.name = new_name
               minetest.swap_node(pos, node)
             end
@@ -47,7 +49,7 @@ local function handle_on_network_changed(pos, node, ts, network_id, state)
   end
 end
 
-yatm_machines.register_network_device("yatm_machines:network_controller", {
+yatm_machines.register_network_device("yatm_machines:network_controller_off", {
   description = "Network Controller",
   groups = {cracky = 1},
   tiles = {
@@ -69,7 +71,7 @@ yatm_machines.register_network_device("yatm_machines:network_controller", {
 
 yatm_machines.register_network_device("yatm_machines:network_controller_error", {
   description = "Network Controller",
-  drop = "yatm_machines:network_controller",
+  drop = "yatm_machines:network_controller_off",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {
     "yatm_network_controller_top.error.png",
@@ -90,7 +92,7 @@ yatm_machines.register_network_device("yatm_machines:network_controller_error", 
 
 yatm_machines.register_network_device("yatm_machines:network_controller_on", {
   description = "Network Controller",
-  drop = "yatm_machines:network_controller",
+  drop = "yatm_machines:network_controller_off",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {
     {
@@ -135,7 +137,10 @@ yatm_machines.register_network_device("yatm_machines:network_controller_on", {
 
 minetest.register_abm({
   label = "yatm_machines:network_controller",
-  nodenames = {"yatm_machines:network_controller", "yatm_machines:network_controller_on"},
+  nodenames = {
+    "yatm_machines:network_controller_off",
+    "yatm_machines:network_controller_on",
+  },
   interval = 1,
   chance = 1,
   action = function (pos, node)
@@ -164,7 +169,10 @@ minetest.register_abm({
 
 minetest.register_lbm({
   name = "yatm_machines:refresh_network",
-  nodenames = {"yatm_machines:network_controller", "yatm_machines:network_controller_on"},
+  nodenames = {
+    "yatm_machines:network_controller_off",
+    "yatm_machines:network_controller_on",
+  },
   run_at_every_load = true,
   action = function (pos, _node)
     print("SCHEDULE NETWORK REFRESH", pos.x, pos.y, pos.z)

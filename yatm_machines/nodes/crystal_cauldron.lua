@@ -1,13 +1,24 @@
 local crystal_cauldron_yatm_network = {
   kind = "machine",
-  group = {machine = 1},
+  groups = {
+    machine = 1,
+    energy_consumer = 1,
+    has_update = 1, -- the device should be updated every network step
+  },
   states = {
     conflict = "yatm_machines:crystal_cauldron_error",
     error = "yatm_machines:crystal_cauldron_error",
     off = "yatm_machines:crystal_cauldron_off",
     on = "yatm_machines:crystal_cauldron_on",
-  }
+  },
+  passive_energy_consume = 50
 }
+
+function crystal_cauldron_yatm_network.update(pos, node)
+  local nodedef = minetest.registered_nodes[node.name]
+  if nodedef then
+  end
+end
 
 local crysytal_cauldron_node_box = {
   type = "fixed",

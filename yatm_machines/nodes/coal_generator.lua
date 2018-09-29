@@ -1,9 +1,18 @@
-local server_yatm_network = {
-  kind = "power_generator",
-  group = {power_generator = 1}
+local coal_generator_yatm_network = {
+  kind = "energy_producer",
+  groups = {
+    energy_producer = 1,
+    has_update = 1, -- the device should be updated every network step
+  },
+  states = {
+    conflict = "yatm_machines:coal_generator_error",
+    error = "yatm_machines:coal_generator_error",
+    off = "yatm_machines:coal_generator_off",
+    on = "yatm_machines:coal_generator_on",
+  }
 }
 
-minetest.register_node("yatm_machines:coal_generator_off", {
+yatm_machines.register_network_device("yatm_machines:coal_generator_off", {
   description = "Coal Generator",
   groups = {cracky = 1},
   tiles = {
@@ -16,10 +25,26 @@ minetest.register_node("yatm_machines:coal_generator_off", {
   },
   paramtype = "light",
   paramtype2 = "facedir",
-  yatm_network = server_yatm_network,
+  yatm_network = coal_generator_yatm_network,
 })
 
-minetest.register_node("yatm_machines:coal_generator_on", {
+yatm_machines.register_network_device("yatm_machines:coal_generator_error", {
+  description = "Coal Generator",
+  groups = {cracky = 1, not_in_creative_inventory = 1},
+  tiles = {
+    "yatm_coal_generator_top.error.png",
+    "yatm_coal_generator_bottom.png",
+    "yatm_coal_generator_side.png",
+    "yatm_coal_generator_side.png",
+    "yatm_coal_generator_side.png",
+    "yatm_coal_generator_front.error.png"
+  },
+  paramtype = "light",
+  paramtype2 = "facedir",
+  yatm_network = coal_generator_yatm_network,
+})
+
+yatm_machines.register_network_device("yatm_machines:coal_generator_on", {
   description = "Coal Generator",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {
@@ -32,5 +57,5 @@ minetest.register_node("yatm_machines:coal_generator_on", {
   },
   paramtype = "light",
   paramtype2 = "facedir",
-  yatm_network = server_yatm_network,
+  yatm_network = coal_generator_yatm_network,
 })

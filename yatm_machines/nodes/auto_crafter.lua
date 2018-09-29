@@ -1,6 +1,11 @@
 local auto_crafter_yatm_network = {
+  basename = "yatm_machines:auto_crafter",
   kind = "machine",
-  group = {machine = 1},
+  groups = {
+    machine = 1,
+    energy_consumer = 1,
+    has_update = 1, -- the device should be updated every network step
+  },
   states = {
     conflict = "yatm_machines:auto_crafter_error",
     error = "yatm_machines:auto_crafter_error",
@@ -8,6 +13,12 @@ local auto_crafter_yatm_network = {
     on = "yatm_machines:auto_crafter_on",
   }
 }
+
+function auto_crafter_yatm_network.update(pos, node)
+  local nodedef = minetest.registered_nodes[node.name]
+  if nodedef then
+  end
+end
 
 yatm_machines.register_network_device("yatm_machines:auto_crafter_off", {
   description = "Auto Crafter",
@@ -22,7 +33,7 @@ yatm_machines.register_network_device("yatm_machines:auto_crafter_off", {
   },
   paramtype = "light",
   paramtype2 = "facedir",
-  yatm_network = auto_crafter_yatm_network,
+  yatm_network = yatm_core.merge_tables(auto_crafter_yatm_network, {passive_energy_consume = 0}),
 })
 
 yatm_machines.register_network_device("yatm_machines:auto_crafter_error", {
@@ -38,7 +49,7 @@ yatm_machines.register_network_device("yatm_machines:auto_crafter_error", {
   },
   paramtype = "light",
   paramtype2 = "facedir",
-  yatm_network = auto_crafter_yatm_network,
+  yatm_network = yatm_core.merge_tables(auto_crafter_yatm_network, {passive_energy_consume = 0}),
 })
 
 yatm_machines.register_network_device("yatm_machines:auto_crafter_on", {

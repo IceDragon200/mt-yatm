@@ -1,13 +1,24 @@
 local server_yatm_network = {
   kind = "machine",
-  groups = {machine = 1},
+  groups = {
+    machine = 1,
+    energy_consumer = 1,
+    has_update = 1, -- the device should be updated every network step
+  },
   states = {
     conflict = "yatm_machines:server_error",
     error = "yatm_machines:server_error",
     off = "yatm_machines:server_off",
     on = "yatm_machines:server_on",
-  }
+  },
+  passive_energy_consume = 20
 }
+
+function server_yatm_network.update(pos, node)
+  local nodedef = minetest.registered_nodes[node.name]
+  if nodedef then
+  end
+end
 
 local server_node_box = {
   type = "fixed",

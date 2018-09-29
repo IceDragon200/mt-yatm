@@ -1,13 +1,23 @@
 local pump_yatm_network = {
   kind = "machine",
-  groups = {machine = 1},
+  groups = {
+    machine = 1,
+    has_update = 1, -- the device should be updated every network step
+  },
   states = {
     conflict = "yatm_machines:pump_error",
     error = "yatm_machines:pump_error",
     off = "yatm_machines:pump_off",
     on = "yatm_machines:pump_on",
-  }
+  },
+  passive_energy_consume = 0
 }
+
+function pump_yatm_network.update(pos, node)
+  local nodedef = minetest.registered_nodes[node.name]
+  if nodedef then
+  end
+end
 
 yatm_machines.register_network_device("yatm_machines:pump_off", {
   description = "Pump",

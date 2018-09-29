@@ -1,6 +1,10 @@
 local crusher_yatm_network = {
   kind = "machine",
-  group = {machine = 1},
+  groups = {
+    machine = 1,
+    energy_consumer = 1,
+    has_update = 1, -- the device should be updated every network step
+  },
   states = {
     conflict = "yatm_machines:crusher_error",
     error = "yatm_machines:crusher_error",
@@ -8,6 +12,12 @@ local crusher_yatm_network = {
     on = "yatm_machines:crusher_on",
   }
 }
+
+function crusher_yatm_network.update(pos, node)
+  local nodedef = minetest.registered_nodes[node.name]
+  if nodedef then
+  end
+end
 
 yatm_machines.register_network_device("yatm_machines:crusher_off", {
   description = "Crusher",

@@ -240,7 +240,7 @@ local function calculate_cable_index_and_facedir(origin)
     local nodedef = minetest.registered_nodes[node.name]
     -- check if the node works with the yatm network
     if nodedef.yatm_network then
-      print("FOUND NODE", pos.x, pos.y, pos.z, "DIR", vec3.x, vec3.y, vec3.z)
+      print("FOUND DEVICE", pos.x, pos.y, pos.z, "DIR", dir_code, "DIRV3", vec3.x, vec3.y, vec3.z)
       -- if it does, we can connect to it
       -- in the future this should check the subtypes and what cable type it's trying to connect
       index64 = bit.bor(index64, dir_code)
@@ -257,7 +257,7 @@ function yatm_cables.default_yatm_notify_neighbours_changed(origin)
     local node = minetest.get_node(pos)
     local nodedef = minetest.registered_nodes[node.name]
     -- check if the node works with the yatm network
-    if nodedef.on_yatm_device_changed then
+    if nodedef and nodedef.on_yatm_device_changed then
       nodedef.on_yatm_device_changed(pos, node, origin, origin_node)
     end
   end
@@ -282,17 +282,17 @@ end
 local function handle_after_place_node(pos)
   local node = minetest.get_node(pos)
   refresh_cable_joint(pos, node)
-  yatm_cables.default_yatm_notify_neighbours_changed(pos)
   -- let the system know it needs to refresh the network topography
   yatm_core.Network.schedule_refresh_network_topography(pos, {kind = "cable_added"})
+  yatm_cables.default_yatm_notify_neighbours_changed(pos)
 end
 
 local function handle_after_destruct(pos, _old_node)
   print("cable destroyed, alerting neighbours")
   local node = minetest.get_node(pos)
-  yatm_cables.default_yatm_notify_neighbours_changed(pos)
   -- let the system know it needs to refresh the network topography
   yatm_core.Network.schedule_refresh_network_topography(pos, {kind = "cable_removed"})
+  yatm_cables.default_yatm_notify_neighbours_changed(pos)
 end
 
 local CABLE = "cable"
@@ -343,7 +343,11 @@ function yatm_cables.register_cable(params, thickness)
           cable_index = i,
           states = states,
           kind = CABLE,
-          groups = {cable = 1, dense = 1, power = 1, data = 1}
+          groups = {
+            energy_cable = 1,
+            data_cable = 1,
+            dense_cable = 1,
+          },
         },
         on_yatm_device_changed = handle_on_yatm_device_changed,
         on_yatm_network_changed = yatm_core.Network.default_handle_network_changed,

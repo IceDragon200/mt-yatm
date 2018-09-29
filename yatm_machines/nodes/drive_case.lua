@@ -1,12 +1,22 @@
 local drive_case_yatm_network = {
   kind = "machine",
-  groups = {machine = 1},
+  groups = {
+    machine = 1,
+    energy_consumer = 1,
+    has_update = 1, -- the device should be updated every network step
+  },
   states = {
     error = "yatm_machines:drive_case_error",
     off = "yatm_machines:drive_case_off",
     on = "yatm_machines:drive_case_on",
   }
 }
+
+function drive_case_yatm_network.update(pos, node)
+  local nodedef = minetest.registered_nodes[node.name]
+  if nodedef then
+  end
+end
 
 yatm_machines.register_network_device("yatm_machines:drive_case_off", {
   description = "Drive Case",

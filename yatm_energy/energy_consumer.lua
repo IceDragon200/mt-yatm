@@ -1,1 +1,0 @@
-yatm_energy.EnergyConsumer = {}

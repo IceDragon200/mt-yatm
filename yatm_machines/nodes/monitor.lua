@@ -1,7 +1,11 @@
 
 local monitor_console_yatm_network = {
   kind = "monitor",
-  group = {monitor = 1},
+  groups = {
+    monitor = 1,
+    energy_consumer = 1,
+    has_update = 1, -- the device should be updated every network step
+  },
   states = {
     error = "yatm_machines:monitor_console_error",
     conflict = "yatm_machines:monitor_console_error",
@@ -68,7 +72,11 @@ yatm_machines.register_network_device("yatm_machines:monitor_console_on", {
 
 local monitor_crafting_yatm_network = {
   kind = "monitor",
-  group = {monitor = 1},
+  groups = {
+    monitor = 1,
+    energy_consumer = 1,
+    has_update = 1, -- the device should be updated every network step
+  },
   states = {
     error = "yatm_machines:monitor_crafting_error",
     conflict = "yatm_machines:monitor_crafting_error",
@@ -127,7 +135,11 @@ yatm_machines.register_network_device("yatm_machines:monitor_crafting_on", {
 
 local monitor_ele_yatm_network = {
   kind = "monitor",
-  group = {monitor = 1},
+  groups = {
+    monitor = 1,
+    energy_consumer = 1,
+    has_update = 1, -- the device should be updated every network step
+  },
   states = {
     error = "yatm_machines:monitor_ele_error",
     conflict = "yatm_machines:monitor_ele_error",
@@ -186,7 +198,11 @@ yatm_machines.register_network_device("yatm_machines:monitor_ele_on", {
 
 local monitor_inventory_yatm_network = {
   kind = "monitor",
-  group = {monitor = 1},
+  groups = {
+    monitor = 1,
+    energy_consumer = 1,
+    has_update = 1, -- the device should be updated every network step
+  },
   states = {
     error = "yatm_machines:monitor_inventory_error",
     conflict = "yatm_machines:monitor_inventory_error",

@@ -1,95 +1,143 @@
-yatm_core.Network = {
+local Network = {
   dirty = true,
   networks = {},
   has_lost_nodes = false,
   lost_nodes = {},
   need_refresh = false,
   refresh_queue = {},
+  counter = 0,
+  timer = 0,
+
+  KEY = "yatm_network_id",
+  TS = "yatm_network_updated_at",
 }
 
-yatm_core.Network.KEY = "yatm_network_id"
-yatm_core.Network.TS = "yatm_network_updated_at"
+local function debug(scope, ...)
+  local a = arg
+  if scope == "network_energy_update" then
+    return
+  elseif scope == "network_update" then
+    return
+  end
+  print(...)
+end
 
-function yatm_core.Network.encode_vec3(pos)
+function Network.time()
+  return minetest.get_us_time()
+end
+
+function Network.encode_vec3(pos)
   return pos.x .. "." .. pos.y .. "." .. pos.z
 end
 
-function yatm_core.Network.generate_network_id(pos)
-  local ts = os.time()
-  local network_id = yatm_core.Network.encode_vec3(pos) .. "." .. ts
+function Network.generate_network_id(pos)
+  local ts = Network.time()
+  local network_id = Network.encode_vec3(pos) .. "." .. ts
   return network_id, ts
 end
 
-function yatm_core.Network.initialize_network(network_id)
-  yatm_core.Network.networks[network_id] = {
+function Network.initialize_network(network_id)
+  Network.networks[network_id] = {
     id = network_id,
+    -- {member_id = member_entry}
     members = {},
+    -- {member_id = {group_id...}}
+    member_groups = {},
+    -- {group_id = {(member_id = true)...}}
+    group_members = {},
   }
   return network_id
 end
 
-function yatm_core.Network.create_network(pos)
-  local network_id, ts = yatm_core.Network.generate_network_id(pos)
-  return yatm_core.Network.initialize_network(network_id), ts
+function Network.create_network(pos)
+  local network_id, ts = Network.generate_network_id(pos)
+  return Network.initialize_network(network_id), ts
 end
 
-function yatm_core.Network.destroy_network(network_id)
-  print("DESTROY NETWORK", network_id)
-  local network = yatm_core.Network.networks[network_id]
+function Network.destroy_network(network_id)
+  debug("network_registry", "DESTROY NETWORK", network_id)
+  local network = Network.networks[network_id]
   if network then
-    local lost_nodes = yatm_core.Network.lost_nodes
+    local lost_nodes = Network.lost_nodes
+    local n = #lost_nodes
     for _,node in pairs(network.members) do
-      print("lost child", node.pos.x, node.pos.y, node.pos.z)
-      yatm_core.Network.has_lost_nodes = true
-      table.insert(lost_nodes, node)
+      debug("network", "lost child", node.pos.x, node.pos.y, node.pos.z)
+      Network.has_lost_nodes = true
+      n = n + 1
+      lost_nodes[n] = node
     end
-    yatm_core.Network.networks[network_id] = nil
+    Network.networks[network_id] = nil
   end
 end
 
-function yatm_core.Network.leave_network(network_id, pos)
-  print("LEAVE NETWORK", pos.x, pos.y, pos.z, network_id)
-  local network = yatm_core.Network.networks[network_id]
+function Network.leave_network(network_id, pos)
+  debug("network_registry", "LEAVE NETWORK", pos.x, pos.y, pos.z, network_id)
+  local network = Network.networks[network_id]
   if network then
-    network.members[yatm_core.Network.encode_vec3(pos)] = nil
+    local key = Network.encode_vec3(pos)
+    network.members[key] = nil
+    local member_group = network.member_groups[key]
+    if member_group then
+      for _index,group in ipairs(network.member_groups[key]) do
+        local member_map = network.group_members[group]
+        if member_map then
+          -- remove the member
+          member_map[key] = nil
+        end
+      end
+    end
+    network.member_groups[key] = nil
     return true
   end
   return false
 end
 
-function yatm_core.Network.join_network(network_id, pos)
-  print("JOIN NETWORK", pos.x, pos.y, pos.z, network_id)
-  local network = yatm_core.Network.networks[network_id]
+function Network.join_network(network_id, pos, groups)
+  debug("network_registry", "JOIN NETWORK", pos.x, pos.y, pos.z, network_id)
+  local network = Network.networks[network_id]
   if network then
-    local key = yatm_core.Network.encode_vec3(pos)
+    local key = Network.encode_vec3(pos)
     if not network.members[key] then
       network.members[key] = {pos = pos}
+      -- Indexing stuff, to use for faster lookups
+      if groups then
+        local member_groups = {}
+        local n = 0
+        for group,_rating in pairs(groups) do
+          n = n + 1
+          member_groups[n] = group
+          local member_map = network.group_members[group] or {}
+          member_map[key] = true
+          network.group_members[group] = member_map
+        end
+        network.member_groups[key] = member_groups
+      end
     end
     return true
   end
   return false
 end
 
-function yatm_core.Network.has_network(network_id)
-  return yatm_core.Network.networks[network_id] ~= nil
+function Network.has_network(network_id)
+  return Network.networks[network_id] ~= nil
 end
 
-function yatm_core.Network.set_network_id(meta, value)
-  meta:set_string(yatm_core.Network.KEY, value)
+function Network.set_network_id(meta, value)
+  meta:set_string(Network.KEY, value)
 end
 
-function yatm_core.Network.get_network_id(meta)
-  return meta:get(yatm_core.Network.KEY)
+function Network.get_network_id(meta)
+  return meta:get(Network.KEY)
 end
 
-function yatm_core.Network.set_network_ts(meta, value)
+function Network.set_network_ts(meta, value)
   assert(meta, "requires a NodeMetaRef")
   assert(value, "need a timestamp")
-  meta:set_int(yatm_core.Network.TS, value)
+  meta:set_int(Network.TS, value)
 end
 
-function yatm_core.Network.get_network_ts(meta)
-  return meta:get_int(yatm_core.Network.TS)
+function Network.get_network_ts(meta)
+  return meta:get_int(Network.TS)
 end
 
 local function yatm_device_type(nodedef)
@@ -99,13 +147,15 @@ local function yatm_device_type(nodedef)
   return nil
 end
 
-function yatm_core.Network.reduce_network(origin_pos, acc, func)
+function Network.reduce_network(origin_pos, acc, func)
   local positions = {{0, origin_pos}}
   local controllers = {}
   local visited = {}
+  local accessible_dirs = yatm_core.new_accessible_dirs()
   while #positions > 0 do
     local current_positions = positions
     positions = {}
+    local n = 0
     for _,pair in ipairs(current_positions) do
       local from_dir = pair[1]
       local pos = pair[2]
@@ -121,11 +171,16 @@ function yatm_core.Network.reduce_network(origin_pos, acc, func)
         local nodedef = minetest.registered_nodes[node.name]
         local device_type = yatm_device_type(nodedef)
         local explore_neighbours
-        explore_neighbours, acc = func(pos, node, device_type, acc)
+        for dir,_ in pairs(yatm_core.DIR6_TO_VEC3) do
+          accessible_dirs[dir] = true
+        end
+        explore_neighbours, acc = func(pos, node, device_type, accessible_dirs, acc)
         if explore_neighbours then
-          for dir,vec3 in pairs(yatm_core.DIR6_TO_VEC3) do
-            if dir ~= from_dir then
-              table.insert(positions, {yatm_core.invert_dir(dir), vector.add(pos, vec3)})
+          for dir,flag in pairs(accessible_dirs) do
+            if flag and dir ~= from_dir then
+              local vec3 = yatm_core.DIR6_TO_VEC3[dir]
+              n = n + 1
+              positions[n] = {yatm_core.invert_dir(dir), vector.add(pos, vec3)}
             end
           end
         end
@@ -135,13 +190,13 @@ function yatm_core.Network.reduce_network(origin_pos, acc, func)
   return acc
 end
 
-function yatm_core.Network.find_controllers(origin_pos, ts)
-  return yatm_core.Network.reduce_network(origin_pos, {}, function (pos, node, device_type, acc)
+function Network.find_controllers(origin_pos, ts, ignore_ts)
+  return Network.reduce_network(origin_pos, {}, function (pos, node, device_type, accessible_dirs, acc)
     if device_type then
       local meta = minetest.get_meta(pos)
-      local cur_ts = yatm_core.Network.get_network_ts(meta)
+      local cur_ts = Network.get_network_ts(meta)
       -- if the device's ts is higher or equal to the locator, it should be ignored
-      if cur_ts < ts then
+      if ignore_ts or cur_ts < ts then
         if device_type == "controller" then
           table.insert(acc, pos)
           return true, acc
@@ -150,6 +205,8 @@ function yatm_core.Network.find_controllers(origin_pos, ts)
         else
           return true, acc
         end
+      else
+        debug("network_explorer", "TS", ts, "CUR_TS", cur_ts, "find_controllers")
       end
     end
     acc.first = false
@@ -157,32 +214,33 @@ function yatm_core.Network.find_controllers(origin_pos, ts)
   end)
 end
 
-function yatm_core.Network.default_handle_network_changed(pos, node, ts, network_id, state)
-  print("NETWORK CHANGED ", pos.x, pos.y, pos.z, node.name, "TS", ts, "NID", network_id, "STATE", state)
+function Network.default_handle_network_changed(pos, node, ts, network_id, state)
+  debug("node", "TS", ts, "NOTIFY NETWORK CHANGED", pos.x, pos.y, pos.z, node.name, "NID", network_id, "STATE", state)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef then
     if nodedef.yatm_network then
       local meta = minetest.get_meta(pos)
       if meta then
-        yatm_core.Network.set_network_ts(meta, ts)
+        Network.set_network_ts(meta, ts)
       end
-      local old_network_id = yatm_core.Network.get_network_id(meta)
+      local old_network_id = Network.get_network_id(meta)
       if old_network_id and old_network_id ~= network_id then
-        yatm_core.Network.leave_network(old_network_id, pos)
+        Network.leave_network(old_network_id, pos)
       end
       if network_id then
-        yatm_core.Network.join_network(network_id, pos)
+        Network.join_network(network_id, pos, nodedef.yatm_network.groups)
       end
-      yatm_core.Network.set_network_id(meta, network_id)
+      Network.set_network_id(meta, network_id)
       if nodedef.yatm_network.states then
         local new_name = nodedef.yatm_network.states[state]
         if new_name then
           if node.name ~= new_name then
+            debug("node", "TS", ts, "NETWORK CHANGED ", pos.x, pos.y, pos.z, node.name, "NID", network_id, "STATE", state)
             node.name = new_name
             minetest.swap_node(pos, node)
           end
         else
-          print("WARN", node.name, "does not have a network state", state)
+          debug("node", "WARN", node.name, "does not have a network state", state)
         end
       end
     end
@@ -199,12 +257,12 @@ local function trigger_network_changed(pos, node, ts, network_id, state)
   end
 end
 
-local function mark_network(ts, origin_pos, network_id, state)
-  return yatm_core.Network.reduce_network(origin_pos, 0, function (pos, node, device_type, acc)
+local function mark_network(ts, ignore_ts, origin_pos, network_id, state)
+  return Network.reduce_network(origin_pos, 0, function (pos, node, device_type, accessible_dirs, acc)
     if device_type then
       local meta = minetest.get_meta(pos)
-      local cur_ts = yatm_core.Network.get_network_ts(meta)
-      if cur_ts < ts then
+      local cur_ts = Network.get_network_ts(meta)
+      if ignore_ts or cur_ts < ts then
         if device_type == "controller" then
           trigger_network_changed(pos, node, ts, network_id, state)
           return true, acc + 1
@@ -213,53 +271,55 @@ local function mark_network(ts, origin_pos, network_id, state)
           return true, acc + 1
         else
           trigger_network_changed(pos, node, ts, network_id, state)
-          -- don't explore any further
-          return false, acc + 1
+          -- allow checking other nodes
+          return true, acc + 1
         end
+      else
+        debug("node", "TS", ts, "CUR_TS", cur_ts, "mark_network")
       end
     end
     return false, acc
   end)
 end
 
-local function mark_network_offline(ts, origin_pos)
-  return mark_network(ts, origin_pos, nil, "off")
+local function mark_network_offline(ts, ignore_ts, origin_pos)
+  return mark_network(ts, ignore_ts, origin_pos, nil, "off")
 end
 
-local function mark_network_online(ts, origin_pos, network_id)
-  return mark_network(ts, origin_pos, network_id, "on")
+local function mark_network_online(ts, ignore_ts, origin_pos, network_id)
+  return mark_network(ts, ignore_ts, origin_pos, network_id, "on")
 end
 
-local function mark_network_conflict(ts, origin_pos, network_ids)
-  return mark_network(ts, origin_pos, nil, "conflict")
+local function mark_network_conflict(ts, ignore_ts, origin_pos, network_ids)
+  return mark_network(ts, ignore_ts, origin_pos, nil, "conflict")
 end
 
-local function refresh_network(origin_pos, ts)
-  local controllers = yatm_core.Network.find_controllers(origin_pos, ts)
+local function refresh_network(origin_pos, ts, ignore_ts)
+  local controllers = Network.find_controllers(origin_pos, ts, ignore_ts)
   local count = #controllers
   if count == 0 then
-    return mark_network_offline(ts, origin_pos)
+    return mark_network_offline(ts, ignore_ts, origin_pos)
   elseif count == 1 then
     local pos = controllers[1]
     local meta = minetest.get_meta(pos)
-    local network_id = yatm_core.Network.get_network_id(meta)
-    return mark_network_online(ts, origin_pos, network_id)
+    local network_id = Network.get_network_id(meta)
+    return mark_network_online(ts, ignore_ts, origin_pos, network_id)
   elseif count > 1 then
     local network_ids = {}
     for _,pos in ipairs(controllers) do
       local meta = minetest.get_meta(pos)
-      local network_id = yatm_core.Network.get_network_id(meta)
+      local network_id = Network.get_network_id(meta)
       if network_id then
-        print("CONFLICTING NID", network_id)
+        debug("node", "TS", ts, "CONFLICTING NID", network_id)
         table.insert(network_ids, network_id)
       end
     end
-    return mark_network_conflict(ts, origin_pos, network_ids)
+    return mark_network_conflict(ts, ignore_ts, origin_pos, network_ids)
   end
 end
 
-function yatm_core.Network.refresh_network_topography(origin_pos, ts, params)
-  print("Refreshing Network due to", params.kind, "TS", ts)
+function Network.refresh_network_topography(origin_pos, ts, params)
+  debug("node", "TS", ts, "Refreshing Network due to", params.kind)
   if params.kind == "refresh" then
     -- just good old refresh
     return refresh_network(origin_pos, ts)
@@ -279,50 +339,206 @@ function yatm_core.Network.refresh_network_topography(origin_pos, ts, params)
     return refresh_network(origin_pos, ts)
   elseif params.kind == "controller_load" then
     -- refresh
-    return refresh_network(origin_pos, ts)
+    return refresh_network(origin_pos, ts, true)
   else
     error("unexpected params")
   end
   return 0
 end
 
-function yatm_core.Network.schedule_refresh_network_topography(pos, params)
-  yatm_core.Network.need_refresh = true
-  table.insert(yatm_core.Network.refresh_queue, {pos, params})
+function Network.schedule_refresh_network_topography(pos, params)
+  Network.need_refresh = true
+  table.insert(Network.refresh_queue, {pos, params})
 end
 
-function yatm_core.Network.update(_dtime)
-  if yatm_core.Network.need_refresh then
-    local ts = os.time()
-    local refresh_queue = yatm_core.Network.refresh_queue
-    yatm_core.Network.need_refresh = false
-    yatm_core.Network.refresh_queue = {}
+local function reduce_group_members(network, name, acc, fun)
+  local group = network.group_members[name]
+  if group then
+    local cont = true
+    for member_id,_ in pairs(group) do
+      local member = network.members[member_id]
+      local pos = member.pos
+      local node = minetest.get_node(pos)
+      cont, acc = fun(pos, node, acc)
+      if not cont then
+        break
+      end
+    end
+  end
+  return acc
+end
+
+local function update_network_refresh(dtime, counter)
+  if Network.need_refresh then
+    local ts = Network.time()
+    debug("network_update", counter, "REFRESHING NETWORKS")
+    local refresh_queue = Network.refresh_queue
+    Network.need_refresh = false
+    Network.refresh_queue = {}
     for _,pair in ipairs(refresh_queue) do
       local pos = pair[1]
       local params = pair[2]
-      local affected_count = yatm_core.Network.refresh_network_topography(pos, ts, params)
-      print("Refreshed ", affected_count, " devices")
+      local affected_count = Network.refresh_network_topography(pos, ts, params)
+      debug("network_update", counter, "Refreshed ", affected_count, " devices")
     end
   end
+end
 
-  if yatm_core.Network.has_lost_nodes then
-    local ts = os.time()
-    local lost_nodes = yatm_core.Network.lost_nodes
-    yatm_core.Network.has_lost_nodes = false
-    yatm_core.Network.lost_nodes = {}
+local function update_lost_nodes(dtime, counter)
+  if Network.has_lost_nodes then
+    debug(counter, "RESOLVING LOST NODES")
+    local ts = Network.time()
+    local lost_nodes = Network.lost_nodes
+    Network.has_lost_nodes = false
+    Network.lost_nodes = {}
     for _,entry in ipairs(lost_nodes) do
       local node = minetest.get_node(entry.pos)
       local nodedef = minetest.registered_nodes[node.name]
       if nodedef then
         if nodedef.on_yatm_network_changed then
-          print("NETWORK LOST", entry.pos.x, entry.pos.y, entry.pos.z, node.name)
+          debug("network_update", counter, "NETWORK LOST", entry.pos.x, entry.pos.y, entry.pos.z, node.name)
           nodedef.on_yatm_network_changed(entry.pos, node, ts, nil, "off")
         else
-          print("NETWORK LOST but couldn't handle it", entry.pos.x, entry.pos.y, entry.pos.z, node.name)
+          debug("network_update", counter, "NETWORK LOST but couldn't handle it", entry.pos.x, entry.pos.y, entry.pos.z, node.name)
         end
       end
     end
   end
 end
 
-minetest.register_globalstep(yatm_core.Network.update)
+local function update_network(dtime, counter, network_id, network)
+  debug("network_update", counter, "UPDATING NETWORK", network_id)
+
+  -- Highest priority, produce energy
+  -- It's up to the node how it wants to deal with the energy, whether it's buffered, or just burst
+  local energy_produced = reduce_group_members(network, "energy_producer", 0, function (pos, node, acc)
+    debug("network_energy_update", counter, "PRODUCE ENERGY", pos.x, pos.y, pos.z, node.name)
+    local nodedef = minetest.registered_nodes[node.name]
+    if nodedef then
+      if nodedef.yatm_network and nodedef.yatm_network.produce_energy then
+        acc = acc + nodedef.yatm_network.produce_energy(pos, node)
+      else
+        debug("network_energy_update", counter, "INVALID ENERGY PRODUCER", pos.x, pos.y, pos.z, node.name)
+      end
+    end
+    return true, acc
+  end)
+
+  -- Second highest priority, how much energy is stored in the network right now
+  -- This is combined with the produced to determine how much is available
+  -- The node is allowed to lie about it's contents, to cause energy trickle or gating
+  local energy_stored = reduce_group_members(network, "energy_storage", 0, function (pos, node, acc)
+    local nodedef = minetest.registered_nodes[node.name]
+    if nodedef then
+      if nodedef.yatm_network and nodedef.yatm_network.get_usable_stored_energy then
+        acc = acc + nodedef.yatm_network.get_usable_stored_energy(pos, node)
+      else
+        debug("network_energy_update", counter, "INVALID ENERGY STORAGE", pos.x, pos.y, pos.z, node.name)
+      end
+    end
+    return true, acc
+  end)
+
+  local total_energy_available = energy_stored + energy_produced
+  local energy_available = total_energy_available
+
+  debug("network_energy_update", counter, "ENERGY_AVAILABLE", energy_available, "=", energy_stored, " + ", energy_produced)
+
+  local energy_consumed = reduce_group_members(network, "energy_consumer", 0, function (pos, node, acc)
+    local nodedef = minetest.registered_nodes[node.name]
+    if nodedef then
+      if nodedef.yatm_network and nodedef.yatm_network.consume_energy then
+        local consumed = nodedef.yatm_network.consume_energy(pos, node, energy_available)
+        if consumed then
+          energy_available = energy_available - consumed
+        end
+        acc = acc + consumed
+      else
+        debug("network_energy_update", counter, "INVALID ENERGY CONSUMER", pos.x, pos.y, pos.z, node.name)
+      end
+    end
+    -- can't continue if we have no energy available
+    return energy_available > 0, acc
+  end)
+
+  debug("network_energy_update", counter, "ENERGY_CONSUMED", energy_consumed)
+
+  local energy_storage_consumed = energy_consumed - energy_produced
+  -- if we went over the produced, then the rest must be taken from the storage
+  if energy_storage_consumed > 0 then
+    reduce_group_members(network, "energy_storage", 0, function (pos, node, acc)
+      local nodedef = minetest.registered_nodes[node.name]
+      if nodedef then
+        if nodedef.yatm_network and nodedef.yatm_network.use_stored_energy then
+          local used = nodedef.yatm_network.use_stored_energy(pos, node, energy_storage_consumed)
+          energy_storage_consumed = energy_storage_consumed - used
+        else
+          debug("network_energy_update", counter, "INVALID ENERGY STORAGE", pos.x, pos.y, pos.z, node.name)
+        end
+      end
+      -- only continue if the energy_storage_consumed is still greater than 0
+      return energy_storage_consumed > 0, acc + 1
+    end)
+  end
+
+  -- how much extra energy is left, note the stored is subtracted from the available
+  -- if it falls below 0 then there is no extra energy.
+  if energy_available > energy_stored then
+    local energy_left = energy_available - energy_stored
+
+    debug("network_energy_update", counter, "ENERGY_LEFT", energy_left)
+    -- Receivers are the lowest priority, they accept any left over energy from the production
+    -- Incidentally, storage nodes tend to be also receivers
+    reduce_group_members(network, "energy_receiver", 0, function (pos, node, acc)
+      local nodedef = minetest.registered_nodes[node.name]
+      if nodedef then
+        if nodedef.yatm_network and nodedef.yatm_network.receive_energy then
+          local energy_received = nodedef.yatm_network.receive_energy(pos, node, energy_left)
+          energy_left = energy_left - energy_received
+        else
+          debug("network_energy_update", counter, "INVALID ENERGY RECEIVER", pos.x, pos.y, pos.z, node.name)
+        end
+      end
+      return energy_left > 0, acc + 1
+    end)
+  end
+
+  reduce_group_members(network, "has_update", 0, function (pos, node, acc)
+    local nodedef = minetest.registered_nodes[node.name]
+    if nodedef then
+      if nodedef.yatm_network and nodedef.yatm_network.update then
+        nodedef.yatm_network.update(pos, node)
+      else
+        debug("network_device_update", counter, "INVALID UPDATABLE DEVICE", pos.x, pos.y, pos.z, node.name)
+      end
+    end
+    return true, acc + 1
+  end)
+end
+
+function Network.update(dtime)
+  local counter = Network.counter
+
+  -- high priority
+  update_network_refresh(dtime, counter)
+  update_lost_nodes(dtime, counter)
+
+  -- normal priority
+  Network.timer = Network.timer - 1
+  if Network.timer > 0 then
+    return
+  else
+    -- force the network to act only ever 4 frames, yielding a 20 FPS
+    Network.timer = 4
+  end
+
+  for network_id,network in pairs(Network.networks) do
+    update_network(dtime, counter, network_id, network)
+  end
+
+  Network.counter = counter + 1
+end
+
+minetest.register_globalstep(Network.update)
+
+yatm_core.Network = Network

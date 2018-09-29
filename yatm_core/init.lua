@@ -123,6 +123,27 @@ function yatm_core.invert_dir(dir)
   return yatm_core.INVERT_DIR6_TO_VEC3[dir]
 end
 
+function yatm_core.new_accessible_dirs()
+  return {
+    [yatm_core.D_NORTH] = true,
+    [yatm_core.D_EAST] = true,
+    [yatm_core.D_SOUTH] = true,
+    [yatm_core.D_WEST] = true,
+    [yatm_core.D_DOWN] = true,
+    [yatm_core.D_UP] = true,
+  }
+end
+
+function yatm_core.merge_tables(...)
+  local result = {}
+  for _,table in ipairs(...) do
+    for key,value in pairs(table) do
+      result[key] = value
+    end
+  end
+  return result
+end
+
 -- done with it, let the gc reclaim it
 fm = nil
 N = nil
@@ -149,3 +170,4 @@ minetest.register_node("yatm_core:face_test", {
 
 dofile(yatm_core.modpath .. "/yatm_network.lua")
 dofile(yatm_core.modpath .. "/items.lua")
+dofile(yatm_core.modpath .. "/changeset.lua")

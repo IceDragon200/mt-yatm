@@ -1,9 +1,11 @@
 local server_yatm_network = {
-  kind = "machine",
-  group = {machine = 1}
+  kind = "energy_storage",
+  groups = {
+    energy_storage = 1,
+  },
 }
 
-minetest.register_node("yatm_machines:battery_bank_off", {
+yatm_machines.register_network_device("yatm_machines:battery_bank_off", {
   description = "Battery Bank",
   groups = {cracky = 1},
   tiles = {
@@ -19,7 +21,7 @@ minetest.register_node("yatm_machines:battery_bank_off", {
   yatm_network = server_yatm_network,
 })
 
-minetest.register_node("yatm_machines:battery_bank_on", {
+yatm_machines.register_network_device("yatm_machines:battery_bank_on", {
   description = "Battery Bank",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {

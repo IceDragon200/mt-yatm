@@ -1,6 +1,10 @@
 local void_crate_yatm_network = {
   kind = "machine",
-  groups = {machine = 1},
+  groups = {
+    machine = 1,
+    energy_consumer = 1,
+    has_update = 1, -- the device should be updated every network step
+  },
   states = {
     conflict = "yatm_machines:void_crate_error",
     error = "yatm_machines:void_crate_error",
@@ -8,6 +12,12 @@ local void_crate_yatm_network = {
     on = "yatm_machines:void_crate_on",
   }
 }
+
+function void_crate_yatm_network.update(pos, node)
+  local nodedef = minetest.registered_nodes[node.name]
+  if nodedef then
+  end
+end
 
 yatm_machines.register_network_device("yatm_machines:void_crate_off", {
   description = "Void Crate",
