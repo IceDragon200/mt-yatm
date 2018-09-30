@@ -70,38 +70,48 @@ local W = yatm_core.D_WEST
 local D = yatm_core.D_DOWN
 local U = yatm_core.D_UP
 
-yatm_core.FACEDIR_TO_FACES = {
+yatm_core.FACEDIR_TO_NEW_FACEDIR = {
   -- Yp
-  fm(N, E, S, W, D, U),
-  fm(W, N, E, S, D, U),
-  fm(S, W, N, E, D, U),
-  fm(E, S, W, N, D, U),
+  [0] = fm(N, E, S, W, D, U),
+  [1] = fm(W, N, E, S, D, U),
+  [2] = fm(S, W, N, E, D, U),
+  [3] = fm(E, S, W, N, D, U),
   -- Zp
-  fm(U, E, D, W, N, S),
-  fm(U, N, D, S, W, E),
-  fm(U, W, D, E, S, N),
-  fm(U, S, D, N, E, W),
+  [4] = fm(U, E, D, W, N, S),
+  [5] = fm(U, N, D, S, W, E),
+  [6] = fm(U, W, D, E, S, N),
+  [7] = fm(U, S, D, N, E, W),
   -- Zm
-  fm(D, E, U, W, S, N),
-  fm(D, N, U, S, E, W),
-  fm(D, W, U, E, N, S),
-  fm(D, S, U, N, W, E),
+  [8]= fm(D, E, U, W, S, N),
+  [9]= fm(D, N, U, S, E, W),
+  [10] = fm(D, W, U, E, N, S),
+  [11] = fm(D, S, U, N, W, E),
   -- Xp
-  fm(N, U, S, D, E, W),
-  fm(W, U, E, D, N, S),
-  fm(S, U, N, D, W, E),
-  fm(E, U, W, D, S, N),
+  [12] = fm(N, U, S, D, E, W),
+  [13] = fm(W, U, E, D, N, S),
+  [14] = fm(S, U, N, D, W, E),
+  [15] = fm(E, U, W, D, S, N),
   -- Xm
-  fm(N, D, S, U, W, E),
-  fm(W, D, E, U, S, N),
-  fm(S, D, N, U, E, W),
-  fm(E, D, W, U, N, S),
+  [16] = fm(N, D, S, U, W, E),
+  [17] = fm(W, D, E, U, S, N),
+  [18] = fm(S, D, N, U, E, W),
+  [19] = fm(E, D, W, U, N, S),
   -- Ym
-  fm(N, W, S, E, U, D),
-  fm(W, S, E, N, U, D),
-  fm(S, E, N, W, U, D),
-  fm(E, N, W, S, U, D),
+  [20] = fm(N, W, S, E, U, D),
+  [21] = fm(W, S, E, N, U, D),
+  [22] = fm(S, E, N, W, U, D),
+  [23] = fm(E, N, W, S, U, D),
 }
+
+yatm_core.FACEDIR_TO_FACES = {}
+
+for facedir, map in pairs(yatm_core.FACEDIR_TO_NEW_FACEDIR) do
+  yatm_core.FACEDIR_TO_FACES[facedir] = {}
+  for dir, dir2 in pairs(map) do
+    -- invert mapping
+    yatm_core.FACEDIR_TO_FACES[facedir][dir2] = dir
+  end
+end
 
 --[[
 Args:
@@ -115,7 +125,14 @@ function yatm_core.facedir_to_faces(facedir)
 end
 
 function yatm_core.facedir_to_face(facedir, base_face)
-  return yatm_core.facedir_to_faces(facedir)[base_face]
+  assert(base_face, "expected a face")
+  assert(facedir, "expected a facedir")
+  local faces = yatm_core.facedir_to_faces(facedir)
+  if faces then
+    return faces[base_face]
+  else
+    return nil
+  end
 end
 
 function yatm_core.invert_dir(dir)
@@ -153,6 +170,38 @@ W = nil
 D = nil
 U = nil
 
+function yatm_core.dir_to_wallmounted_facedir(dir)
+  if dir.x > 0 then
+    return yatm_core.AXIS_Xp
+  elseif dir.x < 0 then
+    return yatm_core.AXIS_Xm
+  end
+  if dir.y > 0 then
+    return yatm_core.AXIS_Yp
+  elseif dir.y < 0 then
+    return yatm_core.AXIS_Ym
+  end
+  if dir.z > 0 then
+    return yatm_core.AXIS_Zp
+  elseif dir.z < 0 then
+    return yatm_core.AXIS_Zm
+  end
+  return nil
+end
+
+function yatm_core.facedir_wallmount_after_place_node(pos, placer, _itemstack, pointed_thing)
+  local above = pointed_thing.above
+  local under = pointed_thing.under
+  local dir = {
+    x = above.x - under.x,
+    y = above.y - under.y,
+    z = above.z - under.z
+  }
+  local node = minetest.get_node(pos)
+  node.param2 = yatm_core.dir_to_wallmounted_facedir(dir)
+  minetest.swap_node(pos, node)
+end
+
 minetest.register_node("yatm_core:face_test", {
   description = "Face Test",
   groups = {cracky = 1},
@@ -162,7 +211,7 @@ minetest.register_node("yatm_core:face_test", {
     "yatm_debug_2.png",
     "yatm_debug_4.png",
     "yatm_debug_1.png",
-    "yatm_debug_3.png"
+    "yatm_debug_3.png",
   },
   paramtype = "light",
   paramtype2 = "facedir",

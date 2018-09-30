@@ -2,8 +2,7 @@
 -- YATM Energy
 --
 --[[
-Provides YATM an energy interface, for fluids, check YATM Fluids instead,
-and for gases see YATM Gases
+Provides YATM an energy interface
 ]]
 yatm_energy = rawget(_G, "yatm_energy") or {}
 yatm_energy.modpath = minetest.get_modpath(minetest.get_current_modname())
