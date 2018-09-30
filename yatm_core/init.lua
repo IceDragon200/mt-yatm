@@ -136,7 +136,7 @@ end
 
 function yatm_core.merge_tables(...)
   local result = {}
-  for _,table in ipairs(...) do
+  for _,table in ipairs({...}) do
     for key,value in pairs(table) do
       result[key] = value
     end
@@ -171,3 +171,4 @@ minetest.register_node("yatm_core:face_test", {
 dofile(yatm_core.modpath .. "/yatm_network.lua")
 dofile(yatm_core.modpath .. "/items.lua")
 dofile(yatm_core.modpath .. "/changeset.lua")
+dofile(yatm_core.modpath .. "/ui.lua")

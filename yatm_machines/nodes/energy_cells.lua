@@ -86,7 +86,7 @@ for cell_type, cell_config in pairs(cell_types) do
     end
     yatm_machines.register_network_device(energy_cell_yatm_network.basename .. "_" .. stage, {
       description = "Energy Cell ("..cell_type..")",
-      drops = energy_cell_yatm_network.basename .. "_0",
+      drop = energy_cell_yatm_network.basename .. "_0",
       groups = groups,
       tiles = {
         {

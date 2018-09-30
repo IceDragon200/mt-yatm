@@ -44,11 +44,14 @@ function yatm_machines.register_network_device(name, nodedef)
   end
 
   if nodedef.yatm_network then
-    if not nodedef.yatm_network.passive_energy_consume then
-      nodedef.yatm_network.passive_energy_consume = 10
-    end
     if nodedef.yatm_network.groups then
       if nodedef.yatm_network.groups.energy_consumer then
+        if not nodedef.yatm_network.passive_energy_consume then
+          nodedef.yatm_network.passive_energy_consume = 10
+        end
+        if not nodedef.yatm_network.passive_energy_consume then
+          nodedef.yatm_network.passive_energy_consume = 10
+        end
         if not nodedef.yatm_network.consume_energy then
           nodedef.yatm_network.consume_energy = yatm_machines.passive_consume_energy
         end

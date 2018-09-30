@@ -4,6 +4,7 @@
 
 ]]
 local monitor_console_yatm_network = {
+  basename = "yatm_machines:monitor_console",
   kind = "monitor",
   groups = {
     monitor = 1,
@@ -36,6 +37,7 @@ yatm_machines.register_network_device("yatm_machines:monitor_console_off", {
 
 yatm_machines.register_network_device("yatm_machines:monitor_console_error", {
   description = "Monitor (console)",
+  drop = monitor_console_yatm_network.basename .. "_off",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {
     "yatm_monitor_top.png",
@@ -52,6 +54,7 @@ yatm_machines.register_network_device("yatm_machines:monitor_console_error", {
 
 yatm_machines.register_network_device("yatm_machines:monitor_console_on", {
   description = "Monitor (console)",
+  drop = monitor_console_yatm_network.basename .. "_off",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {
     "yatm_monitor_top.png",
@@ -80,6 +83,7 @@ yatm_machines.register_network_device("yatm_machines:monitor_console_on", {
 
 ]]
 local monitor_crafting_yatm_network = {
+  basename = "yatm_machines:monitor_crafting",
   kind = "monitor",
   groups = {
     monitor = 1,
@@ -112,6 +116,7 @@ yatm_machines.register_network_device("yatm_machines:monitor_crafting_off", {
 
 yatm_machines.register_network_device("yatm_machines:monitor_crafting_error", {
   description = "Monitor (crafting)",
+  drop = monitor_crafting_yatm_network.basename .. "_off",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {
     "yatm_monitor_top.png",
@@ -128,6 +133,7 @@ yatm_machines.register_network_device("yatm_machines:monitor_crafting_error", {
 
 yatm_machines.register_network_device("yatm_machines:monitor_crafting_on", {
   description = "Monitor (crafting)",
+  drop = monitor_crafting_yatm_network.basename .. "_off",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {
     "yatm_monitor_top.png",
@@ -148,6 +154,7 @@ yatm_machines.register_network_device("yatm_machines:monitor_crafting_on", {
 
 ]]
 local monitor_ele_yatm_network = {
+  basename = "yatm_machines:monitor_ele",
   kind = "monitor",
   groups = {
     monitor = 1,
@@ -164,6 +171,7 @@ local monitor_ele_yatm_network = {
 
 yatm_machines.register_network_device("yatm_machines:monitor_ele_off", {
   description = "Monitor (ele)",
+  drop = monitor_ele_yatm_network.basename .. "_off",
   groups = {cracky = 1},
   tiles = {
     "yatm_monitor_top.png",
@@ -180,6 +188,7 @@ yatm_machines.register_network_device("yatm_machines:monitor_ele_off", {
 
 yatm_machines.register_network_device("yatm_machines:monitor_ele_error", {
   description = "Monitor (ele)",
+  drop = monitor_ele_yatm_network.basename .. "_off",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {
     "yatm_monitor_top.png",
@@ -196,6 +205,7 @@ yatm_machines.register_network_device("yatm_machines:monitor_ele_error", {
 
 yatm_machines.register_network_device("yatm_machines:monitor_ele_on", {
   description = "Monitor (ele)",
+  drop = monitor_ele_yatm_network.basename .. "_off",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {
     "yatm_monitor_top.png",
@@ -216,6 +226,7 @@ yatm_machines.register_network_device("yatm_machines:monitor_ele_on", {
 
 ]]
 local monitor_inventory_yatm_network = {
+  basename = "yatm_machines:monitor_inventory",
   kind = "monitor",
   groups = {
     monitor = 1,
@@ -248,6 +259,7 @@ yatm_machines.register_network_device("yatm_machines:monitor_inventory_off", {
 
 yatm_machines.register_network_device("yatm_machines:monitor_inventory_error", {
   description = "Monitor (inventory)",
+  drop = monitor_inventory_yatm_network.basename .. "_off",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {
     "yatm_monitor_top.png",
@@ -264,6 +276,7 @@ yatm_machines.register_network_device("yatm_machines:monitor_inventory_error", {
 
 yatm_machines.register_network_device("yatm_machines:monitor_inventory_on", {
   description = "Monitor (inventory)",
+  drop = monitor_inventory_yatm_network.basename .. "_off",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {
     "yatm_monitor_top.png",

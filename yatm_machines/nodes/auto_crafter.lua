@@ -38,6 +38,7 @@ yatm_machines.register_network_device("yatm_machines:auto_crafter_off", {
 
 yatm_machines.register_network_device("yatm_machines:auto_crafter_error", {
   description = "Auto Crafter",
+  drop = auto_crafter_yatm_network.basename .. "_off",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {
     "yatm_auto_crafter_top.error.png",
@@ -54,6 +55,7 @@ yatm_machines.register_network_device("yatm_machines:auto_crafter_error", {
 
 yatm_machines.register_network_device("yatm_machines:auto_crafter_on", {
   description = "Auto Crafter",
+  drop = auto_crafter_yatm_network.basename .. "_off",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {
     -- "yatm_auto_crafter_top.off.png",
