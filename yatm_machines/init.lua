@@ -18,12 +18,12 @@ function yatm_machines.default_on_device_changed(pos, node, origin_pos, origin_n
   yatm_core.Network.schedule_refresh_network_topography(pos, {kind = "device_added"})
 end
 
-function yatm_machines.passive_consume_energy(pos, node, energy)
+function yatm_machines.network_passive_consume_energy(pos, node, amount)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef and nodedef.yatm_network then
     local passive = nodedef.yatm_network.passive_energy_consume
     if passive > 0 then
-      return math.min(energy, passive)
+      return math.min(amount, passive)
     end
   end
   return 0
@@ -53,7 +53,7 @@ function yatm_machines.register_network_device(name, nodedef)
           nodedef.yatm_network.passive_energy_consume = 10
         end
         if not nodedef.yatm_network.consume_energy then
-          nodedef.yatm_network.consume_energy = yatm_machines.passive_consume_energy
+          nodedef.yatm_network.consume_energy = yatm_machines.network_passive_consume_energy
         end
       end
     end

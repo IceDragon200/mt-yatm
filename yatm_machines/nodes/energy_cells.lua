@@ -19,6 +19,7 @@ for cell_type, cell_config in pairs(cell_types) do
   local energy_cell_yatm_network = {
     basename = "yatm_machines:energy_cell_" .. cell_type,
     kind = "energy_storage",
+    cell_config = cell_config,
     groups = {
       -- it's an energy cell
       energy_cell = 1,
@@ -50,33 +51,19 @@ for cell_type, cell_config in pairs(cell_types) do
     refresh(pos, node)
   end
 
-  function energy_cell_yatm_network.receive_energy(pos, node, energy)
+  function energy_cell_yatm_network.receive_energy(pos, node, amount)
     local meta = minetest.get_meta(pos)
-    local current_energy = meta:get_int("energy")
-    local used_energy = 0
-    current_energy, used_energy = yatm_energy.receive_energy(current_energy, energy, cell_config.bandwidth, cell_config.capacity)
-    if used_energy > 0 then
-      change_energy(pos, node, current_energy)
-    end
-    return used_energy
+    return yatm_core.energy.receive_energy(meta, "internal", amount, cell_config.bandwidth, cell_config.capacity)
   end
 
   function energy_cell_yatm_network.get_usable_stored_energy(pos, node)
     local meta = minetest.get_meta(pos)
-
-    local current_energy = meta:get_int("energy")
-    return yatm_energy.allowed_energy(current_energy, cell_config.bandwidth)
+    return yatm_core.energy.get_energy_throughput(meta, "internal", cell_config.bandwidth)
   end
 
-  function energy_cell_yatm_network.use_stored_energy(pos, node, energy)
+  function energy_cell_yatm_network.use_stored_energy(pos, node, amount)
     local meta = minetest.get_meta(pos)
-    local current_energy = meta:get_int("energy")
-    local consumed_energy = 0
-    current_energy, consumed_energy = yatm_energy.consume_energy(current_energy, energy, cell_config.bandwidth, cell_config.capacity)
-    if consumed_energy > 0 then
-      change_energy(pos, node, current_energy)
-    end
-    return consumed_energy
+    return yatm_core.energy.consume_energy(meta, "internal", amount, cell_config.bandwidth, cell_config.capacity)
   end
 
   for stage = 0,7 do

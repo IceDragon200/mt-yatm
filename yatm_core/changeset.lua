@@ -24,71 +24,73 @@ Changeset.Types.array.cast = function (value)
 end
 
 function Changeset.change(record)
-  return {
+  local changeset = {
     data = record,
     changes = {},
     is_valid = true,
     errors = {},
   }
-end
-
-function Changeset.put_change(changeset, key, value)
-  changeset.changes[key] = value
+  setmetatable(changeset, {__index = Changeset})
   return changeset
 end
 
-function Changeset.get_change(changeset, key)
-  return changeset.changes[key]
+function Changeset:put_change(key, value)
+  self.changes[key] = value
+  return self
 end
 
-function Changeset.get_field(changeset, key)
-  return changeset.changes[key] or changeset.data[key]
+function Changeset:get_change(key)
+  return self.changes[key]
 end
 
-function Changeset.cast(changeset, params, schema)
+function Changeset:get_field(key)
+  return self.changes[key] or self.data[key]
+end
+
+function Changeset:cast(params, schema)
   for key,value in pairs(params) do
     if schema[key] then
-      local casted_value = Changeset.types[schema[key].type]
-      changeset = Changeset.put_change(changeset, key, casted_value)
+      local casted_value = Changeset.Types[schema[key].type]
+      self:put_change(key, casted_value)
     end
   end
-  return changeset
+  return self
 end
 
-function Changeset.clear_all_errors(changeset)
-  changeset.errors = {}
-  return changeset
+function Changeset:clear_all_errors()
+  self.errors = {}
+  return self
 end
 
-function Changeset.add_error(changeset, key, value)
-  changeset.errors[key] = changeset.errors[key] or {}
-  table.insert(changeset.errors[key], value)
-  changeset.is_valid = false
-  return changeset
+function Changeset:add_error(key, value)
+  self.errors[key] = self.errors[key] or {}
+  table.insert(self.errors[key], value)
+  self.is_valid = false
+  return self
 end
 
-function Changeset.validate_change(changeset, key, validator)
-  if changeset.changes[key] then
-    local value = changeset.changes[key]
+function Changeset:validate_change(key, validator)
+  if self.changes[key] then
+    local value = self.changes[key]
     local errors = validator(key, value)
     if errors then
       for key, value in pairs(errors) do
-        Changeset.add_error(changeset, key, value)
+        self:add_error(key, value)
       end
     end
   end
-  return changeset
+  return self
 end
 
-function Changeset.validate_required(changeset, keys)
+function Changeset:validate_required(keys)
   for _,key in ipairs(keys) do
-    if changeset.changes[key] or changeset.data[key] then
+    if self.changes[key] or self.data[key] then
       -- All is well here
     else
-      changeset = Changeset.add_error(changeset, key, "required")
+      self:add_error(key, "required")
     end
   end
-  return changeset
+  return self
 end
 
 yatm_core.Changeset = Changeset

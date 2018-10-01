@@ -4,6 +4,9 @@
 yatm_core = rawget(_G, "yatm_core") or {}
 yatm_core.modpath = minetest.get_modpath(minetest.get_current_modname())
 
+local env = minetest.request_insecure_environment()
+yatm_core.bit = env.require("bit")
+
 yatm_core.PX16 = 1 / 16.0
 
 -- This uses a bit flag map, for quick use with binary-styled representations
@@ -217,7 +220,13 @@ minetest.register_node("yatm_core:face_test", {
   paramtype2 = "facedir",
 })
 
-dofile(yatm_core.modpath .. "/yatm_network.lua")
-dofile(yatm_core.modpath .. "/items.lua")
+-- Utility
+dofile(yatm_core.modpath .. "/meta_schema.lua")
 dofile(yatm_core.modpath .. "/changeset.lua")
 dofile(yatm_core.modpath .. "/ui.lua")
+dofile(yatm_core.modpath .. "/cables.lua")
+-- Network
+dofile(yatm_core.modpath .. "/yatm_network.lua")
+dofile(yatm_core.modpath .. "/energy.lua")
+-- Nodes and Items
+dofile(yatm_core.modpath .. "/items.lua")
