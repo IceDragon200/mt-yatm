@@ -228,5 +228,6 @@ dofile(yatm_core.modpath .. "/cables.lua")
 -- Network
 dofile(yatm_core.modpath .. "/yatm_network.lua")
 dofile(yatm_core.modpath .. "/energy.lua")
+dofile(yatm_core.modpath .. "/measurable.lua") -- similar to energy, but has a name field too
 -- Nodes and Items
 dofile(yatm_core.modpath .. "/items.lua")
