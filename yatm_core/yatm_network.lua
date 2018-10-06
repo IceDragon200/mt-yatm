@@ -13,7 +13,6 @@ local Network = {
 }
 
 local function debug(scope, ...)
-  local a = arg
   if scope == "network_energy_update" then
     return
   elseif scope == "network_update" then

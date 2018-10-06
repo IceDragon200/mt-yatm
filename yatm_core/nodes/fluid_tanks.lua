@@ -225,7 +225,7 @@ minetest.register_abm({
   interval = 1,
   chance = 1,
   action = function (pos, node)
-    stack = fluid_tanks.drain(pos, yatm_core.V3_DOWN, nil, TANK_DRAIN_BANDWIDTH, false)
+    local stack = fluid_tanks.drain(pos, yatm_core.V3_DOWN, nil, TANK_DRAIN_BANDWIDTH, false)
     if stack and stack.amount > 0 then
       local below_pos = vector.add(pos, yatm_core.V3_DOWN)
       local filled_stack = fluid_tanks.fill(below_pos, yatm_core.D_NONE, stack.name, stack.amount, true)

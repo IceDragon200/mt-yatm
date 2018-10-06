@@ -149,7 +149,7 @@ yatm_machines.register_network_device("yatm_machines:hub_wireless_on", {
   yatm_network = hub_wireless_yatm_network,
 })
 
-local hub_wireless_yatm_network = {
+local hub_elegens_yatm_network = {
   kind = "hub",
   groups = {
     hub = 1,
