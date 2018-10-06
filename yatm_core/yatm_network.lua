@@ -19,7 +19,7 @@ local function debug(scope, ...)
   elseif scope == "network_update" then
     return
   end
-  print(...)
+  --print(...)
 end
 
 function Network.time()
@@ -541,6 +541,10 @@ function Network.update(dtime)
   Network.counter = counter + 1
 end
 
-minetest.register_globalstep(Network.update)
+function Network.on_shutdown()
+  print("Shutting down")
+end
 
+minetest.register_on_shutdown(Network.on_shutdown)
+minetest.register_globalstep(Network.update)
 yatm_core.Network = Network

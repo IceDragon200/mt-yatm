@@ -12,6 +12,7 @@ yatm_core.PX16 = 1 / 16.0
 -- This uses a bit flag map, for quick use with binary-styled representations
 -- It does make face values a pain though
 -- UD WSEN
+yatm_core.D_NONE = 0 -- no direction
 yatm_core.D_NORTH = 1 -- +Z
 yatm_core.D_EAST = 2 -- +X
 yatm_core.D_SOUTH = 4 -- -Z
@@ -205,29 +206,17 @@ function yatm_core.facedir_wallmount_after_place_node(pos, placer, _itemstack, p
   minetest.swap_node(pos, node)
 end
 
-minetest.register_node("yatm_core:face_test", {
-  description = "Face Test",
-  groups = {cracky = 1},
-  tiles = {
-    "yatm_debug_6.png",
-    "yatm_debug_5.png",
-    "yatm_debug_2.png",
-    "yatm_debug_4.png",
-    "yatm_debug_1.png",
-    "yatm_debug_3.png",
-  },
-  paramtype = "light",
-  paramtype2 = "facedir",
-})
-
 -- Utility
 dofile(yatm_core.modpath .. "/meta_schema.lua")
 dofile(yatm_core.modpath .. "/changeset.lua")
 dofile(yatm_core.modpath .. "/ui.lua")
 dofile(yatm_core.modpath .. "/cables.lua")
+dofile(yatm_core.modpath .. "/groups.lua")
 -- Network
 dofile(yatm_core.modpath .. "/yatm_network.lua")
 dofile(yatm_core.modpath .. "/energy.lua")
 dofile(yatm_core.modpath .. "/measurable.lua") -- similar to energy, but has a name field too
 -- Nodes and Items
+dofile(yatm_core.modpath .. "/fluids.lua")
+dofile(yatm_core.modpath .. "/nodes.lua")
 dofile(yatm_core.modpath .. "/items.lua")
