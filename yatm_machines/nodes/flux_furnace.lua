@@ -11,7 +11,7 @@ local flux_furnace_yatm_network = {
     off = "yatm_machines:flux_furnace_off",
     on = "yatm_machines:flux_furnace_on",
   },
-  passive_energy_consume = 20,
+  passive_energy_lost = 20,
 }
 
 function flux_furnace_yatm_network.update(pos, node)

@@ -121,6 +121,7 @@ function yatm_cables.register_cable(params, thickness)
             network_cable = 1,
             dense_cable = 1,
           },
+          on_network_state_changed = yatm_core.Network.default_on_network_state_changed,
         },
         on_yatm_device_changed = handle_on_yatm_device_changed,
         on_yatm_network_changed = yatm_core.Network.default_handle_network_changed,

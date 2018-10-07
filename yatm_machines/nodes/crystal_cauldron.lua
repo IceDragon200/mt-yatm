@@ -11,7 +11,7 @@ local crystal_cauldron_yatm_network = {
     off = "yatm_machines:crystal_cauldron_off",
     on = "yatm_machines:crystal_cauldron_on",
   },
-  passive_energy_consume = 50
+  passive_energy_lost = 50
 }
 
 function crystal_cauldron_yatm_network.update(pos, node)

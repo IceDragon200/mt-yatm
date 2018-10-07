@@ -11,7 +11,7 @@ local server_yatm_network = {
     off = "yatm_machines:server_off",
     on = "yatm_machines:server_on",
   },
-  passive_energy_consume = 20
+  passive_energy_lost = 20
 }
 
 function server_yatm_network.update(pos, node)

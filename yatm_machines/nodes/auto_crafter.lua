@@ -33,7 +33,7 @@ yatm_machines.register_network_device("yatm_machines:auto_crafter_off", {
   },
   paramtype = "light",
   paramtype2 = "facedir",
-  yatm_network = yatm_core.merge_tables(auto_crafter_yatm_network, {passive_energy_consume = 0}),
+  yatm_network = yatm_core.merge_tables(auto_crafter_yatm_network, {passive_energy_lost = 0}),
 })
 
 yatm_machines.register_network_device("yatm_machines:auto_crafter_error", {
@@ -50,7 +50,7 @@ yatm_machines.register_network_device("yatm_machines:auto_crafter_error", {
   },
   paramtype = "light",
   paramtype2 = "facedir",
-  yatm_network = yatm_core.merge_tables(auto_crafter_yatm_network, {passive_energy_consume = 0}),
+  yatm_network = yatm_core.merge_tables(auto_crafter_yatm_network, {passive_energy_lost = 0}),
 })
 
 yatm_machines.register_network_device("yatm_machines:auto_crafter_on", {

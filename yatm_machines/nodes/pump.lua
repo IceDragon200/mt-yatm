@@ -10,7 +10,7 @@ local pump_yatm_network = {
     off = "yatm_machines:pump_off",
     on = "yatm_machines:pump_on",
   },
-  passive_energy_consume = 0
+  passive_energy_lost = 0
 }
 
 function pump_yatm_network.update(pos, node)

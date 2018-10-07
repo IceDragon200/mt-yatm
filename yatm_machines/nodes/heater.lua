@@ -11,7 +11,7 @@ local heater_yatm_network = {
     off = "yatm_machines:heater",
     on = "yatm_machines:heater_on",
   },
-  passive_energy_consume = 100,
+  passive_energy_lost = 100,
 }
 
 function heater_yatm_network.update(pos, node)

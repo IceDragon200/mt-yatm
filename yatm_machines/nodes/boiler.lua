@@ -10,7 +10,7 @@ local boiler_yatm_network = {
     off = "yatm_machines:boiler_off",
     on = "yatm_machines:boiler_on",
   },
-  passive_energy_consume = 0
+  passive_energy_lost = 0
 }
 
 function boiler_yatm_network.update(pos, node)

@@ -53,7 +53,7 @@ for cell_type, cell_config in pairs(cell_types) do
 
   function energy_cell_yatm_network.receive_energy(pos, node, amount)
     local meta = minetest.get_meta(pos)
-    return yatm_core.energy.receive_energy(meta, "internal", amount, cell_config.bandwidth, cell_config.capacity)
+    return yatm_core.energy.receive_energy(meta, "internal", amount, cell_config.bandwidth, cell_config.capacity, true)
   end
 
   function energy_cell_yatm_network.get_usable_stored_energy(pos, node)
@@ -63,7 +63,7 @@ for cell_type, cell_config in pairs(cell_types) do
 
   function energy_cell_yatm_network.use_stored_energy(pos, node, amount)
     local meta = minetest.get_meta(pos)
-    return yatm_core.energy.consume_energy(meta, "internal", amount, cell_config.bandwidth, cell_config.capacity)
+    return yatm_core.energy.consume_energy(meta, "internal", amount, cell_config.bandwidth, cell_config.capacity, true)
   end
 
   for stage = 0,7 do
@@ -92,7 +92,40 @@ for cell_type, cell_config in pairs(cell_types) do
     })
   end
 
-  yatm_machines.register_network_device("yatm_machines:energy_cell_"..cell_type.."_creative", {
+  local creative_energy_cell_yatm_network = {
+    basename = "yatm_machines:energy_cell_" .. cell_type .. "_creative",
+    kind = "energy_storage",
+    cell_config = cell_config,
+    groups = {
+      -- it's an energy cell
+      energy_cell = 1,
+      -- it's a creative energy cell
+      creative_energy_cell = 1,
+      -- the cell type + it's an energy cell
+      [cell_type .. "_energy_cell"] = 1,
+      -- it qualifies as an energy storage device
+      energy_storage = 1,
+      -- it qualifies as an energy receiver device
+      energy_receiver = 1,
+    }
+  }
+
+  function creative_energy_cell_yatm_network.receive_energy(pos, node, amount)
+    local meta = minetest.get_meta(pos)
+    return 0
+  end
+
+  function creative_energy_cell_yatm_network.get_usable_stored_energy(pos, node)
+    local meta = minetest.get_meta(pos)
+    return cell_config.bandwidth
+  end
+
+  function creative_energy_cell_yatm_network.use_stored_energy(pos, node, amount)
+    local meta = minetest.get_meta(pos)
+    return amount
+  end
+
+  yatm_machines.register_network_device(creative_energy_cell_yatm_network.basename, {
     description = "Energy Cell ("..cell_type..") [Creative]",
     groups = {cracky = 1},
     tiles = {
@@ -108,9 +141,6 @@ for cell_type, cell_config in pairs(cell_types) do
     },
     paramtype = "light",
     paramtype2 = "facedir",
-    yatm_network = {
-      kind = "energy_storage",
-      groups = {energy_storage = 1, creative = 1},
-    }
+    yatm_network = creative_energy_cell_yatm_network,
   })
 end

@@ -30,8 +30,10 @@ local function handle_on_network_changed(pos, node, ts, network_id, state)
       if meta then
         yatm_core.Network.set_network_ts(meta, ts)
       end
+
       if nodedef.yatm_network.states then
         if state == "off" then
+          print("WARN: CONTROLLER SHOULD BE OFF")
         else
           local new_name = nodedef.yatm_network.states[state]
           if new_name then
@@ -154,12 +156,13 @@ minetest.register_abm({
     if node.name == "yatm_machines:network_controller_on" then
       local meta = minetest.get_meta(pos)
       local network_id = yatm_core.Network.get_network_id(meta)
-      if network_id then
+      if yatm_core.Network.is_valid_network_id(network_id) then
         -- it has a valid network
       else
         print("Initializing network controller")
         network_id = yatm_core.Network.create_network(pos)
         yatm_core.Network.set_network_id(meta, network_id)
+        meta:set_string("infotext", "Network ID " .. network_id)
         yatm_core.Network.schedule_refresh_network_topography(pos, {kind = "controller_initialized"})
         print("NETWORK ESTABLISHED", pos.x, pos.y, pos.z, network_id)
       end
@@ -174,12 +177,15 @@ minetest.register_lbm({
     "yatm_machines:network_controller_on",
   },
   run_at_every_load = true,
-  action = function (pos, _node)
+  action = function (pos, node)
     print("SCHEDULE NETWORK REFRESH", pos.x, pos.y, pos.z)
     local meta = minetest.get_meta(pos)
     local network_id = yatm_core.Network.get_network_id(meta)
     if network_id then
       yatm_core.Network.initialize_network(pos, network_id)
+    else
+      node.name = "yatm_machines:network_controller_off"
+      minetest.swap_node(pos, node)
     end
     yatm_core.Network.schedule_refresh_network_topography(pos, {kind = "controller_load"})
   end

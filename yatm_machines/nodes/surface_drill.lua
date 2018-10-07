@@ -10,7 +10,7 @@ local surface_drill_yatm_network = {
     off = "yatm_machines:surface_drill_off",
     on = "yatm_machines:surface_drill_on",
   },
-  passive_energy_consume = 0
+  passive_energy_lost = 0
 }
 
 local function update_bit(pos, node)
@@ -147,7 +147,7 @@ local surface_drill_ext_yatm_network = {
     off = "yatm_machines:surface_drill_ext_off",
     on = "yatm_machines:surface_drill_ext_on",
   },
-  passive_energy_consume = 0
+  passive_energy_lost = 0
 }
 
 function surface_drill_ext_yatm_network.update(pos, node)

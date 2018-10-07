@@ -8,17 +8,33 @@ local Network = {
   counter = 0,
   timer = 0,
 
-  KEY = "yatm_network_id",
-  TS = "yatm_network_updated_at",
+  STATE = "network_state",
+  KEY = "network_id",
+  TS = "network_updated_at",
+
+  device_meta_schema = yatm_core.MetaSchema.new("network_device", "", {
+    network_id = {
+      type = "string",
+    },
+    network_state = {
+      type = "string",
+    },
+    network_updated_at = {
+      type = "integer",
+    },
+  }),
 }
 
 local function debug(scope, ...)
-  if scope == "network_energy_update" then
-    return
+  if scope == "" then
+  --elseif scope == "network_energy_update" then
+  --  return
   elseif scope == "network_update" then
     return
+  elseif scope == "network_device_update" then
+    return
   end
-  --print(...)
+  print(scope, ...)
 end
 
 function Network.time()
@@ -33,6 +49,14 @@ function Network.generate_network_id(pos)
   local ts = Network.time()
   local network_id = Network.encode_vec3(pos) .. "." .. ts
   return network_id, ts
+end
+
+function Network.is_valid_network_id(network_id)
+  if network_id then
+    return network_id ~= ""
+  else
+    return false
+  end
 end
 
 function Network.initialize_network(pos, network_id)
@@ -76,7 +100,6 @@ function Network.leave_network(network_id, pos)
   local network = Network.networks[network_id]
   if network then
     local key = Network.encode_vec3(pos)
-    network.members[key] = nil
     local member_group = network.member_groups[key]
     if member_group then
       for _index,group in ipairs(network.member_groups[key]) do
@@ -84,10 +107,12 @@ function Network.leave_network(network_id, pos)
         if member_map then
           -- remove the member
           member_map[key] = nil
+          debug("network_registry", "LEAVE GROUP", pos.x, pos.y, pos.z, group)
         end
       end
     end
     network.member_groups[key] = nil
+    network.members[key] = nil
     return true
   end
   return false
@@ -110,6 +135,7 @@ function Network.join_network(network_id, pos, groups)
           local member_map = network.group_members[group] or {}
           member_map[key] = true
           network.group_members[group] = member_map
+          debug("network_registry", "JOIN GROUP", pos.x, pos.y, pos.z, group)
         end
         network.member_groups[key] = member_groups
       end
@@ -124,21 +150,29 @@ function Network.has_network(network_id)
 end
 
 function Network.set_network_id(meta, value)
-  meta:set_string(Network.KEY, value)
+  Network.device_meta_schema:set_field(meta, "yatm", Network.KEY, value)
 end
 
 function Network.get_network_id(meta)
-  return meta:get(Network.KEY)
+  return Network.device_meta_schema:get_field(meta, "yatm", Network.KEY)
 end
 
 function Network.set_network_ts(meta, value)
   assert(meta, "requires a NodeMetaRef")
   assert(value, "need a timestamp")
-  meta:set_int(Network.TS, value)
+  Network.device_meta_schema:set_field(meta, "yatm", Network.TS, value)
 end
 
 function Network.get_network_ts(meta)
-  return meta:get_int(Network.TS)
+  return Network.device_meta_schema:get_field(meta, "yatm", Network.TS)
+end
+
+function Network.set_network_state(meta, value)
+  Network.device_meta_schema:set_field(meta, "yatm", Network.STATE, value)
+end
+
+function Network.get_network_state(meta)
+  return Network.device_meta_schema:get_field(meta, "yatm", Network.STATE)
 end
 
 local function yatm_device_type(nodedef)
@@ -215,34 +249,41 @@ function Network.find_controllers(origin_pos, ts, ignore_ts)
   end)
 end
 
+function Network.default_on_network_state_changed(pos, node, state)
+  local nodedef = minetest.registered_nodes[node.name]
+  if nodedef.yatm_network.states then
+    local new_name = nodedef.yatm_network.states[state]
+    if new_name then
+      if node.name ~= new_name then
+        debug("node", "NETWORK CHANGED ", pos.x, pos.y, pos.z, node.name, "STATE", state)
+        node.name = new_name
+        minetest.swap_node(pos, node)
+      end
+    else
+      debug("node", "WARN", node.name, "does not have a network state", state)
+    end
+  end
+end
+
 function Network.default_handle_network_changed(pos, node, ts, network_id, state)
   debug("node", "TS", ts, "NOTIFY NETWORK CHANGED", pos.x, pos.y, pos.z, node.name, "NID", network_id, "STATE", state)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef then
     if nodedef.yatm_network then
       local meta = minetest.get_meta(pos)
-      if meta then
-        Network.set_network_ts(meta, ts)
-      end
+      Network.set_network_ts(meta, ts)
       local old_network_id = Network.get_network_id(meta)
-      if old_network_id and old_network_id ~= network_id then
+      if Network.is_valid_network_id(old_network_id) and old_network_id ~= network_id then
         Network.leave_network(old_network_id, pos)
       end
-      if network_id then
+      if Network.is_valid_network_id(network_id) then
         Network.join_network(network_id, pos, nodedef.yatm_network.groups)
       end
       Network.set_network_id(meta, network_id)
-      if nodedef.yatm_network.states then
-        local new_name = nodedef.yatm_network.states[state]
-        if new_name then
-          if node.name ~= new_name then
-            debug("node", "TS", ts, "NETWORK CHANGED ", pos.x, pos.y, pos.z, node.name, "NID", network_id, "STATE", state)
-            node.name = new_name
-            minetest.swap_node(pos, node)
-          end
-        else
-          debug("node", "WARN", node.name, "does not have a network state", state)
-        end
+      Network.set_network_state(meta, state)
+      meta:set_string("infotext", "Network ID " .. dump(network_id) .. " " .. state)
+      if nodedef.yatm_network.on_network_state_changed then
+        nodedef.yatm_network.on_network_state_changed(pos, node, state)
       end
     end
   end
