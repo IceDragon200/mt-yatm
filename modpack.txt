@@ -1,5 +1,4 @@
 yatm_core
-yatm_energy
 yatm_cables
 yatm_machines
 yatm_decor
