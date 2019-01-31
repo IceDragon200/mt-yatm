@@ -26,9 +26,9 @@ yatm_machines.register_network_device("yatm_machines:auto_crafter_off", {
   tiles = {
     "yatm_auto_crafter_top.off.png",
     "yatm_auto_crafter_bottom.png",
-    "yatm_auto_crafter_side.png",
-    "yatm_auto_crafter_side.png^[transformFX",
-    "yatm_auto_crafter_back.png",
+    "yatm_auto_crafter_side.off.png",
+    "yatm_auto_crafter_side.off.png^[transformFX",
+    "yatm_auto_crafter_back.off.png",
     "yatm_auto_crafter_front.off.png",
   },
   paramtype = "light",
@@ -43,9 +43,9 @@ yatm_machines.register_network_device("yatm_machines:auto_crafter_error", {
   tiles = {
     "yatm_auto_crafter_top.error.png",
     "yatm_auto_crafter_bottom.png",
-    "yatm_auto_crafter_side.png",
-    "yatm_auto_crafter_side.png^[transformFX",
-    "yatm_auto_crafter_back.png",
+    "yatm_auto_crafter_side.error.png",
+    "yatm_auto_crafter_side.error.png^[transformFX",
+    "yatm_auto_crafter_back.error.png",
     "yatm_auto_crafter_front.error.png",
   },
   paramtype = "light",
@@ -69,9 +69,9 @@ yatm_machines.register_network_device("yatm_machines:auto_crafter_on", {
       },
     },
     "yatm_auto_crafter_bottom.png",
-    "yatm_auto_crafter_side.png",
-    "yatm_auto_crafter_side.png^[transformFX",
-    "yatm_auto_crafter_back.png",
+    "yatm_auto_crafter_side.on.png",
+    "yatm_auto_crafter_side.on.png^[transformFX",
+    "yatm_auto_crafter_back.on.png",
     -- "yatm_auto_crafter_front.off.png"
     {
       name = "yatm_auto_crafter_front.on.png",

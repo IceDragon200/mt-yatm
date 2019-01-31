@@ -22,12 +22,13 @@ end
 yatm_machines.register_network_device("yatm_machines:auto_grinder_off", {
   description = "Auto Grinder",
   groups = {cracky = 1},
+  drop = "yatm_machines:auto_grinder_off",
   tiles = {
     "yatm_auto_grinder_top.off.png",
     "yatm_auto_grinder_bottom.png",
-    "yatm_auto_grinder_side.png",
-    "yatm_auto_grinder_side.png^[transformFX",
-    "yatm_auto_grinder_back.png",
+    "yatm_auto_grinder_side.off.png",
+    "yatm_auto_grinder_side.off.png^[transformFX",
+    "yatm_auto_grinder_back.off.png",
     "yatm_auto_grinder_front.off.png",
   },
   paramtype = "light",
@@ -38,12 +39,13 @@ yatm_machines.register_network_device("yatm_machines:auto_grinder_off", {
 yatm_machines.register_network_device("yatm_machines:auto_grinder_error", {
   description = "Auto Grinder",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = "yatm_machines:auto_grinder_off",
   tiles = {
     "yatm_auto_grinder_top.error.png",
     "yatm_auto_grinder_bottom.png",
-    "yatm_auto_grinder_side.png",
-    "yatm_auto_grinder_side.png^[transformFX",
-    "yatm_auto_grinder_back.png",
+    "yatm_auto_grinder_side.error.png",
+    "yatm_auto_grinder_side.error.png^[transformFX",
+    "yatm_auto_grinder_back.error.png",
     "yatm_auto_grinder_front.error.png",
   },
   paramtype = "light",
@@ -54,12 +56,13 @@ yatm_machines.register_network_device("yatm_machines:auto_grinder_error", {
 yatm_machines.register_network_device("yatm_machines:auto_grinder_on", {
   description = "Auto Grinder",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = "yatm_machines:auto_grinder_off",
   tiles = {
     "yatm_auto_grinder_top.on.png",
     "yatm_auto_grinder_bottom.png",
-    "yatm_auto_grinder_side.png",
-    "yatm_auto_grinder_side.png^[transformFX",
-    "yatm_auto_grinder_back.png",
+    "yatm_auto_grinder_side.on.png",
+    "yatm_auto_grinder_side.on.png^[transformFX",
+    "yatm_auto_grinder_back.on.png",
     -- "yatm_auto_grinder_front.off.png"
     {
       name = "yatm_auto_grinder_front.on.png",

@@ -6,6 +6,7 @@ local drive_case_yatm_network = {
     has_update = 1, -- the device should be updated every network step
   },
   states = {
+    conflict = "yatm_machines:drive_case_error",
     error = "yatm_machines:drive_case_error",
     off = "yatm_machines:drive_case_off",
     on = "yatm_machines:drive_case_on",
@@ -28,6 +29,22 @@ yatm_machines.register_network_device("yatm_machines:drive_case_off", {
     "yatm_drive_case_side.off.png^[transformFX",
     "yatm_drive_case_back.off.png",
     "yatm_drive_case_front.off.png"
+  },
+  paramtype = "light",
+  paramtype2 = "facedir",
+  yatm_network = drive_case_yatm_network,
+})
+
+yatm_machines.register_network_device("yatm_machines:drive_case_error", {
+  description = "Drive Case",
+  groups = {cracky = 1},
+  tiles = {
+    "yatm_drive_case_top.png",
+    "yatm_drive_case_bottom.png",
+    "yatm_drive_case_side.error.png",
+    "yatm_drive_case_side.error.png^[transformFX",
+    "yatm_drive_case_back.error.png",
+    "yatm_drive_case_front.error.png"
   },
   paramtype = "light",
   paramtype2 = "facedir",

@@ -20,8 +20,8 @@ local compactor_yatm_network = {
 }
 
 function compactor_yatm_network.work(pos, node, energy, work_rate)
-  print("compacting", pos.x, pos.y, pos.z, node.name, energy, work_rate)
-  return 0
+  --print("compacting", pos.x, pos.y, pos.z, node.name, energy, work_rate)
+  return 1
 end
 
 yatm_machines.register_network_device("yatm_machines:compactor_off", {
@@ -30,8 +30,8 @@ yatm_machines.register_network_device("yatm_machines:compactor_off", {
   tiles = {
     "yatm_compactor_top.off.png",
     "yatm_compactor_bottom.png",
-    "yatm_compactor_side.png",
-    "yatm_compactor_side.png",
+    "yatm_compactor_side.off.png",
+    "yatm_compactor_side.off.png^[transformFX",
     "yatm_compactor_back.off.png",
     "yatm_compactor_front.off.png",
   },
@@ -46,8 +46,8 @@ yatm_machines.register_network_device("yatm_machines:compactor_error", {
   tiles = {
     "yatm_compactor_top.error.png",
     "yatm_compactor_bottom.png",
-    "yatm_compactor_side.png",
-    "yatm_compactor_side.png",
+    "yatm_compactor_side.error.png",
+    "yatm_compactor_side.error.png^[transformFX",
     "yatm_compactor_back.error.png",
     "yatm_compactor_front.error.png",
   },
@@ -62,8 +62,26 @@ yatm_machines.register_network_device("yatm_machines:compactor_on", {
   tiles = {
     "yatm_compactor_top.on.png",
     "yatm_compactor_bottom.png",
-    "yatm_compactor_side.png",
-    "yatm_compactor_side.png",
+    --"yatm_compactor_side.on.png",
+    --"yatm_compactor_side.on.png",
+    {
+      name = "yatm_compactor_side.on.png",
+      animation = {
+        type = "vertical_frames",
+        aspect_w = 16,
+        aspect_h = 16,
+        length = 4.0
+      },
+    },
+    {
+      name = "yatm_compactor_side.on.png^[transformFX",
+      animation = {
+        type = "vertical_frames",
+        aspect_w = 16,
+        aspect_h = 16,
+        length = 4.0
+      },
+    },
     "yatm_compactor_back.on.png",
     {
       name = "yatm_compactor_front.on.png",

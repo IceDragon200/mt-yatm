@@ -55,7 +55,7 @@ function yatm_machines.network_passive_consume_energy(pos, node, amount)
       local stored = yatm_core.energy.receive_energy(meta, "energy_buffer", remaining, charge_bandwidth, capacity, true)
       consumed = consumed + stored
     end
-    print("CONSUMED", pos.x, pos.y, pos.z, node.name, "CONSUMED", consumed, "GIVEN", amount)
+    --print("CONSUMED", pos.x, pos.y, pos.z, node.name, "CONSUMED", consumed, "GIVEN", amount)
   end
   return consumed
 end

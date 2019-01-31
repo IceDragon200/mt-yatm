@@ -20,7 +20,7 @@ function boiler_yatm_network.update(pos, node)
 end
 
 yatm_machines.register_network_device("yatm_machines:boiler_off", {
-  description = "Pump",
+  description = "Boiler",
   groups = {cracky = 1},
   tiles = {
     "yatm_boiler_top.off.png",
@@ -36,8 +36,9 @@ yatm_machines.register_network_device("yatm_machines:boiler_off", {
 })
 
 yatm_machines.register_network_device("yatm_machines:boiler_error", {
-  description = "Pump",
+  description = "Boiler",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = "yatm_machines:boiler_off",
   tiles = {
     "yatm_boiler_top.error.png",
     "yatm_boiler_bottom.error.png",
@@ -52,8 +53,9 @@ yatm_machines.register_network_device("yatm_machines:boiler_error", {
 })
 
 yatm_machines.register_network_device("yatm_machines:boiler_on", {
-  description = "Pump",
+  description = "Boiler",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = "yatm_machines:boiler_off",
   tiles = {
     "yatm_boiler_top.on.png",
     "yatm_boiler_bottom.on.png",

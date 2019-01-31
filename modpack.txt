@@ -2,3 +2,4 @@ yatm_core
 yatm_cables
 yatm_machines
 yatm_decor
+yatm_oku

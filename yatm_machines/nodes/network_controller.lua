@@ -103,7 +103,7 @@ yatm_machines.register_network_device("yatm_machines:network_controller_on", {
         type = "vertical_frames",
         aspect_w = 16,
         aspect_h = 16,
-        length = 1.0
+        length = 2.0
       },
     },
     "yatm_network_controller_bottom.png",
@@ -113,7 +113,7 @@ yatm_machines.register_network_device("yatm_machines:network_controller_on", {
         type = "vertical_frames",
         aspect_w = 16,
         aspect_h = 16,
-        length = 1.0
+        length = 2.0
       },
     },
     {
@@ -122,7 +122,7 @@ yatm_machines.register_network_device("yatm_machines:network_controller_on", {
         type = "vertical_frames",
         aspect_w = 16,
         aspect_h = 16,
-        length = 1.0
+        length = 2.0
       },
     },
     "yatm_network_controller_back.on.png",
