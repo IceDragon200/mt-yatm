@@ -3,3 +3,5 @@ yatm_cables
 yatm_machines
 yatm_decor
 yatm_oku
+yatm_rails
+yatm_bees
