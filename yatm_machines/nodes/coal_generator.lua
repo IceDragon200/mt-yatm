@@ -15,6 +15,7 @@ local coal_generator_yatm_network = {
 yatm_machines.register_network_device("yatm_machines:coal_generator_off", {
   description = "Coal Generator",
   groups = {cracky = 1},
+  drop = "yatm_machines:coal_generator_off",
   tiles = {
     "yatm_coal_generator_top.off.png",
     "yatm_coal_generator_bottom.png",
@@ -31,6 +32,7 @@ yatm_machines.register_network_device("yatm_machines:coal_generator_off", {
 yatm_machines.register_network_device("yatm_machines:coal_generator_error", {
   description = "Coal Generator",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = "yatm_machines:coal_generator_off",
   tiles = {
     "yatm_coal_generator_top.error.png",
     "yatm_coal_generator_bottom.png",
@@ -47,6 +49,7 @@ yatm_machines.register_network_device("yatm_machines:coal_generator_error", {
 yatm_machines.register_network_device("yatm_machines:coal_generator_on", {
   description = "Coal Generator",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = "yatm_machines:coal_generator_off",
   tiles = {
     --"yatm_coal_generator_top.on.png",
     {

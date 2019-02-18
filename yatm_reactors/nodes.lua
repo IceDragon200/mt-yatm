@@ -1,0 +1,8 @@
+dofile(yatm_reactors.modpath .. "/nodes/control_rod.lua")
+dofile(yatm_reactors.modpath .. "/nodes/data_bus.lua")
+dofile(yatm_reactors.modpath .. "/nodes/export_bus.lua")
+dofile(yatm_reactors.modpath .. "/nodes/glass.lua")
+dofile(yatm_reactors.modpath .. "/nodes/heat_exchanger.lua")
+dofile(yatm_reactors.modpath .. "/nodes/import_bus.lua")
+dofile(yatm_reactors.modpath .. "/nodes/panel.lua")
+dofile(yatm_reactors.modpath .. "/nodes/reactor_controller.lua")
