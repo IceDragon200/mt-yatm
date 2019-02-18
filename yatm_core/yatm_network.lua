@@ -62,7 +62,7 @@ end
 function Network.initialize_network(pos, network_id)
   Network.networks[network_id] = {
     id = network_id,
-    -- origin position of the controller, can be used tp index some features
+    -- origin position of the controller, can be used to index some features
     pos = pos,
     -- {member_id = member_entry}
     members = {},
