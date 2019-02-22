@@ -13,24 +13,35 @@ local pump_yatm_network = {
   passive_energy_lost = 0
 }
 
-function pump_yatm_network.update(pos, node)
+function pump_yatm_network.update(pos, node, ot)
   if node.name == "yatm_machines:pump_on" then
     local nodedef = minetest.registered_nodes[node.name]
     if nodedef then
+      local span = yatm_core.trace.span_start(ot, 'facedir_to_face')
       local new_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_DOWN)
+      yatm_core.trace.span_end(span)
       local target = vector.add(pos, yatm_core.DIR6_TO_VEC3[new_dir])
+      local span = yatm_core.trace.span_start(ot, 'get_node')
       local target_node = minetest.get_node(target)
+      yatm_core.trace.span_end(span)
+      local span = yatm_core.trace.span_start(ot, 'get_item_fluid')
       local fluid_name = yatm_core.fluids.get_item_fluid(target_node.name)
+      yatm_core.trace.span_end(span)
+      local span = yatm_core.trace.span_start(ot, 'fluid_tanks.fill internal')
       if fluid_name then
         local stack = yatm_core.fluid_tanks.fill(pos, new_dir, fluid_name, 1000, true)
         if stack and stack.amount > 0 then
           minetest.remove_node(target)
         end
       end
+      yatm_core.trace.span_end(span)
 
+      local span = yatm_core.trace.span_start(ot, 'fluid_tanks.drain internal')
       local new_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
       local target = vector.add(pos, yatm_core.DIR6_TO_VEC3[new_dir])
       local stack = yatm_core.fluid_tanks.drain(pos, new_dir, fluid_name, 1000, false)
+      yatm_core.trace.span_end(span)
+      local span = yatm_core.trace.span_start(ot, 'fluid_tanks.fill external')
       if stack and stack.amount > 0 then
         local target_dir = yatm_core.invert_dir(new_dir)
         local filled_stack = yatm_core.fluid_tanks.fill(target, target_dir, stack.name, stack.amount, true)
@@ -38,6 +49,7 @@ function pump_yatm_network.update(pos, node)
           yatm_core.fluid_tanks.drain(pos, new_dir, filled_stack.name, filled_stack.amount, true)
         end
       end
+      yatm_core.trace.span_end(span)
     end
   end
 end

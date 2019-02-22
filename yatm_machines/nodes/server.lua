@@ -3,7 +3,6 @@ local server_yatm_network = {
   groups = {
     machine = 1,
     energy_consumer = 1,
-    has_update = 1, -- the device should be updated every network step
   },
   states = {
     conflict = "yatm_machines:server_error",
@@ -13,12 +12,6 @@ local server_yatm_network = {
   },
   passive_energy_lost = 20
 }
-
-function server_yatm_network.update(pos, node)
-  local nodedef = minetest.registered_nodes[node.name]
-  if nodedef then
-  end
-end
 
 local server_node_box = {
   type = "fixed",
@@ -32,11 +25,12 @@ local server_node_box = {
   }
 }
 
-yatm_machines.register_network_device("yatm_machines:server_off", {
+yatm_machines.register_network_device(server_yatm_network.states.off, {
   description = "Server",
   groups = {cracky = 1},
+  drop = server_yatm_network.states.off,
   tiles = {
-    "yatm_server_top.png",
+    "yatm_server_top.off.png",
     "yatm_server_bottom.png",
     "yatm_server_side.png",
     "yatm_server_side.png^[transformFX",
@@ -50,11 +44,12 @@ yatm_machines.register_network_device("yatm_machines:server_off", {
   yatm_network = server_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:server_error", {
+yatm_machines.register_network_device(server_yatm_network.states.error, {
   description = "Server",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = server_yatm_network.states.off,
   tiles = {
-    "yatm_server_top.png",
+    "yatm_server_top.error.png",
     "yatm_server_bottom.png",
     "yatm_server_side.png",
     "yatm_server_side.png^[transformFX",
@@ -68,11 +63,12 @@ yatm_machines.register_network_device("yatm_machines:server_error", {
   yatm_network = server_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:server_on", {
+yatm_machines.register_network_device(server_yatm_network.states.on, {
   description = "Server",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = server_yatm_network.states.off,
   tiles = {
-    "yatm_server_top.png",
+    "yatm_server_top.on.png",
     "yatm_server_bottom.png",
     "yatm_server_side.png",
     "yatm_server_side.png^[transformFX",

@@ -9,7 +9,6 @@ local monitor_console_yatm_network = {
   groups = {
     monitor = 1,
     energy_consumer = 1,
-    has_update = 1, -- the device should be updated every network step
   },
   states = {
     error = "yatm_machines:monitor_console_error",
@@ -88,7 +87,6 @@ local monitor_crafting_yatm_network = {
   groups = {
     monitor = 1,
     energy_consumer = 1,
-    has_update = 1, -- the device should be updated every network step
   },
   states = {
     error = "yatm_machines:monitor_crafting_error",
@@ -159,7 +157,6 @@ local monitor_ele_yatm_network = {
   groups = {
     monitor = 1,
     energy_consumer = 1,
-    has_update = 1, -- the device should be updated every network step
   },
   states = {
     error = "yatm_machines:monitor_ele_error",
@@ -231,7 +228,6 @@ local monitor_inventory_yatm_network = {
   groups = {
     monitor = 1,
     energy_consumer = 1,
-    has_update = 1, -- the device should be updated every network step
   },
   states = {
     error = "yatm_machines:monitor_inventory_error",

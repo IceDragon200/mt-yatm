@@ -206,6 +206,8 @@ function yatm_core.facedir_wallmount_after_place_node(pos, placer, _itemstack, p
   minetest.swap_node(pos, node)
 end
 
+-- Instrumentation
+dofile(yatm_core.modpath .. "/instrumentation.lua")
 -- Utility
 dofile(yatm_core.modpath .. "/meta_schema.lua")
 dofile(yatm_core.modpath .. "/changeset.lua")
@@ -220,3 +222,4 @@ dofile(yatm_core.modpath .. "/measurable.lua") -- similar to energy, but has a n
 dofile(yatm_core.modpath .. "/fluids.lua")
 dofile(yatm_core.modpath .. "/nodes.lua")
 dofile(yatm_core.modpath .. "/items.lua")
+

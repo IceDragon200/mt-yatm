@@ -23,7 +23,7 @@ A simple bee keeping module, based off Growthcraft's Bees.
 
 __yatm_cables__
 
-Providers various cables, pipes and connections between YATM devices.
+Provides various cables, pipes and connections between YATM devices.
 
 __yatm_core__
 
@@ -44,6 +44,10 @@ OKU - Octet Kompute Unit, a experimental 8-bit cpu mod, I'm still looking at dif
 __yatm_rails__
 
 I don't think I like the existing 'train' mods, from an aesthetic (no offense to the authors, it's not my style that's all.), so I intend to roll my own.
+
+__yatm_reactors__
+
+Just some basic nuclear stuff, loosely based on Big Reactors from minecraft.
 
 ## Your own energy system?
 

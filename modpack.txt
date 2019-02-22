@@ -1,7 +1,9 @@
-yatm_core
+yatm_armoury
+yatm_bees
 yatm_cables
-yatm_machines
+yatm_core
 yatm_decor
+yatm_machines
 yatm_oku
 yatm_rails
-yatm_bees
+yatm_reactors

@@ -11,7 +11,6 @@ local monitor_console_yatm_network = {
     monitor = 1,
     console_monitor = 1,
     energy_consumer = 1,
-    has_update = 1, -- the device should be updated every network step
   },
   states = {
     error = "yatm_machines:flat_monitor_console_error",
@@ -89,7 +88,6 @@ local monitor_crafting_yatm_network = {
     monitor = 1,
     crafting_monitor = 1,
     energy_consumer = 1,
-    has_update = 1, -- the device should be updated every network step
   },
   states = {
     error = "yatm_machines:flat_monitor_crafting_error",
@@ -159,7 +157,6 @@ local monitor_ele_yatm_network = {
     monitor = 1,
     ele_monitor = 1,
     energy_consumer = 1,
-    has_update = 1, -- the device should be updated every network step
   },
   states = {
     error = "yatm_machines:flat_monitor_ele_error",
@@ -229,7 +226,6 @@ local monitor_inventory_yatm_network = {
     monitor = 1,
     inventory_monitor = 1,
     energy_consumer = 1,
-    has_update = 1, -- the device should be updated every network step
   },
   states = {
     error = "yatm_machines:flat_monitor_inventory_error",

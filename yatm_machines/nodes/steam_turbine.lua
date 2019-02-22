@@ -12,6 +12,9 @@ local steam_turbine_yatm_network = {
   }
 }
 
+function steam_turbine_yatm_network.update(pos, node, ot)
+end
+
 yatm_machines.register_network_device("yatm_machines:steam_turbine_off", {
   description = "Steam Turbine",
   groups = {cracky = 1},

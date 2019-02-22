@@ -32,7 +32,7 @@ local function debug(scope, ...)
   elseif scope == "network_update" then
     return
   elseif scope == "network_device_update" then
-    return
+    --return
   end
   print(scope, ...)
 end
@@ -42,12 +42,12 @@ function Network.time()
 end
 
 function Network.encode_vec3(pos)
-  return pos.x .. "." .. pos.y .. "." .. pos.z
+  return table.concat({pos.x, pos.y, pos.z}, ".")
 end
 
 function Network.generate_network_id(pos)
   local ts = Network.time()
-  local network_id = Network.encode_vec3(pos) .. "." .. ts
+  local network_id = table.concat({pos.x, pos.y, pos.z, ts}, ".")
   return network_id, ts
 end
 
@@ -448,11 +448,14 @@ local function update_lost_nodes(dtime, counter)
   end
 end
 
-local function update_network(dtime, counter, network_id, network)
+local function update_network(pot, dtime, counter, network_id, network)
+  local trace = yatm_core.trace
+  local ot = trace.span_start(pot, network_id)
   debug("network_update", counter, "UPDATING NETWORK", network_id)
 
   -- Highest priority, produce energy
   -- It's up to the node how it wants to deal with the energy, whether it's buffered, or just burst
+  local span = trace.span_start(ot, "energy_producer")
   local energy_produced = reduce_group_members(network, "energy_producer", 0, function (pos, node, acc)
     debug("network_energy_update", counter, "PRODUCE ENERGY", pos.x, pos.y, pos.z, node.name)
     local nodedef = minetest.registered_nodes[node.name]
@@ -465,10 +468,12 @@ local function update_network(dtime, counter, network_id, network)
     end
     return true, acc
   end)
+  trace.span_end(span)
 
   -- Second highest priority, how much energy is stored in the network right now
   -- This is combined with the produced to determine how much is available
   -- The node is allowed to lie about it's contents, to cause energy trickle or gating
+  local span = trace.span_start(ot, "energy_storage")
   local energy_stored = reduce_group_members(network, "energy_storage", 0, function (pos, node, acc)
     local nodedef = minetest.registered_nodes[node.name]
     if nodedef then
@@ -480,7 +485,9 @@ local function update_network(dtime, counter, network_id, network)
     end
     return true, acc
   end)
+  trace.span_end(span)
 
+  local span = trace.span_start(ot, "energy_consumer")
   local total_energy_available = energy_stored + energy_produced
   local energy_available = total_energy_available
 
@@ -502,9 +509,11 @@ local function update_network(dtime, counter, network_id, network)
     -- can't continue if we have no energy available
     return energy_available > 0, acc
   end)
+  trace.span_end(span)
 
   debug("network_energy_update", counter, "ENERGY_CONSUMED", energy_consumed)
 
+  local span = trace.span_start(ot, "energy_storage")
   local energy_storage_consumed = energy_consumed - energy_produced
   -- if we went over the produced, then the rest must be taken from the storage
   if energy_storage_consumed > 0 then
@@ -522,9 +531,11 @@ local function update_network(dtime, counter, network_id, network)
       return energy_storage_consumed > 0, acc + 1
     end)
   end
+  trace.span_end(span)
 
   -- how much extra energy is left, note the stored is subtracted from the available
   -- if it falls below 0 then there is no extra energy.
+  local span = trace.span_start(ot, "energy_receiver")
   if energy_available > energy_stored then
     local energy_left = energy_available - energy_stored
 
@@ -544,18 +555,25 @@ local function update_network(dtime, counter, network_id, network)
       return energy_left > 0, acc + 1
     end)
   end
+  trace.span_end(span)
 
+  local span = trace.span_start(ot, "has_update")
   reduce_group_members(network, "has_update", 0, function (pos, node, acc)
     local nodedef = minetest.registered_nodes[node.name]
     if nodedef then
       if nodedef.yatm_network and nodedef.yatm_network.update then
-        nodedef.yatm_network.update(pos, node)
+        local s = trace.span_start(span, node.name)
+        nodedef.yatm_network.update(pos, node, s)
+        trace.span_end(s)
       else
         debug("network_device_update", counter, "INVALID UPDATABLE DEVICE", pos.x, pos.y, pos.z, node.name)
       end
     end
     return true, acc + 1
   end)
+  trace.span_end(span)
+
+  trace.span_end(ot)
 end
 
 function Network.update(dtime)
@@ -566,23 +584,33 @@ function Network.update(dtime)
   update_lost_nodes(dtime, counter)
 
   -- normal priority
-  Network.timer = Network.timer - 1
+  --[[Network.timer = Network.timer - 1
   if Network.timer > 0 then
     return
   else
     -- force the network to act only ever 4 frames, yielding a 20 FPS
-    Network.timer = 4
-  end
+    Network.timer = 1 -- 4
+  end]]
+
+  local ot = yatm_core.trace.new("yatm_network")
 
   for network_id,network in pairs(Network.networks) do
-    update_network(dtime, counter, network_id, network)
+    --local time_then = minetest.get_us_time()
+    --local touched_functions = update_network(dtime, counter, network_id, network)
+    update_network(ot, dtime, counter, network_id, network)
+    --local time_now = minetest.get_us_time()
+    --print("Updated network " .. network_id .. " in " .. (time_now - time_then) .. " usec touched " .. touched_functions)
   end
+
+  yatm_core.trace.span_end(ot)
+  --print("yatm_network trace:")
+  --yatm_core.trace.inspect(ot, "  ")
 
   Network.counter = counter + 1
 end
 
 function Network.on_shutdown()
-  print("Shutting down")
+  debug("Network", "Shutting down")
 end
 
 minetest.register_on_shutdown(Network.on_shutdown)
