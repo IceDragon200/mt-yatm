@@ -12,7 +12,11 @@ local coal_generator_yatm_network = {
   }
 }
 
-function coal_generator_yatm_network:update(pos, node, ot)
+function coal_generator_yatm_network.produce_energy(pos, node, ot)
+  return 0
+end
+
+function coal_generator_yatm_network.update(pos, node, ot)
 end
 
 yatm_machines.register_network_device(coal_generator_yatm_network.states.off, {

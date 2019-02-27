@@ -7,7 +7,7 @@ function fluid_tanks.get(pos, dir)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef then
     if nodedef.fluids_interface then
-      if nodedef.fluids_interface.replace then
+      if nodedef.fluids_interface.get then
         return nodedef.fluids_interface.get(pos, dir, node)
       end
     end

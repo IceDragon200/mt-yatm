@@ -32,7 +32,7 @@ end
 local function debug(scope, ...)
   if scope == "" then
   elseif scope == "network_energy_update" then
-    return
+    --return
   elseif scope == "network_update" then
     return
   elseif scope == "network_device_update" then
@@ -632,13 +632,13 @@ local function update_network(pot, dtime, counter, network_id, network)
   -- It's up to the node how it wants to deal with the energy, whether it's buffered, or just burst
   local span = trace.span_start(ot, "energy_producer")
   local energy_produced = reduce_group_members(network, "energy_producer", 0, function (pos, node, acc)
-    debug("network_energy_update", counter, "PRODUCE ENERGY", pos.x, pos.y, pos.z, node.name)
+    debug("network_energy_update", "PRODUCE ENERGY", pos.x, pos.y, pos.z, node.name)
     local nodedef = minetest.registered_nodes[node.name]
     if nodedef then
       if nodedef.yatm_network and nodedef.yatm_network.produce_energy then
-        acc = acc + nodedef.yatm_network.produce_energy(pos, node)
+        acc = acc + nodedef.yatm_network.produce_energy(pos, node, span)
       else
-        debug("network_energy_update", counter, "INVALID ENERGY PRODUCER", pos.x, pos.y, pos.z, node.name)
+        debug("network_energy_update", "INVALID ENERGY PRODUCER", pos.x, pos.y, pos.z, node.name)
       end
     end
     return true, acc
@@ -655,7 +655,7 @@ local function update_network(pot, dtime, counter, network_id, network)
       if nodedef.yatm_network and nodedef.yatm_network.get_usable_stored_energy then
         acc = acc + nodedef.yatm_network.get_usable_stored_energy(pos, node)
       else
-        debug("network_energy_update", counter, "INVALID ENERGY STORAGE", pos.x, pos.y, pos.z, node.name)
+        debug("network_energy_update", "INVALID ENERGY STORAGE", pos.x, pos.y, pos.z, node.name)
       end
     end
     return true, acc
@@ -666,7 +666,7 @@ local function update_network(pot, dtime, counter, network_id, network)
   local total_energy_available = energy_stored + energy_produced
   local energy_available = total_energy_available
 
-  debug("network_energy_update", counter, "ENERGY_AVAILABLE", energy_available, "=", energy_stored, " + ", energy_produced)
+  debug("network_energy_update", "ENERGY_AVAILABLE", energy_available, "=", energy_stored, " + ", energy_produced)
 
   local energy_consumed = reduce_group_members(network, "energy_consumer", 0, function (pos, node, acc)
     local nodedef = minetest.registered_nodes[node.name]
@@ -678,7 +678,7 @@ local function update_network(pot, dtime, counter, network_id, network)
         end
         acc = acc + consumed
       else
-        debug("network_energy_update", counter, "INVALID ENERGY CONSUMER", pos.x, pos.y, pos.z, node.name)
+        debug("network_energy_update", "INVALID ENERGY CONSUMER", pos.x, pos.y, pos.z, node.name)
       end
     end
     -- can't continue if we have no energy available
@@ -686,7 +686,7 @@ local function update_network(pot, dtime, counter, network_id, network)
   end)
   trace.span_end(span)
 
-  debug("network_energy_update", counter, "ENERGY_CONSUMED", energy_consumed)
+  debug("network_energy_update", "ENERGY_CONSUMED", energy_consumed)
 
   local span = trace.span_start(ot, "energy_storage")
   local energy_storage_consumed = energy_consumed - energy_produced
@@ -699,7 +699,7 @@ local function update_network(pot, dtime, counter, network_id, network)
           local used = nodedef.yatm_network.use_stored_energy(pos, node, energy_storage_consumed)
           energy_storage_consumed = energy_storage_consumed - used
         else
-          debug("network_energy_update", counter, "INVALID ENERGY STORAGE", pos.x, pos.y, pos.z, node.name)
+          debug("network_energy_update", "INVALID ENERGY STORAGE", pos.x, pos.y, pos.z, node.name)
         end
       end
       -- only continue if the energy_storage_consumed is still greater than 0
@@ -714,7 +714,7 @@ local function update_network(pot, dtime, counter, network_id, network)
   if energy_available > energy_stored then
     local energy_left = energy_available - energy_stored
 
-    debug("network_energy_update", counter, "ENERGY_LEFT", energy_left)
+    debug("network_energy_update", "ENERGY_LEFT", energy_left)
     -- Receivers are the lowest priority, they accept any left over energy from the production
     -- Incidentally, storage nodes tend to be also receivers
     reduce_group_members(network, "energy_receiver", 0, function (pos, node, acc)
@@ -724,7 +724,7 @@ local function update_network(pot, dtime, counter, network_id, network)
           local energy_received = nodedef.yatm_network.receive_energy(pos, node, energy_left)
           energy_left = energy_left - energy_received
         else
-          debug("network_energy_update", counter, "INVALID ENERGY RECEIVER", pos.x, pos.y, pos.z, node.name)
+          debug("network_energy_update", "INVALID ENERGY RECEIVER", pos.x, pos.y, pos.z, node.name)
         end
       end
       return energy_left > 0, acc + 1
@@ -741,7 +741,7 @@ local function update_network(pot, dtime, counter, network_id, network)
         nodedef.yatm_network.update(pos, node, s)
         trace.span_end(s)
       else
-        --debug("network_device_update", counter, "INVALID UPDATABLE DEVICE", pos.x, pos.y, pos.z, node.name)
+        debug("network_device_update", "INVALID UPDATABLE DEVICE", pos.x, pos.y, pos.z, node.name)
       end
     end
     return true, acc + 1

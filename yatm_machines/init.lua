@@ -172,6 +172,9 @@ function yatm_machines.register_network_device(name, nodedef)
         assert(ym.energy_capacity, "workers require an energy capacity")
         assert(ym.network_charge_bandwidth, "workers require network charge bandwidth")
       end
+      if ym.groups.energy_producer then
+        assert(ym.produce_energy, "expected produce_energy/2 to be defined")
+      end
       if ym.groups.energy_consumer then
         if ym.passive_energy_lost == nil then
           ym.passive_energy_lost = 10

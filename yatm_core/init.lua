@@ -20,6 +20,14 @@ yatm_core.D_WEST = 8 -- -X
 yatm_core.D_DOWN = 16 -- -Y
 yatm_core.D_UP = 32 -- +Y
 
+-- In case one needs the 4 cardinal directions for whatever reason
+yatm_core.DIR4 = {
+  D_NORTH,
+  D_EAST,
+  D_SOUTH,
+  D_WEST,
+}
+
 -- Vectors, repsenting the directions
 yatm_core.V3_NORTH = vector.new(0, 0, 1)
 yatm_core.V3_EAST = vector.new(1, 0, 0)
@@ -38,6 +46,7 @@ yatm_core.DIR6_TO_VEC3 = {
   [yatm_core.D_UP] = yatm_core.V3_UP,
 }
 
+-- And the inversions
 yatm_core.INVERT_DIR6_TO_VEC3 = {
   [yatm_core.D_SOUTH] = yatm_core.V3_NORTH,
   [yatm_core.D_WEST] = yatm_core.V3_EAST,
@@ -74,6 +83,7 @@ local W = yatm_core.D_WEST
 local D = yatm_core.D_DOWN
 local U = yatm_core.D_UP
 
+-- Never again, f*** this seriously.
 yatm_core.FACEDIR_TO_NEW_FACEDIR = {
   -- Yp
   [0] = fm(N, E, S, W, D, U),
