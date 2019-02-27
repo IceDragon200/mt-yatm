@@ -20,9 +20,10 @@ function computer_yatm_network.update(pos, node)
   end
 end
 
-yatm_machines.register_network_device("yatm_machines:computer_off", {
-  description = "Boiler",
+yatm_machines.register_network_device(computer_yatm_network.states.off, {
+  description = "Computer",
   groups = {cracky = 1},
+  drop = computer_yatm_network.states.off,
   tiles = {
     "yatm_computer_top.off.png",
     "yatm_computer_bottom.png",
@@ -36,10 +37,10 @@ yatm_machines.register_network_device("yatm_machines:computer_off", {
   yatm_network = computer_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:computer_error", {
-  description = "Boiler",
+yatm_machines.register_network_device(computer_yatm_network.states.error, {
+  description = "Computer",
   groups = {cracky = 1, not_in_creative_inventory = 1},
-  drop = "yatm_machines:computer_off",
+  drop = computer_yatm_network.states.off,
   tiles = {
     "yatm_computer_top.error.png",
     "yatm_computer_bottom.png",
@@ -53,10 +54,10 @@ yatm_machines.register_network_device("yatm_machines:computer_error", {
   yatm_network = computer_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:computer_on", {
-  description = "Boiler",
+yatm_machines.register_network_device(computer_yatm_network.states.on, {
+  description = "Computer",
   groups = {cracky = 1, not_in_creative_inventory = 1},
-  drop = "yatm_machines:computer_off",
+  drop = computer_yatm_network.states.off,
   tiles = {
     "yatm_computer_top.on.png",
     "yatm_computer_bottom.png",

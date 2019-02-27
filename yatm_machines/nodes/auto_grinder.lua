@@ -22,7 +22,7 @@ end
 yatm_machines.register_network_device("yatm_machines:auto_grinder_off", {
   description = "Auto Grinder",
   groups = {cracky = 1},
-  drop = "yatm_machines:auto_grinder_off",
+  drop = auto_grinder_yatm_network.states.off,
   tiles = {
     "yatm_auto_grinder_top.off.png",
     "yatm_auto_grinder_bottom.png",
@@ -39,7 +39,7 @@ yatm_machines.register_network_device("yatm_machines:auto_grinder_off", {
 yatm_machines.register_network_device("yatm_machines:auto_grinder_error", {
   description = "Auto Grinder",
   groups = {cracky = 1, not_in_creative_inventory = 1},
-  drop = "yatm_machines:auto_grinder_off",
+  drop = auto_grinder_yatm_network.states.off,
   tiles = {
     "yatm_auto_grinder_top.error.png",
     "yatm_auto_grinder_bottom.png",
@@ -56,7 +56,7 @@ yatm_machines.register_network_device("yatm_machines:auto_grinder_error", {
 yatm_machines.register_network_device("yatm_machines:auto_grinder_on", {
   description = "Auto Grinder",
   groups = {cracky = 1, not_in_creative_inventory = 1},
-  drop = "yatm_machines:auto_grinder_off",
+  drop = auto_grinder_yatm_network.states.off,
   tiles = {
     "yatm_auto_grinder_top.on.png",
     "yatm_auto_grinder_bottom.png",

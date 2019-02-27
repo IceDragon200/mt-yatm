@@ -15,9 +15,10 @@ local steam_turbine_yatm_network = {
 function steam_turbine_yatm_network.update(pos, node, ot)
 end
 
-yatm_machines.register_network_device("yatm_machines:steam_turbine_off", {
+yatm_machines.register_network_device(steam_turbine_yatm_network.states.off, {
   description = "Steam Turbine",
-  groups = {cracky = 1},
+  groups = {cracky = 1, yatm_network_host = 2},
+  drop = steam_turbine_yatm_network.states.off,
   tiles = {
     "yatm_steam_turbine_top.off.png",
     "yatm_steam_turbine_bottom.png",
@@ -31,9 +32,10 @@ yatm_machines.register_network_device("yatm_machines:steam_turbine_off", {
   yatm_network = steam_turbine_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:steam_turbine_error", {
+yatm_machines.register_network_device(steam_turbine_yatm_network.states.error, {
   description = "Steam Turbine",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = {cracky = 1, yatm_network_host = 2, not_in_creative_inventory = 1},
+  drop = steam_turbine_yatm_network.states.off,
   tiles = {
     "yatm_steam_turbine_top.error.png",
     "yatm_steam_turbine_bottom.png",
@@ -47,9 +49,10 @@ yatm_machines.register_network_device("yatm_machines:steam_turbine_error", {
   yatm_network = steam_turbine_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:steam_turbine_on", {
+yatm_machines.register_network_device(steam_turbine_yatm_network.states.on, {
   description = "Steam Turbine",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = {cracky = 1, yatm_network_host = 2, not_in_creative_inventory = 1},
+  drop = steam_turbine_yatm_network.states.off,
   tiles = {
     {
       name = "yatm_steam_turbine_top.on.png",

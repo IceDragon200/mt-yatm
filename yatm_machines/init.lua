@@ -24,18 +24,21 @@ startup_energy_threshold :: integer
 yatm_machines = rawget(_G, "yatm_machines") or {}
 yatm_machines.modpath = minetest.get_modpath(minetest.get_current_modname())
 
-function yatm_machines.default_after_place_node(pos)
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
-  if nodedef then
-    nodedef.on_yatm_device_changed(pos, node, pos, node)
-  end
-  yatm_cables.default_yatm_notify_neighbours_changed(pos)
+function yatm_machines.device_on_destruct(pos)
+  return yatm_core.Network.device_on_destruct(pos)
+end
+
+function yatm_machines.device_after_destruct(pos, node)
+  return yatm_core.Network.device_after_destruct(pos, node)
+end
+
+function yatm_machines.device_after_place_node(pos)
+  return yatm_core.Network.device_after_place_node(pos)
 end
 
 function yatm_machines.default_on_device_changed(pos, node, origin_pos, origin_node)
-  print("TRIGGERING DEVICE CHANGED", pos.x, pos.y, pos.z, node.name, "ORIGIN", origin_pos.x, origin_pos.y, origin_pos.z, origin_node.name)
-  yatm_core.Network.schedule_refresh_network_topography(pos, {kind = "device_added"})
+  print("yatm_machines.default_on_device_changed/4", pos.x, pos.y, pos.z, node.name, "ORIGIN", origin_pos.x, origin_pos.y, origin_pos.z, origin_node.name)
+  yatm_core.Network.schedule_refresh_network_topography(pos, {kind = "device_changed"})
 end
 
 function yatm_machines.network_passive_consume_energy(pos, node, amount)
@@ -121,22 +124,45 @@ end
 
 function yatm_machines.register_network_device(name, nodedef)
   if not nodedef.on_yatm_device_changed then
-    nodedef.on_yatm_device_changed = yatm_machines.default_on_device_changed
+    print("register_network_device", name, "patching register_network_device")
+    nodedef.on_yatm_device_changed = assert(yatm_machines.default_on_device_changed)
   end
+
   if not nodedef.on_yatm_network_changed then
-    nodedef.on_yatm_network_changed = yatm_core.Network.default_handle_network_changed
+    print("register_network_device", name, "patching on_yatm_network_changed")
+    nodedef.on_yatm_network_changed = assert(yatm_core.Network.default_handle_network_changed)
   end
+
+  if nodedef.groups and nodedef.groups.yatm_network_host then
+    if not nodedef.on_destruct then
+      print("register_network_device", name, "patching on_destruct with on_host_destruct")
+      nodedef.on_destruct = assert(yatm_core.Network.on_host_destruct)
+    end
+    if not nodedef.after_place_node then
+      print("register_network_device", name, "patching after_place_node with default_yatm_notify_neighbours_changed")
+      nodedef.after_place_node = assert(yatm_core.Network.device_after_place_node)
+    end
+  end
+
   if not nodedef.after_place_node then
-    nodedef.after_place_node = yatm_machines.default_after_place_node
+    print("register_network_device", name, "patching after_place_node with device_after_place_node")
+    nodedef.after_place_node = assert(yatm_machines.device_after_place_node)
   end
+
+  if not nodedef.on_destruct then
+    print("register_network_device", name, "patching on_destruct with on_host_destruct")
+    nodedef.on_destruct = assert(yatm_machines.device_on_destruct)
+  end
+
   if not nodedef.after_destruct then
-    nodedef.after_destruct = yatm_cables.default_yatm_notify_neighbours_changed
+    print("register_network_device", name, "patching after_destruct")
+    nodedef.after_destruct = assert(yatm_machines.device_after_destruct)
   end
 
   if nodedef.yatm_network then
     local ym = nodedef.yatm_network
     if ym.on_network_state_changed == nil then
-      ym.on_network_state_changed = yatm_machines.default_on_network_state_changed
+      ym.on_network_state_changed = assert(yatm_machines.default_on_network_state_changed)
     end
     if ym.groups then
       if ym.groups.machine_worker then

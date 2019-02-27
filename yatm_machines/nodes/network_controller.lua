@@ -11,49 +11,9 @@ local network_yatm_network = {
   }
 }
 
-local function handle_on_destruct(pos, _old_node)
-  -- the controller is about to be lost, destroy it's existing network
-  local meta = minetest.get_meta(pos)
-  local network_id = yatm_core.Network.get_network_id(meta)
-  if network_id then
-    print("Destroying network", network_id)
-    yatm_core.Network.destroy_network(network_id)
-  end
-  yatm_core.Network.schedule_refresh_network_topography(pos, {kind = "controller_removed"})
-end
-
-local function handle_on_network_changed(pos, node, ts, network_id, state)
-  local nodedef = minetest.registered_nodes[node.name]
-  if nodedef then
-    if nodedef.yatm_network then
-      local meta = minetest.get_meta(pos)
-      if meta then
-        yatm_core.Network.set_network_ts(meta, ts)
-      end
-
-      if nodedef.yatm_network.states then
-        if state == "off" then
-          print("WARN: CONTROLLER SHOULD BE OFF")
-        else
-          local new_name = nodedef.yatm_network.states[state]
-          if new_name then
-            if node.name ~= new_name then
-              print("TS", ts, "NETWORK CHANGED (controller)", pos.x, pos.y, pos.z, node.name, "to", new_name, "NID", network_id, "STATE", state)
-              node.name = new_name
-              minetest.swap_node(pos, node)
-            end
-          else
-            print("WARN", node.name, "does not have a network state", state)
-          end
-        end
-      end
-    end
-  end
-end
-
 yatm_machines.register_network_device("yatm_machines:network_controller_off", {
   description = "Network Controller",
-  groups = {cracky = 1},
+  groups = {cracky = 1, yatm_network_host = 1},
   tiles = {
     "yatm_network_controller_top.off.png",
     "yatm_network_controller_bottom.png",
@@ -65,16 +25,12 @@ yatm_machines.register_network_device("yatm_machines:network_controller_off", {
   paramtype = "light",
   paramtype2 = "facedir",
   yatm_network = network_yatm_network,
-  on_destruct = handle_on_destruct,
-  after_place_node = yatm_cables.default_yatm_notify_neighbours_changed,
-  after_destruct = yatm_cables.default_yatm_notify_neighbours_changed,
-  on_yatm_network_changed = handle_on_network_changed,
 })
 
 yatm_machines.register_network_device("yatm_machines:network_controller_error", {
   description = "Network Controller",
   drop = "yatm_machines:network_controller_off",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = {cracky = 1, not_in_creative_inventory = 1, yatm_network_host = 1},
   tiles = {
     "yatm_network_controller_top.error.png",
     "yatm_network_controller_bottom.png",
@@ -86,16 +42,12 @@ yatm_machines.register_network_device("yatm_machines:network_controller_error", 
   paramtype = "light",
   paramtype2 = "facedir",
   yatm_network = network_yatm_network,
-  on_destruct = handle_on_destruct,
-  after_place_node = yatm_cables.default_yatm_notify_neighbours_changed,
-  after_destruct = yatm_cables.default_yatm_notify_neighbours_changed,
-  on_yatm_network_changed = handle_on_network_changed,
 })
 
 yatm_machines.register_network_device("yatm_machines:network_controller_on", {
   description = "Network Controller",
   drop = "yatm_machines:network_controller_off",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = {cracky = 1, not_in_creative_inventory = 1, yatm_network_host = 1},
   tiles = {
     {
       name = "yatm_network_controller_top.on.png",
@@ -131,62 +83,4 @@ yatm_machines.register_network_device("yatm_machines:network_controller_on", {
   paramtype = "light",
   paramtype2 = "facedir",
   yatm_network = network_yatm_network,
-  on_destruct = handle_on_destruct,
-  after_place_node = yatm_cables.default_yatm_notify_neighbours_changed,
-  after_destruct = yatm_cables.default_yatm_notify_neighbours_changed,
-  on_yatm_network_changed = handle_on_network_changed,
-})
-
-minetest.register_abm({
-  label = "yatm_machines:network_controller",
-  nodenames = {
-    "yatm_machines:network_controller_off",
-    "yatm_machines:network_controller_on",
-  },
-  interval = 1,
-  chance = 1,
-  action = function (pos, node)
-    -- for now, we'll just activate any existing controllers
-    if node.name ~= "yatm_machines:network_controller_on" then
-      node.name = "yatm_machines:network_controller_on"
-      minetest.swap_node(pos, node)
-    end
-
-    -- the node has to be active to do anything useful
-    if node.name == "yatm_machines:network_controller_on" then
-      local meta = minetest.get_meta(pos)
-      local network_id = yatm_core.Network.get_network_id(meta)
-      if yatm_core.Network.is_valid_network_id(network_id) then
-        -- it has a valid network
-      else
-        print("Initializing network controller")
-        network_id = yatm_core.Network.create_network(pos)
-        yatm_core.Network.set_network_id(meta, network_id)
-        meta:set_string("infotext", "Network ID " .. network_id)
-        yatm_core.Network.schedule_refresh_network_topography(pos, {kind = "controller_initialized"})
-        print("NETWORK ESTABLISHED", pos.x, pos.y, pos.z, network_id)
-      end
-    end
-  end
-})
-
-minetest.register_lbm({
-  name = "yatm_machines:refresh_network",
-  nodenames = {
-    "yatm_machines:network_controller_off",
-    "yatm_machines:network_controller_on",
-  },
-  run_at_every_load = true,
-  action = function (pos, node)
-    print("SCHEDULE NETWORK REFRESH", pos.x, pos.y, pos.z)
-    local meta = minetest.get_meta(pos)
-    local network_id = yatm_core.Network.get_network_id(meta)
-    if network_id then
-      yatm_core.Network.initialize_network(pos, network_id)
-    else
-      node.name = "yatm_machines:network_controller_off"
-      minetest.swap_node(pos, node)
-    end
-    yatm_core.Network.schedule_refresh_network_topography(pos, {kind = "controller_load"})
-  end
 })

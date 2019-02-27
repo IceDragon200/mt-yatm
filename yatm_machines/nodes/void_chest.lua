@@ -19,9 +19,10 @@ function void_chest_yatm_network.update(pos, node)
   end
 end
 
-yatm_machines.register_network_device("yatm_machines:void_chest_off", {
+yatm_machines.register_network_device(void_chest_yatm_network.states.off, {
   description = "Void Chest",
   groups = {cracky = 1},
+  drop = void_chest_yatm_network.states.off,
   tiles = {
     "yatm_void_chest_top.off.png",
     "yatm_void_chest_bottom.png",
@@ -35,9 +36,10 @@ yatm_machines.register_network_device("yatm_machines:void_chest_off", {
   yatm_network = void_chest_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:void_chest_error", {
+yatm_machines.register_network_device(void_chest_yatm_network.states.error, {
   description = "Void Chest",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = void_chest_yatm_network.states.off,
   tiles = {
     "yatm_void_chest_top.error.png",
     "yatm_void_chest_bottom.png",
@@ -51,9 +53,10 @@ yatm_machines.register_network_device("yatm_machines:void_chest_error", {
   yatm_network = void_chest_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:void_chest_on", {
+yatm_machines.register_network_device(void_chest_yatm_network.states.on, {
   description = "Void Chest",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = void_chest_yatm_network.states.off,
   tiles = {
     "yatm_void_chest_top.on.png",
     "yatm_void_chest_bottom.png",

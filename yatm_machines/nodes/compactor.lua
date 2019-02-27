@@ -24,9 +24,10 @@ function compactor_yatm_network.work(pos, node, energy, work_rate)
   return 1
 end
 
-yatm_machines.register_network_device("yatm_machines:compactor_off", {
+yatm_machines.register_network_device(compactor_yatm_network.states.off, {
   description = "Compactor",
   groups = {cracky = 1},
+  drop = compactor_yatm_network.states.off,
   tiles = {
     "yatm_compactor_top.off.png",
     "yatm_compactor_bottom.png",
@@ -37,12 +38,13 @@ yatm_machines.register_network_device("yatm_machines:compactor_off", {
   },
   paramtype = "light",
   paramtype2 = "facedir",
-  yatm_network = yatm_core.merge_tables(compactor_yatm_network, {state = "off"}),
+  yatm_network = yatm_core.table_merge(compactor_yatm_network, {state = "off"}),
 })
 
-yatm_machines.register_network_device("yatm_machines:compactor_error", {
+yatm_machines.register_network_device(compactor_yatm_network.states.error, {
   description = "Compactor",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = compactor_yatm_network.states.off,
   tiles = {
     "yatm_compactor_top.error.png",
     "yatm_compactor_bottom.png",
@@ -53,12 +55,13 @@ yatm_machines.register_network_device("yatm_machines:compactor_error", {
   },
   paramtype = "light",
   paramtype2 = "facedir",
-  yatm_network = yatm_core.merge_tables(compactor_yatm_network, {state = "error"}),
+  yatm_network = yatm_core.table_merge(compactor_yatm_network, {state = "error"}),
 })
 
-yatm_machines.register_network_device("yatm_machines:compactor_on", {
+yatm_machines.register_network_device(compactor_yatm_network.states.on, {
   description = "Compactor",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = compactor_yatm_network.states.off,
   tiles = {
     "yatm_compactor_top.on.png",
     "yatm_compactor_bottom.png",
@@ -95,5 +98,5 @@ yatm_machines.register_network_device("yatm_machines:compactor_on", {
   },
   paramtype = "light",
   paramtype2 = "facedir",
-  yatm_network = yatm_core.merge_tables(compactor_yatm_network, {state = "on"}),
+  yatm_network = yatm_core.table_merge(compactor_yatm_network, {state = "on"}),
 })

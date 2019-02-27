@@ -35,9 +35,10 @@ function combustion_engine_yatm_network.produce_energy(pos, node, should_commit)
   return 0
 end
 
-yatm_machines.register_network_device("yatm_machines:combustion_engine_off", {
+yatm_machines.register_network_device(combustion_engine_yatm_network.states.off, {
   description = "Combustion Engine",
-  groups = {cracky = 1},
+  groups = {cracky = 1, yatm_network_host = 3},
+  drop = combustion_engine_yatm_network.states.off,
   tiles = {
     "yatm_combustion_engine_top.off.png",
     "yatm_combustion_engine_bottom.off.png",
@@ -53,10 +54,10 @@ yatm_machines.register_network_device("yatm_machines:combustion_engine_off", {
   yatm_network = combustion_engine_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:combustion_engine_error", {
+yatm_machines.register_network_device(combustion_engine_yatm_network.states.error, {
   description = "Combustion Engine",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
-  drop = "yatm_machines:combustion_engine_off",
+  groups = {cracky = 1, yatm_network_host = 3, not_in_creative_inventory = 1},
+  drop = combustion_engine_yatm_network.states.off,
   tiles = {
     "yatm_combustion_engine_top.error.png",
     "yatm_combustion_engine_bottom.error.png",
@@ -72,10 +73,10 @@ yatm_machines.register_network_device("yatm_machines:combustion_engine_error", {
   yatm_network = combustion_engine_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:combustion_engine_on", {
+yatm_machines.register_network_device(combustion_engine_yatm_network.states.on, {
   description = "Combustion Engine",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
-  drop = "yatm_machines:combustion_engine_off",
+  groups = {cracky = 1, yatm_network_host = 3, not_in_creative_inventory = 1},
+  drop = combustion_engine_yatm_network.states.off,
   tiles = {
     "yatm_combustion_engine_top.on.png",
     "yatm_combustion_engine_bottom.on.png",

@@ -26,19 +26,6 @@ local function calculate_cable_index_and_facedir(origin)
   return entry[1], entry[2]
 end
 
-function yatm_cables.default_yatm_notify_neighbours_changed(origin)
-  local origin_node = minetest.get_node(origin)
-  for dir_code, vec3 in pairs(yatm_core.DIR6_TO_VEC3) do
-    local pos = vector.add(origin, vec3)
-    local node = minetest.get_node(pos)
-    local nodedef = minetest.registered_nodes[node.name]
-    -- check if the node works with the yatm network
-    if nodedef and nodedef.on_yatm_device_changed then
-      nodedef.on_yatm_device_changed(pos, node, origin, origin_node)
-    end
-  end
-end
-
 local function refresh_cable_joint(pos, node)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef then
@@ -59,16 +46,13 @@ local function handle_after_place_node(pos)
   local node = minetest.get_node(pos)
   refresh_cable_joint(pos, node)
   -- let the system know it needs to refresh the network topography
-  yatm_core.Network.schedule_refresh_network_topography(pos, {kind = "cable_added"})
-  yatm_cables.default_yatm_notify_neighbours_changed(pos)
+  yatm_core.Network.schedule_refresh_network_topography(pos, { kind = "cable_added" })
 end
 
-local function handle_after_destruct(pos, _old_node)
+local function handle_after_destruct(pos, old_node)
   print("cable destroyed, alerting neighbours")
-  local node = minetest.get_node(pos)
   -- let the system know it needs to refresh the network topography
-  yatm_core.Network.schedule_refresh_network_topography(pos, {kind = "cable_removed"})
-  yatm_cables.default_yatm_notify_neighbours_changed(pos)
+  yatm_core.Network.schedule_refresh_network_topography(pos, { kind = "cable_removed" })
 end
 
 local CABLE = "cable"
@@ -138,7 +122,7 @@ local function register_cable_state(params, thickness)
     }
 
     print("Registering cable node " .. node_name)
-    minetest.register_node(node_name, {
+    local nodedef = {
       description = params.description,
       groups = groups,
       is_ground_content = false,
@@ -156,7 +140,12 @@ local function register_cable_state(params, thickness)
       yatm_network = yatm_network,
       on_yatm_device_changed = handle_on_yatm_device_changed,
       on_yatm_network_changed = yatm_core.Network.default_handle_network_changed,
-    })
+    }
+
+    if params.sounds then
+      nodedef.sounds = params.sounds
+    end
+    minetest.register_node(node_name, nodedef)
   end
 end
 
@@ -174,6 +163,7 @@ function yatm_cables.register_cable(params, thickness)
         postfix = state_postfix,
         state = state,
         states = cable_states,
+        sounds = params.sounds,
       }, thickness)
     end
   elseif cable_states == false then
@@ -185,6 +175,7 @@ function yatm_cables.register_cable(params, thickness)
       postfix = "_",
       state = false,
       states = {},
+      sounds = params.sounds,
     }, thickness)
   end
 end
@@ -213,12 +204,14 @@ yatm_cables.register_cable({
   drop = "yatm_cables:small_cable_off_0",
 }, 4 * yatm_core.PX16)
 
+local glass_sounds = default.node_sound_glass_defaults()
 yatm_cables.register_cable({
   name = "pipe_glass",
   description = "Glass Pipe",
   texture_basename = "yatm_pipe.glass",
   states = false,
   drop = "yatm_cables:glass_pipe_0",
+  sounds = glass_sounds,
 }, 4 * yatm_core.PX16)
 
 yatm_cables.register_cable({
@@ -227,6 +220,7 @@ yatm_cables.register_cable({
   texture_basename = "yatm_pipe.glass.red.black.couplings",
   states = false,
   drop = "yatm_cables:pipe_glass_rb_0",
+  sounds = glass_sounds,
 }, 4 * yatm_core.PX16)
 
 yatm_cables.register_cable({
@@ -235,6 +229,7 @@ yatm_cables.register_cable({
   texture_basename = "yatm_pipe.glass.yellow.black.couplings",
   states = false,
   drop = "yatm_cables:pipe_glass_yb_0",
+  sounds = glass_sounds,
 }, 4 * yatm_core.PX16)
 
 yatm_cables.register_cable({

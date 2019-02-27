@@ -19,9 +19,10 @@ function crusher_yatm_network.update(pos, node)
   end
 end
 
-yatm_machines.register_network_device("yatm_machines:crusher_off", {
+yatm_machines.register_network_device(crusher_yatm_network.states.off, {
   description = "Crusher",
   groups = {cracky = 1},
+  drop = crusher_yatm_network.states.off,
   tiles = {
     "yatm_crusher_top.off.png",
     "yatm_crusher_bottom.png",
@@ -35,9 +36,10 @@ yatm_machines.register_network_device("yatm_machines:crusher_off", {
   yatm_network = crusher_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:crusher_error", {
+yatm_machines.register_network_device(crusher_yatm_network.states.error, {
   description = "Crusher",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = crusher_yatm_network.states.off,
   tiles = {
     "yatm_crusher_top.error.png",
     "yatm_crusher_bottom.png",
@@ -51,9 +53,10 @@ yatm_machines.register_network_device("yatm_machines:crusher_error", {
   yatm_network = crusher_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:crusher_on", {
+yatm_machines.register_network_device(crusher_yatm_network.states.on, {
   description = "Crusher",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = crusher_yatm_network.states.off,
   tiles = {
     "yatm_crusher_top.on.png",
     "yatm_crusher_bottom.png",
