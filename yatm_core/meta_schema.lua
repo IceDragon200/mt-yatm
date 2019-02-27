@@ -51,6 +51,7 @@ Args:
 * `buffer` - a buffer instance
 ]]
 function MetaSchema:set_field(meta, basename, key, value)
+  assert(meta, "expected a meta")
   if self.schema[key] then
     local entry = self.schema[key]
     local field_name = (self.prefix or "") .. basename .. "_" .. key
@@ -70,12 +71,14 @@ function MetaSchema:set_field(meta, basename, key, value)
 end
 
 function MetaSchema:set(meta, basename, params)
+  assert(meta, "expected a meta")
   for key,value in pairs(params) do
     self:set_field(meta, basename, key, value)
   end
 end
 
 function MetaSchema:get_field(meta, basename, key)
+  assert(meta, "expected a meta")
   if self.schema[key] then
     local entry = self.schema[key]
     local field_name = (self.prefix or "") .. basename .. "_" .. key
@@ -96,6 +99,7 @@ function MetaSchema:get_field(meta, basename, key)
 end
 
 function MetaSchema:get(meta, basename)
+  assert(meta, "expected a meta")
   local result = {}
   for key,_ in pairs(self.schema) do
     result[key] = self:get_field(meta, basename, key)
