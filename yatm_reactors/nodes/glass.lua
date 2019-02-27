@@ -1,3 +1,5 @@
+local glass_sounds = default.node_sound_glass_defaults()
+
 for variant, variant_texture_name in pairs({
   ["plain"] = "plain",
   ["red_black_stripes"] = "rb.stripes",
@@ -17,7 +19,8 @@ for variant, variant_texture_name in pairs({
 
   yatm_machines.register_network_device(glass_yatm_network.states._default, {
     description = "Reactor Glass (" .. variant .. ")",
-    groups = {cracky = 1},
+    groups = {cracky = 3},
+    sounds = glass_sounds,
     drop = glass_yatm_network.states._default,
     tiles = {
       "yatm_reactor_glass." .. variant_texture_name .. ".png"
