@@ -68,6 +68,7 @@ function fluids_interface.drain(pos, dir, node, fluid_name, amount, commit)
 end
 
 function steam_turbine_yatm_network.produce_energy(pos, node, ot)
+  local meta = minetest.get_meta(pos)
   local stack, new_amount = yatm_core.fluids.drain_fluid(meta, "steam_tank", "yatm_reactors:steam", 1000, capacity, capacity, false)
   if stack then
     local filled_stack, new_amount = yatm_core.fluids.fill_fluid(meta, "water_tank", "default:water", stack.amount, capacity, capacity, true)
@@ -80,7 +81,7 @@ function steam_turbine_yatm_network.produce_energy(pos, node, ot)
 end
 
 function steam_turbine_yatm_network.update(pos, node, ot)
-  for _, dir in yatm_core.DIR4 do
+  for _, dir in ipairs(yatm_core.DIR4) do
     local new_dir = yatm_core.facedir_to_face(node.param2, dir)
 
     local npos = vector.add(pos, yatm_core.DIR6_TO_VEC3[new_dir])
