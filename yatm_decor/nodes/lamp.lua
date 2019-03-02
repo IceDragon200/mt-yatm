@@ -73,145 +73,167 @@ local lamp_mesecons = {
 }
 
 local lamp_sounds = default.node_sound_glass_defaults()
-local lamp_groups = { dig_immediate = 3 }
 
-for _,pair in ipairs(colors) do
-  local basename = pair[1]
-  local name = pair[2]
-  local lamp_basename = "yatm_decor:lamp_" .. basename
+local states = {
+  "on",
+  "off",
+}
+
+for _,default_state in ipairs(states) do
+  for _,pair in ipairs(colors) do
+    local basename = pair[1]
+    local name = pair[2]
+    local basename_postfix = "_d" .. default_state
 
 
-  minetest.register_node(lamp_basename .. "_off", {
-    description = name .. " Lamp [OFF]",
-    groups = lamp_groups,
-    sounds = lamp_sounds,
-    tiles = {
-      "yatm_lamp_large_" .. basename .. "_top.off.png",
-      "yatm_lamp_large_" .. basename .. "_bottom.off.png",
-      "yatm_lamp_large_" .. basename .. "_side.off.png",
-      "yatm_lamp_large_" .. basename .. "_side.off.png",
-      "yatm_lamp_large_" .. basename .. "_side.off.png",
-      "yatm_lamp_large_" .. basename .. "_side.off.png"
-    },
-    paramtype = "light",
-    paramtype2 = "facedir",
-    drawtype = "nodebox",
-    node_box = lamp_node_box,
-    after_place_node = lamp_after_place_node,
-    mesecons = lamp_mesecons,
-    yatm = { color = basename, lamp_basename = lamp_basename, normal_state = "off" },
-  })
+    local postfix = "(default: " .. default_state .. ")"
 
-  minetest.register_node(lamp_basename .. "_on", {
-    description = name .. " Lamp [ON]",
-    groups = lamp_groups,
-    sounds = lamp_sounds,
-    tiles = {
-      "yatm_lamp_large_" .. basename .. "_top.on.png",
-      "yatm_lamp_large_" .. basename .. "_bottom.on.png",
-      "yatm_lamp_large_" .. basename .. "_side.on.png",
-      "yatm_lamp_large_" .. basename .. "_side.on.png",
-      "yatm_lamp_large_" .. basename .. "_side.on.png",
-      "yatm_lamp_large_" .. basename .. "_side.on.png"
-    },
-    paramtype = "light",
-    paramtype2 = "facedir",
-    sunlight_propagates = true,
-    light_source = default.LIGHT_MAX,
-    drawtype = "nodebox",
-    node_box = lamp_node_box,
-    after_place_node = lamp_after_place_node,
-    mesecons = lamp_mesecons,
-    yatm = { color = basename, lamp_basename = lamp_basename, normal_state = "off" },
-  })
+    local lamp_groups_on = { dig_immediate = 3 }
+    local lamp_groups_off = { dig_immediate = 3 }
+    if default_state == "on" then
+      lamp_groups_off.not_in_creative_inventory = 1
+    else
+      lamp_groups_on.not_in_creative_inventory = 1
+    end
 
-  lamp_basename = "yatm_decor:flat_lamp_" .. basename
-  minetest.register_node(lamp_basename .. "_off", {
-    description = name .. " Flat Lamp [OFF]",
-    groups = lamp_groups,
-    sounds = lamp_sounds,
-    tiles = {
-      "yatm_lamp_large_" .. basename .. "_top.off.png",
-      "yatm_lamp_large_" .. basename .. "_bottom.off.png",
-      "yatm_lamp_large_" .. basename .. "_side.off.png",
-      "yatm_lamp_large_" .. basename .. "_side.off.png",
-      "yatm_lamp_large_" .. basename .. "_side.off.png",
-      "yatm_lamp_large_" .. basename .. "_side.off.png"
-    },
-    paramtype = "light",
-    paramtype2 = "facedir",
-    drawtype = "nodebox",
-    node_box = flat_lamp_node_box,
-    after_place_node = lamp_after_place_node,
-    mesecons = lamp_mesecons,
-    yatm = { color = basename, lamp_basename = lamp_basename, normal_state = "off" },
-  })
+    -- Regular large lamps
+    local lamp_basename = "yatm_decor:lamp_" .. basename .. basename_postfix
+    minetest.register_node(lamp_basename .. "_off", {
+      description = name .. " Lamp [OFF] " .. postfix,
+      groups = lamp_groups_off,
+      sounds = lamp_sounds,
+      tiles = {
+        "yatm_lamp_large_" .. basename .. "_top.off.png",
+        "yatm_lamp_large_" .. basename .. "_bottom.off.png",
+        "yatm_lamp_large_" .. basename .. "_side.off.png",
+        "yatm_lamp_large_" .. basename .. "_side.off.png",
+        "yatm_lamp_large_" .. basename .. "_side.off.png",
+        "yatm_lamp_large_" .. basename .. "_side.off.png"
+      },
+      paramtype = "light",
+      paramtype2 = "facedir",
+      drawtype = "nodebox",
+      node_box = lamp_node_box,
+      after_place_node = lamp_after_place_node,
+      mesecons = lamp_mesecons,
+      yatm = { color = basename, lamp_basename = lamp_basename, normal_state = default_state },
+    })
 
-  minetest.register_node(lamp_basename .. "_on", {
-    description = name .. " Flat Lamp [ON]",
-    groups = lamp_groups,
-    sounds = lamp_sounds,
-    tiles = {
-      "yatm_lamp_large_" .. basename .. "_top.on.png",
-      "yatm_lamp_large_" .. basename .. "_bottom.on.png",
-      "yatm_lamp_large_" .. basename .. "_side.on.png",
-      "yatm_lamp_large_" .. basename .. "_side.on.png",
-      "yatm_lamp_large_" .. basename .. "_side.on.png",
-      "yatm_lamp_large_" .. basename .. "_side.on.png"
-    },
-    paramtype = "light",
-    paramtype2 = "facedir",
-    sunlight_propagates = true,
-    light_source = default.LIGHT_MAX,
-    drawtype = "nodebox",
-    node_box = flat_lamp_node_box,
-    after_place_node = lamp_after_place_node,
-    mesecons = lamp_mesecons,
-    yatm = { color = basename, lamp_basename = lamp_basename, normal_state = "off" },
-  })
+    minetest.register_node(lamp_basename .. "_on", {
+      description = name .. " Lamp [ON] " .. postfix,
+      groups = lamp_groups_on,
+      sounds = lamp_sounds,
+      tiles = {
+        "yatm_lamp_large_" .. basename .. "_top.on.png",
+        "yatm_lamp_large_" .. basename .. "_bottom.on.png",
+        "yatm_lamp_large_" .. basename .. "_side.on.png",
+        "yatm_lamp_large_" .. basename .. "_side.on.png",
+        "yatm_lamp_large_" .. basename .. "_side.on.png",
+        "yatm_lamp_large_" .. basename .. "_side.on.png"
+      },
+      paramtype = "light",
+      paramtype2 = "facedir",
+      sunlight_propagates = true,
+      light_source = default.LIGHT_MAX,
+      drawtype = "nodebox",
+      node_box = lamp_node_box,
+      after_place_node = lamp_after_place_node,
+      mesecons = lamp_mesecons,
+      yatm = { color = basename, lamp_basename = lamp_basename, normal_state = default_state },
+    })
 
-  lamp_basename = "yatm_decor:small_lamp_" .. basename
-  minetest.register_node(lamp_basename .. "_off", {
-    description = name .. " Small Lamp [OFF]",
-    groups = lamp_groups,
-    sounds = lamp_sounds,
-    tiles = {
-      "yatm_lamp_small_" .. basename .. "_top.off.png",
-      "yatm_lamp_small_" .. basename .. "_bottom.off.png",
-      "yatm_lamp_small_" .. basename .. "_side.off.png",
-      "yatm_lamp_small_" .. basename .. "_side.off.png",
-      "yatm_lamp_small_" .. basename .. "_side.off.png",
-      "yatm_lamp_small_" .. basename .. "_side.off.png"
-    },
-    paramtype = "light",
-    paramtype2 = "facedir",
-    drawtype = "nodebox",
-    node_box = small_lamp_node_box,
-    after_place_node = lamp_after_place_node,
-    mesecons = lamp_mesecons,
-    yatm = { color = basename, lamp_basename = lamp_basename, normal_state = "off" },
-  })
+    -- The really flat lamps
+    lamp_basename = "yatm_decor:flat_lamp_" .. basename .. basename_postfix
+    minetest.register_node(lamp_basename .. "_off", {
+      description = name .. " Flat Lamp [OFF] " .. postfix,
+      groups = lamp_groups_off,
+      sounds = lamp_sounds,
+      tiles = {
+        "yatm_lamp_large_" .. basename .. "_top.off.png",
+        "yatm_lamp_large_" .. basename .. "_bottom.off.png",
+        "yatm_lamp_large_" .. basename .. "_side.off.png",
+        "yatm_lamp_large_" .. basename .. "_side.off.png",
+        "yatm_lamp_large_" .. basename .. "_side.off.png",
+        "yatm_lamp_large_" .. basename .. "_side.off.png"
+      },
+      paramtype = "light",
+      paramtype2 = "facedir",
+      drawtype = "nodebox",
+      node_box = flat_lamp_node_box,
+      after_place_node = lamp_after_place_node,
+      mesecons = lamp_mesecons,
+      yatm = { color = basename, lamp_basename = lamp_basename, normal_state = default_state },
+    })
 
-  minetest.register_node(lamp_basename .. "_on", {
-    description = name .. " Small Lamp [ON]",
-    groups = lamp_groups,
-    sounds = lamp_sounds,
-    tiles = {
-      "yatm_lamp_small_" .. basename .. "_top.on.png",
-      "yatm_lamp_small_" .. basename .. "_bottom.on.png",
-      "yatm_lamp_small_" .. basename .. "_side.on.png",
-      "yatm_lamp_small_" .. basename .. "_side.on.png",
-      "yatm_lamp_small_" .. basename .. "_side.on.png",
-      "yatm_lamp_small_" .. basename .. "_side.on.png"
-    },
-    paramtype = "light",
-    paramtype2 = "facedir",
-    sunlight_propagates = true,
-    light_source = default.LIGHT_MAX,
-    drawtype = "nodebox",
-    node_box = small_lamp_node_box,
-    after_place_node = lamp_after_place_node,
-    mesecons = lamp_mesecons,
-    yatm = { color = basename, lamp_basename = lamp_basename, normal_state = "off" },
-  })
+    minetest.register_node(lamp_basename .. "_on", {
+      description = name .. " Flat Lamp [ON] " .. postfix,
+      groups = lamp_groups_on,
+      sounds = lamp_sounds,
+      tiles = {
+        "yatm_lamp_large_" .. basename .. "_top.on.png",
+        "yatm_lamp_large_" .. basename .. "_bottom.on.png",
+        "yatm_lamp_large_" .. basename .. "_side.on.png",
+        "yatm_lamp_large_" .. basename .. "_side.on.png",
+        "yatm_lamp_large_" .. basename .. "_side.on.png",
+        "yatm_lamp_large_" .. basename .. "_side.on.png"
+      },
+      paramtype = "light",
+      paramtype2 = "facedir",
+      sunlight_propagates = true,
+      light_source = default.LIGHT_MAX,
+      drawtype = "nodebox",
+      node_box = flat_lamp_node_box,
+      after_place_node = lamp_after_place_node,
+      mesecons = lamp_mesecons,
+      yatm = { color = basename, lamp_basename = lamp_basename, normal_state = default_state },
+    })
+
+    --[[
+    The really tiny lamp block
+    ]]
+    lamp_basename = "yatm_decor:small_lamp_" .. basename .. basename_postfix
+    minetest.register_node(lamp_basename .. "_off", {
+      description = name .. " Small Lamp [OFF] " .. postfix,
+      groups = lamp_groups_off,
+      sounds = lamp_sounds,
+      tiles = {
+        "yatm_lamp_small_" .. basename .. "_top.off.png",
+        "yatm_lamp_small_" .. basename .. "_bottom.off.png",
+        "yatm_lamp_small_" .. basename .. "_side.off.png",
+        "yatm_lamp_small_" .. basename .. "_side.off.png",
+        "yatm_lamp_small_" .. basename .. "_side.off.png",
+        "yatm_lamp_small_" .. basename .. "_side.off.png"
+      },
+      paramtype = "light",
+      paramtype2 = "facedir",
+      drawtype = "nodebox",
+      node_box = small_lamp_node_box,
+      after_place_node = lamp_after_place_node,
+      mesecons = lamp_mesecons,
+      yatm = { color = basename, lamp_basename = lamp_basename, normal_state = default_state },
+    })
+
+    minetest.register_node(lamp_basename .. "_on", {
+      description = name .. " Small Lamp [ON] " .. postfix,
+      groups = lamp_groups_on,
+      sounds = lamp_sounds,
+      tiles = {
+        "yatm_lamp_small_" .. basename .. "_top.on.png",
+        "yatm_lamp_small_" .. basename .. "_bottom.on.png",
+        "yatm_lamp_small_" .. basename .. "_side.on.png",
+        "yatm_lamp_small_" .. basename .. "_side.on.png",
+        "yatm_lamp_small_" .. basename .. "_side.on.png",
+        "yatm_lamp_small_" .. basename .. "_side.on.png"
+      },
+      paramtype = "light",
+      paramtype2 = "facedir",
+      sunlight_propagates = true,
+      light_source = default.LIGHT_MAX,
+      drawtype = "nodebox",
+      node_box = small_lamp_node_box,
+      after_place_node = lamp_after_place_node,
+      mesecons = lamp_mesecons,
+      yatm = { color = basename, lamp_basename = lamp_basename, normal_state = default_state },
+    })
+  end
 end
