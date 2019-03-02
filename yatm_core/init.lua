@@ -165,32 +165,6 @@ function yatm_core.new_accessible_dirs()
   }
 end
 
-function yatm_core.table_merge(...)
-  local result = {}
-  for _,t in ipairs({...}) do
-    for key,value in pairs(t) do
-      result[key] = value
-    end
-  end
-  return result
-end
-
-function yatm_core.table_keys(t)
-  local keys = {}
-  for key,_ in pairs(t) do
-    table.insert(keys, key)
-  end
-  return keys
-end
-
-function yatm_core.table_values(t)
-  local values = {}
-  for _,value in pairs(t) do
-    table.insert(values, value)
-  end
-  return values
-end
-
 -- done with it, let the gc reclaim it
 fm = nil
 N = nil
@@ -232,6 +206,8 @@ function yatm_core.facedir_wallmount_after_place_node(pos, placer, _itemstack, p
   minetest.swap_node(pos, node)
 end
 
+-- Util
+dofile(yatm_core.modpath .. "/util.lua")
 -- Instrumentation
 dofile(yatm_core.modpath .. "/instrumentation.lua")
 -- Utility
