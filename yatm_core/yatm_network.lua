@@ -32,11 +32,11 @@ end
 local function debug(scope, ...)
   if scope == "" then
   elseif scope == "network_energy_update" then
-    --return
+    return
   elseif scope == "network_update" then
     return
   elseif scope == "network_device_update" then
-    --return
+    return
   end
   print(Network.counter, scope, ...)
 end
@@ -780,7 +780,7 @@ function Network.update(dtime)
 end
 
 function Network.on_shutdown()
-  debug("Network", "Shutting down")
+  debug("Network.on_shutdown/0", "Shutting down")
 end
 
 function Network.on_host_destruct(pos, node)

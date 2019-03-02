@@ -145,7 +145,7 @@ local old_fill = tank_fluids_interface.fill
 function tank_fluids_interface.fill(pos, dir, node, fluid_name, amount, commit)
   local stack = old_fill(pos, dir, node, fluid_name, amount, commit)
   if stack and stack.amount > 0 then
-    print("FILL", pos.x, pos.y, pos.z, node.name, stack.name, stack.amount)
+    --print("FILL", pos.x, pos.y, pos.z, node.name, stack.name, stack.amount)
     return stack
   else
     local new_pos = vector.add(pos, yatm_core.V3_UP)
