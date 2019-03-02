@@ -5,7 +5,7 @@ local server_rack_node_box = {
   }
 }
 
-local server_yatm_network = {
+local server_rack_yatm_network = {
   kind = "machine",
   groups = {
     machine = 1,
@@ -21,15 +21,16 @@ local server_yatm_network = {
   passive_energy_lost = 10
 }
 
-function server_yatm_network.update(pos, node)
+function server_rack_yatm_network.update(pos, node)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef then
   end
 end
 
-yatm_machines.register_network_device("yatm_machines:server_rack_off", {
+yatm_machines.register_network_device(server_rack_yatm_network.states.off, {
   description = "Server Rack",
   groups = {cracky = 1},
+  drop = server_rack_yatm_network.states.off,
   tiles = {
     "yatm_server_rack_top.off.png",
     "yatm_server_rack_bottom.png",
@@ -42,12 +43,13 @@ yatm_machines.register_network_device("yatm_machines:server_rack_off", {
   paramtype = "light",
   paramtype2 = "facedir",
   node_box = server_rack_node_box,
-  yatm_network = server_yatm_network,
+  yatm_network = server_rack_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:server_rack_error", {
+yatm_machines.register_network_device(server_rack_yatm_network.states.error, {
   description = "Server Rack",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = server_rack_yatm_network.states.off,
   tiles = {
     "yatm_server_rack_top.error.png",
     "yatm_server_rack_bottom.png",
@@ -60,12 +62,13 @@ yatm_machines.register_network_device("yatm_machines:server_rack_error", {
   paramtype = "light",
   paramtype2 = "facedir",
   node_box = server_rack_node_box,
-  yatm_network = server_yatm_network,
+  yatm_network = server_rack_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:server_rack_on", {
+yatm_machines.register_network_device(server_rack_yatm_network.states.on, {
   description = "Server Rack",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = server_rack_yatm_network.states.off,
   tiles = {
     "yatm_server_rack_top.on.png",
     "yatm_server_rack_bottom.png",
@@ -86,5 +89,5 @@ yatm_machines.register_network_device("yatm_machines:server_rack_on", {
   paramtype = "light",
   paramtype2 = "facedir",
   node_box = server_rack_node_box,
-  yatm_network = server_yatm_network,
+  yatm_network = server_rack_yatm_network,
 })

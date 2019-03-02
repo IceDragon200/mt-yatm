@@ -19,9 +19,10 @@ function roller_yatm_network.update(pos, node)
   end
 end
 
-yatm_machines.register_network_device("yatm_machines:roller_off", {
+yatm_machines.register_network_device(roller_yatm_network.states.off, {
   description = "Roller",
   groups = {cracky = 1},
+  drop = roller_yatm_network.states.off,
   tiles = {
     "yatm_roller_top.off.png",
     "yatm_roller_bottom.png",
@@ -35,9 +36,10 @@ yatm_machines.register_network_device("yatm_machines:roller_off", {
   yatm_network = roller_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:roller_error", {
+yatm_machines.register_network_device(roller_yatm_network.states.error, {
   description = "Roller",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = roller_yatm_network.states.off,
   tiles = {
     "yatm_roller_top.error.png",
     "yatm_roller_bottom.png",
@@ -51,9 +53,10 @@ yatm_machines.register_network_device("yatm_machines:roller_error", {
   yatm_network = roller_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:roller_on", {
+yatm_machines.register_network_device(roller_yatm_network.states.on, {
   description = "Roller",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = roller_yatm_network.states.off,
   tiles = {
     "yatm_roller_top.on.png",
     "yatm_roller_bottom.png",

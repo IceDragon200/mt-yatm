@@ -1,6 +1,20 @@
-minetest.register_node("yatm_machines:fluid_replicator", {
+local fluid_replicator_yatm_network = {
+  kind = "monitor",
+  groups = {
+    creative_replicator = 1,
+  },
+  states = {
+    error = "yatm_machines:fluid_replicator_error",
+    conflict = "yatm_machines:fluid_replicator_error",
+    off = "yatm_machines:fluid_replicator_off",
+    on = "yatm_machines:fluid_replicator_on",
+  },
+}
+
+yatm_machines.register_network_device(fluid_replicator_yatm_network.states.off, {
   description = "Fluid Replicator",
   groups = {cracky = 1},
+  drop = fluid_replicator_yatm_network.states.off,
   tiles = {
     "yatm_fluid_replicator_top.off.png",
     "yatm_fluid_replicator_bottom.png",
@@ -11,11 +25,30 @@ minetest.register_node("yatm_machines:fluid_replicator", {
   },
   paramtype = "light",
   paramtype2 = "facedir",
+  yatm_network = fluid_replicator_yatm_network,
 })
 
-minetest.register_node("yatm_machines:fluid_replicator_on", {
+yatm_machines.register_network_device(fluid_replicator_yatm_network.states.error, {
+  description = "Fluid Replicator",
+  groups = {cracky = 1},
+  drop = fluid_replicator_yatm_network.states.off,
+  tiles = {
+    "yatm_fluid_replicator_top.error.png",
+    "yatm_fluid_replicator_bottom.png",
+    "yatm_fluid_replicator_side.error.png",
+    "yatm_fluid_replicator_side.error.png^[transformFX",
+    "yatm_fluid_replicator_back.error.png",
+    "yatm_fluid_replicator_front.error.png",
+  },
+  paramtype = "light",
+  paramtype2 = "facedir",
+  yatm_network = fluid_replicator_yatm_network,
+})
+
+yatm_machines.register_network_device(fluid_replicator_yatm_network.states.on, {
   description = "Fluid Replicator",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = fluid_replicator_yatm_network.states.off,
   tiles = {
     "yatm_fluid_replicator_top.on.png",
     "yatm_fluid_replicator_bottom.png",
@@ -42,4 +75,5 @@ minetest.register_node("yatm_machines:fluid_replicator_on", {
   },
   paramtype = "light",
   paramtype2 = "facedir",
+  yatm_network = fluid_replicator_yatm_network,
 })

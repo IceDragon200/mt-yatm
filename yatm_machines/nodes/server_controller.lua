@@ -5,7 +5,7 @@ local server_controller_node_box = {
   }
 }
 
-local server_yatm_network = {
+local server_controller_yatm_network = {
   kind = "machine",
   groups = {
     machine = 1,
@@ -21,15 +21,16 @@ local server_yatm_network = {
   passive_energy_lost = 5
 }
 
-function server_yatm_network.update(pos, node)
+function server_controller_yatm_network.update(pos, node)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef then
   end
 end
 
-yatm_machines.register_network_device("yatm_machines:server_controller_off", {
+yatm_machines.register_network_device(server_controller_yatm_network.states.off, {
   description = "Server Controller",
   groups = {cracky = 1},
+  drop = server_controller_yatm_network.states.off,
   tiles = {
     "yatm_server_controller_top.off.png",
     "yatm_server_controller_bottom.png",
@@ -42,12 +43,13 @@ yatm_machines.register_network_device("yatm_machines:server_controller_off", {
   paramtype = "light",
   paramtype2 = "facedir",
   node_box = server_controller_node_box,
-  yatm_network = server_yatm_network,
+  yatm_network = server_controller_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:server_controller_error", {
+yatm_machines.register_network_device(server_controller_yatm_network.states.error, {
   description = "Server Controller",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = server_controller_yatm_network.states.off,
   tiles = {
     "yatm_server_controller_top.error.png",
     "yatm_server_controller_bottom.png",
@@ -60,12 +62,13 @@ yatm_machines.register_network_device("yatm_machines:server_controller_error", {
   paramtype = "light",
   paramtype2 = "facedir",
   node_box = server_controller_node_box,
-  yatm_network = server_yatm_network,
+  yatm_network = server_controller_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:server_controller_on", {
+yatm_machines.register_network_device(server_controller_yatm_network.states.on, {
   description = "Server Controller",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = server_controller_yatm_network.states.off,
   tiles = {
     "yatm_server_controller_top.on.png",
     "yatm_server_controller_bottom.png",
@@ -86,5 +89,5 @@ yatm_machines.register_network_device("yatm_machines:server_controller_on", {
   paramtype = "light",
   paramtype2 = "facedir",
   node_box = server_controller_node_box,
-  yatm_network = server_yatm_network,
+  yatm_network = server_controller_yatm_network,
 })

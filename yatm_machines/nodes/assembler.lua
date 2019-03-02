@@ -3,6 +3,7 @@ local assembler_yatm_network = {
   groups = {
     machine = 1,
     energy_consumer = 1,
+    has_update = 1,
   },
   states = {
     conflict = "yatm_machines:assembler_error",
@@ -11,6 +12,10 @@ local assembler_yatm_network = {
     on = "yatm_machines:assembler_on",
   }
 }
+
+function assembler_yatm_network.update(pos, node, ot)
+  local meta = minetest.get_meta(pos)
+end
 
 local assembler_node_box = {
   type = "fixed",
@@ -30,6 +35,14 @@ local assembler_node_box = {
     {0.375, -0.5, -0.5, 0.5, -0.375, 0.5}, -- NodeBox13
   }
 }
+
+local assembler_selection_box = {
+  type = "fixed",
+  fixed = {
+    {-0.5, -0.5, -0.5, 0.5, 0.5, 0.5},
+  },
+}
+
 yatm_machines.register_network_device("yatm_machines:assembler_off", {
   description = "Assembler",
   groups = {cracky = 1},
@@ -40,6 +53,7 @@ yatm_machines.register_network_device("yatm_machines:assembler_off", {
   yatm_network = assembler_yatm_network,
   drawtype = "nodebox",
   node_box = assembler_node_box,
+  selection_box = assembler_selection_box,
 })
 
 yatm_machines.register_network_device("yatm_machines:assembler_error", {
@@ -52,6 +66,7 @@ yatm_machines.register_network_device("yatm_machines:assembler_error", {
   yatm_network = assembler_yatm_network,
   drawtype = "nodebox",
   node_box = assembler_node_box,
+  selection_box = assembler_selection_box,
 })
 
 yatm_machines.register_network_device("yatm_machines:assembler_on", {
@@ -72,4 +87,5 @@ yatm_machines.register_network_device("yatm_machines:assembler_on", {
   yatm_network = assembler_yatm_network,
   drawtype = "nodebox",
   node_box = assembler_node_box,
+  selection_box = assembler_selection_box,
 })

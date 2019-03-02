@@ -20,9 +20,10 @@ local monitor_console_yatm_network = {
   },
 }
 
-yatm_machines.register_network_device("yatm_machines:flat_monitor_console_off", {
+yatm_machines.register_network_device(monitor_console_yatm_network.states.off, {
   description = "Flat Monitor (console)",
   groups = {cracky = 1},
+  drop = monitor_console_yatm_network.states.off,
   tiles = {
     "yatm_monitor_top.flat.png",
     "yatm_monitor_bottom.flat.png",
@@ -38,9 +39,10 @@ yatm_machines.register_network_device("yatm_machines:flat_monitor_console_off", 
   node_box = flat_monitor_nodebox,
 })
 
-yatm_machines.register_network_device("yatm_machines:flat_monitor_console_error", {
+yatm_machines.register_network_device(monitor_console_yatm_network.states.error, {
   description = "Flat Monitor (console)",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = monitor_console_yatm_network.states.off,
   tiles = {
     "yatm_monitor_top.flat.png",
     "yatm_monitor_bottom.flat.png",
@@ -56,9 +58,10 @@ yatm_machines.register_network_device("yatm_machines:flat_monitor_console_error"
   node_box = flat_monitor_nodebox,
 })
 
-yatm_machines.register_network_device("yatm_machines:flat_monitor_console_on", {
+yatm_machines.register_network_device(monitor_console_yatm_network.states.on, {
   description = "Flat Monitor (console)",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = monitor_console_yatm_network.states.off,
   tiles = {
     "yatm_monitor_top.flat.png",
     "yatm_monitor_bottom.flat.png",
@@ -97,9 +100,10 @@ local monitor_crafting_yatm_network = {
   },
 }
 
-yatm_machines.register_network_device("yatm_machines:flat_monitor_crafting_off", {
+yatm_machines.register_network_device(monitor_crafting_yatm_network.states.off, {
   description = "Flat Monitor (crafting)",
   groups = {cracky = 1},
+  drop = monitor_crafting_yatm_network.states.off,
   tiles = {
     "yatm_monitor_top.flat.png",
     "yatm_monitor_bottom.flat.png",
@@ -115,9 +119,10 @@ yatm_machines.register_network_device("yatm_machines:flat_monitor_crafting_off",
   node_box = flat_monitor_nodebox,
 })
 
-yatm_machines.register_network_device("yatm_machines:flat_monitor_crafting_error", {
+yatm_machines.register_network_device(monitor_crafting_yatm_network.states.error, {
   description = "Flat Monitor (crafting)",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = monitor_crafting_yatm_network.states.off,
   tiles = {
     "yatm_monitor_top.flat.png",
     "yatm_monitor_bottom.flat.png",
@@ -133,9 +138,10 @@ yatm_machines.register_network_device("yatm_machines:flat_monitor_crafting_error
   node_box = flat_monitor_nodebox,
 })
 
-yatm_machines.register_network_device("yatm_machines:flat_monitor_crafting_on", {
+yatm_machines.register_network_device(monitor_crafting_yatm_network.states.on, {
   description = "Flat Monitor (crafting)",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = monitor_crafting_yatm_network.states.off,
   tiles = {
     "yatm_monitor_top.flat.png",
     "yatm_monitor_bottom.flat.png",
@@ -166,9 +172,10 @@ local monitor_ele_yatm_network = {
   },
 }
 
-yatm_machines.register_network_device("yatm_machines:flat_monitor_ele_off", {
+yatm_machines.register_network_device(monitor_ele_yatm_network.states.off, {
   description = "Flat Monitor (ele)",
   groups = {cracky = 1},
+  drop = monitor_ele_yatm_network.states.off,
   tiles = {
     "yatm_monitor_top.flat.png",
     "yatm_monitor_bottom.flat.png",
@@ -184,9 +191,10 @@ yatm_machines.register_network_device("yatm_machines:flat_monitor_ele_off", {
   node_box = flat_monitor_nodebox,
 })
 
-yatm_machines.register_network_device("yatm_machines:flat_monitor_ele_error", {
+yatm_machines.register_network_device(monitor_ele_yatm_network.states.error, {
   description = "Flat Monitor (ele)",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = monitor_ele_yatm_network.states.off,
   tiles = {
     "yatm_monitor_top.flat.png",
     "yatm_monitor_bottom.flat.png",
@@ -202,9 +210,10 @@ yatm_machines.register_network_device("yatm_machines:flat_monitor_ele_error", {
   node_box = flat_monitor_nodebox,
 })
 
-yatm_machines.register_network_device("yatm_machines:flat_monitor_ele_on", {
+yatm_machines.register_network_device(monitor_ele_yatm_network.states.on, {
   description = "Flat Monitor (ele)",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = monitor_ele_yatm_network.states.off,
   tiles = {
     "yatm_monitor_top.flat.png",
     "yatm_monitor_bottom.flat.png",
@@ -235,9 +244,10 @@ local monitor_inventory_yatm_network = {
   },
 }
 
-yatm_machines.register_network_device("yatm_machines:flat_monitor_inventory_off", {
+yatm_machines.register_network_device(monitor_inventory_yatm_network.states.off, {
   description = "Flat Monitor (inventory)",
   groups = {cracky = 1},
+  drop = monitor_inventory_yatm_network.states.off,
   tiles = {
     "yatm_monitor_top.flat.png",
     "yatm_monitor_bottom.flat.png",
@@ -253,9 +263,10 @@ yatm_machines.register_network_device("yatm_machines:flat_monitor_inventory_off"
   node_box = flat_monitor_nodebox,
 })
 
-yatm_machines.register_network_device("yatm_machines:flat_monitor_inventory_error", {
+yatm_machines.register_network_device(monitor_inventory_yatm_network.states.error, {
   description = "Flat Monitor (inventory)",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = monitor_inventory_yatm_network.states.off,
   tiles = {
     "yatm_monitor_top.flat.png",
     "yatm_monitor_bottom.flat.png",
@@ -271,9 +282,10 @@ yatm_machines.register_network_device("yatm_machines:flat_monitor_inventory_erro
   node_box = flat_monitor_nodebox,
 })
 
-yatm_machines.register_network_device("yatm_machines:flat_monitor_inventory_on", {
+yatm_machines.register_network_device(monitor_inventory_yatm_network.states.on, {
   description = "Flat Monitor (inventory)",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = monitor_inventory_yatm_network.states.off,
   tiles = {
     "yatm_monitor_top.flat.png",
     "yatm_monitor_bottom.flat.png",

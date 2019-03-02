@@ -47,7 +47,7 @@ local function update_bit(pos, node)
   end
 end
 
-function surface_drill_yatm_network.update(pos, node)
+function surface_drill_yatm_network.update(pos, node, _ot)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef then
     local meta = minetest.get_meta(pos)

@@ -41,7 +41,10 @@ function yatm_machines.default_on_device_changed(pos, node, origin_pos, origin_n
   yatm_core.Network.schedule_refresh_network_topography(pos, {kind = "device_changed"})
 end
 
-function yatm_machines.network_passive_consume_energy(pos, node, amount)
+--[[
+@spec yatm_machines.device_passive_consume_energy(vector3.t, Node.t, non_neg_integer)
+]]
+function yatm_machines.device_passive_consume_energy(pos, node, amount)
   local consumed = 0
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef and nodedef.yatm_network then
@@ -172,6 +175,9 @@ function yatm_machines.register_network_device(name, nodedef)
         assert(ym.energy_capacity, "workers require an energy capacity")
         assert(ym.network_charge_bandwidth, "workers require network charge bandwidth")
       end
+      if ym.groups.has_update then
+        assert(ym.update, "expected update/3 to be defined")
+      end
       if ym.groups.energy_producer then
         assert(ym.produce_energy, "expected produce_energy/2 to be defined")
       end
@@ -180,7 +186,7 @@ function yatm_machines.register_network_device(name, nodedef)
           ym.passive_energy_lost = 10
         end
         if ym.consume_energy == nil then
-          ym.consume_energy = yatm_machines.network_passive_consume_energy
+          ym.consume_energy = assert(yatm_machines.device_passive_consume_energy)
         end
       end
     end
