@@ -22,10 +22,10 @@ yatm_core.D_UP = 32 -- +Y
 
 -- In case one needs the 4 cardinal directions for whatever reason
 yatm_core.DIR4 = {
-  D_NORTH,
-  D_EAST,
-  D_SOUTH,
-  D_WEST,
+  yatm_core.D_NORTH,
+  yatm_core.D_EAST,
+  yatm_core.D_SOUTH,
+  yatm_core.D_WEST,
 }
 
 -- Vectors, repsenting the directions
@@ -194,6 +194,7 @@ function yatm_core.dir_to_wallmounted_facedir(dir)
 end
 
 function yatm_core.facedir_wallmount_after_place_node(pos, placer, _itemstack, pointed_thing)
+  assert(pointed_thing, "expected a pointed thing")
   local above = pointed_thing.above
   local under = pointed_thing.under
   local dir = {
@@ -222,6 +223,13 @@ dofile(yatm_core.modpath .. "/energy.lua")
 dofile(yatm_core.modpath .. "/measurable.lua") -- similar to energy, but has a name field too
 -- Nodes and Items
 dofile(yatm_core.modpath .. "/fluids.lua")
+dofile(yatm_core.modpath .. "/fluids_registry.lua")
+dofile(yatm_core.modpath .. "/fluids_interface.lua")
 dofile(yatm_core.modpath .. "/nodes.lua")
 dofile(yatm_core.modpath .. "/items.lua")
+
+-- Tests
+dofile(yatm_core.modpath .. "/fake_meta_ref.lua")
+dofile(yatm_core.modpath .. "/luna.lua")
+dofile(yatm_core.modpath .. "/tests.lua")
 

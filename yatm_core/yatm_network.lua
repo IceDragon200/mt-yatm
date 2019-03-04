@@ -357,7 +357,15 @@ function Network.default_handle_network_changed(pos, node, ts, network_id, state
       end
       set_meta_network_id(meta, network_id)
       Network.set_network_state(meta, state)
-      meta:set_string("infotext", "Network ID " .. dump(network_id) .. " " .. state)
+      if nodedef.yatm_network.refresh_infotext then
+        nodedef.yatm_network.refresh_infotext(pos, node, meta, {
+          cause = "network_changed",
+          network_id = network_id,
+          state = state,
+        })
+      else
+        meta:set_string("infotext", "Network ID " .. dump(network_id) .. " " .. state)
+      end
       if nodedef.yatm_network.on_network_state_changed then
         nodedef.yatm_network.on_network_state_changed(pos, node, state)
       end

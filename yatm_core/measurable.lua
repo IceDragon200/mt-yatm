@@ -4,8 +4,6 @@ gases and whatever else I feel like throwing in here.
 ]]
 
 local m = {
-  members = {},
-  group_members = {},
 }
 
 m.schema = yatm_core.MetaSchema.new("measurable", "", {
@@ -20,38 +18,44 @@ m.schema = yatm_core.MetaSchema.new("measurable", "", {
   }
 })
 
-function m.register(name, def)
+function m.register(registry, name, def)
+  assert(registry, "expected a registry")
   assert(name, "requires a name")
   assert(def, "requires a definition")
   def.groups = def.groups or {}
-  def.safe_name = name:gsub(":", "_")
+  def.safe_name = string.gsub(name, ":", "_")
   def.registered_by = minetest.get_current_modname()
-  m.members[name] = def
-  for group,_weight in pairs(def.groups) do
-    m.group_members[group] = m.group_members[group] or {}
-    m.group_members[group][name] = true
+  registry.members = registry.members or {}
+  registry.group_members = registry.group_members or {}
+  registry.members[name] = def
+  for group,value in pairs(def.groups) do
+    registry.group_members[group] = registry.group_members[group] or {}
+    registry.group_members[group][name] = value
   end
   return def
 end
 
-function m.members_of(group_name)
-  return m.group_members[group_name] or {}
+--[[
+Retrieve a list of the members in the specified group
+]]
+function m.members_of(registry, group_name)
+  return registry.group_members[group_name] or {}
 end
 
-function m.is_member_of(name, group_name)
-  local member = m.members[name]
+function m.is_member_of(registry, name, group_name)
+  local member = registry.members[name]
   if member then
     return member.groups[group_name] ~= nil
   end
   return false
 end
 
-function m.reduce_members_of(group_name, acc, fun)
-  local base = m.group_members[group_name];
+function m.reduce_members_of(registry, group_name, acc, fun)
+  local base = registry.group_members[group_name];
   if base then
     local con
     for name,_ in pairs(base) do
-      con, acc = fun(name, m.members[name], acc)
+      con, acc = fun(name, registry.members[name], acc)
       if not con then
         break
       end
@@ -73,10 +77,12 @@ function m.get_measurable_name(meta, key)
   return m.schema:get_field(meta, key, "name")
 end
 
-function m.set_measurable_name(meta, key, name)
+function m.set_measurable_name(registry, meta, key, name)
+  assert(registry, "expected registry")
+  assert(meta, "expected metadata")
   -- need a name and it shouldn't be empty
   if name and name ~= "" then
-    assert(m.members[name], "expected measurable to exist " .. name)
+    assert(registry.members[name], "expected measurable to exist " .. name)
     m.schema:set_field(meta, key, "name", name)
   else
     m.schema:set_field(meta, key, "name", "")

@@ -11,7 +11,7 @@ function fluids.register(name, def)
   def.name = name
   -- force the definition into the fluid group
   yatm_core.groups.put_item(def, "fluid", 1)
-  yatm_core.measurable.register(name, def)
+  yatm_core.measurable.register(fluids, name, def)
 end
 
 function fluids.get_item_fluid(name)
@@ -23,11 +23,67 @@ function fluids.new_stack(name, amount)
 end
 
 function fluids.is_valid_name(name)
-  return name ~= nil and name ~= ""
+  -- A fluid name must not be nil, empty or is a group name
+  return name ~= nil and name ~= "" and not yatm_core.string_starts_with(name, "group:")
 end
 
-function fluids.can_replace(name, amount)
-  return name == nil or name == "" or amount == 0
+function fluids.can_replace(dest_name, src_name, amount)
+  return (dest_name == nil or dest_name == "" or amount == 0) and
+    fluids.is_valid_name(src_name)
+end
+
+--[[
+Determines if fluid name A matches fluid name B, or if they are in a particular group
+
+Usage:
+
+```lua
+yatm_core.fluids.matches(fluid_name_or_group_name, fluid_name_or_group_name2) # => fluid_name :: String.t | nil
+yatm_core.fluids.matches("group:water", "default:water") # => "default:water"
+yatm_core.fluids.matches("group:steam", "yatm_core:steam") # => "yatm_core:steam"
+yatm_core.fluids.matches("group:lava", "yatm_core:steam") # => nil
+yatm_core.fluids.matches("group:lava", "group:lava") # => nil # you can't match groups, only fluid names with groups
+```
+
+Args:
+* `a :: String.t` - a fluid name or group name
+* `b :: String.t` - a fluid name or group name
+
+Returns:
+* `fluid_name :: String.t | nil` - the correct fluid name OR nil if no match was performed
+]]
+function fluids.matches(a, b)
+  if yatm_core.string_starts_with(a, "group:") then
+    -- We can't match group to group, since it has to return a valid name
+    if b ~= "*" and not yatm_core.string_starts_with(b, "group:") then
+      local group = string.sub(a, #"group:" + 1)
+      local members = yatm_core.measurable.members_of(fluids, group)
+      if members and members[b] then
+        return b
+      end
+    end
+    return nil
+  elseif yatm_core.string_starts_with(b, "group:") then
+    if a == "*" then
+      return nil
+    end
+    local group = string.sub(b, #"group:" + 1)
+    local members = yatm_core.measurable.members_of(fluids, group)
+    if members and members[a] then
+      return a
+    end
+    return nil
+  elseif a == "*" and b == "*" then
+    return nil
+  elseif a == "*" then
+    return b
+  elseif b == "*" then
+    return a
+  elseif a == b then
+    return a
+  else
+    return nil
+  end
 end
 
 function fluids.set_amount(meta, key, amount, commit)
@@ -85,7 +141,7 @@ function fluids.set_fluid(meta, key, src_fluid_name, amount, commit)
   if dest_fluid_name ~= src_fluid_name then
     dest_fluid_name = src_fluid_name
     if commit then
-      yatm_core.measurable.set_measurable_name(meta, key, src_fluid_name)
+      yatm_core.measurable.set_measurable_name(fluids, meta, key, src_fluid_name)
     end
   end
   local set_amount, new_amount = fluids.set_amount(meta, key, amount, commit)
@@ -95,7 +151,11 @@ end
 function fluids.decrease_fluid(meta, key, src_fluid_name, amount, capacity, commit)
   local dest_fluid_name = yatm_core.measurable.get_measurable_name(meta, key)
   if fluids.is_valid_name(dest_fluid_name) then
-    if src_fluid_name == nil or dest_fluid_name == src_fluid_name then
+    local match_name = src_fluid_name
+    if match_name then
+      match_name = fluids.matches(dest_fluid_name, match_name)
+    end
+    if match_name then
       local set_amount, new_amount = fluids.decrease_amount(meta, key, amount, commit)
       return fluids.new_stack(dest_fluid_name, set_amount), new_amount
     end
@@ -104,18 +164,19 @@ function fluids.decrease_fluid(meta, key, src_fluid_name, amount, capacity, comm
 end
 
 function fluids.increase_fluid(meta, key, src_fluid_name, amount, capacity, commit)
-  assert(src_fluid_name ~= nil and src_fluid_name ~= "", "expected a source fluid name, got " .. dump(src_fluid_name))
+  assert(src_fluid_name ~= nil or src_fluid_name ~= "", "expected a source fluid name, got " .. dump(src_fluid_name))
   local dest_fluid_name = yatm_core.measurable.get_measurable_name(meta, key)
   local fluid_amount = yatm_core.measurable.get_measurable_amount(meta, key)
-  if fluids.can_replace(dest_fluid_name, fluid_amount) then
+  if fluids.can_replace(dest_fluid_name, src_fluid_name, fluid_amount) then
     dest_fluid_name = src_fluid_name
     if commit then
-      yatm_core.measurable.set_measurable_name(meta, key, dest_fluid_name)
+      yatm_core.measurable.set_measurable_name(fluids, meta, key, dest_fluid_name)
     end
   end
-  if dest_fluid_name == src_fluid_name then
+  local match_name = fluids.matches(dest_fluid_name, src_fluid_name)
+  if match_name then
     local set_amount, new_amount = fluids.increase_amount(meta, key, amount, capacity, commit)
-    return fluids.new_stack(dest_fluid_name, set_amount), new_amount
+    return fluids.new_stack(match_name, set_amount), new_amount
   else
     return nil, yatm_core.measurable.get_measurable_amount(meta, key)
   end
@@ -128,26 +189,5 @@ end
 function fluids.fill_fluid(meta, key, src_fluid_name, amount, bandwidth, capacity, commit)
   return fluids.increase_fluid(meta, key, src_fluid_name, math.min(bandwidth, amount), capacity, commit)
 end
-
-fluids.register("default:water", {
-  node = {
-    source = "default:water_source",
-    flowing = "default:water_flowing",
-  },
-})
-
-fluids.register("default:river_water", {
-  node = {
-    source = "default:river_water_source",
-    flowing = "default:river_water_flowing",
-  },
-})
-
-fluids.register("default:lava_water", {
-  node = {
-    source = "default:lava_source",
-    flowing = "default:lava_flowing",
-  },
-})
 
 yatm_core.fluids = fluids
