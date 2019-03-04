@@ -121,7 +121,7 @@ local function register_cable_state(params, thickness)
       texture_basename .. params.postfix .. cables.cable_texture_index(yatm_core.D_SOUTH, i) .. ".png",
     }
 
-    print("Registering cable node " .. node_name)
+    --print("Registering cable node " .. node_name)
     local nodedef = {
       description = params.description,
       groups = groups,
