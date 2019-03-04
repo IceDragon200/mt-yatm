@@ -32,8 +32,8 @@ function yatm_machines.device_after_destruct(pos, node)
   return yatm_core.Network.device_after_destruct(pos, node)
 end
 
-function yatm_machines.device_after_place_node(pos)
-  return yatm_core.Network.device_after_place_node(pos)
+function yatm_machines.device_after_place_node(pos, placer, item_stack, pointed_thing)
+  return yatm_core.Network.device_after_place_node(pos, placer, item_stack, pointed_thing)
 end
 
 function yatm_machines.default_on_device_changed(pos, node, origin_pos, origin_node)
@@ -49,9 +49,9 @@ function yatm_machines.device_passive_consume_energy(pos, node, amount)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef and nodedef.yatm_network then
     local ym = nodedef.yatm_network
-    local passive = ym.passive_energy_lost
-    if passive > 0 then
-      consumed = consumed + math.min(amount, passive)
+    local passive_lost = ym.passive_energy_lost
+    if passive_lost > 0 then
+      consumed = consumed + math.min(amount, passive_lost)
     end
     local remaining = amount - consumed
     local charge_bandwidth = ym.network_charge_bandwidth
@@ -66,13 +66,15 @@ function yatm_machines.device_passive_consume_energy(pos, node, amount)
   return consumed
 end
 
-function yatm_machines.worker_update(pos, node)
+function yatm_machines.worker_update(pos, node, ot)
+  --print("yatm_machines.worker_update/3", yatm_core.vec3_to_string(pos), dump(node.name))
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef then
     local meta = minetest.get_meta(pos, node)
     local total_available = yatm_core.energy.get_energy(meta, "energy_buffer")
     local ym = nodedef.yatm_network
 
+    --print("Energy Available", total_available)
     if ym.state == "off" then
       if total_available >= ym.startup_energy_threshold then
         ym.on_network_state_changed(pos, node, "on")
@@ -89,10 +91,11 @@ function yatm_machines.worker_update(pos, node)
         work_rate = total_available / thresh
       end
       local available_energy = yatm_core.energy.consume_energy(meta, "energy_buffer", bandwidth, bandwidth, capacity, false)
-      local consumed = ym.work(pos, node, available_energy, work_rate)
+      local consumed = ym.work(pos, node, available_energy, work_rate, ot)
       if consumed > 0 then
         yatm_core.energy.consume_energy(meta, "energy_buffer", consumed, bandwidth, capacity, true)
       end
+      --print("yatm_machines.worker_update/3", yatm_core.vec3_to_string(pos), dump(node.name), "consumed energy", consumed)
     end
 
     local total_available = yatm_core.energy.get_energy(meta, "energy_buffer")
@@ -127,38 +130,38 @@ end
 
 function yatm_machines.register_network_device(name, nodedef)
   if not nodedef.on_yatm_device_changed then
-    print("register_network_device", name, "patching register_network_device")
+    --print("register_network_device", name, "patching register_network_device")
     nodedef.on_yatm_device_changed = assert(yatm_machines.default_on_device_changed)
   end
 
   if not nodedef.on_yatm_network_changed then
-    print("register_network_device", name, "patching on_yatm_network_changed")
+    --print("register_network_device", name, "patching on_yatm_network_changed")
     nodedef.on_yatm_network_changed = assert(yatm_core.Network.default_handle_network_changed)
   end
 
   if nodedef.groups and nodedef.groups.yatm_network_host then
     if not nodedef.on_destruct then
-      print("register_network_device", name, "patching on_destruct with on_host_destruct")
+      --print("register_network_device", name, "patching on_destruct with on_host_destruct")
       nodedef.on_destruct = assert(yatm_core.Network.on_host_destruct)
     end
     if not nodedef.after_place_node then
-      print("register_network_device", name, "patching after_place_node with default_yatm_notify_neighbours_changed")
+      --print("register_network_device", name, "patching after_place_node with default_yatm_notify_neighbours_changed")
       nodedef.after_place_node = assert(yatm_core.Network.device_after_place_node)
     end
   end
 
   if not nodedef.after_place_node then
-    print("register_network_device", name, "patching after_place_node with device_after_place_node")
+    --print("register_network_device", name, "patching after_place_node with device_after_place_node")
     nodedef.after_place_node = assert(yatm_machines.device_after_place_node)
   end
 
   if not nodedef.on_destruct then
-    print("register_network_device", name, "patching on_destruct with on_host_destruct")
+    --print("register_network_device", name, "patching on_destruct with on_host_destruct")
     nodedef.on_destruct = assert(yatm_machines.device_on_destruct)
   end
 
   if not nodedef.after_destruct then
-    print("register_network_device", name, "patching after_destruct")
+    --print("register_network_device", name, "patching after_destruct")
     nodedef.after_destruct = assert(yatm_machines.device_after_destruct)
   end
 
@@ -172,8 +175,10 @@ function yatm_machines.register_network_device(name, nodedef)
         ym.groups.has_update = 1
         ym.update = yatm_machines.worker_update
 
-        assert(ym.energy_capacity, "workers require an energy capacity")
-        assert(ym.network_charge_bandwidth, "workers require network charge bandwidth")
+        assert(ym.state, name .. " machine_worker must have a `state`")
+        assert(ym.energy_capacity, name .. " machine_worker requires an `energy_capacity`")
+        assert(ym.network_charge_bandwidth, name .. " machine_worker require `network_charge_bandwidth`")
+        assert(ym.startup_energy_threshold, name .. " machine_worker requires a `startup_energy_threshold`")
       end
       if ym.groups.has_update then
         assert(ym.update, "expected update/3 to be defined")

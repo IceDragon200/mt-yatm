@@ -13,48 +13,46 @@ local pump_yatm_network = {
   passive_energy_lost = 0
 }
 
-function pump_yatm_network.update(pos, node, ot)
-  if node.name == "yatm_machines:pump_on" then
-    local nodedef = minetest.registered_nodes[node.name]
-    if nodedef then
-      local span = yatm_core.trace.span_start(ot, 'facedir_to_face')
-      local new_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_DOWN)
-      yatm_core.trace.span_end(span)
-      local target = vector.add(pos, yatm_core.DIR6_TO_VEC3[new_dir])
-      local span = yatm_core.trace.span_start(ot, 'get_node')
-      local target_node = minetest.get_node(target)
-      yatm_core.trace.span_end(span)
-      local span = yatm_core.trace.span_start(ot, 'get_item_fluid')
-      local fluid_name = yatm_core.fluids.get_item_fluid(target_node.name)
-      yatm_core.trace.span_end(span)
-      local span = yatm_core.trace.span_start(ot, 'fluid_tanks.fill internal')
-      if fluid_name then
-        local stack = yatm_core.fluid_tanks.fill(pos, new_dir, fluid_name, 1000, true)
-        if stack and stack.amount > 0 then
-          minetest.remove_node(target)
-        end
-      end
-      yatm_core.trace.span_end(span)
+local fluids_interface = yatm_core.new_simple_fluids_interface("tank", 16000)
 
-      local span = yatm_core.trace.span_start(ot, 'fluid_tanks.drain internal')
-      local new_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
-      local target = vector.add(pos, yatm_core.DIR6_TO_VEC3[new_dir])
-      local stack = yatm_core.fluid_tanks.drain(pos, new_dir, fluid_name, 1000, false)
-      yatm_core.trace.span_end(span)
-      local span = yatm_core.trace.span_start(ot, 'fluid_tanks.fill external')
-      if stack and stack.amount > 0 then
-        local target_dir = yatm_core.invert_dir(new_dir)
-        local filled_stack = yatm_core.fluid_tanks.fill(target, target_dir, stack.name, stack.amount, true)
-        if filled_stack then
-          yatm_core.fluid_tanks.drain(pos, new_dir, filled_stack.name, filled_stack.amount, true)
-        end
+function pump_yatm_network.update(pos, node, _ot)
+  local pump_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_DOWN)
+  local target_pos = vector.add(pos, yatm_core.DIR6_TO_VEC3[pump_dir])
+  local target_node = minetest.get_node(target_pos)
+  local fluid_name = yatm_core.fluids.get_item_fluid(target_node.name)
+
+  if fluid_name then
+    local stack = yatm_core.fluid_tanks.fill(pos, pump_dir, fluid_name, 1000, true)
+    if stack and stack.amount > 0 then
+      minetest.remove_node(target_pos)
+    end
+  else
+    local inverted_dir = yatm_core.invert_dir(pump_dir)
+    local drained_stack = yatm_core.fluid_tanks.drain(target_pos, inverted_dir, "*", 1000, false)
+    if drained_stack and drained_stack.amount > 0 then
+      local existing = yatm_core.fluid_tanks.get(pos, pump_dir)
+      local filled_stack = yatm_core.fluid_tanks.fill(pos, pump_dir, drained_stack.name, drained_stack.amount, true)
+
+      if filled_stack and filled_stack.amount > 0 then
+        yatm_core.fluid_tanks.drain(target_pos, inverted_dir, drained_stack.name, filled_stack.amount, true)
       end
-      yatm_core.trace.span_end(span)
+    end
+  end
+
+  local meta = minetest.get_meta(pos)
+  do
+    local new_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
+    local target_pos = vector.add(pos, yatm_core.DIR6_TO_VEC3[new_dir])
+    local stack = yatm_core.fluids.drain_fluid(meta, "tank", "*", 500, fluids_interface.capacity, fluids_interface.capacity, false)
+    if stack and stack.amount > 0 then
+      local target_dir = yatm_core.invert_dir(new_dir)
+      local filled_stack = yatm_core.fluid_tanks.fill(target_pos, target_dir, stack.name, stack.amount, true)
+      if filled_stack then
+        yatm_core.fluids.drain_fluid(meta, "tank", stack.name, filled_stack.amount, fluids_interface.capacity, fluids_interface.capacity, true)
+      end
     end
   end
 end
-
-local fluids_interface = yatm_core.new_simple_fluids_interface("tank", 4000)
 
 local old_fill = fluids_interface.fill
 function fluids_interface.fill(pos, dir, node, fluid_name, amount, commit)
@@ -62,7 +60,7 @@ function fluids_interface.fill(pos, dir, node, fluid_name, amount, commit)
   if dir == pump_in_dir then
     return old_fill(pos, dir, node, fluid_name, amount, commit)
   else
-    print("Rejected fill request because it's the wrong direction", "expected", pump_in_dir, "got", dir)
+    --print("Rejected fill request because it's the wrong direction", "expected", pump_in_dir, "got", dir)
     return nil
   end
 end

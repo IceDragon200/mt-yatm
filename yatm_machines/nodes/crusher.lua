@@ -28,7 +28,7 @@ yatm_machines.register_network_device(crusher_yatm_network.states.off, {
     "yatm_crusher_bottom.png",
     "yatm_crusher_side.off.png",
     "yatm_crusher_side.off.png^[transformFX",
-    "yatm_crusher_back.png",
+    "yatm_crusher_back.off.png",
     "yatm_crusher_front.off.png",
   },
   paramtype = "light",
@@ -45,7 +45,7 @@ yatm_machines.register_network_device(crusher_yatm_network.states.error, {
     "yatm_crusher_bottom.png",
     "yatm_crusher_side.error.png",
     "yatm_crusher_side.error.png^[transformFX",
-    "yatm_crusher_back.png",
+    "yatm_crusher_back.error.png",
     "yatm_crusher_front.error.png",
   },
   paramtype = "light",
@@ -62,7 +62,7 @@ yatm_machines.register_network_device(crusher_yatm_network.states.on, {
     "yatm_crusher_bottom.png",
     "yatm_crusher_side.on.png",
     "yatm_crusher_side.on.png^[transformFX",
-    "yatm_crusher_back.png",
+    "yatm_crusher_back.on.png",
     --"yatm_crusher_front.off.png"
     {
       name = "yatm_crusher_front.on.png",
