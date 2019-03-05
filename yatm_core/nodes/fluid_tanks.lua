@@ -124,17 +124,19 @@ function tank_fluids_interface.fill(pos, dir, node, fluid_name, amount, commit)
   end
 end
 
+local fluid_tank_tiles = {
+  "yatm_fluid_tank_top.png",
+  "yatm_fluid_tank_side.png",
+  "yatm_fluid_tank_top.png",
+}
+
 minetest.register_node("yatm_core:fluid_tank", {
   description = "Fluid Tank",
   groups = {
     cracky = 1,
     fluid_tank = 1,
   },
-  tiles = {
-    "yatm_fluid_tank_top.png",
-    "yatm_fluid_tank_side.png",
-    "yatm_fluid_tank_top.png",
-  },
+  tiles = fluid_tank_tiles,
   special_tiles = {
   },
   drawtype = "glasslike_framed",
@@ -143,7 +145,11 @@ minetest.register_node("yatm_core:fluid_tank", {
   is_ground_content = false,
   sunlight_propogates = true,
   sounds = default.node_sound_glass_defaults(),
+  after_place_node = function (pos)
+    fluid_tanks.replace(pos, yatm_core.D_NONE, nil, 0, true)
+  end,
   fluids_interface = tank_fluids_interface,
+  connects_to = {"group:fluid_tank"},
 })
 
 yatm_core.measurable.reduce_members_of(yatm_core.fluids, "fluid", 0, function (name, fluid, acc)
@@ -155,11 +161,8 @@ yatm_core.measurable.reduce_members_of(yatm_core.fluids, "fluid", 0, function (n
       filled_fluid_tank = 1,
       not_in_creative_inventory = 1,
     },
-    tiles = {
-      "yatm_fluid_tank_top.png",
-      "yatm_fluid_tank_side.png",
-      "yatm_fluid_tank_top.png",
-    },
+    drop = "yatm_core:fluid_tank",
+    tiles = fluid_tank_tiles,
     special_tiles = {
       get_fluid_tile(fluid),
     },
@@ -173,6 +176,7 @@ yatm_core.measurable.reduce_members_of(yatm_core.fluids, "fluid", 0, function (n
       fluid_tanks.replace(pos, yatm_core.D_NONE, fluid.name, TANK_CAPACITY, true)
     end,
     fluids_interface = tank_fluids_interface,
+    connects_to = {"group:fluid_tank"},
   }
 
   -- sunlight_propagates = true,
