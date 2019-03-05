@@ -49,7 +49,7 @@ function boiler_yatm_network.work(pos, node, available_energy, work_rate, ot)
     if water_tank_nodedef then
       if yatm_core.groups.get_item(water_tank_nodedef, "fluid_tank") then
         local target_dir = yatm_core.invert_dir(water_tank_dir)
-        local stack = yatm_core.fluid_tanks.drain(water_tank_pos, target_dir, "group:water", 200, false)
+        local stack = yatm_core.fluid_tanks.drain(water_tank_pos, target_dir, "group:water", 1000, false)
         if stack then
           local filled_stack = yatm_core.fluid_tanks.fill(pos, water_tank_dir, stack.name, stack.amount, true)
           if filled_stack and filled_stack.amount > 0 then
@@ -65,7 +65,7 @@ function boiler_yatm_network.work(pos, node, available_energy, work_rate, ot)
 
   -- Convert water into steam
   do
-    local stack = yatm_core.fluids.drain_fluid(meta, WATER_TANK, "group:water", 100, fluid_bandwidth, capacity, false)
+    local stack = yatm_core.fluids.drain_fluid(meta, WATER_TANK, "group:water", 50, fluid_bandwidth, capacity, false)
     if stack then
       local filled_stack = yatm_core.fluids.fill_fluid(meta, STEAM_TANK, "yatm_core:steam", stack.amount, fluid_bandwidth, capacity, true)
       if filled_stack and filled_stack.amount > 0 then

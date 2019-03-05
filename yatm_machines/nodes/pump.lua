@@ -43,7 +43,7 @@ function pump_yatm_network.update(pos, node, _ot)
   do
     local new_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
     local target_pos = vector.add(pos, yatm_core.DIR6_TO_VEC3[new_dir])
-    local stack = yatm_core.fluids.drain_fluid(meta, "tank", "*", 500, fluids_interface.capacity, fluids_interface.capacity, false)
+    local stack = yatm_core.fluids.drain_fluid(meta, "tank", "*", 1000, fluids_interface.capacity, fluids_interface.capacity, false)
     if stack and stack.amount > 0 then
       local target_dir = yatm_core.invert_dir(new_dir)
       local filled_stack = yatm_core.fluid_tanks.fill(target_pos, target_dir, stack.name, stack.amount, true)
