@@ -28,6 +28,15 @@ yatm_core.DIR4 = {
   yatm_core.D_WEST,
 }
 
+yatm_core.DIR6 = {
+  yatm_core.D_NORTH,
+  yatm_core.D_EAST,
+  yatm_core.D_SOUTH,
+  yatm_core.D_WEST,
+  yatm_core.D_DOWN,
+  yatm_core.D_Up,
+}
+
 -- Vectors, repsenting the directions
 yatm_core.V3_NORTH = vector.new(0, 0, 1)
 yatm_core.V3_EAST = vector.new(1, 0, 0)
