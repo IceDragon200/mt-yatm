@@ -3,16 +3,7 @@ Luna is a test framework to replace knife.test, this has been extracted from my 
 
 You are free to copy and use this module/class
 ]]
-local Luna = {
-  instance_class = {}
-}
-
-function Luna.new(...)
-  local instance = {}
-  setmetatable(instance, { __index = Luna.instance_class })
-  instance:initialize(...)
-  return instance
-end
+local Luna = yatm_core.Class.extends()
 
 local c = Luna.instance_class
 
