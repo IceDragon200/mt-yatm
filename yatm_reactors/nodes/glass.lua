@@ -6,18 +6,7 @@ for variant, variant_texture_name in pairs({
   ["white_black_stripes"] = "wb.stripes",
   ["yellow_black_stripes"] = "yb.stripes",
 }) do
-  local glass_yatm_network = {
-    kind = "machine",
-    groups = {
-      reactor = 1,
-      reactor_glass = 1,
-    },
-    states = {
-      _default = "yatm_reactors:glass_" .. variant
-    }
-  }
-
-  yatm_machines.register_network_device(glass_yatm_network.states._default, {
+  minetest.register_node("yatm_reactors:glass_" .. variant, {
     description = "Reactor Glass (" .. variant .. ")",
     groups = {cracky = 3},
     sounds = glass_sounds,
@@ -27,7 +16,8 @@ for variant, variant_texture_name in pairs({
     },
     paramtype = "light",
     paramtype2 = "facedir",
-    yatm_network = glass_yatm_network,
     drawtype = "allfaces",
+    sunlight_propagates = true,
+    is_ground_content = false,
   })
 end
