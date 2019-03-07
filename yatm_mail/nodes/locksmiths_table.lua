@@ -83,6 +83,8 @@ minetest.register_node("yatm_mail:locksmiths_table_wood", {
   drawtype = "nodebox",
   node_box = table_nodebox,
 
+  sounds = default.node_sound_wood_defaults(),
+
   on_construct = locksmiths_table_on_construct,
   on_destruct = locksmiths_table_on_destruct,
 })
