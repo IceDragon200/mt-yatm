@@ -17,7 +17,7 @@ for variant, variant_texture_name in pairs({
 
   yatm_machines.register_network_device(panel_yatm_network.states._default, {
     description = "Reactor Panel (" .. variant .. ")",
-    groups = {cracky = 1},
+    groups = {cracky = 1, reactor_panel = 1, reactor_structure = 1},
     drop = panel_yatm_network.states._default,
     tiles = {
       "yatm_reactor_panel." .. variant_texture_name .. ".png"
