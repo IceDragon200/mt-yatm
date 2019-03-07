@@ -65,9 +65,10 @@ function fluids_interface.fill(pos, dir, node, fluid_name, amount, commit)
   end
 end
 
-yatm_machines.register_network_device("yatm_machines:pump_off", {
+yatm_machines.register_network_device(pump_yatm_network.states.off, {
   description = "Pump",
   groups = {cracky = 1},
+  drop = pump_yatm_network.states.off,
   tiles = {
     "yatm_pump_top.png",
     "yatm_pump_bottom.png",
@@ -82,9 +83,10 @@ yatm_machines.register_network_device("yatm_machines:pump_off", {
   fluids_interface = fluids_interface,
 })
 
-yatm_machines.register_network_device("yatm_machines:pump_error", {
+yatm_machines.register_network_device(pump_yatm_network.states.error, {
   description = "Pump",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = pump_yatm_network.states.off,
   tiles = {
     "yatm_pump_top.png",
     "yatm_pump_bottom.png",
@@ -99,9 +101,10 @@ yatm_machines.register_network_device("yatm_machines:pump_error", {
   fluids_interface = fluids_interface,
 })
 
-yatm_machines.register_network_device("yatm_machines:pump_on", {
+yatm_machines.register_network_device(pump_yatm_network.states.on, {
   description = "Pump",
   groups = {cracky = 1, not_in_creative_inventory = 1},
+  drop = pump_yatm_network.states.off,
   tiles = {
     "yatm_pump_top.png",
     "yatm_pump_bottom.png",

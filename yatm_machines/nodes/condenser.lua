@@ -86,7 +86,7 @@ yatm_machines.register_network_device(condenser_yatm_network.states.on, {
         length = 0.4
       },
     },
-    "yatm_condenser_bottom.png",
+    "yatm_condenser_bottom.on.png",
     "yatm_condenser_side.on.png",
     "yatm_condenser_side.on.png^[transformFX",
     {

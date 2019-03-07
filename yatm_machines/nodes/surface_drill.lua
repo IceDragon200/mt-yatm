@@ -26,17 +26,17 @@ local function update_bit(pos, node)
     mine_pos = vector.add(mine_pos, mine_dirv3)
     local mine_node = minetest.get_node(mine_pos)
     if mine_node.name == "air" then
-      print("SET NODE", mine_pos.x, mine_pos.y, mine_pos.z, bit_node.name, bit_node.param2)
+      --print("SET NODE", mine_pos.x, mine_pos.y, mine_pos.z, bit_node.name, bit_node.param2)
       minetest.set_node(mine_pos, bit_node)
       break
     else
       local mine_nodedef = minetest.registered_nodes[mine_node.name]
       if mine_nodedef then
         if mine_nodedef.groups.surface_drill_bit then
-          print("IS BIT", mine_pos.x, mine_pos.y, mine_pos.z)
+          --print("IS BIT", mine_pos.x, mine_pos.y, mine_pos.z)
           -- TODO check if the bit belongs to the surface drill
         else
-          print("DIGGING", mine_pos.x, mine_pos.y, mine_pos.z, mine_node.name)
+          --print("DIGGING", mine_pos.x, mine_pos.y, mine_pos.z, mine_node.name)
           minetest.dig_node(mine_pos)
           break
         end
@@ -62,14 +62,14 @@ function surface_drill_yatm_network.update(pos, node, _ot)
       local ext_node = minetest.get_node(ext_pos)
       local ext_nodedef = minetest.registered_nodes[ext_node.name]
       if ext_nodedef then
-        print("node def", ext_pos.x, ext_pos.y, ext_pos.z, ext_node.name)
+        --print("node def", ext_pos.x, ext_pos.y, ext_pos.z, ext_node.name)
         if ext_nodedef.groups.surface_drill_ext then
           decr = decr + 1
         else
           break
         end
       else
-        print("No node def", ext_pos.x, ext_pos.y, ext_pos.z, ext_node.name)
+        --print("No node def", ext_pos.x, ext_pos.y, ext_pos.z, ext_node.name)
         break
       end
     end
@@ -77,7 +77,7 @@ function surface_drill_yatm_network.update(pos, node, _ot)
       update_bit(pos, node)
       timer = 20
     else
-      print("decr timer", decr, pos.x, pos.y, pos.z, node.name)
+      --print("decr timer", decr, pos.x, pos.y, pos.z, node.name)
       timer = timer - decr
     end
     meta:set_int("work_timer", timer)

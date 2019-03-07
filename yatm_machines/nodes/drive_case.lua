@@ -24,7 +24,7 @@ yatm_machines.register_network_device(drive_case_yatm_network.states.off, {
   groups = {cracky = 1},
   drop = drive_case_yatm_network.states.off,
   tiles = {
-    "yatm_drive_case_top.png",
+    "yatm_drive_case_top.off.png",
     "yatm_drive_case_bottom.png",
     "yatm_drive_case_side.off.png",
     "yatm_drive_case_side.off.png^[transformFX",
@@ -41,7 +41,7 @@ yatm_machines.register_network_device(drive_case_yatm_network.states.error, {
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = drive_case_yatm_network.states.off,
   tiles = {
-    "yatm_drive_case_top.png",
+    "yatm_drive_case_top.error.png",
     "yatm_drive_case_bottom.png",
     "yatm_drive_case_side.error.png",
     "yatm_drive_case_side.error.png^[transformFX",
@@ -58,7 +58,7 @@ yatm_machines.register_network_device(drive_case_yatm_network.states.on, {
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = drive_case_yatm_network.states.off,
   tiles = {
-    "yatm_drive_case_top.png",
+    "yatm_drive_case_top.on.png",
     "yatm_drive_case_bottom.png",
     "yatm_drive_case_side.on.png",
     "yatm_drive_case_side.on.png^[transformFX",
