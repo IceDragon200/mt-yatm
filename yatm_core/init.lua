@@ -216,6 +216,8 @@ function yatm_core.facedir_wallmount_after_place_node(pos, placer, _itemstack, p
   minetest.swap_node(pos, node)
 end
 
+-- Classes, yadda, yadda, OOP is evil, yeah I get it, just use OOP sparingly.
+dofile(yatm_core.modpath .. "/class.lua")
 -- Util
 dofile(yatm_core.modpath .. "/util.lua")
 -- Instrumentation

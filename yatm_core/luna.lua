@@ -62,6 +62,11 @@ function c:assert_neq(a, b, message)
   self:assert(a ~= b, message)
 end
 
+function c:assert_table_eq(a, b, message)
+  message = message or ("expected " .. dump(a) .. " to be equal to " .. dump(b))
+  self:assert(yatm_core.table_equals(a, b), message)
+end
+
 function c:assert_in(item, list, message)
   message = message or ("expected " .. dump(item) .. " to be included in " .. dump(list))
   self:assert(yatm_core.table_includes_value(list, item), message)
