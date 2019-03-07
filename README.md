@@ -33,9 +33,14 @@ __yatm_decor__
 
 Decoration blocks
 
+__yatm_foundry__
+
 __yatm_machines__
 
 Where a bulk of the machines are
+
+__yatm_mail__
+
 
 __yatm_oku__
 
