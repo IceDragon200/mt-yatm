@@ -101,6 +101,7 @@ for _,default_state in ipairs(states) do
     minetest.register_node(lamp_basename .. "_off", {
       description = name .. " Lamp [OFF] " .. postfix,
       groups = lamp_groups_off,
+      is_ground_content = false,
       sounds = lamp_sounds,
       tiles = {
         "yatm_lamp_large_" .. basename .. "_top.off.png",
@@ -122,6 +123,7 @@ for _,default_state in ipairs(states) do
     minetest.register_node(lamp_basename .. "_on", {
       description = name .. " Lamp [ON] " .. postfix,
       groups = lamp_groups_on,
+      is_ground_content = false,
       sounds = lamp_sounds,
       tiles = {
         "yatm_lamp_large_" .. basename .. "_top.on.png",
@@ -147,6 +149,7 @@ for _,default_state in ipairs(states) do
     minetest.register_node(lamp_basename .. "_off", {
       description = name .. " Flat Lamp [OFF] " .. postfix,
       groups = lamp_groups_off,
+      is_ground_content = false,
       sounds = lamp_sounds,
       tiles = {
         "yatm_lamp_large_" .. basename .. "_top.off.png",
@@ -168,6 +171,7 @@ for _,default_state in ipairs(states) do
     minetest.register_node(lamp_basename .. "_on", {
       description = name .. " Flat Lamp [ON] " .. postfix,
       groups = lamp_groups_on,
+      is_ground_content = false,
       sounds = lamp_sounds,
       tiles = {
         "yatm_lamp_large_" .. basename .. "_top.on.png",
@@ -195,6 +199,7 @@ for _,default_state in ipairs(states) do
     minetest.register_node(lamp_basename .. "_off", {
       description = name .. " Small Lamp [OFF] " .. postfix,
       groups = lamp_groups_off,
+      is_ground_content = false,
       sounds = lamp_sounds,
       tiles = {
         "yatm_lamp_small_" .. basename .. "_top.off.png",
@@ -216,6 +221,7 @@ for _,default_state in ipairs(states) do
     minetest.register_node(lamp_basename .. "_on", {
       description = name .. " Small Lamp [ON] " .. postfix,
       groups = lamp_groups_on,
+      is_ground_content = false,
       sounds = lamp_sounds,
       tiles = {
         "yatm_lamp_small_" .. basename .. "_top.on.png",
