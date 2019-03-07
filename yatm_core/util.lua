@@ -2,11 +2,30 @@ function yatm_core.vec3_to_string(vec3)
   return "(" .. vec3.x .. ", " .. vec3.y .. ", " .. vec3.z .. ")"
 end
 
+--[[
+Used to merge multiple map-like tables together, if you need to merge lists
+use `list_concat/*` instead
+]]
 function yatm_core.table_merge(...)
   local result = {}
   for _,t in ipairs({...}) do
     for key,value in pairs(t) do
       result[key] = value
+    end
+  end
+  return result
+end
+
+--[[
+Not to be confused with table.concat, which is actually a 'join' in other languages.
+]]
+function yatm_core.list_concat(...)
+  local result = {}
+  local i = 1
+  for _,t in ipairs({...}) do
+    for _,element in ipairs(t) do
+      result[i] = element
+      i = i + 1
     end
   end
   return result
@@ -34,7 +53,7 @@ function yatm_core.table_values(t)
 end
 
 function yatm_core.table_equals(a, b)
-  local merged = table_merge(a, b)
+  local merged = yatm_core.table_merge(a, b)
   for key,_ in pairs(merged) do
     if a[key] ~= b[key] then
       return false
@@ -52,12 +71,52 @@ function yatm_core.table_includes_value(t, expected)
   return false
 end
 
+function yatm_core.table_intersperse(t, spacer)
+  local count = #t
+  local result = {}
+  for index, item in ipairs(t) do
+    table.insert(result, item)
+    if index < count then
+      table.insert(result, spacer)
+    end
+  end
+  return result
+end
+
 function yatm_core.string_starts_with(str, expected)
   return expected == "" or string.sub(str, 1, #expected) == expected
 end
 
 function yatm_core.string_ends_with(str, expected)
   return expected == "" or string.sub(str, -#expected) == expected
+end
+
+local function flatten_reducer(t, index, value, depth)
+  assert(depth < 20, "flatten depth exceeded, maybe there is a loop")
+  if type(value) == "table" then
+    for _,item in ipairs(value) do
+      t, index = flatten_reducer(t, index, item, depth + 1)
+    end
+    return t, index
+  else
+    t[index] = value
+    return t, index + 1
+  end
+end
+
+function yatm_core.table_flatten(value)
+  return flatten_reducer({}, 1, value, 0)
+end
+
+function yatm_core.iodata_to_string(value)
+  if type(value) == "string" then
+    return value
+  elseif type(value) == "table" then
+    local result = yatm_core.table_flatten(value)
+    return table.concat(result)
+  else
+    error("unexpected value " .. dump(value))
+  end
 end
 
 local PREFIXES = {
