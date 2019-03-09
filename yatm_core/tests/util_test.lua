@@ -63,6 +63,14 @@ case:describe("iodata_to_string/0", function (t2)
   end)
 end)
 
+case:describe("random_string/1", function (t2)
+  t2:test("can generate random strings of specified length", function (t3)
+    local s = m.random_string(16)
+
+    t3:assert_eq(#s, 16)
+  end)
+end)
+
 case:execute()
 case:display_stats()
 case:maybe_error()
