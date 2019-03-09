@@ -192,8 +192,6 @@ end
 local function mailbox_after_place_node(pos, _placer, itemstack, _pointed_thing)
   local new_meta = minetest.get_meta(pos)
   local old_meta = itemstack:get_meta()
-  print("old_meta", dump(old_meta:to_table()))
-  print("new_meta", dump(new_meta:to_table()))
 
   yatm_mail.copy_lockable_object_key(assert(old_meta), new_meta)
   new_meta:set_string(old_meta:get_string("description"))
