@@ -75,6 +75,7 @@ for cell_type, cell_config in pairs(cell_types) do
       description = "Energy Cell ("..cell_type..")",
       drop = energy_cell_yatm_network.basename .. "_0",
       groups = groups,
+      is_ground_content = false,
       tiles = {
         {
           name = "yatm_energy_cell_"..cell_type.."_stage"..stage..".png",
@@ -89,6 +90,8 @@ for cell_type, cell_config in pairs(cell_types) do
       paramtype = "light",
       paramtype2 = "facedir",
       yatm_network = energy_cell_yatm_network,
+
+      sounds = default.node_sound_glass_defaults(),
     })
   end
 
@@ -128,6 +131,7 @@ for cell_type, cell_config in pairs(cell_types) do
   yatm_machines.register_network_device(creative_energy_cell_yatm_network.basename, {
     description = "Energy Cell ("..cell_type..") [Creative]",
     groups = {cracky = 1, yatm_network_host = 2},
+    is_ground_content = false,
     tiles = {
       {
         name = "yatm_energy_cell_"..cell_type.."_creative.png",
@@ -142,5 +146,7 @@ for cell_type, cell_config in pairs(cell_types) do
     paramtype = "light",
     paramtype2 = "facedir",
     yatm_network = creative_energy_cell_yatm_network,
+
+    sounds = default.node_sound_glass_defaults(),
   })
 end
