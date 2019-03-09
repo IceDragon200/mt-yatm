@@ -9,6 +9,7 @@ for _,color in ipairs(colors) do
       tiles = {
         "yatm_warning_checkers_" .. size .. "_" .. color .. "_15.png",
       },
+      place_param2 = 0,
       paramtype = "light",
       paramtype2 = "facedir",
     })

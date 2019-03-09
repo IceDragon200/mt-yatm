@@ -14,6 +14,7 @@ for _,color in ipairs(colors) do
         },
         paramtype = "light",
         paramtype2 = "facedir",
+        place_param2 = 0,
       })
     end
   end
