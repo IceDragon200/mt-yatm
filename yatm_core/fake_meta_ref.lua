@@ -2,10 +2,10 @@ local FakeMetaRef = {
   instance_class = {}
 }
 
-function FakeMetaRef.new()
+function FakeMetaRef.new(...)
   local metaref = {}
   setmetatable(metaref, { __index = FakeMetaRef.instance_class })
-  metaref:initialize()
+  metaref:initialize(...)
   return metaref
 end
 
@@ -33,8 +33,8 @@ end
 ]]
 local c = FakeMetaRef.instance_class
 
-function c:initialize()
-  self.data = {}
+function c:initialize(data)
+  self.data = data or {}
 end
 
 function c:contains(key)
