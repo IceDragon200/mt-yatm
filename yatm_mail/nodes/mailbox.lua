@@ -97,12 +97,18 @@ end
 local function is_mailbox_open(pos)
   local meta = minetest.get_meta(pos)
 
-  local inv = meta:get_inventory()
+  local pubkey = yatm_mail.get_lockable_key_key(meta)
+  if yatm_core.is_blank(pubkey) then
+    -- if the mailbox has no pubkey then it's open by default
+    return true
+  else
+    local inv = meta:get_inventory()
 
-  local key_stack = inv:get_stack("access_key", 1)
-  local is_open = yatm_mail.is_stack_a_key_for_locked_node(key_stack, pos)
-  print("mailbox is open?", yatm_core.vec3_to_string(pos), is_open)
-  return is_open
+    local key_stack = inv:get_stack("access_key", 1)
+    local is_open = yatm_mail.is_stack_a_key_for_locked_node(key_stack, pos)
+    print("mailbox is open?", yatm_core.vec3_to_string(pos), is_open)
+    return is_open
+  end
 end
 
 local function mailbox_configure_formspec(pos, meta)
