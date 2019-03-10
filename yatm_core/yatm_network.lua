@@ -14,7 +14,7 @@ local Network = {
 
   device_meta_schema = yatm_core.MetaSchema.new("network_device", "", {
     network_id = {
-      type = "string",
+      type = "integer",
     },
     network_state = {
       type = "string",
@@ -45,21 +45,21 @@ function Network.time()
   return minetest.get_us_time()
 end
 
-function Network.encode_vec3(pos)
-  return table.concat({pos.x, pos.y, pos.z}, ".")
+function Network.hash_pos(pos)
+  return minetest.hash_node_position(pos)
 end
 
 function Network.generate_network_id(pos)
   local ts = Network.time()
-  local network_id = table.concat({pos.x, pos.y, pos.z}, ".")
+  local network_id = Network.hash_pos(pos)
   return network_id, ts
 end
 
 local function is_valid_network_id(network_id)
-  if network_id then
-    return network_id ~= ""
-  else
+  if yatm_core.is_blank(network_id) then
     return false
+  else
+    return network_id
   end
 end
 
@@ -127,7 +127,7 @@ function Network.leave_network(network_id, pos)
   local network = Network.networks[network_id]
   local left = false
   if network then
-    local key = Network.encode_vec3(pos)
+    local key = Network.hash_pos(pos)
     local member_group = network.member_groups[key]
     if member_group then
       for _index,group in ipairs(network.member_groups[key]) do
@@ -155,7 +155,7 @@ function Network.join_network(network_id, pos, nodedef)
     local network = Network.networks[network_id]
     if network then
       debug("network_registry", "JOINING NETWORK", v3s(pos), network_id)
-      local key = Network.encode_vec3(pos)
+      local key = Network.hash_pos(pos)
       if network.members[key] then
         debug("network_registry", "ALREADY MEMBER", v3s(pos), network_id)
       else
@@ -788,7 +788,7 @@ function Network.update(dtime)
 end
 
 function Network.on_shutdown()
-  debug("Network.on_shutdown/0", "Shutting down")
+  debug("yatm_core.Network.on_shutdown/0", "Shutting down")
 end
 
 function Network.on_host_destruct(pos, node)
