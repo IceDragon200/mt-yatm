@@ -1,7 +1,7 @@
 local m = yatm_core
 local Luna = assert(yatm_core.Luna)
 
-local case = Luna.new("yatm_core.UI.Form")
+local case = Luna.new("yatm_core-util")
 
 case:describe("table_equals/2", function (t2)
   t2:test("compares 2 tables and determines if they're equal", function (t3)
@@ -34,6 +34,18 @@ case:describe("list_concat/*", function (t2)
     local c = {1, 2, 3}
     local r = m.list_concat(a, b, c)
     t3:assert_table_eq(r, {"abc", "def", "other", "stuff", 1, 2, 3})
+  end)
+end)
+
+case:describe("is_table_empty/1", function (t2)
+  t2:test("returns true if a table is empty", function (t3)
+    t3:assert(m.is_table_empty({}))
+    t3:assert(m.is_table_empty({a = nil, b = nil, c = nil}))
+  end)
+
+  t2:test("returns false if table contains any pairs", function (t3)
+    t3:refute(m.is_table_empty({a = 1}))
+    t3:refute(m.is_table_empty({b = 1, c = nil}))
   end)
 end)
 

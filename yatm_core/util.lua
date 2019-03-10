@@ -83,6 +83,13 @@ function yatm_core.table_intersperse(t, spacer)
   return result
 end
 
+function yatm_core.is_table_empty(t)
+  for index, item in pairs(t) do
+    return false
+  end
+  return true
+end
+
 function yatm_core.string_starts_with(str, expected)
   return expected == "" or string.sub(str, 1, #expected) == expected
 end
