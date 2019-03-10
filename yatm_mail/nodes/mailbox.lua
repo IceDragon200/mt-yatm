@@ -97,7 +97,7 @@ end
 local function is_mailbox_open(pos)
   local meta = minetest.get_meta(pos)
 
-  local pubkey = yatm_mail.get_lockable_key_key(meta)
+  local pubkey = yatm_mail.get_lockable_object_key(meta)
   if yatm_core.is_blank(pubkey) then
     -- if the mailbox has no pubkey then it's open by default
     return true
@@ -202,6 +202,7 @@ local function mailbox_after_place_node(pos, _placer, itemstack, _pointed_thing)
   yatm_mail.copy_lockable_object_key(assert(old_meta), new_meta)
   new_meta:set_string(old_meta:get_string("description"))
   new_meta:set_string(old_meta:get_string("box_title"))
+  mailbox_configure_formspec(pos, new_meta)
 end
 
 for _,pair in ipairs(colors) do

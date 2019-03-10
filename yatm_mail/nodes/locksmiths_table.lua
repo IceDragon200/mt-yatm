@@ -182,6 +182,8 @@ local function maybe_consume_lockable_ingredients(pos, taken_index)
 end
 
 local function maybe_consume_dupkey_ingredients(pos, taken_index)
+  local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
   inv:set_stack("item_dupkey_dest", 1, nil)
 end
 
