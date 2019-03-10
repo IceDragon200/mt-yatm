@@ -20,6 +20,11 @@ local function address_tool_on_place(itemstack, placer, pointed_thing)
   return itemstack
 end
 
+function yatm_spacetime.default_change_address(pos, node, new_address)
+  local meta = minetest.get_meta(pos)
+  address = yatm_spacetime.copy_address_in_meta(itemstack:get_meta(), meta)
+end
+
 local function address_tool_on_use(itemstack, user, pointed_thing)
   if pointed_thing.type == "node" then
     local node = minetest.get_node(pointed_thing.under)
@@ -31,8 +36,7 @@ local function address_tool_on_use(itemstack, user, pointed_thing)
           local new_address = yatm_spacetime.get_address_in_meta(itemstack:get_meta())
           address = nodedef.change_address(pointed_thing.under, node, new_address)
         else
-          local meta = minetest.get_meta(pointed_thing.under)
-          address = yatm_spacetime.copy_address_in_meta(itemstack:get_meta(), meta)
+          yatm_spacetime.default_change_address(pointed_thing.under, node, new_address)
         end
         if user and user:is_player() then
           if yatm_core.is_blank(address) then
