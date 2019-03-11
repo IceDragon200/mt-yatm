@@ -1,3 +1,5 @@
+local FluidStack =  yatm_core.FluidStack
+
 local fluid_replicator_yatm_network = {
   kind = "monitor",
   groups = {
@@ -12,41 +14,47 @@ local fluid_replicator_yatm_network = {
   },
 }
 
-local fluids_interface = {}
+local fluids_interface = {
+  tank_name = "tank",
+  capacity = 16000,
+}
 
-local tank_name = "tank"
-local capacity = 16000
-
-function fluids_interface.get(pos, dir, node)
+function fluids_interface:get(pos, dir)
   local meta = minetest.get_meta(pos)
-  local stack = yatm_core.fluids.get_fluid(meta, tank_name)
+  local stack = yatm_core.fluids.get_fluid(meta, self.tank_name)
   stack.amount = capacity
   return stack
 end
 
-function fluids_interface.replace(pos, dir, node, fluid_name, _amount, commit)
+function fluids_interface:replace(pos, dir, new_stack, commit)
   local meta = minetest.get_meta(pos)
-  local stack, new_amount = yatm_core.fluids.set_fluid(meta, tank_name, fluid_name, capacity, commit)
+  local stack, new_stack = yatm_core.fluids.set_fluid(meta, self.tank_name, new_stack, commit)
   if commit then
-    yatm_core.fluid_tanks.trigger_on_fluid_changed(pos, dir, node, stack, new_amount, capacity)
+    self:on_fluid_changed(pos, dir, new_stack)
   end
   return stack
 end
 
-function fluids_interface.fill(pos, dir, node, fluid_name, _amount, commit)
+function fluids_interface:fill(pos, dir, new_stack, commit)
   local meta = minetest.get_meta(pos)
-  local stack, new_amount = yatm_core.fluids.fill_fluid(meta, tank_name, fluid_name, capacity, capacity, capacity, commit)
+  local stack, new_stack = yatm_core.fluids.fill_fluid(meta,
+    self.tank_name,
+    FluidStack.set_amount(new_stack, capacity),
+    self.capacity, self.capacity, commit)
   if commit then
-    yatm_core.fluid_tanks.trigger_on_fluid_changed(pos, dir, node, stack, new_amount, capacity)
+    self:on_fluid_changed(pos, dir, new_stack)
   end
   return stack
 end
 
-function fluids_interface.drain(pos, dir, node, fluid_name, amount, commit)
+function fluids_interface:drain(pos, dir, new_stack, commit)
   local meta = minetest.get_meta(pos)
-  local stack, new_amount = yatm_core.fluids.drain_fluid(meta, tank_name, fluid_name, amount, capacity, capacity, false)
+  local stack, new_stack = yatm_core.fluids.drain_fluid(meta,
+    self.tank_name,
+    FluidStack.set_amount(new_stack, self.capacity),
+    self.capacity, self.capacity, false)
   if commit then
-    yatm_core.fluid_tanks.trigger_on_fluid_changed(pos, dir, node, stack, new_amount, capacity)
+    self:on_fluid_changed(pos, dir, new_stack)
   end
   return stack
 end
@@ -55,7 +63,10 @@ function fluid_replicator_yatm_network.update(pos, node, ot)
   -- Drain fluid from replicator into any adjacent fluid interface
   for _, dir in ipairs(yatm_core.DIR6) do
     local target_pos = vector.add(pos, yatm_core.DIR6_TO_VEC3[dir])
-    local stack = yatm_core.fluids.drain_fluid(meta, tank_name, "*", fluids_interface.capacity, fluids_interface.capacity, fluids_interface.capacity, false)
+    local stack = yatm_core.fluids.drain_fluid(meta,
+      self.tank_name,
+      FluidStack.new_wildcard(self.capacity),
+      self.capacity, self.capacity, false)
     if stack then
       stack.amount = capacity
       local target_dir = yatm_core.invert_dir(dir)

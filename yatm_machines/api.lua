@@ -91,7 +91,7 @@ function yatm_machines.default_on_network_state_changed(pos, node, state)
       if state == "on" then
         local meta = minetest.get_meta(pos, node)
         local total_available = yatm_core.energy.get_energy(meta, "energy_buffer")
-        local threshold = nodedef.yatm_network.startup_energy_threshold
+        local threshold = nodedef.yatm_network.startup_energy_threshold or 0
         print("TRY ONLINE", pos.x, pos.y, pos.z, node.name, total_available, threshold)
         if total_available < threshold then
           new_state = "off"

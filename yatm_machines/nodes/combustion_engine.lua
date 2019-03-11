@@ -35,6 +35,8 @@ function combustion_engine_yatm_network.produce_energy(pos, node, should_commit)
   return 0
 end
 
+local fluids_interface = yatm_core.new_simple_fluids_interface("tank", 16000)
+
 yatm_machines.register_network_device(combustion_engine_yatm_network.states.off, {
   description = "Combustion Engine",
   groups = {cracky = 1, yatm_network_host = 3},
@@ -52,6 +54,7 @@ yatm_machines.register_network_device(combustion_engine_yatm_network.states.off,
   drawtype = "nodebox",
   node_box = combustion_engine_nodebox,
   yatm_network = combustion_engine_yatm_network,
+  fluids_interface = fluids_interface,
 })
 
 yatm_machines.register_network_device(combustion_engine_yatm_network.states.error, {
@@ -71,6 +74,7 @@ yatm_machines.register_network_device(combustion_engine_yatm_network.states.erro
   drawtype = "nodebox",
   node_box = combustion_engine_nodebox,
   yatm_network = combustion_engine_yatm_network,
+  fluids_interface = fluids_interface,
 })
 
 yatm_machines.register_network_device(combustion_engine_yatm_network.states.on, {
@@ -90,4 +94,5 @@ yatm_machines.register_network_device(combustion_engine_yatm_network.states.on, 
   drawtype = "nodebox",
   node_box = combustion_engine_nodebox,
   yatm_network = combustion_engine_yatm_network,
+  fluids_interface = fluids_interface,
 })

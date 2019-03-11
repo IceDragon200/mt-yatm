@@ -1,3 +1,5 @@
+local FluidStack = assert(yatm_core.FluidStack)
+
 local fluids = {
   node_name_to_fluid_name = {},
 }
@@ -14,12 +16,11 @@ function fluids.register(name, def)
   yatm_core.measurable.register(fluids, name, def)
 end
 
-function fluids.get_item_fluid(name)
-  return fluids.node_name_to_fluid_name[name]
-end
-
-function fluids.new_stack(name, amount)
-  return { name = name, amount = amount }
+--[[
+@spec fluids.get_item_fluid_name(String.t) :: String.t | nil
+]]
+function fluids.get_item_fluid_name(item_name)
+  return fluids.node_name_to_fluid_name[item_name]
 end
 
 function fluids.is_valid_name(name)
@@ -128,15 +129,13 @@ function fluids.receive_amount(meta, key, amount, bandwidth, capacity, commit)
 end
 
 function fluids.get_fluid(meta, key)
-  local stack = yatm_core.measurable.get_measurable(meta, key)
-  if fluids.is_valid_name(stack.name) and stack.amount > 0 then
-    return stack
-  else
-    return nil
-  end
+  local fluid_stack = yatm_core.measurable.get_measurable(meta, key)
+  return FluidStack.presence(fluid_stack)
 end
 
-function fluids.set_fluid(meta, key, src_fluid_name, amount, commit)
+function fluids.set_fluid(meta, key, fluid_stack, commit)
+  assert(fluid_stack, "expected a fluid stack")
+  local src_fluid_name = fluid_stack.name
   local dest_fluid_name = yatm_core.measurable.get_measurable_name(meta, key)
   if dest_fluid_name ~= src_fluid_name then
     dest_fluid_name = src_fluid_name
@@ -144,11 +143,12 @@ function fluids.set_fluid(meta, key, src_fluid_name, amount, commit)
       yatm_core.measurable.set_measurable_name(fluids, meta, key, src_fluid_name)
     end
   end
-  local set_amount, new_amount = fluids.set_amount(meta, key, amount, commit)
-  return fluids.new_stack(dest_fluid_name, set_amount), new_amount
+  local set_amount, new_amount = fluids.set_amount(meta, key, fluid_stack.amount, commit)
+  return FluidStack.new(dest_fluid_name, set_amount), FluidStack.new(dest_fluid_name, new_amount)
 end
 
-function fluids.decrease_fluid(meta, key, src_fluid_name, amount, capacity, commit)
+function fluids.decrease_fluid(meta, key, fluid_stack, capacity, commit)
+  local src_fluid_name = fluid_stack.name
   local dest_fluid_name = yatm_core.measurable.get_measurable_name(meta, key)
   if fluids.is_valid_name(dest_fluid_name) then
     local match_name = src_fluid_name
@@ -156,14 +156,15 @@ function fluids.decrease_fluid(meta, key, src_fluid_name, amount, capacity, comm
       match_name = fluids.matches(dest_fluid_name, match_name)
     end
     if match_name then
-      local set_amount, new_amount = fluids.decrease_amount(meta, key, amount, commit)
-      return fluids.new_stack(dest_fluid_name, set_amount), new_amount
+      local set_amount, new_amount = fluids.decrease_amount(meta, key, fluid_stack.amount, commit)
+      return FluidStack.new(dest_fluid_name, set_amount), FluidStack.new(dest_fluid_name, new_amount)
     end
   end
-  return nil, yatm_core.measurable.get_measurable_amount(meta, key)
+  return nil, fluids.get_fluid(meta, key)
 end
 
-function fluids.increase_fluid(meta, key, src_fluid_name, amount, capacity, commit)
+function fluids.increase_fluid(meta, key, fluid_stack, capacity, commit)
+  local src_fluid_name = fluid_stack.name
   assert(src_fluid_name ~= nil or src_fluid_name ~= "", "expected a source fluid name, got " .. dump(src_fluid_name))
   local dest_fluid_name = yatm_core.measurable.get_measurable_name(meta, key)
   local fluid_amount = yatm_core.measurable.get_measurable_amount(meta, key)
@@ -175,19 +176,28 @@ function fluids.increase_fluid(meta, key, src_fluid_name, amount, capacity, comm
   end
   local match_name = fluids.matches(dest_fluid_name, src_fluid_name)
   if match_name then
-    local set_amount, new_amount = fluids.increase_amount(meta, key, amount, capacity, commit)
-    return fluids.new_stack(match_name, set_amount), new_amount
+    local set_amount, new_amount = fluids.increase_amount(meta, key, fluid_stack.amount, capacity, commit)
+    return FluidStack.new(match_name, set_amount), FluidStack.new(dest_fluid_name, new_amount)
   else
-    return nil, yatm_core.measurable.get_measurable_amount(meta, key)
+    return nil, fluids.get_fluid(meta, key)
   end
 end
 
-function fluids.drain_fluid(meta, key, src_fluid_name, amount, bandwidth, capacity, commit)
-  return fluids.decrease_fluid(meta, key, src_fluid_name, math.min(bandwidth, amount), capacity, commit)
+function fluids.drain_fluid(meta, key, fluid_stack, bandwidth, capacity, commit)
+  return fluids.decrease_fluid(meta, key, FluidStack.set_amount(fluid_stack, math.min(bandwidth, fluid_stack.amount)), capacity, commit)
 end
 
-function fluids.fill_fluid(meta, key, src_fluid_name, amount, bandwidth, capacity, commit)
-  return fluids.increase_fluid(meta, key, src_fluid_name, math.min(bandwidth, amount), capacity, commit)
+function fluids.fill_fluid(meta, key, fluid_stack, bandwidth, capacity, commit)
+  return fluids.increase_fluid(meta, key, FluidStack.set_amount(fluid_stack, math.min(bandwidth, fluid_stack.amount)), capacity, commit)
+end
+
+function fluids.inspect(meta, key)
+  local fluid_stack = fluids.get_fluid(meta, key)
+  if fluid_stack then
+    return FluidStack.to_string(fluid_stack)
+  else
+    return "nil"
+  end
 end
 
 yatm_core.fluids = fluids

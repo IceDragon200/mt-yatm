@@ -16,7 +16,8 @@ local condenser_yatm_network = {
 }
 
 local capacity = 16000
-local function get_fluid_tank_name(pos, dir, node)
+local function get_fluid_tank_name(_self, pos, dir)
+  local node = minetest.get_node(pos)
   local new_dir = yatm_core.facedir_to_face(node.param2, dir)
   if new_dir == yatm_core.D_DOWN then
     return "water_tank", capacity

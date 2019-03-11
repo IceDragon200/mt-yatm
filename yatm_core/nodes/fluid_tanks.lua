@@ -1,77 +1,4 @@
-local fluid_tanks = {
-  fluid_name_to_tank_name = {}
-}
-
-function fluid_tanks.get(pos, dir)
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
-  if nodedef then
-    if nodedef.fluids_interface then
-      if nodedef.fluids_interface.get then
-        return nodedef.fluids_interface.get(pos, dir, node)
-      end
-    end
-  end
-  return nil
-end
-
-function fluid_tanks.replace(pos, dir, fluid_name, amount, commit)
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
-  if nodedef then
-    if nodedef.fluids_interface then
-      if nodedef.fluids_interface.replace then
-        return nodedef.fluids_interface.replace(pos, dir, node, fluid_name, amount, commit)
-      end
-    end
-  end
-  return nil
-end
-
-function fluid_tanks.drain(pos, dir, fluid_name, amount, commit)
-  if amount <= 0 then
-    return nil
-  end
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
-  if nodedef then
-    if nodedef.fluids_interface then
-      if nodedef.fluids_interface.drain then
-        return nodedef.fluids_interface.drain(pos, dir, node, fluid_name, amount, commit)
-      end
-    end
-  end
-  return nil
-end
-
-function fluid_tanks.fill(pos, dir, fluid_name, amount, commit)
-  if amount <= 0 then
-    return nil
-  end
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
-  if nodedef then
-    if nodedef.fluids_interface then
-      if nodedef.fluids_interface.fill then
-        return nodedef.fluids_interface.fill(pos, dir, node, fluid_name, amount, commit)
-      end
-    end
-  end
-  return nil
-end
-
-function fluid_tanks.trigger_on_fluid_changed(pos, dir, node, stack, new_amount, capacity)
-  assert(node, "expected a valid node")
-  local nodedef = minetest.registered_nodes[node.name]
-  if nodedef then
-    if nodedef.fluids_interface then
-      if nodedef.fluids_interface.on_fluid_changed then
-        return nodedef.fluids_interface.on_fluid_changed(pos, dir, node, stack, new_amount, capacity)
-      end
-    end
-  end
-  return nil
-end
+local FluidStack = assert(yatm_core.FluidStack)
 
 local function get_fluid_tile(fluid)
   if fluid.tiles then
@@ -83,18 +10,22 @@ local function get_fluid_tile(fluid)
   end
 end
 
-local function refresh_level(pos, dir, node, stack, amount, capacity)
+local tank_fluids_interface = yatm_core.new_simple_fluids_interface("tank", 16000)
+local TANK_DRAIN_BANDWIDTH = tank_fluids_interface.capacity
+
+function tank_fluids_interface:on_fluid_changed(pos, dir, new_stack)
+  local node = minetest.get_node(pos)
   local meta = minetest.get_meta(pos)
-  if stack and amount > 0 then
-    local tank_name = fluid_tanks.fluid_name_to_tank_name[stack.name]
-    assert(tank_name, "expected fluid tank for " .. dump(stack.name))
-    local level = math.floor(63 * amount / capacity)
+  if new_stack and new_stack.amount > 0 then
+    local tank_name = yatm_core.fluid_tanks.fluid_name_to_tank_name[new_stack.name]
+    assert(tank_name, "expected fluid tank for " .. dump(new_stack.name))
+    local level = math.floor(63 * new_stack.amount / self.capacity)
     if node.param2 ~= level then
       node.param2 = level
       node.name = tank_name
       minetest.swap_node(pos, node)
     end
-    meta:set_string("infotext", "Tank: " .. stack.name .. " " .. amount .. " / " .. capacity)
+    meta:set_string("infotext", "Tank: " .. yatm_core.FluidStack.to_string(new_stack, self.capacity))
   else
     node.name = "yatm_core:fluid_tank"
     node.param2 = 0
@@ -103,21 +34,23 @@ local function refresh_level(pos, dir, node, stack, amount, capacity)
   end
 end
 
-local TANK_CAPACITY = 16000 -- 16 buckets
-local TANK_DRAIN_BANDWIDTH = TANK_CAPACITY
-local tank_fluids_interface = yatm_core.new_simple_fluids_interface("tank", TANK_CAPACITY)
-tank_fluids_interface.on_fluid_changed = refresh_level
 local old_fill = tank_fluids_interface.fill
-function tank_fluids_interface.fill(pos, dir, node, fluid_name, amount, commit)
-  local stack = old_fill(pos, dir, node, fluid_name, amount, commit)
-  if stack and stack.amount > 0 then
-    --print("FILL", pos.x, pos.y, pos.z, node.name, stack.name, stack.amount)
-    return stack
+
+function tank_fluids_interface:fill(pos, dir, fluid_stack, commit)
+  local used_stack = old_fill(self, pos, dir, fluid_stack, commit)
+
+  local left_stack = nil
+  if used_stack then
+    left_stack = FluidStack.decr_amount(fluid_stack, used_stack.amount)
   else
+    left_stack = fluid_stack
+  end
+
+  if left_stack.amount > 0 then
     local new_pos = vector.add(pos, yatm_core.V3_UP)
     local new_node = minetest.get_node(new_pos)
     if minetest.get_item_group(new_node.name, "fluid_tank") > 0 then
-      return fluid_tanks.fill(new_pos, dir, fluid_name, amount, commit)
+      return yatm_core.fluid_tanks.fill(new_pos, dir, left_stack, commit)
     else
       return nil
     end
@@ -125,9 +58,8 @@ function tank_fluids_interface.fill(pos, dir, node, fluid_name, amount, commit)
 end
 
 local fluid_tank_tiles = {
-  "yatm_fluid_tank_top.png",
-  "yatm_fluid_tank_side.png",
-  "yatm_fluid_tank_top.png",
+  "yatm_fluid_tank_edge.png",
+  "yatm_fluid_tank_detail.png",
 }
 
 minetest.register_node("yatm_core:fluid_tank", {
@@ -146,15 +78,16 @@ minetest.register_node("yatm_core:fluid_tank", {
   sunlight_propogates = true,
   sounds = default.node_sound_glass_defaults(),
   after_place_node = function (pos)
-    fluid_tanks.replace(pos, yatm_core.D_NONE, nil, 0, true)
+    yatm_core.fluid_tanks.replace(pos, yatm_core.D_NONE,
+      FluidStack.new(nil, 0), true)
   end,
   fluids_interface = tank_fluids_interface,
   connects_to = {"group:fluid_tank"},
 })
 
-yatm_core.measurable.reduce_members_of(yatm_core.fluids, "fluid", 0, function (name, fluid, acc)
+function yatm_core.fluid_tanks.register_fluid_tank(name, fluiddef)
   local fluid_tank_def = {
-    description = "Fluid Tank (" .. (fluid.description or name) .. ")",
+    description = "Fluid Tank (" .. (fluiddef.description or name) .. ")",
     groups = {
       cracky = 1,
       fluid_tank = 1,
@@ -164,7 +97,7 @@ yatm_core.measurable.reduce_members_of(yatm_core.fluids, "fluid", 0, function (n
     drop = "yatm_core:fluid_tank",
     tiles = fluid_tank_tiles,
     special_tiles = {
-      get_fluid_tile(fluid),
+      get_fluid_tile(fluiddef),
     },
     drawtype = "glasslike_framed",
     paramtype = "light",
@@ -172,8 +105,9 @@ yatm_core.measurable.reduce_members_of(yatm_core.fluids, "fluid", 0, function (n
     is_ground_content = false,
     sunlight_propogates = true,
     sounds = default.node_sound_glass_defaults(),
-    after_place_node = function (pos)
-      fluid_tanks.replace(pos, yatm_core.D_NONE, fluid.name, TANK_CAPACITY, true)
+    after_place_node = function (pos, _placer, _itemstack, _pointed_thing)
+      yatm_core.fluid_tanks.replace(pos, yatm_core.D_NONE,
+        FluidStack.new(fluiddef.name, tank_fluids_interface.capacity), true)
     end,
     fluids_interface = tank_fluids_interface,
     connects_to = {"group:fluid_tank"},
@@ -181,9 +115,13 @@ yatm_core.measurable.reduce_members_of(yatm_core.fluids, "fluid", 0, function (n
 
   -- sunlight_propagates = true,
   -- light_source = default.LIGHT_MAX,
-  local fluid_tank_name = "yatm_core:fluid_tank_" .. fluid.safe_name
+  local fluid_tank_name = "yatm_core:fluid_tank_" .. assert(fluiddef.safe_name)
   minetest.register_node(fluid_tank_name, fluid_tank_def)
-  fluid_tanks.fluid_name_to_tank_name[fluid.name] = fluid_tank_name
+  yatm_core.fluid_tanks.fluid_name_to_tank_name[fluiddef.name] = fluid_tank_name
+end
+
+yatm_core.measurable.reduce_members_of(yatm_core.fluids, "fluid", 0, function (name, fluiddef, acc)
+  yatm_core.fluid_tanks.register_fluid_tank(name, fluiddef)
   return true, acc + 1
 end)
 
@@ -195,15 +133,13 @@ minetest.register_abm({
   interval = 1,
   chance = 1,
   action = function (pos, node)
-    local stack = fluid_tanks.drain(pos, yatm_core.V3_DOWN, "*", TANK_DRAIN_BANDWIDTH, false)
+    local stack = yatm_core.fluid_tanks.drain(pos, yatm_core.V3_DOWN, FluidStack.new_wildcard(TANK_DRAIN_BANDWIDTH), false)
     if stack and stack.amount > 0 then
       local below_pos = vector.add(pos, yatm_core.V3_DOWN)
-      local filled_stack = fluid_tanks.fill(below_pos, yatm_core.D_NONE, stack.name, stack.amount, true)
+      local filled_stack = yatm_core.fluid_tanks.fill(below_pos, yatm_core.D_NONE, stack, true)
       if filled_stack then
-        fluid_tanks.drain(pos, yatm_core.V3_DOWN, stack.name, filled_stack.amount, true)
+        yatm_core.fluid_tanks.drain(pos, yatm_core.V3_DOWN, FluidStack.new(stack.name, filled_stack.amount), true)
       end
     end
   end
 })
-
-yatm_core.fluid_tanks = fluid_tanks

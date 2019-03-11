@@ -49,3 +49,5 @@ A plain `energy_storage` device could be a static generator (i.e. where energy i
 `energy_producer` is meant to be used for non-bufferable generators (e.g. solar panels, various engine-based generators), the energy produced is used immediately and will be lost if no storage is available.
 
 It's possible to use the network without any producers, however this puts strain on the storage side of it.
+
+## YATM Fluids Interface

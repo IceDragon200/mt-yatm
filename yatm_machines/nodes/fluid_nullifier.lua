@@ -8,19 +8,19 @@ Where does it go?
 
 local fluids_interface = {}
 
-function fluids_interface.get(_pos, _dir, _node)
+function fluids_interface:get(_pos, _dir)
   return nil
 end
 
-function fluids_interface.replace(pos, dir, node, fluid_name, amount, commit)
-  return {name = fluid_name, amount = amount}
+function fluids_interface:replace(pos, dir, fluid_stack, commit)
+  return fluid_stack
 end
 
-function fluids_interface.fill(pos, dir, node, fluid_name, amount, commit)
-  return {name = fluid_name, amount = amount}
+function fluids_interface:fill(pos, dir, fluid_stack, commit)
+  return fluid_stack
 end
 
-function fluids_interface.drain(pos, dir, node, fluid_name, amount, commit)
+function fluids_interface:drain(pos, dir, fluid_stack, commit)
   return nil
 end
 

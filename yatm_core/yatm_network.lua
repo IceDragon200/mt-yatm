@@ -14,7 +14,7 @@ local Network = {
 
   device_meta_schema = yatm_core.MetaSchema.new("network_device", "", {
     network_id = {
-      type = "integer",
+      type = "string",
     },
     network_state = {
       type = "string",
@@ -46,7 +46,7 @@ function Network.time()
 end
 
 function Network.hash_pos(pos)
-  return minetest.hash_node_position(pos)
+  return string.format("%i", minetest.hash_node_position(pos))
 end
 
 function Network.generate_network_id(pos)
@@ -216,11 +216,11 @@ function Network.has_network(network_id)
   return Network.networks[network_id] ~= nil
 end
 
-local function set_meta_network_id(meta, value)
+function Network.set_meta_network_id(meta, value)
   Network.device_meta_schema:set_field(meta, "yatm", Network.KEY, value)
 end
 
-local function get_meta_network_id(meta)
+function Network.get_meta_network_id(meta)
   return Network.device_meta_schema:get_field(meta, "yatm", Network.KEY)
 end
 
@@ -348,22 +348,24 @@ function Network.default_handle_network_changed(pos, node, ts, network_id, state
     if nodedef.yatm_network then
       local meta = minetest.get_meta(pos)
       Network.set_network_ts(meta, ts)
-      local old_network_id = get_meta_network_id(meta)
+      local old_network_id = Network.get_meta_network_id(meta)
       if is_valid_network_id(old_network_id) and old_network_id ~= network_id then
         Network.leave_network(old_network_id, pos)
       end
       if is_valid_network_id(network_id) then
         Network.join_network(network_id, pos, nodedef)
       end
-      set_meta_network_id(meta, network_id)
+      Network.set_meta_network_id(meta, network_id)
       Network.set_network_state(meta, state)
       if nodedef.yatm_network.refresh_infotext then
         nodedef.yatm_network.refresh_infotext(pos, node, meta, {
           cause = "network_changed",
           network_id = network_id,
+          network_ts = ts,
           state = state,
         })
       else
+        print("No yatm_network.refresh_infotext/4 defined for", node.name, "falling back to setting infotext manually")
         meta:set_string("infotext", "Network ID " .. dump(network_id) .. " " .. state)
       end
       if nodedef.yatm_network.on_network_state_changed then
@@ -424,7 +426,7 @@ local function refresh_network(origin_pos, ts, ignore_ts)
   elseif count == 1 then
     local host = hosts[1]
     local meta = minetest.get_meta(host.pos)
-    local network_id = get_meta_network_id(meta)
+    local network_id = Network.get_meta_network_id(meta)
     if not is_host_network_registered(host.pos, network_id) then
       debug("refresh_network/3", v3s(origin_pos), "host network is unavailable")
       network_id = create_network(host.pos, host.node.name)
@@ -443,7 +445,7 @@ local function refresh_network(origin_pos, ts, ignore_ts)
       local group = priority_groups[key]
       table.insert(group, host)
       local host_meta = minetest.get_meta(host.pos)
-      local host_network_id = get_meta_network_id(host_meta)
+      local host_network_id = Network.get_meta_network_id(host_meta)
       -- Even though we have a host, we need to make sure that it's the actual host of the network
       -- Otherwise it should be considered inaccessible
       if is_host_network_registered(host.pos, host_network_id) then
@@ -457,7 +459,7 @@ local function refresh_network(origin_pos, ts, ignore_ts)
         debug("refresh_network/3", v3s(origin_pos), "priority 1 hosts are present")
         local leader_host = group[1]
         local leader_meta = minetest.get_meta(leader_host.pos)
-        local leader_network_id = get_meta_network_id(leader_meta)
+        local leader_network_id = Network.get_meta_network_id(leader_meta)
         if not host_network_ids[leader_network_id] then
           debug("refresh_network/3", "host network", leader_network_id, "is not available")
           leader_network_id = create_network(leader_host.pos, leader_host.node.name)
@@ -465,7 +467,7 @@ local function refresh_network(origin_pos, ts, ignore_ts)
         for priority, hosts in pairs(priority_groups) do
           for _, follower_host in ipairs(hosts) do
             local follower_meta = minetest.get_meta(follower_host.pos)
-            local follower_network_id = get_meta_network_id(follower_meta)
+            local follower_network_id = Network.get_meta_network_id(follower_meta)
             if follower_network_id then
               Network.merge_network(leader_network_id, follower_network_id)
             end
@@ -478,7 +480,7 @@ local function refresh_network(origin_pos, ts, ignore_ts)
         for priority, hosts in pairs(priority_groups) do
           for _, follower_host in ipairs(hosts) do
             local follower_meta = minetest.get_meta(follower_host.pos)
-            local follower_network_id = get_meta_network_id(follower_meta)
+            local follower_network_id = Network.get_meta_network_id(follower_meta)
 
             if follower_network_id then
               network_ids[follower_network_id] = true
@@ -498,7 +500,7 @@ local function refresh_network(origin_pos, ts, ignore_ts)
       local group = priority_groups[leader_priority]
       local leader_host = group[1]
       local leader_meta = minetest.get_meta(leader_host.pos)
-      local leader_network_id = get_meta_network_id(leader_meta)
+      local leader_network_id = Network.get_meta_network_id(leader_meta)
       if not host_network_ids[leader_network_id] then
         debug("refresh_network/3", v3s(origin_pos), "host network", leader_network_id, "is not available")
         leader_network_id = create_network(leader_host.pos, leader_host.node.name)
@@ -506,7 +508,7 @@ local function refresh_network(origin_pos, ts, ignore_ts)
       for priority, hosts in pairs(priority_groups) do
         for _, follower_host in ipairs(hosts) do
           local follower_meta = minetest.get_meta(follower_host.pos)
-          local follower_network_id = get_meta_network_id(follower_meta)
+          local follower_network_id = Network.get_meta_network_id(follower_meta)
           if follower_network_id then
             Network.merge_network(leader_network_id, follower_network_id)
           end
@@ -523,12 +525,12 @@ local function host_initialize(pos, ts)
   if nodedef and nodedef.yatm_network then
     if yatm_core.groups.get_item(nodedef, "yatm_network_host") then
       local meta = minetest.get_meta(pos)
-      local network_id = get_meta_network_id(meta)
+      local network_id = Network.get_meta_network_id(meta)
       if is_valid_network_id(network_id) then
         debug("Network.host_initialize/2", v3s(pos), "network id appears to be valid")
       else
         local new_network_id = create_network(pos, node.name)
-        set_meta_network_id(meta, new_network_id)
+        Network.set_meta_network_id(meta, new_network_id)
       end
       return refresh_network(pos, ts)
     else
@@ -794,7 +796,7 @@ end
 function Network.on_host_destruct(pos, node)
   -- the controller is about to be lost, destroy it's existing network
   local meta = minetest.get_meta(pos)
-  local network_id = get_meta_network_id(meta)
+  local network_id = Network.get_meta_network_id(meta)
   if network_id then
     destroy_network(network_id)
   end
@@ -826,7 +828,7 @@ function Network.device_on_destruct(pos)
   assert(pos, "expected a pos")
   print("Network.device_on_destruct/2", v3s(pos))
   local meta = minetest.get_meta(pos)
-  local network_id = get_meta_network_id(meta)
+  local network_id = Network.get_meta_network_id(meta)
   if network_id then
     Network.leave_network(network_id, pos)
   end
@@ -858,7 +860,7 @@ minetest.register_abm({
     local nodedef = minetest.registered_nodes[node.name]
     if nodedef and nodedef.yatm_network then
       local meta = minetest.get_meta(pos)
-      local network_id = get_meta_network_id(meta)
+      local network_id = Network.get_meta_network_id(meta)
       if is_valid_network_id(network_id) then
         -- it has a valid network registered already
       else
@@ -878,7 +880,7 @@ minetest.register_lbm({
   action = function (pos, node)
     print("SCHEDULE NETWORK REFRESH", v3s(pos))
     local meta = minetest.get_meta(pos)
-    local network_id = get_meta_network_id(meta)
+    local network_id = Network.get_meta_network_id(meta)
     if network_id then
       yatm_core.Network.initialize_network(pos, network_id, node.name)
     else
