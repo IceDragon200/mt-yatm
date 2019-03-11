@@ -60,7 +60,7 @@ function c:set_int(key, value)
 end
 
 function c:get_int(key)
-  return math.floor(tonumber(self.data[key]))
+  return math.floor(tonumber(self.data[key] or 0))
 end
 
 function c:set_float(key, value)
@@ -69,7 +69,7 @@ function c:set_float(key, value)
 end
 
 function c:get_float(key)
-  return tonumber(self.data[key]) * 1.0
+  return tonumber(self.data[key] or 0.0) * 1.0
 end
 
 function c:to_table()
