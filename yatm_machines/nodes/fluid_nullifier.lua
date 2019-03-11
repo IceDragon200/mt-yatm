@@ -6,21 +6,21 @@ Where does it go?
 /dev/null maybe?
 ]]
 
-local fluids_interface = {}
+local fluid_interface = {}
 
-function fluids_interface:get(_pos, _dir)
+function fluid_interface:get(_pos, _dir)
   return nil
 end
 
-function fluids_interface:replace(pos, dir, fluid_stack, commit)
+function fluid_interface:replace(pos, dir, fluid_stack, commit)
   return fluid_stack
 end
 
-function fluids_interface:fill(pos, dir, fluid_stack, commit)
+function fluid_interface:fill(pos, dir, fluid_stack, commit)
   return fluid_stack
 end
 
-function fluids_interface:drain(pos, dir, fluid_stack, commit)
+function fluid_interface:drain(pos, dir, fluid_stack, commit)
   return nil
 end
 
@@ -34,5 +34,5 @@ minetest.register_node("yatm_machines:fluid_nullifier", {
   },
   paramtype = "light",
   paramtype2 = "facedir",
-  fluids_interface = fluids_interface,
+  fluid_interface = fluid_interface,
 })

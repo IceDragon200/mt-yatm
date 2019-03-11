@@ -19,7 +19,7 @@ function mixer_yatm_network.update(pos, node)
   end
 end
 
-yatm_machines.register_network_device("yatm_machines:mixer_off", {
+yatm.devices.register_network_device("yatm_machines:mixer_off", {
   description = "Mixer",
   groups = {cracky = 1},
   tiles = {
@@ -35,7 +35,7 @@ yatm_machines.register_network_device("yatm_machines:mixer_off", {
   yatm_network = mixer_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:mixer_error", {
+yatm.devices.register_network_device("yatm_machines:mixer_error", {
   description = "Mixer",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {
@@ -51,7 +51,7 @@ yatm_machines.register_network_device("yatm_machines:mixer_error", {
   yatm_network = mixer_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:mixer_on", {
+yatm.devices.register_network_device("yatm_machines:mixer_on", {
   description = "Mixer",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {

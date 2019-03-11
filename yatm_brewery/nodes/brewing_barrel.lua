@@ -32,8 +32,8 @@ end
 
 local BARREL_CAPACITY = 4000 -- 4 buckets
 local BARREL_DRAIN_BANDWIDTH = BARREL_CAPACITY
-local barrel_fluids_interface = yatm_core.new_simple_fluids_interface("tank", BARREL_CAPACITY)
-function barrel_fluids_interface.on_fluid_changed(pos, dir, node, stack, amount, capacity)
+local barrel_fluid_interface = yatm.fluids.FluidInterface.new_simple("tank", BARREL_CAPACITY)
+function barrel_fluid_interface.on_fluid_changed(pos, dir, node, stack, amount, capacity)
   local nodedef = minetest.registered_nodes[node.name]
   nodedef.refresh_infotext(pos)
 end
@@ -76,7 +76,7 @@ for _,pair in ipairs(colors) do
     on_construct = barrel_on_construct,
     on_destruct = barrel_on_destruct,
 
-    fluids_interface = barrel_fluids_interface,
+    fluid_interface = barrel_fluid_interface,
 
     refresh_infotext = barrel_refresh_infotext,
   })

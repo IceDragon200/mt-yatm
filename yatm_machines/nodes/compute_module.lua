@@ -12,7 +12,7 @@ local compute_module_yatm_network = {
   }
 }
 
-yatm_machines.register_network_device(compute_module_yatm_network.states.off, {
+yatm.devices.register_network_device(compute_module_yatm_network.states.off, {
   description = "Compute Module",
   groups = {cracky = 1},
   drop = compute_module_yatm_network.states.off,
@@ -22,7 +22,7 @@ yatm_machines.register_network_device(compute_module_yatm_network.states.off, {
   yatm_network = compute_module_yatm_network,
 })
 
-yatm_machines.register_network_device(compute_module_yatm_network.states.error, {
+yatm.devices.register_network_device(compute_module_yatm_network.states.error, {
   description = "Compute Module",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = compute_module_yatm_network.states.off,
@@ -32,7 +32,7 @@ yatm_machines.register_network_device(compute_module_yatm_network.states.error, 
   yatm_network = compute_module_yatm_network,
 })
 
-yatm_machines.register_network_device(compute_module_yatm_network.states.on, {
+yatm.devices.register_network_device(compute_module_yatm_network.states.on, {
   description = "Compute Module",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = compute_module_yatm_network.states.on,

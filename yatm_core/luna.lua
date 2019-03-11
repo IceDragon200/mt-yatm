@@ -18,6 +18,16 @@ function c:initialize(name)
   }
   self.tests = {}
   self.children = {}
+  self.setup_callbacks = {}
+  self.setup_all_callbacks = {}
+end
+
+function c:setup(callback)
+  table.insert(self.setup_callbacks, callback)
+end
+
+function c:setup_all(callback)
+  table.insert(self.setup_all_callbacks, callback)
 end
 
 function c:describe(name, func)
@@ -67,27 +77,35 @@ function c:refute(truth_value, message)
   return self:assert(not truth_value, message)
 end
 
-function c:execute(depth, prefix)
+function c:execute(depth, prefix, tags)
+  tags = yatm_core.table_copy(tags or {})
   depth = depth or 0
-  prefix = prefix or ""
+  prefix = prefix or self.name
+  for _,callback in ipairs(self.setup_all_callbacks) do
+    tags = callback(tags)
+  end
   for _,test in ipairs(self.tests) do
+    local test_tags = yatm_core.table_copy(tags)
+    for _,callback in ipairs(self.setup_callbacks) do
+      test_tags = callback(test_tags)
+    end
     if test[1] == "describe" then
-      local prefix2 = prefix .. " " .. test[2]
-      test[3]:execute(depth + 1, prefix2)
+      local prefix2 = prefix .. "  " .. test[2]
+      test[3]:execute(depth + 1, prefix2, test_tags)
     elseif test[1] == "test" then
       local test_func = test[3]
       --print("* " .. prefix, test[2])
       local x_us = minetest.get_us_time()
-      local success, err = xpcall(test_func, debug.traceback, self)
+      local success, err = xpcall(test_func, debug.traceback, self, test_tags)
       local y_us = minetest.get_us_time()
       local diff_us = y_us - x_us
       local diff = diff_us / 1000000.0
       local elapsed = yatm_core.format_pretty_unit(diff, "s")
       if success then
-        print("O " .. prefix, test[2], "OK", elapsed)
+        print("* O " .. prefix, test[2], "OK", elapsed)
         self.stats.tests_passed = self.stats.tests_passed + 1
       else
-        print("X " .. prefix, test[2], "ERROR", elapsed, "\n\t" .. err)
+        print("* X " .. prefix, test[2], "ERROR", elapsed, "\n\t" .. err)
         self.stats.tests_failed = self.stats.tests_failed + 1
       end
     end

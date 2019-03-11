@@ -35,7 +35,7 @@ local crysytal_cauldron_node_box = {
   }
 }
 
-yatm_machines.register_network_device("yatm_machines:crystal_cauldron_off", {
+yatm.devices.register_network_device("yatm_machines:crystal_cauldron_off", {
   description = "Crystal Cauldron",
   groups = {cracky = 1},
   tiles = {
@@ -53,7 +53,7 @@ yatm_machines.register_network_device("yatm_machines:crystal_cauldron_off", {
   yatm_network = crystal_cauldron_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:crystal_cauldron_error", {
+yatm.devices.register_network_device("yatm_machines:crystal_cauldron_error", {
   description = "Crystal Cauldron",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {
@@ -71,7 +71,7 @@ yatm_machines.register_network_device("yatm_machines:crystal_cauldron_error", {
   yatm_network = crystal_cauldron_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:crystal_cauldron_on", {
+yatm.devices.register_network_device("yatm_machines:crystal_cauldron_on", {
   description = "Crystal Cauldron",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {

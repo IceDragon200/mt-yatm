@@ -31,13 +31,13 @@ local function get_fluid_tank_name(_self, pos, dir)
   return nil, nil
 end
 
-local fluids_interface = yatm_core.new_directional_fluids_interface(get_fluid_tank_name)
+local fluid_interface = yatm.fluids.FluidInterface.new_directional(get_fluid_tank_name)
 
 function condenser_yatm_network.update(pos, node, ot)
   --
 end
 
-yatm_machines.register_network_device(condenser_yatm_network.states.off, {
+yatm.devices.register_network_device(condenser_yatm_network.states.off, {
   description = "Condenser",
   groups = {cracky = 1},
   drop = condenser_yatm_network.states.off,
@@ -52,10 +52,10 @@ yatm_machines.register_network_device(condenser_yatm_network.states.off, {
   paramtype = "light",
   paramtype2 = "facedir",
   yatm_network = condenser_yatm_network,
-  fluids_interface = fluids_interface,
+  fluid_interface = fluid_interface,
 })
 
-yatm_machines.register_network_device(condenser_yatm_network.states.error, {
+yatm.devices.register_network_device(condenser_yatm_network.states.error, {
   description = "Condenser",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = condenser_yatm_network.states.off,
@@ -70,10 +70,10 @@ yatm_machines.register_network_device(condenser_yatm_network.states.error, {
   paramtype = "light",
   paramtype2 = "facedir",
   yatm_network = condenser_yatm_network,
-  fluids_interface = fluids_interface,
+  fluid_interface = fluid_interface,
 })
 
-yatm_machines.register_network_device(condenser_yatm_network.states.on, {
+yatm.devices.register_network_device(condenser_yatm_network.states.on, {
   description = "Condenser",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = condenser_yatm_network.states.off,
@@ -104,5 +104,5 @@ yatm_machines.register_network_device(condenser_yatm_network.states.on, {
   paramtype = "light",
   paramtype2 = "facedir",
   yatm_network = condenser_yatm_network,
-  fluids_interface = fluids_interface,
+  fluid_interface = fluid_interface,
 })

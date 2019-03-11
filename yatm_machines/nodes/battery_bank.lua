@@ -11,7 +11,7 @@ local battery_bank_yatm_network = {
   }
 }
 
-yatm_machines.register_network_device(battery_bank_yatm_network.states.off, {
+yatm.devices.register_network_device(battery_bank_yatm_network.states.off, {
   description = "Battery Bank",
   groups = {cracky = 1, yatm_network_host = 2},
   drop = battery_bank_yatm_network.states.off,
@@ -28,7 +28,7 @@ yatm_machines.register_network_device(battery_bank_yatm_network.states.off, {
   yatm_network = battery_bank_yatm_network,
 })
 
-yatm_machines.register_network_device(battery_bank_yatm_network.states.error, {
+yatm.devices.register_network_device(battery_bank_yatm_network.states.error, {
   description = "Battery Bank",
   groups = {cracky = 1, yatm_network_host = 2, not_in_creative_inventory = 1},
   drop = battery_bank_yatm_network.states.off,
@@ -46,7 +46,7 @@ yatm_machines.register_network_device(battery_bank_yatm_network.states.error, {
 })
 
 
-yatm_machines.register_network_device(battery_bank_yatm_network.states.on, {
+yatm.devices.register_network_device(battery_bank_yatm_network.states.on, {
   description = "Battery Bank",
   groups = {cracky = 1, yatm_network_host = 2, not_in_creative_inventory = 1},
   drop = battery_bank_yatm_network.states.off,

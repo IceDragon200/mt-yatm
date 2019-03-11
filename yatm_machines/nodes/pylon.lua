@@ -37,7 +37,7 @@ local pylon_node_box = {
   }
 }
 
-yatm_machines.register_network_device("yatm_machines:pylon_off", {
+yatm.devices.register_network_device("yatm_machines:pylon_off", {
   description = "Pylon",
   groups = {cracky = 1},
   tiles = {
@@ -55,7 +55,7 @@ yatm_machines.register_network_device("yatm_machines:pylon_off", {
   yatm_network = pylon_yatm_network
 })
 
-yatm_machines.register_network_device("yatm_machines:pylon_error", {
+yatm.devices.register_network_device("yatm_machines:pylon_error", {
   description = "Pylon",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {
@@ -89,7 +89,7 @@ yatm_machines.register_network_device("yatm_machines:pylon_error", {
   yatm_network = pylon_yatm_network
 })
 
-yatm_machines.register_network_device("yatm_machines:pylon_on", {
+yatm.devices.register_network_device("yatm_machines:pylon_on", {
   description = "Pylon",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {

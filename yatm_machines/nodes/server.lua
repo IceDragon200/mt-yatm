@@ -25,7 +25,7 @@ local server_node_box = {
   }
 }
 
-yatm_machines.register_network_device(server_yatm_network.states.off, {
+yatm.devices.register_network_device(server_yatm_network.states.off, {
   description = "Server",
   groups = {cracky = 1},
   drop = server_yatm_network.states.off,
@@ -44,7 +44,7 @@ yatm_machines.register_network_device(server_yatm_network.states.off, {
   yatm_network = server_yatm_network,
 })
 
-yatm_machines.register_network_device(server_yatm_network.states.error, {
+yatm.devices.register_network_device(server_yatm_network.states.error, {
   description = "Server",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = server_yatm_network.states.off,
@@ -63,7 +63,7 @@ yatm_machines.register_network_device(server_yatm_network.states.error, {
   yatm_network = server_yatm_network,
 })
 
-yatm_machines.register_network_device(server_yatm_network.states.on, {
+yatm.devices.register_network_device(server_yatm_network.states.on, {
   description = "Server",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = server_yatm_network.states.off,

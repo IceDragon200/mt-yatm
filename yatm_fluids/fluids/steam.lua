@@ -1,11 +1,18 @@
-yatm_core.fluids.register("yatm_core:steam", {
+yatm.fluids.FluidRegistry.register("yatm_fluids", "steam", {
+  description = "Steam",
+
   groups = {
     gas = 1,
     steam = 1,
     water_based = 1,
   },
+
   tiles = {
     source = "steam_source.png",
     flowing = "steam_source.png",
+  },
+
+  fluid_tank = {
+    groups = { gas_tank = 1 },
   },
 })

@@ -13,7 +13,7 @@ local control_rod_open_yatm_network = {
   }
 }
 
-yatm_machines.register_network_device("yatm_reactors:control_rod_open", {
+yatm.devices.register_network_device("yatm_reactors:control_rod_open", {
   description = "Control Rod (Unoccupied)",
   groups = {cracky = 1},
   drop = "yatm_reactors:control_rod_open",
@@ -45,7 +45,7 @@ for _, variant in ipairs({"uranium", "plutonium", "radium"}) do
     }
   }
 
-  yatm_machines.register_network_device(control_rod_yatm_network.states.off, {
+  yatm.devices.register_network_device(control_rod_yatm_network.states.off, {
     description = "Reactor Control Rod (" .. variant .. ")",
     groups = {cracky = 1},
     drop = control_rod_yatm_network.states.off,
@@ -62,7 +62,7 @@ for _, variant in ipairs({"uranium", "plutonium", "radium"}) do
     yatm_network = control_rod_yatm_network,
   })
 
-  yatm_machines.register_network_device(control_rod_yatm_network.states.error, {
+  yatm.devices.register_network_device(control_rod_yatm_network.states.error, {
     description = "Reactor Control Rod (" .. variant .. ")",
     groups = {cracky = 1, not_in_creative_inventory = 1},
     drop = control_rod_yatm_network.states.off,
@@ -79,7 +79,7 @@ for _, variant in ipairs({"uranium", "plutonium", "radium"}) do
     yatm_network = control_rod_yatm_network,
   })
 
-  yatm_machines.register_network_device(control_rod_yatm_network.states.on, {
+  yatm.devices.register_network_device(control_rod_yatm_network.states.on, {
     description = "Reactor Control Rod (" .. variant .. ")",
     groups = {cracky = 1, not_in_creative_inventory = 1},
     drop = control_rod_yatm_network.states.off,

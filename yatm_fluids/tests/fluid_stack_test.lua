@@ -1,8 +1,8 @@
 local MetaRef = yatm_core.FakeMetaRef
 local Luna = assert(yatm_core.Luna)
 
-local FluidStack = assert(yatm_core.FluidStack)
-local case = Luna.new("yatm_core.FluidStack")
+local FluidStack = assert(yatm_fluids.FluidStack)
+local case = Luna.new("yatm_fluids.FluidStack")
 
 case:describe("new/2", function (t2)
   t2:test("creates a new FluidStack", function (t3)

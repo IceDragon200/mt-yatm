@@ -19,7 +19,7 @@ function auto_grinder_yatm_network.update(pos, node)
   end
 end
 
-yatm_machines.register_network_device("yatm_machines:auto_grinder_off", {
+yatm.devices.register_network_device("yatm_machines:auto_grinder_off", {
   description = "Auto Grinder",
   groups = {cracky = 1},
   drop = auto_grinder_yatm_network.states.off,
@@ -36,7 +36,7 @@ yatm_machines.register_network_device("yatm_machines:auto_grinder_off", {
   yatm_network = auto_grinder_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:auto_grinder_error", {
+yatm.devices.register_network_device("yatm_machines:auto_grinder_error", {
   description = "Auto Grinder",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = auto_grinder_yatm_network.states.off,
@@ -53,7 +53,7 @@ yatm_machines.register_network_device("yatm_machines:auto_grinder_error", {
   yatm_network = auto_grinder_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:auto_grinder_on", {
+yatm.devices.register_network_device("yatm_machines:auto_grinder_on", {
   description = "Auto Grinder",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = auto_grinder_yatm_network.states.off,

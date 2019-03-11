@@ -1,4 +1,6 @@
-local FluidStack = assert(yatm_core.FluidStack)
+local FluidStack = assert(yatm.fluids.FluidStack)
+local FluidInterface = assert(yatm.fluids.FluidInterface)
+local Fluids = assert(yatm.fluids)
 
 local boiler_yatm_network = {
   kind = "machine",
@@ -8,10 +10,10 @@ local boiler_yatm_network = {
     has_update = 1, -- the device should be updated every network step
   },
   states = {
-    conflict = "yatm_machines:boiler_error",
-    error = "yatm_machines:boiler_error",
-    off = "yatm_machines:boiler_off",
-    on = "yatm_machines:boiler_on",
+    conflict = "yatm_refinery:boiler_error",
+    error = "yatm_refinery:boiler_error",
+    off = "yatm_refinery:boiler_off",
+    on = "yatm_refinery:boiler_on",
   },
   passive_energy_lost = 0,
   startup_energy_threshold = 0,
@@ -35,9 +37,9 @@ local function get_fluid_tank_name(self, pos, dir, node)
   return nil, nil
 end
 
-local fluids_interface = yatm_core.new_directional_fluids_interface(get_fluid_tank_name)
-fluids_interface.capacity = 16000
-fluids_interface.bandwidth = fluids_interface.capacity
+local fluid_interface = FluidInterface.new_directional(get_fluid_tank_name)
+fluid_interface.capacity = 16000
+fluid_interface.bandwidth = fluid_interface.capacity
 
 function boiler_yatm_network.work(pos, node, available_energy, work_rate, ot)
   local energy_consumed = 0
@@ -69,20 +71,20 @@ function boiler_yatm_network.work(pos, node, available_energy, work_rate, ot)
 
   -- Convert water into steam
   do
-    local stack = yatm_core.fluids.drain_fluid(meta,
+    local stack = Fluids.drain_fluid(meta,
       WATER_TANK,
       FluidStack.new("group:water", 50),
-      fluids_interface.bandwidth, fluids_interface.capacity, false)
+      fluid_interface.bandwidth, fluid_interface.capacity, false)
     if stack then
-      local filled_stack = yatm_core.fluids.fill_fluid(meta,
+      local filled_stack = Fluids.fill_fluid(meta,
         STEAM_TANK,
         FluidStack.set_name(stack, "yatm_core:steam"),
-        fluids_interface.bandwidth, fluids_interface.capacity, true)
+        fluid_interface.bandwidth, fluid_interface.capacity, true)
       if filled_stack and filled_stack.amount > 0 then
-        yatm_core.fluids.drain_fluid(meta,
+        Fluids.drain_fluid(meta,
           WATER_TANK,
           FluidStack.set_amount(stack, filled_stack.amount),
-          fluids_interface.bandwidth, fluids_interface.capacity, true)
+          fluid_interface.bandwidth, fluid_interface.capacity, true)
         energy_consumed = energy_consumed + filled_stack.amount
       end
     end
@@ -90,10 +92,10 @@ function boiler_yatm_network.work(pos, node, available_energy, work_rate, ot)
 
   -- Fill tank on the UP face of the boiler with steam, if available
   do
-    local stack, _new_stack = yatm_core.fluids.drain_fluid(meta,
+    local stack, _new_stack = Fluids.drain_fluid(meta,
       STEAM_TANK,
       FluidStack.new("group:steam", 1000),
-      fluids_interface.capacity, fluids_interface.capacity, false)
+      fluid_interface.capacity, fluid_interface.capacity, false)
 
     if stack then
       local steam_tank_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
@@ -115,7 +117,7 @@ function boiler_yatm_network.work(pos, node, available_energy, work_rate, ot)
   return energy_consumed
 end
 
-yatm_machines.register_network_device(boiler_yatm_network.states.off, {
+yatm.devices.register_network_device(boiler_yatm_network.states.off, {
   description = "Boiler",
   groups = {cracky = 1},
   drop = boiler_yatm_network.states.off,
@@ -130,10 +132,10 @@ yatm_machines.register_network_device(boiler_yatm_network.states.off, {
   paramtype = "light",
   paramtype2 = "facedir",
   yatm_network = yatm_core.table_merge(boiler_yatm_network, {state = "off"}),
-  fluids_interface = fluids_interface,
+  fluid_interface = fluid_interface,
 })
 
-yatm_machines.register_network_device(boiler_yatm_network.states.error, {
+yatm.devices.register_network_device(boiler_yatm_network.states.error, {
   description = "Boiler",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = boiler_yatm_network.states.off,
@@ -148,10 +150,10 @@ yatm_machines.register_network_device(boiler_yatm_network.states.error, {
   paramtype = "light",
   paramtype2 = "facedir",
   yatm_network = yatm_core.table_merge(boiler_yatm_network, {state = "error"}),
-  fluids_interface = fluids_interface,
+  fluid_interface = fluid_interface,
 })
 
-yatm_machines.register_network_device(boiler_yatm_network.states.on, {
+yatm.devices.register_network_device(boiler_yatm_network.states.on, {
   description = "Boiler",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = boiler_yatm_network.states.off,
@@ -166,5 +168,5 @@ yatm_machines.register_network_device(boiler_yatm_network.states.on, {
   paramtype = "light",
   paramtype2 = "facedir",
   yatm_network = yatm_core.table_merge(boiler_yatm_network, {state = "on"}),
-  fluids_interface = fluids_interface,
+  fluid_interface = fluid_interface,
 })

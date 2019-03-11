@@ -4,6 +4,9 @@
 yatm_core = rawget(_G, "yatm_core") or {}
 yatm_core.modpath = minetest.get_modpath(minetest.get_current_modname())
 
+-- This is yatm's shared namespace, use the apis from this instead of the module's name
+yatm = rawget(_G, "yatm") or {}
+
 local env = minetest.request_insecure_environment()
 yatm_core.bit = env.require("bit")
 
@@ -233,11 +236,6 @@ dofile(yatm_core.modpath .. "/yatm_network.lua")
 dofile(yatm_core.modpath .. "/energy.lua")
 dofile(yatm_core.modpath .. "/measurable.lua") -- similar to energy, but has a name field too
 -- Nodes and Items
-dofile(yatm_core.modpath .. "/fluid_stack.lua")
-dofile(yatm_core.modpath .. "/fluids.lua")
-dofile(yatm_core.modpath .. "/fluids_interface.lua")
-dofile(yatm_core.modpath .. "/fluid_tanks.lua")
-dofile(yatm_core.modpath .. "/fluids_registry.lua")
 dofile(yatm_core.modpath .. "/nodes.lua")
 dofile(yatm_core.modpath .. "/items.lua")
 
@@ -246,3 +244,4 @@ dofile(yatm_core.modpath .. "/fake_meta_ref.lua")
 dofile(yatm_core.modpath .. "/luna.lua")
 dofile(yatm_core.modpath .. "/tests.lua")
 
+dofile(yatm_core.modpath .. "/api.lua")

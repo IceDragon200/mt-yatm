@@ -27,7 +27,7 @@ function server_controller_yatm_network.update(pos, node)
   end
 end
 
-yatm_machines.register_network_device(server_controller_yatm_network.states.off, {
+yatm.devices.register_network_device(server_controller_yatm_network.states.off, {
   description = "Server Controller",
   groups = {cracky = 1},
   drop = server_controller_yatm_network.states.off,
@@ -46,7 +46,7 @@ yatm_machines.register_network_device(server_controller_yatm_network.states.off,
   yatm_network = server_controller_yatm_network,
 })
 
-yatm_machines.register_network_device(server_controller_yatm_network.states.error, {
+yatm.devices.register_network_device(server_controller_yatm_network.states.error, {
   description = "Server Controller",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = server_controller_yatm_network.states.off,
@@ -65,7 +65,7 @@ yatm_machines.register_network_device(server_controller_yatm_network.states.erro
   yatm_network = server_controller_yatm_network,
 })
 
-yatm_machines.register_network_device(server_controller_yatm_network.states.on, {
+yatm.devices.register_network_device(server_controller_yatm_network.states.on, {
   description = "Server Controller",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = server_controller_yatm_network.states.off,

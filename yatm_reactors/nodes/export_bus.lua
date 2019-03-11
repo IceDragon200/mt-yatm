@@ -13,7 +13,7 @@ for _, variant in ipairs({"hazard", "coolant", "signal"}) do
     }
   }
 
-  yatm_machines.register_network_device("yatm_reactors:export_bus_" .. variant .. "_off", {
+  yatm.devices.register_network_device("yatm_reactors:export_bus_" .. variant .. "_off", {
     description = "Reactor Export Bus (" .. variant .. ")",
     groups = {cracky = 1},
     drop = export_bus_yatm_network.states.off,
@@ -30,7 +30,7 @@ for _, variant in ipairs({"hazard", "coolant", "signal"}) do
     yatm_network = export_bus_yatm_network,
   })
 
-  yatm_machines.register_network_device("yatm_reactors:export_bus_" .. variant .. "_error", {
+  yatm.devices.register_network_device("yatm_reactors:export_bus_" .. variant .. "_error", {
     description = "Reactor Export Bus (" .. variant .. ")",
     groups = {cracky = 1, not_in_creative_inventory = 1},
     drop = export_bus_yatm_network.states.off,
@@ -47,7 +47,7 @@ for _, variant in ipairs({"hazard", "coolant", "signal"}) do
     yatm_network = export_bus_yatm_network,
   })
 
-  yatm_machines.register_network_device("yatm_reactors:export_bus_" .. variant .. "_on", {
+  yatm.devices.register_network_device("yatm_reactors:export_bus_" .. variant .. "_on", {
     description = "Reactor Export Bus (" .. variant .. ")",
     groups = {cracky = 1, not_in_creative_inventory = 1},
     drop = export_bus_yatm_network.states.off,

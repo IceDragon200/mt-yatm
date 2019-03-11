@@ -20,7 +20,7 @@ function heater_yatm_network.update(pos, node)
   end
 end
 
-yatm_machines.register_network_device("yatm_machines:heater", {
+yatm.devices.register_network_device("yatm_machines:heater", {
   description = "Heater",
   groups = {cracky = 1},
   tiles = {
@@ -36,7 +36,7 @@ yatm_machines.register_network_device("yatm_machines:heater", {
   yatm_network = heater_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:heater_error", {
+yatm.devices.register_network_device("yatm_machines:heater_error", {
   description = "Heater",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {
@@ -52,7 +52,7 @@ yatm_machines.register_network_device("yatm_machines:heater_error", {
   yatm_network = heater_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:heater_on", {
+yatm.devices.register_network_device("yatm_machines:heater_on", {
   description = "Heater",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {

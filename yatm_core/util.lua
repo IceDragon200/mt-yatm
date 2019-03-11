@@ -17,6 +17,13 @@ function yatm_core.table_merge(...)
 end
 
 --[[
+Makes a copy of the given table
+]]
+function yatm_core.table_copy(t)
+  return yatm_core.table_merge(t)
+end
+
+--[[
 Not to be confused with table.concat, which is actually a 'join' in other languages.
 ]]
 function yatm_core.list_concat(...)

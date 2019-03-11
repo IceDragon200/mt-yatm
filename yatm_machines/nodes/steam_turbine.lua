@@ -31,7 +31,7 @@ local function get_fluid_tank_name(_self, pos, dir, node)
   return nil, nil
 end
 
-local fluids_interface = yatm_core.new_directional_fluids_interface(get_fluid_tank_name)
+local fluid_interface = yatm.fluids.FluidInterface.new_directional(get_fluid_tank_name)
 
 function steam_turbine_yatm_network.produce_energy(pos, node, ot)
   local meta = minetest.get_meta(pos)
@@ -104,7 +104,7 @@ function steam_turbine_yatm_network.update(pos, node, ot)
   end
 end
 
-yatm_machines.register_network_device(steam_turbine_yatm_network.states.off, {
+yatm.devices.register_network_device(steam_turbine_yatm_network.states.off, {
   description = "Steam Turbine",
   groups = {cracky = 1, yatm_network_host = 2},
   drop = steam_turbine_yatm_network.states.off,
@@ -119,10 +119,10 @@ yatm_machines.register_network_device(steam_turbine_yatm_network.states.off, {
   paramtype = "light",
   paramtype2 = "facedir",
   yatm_network = steam_turbine_yatm_network,
-  fluids_interface = fluids_interface,
+  fluid_interface = fluid_interface,
 })
 
-yatm_machines.register_network_device(steam_turbine_yatm_network.states.error, {
+yatm.devices.register_network_device(steam_turbine_yatm_network.states.error, {
   description = "Steam Turbine",
   groups = {cracky = 1, yatm_network_host = 2, not_in_creative_inventory = 1},
   drop = steam_turbine_yatm_network.states.off,
@@ -137,10 +137,10 @@ yatm_machines.register_network_device(steam_turbine_yatm_network.states.error, {
   paramtype = "light",
   paramtype2 = "facedir",
   yatm_network = steam_turbine_yatm_network,
-  fluids_interface = fluids_interface,
+  fluid_interface = fluid_interface,
 })
 
-yatm_machines.register_network_device(steam_turbine_yatm_network.states.on, {
+yatm.devices.register_network_device(steam_turbine_yatm_network.states.on, {
   description = "Steam Turbine",
   groups = {cracky = 1, yatm_network_host = 2, not_in_creative_inventory = 1},
   drop = steam_turbine_yatm_network.states.off,
@@ -163,5 +163,5 @@ yatm_machines.register_network_device(steam_turbine_yatm_network.states.on, {
   paramtype = "light",
   paramtype2 = "facedir",
   yatm_network = steam_turbine_yatm_network,
-  fluids_interface = fluids_interface,
+  fluid_interface = fluid_interface,
 })

@@ -10,8 +10,6 @@ dofile(yatm_spacetime.modpath .. "/spacetime_network.lua")
 dofile(yatm_spacetime.modpath .. "/nodes.lua")
 dofile(yatm_spacetime.modpath .. "/items.lua")
 
-dofile(yatm_spacetime.modpath .. "/tests.lua")
-
 minetest.register_lbm({
   name = "yatm_spacetime:addressable_spacetime_device_lbm",
   nodenames = {
@@ -26,3 +24,7 @@ minetest.register_lbm({
     end
   end,
 })
+
+dofile(yatm_spacetime.modpath .. "/api.lua")
+
+dofile(yatm_spacetime.modpath .. "/tests.lua")

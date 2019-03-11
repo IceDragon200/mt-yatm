@@ -71,7 +71,7 @@ for cell_type, cell_config in pairs(cell_types) do
     if stage > 0 then
       groups.not_in_creative_inventory = 1
     end
-    yatm_machines.register_network_device(energy_cell_yatm_network.basename .. "_" .. stage, {
+    yatm.devices.register_network_device(energy_cell_yatm_network.basename .. "_" .. stage, {
       description = "Energy Cell ("..cell_type..")",
       drop = energy_cell_yatm_network.basename .. "_0",
       groups = groups,
@@ -128,7 +128,7 @@ for cell_type, cell_config in pairs(cell_types) do
     return amount
   end
 
-  yatm_machines.register_network_device(creative_energy_cell_yatm_network.basename, {
+  yatm.devices.register_network_device(creative_energy_cell_yatm_network.basename, {
     description = "Energy Cell ("..cell_type..") [Creative]",
     groups = {cracky = 1, yatm_network_host = 2},
     is_ground_content = false,

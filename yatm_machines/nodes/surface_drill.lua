@@ -84,7 +84,7 @@ function surface_drill_yatm_network.update(pos, node, _ot)
   end
 end
 
-yatm_machines.register_network_device(surface_drill_yatm_network.states.off, {
+yatm.devices.register_network_device(surface_drill_yatm_network.states.off, {
   description = "Surface Drill",
   groups = {cracky = 1},
   tiles = {
@@ -100,7 +100,7 @@ yatm_machines.register_network_device(surface_drill_yatm_network.states.off, {
   yatm_network = surface_drill_yatm_network,
 })
 
-yatm_machines.register_network_device(surface_drill_yatm_network.states.error, {
+yatm.devices.register_network_device(surface_drill_yatm_network.states.error, {
   description = "Surface Drill",
   drop = surface_drill_yatm_network.states.off,
   groups = {cracky = 1, not_in_creative_inventory = 1},
@@ -117,7 +117,7 @@ yatm_machines.register_network_device(surface_drill_yatm_network.states.error, {
   yatm_network = surface_drill_yatm_network,
 })
 
-yatm_machines.register_network_device(surface_drill_yatm_network.states.on, {
+yatm.devices.register_network_device(surface_drill_yatm_network.states.on, {
   description = "Surface Drill",
   drop = surface_drill_yatm_network.states.off,
   groups = {cracky = 1, not_in_creative_inventory = 1},
@@ -156,7 +156,7 @@ function surface_drill_ext_yatm_network.update(pos, node)
   end
 end
 
-yatm_machines.register_network_device(surface_drill_ext_yatm_network.states.off, {
+yatm.devices.register_network_device(surface_drill_ext_yatm_network.states.off, {
   description = "Surface Drill Extension",
   groups = {cracky = 1, surface_drill_ext = 1},
   tiles = {
@@ -172,7 +172,7 @@ yatm_machines.register_network_device(surface_drill_ext_yatm_network.states.off,
   yatm_network = surface_drill_ext_yatm_network,
 })
 
-yatm_machines.register_network_device(surface_drill_ext_yatm_network.states.error, {
+yatm.devices.register_network_device(surface_drill_ext_yatm_network.states.error, {
   description = "Surface Drill Extension",
   drop = surface_drill_ext_yatm_network.states.off,
   groups = {cracky = 1, surface_drill_ext = 1, not_in_creative_inventory = 1},
@@ -189,7 +189,7 @@ yatm_machines.register_network_device(surface_drill_ext_yatm_network.states.erro
   yatm_network = surface_drill_ext_yatm_network,
 })
 
-yatm_machines.register_network_device(surface_drill_ext_yatm_network.states.on, {
+yatm.devices.register_network_device(surface_drill_ext_yatm_network.states.on, {
   description = "Surface Drill Extension",
   drop = surface_drill_ext_yatm_network.states.off,
   groups = {cracky = 1, surface_drill_ext = 1, not_in_creative_inventory = 1},

@@ -18,7 +18,7 @@ local monitor_console_yatm_network = {
   },
 }
 
-yatm_machines.register_network_device("yatm_machines:monitor_console_off", {
+yatm.devices.register_network_device("yatm_machines:monitor_console_off", {
   description = "Monitor (console)",
   groups = {cracky = 1},
   tiles = {
@@ -34,7 +34,7 @@ yatm_machines.register_network_device("yatm_machines:monitor_console_off", {
   yatm_network = monitor_console_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:monitor_console_error", {
+yatm.devices.register_network_device("yatm_machines:monitor_console_error", {
   description = "Monitor (console)",
   drop = monitor_console_yatm_network.basename .. "_off",
   groups = {cracky = 1, not_in_creative_inventory = 1},
@@ -51,7 +51,7 @@ yatm_machines.register_network_device("yatm_machines:monitor_console_error", {
   yatm_network = monitor_console_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:monitor_console_on", {
+yatm.devices.register_network_device("yatm_machines:monitor_console_on", {
   description = "Monitor (console)",
   drop = monitor_console_yatm_network.basename .. "_off",
   groups = {cracky = 1, not_in_creative_inventory = 1},
@@ -96,7 +96,7 @@ local monitor_crafting_yatm_network = {
   },
 }
 
-yatm_machines.register_network_device("yatm_machines:monitor_crafting_off", {
+yatm.devices.register_network_device("yatm_machines:monitor_crafting_off", {
   description = "Monitor (crafting)",
   groups = {cracky = 1},
   tiles = {
@@ -112,7 +112,7 @@ yatm_machines.register_network_device("yatm_machines:monitor_crafting_off", {
   yatm_network = monitor_crafting_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:monitor_crafting_error", {
+yatm.devices.register_network_device("yatm_machines:monitor_crafting_error", {
   description = "Monitor (crafting)",
   drop = monitor_crafting_yatm_network.basename .. "_off",
   groups = {cracky = 1, not_in_creative_inventory = 1},
@@ -129,7 +129,7 @@ yatm_machines.register_network_device("yatm_machines:monitor_crafting_error", {
   yatm_network = monitor_crafting_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:monitor_crafting_on", {
+yatm.devices.register_network_device("yatm_machines:monitor_crafting_on", {
   description = "Monitor (crafting)",
   drop = monitor_crafting_yatm_network.basename .. "_off",
   groups = {cracky = 1, not_in_creative_inventory = 1},
@@ -166,7 +166,7 @@ local monitor_ele_yatm_network = {
   },
 }
 
-yatm_machines.register_network_device("yatm_machines:monitor_ele_off", {
+yatm.devices.register_network_device("yatm_machines:monitor_ele_off", {
   description = "Monitor (ele)",
   drop = monitor_ele_yatm_network.basename .. "_off",
   groups = {cracky = 1},
@@ -183,7 +183,7 @@ yatm_machines.register_network_device("yatm_machines:monitor_ele_off", {
   yatm_network = monitor_ele_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:monitor_ele_error", {
+yatm.devices.register_network_device("yatm_machines:monitor_ele_error", {
   description = "Monitor (ele)",
   drop = monitor_ele_yatm_network.basename .. "_off",
   groups = {cracky = 1, not_in_creative_inventory = 1},
@@ -200,7 +200,7 @@ yatm_machines.register_network_device("yatm_machines:monitor_ele_error", {
   yatm_network = monitor_ele_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:monitor_ele_on", {
+yatm.devices.register_network_device("yatm_machines:monitor_ele_on", {
   description = "Monitor (ele)",
   drop = monitor_ele_yatm_network.basename .. "_off",
   groups = {cracky = 1, not_in_creative_inventory = 1},
@@ -237,7 +237,7 @@ local monitor_inventory_yatm_network = {
   },
 }
 
-yatm_machines.register_network_device("yatm_machines:monitor_inventory_off", {
+yatm.devices.register_network_device("yatm_machines:monitor_inventory_off", {
   description = "Monitor (inventory)",
   groups = {cracky = 1},
   tiles = {
@@ -253,7 +253,7 @@ yatm_machines.register_network_device("yatm_machines:monitor_inventory_off", {
   yatm_network = monitor_inventory_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:monitor_inventory_error", {
+yatm.devices.register_network_device("yatm_machines:monitor_inventory_error", {
   description = "Monitor (inventory)",
   drop = monitor_inventory_yatm_network.basename .. "_off",
   groups = {cracky = 1, not_in_creative_inventory = 1},
@@ -270,7 +270,7 @@ yatm_machines.register_network_device("yatm_machines:monitor_inventory_error", {
   yatm_network = monitor_inventory_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:monitor_inventory_on", {
+yatm.devices.register_network_device("yatm_machines:monitor_inventory_on", {
   description = "Monitor (inventory)",
   drop = monitor_inventory_yatm_network.basename .. "_off",
   groups = {cracky = 1, not_in_creative_inventory = 1},

@@ -19,7 +19,7 @@ end
 function coal_generator_yatm_network.update(pos, node, ot)
 end
 
-yatm_machines.register_network_device(coal_generator_yatm_network.states.off, {
+yatm.devices.register_network_device(coal_generator_yatm_network.states.off, {
   description = "Coal Generator",
   groups = {cracky = 1, yatm_network_host = 3},
   drop = coal_generator_yatm_network.states.off,
@@ -36,7 +36,7 @@ yatm_machines.register_network_device(coal_generator_yatm_network.states.off, {
   yatm_network = coal_generator_yatm_network,
 })
 
-yatm_machines.register_network_device(coal_generator_yatm_network.states.error, {
+yatm.devices.register_network_device(coal_generator_yatm_network.states.error, {
   description = "Coal Generator",
   groups = {cracky = 1, yatm_network_host = 3, not_in_creative_inventory = 1},
   drop = coal_generator_yatm_network.states.off,
@@ -53,7 +53,7 @@ yatm_machines.register_network_device(coal_generator_yatm_network.states.error, 
   yatm_network = coal_generator_yatm_network,
 })
 
-yatm_machines.register_network_device(coal_generator_yatm_network.states.on, {
+yatm.devices.register_network_device(coal_generator_yatm_network.states.on, {
   description = "Coal Generator",
   groups = {cracky = 1, yatm_network_host = 3, not_in_creative_inventory = 1},
   drop = coal_generator_yatm_network.states.off,

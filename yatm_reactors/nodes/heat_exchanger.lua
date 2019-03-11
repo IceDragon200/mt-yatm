@@ -12,7 +12,7 @@ local heat_exchanger_yatm_network = {
   }
 }
 
-yatm_machines.register_network_device(heat_exchanger_yatm_network.states.off, {
+yatm.devices.register_network_device(heat_exchanger_yatm_network.states.off, {
   description = "Reactor Heat Exchanger",
   groups = {cracky = 1},
   drop = heat_exchanger_yatm_network.states.off,
@@ -29,7 +29,7 @@ yatm_machines.register_network_device(heat_exchanger_yatm_network.states.off, {
   yatm_network = heat_exchanger_yatm_network,
 })
 
-yatm_machines.register_network_device(heat_exchanger_yatm_network.states.error, {
+yatm.devices.register_network_device(heat_exchanger_yatm_network.states.error, {
   description = "Reactor Heat Exchanger",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = heat_exchanger_yatm_network.states.off,
@@ -46,7 +46,7 @@ yatm_machines.register_network_device(heat_exchanger_yatm_network.states.error, 
   yatm_network = heat_exchanger_yatm_network,
 })
 
-yatm_machines.register_network_device(heat_exchanger_yatm_network.states.on, {
+yatm.devices.register_network_device(heat_exchanger_yatm_network.states.on, {
   description = "Reactor Heat Exchanger",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = heat_exchanger_yatm_network.states.off,

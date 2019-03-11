@@ -1,7 +1,15 @@
+--[[
+Simple utility module for dealing with stacks of fluids
+]]
+local FluidRegistry = assert(yatm_fluids.FluidRegistry)
 local FluidStack = {}
 
 function FluidStack.new(name, amount)
   return { name = name, amount = amount or 0 }
+end
+
+function FluidStack.new_empty()
+  return FluidStack.new(nil, 0)
 end
 
 function FluidStack.new_group(group_name, amount)
@@ -43,9 +51,11 @@ function FluidStack.dec_amount(fluid_stack, amount)
 end
 
 function FluidStack.merge(a, ...)
-  local result = { name = a.name, amount = a.amount }
+  assert(a, "expected a fluid stack")
+  local result = { name = FluidRegistry.normalize_fluid_name(a.name), amount = a.amount }
   for _,b in ipairs({...}) do
-    if b.name == result.name then
+    FluidRegistry.normalize_fluid_name(b.name)
+    if not result.name or b.name == result.name then
       result.amount = result.amount + b.amount
     end
   end
@@ -60,4 +70,4 @@ function FluidStack.presence(fluid_stack)
   end
 end
 
-yatm_core.FluidStack = FluidStack
+yatm_fluids.FluidStack = FluidStack

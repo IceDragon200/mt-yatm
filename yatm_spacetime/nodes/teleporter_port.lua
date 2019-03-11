@@ -58,7 +58,7 @@ local teleporter_port_yatm_network = {
   passive_energy_lost = 5
 }
 
-yatm_machines.register_network_device(teleporter_port_yatm_network.states.off, {
+yatm.devices.register_network_device(teleporter_port_yatm_network.states.off, {
   description = "Teleporter Port",
   groups = {cracky = 1, spacetime_device = 1, addressable_spacetime_device = 1},
   drop = teleporter_port_yatm_network.states.off,
@@ -81,7 +81,7 @@ yatm_machines.register_network_device(teleporter_port_yatm_network.states.off, {
   preserve_metadata = teleporter_port_preserve_metadata,
 })
 
-yatm_machines.register_network_device(teleporter_port_yatm_network.states.error, {
+yatm.devices.register_network_device(teleporter_port_yatm_network.states.error, {
   description = "Teleporter Port",
   groups = {cracky = 1, spacetime_device = 1, addressable_spacetime_device = 1, not_in_creative_inventory = 1},
   drop = teleporter_port_yatm_network.states.off,
@@ -104,7 +104,7 @@ yatm_machines.register_network_device(teleporter_port_yatm_network.states.error,
   preserve_metadata = teleporter_port_preserve_metadata,
 })
 
-yatm_machines.register_network_device(teleporter_port_yatm_network.states.inactive, {
+yatm.devices.register_network_device(teleporter_port_yatm_network.states.inactive, {
   description = "Teleporter Port",
   groups = {cracky = 1, spacetime_device = 1, addressable_spacetime_device = 1, not_in_creative_inventory = 1},
   drop = teleporter_port_yatm_network.states.off,
@@ -127,7 +127,7 @@ yatm_machines.register_network_device(teleporter_port_yatm_network.states.inacti
   preserve_metadata = teleporter_port_preserve_metadata,
 })
 
-yatm_machines.register_network_device(teleporter_port_yatm_network.states.on, {
+yatm.devices.register_network_device(teleporter_port_yatm_network.states.on, {
   description = "Teleporter Port",
   groups = {cracky = 1, spacetime_device = 1, addressable_spacetime_device = 1, not_in_creative_inventory = 1},
   drop = teleporter_port_yatm_network.states.off,

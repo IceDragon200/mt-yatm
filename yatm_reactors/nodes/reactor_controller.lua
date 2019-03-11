@@ -12,7 +12,7 @@ local reactor_controller_yatm_network = {
   }
 }
 
-yatm_machines.register_network_device(reactor_controller_yatm_network.states.off, {
+yatm.devices.register_network_device(reactor_controller_yatm_network.states.off, {
   description = "Reactor Controller",
   groups = {cracky = 1, yatm_network_host = 4},
   drop = reactor_controller_yatm_network.states.off,
@@ -29,7 +29,7 @@ yatm_machines.register_network_device(reactor_controller_yatm_network.states.off
   yatm_network = reactor_controller_yatm_network,
 })
 
-yatm_machines.register_network_device(reactor_controller_yatm_network.states.error, {
+yatm.devices.register_network_device(reactor_controller_yatm_network.states.error, {
   description = "Reactor Controller",
   groups = {cracky = 1, not_in_creative_inventory = 1, yatm_network_host = 4},
   drop = reactor_controller_yatm_network.states.off,
@@ -46,7 +46,7 @@ yatm_machines.register_network_device(reactor_controller_yatm_network.states.err
   yatm_network = reactor_controller_yatm_network,
 })
 
-yatm_machines.register_network_device(reactor_controller_yatm_network.states.on, {
+yatm.devices.register_network_device(reactor_controller_yatm_network.states.on, {
   description = "Reactor Controller",
   groups = {cracky = 1, not_in_creative_inventory = 1, yatm_network_host = 4},
   drop = reactor_controller_yatm_network.states.off,

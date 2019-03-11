@@ -102,7 +102,7 @@ local function teleporter_change_address(pos, node, new_address)
   return new_address
 end
 
-yatm_machines.register_network_device(teleporter_yatm_network.states.off, {
+yatm.devices.register_network_device(teleporter_yatm_network.states.off, {
   description = "Teleporter",
   groups = {cracky = 1, spacetime_device = 1, addressable_spacetime_device = 1},
   drop = teleporter_yatm_network.states.off,
@@ -127,7 +127,7 @@ yatm_machines.register_network_device(teleporter_yatm_network.states.off, {
   change_address = teleporter_change_address,
 })
 
-yatm_machines.register_network_device(teleporter_yatm_network.states.error, {
+yatm.devices.register_network_device(teleporter_yatm_network.states.error, {
   description = "Teleporter",
   groups = {cracky = 1, spacetime_device = 1, addressable_spacetime_device = 1, not_in_creative_inventory = 1},
   drop = teleporter_yatm_network.states.off,
@@ -152,7 +152,7 @@ yatm_machines.register_network_device(teleporter_yatm_network.states.error, {
   change_address = teleporter_change_address,
 })
 
-yatm_machines.register_network_device(teleporter_yatm_network.states.inactive, {
+yatm.devices.register_network_device(teleporter_yatm_network.states.inactive, {
   description = "Teleporter",
   groups = {cracky = 1, spacetime_device = 1, addressable_spacetime_device = 1, not_in_creative_inventory = 1},
   drop = teleporter_yatm_network.states.off,
@@ -177,7 +177,7 @@ yatm_machines.register_network_device(teleporter_yatm_network.states.inactive, {
   change_address = teleporter_change_address,
 })
 
-yatm_machines.register_network_device(teleporter_yatm_network.states.on, {
+yatm.devices.register_network_device(teleporter_yatm_network.states.on, {
   description = "Teleporter",
   groups = {cracky = 1, spacetime_device = 1, addressable_spacetime_device = 1, not_in_creative_inventory = 1},
   drop = teleporter_yatm_network.states.off,

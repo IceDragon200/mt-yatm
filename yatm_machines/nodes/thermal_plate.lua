@@ -24,7 +24,7 @@ local thermal_plate_heating_yatm_network = {
   },
 }
 
-yatm_machines.register_network_device(thermal_plate_heating_yatm_network.states.off, {
+yatm.devices.register_network_device(thermal_plate_heating_yatm_network.states.off, {
   description = "Thermal Plate (heating)",
   groups = {cracky = 1},
   drop = thermal_plate_heating_yatm_network.states.off,
@@ -44,7 +44,7 @@ yatm_machines.register_network_device(thermal_plate_heating_yatm_network.states.
   yatm_network = thermal_plate_heating_yatm_network,
 })
 
-yatm_machines.register_network_device(thermal_plate_heating_yatm_network.states.error, {
+yatm.devices.register_network_device(thermal_plate_heating_yatm_network.states.error, {
   description = "Thermal Plate (heating)",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = thermal_plate_heating_yatm_network.states.off,
@@ -84,7 +84,7 @@ local thermal_plate_side_texture = {
   },
 }
 
-yatm_machines.register_network_device(thermal_plate_heating_yatm_network.states.on, {
+yatm.devices.register_network_device(thermal_plate_heating_yatm_network.states.on, {
   description = "Thermal Plate (heating)",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = thermal_plate_heating_yatm_network.states.off,
@@ -119,7 +119,7 @@ local thermal_plate_cooling_yatm_network = {
   },
 }
 
-yatm_machines.register_network_device(thermal_plate_cooling_yatm_network.states.off, {
+yatm.devices.register_network_device(thermal_plate_cooling_yatm_network.states.off, {
   description = "Thermal Plate (cooling)",
   groups = {cracky = 1},
   drop = thermal_plate_cooling_yatm_network.states.off,
@@ -139,7 +139,7 @@ yatm_machines.register_network_device(thermal_plate_cooling_yatm_network.states.
   yatm_network = thermal_plate_cooling_yatm_network,
 })
 
-yatm_machines.register_network_device(thermal_plate_cooling_yatm_network.states.error, {
+yatm.devices.register_network_device(thermal_plate_cooling_yatm_network.states.error, {
   description = "Thermal Plate (cooling)",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = thermal_plate_cooling_yatm_network.states.off,
@@ -179,7 +179,7 @@ local thermal_plate_side_texture = {
   },
 }
 
-yatm_machines.register_network_device(thermal_plate_cooling_yatm_network.states.on, {
+yatm.devices.register_network_device(thermal_plate_cooling_yatm_network.states.on, {
   description = "Thermal Plate (cooling)",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = thermal_plate_cooling_yatm_network.states.off,
@@ -217,7 +217,7 @@ local thermal_plate_nuclear_yatm_network = {
   },
 }
 
-yatm_machines.register_network_device(thermal_plate_nuclear_yatm_network.states.off, {
+yatm.devices.register_network_device(thermal_plate_nuclear_yatm_network.states.off, {
   description = "Thermal Plate (nuclear)",
   groups = {cracky = 1},
   drop = thermal_plate_nuclear_yatm_network.states.off,
@@ -237,7 +237,7 @@ yatm_machines.register_network_device(thermal_plate_nuclear_yatm_network.states.
   yatm_network = thermal_plate_nuclear_yatm_network,
 })
 
-yatm_machines.register_network_device(thermal_plate_nuclear_yatm_network.states.error, {
+yatm.devices.register_network_device(thermal_plate_nuclear_yatm_network.states.error, {
   description = "Thermal Plate (nuclear)",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = thermal_plate_nuclear_yatm_network.states.off,
@@ -277,7 +277,7 @@ local thermal_plate_side_texture = {
   },
 }
 
-yatm_machines.register_network_device(thermal_plate_nuclear_yatm_network.states.on, {
+yatm.devices.register_network_device(thermal_plate_nuclear_yatm_network.states.on, {
   description = "Thermal Plate (nuclear)",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = thermal_plate_nuclear_yatm_network.states.off,

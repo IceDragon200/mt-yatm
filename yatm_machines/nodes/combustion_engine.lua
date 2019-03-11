@@ -1,3 +1,6 @@
+local FluidStack = assert(yatm.fluids.FluidStack)
+local FluidUtils = assert(yatm.fluids.Utils)
+
 local combustion_engine_nodebox = {
   type = "fixed",
   fixed = {
@@ -35,9 +38,9 @@ function combustion_engine_yatm_network.produce_energy(pos, node, should_commit)
   return 0
 end
 
-local fluids_interface = yatm_core.new_simple_fluids_interface("tank", 16000)
+local fluid_interface = yatm.fluids.FluidInterface.new_simple("tank", 16000)
 
-yatm_machines.register_network_device(combustion_engine_yatm_network.states.off, {
+yatm.devices.register_network_device(combustion_engine_yatm_network.states.off, {
   description = "Combustion Engine",
   groups = {cracky = 1, yatm_network_host = 3},
   drop = combustion_engine_yatm_network.states.off,
@@ -54,10 +57,10 @@ yatm_machines.register_network_device(combustion_engine_yatm_network.states.off,
   drawtype = "nodebox",
   node_box = combustion_engine_nodebox,
   yatm_network = combustion_engine_yatm_network,
-  fluids_interface = fluids_interface,
+  fluid_interface = fluid_interface,
 })
 
-yatm_machines.register_network_device(combustion_engine_yatm_network.states.error, {
+yatm.devices.register_network_device(combustion_engine_yatm_network.states.error, {
   description = "Combustion Engine",
   groups = {cracky = 1, yatm_network_host = 3, not_in_creative_inventory = 1},
   drop = combustion_engine_yatm_network.states.off,
@@ -74,10 +77,10 @@ yatm_machines.register_network_device(combustion_engine_yatm_network.states.erro
   drawtype = "nodebox",
   node_box = combustion_engine_nodebox,
   yatm_network = combustion_engine_yatm_network,
-  fluids_interface = fluids_interface,
+  fluid_interface = fluid_interface,
 })
 
-yatm_machines.register_network_device(combustion_engine_yatm_network.states.on, {
+yatm.devices.register_network_device(combustion_engine_yatm_network.states.on, {
   description = "Combustion Engine",
   groups = {cracky = 1, yatm_network_host = 3, not_in_creative_inventory = 1},
   drop = combustion_engine_yatm_network.states.off,
@@ -94,5 +97,5 @@ yatm_machines.register_network_device(combustion_engine_yatm_network.states.on, 
   drawtype = "nodebox",
   node_box = combustion_engine_nodebox,
   yatm_network = combustion_engine_yatm_network,
-  fluids_interface = fluids_interface,
+  fluid_interface = fluid_interface,
 })

@@ -19,7 +19,7 @@ function electrolyser_yatm_network.update(pos, node)
   end
 end
 
-yatm_machines.register_network_device("yatm_machines:electrolyser_off", {
+yatm.devices.register_network_device("yatm_machines:electrolyser_off", {
   description = "Electrolyser",
   groups = {cracky = 1},
   tiles = {
@@ -35,7 +35,7 @@ yatm_machines.register_network_device("yatm_machines:electrolyser_off", {
   yatm_network = electrolyser_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:electrolyser_off", {
+yatm.devices.register_network_device("yatm_machines:electrolyser_off", {
   description = "Electrolyser",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {
@@ -51,7 +51,7 @@ yatm_machines.register_network_device("yatm_machines:electrolyser_off", {
   yatm_network = electrolyser_yatm_network,
 })
 
-yatm_machines.register_network_device("yatm_machines:electrolyser_on", {
+yatm.devices.register_network_device("yatm_machines:electrolyser_on", {
   description = "Electrolyser",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   tiles = {

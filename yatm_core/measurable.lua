@@ -28,6 +28,13 @@ function m.register(registry, name, def)
   registry.members = registry.members or {}
   registry.group_members = registry.group_members or {}
   registry.members[name] = def
+  registry.aliases = registry.aliases or {}
+  if def.aliases then
+    for _,alias in ipairs(def.aliases) do
+      registry.aliases[alias] = name
+      print("Measurable", "register", "aliasing", dump(alias), "to", dump(name))
+    end
+  end
   for group,value in pairs(def.groups) do
     registry.group_members[group] = registry.group_members[group] or {}
     registry.group_members[group][name] = value
@@ -82,6 +89,7 @@ function m.set_measurable_name(registry, meta, key, name)
   assert(meta, "expected metadata")
   -- need a name and it shouldn't be empty
   if name and name ~= "" then
+    name = registry.aliases[name] or name
     assert(registry.members[name], "expected measurable to exist " .. name)
     m.schema:set_field(meta, key, "name", name)
   else

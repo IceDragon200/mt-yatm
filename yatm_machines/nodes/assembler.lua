@@ -43,7 +43,7 @@ local assembler_selection_box = {
   },
 }
 
-yatm_machines.register_network_device("yatm_machines:assembler_off", {
+yatm.devices.register_network_device("yatm_machines:assembler_off", {
   description = "Assembler",
   groups = {cracky = 1},
   drop = "yatm_machines:assembler_off",
@@ -56,7 +56,7 @@ yatm_machines.register_network_device("yatm_machines:assembler_off", {
   selection_box = assembler_selection_box,
 })
 
-yatm_machines.register_network_device("yatm_machines:assembler_error", {
+yatm.devices.register_network_device("yatm_machines:assembler_error", {
   description = "Assembler",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = "yatm_machines:assembler_off",
@@ -69,7 +69,7 @@ yatm_machines.register_network_device("yatm_machines:assembler_error", {
   selection_box = assembler_selection_box,
 })
 
-yatm_machines.register_network_device("yatm_machines:assembler_on", {
+yatm.devices.register_network_device("yatm_machines:assembler_on", {
   description = "Assembler",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = "yatm_machines:assembler_off",

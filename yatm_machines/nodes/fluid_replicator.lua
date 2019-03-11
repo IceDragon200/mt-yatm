@@ -1,4 +1,4 @@
-local FluidStack =  yatm_core.FluidStack
+local FluidStack =  yatm.fluids.FluidStack
 
 local fluid_replicator_yatm_network = {
   kind = "monitor",
@@ -14,19 +14,19 @@ local fluid_replicator_yatm_network = {
   },
 }
 
-local fluids_interface = {
+local fluid_interface = {
   tank_name = "tank",
   capacity = 16000,
 }
 
-function fluids_interface:get(pos, dir)
+function fluid_interface:get(pos, dir)
   local meta = minetest.get_meta(pos)
   local stack = yatm_core.fluids.get_fluid(meta, self.tank_name)
   stack.amount = capacity
   return stack
 end
 
-function fluids_interface:replace(pos, dir, new_stack, commit)
+function fluid_interface:replace(pos, dir, new_stack, commit)
   local meta = minetest.get_meta(pos)
   local stack, new_stack = yatm_core.fluids.set_fluid(meta, self.tank_name, new_stack, commit)
   if commit then
@@ -35,7 +35,7 @@ function fluids_interface:replace(pos, dir, new_stack, commit)
   return stack
 end
 
-function fluids_interface:fill(pos, dir, new_stack, commit)
+function fluid_interface:fill(pos, dir, new_stack, commit)
   local meta = minetest.get_meta(pos)
   local stack, new_stack = yatm_core.fluids.fill_fluid(meta,
     self.tank_name,
@@ -47,7 +47,7 @@ function fluids_interface:fill(pos, dir, new_stack, commit)
   return stack
 end
 
-function fluids_interface:drain(pos, dir, new_stack, commit)
+function fluid_interface:drain(pos, dir, new_stack, commit)
   local meta = minetest.get_meta(pos)
   local stack, new_stack = yatm_core.fluids.drain_fluid(meta,
     self.tank_name,
@@ -75,7 +75,7 @@ function fluid_replicator_yatm_network.update(pos, node, ot)
   end
 end
 
-yatm_machines.register_network_device(fluid_replicator_yatm_network.states.off, {
+yatm.devices.register_network_device(fluid_replicator_yatm_network.states.off, {
   description = "Fluid Replicator",
   groups = {cracky = 1},
   drop = fluid_replicator_yatm_network.states.off,
@@ -92,7 +92,7 @@ yatm_machines.register_network_device(fluid_replicator_yatm_network.states.off, 
   yatm_network = fluid_replicator_yatm_network,
 })
 
-yatm_machines.register_network_device(fluid_replicator_yatm_network.states.error, {
+yatm.devices.register_network_device(fluid_replicator_yatm_network.states.error, {
   description = "Fluid Replicator",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = fluid_replicator_yatm_network.states.off,
@@ -109,7 +109,7 @@ yatm_machines.register_network_device(fluid_replicator_yatm_network.states.error
   yatm_network = fluid_replicator_yatm_network,
 })
 
-yatm_machines.register_network_device(fluid_replicator_yatm_network.states.on, {
+yatm.devices.register_network_device(fluid_replicator_yatm_network.states.on, {
   description = "Fluid Replicator",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = fluid_replicator_yatm_network.states.off,

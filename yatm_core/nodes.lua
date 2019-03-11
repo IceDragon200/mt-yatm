@@ -12,5 +12,3 @@ minetest.register_node("yatm_core:face_test", {
   paramtype = "light",
   paramtype2 = "facedir",
 })
-
-dofile(yatm_core.modpath .. "/nodes/fluid_tanks.lua")

@@ -24,7 +24,7 @@ local hub_bus_yatm_network = {
   },
 }
 
-yatm_machines.register_network_device(hub_bus_yatm_network.states.off, {
+yatm.devices.register_network_device(hub_bus_yatm_network.states.off, {
   description = "Hub (bus)",
   groups = {cracky = 1},
   drop = hub_bus_yatm_network.states.off,
@@ -44,7 +44,7 @@ yatm_machines.register_network_device(hub_bus_yatm_network.states.off, {
   yatm_network = hub_bus_yatm_network,
 })
 
-yatm_machines.register_network_device(hub_bus_yatm_network.states.error, {
+yatm.devices.register_network_device(hub_bus_yatm_network.states.error, {
   description = "Hub (bus)",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = hub_bus_yatm_network.states.off,
@@ -64,7 +64,7 @@ yatm_machines.register_network_device(hub_bus_yatm_network.states.error, {
   yatm_network = hub_bus_yatm_network,
 })
 
-yatm_machines.register_network_device(hub_bus_yatm_network.states.on, {
+yatm.devices.register_network_device(hub_bus_yatm_network.states.on, {
   description = "Hub (bus)",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = hub_bus_yatm_network.states.off,
@@ -98,7 +98,7 @@ local hub_wireless_yatm_network = {
   },
 }
 
-yatm_machines.register_network_device(hub_wireless_yatm_network.states.off, {
+yatm.devices.register_network_device(hub_wireless_yatm_network.states.off, {
   description = "Hub (wireless)",
   groups = {cracky = 1},
   drop = hub_wireless_yatm_network.states.off,
@@ -118,7 +118,7 @@ yatm_machines.register_network_device(hub_wireless_yatm_network.states.off, {
   yatm_network = hub_wireless_yatm_network,
 })
 
-yatm_machines.register_network_device(hub_wireless_yatm_network.states.error, {
+yatm.devices.register_network_device(hub_wireless_yatm_network.states.error, {
   description = "Hub (wireless)",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = hub_wireless_yatm_network.states.off,
@@ -138,7 +138,7 @@ yatm_machines.register_network_device(hub_wireless_yatm_network.states.error, {
   yatm_network = hub_wireless_yatm_network,
 })
 
-yatm_machines.register_network_device(hub_wireless_yatm_network.states.on, {
+yatm.devices.register_network_device(hub_wireless_yatm_network.states.on, {
   description = "Hub (wireless)",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = hub_wireless_yatm_network.states.off,
@@ -180,7 +180,7 @@ local hub_elegens_yatm_network = {
   },
 }
 
-yatm_machines.register_network_device(hub_elegens_yatm_network.states.off, {
+yatm.devices.register_network_device(hub_elegens_yatm_network.states.off, {
   description = "Hub (ele)",
   groups = {cracky = 1},
   drop = hub_elegens_yatm_network.states.off,
@@ -200,7 +200,7 @@ yatm_machines.register_network_device(hub_elegens_yatm_network.states.off, {
   yatm_network = hub_elegens_yatm_network,
 })
 
-yatm_machines.register_network_device(hub_elegens_yatm_network.states.error, {
+yatm.devices.register_network_device(hub_elegens_yatm_network.states.error, {
   description = "Hub (ele)",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = hub_elegens_yatm_network.states.off,
@@ -220,7 +220,7 @@ yatm_machines.register_network_device(hub_elegens_yatm_network.states.error, {
   yatm_network = hub_elegens_yatm_network,
 })
 
-yatm_machines.register_network_device(hub_elegens_yatm_network.states.on, {
+yatm.devices.register_network_device(hub_elegens_yatm_network.states.on, {
   description = "Hub (ele)",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = hub_elegens_yatm_network.states.off,

@@ -19,7 +19,7 @@ function void_chest_yatm_network.update(pos, node)
   end
 end
 
-yatm_machines.register_network_device(void_chest_yatm_network.states.off, {
+yatm.devices.register_network_device(void_chest_yatm_network.states.off, {
   description = "Void Chest",
   groups = {cracky = 1},
   drop = void_chest_yatm_network.states.off,
@@ -36,7 +36,7 @@ yatm_machines.register_network_device(void_chest_yatm_network.states.off, {
   yatm_network = void_chest_yatm_network,
 })
 
-yatm_machines.register_network_device(void_chest_yatm_network.states.error, {
+yatm.devices.register_network_device(void_chest_yatm_network.states.error, {
   description = "Void Chest",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = void_chest_yatm_network.states.off,
@@ -53,7 +53,7 @@ yatm_machines.register_network_device(void_chest_yatm_network.states.error, {
   yatm_network = void_chest_yatm_network,
 })
 
-yatm_machines.register_network_device(void_chest_yatm_network.states.on, {
+yatm.devices.register_network_device(void_chest_yatm_network.states.on, {
   description = "Void Chest",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = void_chest_yatm_network.states.off,

@@ -13,7 +13,7 @@ for _, variant in ipairs({"hazard", "coolant", "signal"}) do
     }
   }
 
-  yatm_machines.register_network_device(data_bus_yatm_network.states.off, {
+  yatm.devices.register_network_device(data_bus_yatm_network.states.off, {
     description = "Reactor Data Bus (" .. variant .. ")",
     groups = {cracky = 1},
     drop = data_bus_yatm_network.states.off,
@@ -30,7 +30,7 @@ for _, variant in ipairs({"hazard", "coolant", "signal"}) do
     yatm_network = data_bus_yatm_network,
   })
 
-  yatm_machines.register_network_device(data_bus_yatm_network.states.error, {
+  yatm.devices.register_network_device(data_bus_yatm_network.states.error, {
     description = "Reactor Data Bus (" .. variant .. ")",
     groups = {cracky = 1, not_in_creative_inventory = 1},
     drop = data_bus_yatm_network.states.off,
@@ -47,7 +47,7 @@ for _, variant in ipairs({"hazard", "coolant", "signal"}) do
     yatm_network = data_bus_yatm_network,
   })
 
-  yatm_machines.register_network_device(data_bus_yatm_network.states.on, {
+  yatm.devices.register_network_device(data_bus_yatm_network.states.on, {
     description = "Reactor Data Bus (" .. variant .. ")",
     groups = {cracky = 1, not_in_creative_inventory = 1},
     drop = data_bus_yatm_network.states.off,
