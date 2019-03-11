@@ -11,7 +11,7 @@ local function get_fluid_tile(fluid)
 end
 
 local tank_fluids_interface = yatm_core.new_simple_fluids_interface("tank", 16000)
-local TANK_DRAIN_BANDWIDTH = tank_fluids_interface.capacity
+local TANK_DRAIN_BANDWIDTH = assert(tank_fluids_interface.capacity)
 
 function tank_fluids_interface:on_fluid_changed(pos, dir, new_stack)
   local node = minetest.get_node(pos)
@@ -41,7 +41,7 @@ function tank_fluids_interface:fill(pos, dir, fluid_stack, commit)
 
   local left_stack = nil
   if used_stack then
-    left_stack = FluidStack.decr_amount(fluid_stack, used_stack.amount)
+    left_stack = FluidStack.dec_amount(fluid_stack, used_stack.amount)
   else
     left_stack = fluid_stack
   end
@@ -50,11 +50,11 @@ function tank_fluids_interface:fill(pos, dir, fluid_stack, commit)
     local new_pos = vector.add(pos, yatm_core.V3_UP)
     local new_node = minetest.get_node(new_pos)
     if minetest.get_item_group(new_node.name, "fluid_tank") > 0 then
-      return yatm_core.fluid_tanks.fill(new_pos, dir, left_stack, commit)
-    else
-      return nil
+      local used_stack2 = yatm_core.fluid_tanks.fill(new_pos, dir, left_stack, commit)
+      used_stack = FluidStack.merge(used_stack, used_stack2)
     end
   end
+  return used_stack
 end
 
 local fluid_tank_tiles = {
@@ -130,15 +130,20 @@ minetest.register_abm({
   nodenames = {
     "group:filled_fluid_tank",
   },
-  interval = 1,
+  interval = 0,
   chance = 1,
   action = function (pos, node)
-    local stack = yatm_core.fluid_tanks.drain(pos, yatm_core.V3_DOWN, FluidStack.new_wildcard(TANK_DRAIN_BANDWIDTH), false)
-    if stack and stack.amount > 0 then
+    local fluid_stack = yatm_core.fluid_tanks.drain(
+      pos,
+      yatm_core.V3_DOWN,
+      FluidStack.new_wildcard(TANK_DRAIN_BANDWIDTH),
+      false
+    )
+    if fluid_stack and fluid_stack.amount > 0 then
       local below_pos = vector.add(pos, yatm_core.V3_DOWN)
-      local filled_stack = yatm_core.fluid_tanks.fill(below_pos, yatm_core.D_NONE, stack, true)
-      if filled_stack then
-        yatm_core.fluid_tanks.drain(pos, yatm_core.V3_DOWN, FluidStack.new(stack.name, filled_stack.amount), true)
+      local filled_stack = yatm_core.fluid_tanks.fill(below_pos, yatm_core.D_UP, fluid_stack, true)
+      if filled_stack and filled_stack.amount > 0 then
+        yatm_core.fluid_tanks.drain(pos, yatm_core.V3_DOWN, filled_stack, true)
       end
     end
   end

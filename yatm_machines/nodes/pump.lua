@@ -17,12 +17,16 @@ local pump_yatm_network = {
 
 local fluids_interface = yatm_core.new_simple_fluids_interface("tank", 16000)
 
+function fluids_interface:on_fluid_changed(pos, dir, _new_stack)
+  pump_yatm_network.refresh_infotext(pos, nil, minetest.get_meta(pos), { cause = "fluid_changed" })
+end
+
 function pump_yatm_network.refresh_infotext(pos, node, meta, event)
   local new_node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[new_node.name]
   local state = nodedef.yatm_network.state
   local network_id = yatm_core.Network.get_meta_network_id(meta)
-  local fluid_stack = yatm_core.fluids.get_fluid(meta, fluids_interface.tank_name)
+  local fluid_stack = yatm_core.fluids.get_fluid(meta, nodedef.fluids_interface.tank_name)
   meta:set_string("infotext",
     "Network ID " .. dump(network_id) .. " " .. state .. "\n" ..
     "Tank " .. yatm_core.FluidStack.to_string(fluid_stack, fluids_interface.capacity)
@@ -50,7 +54,7 @@ function pump_yatm_network.update(pos, node, _ot)
       if filled_stack and filled_stack.amount > 0 then
         yatm_core.fluid_tanks.drain(target_pos,
           inverted_dir,
-          FluidStack.set_amount(drained_stack, filled_stack.amount), true)
+          filled_stack, true)
       end
     end
   end
@@ -73,8 +77,6 @@ function pump_yatm_network.update(pos, node, _ot)
           fluids_interface.capacity, fluids_interface.capacity, true)
       end
     end
-
-    print(minetest.pos_to_string(pos), yatm_core.fluids.inspect(meta, "tank"))
   end
 end
 
@@ -85,7 +87,6 @@ function fluids_interface:fill(pos, dir, fluid_stack, commit)
   if dir == pump_in_dir then
     return old_fill(self, pos, dir, fluid_stack, commit)
   else
-    --print("Rejected fill request because it's the wrong direction", "expected", pump_in_dir, "got", dir)
     return nil
   end
 end

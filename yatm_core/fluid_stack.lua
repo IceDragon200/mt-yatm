@@ -38,8 +38,18 @@ function FluidStack.inc_amount(fluid_stack, amount)
   return FluidStack.set_amount(fluid_stack, math.max(0, fluid_stack.amount + amount))
 end
 
-function FluidStack.decr_amount(fluid_stack, amount)
+function FluidStack.dec_amount(fluid_stack, amount)
   return FluidStack.inc_amount(fluid_stack, -amount)
+end
+
+function FluidStack.merge(a, ...)
+  local result = { name = a.name, amount = a.amount }
+  for _,b in ipairs({...}) do
+    if b.name == result.name then
+      result.amount = result.amount + b.amount
+    end
+  end
+  return result
 end
 
 function FluidStack.presence(fluid_stack)
