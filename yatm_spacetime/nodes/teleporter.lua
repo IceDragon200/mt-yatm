@@ -46,7 +46,15 @@ local function maybe_teleport_all_players_on_teleporter(pos, node)
   end
 end
 
+-- Dummy mesecons to force the device to connect to mesecon regardless of it's state
 local teleporter_mesecons = {
+  effector = {
+    rules = mesecon.rules.default,
+  },
+}
+
+-- This is the mesecon entry used when the teleporter is on
+local teleporter_on_mesecons = {
   effector = {
     rules = mesecon.rules.default,
 
@@ -65,7 +73,7 @@ local function teleporter_after_place_node(pos, placer, itemstack, pointed_thing
   local address = yatm_spacetime.patch_address_in_meta(new_meta)
   yatm_spacetime.Network.register_device(pos, address)
 
-  yatm_machines.device_after_place_node(pos, placer, itemstack, pointed_thing)
+  yatm.devices.device_after_place_node(pos, placer, itemstack, pointed_thing)
 
   local node = minetest.get_node(pos)
   minetest.after(0, mesecon.on_placenode, pos, node)
@@ -73,7 +81,7 @@ end
 
 local function teleporter_on_destruct(pos)
   yatm_spacetime.Network.unregister_device(pos)
-  yatm_machines.device_on_destruct(pos)
+  yatm.devices.device_on_destruct(pos)
 end
 
 local function teleporter_preserve_metadata(pos, oldnode, old_meta_table, drops)
@@ -119,6 +127,7 @@ yatm.devices.register_network_device(teleporter_yatm_network.states.off, {
   paramtype2 = "facedir",
   node_box = teleporter_node_box,
   yatm_network = teleporter_yatm_network,
+  mesecons = teleporter_mesecons,
 
   after_place_node = teleporter_after_place_node,
   on_destruct = teleporter_on_destruct,
@@ -144,6 +153,7 @@ yatm.devices.register_network_device(teleporter_yatm_network.states.error, {
   paramtype2 = "facedir",
   node_box = teleporter_node_box,
   yatm_network = teleporter_yatm_network,
+  mesecons = teleporter_mesecons,
 
   after_place_node = teleporter_after_place_node,
   on_destruct = teleporter_on_destruct,
@@ -169,6 +179,7 @@ yatm.devices.register_network_device(teleporter_yatm_network.states.inactive, {
   paramtype2 = "facedir",
   node_box = teleporter_node_box,
   yatm_network = teleporter_yatm_network,
+  mesecons = teleporter_mesecons,
 
   after_place_node = teleporter_after_place_node,
   on_destruct = teleporter_on_destruct,
@@ -202,7 +213,7 @@ yatm.devices.register_network_device(teleporter_yatm_network.states.on, {
   paramtype2 = "facedir",
   node_box = teleporter_node_box,
   yatm_network = teleporter_yatm_network,
-  mesecons = teleporter_mesecons,
+  mesecons = teleporter_on_mesecons,
 
   after_place_node = teleporter_after_place_node,
   on_destruct = teleporter_on_destruct,

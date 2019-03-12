@@ -18,7 +18,7 @@ local function teleporter_port_after_place_node(pos, placer, itemstack, pointed_
   assert(yatm_spacetime.get_address_in_meta(new_meta) == address)
   yatm_spacetime.Network.register_device(pos, address)
 
-  yatm_machines.device_after_place_node(pos, placer, itemstack, pointed_thing)
+  yatm.devices.device_after_place_node(pos, placer, itemstack, pointed_thing)
 
   local node = minetest.get_node(pos)
   minetest.after(0, mesecon.on_placenode, pos, node)
@@ -27,7 +27,7 @@ end
 local function teleporter_port_on_destruct(pos)
   print("teleporter_port_on_destruct/1")
   yatm_spacetime.Network.unregister_device(pos)
-  yatm_machines.device_on_destruct(pos)
+  yatm.devices.device_on_destruct(pos)
 end
 
 local function teleporter_port_preserve_metadata(pos, oldnode, old_meta_table, drops)
