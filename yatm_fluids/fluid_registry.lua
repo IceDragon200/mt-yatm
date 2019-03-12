@@ -83,8 +83,8 @@ function FluidRegistry.register_fluid_tank(modname, fluid_name, nodedef)
     light_source = nodedef.light_source,
     sounds = default.node_sound_glass_defaults(),
     after_place_node = function (pos, _placer, _itemstack, _pointed_thing)
-      yatm_fluids.fluid_tanks.replace(pos, yatm_core.D_NONE,
-        FluidStack.new(fluiddef.name, tank_fluid_interface.capacity), true)
+      yatm.fluids.FluidTanks.replace(pos, yatm_core.D_NONE,
+        yatm.fluids.FluidStack.new(fluiddef.name, tank_fluid_interface.capacity), true)
     end,
     fluid_interface = tank_fluid_interface,
     connects_to = {"group:fluid_tank"},
@@ -201,7 +201,7 @@ function FluidRegistry.register(modname, fluid_basename, definition)
       description_base = description,
       texture_basename = definition.nodes.texture_basename,
       groups = definition.nodes.groups or {},
-      alpha = definition.nodes.alpha,
+      alpha = definition.nodes.alpha or 255,
     }
   end
 
@@ -223,7 +223,7 @@ function FluidRegistry.register(modname, fluid_basename, definition)
   local bucket_def = nil
   if definition.bucket then
     bucket_def = {
-      texture = definition.texture or (modname .. "_bucket_" .. fluid_basename .. ".png"),
+      texture = definition.bucket.texture or (modname .. "_bucket_" .. fluid_basename .. ".png"),
       description = definition.bucket.description or (description .. " Bucket"),
       groups = (definition.bucket.groups or {}),
       force_renew = definition.bucket.force_renew or false,

@@ -1,6 +1,8 @@
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
-local Fluids = assert(yatm.fluids)
+local FluidTanks = assert(yatm.fluids.FluidTanks)
+local FluidUtils = assert(yatm.fluids.Utils)
+local FluidMeta = assert(yatm.fluids.FluidMeta)
 
 local boiler_yatm_network = {
   kind = "machine",
@@ -24,7 +26,8 @@ local boiler_yatm_network = {
 local STEAM_TANK = "steam_tank"
 local WATER_TANK = "water_tank"
 
-local function get_fluid_tank_name(self, pos, dir, node)
+local function get_fluid_tank_name(self, pos, dir)
+  local node = minetest.get_node(pos)
   local new_dir = yatm_core.facedir_to_face(node.param2, dir)
   if new_dir == yatm_core.D_UP then
     return STEAM_TANK, self.capacity
@@ -53,13 +56,13 @@ function boiler_yatm_network.work(pos, node, available_energy, work_rate, ot)
     if water_tank_nodedef then
       if yatm_core.groups.get_item(water_tank_nodedef, "fluid_tank") then
         local target_dir = yatm_core.invert_dir(water_tank_dir)
-        local stack = yatm_core.fluid_tanks.drain(water_tank_pos,
+        local stack = FluidTanks.drain(water_tank_pos,
           target_dir,
           FluidStack.new("group:water", 1000), false)
         if stack then
-          local filled_stack = yatm_core.fluid_tanks.fill(pos, water_tank_dir, stack, true)
+          local filled_stack = FluidTanks.fill(pos, water_tank_dir, stack, true)
           if filled_stack and filled_stack.amount > 0 then
-            yatm_core.fluid_tanks.drain(water_tank_pos, target_dir, filled_stack, true)
+            FluidTanks.drain(water_tank_pos, target_dir, filled_stack, true)
             energy_consumed = energy_consumed + 1
           end
         end
@@ -71,17 +74,17 @@ function boiler_yatm_network.work(pos, node, available_energy, work_rate, ot)
 
   -- Convert water into steam
   do
-    local stack = Fluids.drain_fluid(meta,
+    local stack = FluidMeta.drain_fluid(meta,
       WATER_TANK,
       FluidStack.new("group:water", 50),
       fluid_interface.bandwidth, fluid_interface.capacity, false)
     if stack then
-      local filled_stack = Fluids.fill_fluid(meta,
+      local filled_stack = FluidMeta.fill_fluid(meta,
         STEAM_TANK,
         FluidStack.set_name(stack, "yatm_core:steam"),
         fluid_interface.bandwidth, fluid_interface.capacity, true)
       if filled_stack and filled_stack.amount > 0 then
-        Fluids.drain_fluid(meta,
+        FluidMeta.drain_fluid(meta,
           WATER_TANK,
           FluidStack.set_amount(stack, filled_stack.amount),
           fluid_interface.bandwidth, fluid_interface.capacity, true)
@@ -92,7 +95,7 @@ function boiler_yatm_network.work(pos, node, available_energy, work_rate, ot)
 
   -- Fill tank on the UP face of the boiler with steam, if available
   do
-    local stack, _new_stack = Fluids.drain_fluid(meta,
+    local stack, _new_stack = FluidMeta.drain_fluid(meta,
       STEAM_TANK,
       FluidStack.new("group:steam", 1000),
       fluid_interface.capacity, fluid_interface.capacity, false)
@@ -104,10 +107,10 @@ function boiler_yatm_network.work(pos, node, available_energy, work_rate, ot)
       local steam_tank_nodedef = minetest.registered_nodes[steam_tank_node.name]
 
       if steam_tank_nodedef then
-        local filled_stack = yatm_core.fluid_tanks.fill(steam_tank_pos,
+        local filled_stack = FluidTanks.fill(steam_tank_pos,
           yatm_core.invert_dir(steam_tank_dir), stack, true)
         if filled_stack and filled_stack.amount > 0 then
-          yatm_core.fluid_tanks.drain(pos, steam_tank_dir, filled_stack, true)
+          FluidTanks.drain(pos, steam_tank_dir, filled_stack, true)
           energy_consumed = energy_consumed + 1
         end
       end

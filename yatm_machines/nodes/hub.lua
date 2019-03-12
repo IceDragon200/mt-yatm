@@ -7,7 +7,7 @@ local hub_nodebox = {
 
 local function hub_after_place_node(pos, placer, item_stack, pointed_thing)
   yatm_core.facedir_wallmount_after_place_node(pos, placer, item_stack, pointed_thing)
-  yatm_machines.device_after_place_node(pos, placer, item_stack, pointed_thing)
+  yatm.devices.device_after_place_node(pos, placer, item_stack, pointed_thing)
 end
 
 local hub_bus_yatm_network = {

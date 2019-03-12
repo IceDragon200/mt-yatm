@@ -1,6 +1,10 @@
 yatm.fluids.FluidRegistry.register("yatm_fluids", "steam", {
   description = "Steam",
 
+  aliases = {
+    "yatm_core:steam"
+  },
+
   groups = {
     gas = 1,
     steam = 1,

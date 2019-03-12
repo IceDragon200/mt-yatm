@@ -9,7 +9,7 @@ yatm.fluids.FluidRegistry.register("yatm_fluids", "ice_slurry", {
 
   nodes = {
     texture_basename = "yatm_ice_slurry",
-    groups = { ice = 1, ice_slurry = 1, liquid = 3, freezing = 1 },
+    groups = { ice = 1, ice_slurry = 1, liquid = 3, freezing = 2 },
     alpha = 220,
   },
 

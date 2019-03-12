@@ -1,3 +1,8 @@
+local FluidInterface = assert(yatm.fluids.FluidInterface)
+local FluidMeta = assert(yatm.fluids.FluidMeta)
+local FluidTanks = assert(yatm.fluids.FluidTanks)
+local FluidStack = assert(yatm.fluids.FluidStack)
+
 --[[
 Steam turbines produce energy by consuming steam, they have the byproduct of water which can be cycled again into a boiler.
 ]]
@@ -18,7 +23,8 @@ local steam_turbine_yatm_network = {
 local capacity = 16000
 local WATER_TANK = "water_tank"
 local STEAM_TANK = "steam_tank"
-local function get_fluid_tank_name(_self, pos, dir, node)
+local function get_fluid_tank_name(_self, pos, dir)
+  local node = minetest.get_node(pos)
   local new_dir = yatm_core.facedir_to_face(node.param2, dir)
   if new_dir == yatm_core.D_DOWN then
     return WATER_TANK, capacity
@@ -31,21 +37,21 @@ local function get_fluid_tank_name(_self, pos, dir, node)
   return nil, nil
 end
 
-local fluid_interface = yatm.fluids.FluidInterface.new_directional(get_fluid_tank_name)
+local fluid_interface = FluidInterface.new_directional(get_fluid_tank_name)
 
 function steam_turbine_yatm_network.produce_energy(pos, node, ot)
   local meta = minetest.get_meta(pos)
-  local stack, new_amount = yatm_core.fluids.drain_fluid(meta,
+  local stack, new_amount = FluidMeta.drain_fluid(meta,
     STEAM_TANK,
     FluidStack.new("group:steam", 100),
     capacity, capacity, false)
   if stack then
-    local filled_stack, new_amount = yatm_core.fluids.fill_fluid(meta,
+    local filled_stack, new_amount = FluidMeta.fill_fluid(meta,
       WATER_TANK,
       FluidStack.set_name(stack, "default:water"),
       capacity, capacity, true)
     if filled_stack then
-      local stack, new_amount = yatm_core.fluids.drain_fluid(meta,
+      local stack, new_amount = FluidMeta.drain_fluid(meta,
         STEAM_TANK,
         FluidStack.set_amount(stack, filled_stack.amount),
         capacity, capacity, true)
@@ -65,11 +71,11 @@ function steam_turbine_yatm_network.update(pos, node, ot)
     if nnodedef then
       if yatm_core.groups.get_item(nnodedef, "fluid_tank") then
         local target_dir = yatm_core.invert_dir(new_dir)
-        local stack = yatm_core.fluid_tanks.drain(npos, target_dir, FluidStack.new("group:steam", 200), false)
+        local stack = FluidTanks.drain(npos, target_dir, FluidStack.new("group:steam", 200), false)
         if stack then
-          local filled_stack = yatm_core.fluid_tanks.fill(pos, new_dir, stack, true)
+          local filled_stack = FluidTanks.fill(pos, new_dir, stack, true)
           if filled_stack then
-            yatm_core.fluid_tanks.drain(npos, target_dir, filled_stack, true)
+            FluidTanks.drain(npos, target_dir, filled_stack, true)
           end
         end
       end
@@ -79,7 +85,7 @@ function steam_turbine_yatm_network.update(pos, node, ot)
   local meta = minetest.get_meta(pos)
 
   do -- Deposit water to a bottom tank
-    local stack, new_amount = yatm_core.fluids.drain_fluid(meta,
+    local stack, new_amount = FluidMeta.drain_fluid(meta,
       WATER_TANK,
       FluidStack.new("group:water", 1000),
       capacity, capacity, false)
@@ -91,9 +97,9 @@ function steam_turbine_yatm_network.update(pos, node, ot)
       local tank_nodedef = minetest.registered_nodes[tank_node.name]
       if tank_nodedef then
         if yatm_core.groups.get_item(tank_nodedef, "fluid_tank") then
-          local drained_stack, new_amount = yatm_core.fluid_tanks.fill(tank_pos, yatm_core.invert_dir(tank_dir), stack, true)
+          local drained_stack, new_amount = FluidTanks.fill(tank_pos, yatm_core.invert_dir(tank_dir), stack, true)
           if drained_stack then
-            yatm_core.fluids.drain_fluid(meta,
+            FluidMeta.drain_fluid(meta,
               WATER_TANK,
               FluidStack.set_amount(stack, drained_stack.amount),
               capacity, capacity, true)

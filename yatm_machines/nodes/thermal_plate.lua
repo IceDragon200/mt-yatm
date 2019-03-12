@@ -7,7 +7,7 @@ local thermal_plate_nodebox = {
 
 local function thermal_plate_after_place_node(pos, placer, item_stack, pointed_thing)
   yatm_core.facedir_wallmount_after_place_node(pos, placer, item_stack, pointed_thing)
-  yatm_machines.device_after_place_node(pos, placer, item_stack, pointed_thing)
+  yatm.devices.device_after_place_node(pos, placer, item_stack, pointed_thing)
 end
 
 local thermal_plate_heating_yatm_network = {

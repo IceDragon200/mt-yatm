@@ -20,6 +20,11 @@ dofile(yatm_fluids.modpath .. "/tests.lua")
 
 local migrations = {
   ["yatm_core:fluid_tank"] = "yatm_fluids:fluid_tank",
+
+  ["yatm_core:fluid_tank_default_water"] = "yatm_fluids:fluid_tank_default_water",
+  ["yatm_core:fluid_tank_default_lava"] = "yatm_fluids:fluid_tank_default_lava",
+  ["yatm_core:fluid_tank_default_river_water"] = "yatm_fluids:fluid_tank_default_river_water",
+
   ["yatm_core:fluid_tank_yatm_core_oil"] = "yatm_fluids:fluid_tank_yatm_fluids_crude_oil",
   ["yatm_core:fluid_tank_yatm_core_heavy_oil"] = "yatm_fluids:fluid_tank_yatm_fluids_heavy_oil",
   ["yatm_core:fluid_tank_yatm_core_light_oil"] = "yatm_fluids:fluid_tank_yatm_fluids_light_oil",
@@ -28,6 +33,9 @@ local migrations = {
 
   ["yatm_core:oil_source"] = "yatm_fluids:crude_oil_source",
   ["yatm_core:oil_flowing"] = "yatm_fluids:crude_oil_flowing",
+
+  ["yatm_core:garfielium_source"] = "yatm_fluids:garfielium_source",
+  ["yatm_core:garfielium_flowing"] = "yatm_fluids:garfielium_flowing",
 
   ["yatm_core:heavy_oil_source"] = "yatm_fluids:heavy_oil_source",
   ["yatm_core:heavy_oil_flowing"] = "yatm_fluids:heavy_oil_flowing",

@@ -35,9 +35,16 @@ end
 
 local barrel_fluid_interface = yatm.fluids.FluidInterface.new_simple("tank", BARREL_CAPACITY)
 
-function barrel_fluid_interface.on_fluid_changed(pos, dir, node, _stack, _amount, _capacity)
+function barrel_fluid_interface.on_fluid_changed(pos, dir, _fluid_stack)
+  local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
-  nodedef.refresh_infotext(pos)
+  if nodedef then
+    if nodedef.refresh_infotext then
+      nodedef.refresh_infotext(pos)
+    end
+  else
+    print("Undefined node", node.name)
+  end
 end
 
 local colors = {

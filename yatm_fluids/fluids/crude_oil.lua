@@ -15,7 +15,7 @@ yatm.fluids.FluidRegistry.register("yatm_fluids", "crude_oil", {
   nodes = {
     texture_basename = "yatm_crude_oil",
     groups = { oil = 1, crude_oil = 1, liquid = 3, flammable = 1 },
-    alpha = 220,
+    alpha = 255,
   },
 
   bucket = {

@@ -1,6 +1,6 @@
 -- Don't ask, it's a tribute to my cat
 yatm.fluids.FluidRegistry.register("yatm_fluids", "garfielium", {
-  description = "Garfielium Oil",
+  description = "Garfielium",
 
   aliases = {
     "yatm_core:garfielium",
