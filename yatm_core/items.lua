@@ -1,50 +1,53 @@
 local materials = {
-  "copper",
-  "bronze",
-  "gold",
-  "iron",
-  "carbon_steel",
+  {"copper", "Copper"},
+  {"bronze", "Bronze"},
+  {"gold", "Gold"},
+  {"iron", "Iron"},
+  {"carbon_steel", "Carbon Steel"},
 }
 
-for _,material in ipairs(materials) do
-  minetest.register_craftitem("yatm_core:hammer_" .. material, {
-    description = material .. " Hammer",
-    inventory_image = "yatm_hammer." .. material .. ".png",
+for _,material_pair in ipairs(materials) do
+  local material_basename = material_pair[1]
+  local material_name = material_pair[2]
+
+  minetest.register_craftitem("yatm_core:hammer_" .. material_basename, {
+    description = material_name .. " Hammer",
+    inventory_image = "yatm_hammer." .. material_basename .. ".png",
   })
 
-  minetest.register_craftitem("yatm_core:battery_" .. material, {
-    description = material .. " Battery",
-    inventory_image = "yatm_materials_battery." .. material .. ".png",
+  minetest.register_craftitem("yatm_core:battery_" .. material_basename, {
+    description = material_name .. " Battery",
+    inventory_image = "yatm_materials_battery." .. material_basename .. ".png",
   })
 
-  minetest.register_craftitem("yatm_core:capacitor_" .. material, {
-    description = material .. " Capacitor",
-    inventory_image = "yatm_materials_capacitor." .. material .. ".png",
+  minetest.register_craftitem("yatm_core:capacitor_" .. material_basename, {
+    description = material_name .. " Capacitor",
+    inventory_image = "yatm_materials_capacitor." .. material_basename .. ".png",
   })
 
-  minetest.register_craftitem("yatm_core:gear_" .. material, {
-    description = material .. " Gear",
-    inventory_image = "yatm_materials_gear." .. material .. ".png",
+  minetest.register_craftitem("yatm_core:gear_" .. material_basename, {
+    description = material_name .. " Gear",
+    inventory_image = "yatm_materials_gear." .. material_basename .. ".png",
   })
 
-  minetest.register_craftitem("yatm_core:plate_" .. material, {
-    description = material .. " Plate",
-    inventory_image = "yatm_materials_plate." .. material .. ".png",
+  minetest.register_craftitem("yatm_core:plate_" .. material_basename, {
+    description = material_name .. " Plate",
+    inventory_image = "yatm_materials_plate." .. material_basename .. ".png",
   })
 
-  minetest.register_craftitem("yatm_core:vacuum_tube_" .. material, {
-    description = material .. " Vacuum Tube",
-    inventory_image = "yatm_materials_vacuum_tube." .. material .. ".png",
+  minetest.register_craftitem("yatm_core:vacuum_tube_" .. material_basename, {
+    description = material_name .. " Vacuum Tube",
+    inventory_image = "yatm_materials_vacuum_tube." .. material_basename .. ".png",
   })
 
-  minetest.register_craftitem("yatm_core:dust_" .. material, {
-    description = material .. " Dust",
-    inventory_image = "yatm_materials_dust." .. material .. ".png",
+  minetest.register_craftitem("yatm_core:dust_" .. material_basename, {
+    description = material_name .. " Dust",
+    inventory_image = "yatm_materials_dust." .. material_basename .. ".png",
   })
 
-  minetest.register_craftitem("yatm_core:ingot_" .. material, {
-    description = material .. " Ingot",
-    inventory_image = "yatm_materials_ingot." .. material .. ".png",
+  minetest.register_craftitem("yatm_core:ingot_" .. material_basename, {
+    description = material_name .. " Ingot",
+    inventory_image = "yatm_materials_ingot." .. material_basename .. ".png",
   })
 end
 
