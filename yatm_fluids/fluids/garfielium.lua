@@ -16,6 +16,7 @@ yatm.fluids.FluidRegistry.register("yatm_fluids", "garfielium", {
   nodes = {
     texture_basename = "yatm_garfielium",
     groups = { liquid = 3, oil = 1, garfielium = 1, explosive = 1, combustable = 1 },
+    post_effect_color = {a=192, r=223, g=136, b=57},
   },
 
   bucket = {

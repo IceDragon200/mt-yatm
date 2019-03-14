@@ -137,7 +137,7 @@ function FluidRegistry.register_fluid_nodes(basename, def)
     liquid_alternative_flowing = basename .. "_flowing",
     liquid_alternative_source = basename .. "_source",
     liquid_viscosity = 1,
-    post_effect_color = {a = 103, r = 216, g = 127, b = 51},
+    post_effect_color = def.post_effect_color,
     sounds = default.node_sound_water_defaults(),
   })
 
@@ -182,7 +182,7 @@ function FluidRegistry.register_fluid_nodes(basename, def)
     liquid_alternative_flowing = basename .. "_flowing",
     liquid_alternative_source = basename .. "_source",
     liquid_viscosity = 1,
-    post_effect_color = {a = 103, r = 216, g = 127, b = 51},
+    post_effect_color = def.post_effect_color,
     sounds = default.node_sound_water_defaults(),
   })
 end
@@ -202,6 +202,7 @@ function FluidRegistry.register(modname, fluid_basename, definition)
       texture_basename = definition.nodes.texture_basename,
       groups = definition.nodes.groups or {},
       alpha = definition.nodes.alpha or 255,
+      post_effect_color = definition.nodes.post_effect_color,
     }
   end
 

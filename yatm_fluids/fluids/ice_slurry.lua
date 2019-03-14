@@ -11,6 +11,7 @@ yatm.fluids.FluidRegistry.register("yatm_fluids", "ice_slurry", {
     texture_basename = "yatm_ice_slurry",
     groups = { ice = 1, ice_slurry = 1, liquid = 3, freezing = 2 },
     alpha = 220,
+    post_effect_color = {a=192, r=167, g=231, b=216},
   },
 
   bucket = {
