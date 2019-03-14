@@ -1,3 +1,5 @@
+local NetworkMeta = assert(yatm_mesecon_hubs.NetworkMeta)
+
 --[[
 "This looks familiar", I hear you mumble, of it is, it's a copy of the yatm_spacetime network.
 
@@ -44,12 +46,16 @@ function Network.unregister_listener(pos)
 end
 
 function Network.emit_value(from_pos, to_address, value)
+  assert(from_pos, "expected an origin position")
+  assert(to_address, "expected a target address")
+  assert(value, "expected a value")
+  --print("emit_value/3", minetest.pos_to_string(from_pos), dump(to_address), dump(value))
   Network.m_queue[to_address] = { pos = from_pos, value = value }
 end
 
 function Network.dispatch_queued()
   local had_queued = false
-  for address,value in pairs(Network.m_queue) do
+  for address,event in pairs(Network.m_queue) do
     had_queued = true
 
     if Network.m_members_by_address[address] then
@@ -62,8 +68,13 @@ function Network.dispatch_queued()
             local mwd = nodedef.mesecons_wireless_device
 
             if mwd.action_pdu then
-              mwd.action_pdu(pos, node, value)
+              --print("Triggering action_pdu/3", minetest.pos_to_string(pos), node.name, dump(event))
+              mwd.action_pdu(pos, node, event)
+            else
+              print("Device at", minetest.pos_to_string(pos), "does not define action_pdu/3")
             end
+          else
+            print("Device at", minetest.pos_to_string(pos), "was registered but does not define mesecons_wireless_device")
           end
         end
       end
@@ -80,6 +91,7 @@ function Network.update(dtime)
   local ot = yatm_core.trace.new("yatm_mesecon_hubs.Network.update/1")
   Network.dispatch_queued()
   yatm_core.trace.span_end(ot)
+  --yatm_core.trace.inspect(ot)
 
   Network.m_counter = counter + 1
 end
@@ -91,5 +103,19 @@ end
 minetest.register_globalstep(Network.update)
 minetest.register_on_shutdown(Network.on_shutdown)
 
-yatm_mesecon_hubs.Network = Network
+minetest.register_lbm({
+  name = "yatm_mesecon_hubs:listening_hub_device_reregister",
+  nodenames = {
+    "group:listening_hub_device",
+  },
+  run_at_every_load = true,
+  action = function (pos, node)
+    local meta = minetest.get_meta(pos)
+    local address = NetworkMeta.get_hub_address(meta)
+    if not yatm_core.is_blank(address) then
+      Network.register_listener(pos, address)
+    end
+  end,
+})
 
+yatm_mesecon_hubs.Network = Network
