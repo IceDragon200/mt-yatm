@@ -12,155 +12,89 @@ local slab_nodebox = {
   fixed = {-0.5, -0.5, -0.5, 0.5, 0, 0.5},
 }
 
+local plate_nodebox = {
+  type = "fixed",
+  fixed = {-0.5, -0.5, -0.5, 0.5, (2 / 16.0) - 0.5, 0.5},
+}
+
+local variants = {
+  {"bare", "Bare"}, -- Bare is the plain texture
+  {"dotted", "Dotted"}, -- Dotted has small 2x2 indents present
+  {"circles", "Circles"}, -- Circles have large 4x4 hollow circles
+  {"striped", "Striped"}, -- Stripes have just that, stripes
+  {"ornated", "Ornated"}, -- A fancy smancy design
+  {"tiled", "Tiled"}, -- Has a neat tile texture
+  {"meshed", "Meshed"}, -- Has holes in it's tetxure
+  {"rosy", "Rosy"}, -- Has a kind of floral texture, maybe
+}
+
 for _,pair in ipairs(colors) do
   local color_basename = pair[1]
   local color_name = pair[2]
+  for _,variant_pair in ipairs(variants) do
+    local variant_basename = variant_pair[1]
+    local variant_name = variant_pair[2]
 
-  --[[
-  Full Blocks
-  ]]
-  minetest.register_node("yatm_foundry:concrete_bare_" .. color_basename, {
-    description = "Concrete (" .. color_name .. ")",
-    tiles = {"yatm_concrete_bare_" .. color_basename .. "_side.png"},
-    groups = {cracky = 1, concrete = 1},
-    is_ground_content = false,
-    sounds = default.node_sound_stone_defaults(),
-    paramtype = "light",
-    paramtype2 = "facedir",
-    place_param2 = 0,
-  })
-
-  minetest.register_node("yatm_foundry:concrete_dotted_" .. color_basename, {
-    description = "Concrete - Dotted (" .. color_name .. ")",
-    tiles = {"yatm_concrete_dotted_" .. color_basename .. "_side.png"},
-    groups = {cracky = 1, concrete = 1},
-    is_ground_content = false,
-    sounds = default.node_sound_stone_defaults(),
-    paramtype = "light",
-    paramtype2 = "facedir",
-    place_param2 = 0,
-  })
-
-  minetest.register_node("yatm_foundry:concrete_circles_" .. color_basename, {
-    description = "Concrete - Circles (" .. color_name .. ")",
-    tiles = {"yatm_concrete_circles_" .. color_basename .. "_side.png"},
-    groups = {cracky = 1, concrete = 1},
-    is_ground_content = false,
-    sounds = default.node_sound_stone_defaults(),
-    paramtype = "light",
-    paramtype2 = "facedir",
-    place_param2 = 0,
-  })
-
-  minetest.register_node("yatm_foundry:concrete_striped_" .. color_basename, {
-    description = "Concrete - Striped (" .. color_name .. ")",
-    tiles = {"yatm_concrete_striped_" .. color_basename .. "_side.png"},
-    groups = {cracky = 1, concrete = 1},
-    is_ground_content = false,
-    sounds = default.node_sound_stone_defaults(),
-    paramtype = "light",
-    paramtype2 = "facedir",
-    place_param2 = 0,
-  })
-
-  --[[
-  Stairs
-  ]]
-  if stairs then
-    stairs.register_stair_and_slab(
-      "yatm_foundry_concrete_bare_" .. color_basename,
-      "yatm_foundry:concrete_bare_" .. color_basename,
-      {cracky = 1, concrete = 1},
-      {"yatm_concrete_bare_" .. color_basename .. "_side.png"},
-      "Concrete Stair (" .. color_name .. ")",
-      "Concrete Slab (" .. color_name .. ")",
-      default.node_sound_stone_defaults(),
-      false
-    )
-
-    stairs.register_stair_and_slab(
-      "yatm_foundry_concrete_dotted_" .. color_basename,
-      "yatm_foundry:concrete_dotted_" .. color_basename,
-      {cracky = 1, concrete = 1},
-      {"yatm_concrete_dotted_" .. color_basename .. "_side.png"},
-      "Concrete Dotted Stair (" .. color_name .. ")",
-      "Concrete Dotted Slab (" .. color_name .. ")",
-      default.node_sound_stone_defaults(),
-      false
-    )
-
-    stairs.register_stair_and_slab(
-      "yatm_foundry_concrete_circles_" .. color_basename,
-      "yatm_foundry:concrete_circles_" .. color_basename,
-      {cracky = 1, concrete = 1},
-      {"yatm_concrete_circles_" .. color_basename .. "_side.png"},
-      "Concrete Dotted Stair (" .. color_name .. ")",
-      "Concrete Dotted Slab (" .. color_name .. ")",
-      default.node_sound_stone_defaults(),
-      false
-    )
-
-    stairs.register_stair_and_slab(
-      "yatm_foundry_concrete_striped_" .. color_basename,
-      "yatm_foundry:concrete_striped_" .. color_basename,
-      {cracky = 1, concrete = 1},
-      {"yatm_concrete_striped_" .. color_basename .. "_side.png"},
-      "Concrete Dotted Stair (" .. color_name .. ")",
-      "Concrete Dotted Slab (" .. color_name .. ")",
-      default.node_sound_stone_defaults(),
-      false
-    )
-  else
-    minetest.register_node("yatm_foundry:concrete_slab_bare_" .. color_basename, {
-      description = "Concrete Slab (" .. color_name .. ")",
-      tiles = {"yatm_concrete_bare_" .. color_basename .. "_side.png"},
+    --[[
+    Full Blocks
+    ]]
+    minetest.register_node("yatm_foundry:concrete_" .. variant_basename .. "_" .. color_basename, {
+      description = "Concrete - " .. variant_name .. " (" .. color_name .. ")",
+      tiles = {"yatm_concrete_" .. variant_basename .. "_" .. color_basename .. "_side.png"},
       groups = {cracky = 1, concrete = 1},
       is_ground_content = false,
       sounds = default.node_sound_stone_defaults(),
       paramtype = "light",
       paramtype2 = "facedir",
       place_param2 = 0,
-      drawtype = "nodebox",
-      node_box = slab_nodebox,
+      dye_color = color_basename,
     })
 
-    minetest.register_node("yatm_foundry:concrete_slab_dotted_" .. color_basename, {
-      description = "Concrete Slab - Dotted (" .. color_name .. ")",
-      tiles = {"yatm_concrete_dotted_" .. color_basename .. "_side.png"},
-      groups = {cracky = 1, concrete = 1},
+    --[[
+    Plates
+    ]]
+    minetest.register_node("yatm_foundry:concrete_plate_" .. variant_basename .. "_" .. color_basename, {
+      description = "Concrete Plate - " .. variant_name .. " (" .. color_name .. ")",
+      tiles = {"yatm_concrete_" .. variant_basename .. "_" .. color_basename .. "_side.png"},
+      groups = {cracky = 1, concrete = 1, concrete_plate = 1},
       is_ground_content = false,
       sounds = default.node_sound_stone_defaults(),
       paramtype = "light",
       paramtype2 = "facedir",
       place_param2 = 0,
       drawtype = "nodebox",
-      node_box = slab_nodebox,
+      node_box = plate_nodebox,
+      dye_color = color_basename,
     })
 
-    minetest.register_node("yatm_foundry:concrete_slab_circles_" .. color_basename, {
-      description = "Concrete Slab - Circles (" .. color_name .. ")",
-      tiles = {"yatm_concrete_circles_" .. color_basename .. "_side.png"},
-      groups = {cracky = 1, concrete = 1},
-      is_ground_content = false,
-      sounds = default.node_sound_stone_defaults(),
-      paramtype = "light",
-      paramtype2 = "facedir",
-      place_param2 = 0,
-      drawtype = "nodebox",
-      node_box = slab_nodebox,
-    })
-
-    minetest.register_node("yatm_foundry:concrete_slab_striped_" .. color_basename, {
-      description = "Concrete Slab - Striped (" .. color_name .. ")",
-      tiles = {"yatm_concrete_striped_" .. color_basename .. "_side.png"},
-      groups = {cracky = 1, concrete = 1, slab = 1},
-      is_ground_content = false,
-      sounds = default.node_sound_stone_defaults(),
-      paramtype = "light",
-      paramtype2 = "facedir",
-      place_param2 = 0,
-      drawtype = "nodebox",
-      node_box = slab_nodebox,
-    })
+    --[[
+    Stairs
+    ]]
+    if stairs then
+      stairs.register_stair_and_slab(
+        "yatm_foundry_concrete_" .. variant_basename .. "_" .. color_basename,
+        "yatm_foundry:concrete_" .. variant_basename .. "_" .. color_basename,
+        {cracky = 1, concrete = 1},
+        {"yatm_concrete_" .. variant_basename .. "_" .. color_basename .. "_side.png"},
+        "Concrete Stair - " .. variant_name .. " (" .. color_name .. ")",
+        "Concrete Slab  - " .. variant_name .. " (" .. color_name .. ")",
+        default.node_sound_stone_defaults(),
+        false
+      )
+    else
+      minetest.register_node("yatm_foundry:concrete_slab_" .. variant_basename .. "_" .. color_basename, {
+        description = "Concrete Slab - " .. variant_name .. " (" .. color_name .. ")",
+        tiles = {"yatm_concrete_" .. variant_basename .. "_" .. color_basename .. "_side.png"},
+        groups = {cracky = 1, concrete = 1},
+        is_ground_content = false,
+        sounds = default.node_sound_stone_defaults(),
+        paramtype = "light",
+        paramtype2 = "facedir",
+        place_param2 = 0,
+        drawtype = "nodebox",
+        node_box = slab_nodebox,
+      })
+    end
   end
+
 end
