@@ -77,6 +77,11 @@ function c:refute(truth_value, message)
   return self:assert(not truth_value, message)
 end
 
+function c:refute_eq(a, b, message)
+  message = message or ("expected " .. dump(a) .. " to not be equal to " .. dump(b))
+  self:refute(a == b, message)
+end
+
 function c:execute(depth, prefix, tags)
   tags = yatm_core.table_copy(tags or {})
   depth = depth or 0
