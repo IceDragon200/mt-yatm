@@ -1,5 +1,5 @@
 --[[
-Structured meta data, because sometimes you need to know just what the f*** you're doing
+Structured metadata, because sometimes you need to know just what the f*** you're doing
 
 Optionally, the MetaSchema can be compiled with a fixed name to reduce some of the overhead
 ]]
@@ -95,6 +95,7 @@ Returns:
 * Compiled schema
 ]]
 function m:compile(basename)
+  assert(basename, "expected a basename")
   local schema = {
     keys = {}
   }
