@@ -23,6 +23,11 @@ function yatm_core.table_copy(t)
   return yatm_core.table_merge(t)
 end
 
+function yatm_core.list_sample(l)
+  local c = #l
+  return l[math.random(c)]
+end
+
 --[[
 Not to be confused with table.concat, which is actually a 'join' in other languages.
 ]]
@@ -197,6 +202,7 @@ function yatm_core.itemstack_is_blank(stack)
 end
 
 local STRING_POOL = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+local STRING_POOL16 = "ABCDEF0123456789"
 
 function yatm_core.random_string(length, pool)
   pool = pool or STRING_POOL
@@ -207,6 +213,10 @@ function yatm_core.random_string(length, pool)
     result[i] = assert(string.sub(pool, pos, pos))
   end
   return table.concat(result)
+end
+
+function yatm_core.random_string16(length)
+  return yatm_core.random_string(length, STRING_POOL16)
 end
 
 local function assert_itemstack_meta(itemstack)

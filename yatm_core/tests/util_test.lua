@@ -3,6 +3,26 @@ local Luna = assert(yatm_core.Luna)
 
 local case = Luna.new("yatm_core-util")
 
+case:describe("is_blank/1", function (t2)
+  t2:test("nil is blank", function (t3)
+    t3:assert(m.is_blank(nil))
+  end)
+
+  t2:test("an empty string is blank", function (t3)
+    t3:assert(m.is_blank(""))
+  end)
+
+  t2:test("a string with only whitespaces is not blank, though it should be", function (t3)
+    t3:refute(m.is_blank(" "))
+    t3:refute(m.is_blank("    "))
+  end)
+
+  t2:test("booleans are not blank", function (t3)
+    t3:refute(m.is_blank(false))
+    t3:refute(m.is_blank(true))
+  end)
+end)
+
 case:describe("table_equals/2", function (t2)
   t2:test("compares 2 tables and determines if they're equal", function (t3)
     t3:assert(m.table_equals({a = 1}, {a = 1}))
@@ -34,6 +54,14 @@ case:describe("list_concat/*", function (t2)
     local c = {1, 2, 3}
     local r = m.list_concat(a, b, c)
     t3:assert_table_eq(r, {"abc", "def", "other", "stuff", 1, 2, 3})
+  end)
+end)
+
+case:describe("list_sample/1", function (t2)
+  t2:test("randomly select one element from a given list", function (t3)
+    local items = {"a", "b", "c", "d"}
+    local item = m.list_sample(items)
+    t3:assert_in(item, items)
   end)
 end)
 
