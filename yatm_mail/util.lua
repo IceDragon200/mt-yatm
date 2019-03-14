@@ -2,7 +2,7 @@
 `lockable` is used for any item or node that can be locked using a key, the locked item is created
 using the locksmith's table.
 ]]
-yatm_mail.lockable_object_schema = yatm_core.MetaSchema.new("lockable_object", "", {
+local lockable_object_schema = yatm_core.MetaSchema.new("lockable_object", "", {
   -- Lockable objects have a public key, this ensures that the private key
   -- (attached to the key itself) is never exposed, now since I don't actually have
   -- a crypto library, it's just the same string copied around for now.
@@ -11,13 +11,18 @@ yatm_mail.lockable_object_schema = yatm_core.MetaSchema.new("lockable_object", "
   },
 })
 
-yatm_mail.lockable_key_schema = yatm_core.MetaSchema.new("lockable_key", "", {
+local lockable_key_schema = yatm_core.MetaSchema.new("lockable_key", "", {
   -- Lockable Key objects have a private key, this will be used to generate the public key upon request
   -- for matching.
   prvkey = {
     type = "string",
   },
 })
+
+local LOCKABLE_BASENAME = "lk" -- please don't tamper with this
+
+yatm_mail.lockable_object_schema = lockable_object_schema:compile(LOCKABLE_BASENAME)
+yatm_mail.lockable_key_schema = lockable_key_schema:compile(LOCKABLE_BASENAME)
 
 -- Determines if the given item is a lock, locks are just boring single use items for the locksmith table.
 function yatm_mail.item_is_lock(item)
@@ -97,16 +102,14 @@ function yatm_mail.is_stack_lockable_object(stack)
   end
 end
 
-local LOCKABLE_BASENAME = "lk" -- please don't tamper with this
-
 function yatm_mail.get_lockable_key_key(meta)
   assert(meta, "expected a meta")
-  return yatm_mail.lockable_key_schema:get_field(meta, LOCKABLE_BASENAME, "prvkey")
+  return yatm_mail.lockable_key_schema:get_prvkey(meta)
 end
 
 function yatm_mail.set_lockable_key_key(meta, prvkey)
   assert(meta, "expected a meta")
-  yatm_mail.lockable_key_schema:set_field(meta, LOCKABLE_BASENAME, "prvkey", prvkey)
+  yatm_mail.lockable_key_schema:set_prvkey(meta, prvkey)
 end
 
 function yatm_mail.copy_lockable_key_key(src_meta, dest_meta)
@@ -114,15 +117,17 @@ function yatm_mail.copy_lockable_key_key(src_meta, dest_meta)
   assert(dest_meta, "expected a destination meta")
   local key = yatm_mail.get_lockable_key_key(src_meta)
   yatm_mail.set_lockable_key_key(dest_meta, key)
+  return dest_meta
 end
 
 function yatm_mail.get_lockable_object_key(meta)
   assert(meta, "expected a meta")
-  return yatm_mail.lockable_object_schema:get_field(meta, LOCKABLE_BASENAME, "pubkey")
+  return yatm_mail.lockable_object_schema:get_pubkey(meta)
 end
 
 function yatm_mail.set_lockable_object_key(meta, pubkey)
-  yatm_mail.lockable_object_schema:set_field(meta, LOCKABLE_BASENAME, "pubkey", pubkey)
+  yatm_mail.lockable_object_schema:set_pubkey(meta, pubkey)
+  return meta
 end
 
 function yatm_mail.copy_lockable_object_key(src_meta, dest_meta)
