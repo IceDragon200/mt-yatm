@@ -51,7 +51,12 @@ function c:set_string(key, value)
 end
 
 function c:get_string(key)
-  return tostring(self.data[key])
+  local d = self.data[key]
+  if d then
+    return tostring(d)
+  else
+    return ""
+  end
 end
 
 function c:set_int(key, value)
