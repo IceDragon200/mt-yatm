@@ -5,7 +5,11 @@ yatm_spacetime.teleporter_address_schema = yatm_core.MetaSchema.new("teleporter_
 local BASENAME = "spaddr"
 
 function yatm_spacetime.generate_address()
-  return yatm_core.random_string(32)
+  local result = {}
+  for i = 1,4 do
+    table.insert(result, yatm_core.random_string16(4))
+  end
+  return table.concat(result, ":")
 end
 
 function yatm_spacetime.get_address_in_meta(src)

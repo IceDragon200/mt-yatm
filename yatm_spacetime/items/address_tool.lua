@@ -22,7 +22,7 @@ end
 
 function yatm_spacetime.default_change_address(pos, node, new_address)
   local meta = minetest.get_meta(pos)
-  address = yatm_spacetime.copy_address_in_meta(itemstack:get_meta(), meta)
+  address = yatm_spacetime.set_address_in_meta(meta, new_address)
 end
 
 local function address_tool_on_use(itemstack, user, pointed_thing)

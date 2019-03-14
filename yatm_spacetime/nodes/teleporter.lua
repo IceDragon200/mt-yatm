@@ -1,3 +1,4 @@
+local Network = assert(yatm_spacetime.Network)
 local teleporter_node_box = {
   type = "fixed",
   fixed = {
@@ -25,21 +26,75 @@ local teleporter_yatm_network = {
   passive_energy_lost = 5
 }
 
+local function find_all_connected_relays(pos, collected)
+  local to_visit = {
+    vector.add(pos, yatm_core.V3_NORTH),
+    vector.add(pos, yatm_core.V3_EAST),
+    vector.add(pos, yatm_core.V3_SOUTH),
+    vector.add(pos, yatm_core.V3_WEST),
+    vector.add(pos, yatm_core.V3_DOWN),
+    vector.add(pos, yatm_core.V3_UP),
+  }
+  local visited = {}
+  for hash,vpos in pairs(collected) do
+    visited[hash] = vpos
+  end
+  while not yatm_core.is_table_empty(to_visit) do
+    local old_to_visit = to_visit
+    to_visit = {}
+
+    for _,vpos in ipairs(old_to_visit) do
+      local vhash = minetest.hash_node_position(vpos)
+      if not visited[vhash] then
+        visited[vhash] = vpos
+        local node = minetest.get_node(vpos)
+        if node then
+          local nodedef = minetest.registered_nodes[node.name]
+          if nodedef then
+            if nodedef.groups.teleporter_relay then
+              collected[vhash] = vpos
+              table.insert(to_visit, vector.add(vpos, yatm_core.V3_NORTH))
+              table.insert(to_visit, vector.add(vpos, yatm_core.V3_EAST))
+              table.insert(to_visit, vector.add(vpos, yatm_core.V3_SOUTH))
+              table.insert(to_visit, vector.add(vpos, yatm_core.V3_WEST))
+              table.insert(to_visit, vector.add(vpos, yatm_core.V3_DOWN))
+              table.insert(to_visit, vector.add(vpos, yatm_core.V3_UP))
+            end
+          end
+        end
+      end
+    end
+  end
+  return collected
+end
+
 local function maybe_teleport_all_players_on_teleporter(pos, node)
   local meta = minetest.get_meta(pos)
   local address = yatm_spacetime.get_address_in_meta(meta)
   if not yatm_core.is_blank(address) then
-    local target_pos = yatm_spacetime.Network.pos_for_address_from_pos(address, pos)
-    if target_pos then
-      print("FROM", minetest.pos_to_string(pos), "TO", minetest.pos_to_string(target_pos))
-      local objects = minetest.get_objects_inside_radius(pos, 1)
-      for _,object in ipairs(objects) do
-        if object:is_player() then
-          object:set_pos(target_pos)
+    local hash = minetest.hash_node_position(pos)
+    local positions = {}
+    for h,target_pos in pairs(Network.poses_for_address(address)) do
+      if h ~= hash then
+        positions[h] = target_pos
+      end
+    end
+
+    if yatm_core.is_table_empty(positions) then
+      print("No target positions!")
+    else
+      local all_sources = find_all_connected_relays(pos, { [hash] = pos })
+      local hashes = yatm_core.table_keys(positions)
+      for _,source_pos in pairs(all_sources) do
+        local objects = minetest.get_objects_inside_radius(source_pos, 1)
+        for _,object in ipairs(objects) do
+          if object:is_player() then
+            local h = yatm_core.list_sample(hashes)
+            local target_pos = positions[h]
+            object:set_pos(target_pos)
+          end
         end
       end
-    else
-      print("No target position!")
     end
   else
     print("No address present!")
