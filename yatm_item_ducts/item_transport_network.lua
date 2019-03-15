@@ -10,7 +10,13 @@ The 3 main components of an item transport are:
 ]]
 local GenericTransportNetwork = assert(yatm.transport.GenericTransportNetwork)
 
-yatm_item_ducts.TransportNetwork = GenericTransportNetwork:new({
+local ItemTransportNetwork = GenericTransportNetwork:extends()
+local m = assert(ItemTransportNetwork.instance_class)
+
+function m:update_network(network, counter, delta)
+end
+
+yatm_item_ducts.ItemTransportNetwork = ItemTransportNetwork:new({
   description = "Item Transport Network",
   abbr = "itn",
   node_interface_name = "item_transport_device",
@@ -18,19 +24,19 @@ yatm_item_ducts.TransportNetwork = GenericTransportNetwork:new({
 
 do
   minetest.register_globalstep(function (delta)
-    yatm_item_ducts.TransportNetwork:update(delta)
+    yatm_item_ducts.ItemTransportNetwork:update(delta)
   end)
 
   minetest.register_lbm({
     name = "yatm_item_ducts:item_transport_network_reload_lbm",
     nodenames = {
-      "group:transporter_item_pipe",
-      "group:inserter_item_pipe",
-      "group:extractor_item_pipe",
+      "group:transporter_item_duct",
+      "group:inserter_item_duct",
+      "group:extractor_item_duct",
     },
     run_at_every_load = true,
     action = function (pos, node)
-      yatm_item_ducts.TransportNetwork:register_member(pos, node)
+      yatm_item_ducts.ItemTransportNetwork:register_member(pos, node)
     end
   })
 end
