@@ -67,7 +67,9 @@ for cell_type, cell_config in pairs(cell_types) do
   end
 
   for stage = 0,7 do
-    groups = {cracky = 1, yatm_network_host = 2}
+    groups = {
+      cracky = 1, yatm_network_host = 2, yatm_energy_device = 1,
+    }
     if stage > 0 then
       groups.not_in_creative_inventory = 1
     end
@@ -130,7 +132,7 @@ for cell_type, cell_config in pairs(cell_types) do
 
   yatm.devices.register_network_device(creative_energy_cell_yatm_network.basename, {
     description = "Energy Cell ("..cell_type..") [Creative]",
-    groups = {cracky = 1, yatm_network_host = 2},
+    groups = {cracky = 1, yatm_network_host = 2, yatm_energy_device = 1},
     is_ground_content = false,
     tiles = {
       {

@@ -11,9 +11,13 @@ local network_yatm_network = {
   }
 }
 
+local groups = {
+  cracky = 1, yatm_network_host = 1, yatm_data_device = 1, yatm_energy_device = 1,
+}
+
 yatm.devices.register_network_device("yatm_machines:network_controller_off", {
   description = "Network Controller",
-  groups = {cracky = 1, yatm_network_host = 1},
+  groups = groups,
   tiles = {
     "yatm_network_controller_top.off.png",
     "yatm_network_controller_bottom.png",
@@ -30,7 +34,7 @@ yatm.devices.register_network_device("yatm_machines:network_controller_off", {
 yatm.devices.register_network_device("yatm_machines:network_controller_error", {
   description = "Network Controller",
   drop = "yatm_machines:network_controller_off",
-  groups = {cracky = 1, not_in_creative_inventory = 1, yatm_network_host = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   tiles = {
     "yatm_network_controller_top.error.png",
     "yatm_network_controller_bottom.png",
@@ -47,7 +51,7 @@ yatm.devices.register_network_device("yatm_machines:network_controller_error", {
 yatm.devices.register_network_device("yatm_machines:network_controller_on", {
   description = "Network Controller",
   drop = "yatm_machines:network_controller_off",
-  groups = {cracky = 1, not_in_creative_inventory = 1, yatm_network_host = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   tiles = {
     {
       name = "yatm_network_controller_top.on.png",

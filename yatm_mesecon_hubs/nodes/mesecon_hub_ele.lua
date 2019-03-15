@@ -48,7 +48,7 @@ minetest.register_node("yatm_mesecon_hubs:mesecon_hub_ele_on", {
   drop = "yatm_mesecon_hubs:mesecon_hub_ele_off",
   tiles = {
     "yatm_mesecon_hub_top.ele.on.png",
-    "yatm_mesecon_hub_bottom.ele.on.png",
+    "yatm_mesecon_hub_bottom.png",
     "yatm_mesecon_hub_side.on.png",
     "yatm_mesecon_hub_side.on.png",
     "yatm_mesecon_hub_side.on.png",

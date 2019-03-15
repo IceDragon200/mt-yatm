@@ -95,7 +95,9 @@ function fluid_interface:fill(pos, dir, fluid_stack, commit)
   end
 end
 
-local groups = {cracky = 1, fluid_interface_out = 1}
+local groups = {
+  cracky = 1, fluid_interface_out = 1, yatm_energy_device = 1,
+}
 
 yatm.devices.register_network_device(pump_yatm_network.states.off, {
   description = "Pump",

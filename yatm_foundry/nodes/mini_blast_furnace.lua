@@ -11,13 +11,8 @@ minetest.register_node("yatm_foundry:mini_blast_furnace_off", {
   },
   paramtype = "light",
   paramtype2 = "facedir",
-  drawtype = "nodebox",
-  node_box = table_nodebox,
 
   sounds = default.node_sound_stone_defaults(),
-
-  on_construct = stonecutters_table_on_construct,
-  on_destruct = stonecutters_table_on_destruct,
 })
 
 minetest.register_node("yatm_foundry:mini_blast_furnace_on", {
@@ -33,11 +28,6 @@ minetest.register_node("yatm_foundry:mini_blast_furnace_on", {
   },
   paramtype = "light",
   paramtype2 = "facedir",
-  drawtype = "nodebox",
-  node_box = table_nodebox,
 
   sounds = default.node_sound_stone_defaults(),
-
-  on_construct = stonecutters_table_on_construct,
-  on_destruct = stonecutters_table_on_destruct,
 })

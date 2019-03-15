@@ -27,7 +27,7 @@ local function barrel_refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
   node = node or minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
-  local stack = FluidTanks.get(pos, dir)
+  local stack = FluidTanks.get(pos, yatm_core.D_NONE)
   if stack and stack.amount > 0 then
     meta:set_string("infotext",
       "Brewing Barrel: " ..

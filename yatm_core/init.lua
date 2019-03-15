@@ -7,9 +7,6 @@ yatm_core.modpath = minetest.get_modpath(minetest.get_current_modname())
 -- This is yatm's shared namespace, use the apis from this instead of the module's name
 yatm = rawget(_G, "yatm") or {}
 
-local env = minetest.request_insecure_environment()
-yatm_core.bit = env.require("bit")
-
 yatm_core.PX16 = 1 / 16.0
 
 -- This uses a bit flag map, for quick use with binary-styled representations
@@ -229,7 +226,6 @@ dofile(yatm_core.modpath .. "/instrumentation.lua")
 dofile(yatm_core.modpath .. "/meta_schema.lua")
 dofile(yatm_core.modpath .. "/changeset.lua")
 dofile(yatm_core.modpath .. "/ui.lua")
-dofile(yatm_core.modpath .. "/cables.lua")
 dofile(yatm_core.modpath .. "/groups.lua")
 -- Networks
 dofile(yatm_core.modpath .. "/generic_transport_network.lua")

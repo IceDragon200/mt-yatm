@@ -14,6 +14,11 @@ local ItemTransportNetwork = GenericTransportNetwork:extends()
 local m = assert(ItemTransportNetwork.instance_class)
 
 function m:update_network(network, counter, delta)
+  local extractors = network.members_by_type["extractors"]
+  local inserters = network.members_by_type["inserters"]
+
+  if extractors and inserters then
+  end
 end
 
 yatm_item_ducts.ItemTransportNetwork = ItemTransportNetwork:new({

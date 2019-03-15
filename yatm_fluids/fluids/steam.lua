@@ -12,8 +12,8 @@ yatm.fluids.FluidRegistry.register("yatm_fluids", "steam", {
   },
 
   tiles = {
-    source = "steam_source.png",
-    flowing = "steam_source.png",
+    source = "yatm_steam_source.png",
+    flowing = "yatm_steam_source.png",
   },
 
   fluid_tank = {
