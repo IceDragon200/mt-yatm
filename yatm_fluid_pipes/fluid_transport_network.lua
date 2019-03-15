@@ -22,6 +22,17 @@ local FluidTransportNetwork = GenericTransportNetwork:extends()
 local m = assert(FluidTransportNetwork.instance_class)
 
 function m:update_network(network, counter, delta)
+  --
+  -- Currently this update implements a PUSH (supply-based) based system
+  -- That is, extractors are drained (simulated) to determine what fluids are available
+  -- Then it iterates through the inserters and attempts to consume all the
+  -- fluid found.
+  --
+  -- If this turns out to be too slow, I may spin it around and make it PULL (demand-based)
+  -- This would require adding some new functions to the fluid interface
+  -- One that would ask the inserters "what do you want",
+  -- once the demand is established, the supplies (extractors) can be scanned for the demand.
+  --
   --print("Updating Network", network.id, counter)
   local extractors = network.members_by_type["extractor"]
   local inserters = network.members_by_type["inserter"]
