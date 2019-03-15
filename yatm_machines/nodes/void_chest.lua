@@ -3,7 +3,6 @@ local void_chest_yatm_network = {
   groups = {
     machine = 1,
     energy_consumer = 1,
-    has_update = 1, -- the device should be updated every network step
   },
   states = {
     conflict = "yatm_machines:void_chest_error",
@@ -13,15 +12,11 @@ local void_chest_yatm_network = {
   }
 }
 
-function void_chest_yatm_network.update(pos, node)
-  local nodedef = minetest.registered_nodes[node.name]
-  if nodedef then
-  end
-end
+local groups = {cracky = 1, item_interface_out = 1, item_interface_in = 1}
 
 yatm.devices.register_network_device(void_chest_yatm_network.states.off, {
   description = "Void Chest",
-  groups = {cracky = 1},
+  groups = groups,
   drop = void_chest_yatm_network.states.off,
   tiles = {
     "yatm_void_chest_top.off.png",
@@ -38,7 +33,7 @@ yatm.devices.register_network_device(void_chest_yatm_network.states.off, {
 
 yatm.devices.register_network_device(void_chest_yatm_network.states.error, {
   description = "Void Chest",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = void_chest_yatm_network.states.off,
   tiles = {
     "yatm_void_chest_top.error.png",
@@ -55,7 +50,7 @@ yatm.devices.register_network_device(void_chest_yatm_network.states.error, {
 
 yatm.devices.register_network_device(void_chest_yatm_network.states.on, {
   description = "Void Chest",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = void_chest_yatm_network.states.off,
   tiles = {
     "yatm_void_chest_top.on.png",
