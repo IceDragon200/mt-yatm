@@ -12,7 +12,13 @@ local void_chest_yatm_network = {
   }
 }
 
-local groups = {cracky = 1, item_interface_out = 1, item_interface_in = 1}
+local groups = {
+  cracky = 1,
+  item_interface_out = 1,
+  item_interface_in = 1,
+  yatm_energy_device = 1,
+  yatm_data_device = 1,
+}
 
 yatm.devices.register_network_device(void_chest_yatm_network.states.off, {
   description = "Void Chest",
