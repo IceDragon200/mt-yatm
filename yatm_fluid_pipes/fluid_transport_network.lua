@@ -21,7 +21,7 @@ local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidTransportNetwork = GenericTransportNetwork:extends()
 local m = assert(FluidTransportNetwork.instance_class)
 
-function m:update_network(network, counter)
+function m:update_network(network, counter, delta)
   --print("Updating Network", network.id, counter)
   local extractors = network.members_by_type["extractor"]
   local inserters = network.members_by_type["inserter"]
