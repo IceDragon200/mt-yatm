@@ -5,6 +5,7 @@ FluidInterface
 @callback replace(self, pos, dir, node, fluid_stack :: FluidStack, commit :: boolean)
 @callback fill(self, pos, dir, node, fluid_stack :: FluidStack, commit :: boolean)
 @callback drain(self, pos, dir, node, fluid_stack :: FluidStack, commit :: boolean)
+@callback on_fluid_changed(pos, dir, fluid_stack :: FluidStack)
 ]]
 local FluidMeta = assert(yatm_fluids.FluidMeta)
 
