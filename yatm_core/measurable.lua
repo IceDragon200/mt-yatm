@@ -6,7 +6,7 @@ gases and whatever else I feel like throwing in here.
 local m = {
 }
 
-m.schema = yatm_core.MetaSchema.new("measurable", "", {
+m.schema = yatm_core.MetaSchema:new("measurable", "", {
   name = {
     type = "string"
   },

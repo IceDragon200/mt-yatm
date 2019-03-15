@@ -9,7 +9,7 @@ local table_nodebox = {
   }
 }
 
-local stonecutters_table_form = yatm_core.UI.Form.new()
+local stonecutters_table_form = yatm_core.UI.Form:new()
 stonecutters_table_form:set_size(8, 8.5)
 stonecutters_table_form:new_label(0, 0, "Stonecutters's Table")
 stonecutters_table_form:new_list("current_player", "main", 0, 4.25, 8, 1, "")

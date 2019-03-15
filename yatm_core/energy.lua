@@ -3,7 +3,7 @@ Provides some utility functions for dealing with energy in YATM
 ]]
 local energy = {}
 
-energy.schema = yatm_core.MetaSchema.new("energy", "", {
+energy.schema = yatm_core.MetaSchema:new("energy", "", {
   energy = {
     type = "integer",
   },

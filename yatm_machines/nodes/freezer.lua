@@ -22,9 +22,11 @@ function freezer_yatm_network.update(pos, node)
   end
 end
 
+local groups = {cracky = 1, fluid_interface_in = 1, item_interface_out = 1}
+
 yatm.devices.register_network_device(freezer_yatm_network.states.off, {
   description = "Freezer",
-  groups = {cracky = 1},
+  groups = groups,
   drop = freezer_yatm_network.states.off,
   tiles = {
     "yatm_freezer_top.off.png",
@@ -41,7 +43,7 @@ yatm.devices.register_network_device(freezer_yatm_network.states.off, {
 
 yatm.devices.register_network_device(freezer_yatm_network.states.error, {
   description = "Freezer",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = freezer_yatm_network.states.off,
   tiles = {
     "yatm_freezer_top.error.png",
@@ -58,7 +60,7 @@ yatm.devices.register_network_device(freezer_yatm_network.states.error, {
 
 yatm.devices.register_network_device(freezer_yatm_network.states.on, {
   description = "Freezer",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = freezer_yatm_network.states.off,
   tiles = {
     "yatm_freezer_top.on.png",

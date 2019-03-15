@@ -3,7 +3,7 @@ Utility module for dealing with formspecs, or rather to not deal with them.
 
 I don't particularly enjoy messing with strings all day you know.
 ]]
-local Form = yatm_core.Class.extends()
+local Form = yatm_core.Class:extends()
 
 local c = Form.instance_class
 
@@ -56,7 +56,7 @@ function c:set_no_prepend(bool)
 end
 
 function c:new_element(kind)
-  local element = Form.new(kind)
+  local element = Form:new(kind)
   table.insert(self.elements, element)
   return element
 end

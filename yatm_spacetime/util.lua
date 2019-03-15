@@ -1,4 +1,4 @@
-yatm_spacetime.teleporter_address_schema = yatm_core.MetaSchema.new("teleporter_address", "", {
+yatm_spacetime.teleporter_address_schema = yatm_core.MetaSchema:new("teleporter_address", "", {
   address = { type = "string" },
 })
 

@@ -62,6 +62,8 @@ function FluidRegistry.register_fluid_tank(modname, fluid_name, nodedef)
     cracky = 1,
     fluid_tank = 1,
     filled_fluid_tank = 1,
+    fluid_interface_in = 1,
+    fluid_interface_out = 1,
     not_in_creative_inventory = 1,
   }, nodedef.groups or {})
 

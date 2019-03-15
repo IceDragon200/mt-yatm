@@ -4,22 +4,26 @@ A minimal object class system.
 Please don't use the Classes for any performance critical code.
 I will not make an effort to optimize it, unless it's god awful slow.
 ]]
+local Class = {
+  instance_class = {}
+}
 
-local Class = {}
-
-function Class.extends()
+function Class:extends()
   local klass = {
     instance_class = {},
   }
-
-  function klass.new(...)
-    local instance = {}
-    setmetatable(instance, { __index = klass.instance_class })
-    instance:initialize(...)
-    return instance
-  end
-
+  setmetatable(klass, { __index = self })
+  setmetatable(klass.instance_class, { __index = self.instance_class })
   return klass
+end
+
+function Class:new(...)
+  local instance = {}
+  setmetatable(instance, { __index = self.instance_class })
+  if instance.initialize then
+    instance:initialize(...)
+  end
+  return instance
 end
 
 yatm_core.Class = Class

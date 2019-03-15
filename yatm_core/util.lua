@@ -43,6 +43,18 @@ function yatm_core.list_concat(...)
   return result
 end
 
+function yatm_core.list_uniq(l)
+  local seen = {}
+  local result = {}
+  for _,e in ipairs(l) do
+    if not seen[e] then
+      seen[e] = true
+      table.insert(result, e)
+    end
+  end
+  return result
+end
+
 function yatm_core.table_put(t, k, v)
   t[k] = v
   return t

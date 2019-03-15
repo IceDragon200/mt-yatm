@@ -33,7 +33,7 @@ end
 local function teleporter_port_preserve_metadata(pos, oldnode, old_meta_table, drops)
   local stack = drops[1]
 
-  local old_meta = yatm_core.FakeMetaRef.new(old_meta_table)
+  local old_meta = yatm_core.FakeMetaRef:new(old_meta_table)
   local new_meta = stack:get_meta()
   yatm_spacetime.copy_address_in_meta(old_meta, new_meta)
 end

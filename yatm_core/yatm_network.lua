@@ -12,7 +12,7 @@ local Network = {
   KEY = "network_id",
   TS = "network_updated_at",
 
-  device_meta_schema = yatm_core.MetaSchema.new("network_device", "", {
+  device_meta_schema = yatm_core.MetaSchema:new("network_device", "", {
     network_id = {
       type = "string",
     },

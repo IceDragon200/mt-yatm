@@ -9,7 +9,7 @@ local table_nodebox = {
   }
 }
 
-local locksmiths_table_form = yatm_core.UI.Form.new()
+local locksmiths_table_form = yatm_core.UI.Form:new()
 locksmiths_table_form:set_size(8, 8.5)
 locksmiths_table_form:new_label(0, 0, "Locksmith's Table")
 locksmiths_table_form:new_label(0, 0.5, "Lock Installation")

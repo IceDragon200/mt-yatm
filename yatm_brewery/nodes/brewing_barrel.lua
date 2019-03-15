@@ -1,3 +1,6 @@
+local FluidTanks = assert(yatm.fluids.FluidTanks)
+local FluidInterface = assert(yatm.fluids.FluidInterface)
+
 local barrel_nodebox = {
   type = "fixed",
   fixed = {
@@ -20,11 +23,20 @@ end
 local function barrel_on_destruct(pos)
 end
 
-local function barrel_refresh_infotext(pos)
+local function barrel_refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
-  local stack = yatm_core.fluid_tanks.get(pos, dir)
+  node = node or minetest.get_node(pos)
+  local nodedef = minetest.registered_nodes[node.name]
+  local stack = FluidTanks.get(pos, dir)
   if stack and stack.amount > 0 then
-    meta:set_string("infotext", "Barrel: " .. stack.name .. " " .. stack.amount .. " / " .. capacity)
+    meta:set_string("infotext",
+      "Brewing Barrel: " ..
+      stack.name ..
+      " " ..
+      stack.amount ..
+      " / " ..
+      nodedef.fluid_interface.capacity
+    )
   else
     meta:set_string("infotext", "Barrel: Empty")
   end
@@ -32,10 +44,11 @@ end
 
 local BARREL_CAPACITY = 4000 -- 4 buckets
 local BARREL_DRAIN_BANDWIDTH = BARREL_CAPACITY
-local barrel_fluid_interface = yatm.fluids.FluidInterface.new_simple("tank", BARREL_CAPACITY)
-function barrel_fluid_interface.on_fluid_changed(pos, dir, node, stack, amount, capacity)
+local barrel_fluid_interface = FluidInterface.new_simple("tank", BARREL_CAPACITY)
+function barrel_fluid_interface:on_fluid_changed(pos, dir, stack)
+  local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
-  nodedef.refresh_infotext(pos)
+  nodedef.refresh_infotext(pos, node)
 end
 
 local colors = {
@@ -55,7 +68,7 @@ for _,pair in ipairs(colors) do
 
   minetest.register_node("yatm_brewery:brewing_barrel_wood_" .. color_basename, {
     description = "Brewing Barrel (Wood / " .. color_name .. ")",
-    groups = {brewing_barrel = 1, cracky = 1},
+    groups = {brewing_barrel = 1, cracky = 1, fluid_interface_in = 1, fluid_interface_out = 1},
     sounds = default.node_sound_wood_defaults(),
     tiles = {
       "yatm_barrel_wood_brewing_" .. color_basename .. "_top.png",

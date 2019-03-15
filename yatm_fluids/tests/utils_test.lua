@@ -2,7 +2,7 @@ local Luna = assert(yatm.Luna)
 
 local m = assert(yatm.fluids.Utils)
 
-local case = Luna.new("yatm.fluids.Utils")
+local case = Luna:new("yatm.fluids.Utils")
 
 case:describe("is_valid_name/1", function (t2)
   t2:test("given a valid fluid_name, will return true", function (t3)

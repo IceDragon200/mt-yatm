@@ -75,9 +75,11 @@ function fluid_replicator_yatm_network.update(pos, node, ot)
   end
 end
 
+local groups = {cracky = 1, fluid_interface_out = 1}
+
 yatm.devices.register_network_device(fluid_replicator_yatm_network.states.off, {
   description = "Fluid Replicator",
-  groups = {cracky = 1},
+  groups = groups,
   drop = fluid_replicator_yatm_network.states.off,
   tiles = {
     "yatm_fluid_replicator_top.off.png",
@@ -94,7 +96,7 @@ yatm.devices.register_network_device(fluid_replicator_yatm_network.states.off, {
 
 yatm.devices.register_network_device(fluid_replicator_yatm_network.states.error, {
   description = "Fluid Replicator",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge({not_in_creative_inventory = 1}),
   drop = fluid_replicator_yatm_network.states.off,
   tiles = {
     "yatm_fluid_replicator_top.error.png",
@@ -111,7 +113,7 @@ yatm.devices.register_network_device(fluid_replicator_yatm_network.states.error,
 
 yatm.devices.register_network_device(fluid_replicator_yatm_network.states.on, {
   description = "Fluid Replicator",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge({not_in_creative_inventory = 1}),
   drop = fluid_replicator_yatm_network.states.off,
   tiles = {
     "yatm_fluid_replicator_top.on.png",

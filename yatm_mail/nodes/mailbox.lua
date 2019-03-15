@@ -42,7 +42,7 @@ local mailbox_nodebox  = {
     default.get_hotbar_bg(0, 4.25)
 ]]
 
-local closed_mailbox_form = yatm_core.UI.Form.new()
+local closed_mailbox_form = yatm_core.UI.Form:new()
 closed_mailbox_form:set_size(8, 8.5)
 closed_mailbox_form:new_label(0, 0, "Mailbox")
 closed_mailbox_form:new_list("context", "access_key", 0, 0.5, 1, 1, "")
@@ -54,7 +54,7 @@ closed_mailbox_form:new_list_ring("current_player", "main")
 closed_mailbox_form:new_list_ring("context", "dropoff")
 closed_mailbox_form:new_list_ring("current_player", "main")
 
-local opened_mailbox_form = yatm_core.UI.Form.new()
+local opened_mailbox_form = yatm_core.UI.Form:new()
 opened_mailbox_form:set_size(8, 8.5)
 opened_mailbox_form:new_label(0, 0, "Mailbox")
 opened_mailbox_form:new_list("context", "access_key", 0, 0.5, 1, 1, "")
@@ -188,7 +188,7 @@ end
 local function mailbox_preserve_metadata(pos, oldnode, old_meta_table, drops)
   local stack = drops[1]
 
-  local old_meta = yatm_core.FakeMetaRef.new(old_meta_table)
+  local old_meta = yatm_core.FakeMetaRef:new(old_meta_table)
   local new_meta = stack:get_meta()
   yatm_mail.copy_lockable_object_key(old_meta, new_meta)
   new_meta:set_string(old_meta:get_string("description"))

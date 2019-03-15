@@ -6,9 +6,11 @@ local node_box = {
   }
 }
 
+local groups = { item_interface_out = 1 }
+
 minetest.register_node("yatm_bees:apiary_wood", {
   description = "Apiary (Wood)",
-  groups = {cracky = 1},
+  groups = yatm_core.table_merge(groups, {cracky = 1}),
   drawtype = "nodebox",
   paramtype = "light",
   paramtype2 = "facedir",
@@ -25,7 +27,7 @@ minetest.register_node("yatm_bees:apiary_wood", {
 
 minetest.register_node("yatm_bees:apiary_metal", {
   description = "Apiary (Metal)",
-  groups = {cracky = 1},
+  groups = yatm_core.table_merge(groups, {cracky = 1}),
   drawtype = "nodebox",
   paramtype = "light",
   paramtype2 = "facedir",

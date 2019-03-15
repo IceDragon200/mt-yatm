@@ -1,3 +1,6 @@
+local FluidTanks = assert(yatm.fluids.FluidTanks)
+local FluidInterface = assert(yatm.fluids.FluidInterface)
+
 local barrel_nodebox = {
   type = "fixed",
   fixed = {
@@ -25,7 +28,7 @@ end
 
 local function barrel_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
-  local stack = yatm_core.fluid_tanks.get(pos, yatm_core.D_NONE)
+  local stack = FluidTanks.get(pos, yatm_core.D_NONE)
   if stack and stack.amount > 0 then
     meta:set_string("infotext", "Barrel: " .. stack.name .. " " .. stack.amount .. " / " .. BARREL_CAPACITY)
   else
@@ -33,9 +36,9 @@ local function barrel_refresh_infotext(pos)
   end
 end
 
-local barrel_fluid_interface = yatm.fluids.FluidInterface.new_simple("tank", BARREL_CAPACITY)
+local barrel_fluid_interface = FluidInterface.new_simple("tank", BARREL_CAPACITY)
 
-function barrel_fluid_interface.on_fluid_changed(pos, dir, _fluid_stack)
+function barrel_fluid_interface:on_fluid_changed(pos, dir, _fluid_stack)
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef then
@@ -64,7 +67,7 @@ for _,pair in ipairs(colors) do
 
   minetest.register_node("yatm_brewery:fluid_barrel_wood_" .. color_basename, {
     description = "Fluid Barrel (Wood / " .. color_name .. ")",
-    groups = {fluid_barrel = 1, cracky = 2},
+    groups = {fluid_barrel = 1, cracky = 2, fluid_interface_in = 1, fluid_interface_out = 1},
     sounds = default.node_sound_wood_defaults(),
     tiles = {
       "yatm_barrel_wood_fluid_" .. color_basename .. "_top.png",
@@ -92,7 +95,7 @@ for _,pair in ipairs(colors) do
 
   minetest.register_node("yatm_brewery:fluid_barrel_metal_" .. color_basename, {
     description = "Fluid Barrel (Metal / " .. color_name .. ")",
-    groups = {fluid_barrel = 1, cracky = 1},
+    groups = {fluid_barrel = 1, cracky = 1, fluid_interface_in = 1, fluid_interface_out = 1},
     sounds = default.node_sound_metal_defaults(),
     tiles = {
       "yatm_barrel_metal_fluid_" .. color_basename .. "_top.png",

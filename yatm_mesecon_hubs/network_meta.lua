@@ -1,6 +1,6 @@
 local NetworkMeta = {}
 
-local hub_address_schema = yatm_core.MetaSchema.new("yatm_mesecon_hubs.hub_address", "", {
+local hub_address_schema = yatm_core.MetaSchema:new("yatm_mesecon_hubs.hub_address", "", {
   hub_address = { type = "string" },
 })
 

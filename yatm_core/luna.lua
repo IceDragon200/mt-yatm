@@ -3,7 +3,7 @@ Luna is a test framework to replace knife.test, this has been extracted from my 
 
 You are free to copy and use this module/class
 ]]
-local Luna = yatm_core.Class.extends()
+local Luna = yatm_core.Class:extends()
 
 local c = Luna.instance_class
 
@@ -31,7 +31,7 @@ function c:setup_all(callback)
 end
 
 function c:describe(name, func)
-  local luna = Luna.new(name)
+  local luna = Luna:new(name)
   table.insert(self.tests, {"describe", name, luna})
   table.insert(self.children, luna)
   func(luna)

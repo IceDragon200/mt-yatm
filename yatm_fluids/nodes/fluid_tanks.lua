@@ -11,6 +11,8 @@ minetest.register_node("yatm_fluids:fluid_tank", {
   groups = {
     cracky = 1,
     fluid_tank = 1,
+    fluid_interface_in = 1,
+    fluid_interface_out = 1,
   },
   tiles = fluid_tank_tiles,
   special_tiles = {

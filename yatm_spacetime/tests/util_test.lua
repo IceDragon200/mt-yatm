@@ -1,11 +1,11 @@
 local m = yatm_spacetime
 local Luna = assert(yatm_core.Luna)
 
-local case = Luna.new("yatm_spacetime-util")
+local case = Luna:new("yatm_spacetime-util")
 
 case:describe("get_address_in_meta/2", function (t2)
   t2:test("can retrieve an address given a metaref", function (t3)
-    local meta = yatm_core.FakeMetaRef.new({
+    local meta = yatm_core.FakeMetaRef:new({
       spaddr_address = "this_is_my_address",
     })
 
@@ -15,7 +15,7 @@ end)
 
 case:describe("set_address_in_meta/2", function (t2)
   t2:test("can set an address in a meta", function (t3)
-    local meta = yatm_core.FakeMetaRef.new({
+    local meta = yatm_core.FakeMetaRef:new({
       spaddr_address = "this_is_my_address",
     })
 

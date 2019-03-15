@@ -1,11 +1,11 @@
 local MetaSchema = assert(yatm_core.MetaSchema)
 local Luna = assert(yatm_core.Luna)
 
-local case = Luna.new("yatm_core.MetaSchema")
+local case = Luna:new("yatm_core.MetaSchema")
 
 case:describe(".new/3", function (t2)
   t2:test("accepts a schema of scalar types", function (t3)
-    local meta_schema = MetaSchema.new("test.schema", "", {
+    local meta_schema = MetaSchema:new("test.schema", "", {
       x = { type = "integer" },
       name = { type = "string" },
       delta = { type = "float" },
@@ -19,7 +19,7 @@ end)
 
 case:describe(":compile/1", function (t2)
   t2:setup_all(function (tags)
-    tags.meta_schema = MetaSchema.new("test.schema", "", {
+    tags.meta_schema = MetaSchema:new("test.schema", "", {
       x = { type = "integer" },
       name = { type = "string" },
       delta = { type = "float" },

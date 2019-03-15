@@ -3,7 +3,7 @@ Structured metadata, because sometimes you need to know just what the f*** you'r
 
 Optionally, the MetaSchema can be compiled with a fixed name to reduce some of the overhead
 ]]
-local MetaSchema = yatm_core.Class.extends()
+local MetaSchema = yatm_core.Class:extends()
 
 MetaSchema.Vec2 = {
   type = "schema",

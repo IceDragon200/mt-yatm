@@ -110,9 +110,12 @@ function steam_turbine_yatm_network.update(pos, node, ot)
   end
 end
 
+local groups = {cracky = 1, yatm_network_host = 2, fluid_interface_in = 1, fluid_interface_out = 1}
+local table_merge = assert(yatm_core.table_merge)
+
 yatm.devices.register_network_device(steam_turbine_yatm_network.states.off, {
   description = "Steam Turbine",
-  groups = {cracky = 1, yatm_network_host = 2},
+  groups = groups,
   drop = steam_turbine_yatm_network.states.off,
   tiles = {
     "yatm_steam_turbine_top.off.png",
@@ -130,7 +133,7 @@ yatm.devices.register_network_device(steam_turbine_yatm_network.states.off, {
 
 yatm.devices.register_network_device(steam_turbine_yatm_network.states.error, {
   description = "Steam Turbine",
-  groups = {cracky = 1, yatm_network_host = 2, not_in_creative_inventory = 1},
+  groups = table_merge(groups, {not_in_creative_inventory = 1}),
   drop = steam_turbine_yatm_network.states.off,
   tiles = {
     "yatm_steam_turbine_top.error.png",
@@ -148,7 +151,7 @@ yatm.devices.register_network_device(steam_turbine_yatm_network.states.error, {
 
 yatm.devices.register_network_device(steam_turbine_yatm_network.states.on, {
   description = "Steam Turbine",
-  groups = {cracky = 1, yatm_network_host = 2, not_in_creative_inventory = 1},
+  groups = table_merge(groups, {not_in_creative_inventory = 1}),
   drop = steam_turbine_yatm_network.states.off,
   tiles = {
     {

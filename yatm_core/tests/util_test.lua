@@ -1,7 +1,7 @@
 local m = yatm_core
 local Luna = assert(yatm_core.Luna)
 
-local case = Luna.new("yatm_core-util")
+local case = Luna:new("yatm_core-util")
 
 case:describe("is_blank/1", function (t2)
   t2:test("nil is blank", function (t3)

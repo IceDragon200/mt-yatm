@@ -95,9 +95,11 @@ function fluid_interface:fill(pos, dir, fluid_stack, commit)
   end
 end
 
+local groups = {cracky = 1, fluid_interface_out = 1}
+
 yatm.devices.register_network_device(pump_yatm_network.states.off, {
   description = "Pump",
-  groups = {cracky = 1},
+  groups = groups,
   drop = pump_yatm_network.states.off,
   tiles = {
     "yatm_pump_top.png",
@@ -115,7 +117,7 @@ yatm.devices.register_network_device(pump_yatm_network.states.off, {
 
 yatm.devices.register_network_device(pump_yatm_network.states.error, {
   description = "Pump",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = pump_yatm_network.states.off,
   tiles = {
     "yatm_pump_top.png",
@@ -133,7 +135,7 @@ yatm.devices.register_network_device(pump_yatm_network.states.error, {
 
 yatm.devices.register_network_device(pump_yatm_network.states.on, {
   description = "Pump",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = pump_yatm_network.states.off,
   tiles = {
     "yatm_pump_top.png",

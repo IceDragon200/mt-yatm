@@ -1,7 +1,7 @@
 local m = yatm_mesecon_hubs.NetworkMeta
 local Luna = assert(yatm_core.Luna)
 
-local case = Luna.new("yatm_mesecon_hubs-util")
+local case = Luna:new("yatm_mesecon_hubs-util")
 
 case:describe("generate_hub_address/0", function (t2)
   t2:test("can generate a hub address", function (t3)
@@ -16,7 +16,7 @@ end)
 
 case:describe("get_hub_address/2", function (t2)
   t2:test("can retrieve a hub address given a metaref", function (t3)
-    local meta = yatm_core.FakeMetaRef.new({
+    local meta = yatm_core.FakeMetaRef:new({
       mesehub_hub_address = "this_is_my_address",
     })
 
@@ -26,7 +26,7 @@ end)
 
 case:describe("set_hub_address/2", function (t2)
   t2:test("can set a hub address in a meta", function (t3)
-    local meta = yatm_core.FakeMetaRef.new({
+    local meta = yatm_core.FakeMetaRef:new({
       mesehub_hub_address = "this_is_my_address",
     })
 
@@ -37,14 +37,14 @@ end)
 
 case:describe("patch_hub_address/2", function (t2)
   t2:test("can fill in a missing hub_address", function (t3)
-    local meta = yatm_core.FakeMetaRef.new()
+    local meta = yatm_core.FakeMetaRef:new()
 
     m.patch_hub_address(meta, "this_is_my_new_address")
     t3:assert_eq(m.get_hub_address(meta), "this_is_my_new_address")
   end)
 
   t2:test("will not replace an existing hub_address", function (t3)
-    local meta = yatm_core.FakeMetaRef.new({
+    local meta = yatm_core.FakeMetaRef:new({
       mesehub_hub_address = "old_address",
     })
 

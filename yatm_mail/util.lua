@@ -2,7 +2,7 @@
 `lockable` is used for any item or node that can be locked using a key, the locked item is created
 using the locksmith's table.
 ]]
-local lockable_object_schema = yatm_core.MetaSchema.new("lockable_object", "", {
+local lockable_object_schema = yatm_core.MetaSchema:new("lockable_object", "", {
   -- Lockable objects have a public key, this ensures that the private key
   -- (attached to the key itself) is never exposed, now since I don't actually have
   -- a crypto library, it's just the same string copied around for now.
@@ -11,7 +11,7 @@ local lockable_object_schema = yatm_core.MetaSchema.new("lockable_object", "", {
   },
 })
 
-local lockable_key_schema = yatm_core.MetaSchema.new("lockable_key", "", {
+local lockable_key_schema = yatm_core.MetaSchema:new("lockable_key", "", {
   -- Lockable Key objects have a private key, this will be used to generate the public key upon request
   -- for matching.
   prvkey = {

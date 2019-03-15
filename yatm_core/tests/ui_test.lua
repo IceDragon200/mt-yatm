@@ -1,11 +1,11 @@
 local Form = yatm_core.UI.Form
 local Luna = assert(yatm_core.Luna)
 
-local case = Luna.new("yatm_core.UI.Form")
+local case = Luna:new("yatm_core.UI.Form")
 
 case:describe("to_formspec/0 - form", function (t2)
   t2:test("can convert a form to a formspec string", function (t3)
-    local form = Form.new()
+    local form = Form:new()
     local formspec = form:to_formspec()
     print(dump(formspec))
     t3:assert(formspec)
@@ -14,7 +14,7 @@ end)
 
 case:describe("to_formspec/0 - container", function (t2)
   t2:test("can convert a container to a formspec string", function (t3)
-    local form = Form.new()
+    local form = Form:new()
     local container = form:new_container()
     local formspec = container:to_formspec()
     print(dump(formspec))

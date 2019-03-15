@@ -37,9 +37,11 @@ function condenser_yatm_network.update(pos, node, ot)
   --
 end
 
+local groups = {cracky = 1, fluid_interface_in = 1, fluid_interface_out = 1}
+
 yatm.devices.register_network_device(condenser_yatm_network.states.off, {
   description = "Condenser",
-  groups = {cracky = 1},
+  groups = groups,
   drop = condenser_yatm_network.states.off,
   tiles = {
     "yatm_condenser_top.off.png",
@@ -57,7 +59,7 @@ yatm.devices.register_network_device(condenser_yatm_network.states.off, {
 
 yatm.devices.register_network_device(condenser_yatm_network.states.error, {
   description = "Condenser",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = condenser_yatm_network.states.off,
   tiles = {
     "yatm_condenser_top.error.png",
@@ -75,7 +77,7 @@ yatm.devices.register_network_device(condenser_yatm_network.states.error, {
 
 yatm.devices.register_network_device(condenser_yatm_network.states.on, {
   description = "Condenser",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = condenser_yatm_network.states.off,
   tiles = {
     {

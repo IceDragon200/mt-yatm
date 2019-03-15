@@ -1,13 +1,4 @@
-local FakeMetaRef = {
-  instance_class = {}
-}
-
-function FakeMetaRef.new(...)
-  local metaref = {}
-  setmetatable(metaref, { __index = FakeMetaRef.instance_class })
-  metaref:initialize(...)
-  return metaref
-end
+local FakeMetaRef = yatm_core.Class:extends()
 
 --[[
 

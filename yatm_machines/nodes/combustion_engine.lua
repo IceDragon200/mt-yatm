@@ -40,9 +40,11 @@ end
 
 local fluid_interface = yatm.fluids.FluidInterface.new_simple("tank", 16000)
 
+local groups = {cracky = 1, yatm_network_host = 3, fluid_interface_in = 1}
+
 yatm.devices.register_network_device(combustion_engine_yatm_network.states.off, {
   description = "Combustion Engine",
-  groups = {cracky = 1, yatm_network_host = 3},
+  groups = groups,
   drop = combustion_engine_yatm_network.states.off,
   tiles = {
     "yatm_combustion_engine_top.off.png",
@@ -62,7 +64,7 @@ yatm.devices.register_network_device(combustion_engine_yatm_network.states.off, 
 
 yatm.devices.register_network_device(combustion_engine_yatm_network.states.error, {
   description = "Combustion Engine",
-  groups = {cracky = 1, yatm_network_host = 3, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge({not_in_creative_inventory = 1}),
   drop = combustion_engine_yatm_network.states.off,
   tiles = {
     "yatm_combustion_engine_top.error.png",
@@ -82,7 +84,7 @@ yatm.devices.register_network_device(combustion_engine_yatm_network.states.error
 
 yatm.devices.register_network_device(combustion_engine_yatm_network.states.on, {
   description = "Combustion Engine",
-  groups = {cracky = 1, yatm_network_host = 3, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge({not_in_creative_inventory = 1}),
   drop = combustion_engine_yatm_network.states.off,
   tiles = {
     "yatm_combustion_engine_top.on.png",
