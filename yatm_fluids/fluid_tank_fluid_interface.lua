@@ -18,12 +18,12 @@ function fluid_tank_fluid_interface:on_fluid_changed(pos, dir, new_stack)
       node.name = tank_name
       minetest.swap_node(pos, node)
     end
-    meta:set_string("infotext", "Tank: " .. FluidStack.to_string(new_stack, self.capacity))
+    meta:set_string("infotext", "Tank <" .. FluidStack.to_string(new_stack, self.capacity) .. ">")
   else
     node.name = "yatm_fluids:fluid_tank"
     node.param2 = 0
     minetest.swap_node(pos, node)
-    meta:set_string("infotext", "Tank: Empty")
+    meta:set_string("infotext", "Tank <EMPTY>")
   end
 end
 

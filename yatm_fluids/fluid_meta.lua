@@ -46,6 +46,8 @@ function FluidMeta.receive_amount(meta, key, amount, bandwidth, capacity, commit
 end
 
 function FluidMeta.get_fluid(meta, key)
+  assert(meta, "expected a meta ref")
+  assert(key, "expected a key")
   local fluid_stack = Measurable.get_measurable(meta, key)
   return FluidStack.presence(fluid_stack)
 end

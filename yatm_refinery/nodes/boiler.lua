@@ -3,6 +3,7 @@ local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidUtils = assert(yatm.fluids.Utils)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
+local Network = assert(yatm.network)
 
 local boiler_yatm_network = {
   kind = "machine",
@@ -31,10 +32,7 @@ local function get_fluid_tank_name(self, pos, dir)
   local new_dir = yatm_core.facedir_to_face(node.param2, dir)
   if new_dir == yatm_core.D_UP then
     return STEAM_TANK, self.capacity
-  elseif new_dir == yatm_core.D_EAST or
-         new_dir == yatm_core.D_WEST or
-         new_dir == yatm_core.D_NORTH or
-         new_dir == yatm_core.D_SOUTH then
+  else
     return WATER_TANK, self.capacity
   end
   return nil, nil
@@ -43,6 +41,24 @@ end
 local fluid_interface = FluidInterface.new_directional(get_fluid_tank_name)
 fluid_interface.capacity = 16000
 fluid_interface.bandwidth = fluid_interface.capacity
+
+function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
+  boiler_yatm_network.refresh_infotext(pos, nil, minetest.get_meta(pos), { cause = "fluid_changed" })
+end
+
+function boiler_yatm_network.refresh_infotext(pos, node, meta, event)
+  local new_node = minetest.get_node(pos)
+  local nodedef = minetest.registered_nodes[new_node.name]
+  local state = nodedef.yatm_network.state
+  local network_id = Network.get_meta_network_id(meta)
+  local steam_fluid_stack = FluidMeta.get_fluid(meta, STEAM_TANK)
+  local water_fluid_stack = FluidMeta.get_fluid(meta, WATER_TANK)
+  meta:set_string("infotext",
+    "Network ID <" .. network_id .. "> " .. state .. "\n" ..
+    "Steam Tank <" .. FluidStack.to_string(steam_fluid_stack, fluid_interface.capacity) .. ">\n" ..
+    "Water Tank <" .. FluidStack.to_string(water_fluid_stack, fluid_interface.capacity) .. ">"
+  )
+end
 
 function boiler_yatm_network.work(pos, node, available_energy, work_rate, ot)
   local energy_consumed = 0

@@ -194,9 +194,9 @@ function m:get_field(meta, basename, key)
     elseif entry.type == "integer" then
       return meta:get_int(field_name)
     elseif entry.type == "float" then
-      return meta:set_float(field_name)
+      return meta:get_float(field_name)
     elseif entry.type == "schema" then
-      entry.schema:get(meta, field_name)
+      return entry.schema:get(meta, field_name)
     end
   end
   return nil
@@ -204,6 +204,7 @@ end
 
 function m:get(meta, basename)
   assert(meta, "expected a meta")
+  assert(basename, "expected a basename")
   local result = {}
   for key,_ in pairs(self.schema) do
     result[key] = self:get_field(meta, basename, key)

@@ -55,7 +55,26 @@ yatm_core.DIR6_TO_VEC3 = {
   [yatm_core.D_UP] = yatm_core.V3_UP,
 }
 
+-- A helper table for converting the D_* constants to strings
+yatm_core.DIR_TO_STRING = {
+  [yatm_core.D_NONE] = "NONE",
+  [yatm_core.D_NORTH] = "NORTH",
+  [yatm_core.D_EAST] = "EAST",
+  [yatm_core.D_SOUTH] = "SOUTH",
+  [yatm_core.D_WEST] = "WEST",
+  [yatm_core.D_DOWN] = "DOWN",
+  [yatm_core.D_UP] = "UP",
+}
+
 -- And the inversions
+yatm_core.INVERTED_DIR6 = {
+  [yatm_core.D_SOUTH] = yatm_core.D_NORTH,
+  [yatm_core.D_WEST] = yatm_core.D_EAST,
+  [yatm_core.D_NORTH] = yatm_core.D_SOUTH,
+  [yatm_core.D_EAST] = yatm_core.D_WEST,
+  [yatm_core.D_UP] = yatm_core.D_DOWN,
+  [yatm_core.D_DOWN] = yatm_core.D_UP,
+}
 yatm_core.INVERT_DIR6_TO_VEC3 = {
   [yatm_core.D_SOUTH] = yatm_core.V3_NORTH,
   [yatm_core.D_WEST] = yatm_core.V3_EAST,
@@ -158,9 +177,12 @@ function yatm_core.facedir_to_face(facedir, base_face)
   end
 end
 
+function yatm_core.invert_dir_to_vec3(dir)
+end
+
 function yatm_core.invert_dir(dir)
   assert(dir)
-  return yatm_core.INVERT_DIR6_TO_VEC3[dir]
+  return yatm_core.INVERTED_DIR6[dir]
 end
 
 function yatm_core.new_accessible_dirs()

@@ -35,6 +35,26 @@ function m:initialize(config)
   self.m_queue = {}
   self.m_counter = 0
   self.m_need_network_gc = false
+  self.m_invalid_networks = {}
+end
+
+-- If something odd happens to a network, call this function to force an invalidation and self-check
+function m:invalidate_network(network)
+  assert(network, "expected a network")
+  assert(network.id, "expected network to have an id")
+  print(self.m_description, "invalidating network", network.id)
+  self.m_invalid_networks[network.id] = true
+end
+
+-- Call this when trying to use a network member, this will ensure that it hasn't become invalid
+function m:check_network_member(member, network)
+  local node = minetest.get_node(assert(member.pos))
+  if node.name == member.name then
+    return true
+  else
+    self:invalidate_network(network)
+    return false
+  end
 end
 
 function m:register_member(pos, node)
@@ -59,21 +79,20 @@ function m:update_member(pos, node, is_register)
   local old_network_id = nil
   if old_record then
     if is_register then
-      error("duplicate registration attempted for " .. minetest.pos_to_string(pos) .. " " .. node.name)
-    else
-      self.m_members_by_type[device_type][hash] = nil
-      if yatm_core.is_table_empty(self.m_members_by_type[device_type]) then
-        self.m_members_by_type[device_type] = nil
-      end
-      if old_record.network_id then
-        old_network_id = old_record.network_id
-        if self.m_network[network_id] then
-          -- invalidate the network
-          local n = self.m_network[network_id]
-          n.members[hash] = nil
-          if n.members_by_type[old_record.device_type] then
-            n.members_by_type[old_record.device_type][hash] = nil
-          end
+      print("WARN", "duplicate registration attempted", minetest.pos_to_string(pos), node.name)
+    end
+    self.m_members_by_type[device_type][hash] = nil
+    if yatm_core.is_table_empty(self.m_members_by_type[device_type]) then
+      self.m_members_by_type[device_type] = nil
+    end
+    if old_record.network_id then
+      old_network_id = old_record.network_id
+      if self.m_networks[network_id] then
+        -- invalidate the network
+        local n = self.m_networks[network_id]
+        n.members[hash] = nil
+        if n.members_by_type[old_record.device_type] then
+          n.members_by_type[old_record.device_type][hash] = nil
         end
       end
     end
@@ -81,7 +100,7 @@ function m:update_member(pos, node, is_register)
 
   local record = {
     pos = pos,
-    registered_name = node.name,
+    name = node.name,
     device_type = device_type,
     counter = -1,
     interface = interface,
@@ -90,10 +109,22 @@ function m:update_member(pos, node, is_register)
   self.m_members_by_type[device_type] = self.m_members_by_type[device_type] or {}
   self.m_members_by_type[device_type][hash] = record
 
+  -- register will cause a refresh on it's own position
   self.m_queue[hash] = pos
 end
 
+function m:queue_all_adjacent(pos)
+  local hash = minetest.hash_node_position(pos)
+  self.m_queue[hash] = pos
+  for dir,v3 in pairs(yatm_core.DIR6_TO_VEC3) do
+    local new_pos = vector.add(pos, v3)
+    local new_hash = minetest.hash_node_position(new_pos)
+    self.m_queue[new_hash] = new_pos
+  end
+end
+
 function m:unregister_member(pos)
+  print(self.m_description, "unregister_member/1", "unregistering", minetest.pos_to_string(pos))
   local hash = minetest.hash_node_position(pos)
 
   local record = self.m_members[hash]
@@ -104,7 +135,18 @@ function m:unregister_member(pos)
     if yatm_core.is_table_empty(self.m_members_by_type[device_type]) then
       self.m_members_by_type[device_type] = nil
     end
-    self.m_queue[hash] = pos
+    local network = self.m_networks[record.network_id]
+    if network then
+      network.members[hash] = nil
+      local mbt = network.members_by_type[record.device_type]
+      if mbt then
+        network.members_by_type[record.device_type][hash] = nil
+      end
+    end
+    -- unregister will cause a refresh on ALL positions adjacent to the current
+    self:queue_all_adjacent(pos)
+  else
+    print(self.m_description, "unregister_member/1", "nothing was registered at that position!?", minetest.pos_to_string(pos))
   end
 end
 
@@ -163,6 +205,25 @@ function m:generate_network_id()
   return table.concat(result, ":")
 end
 
+function m:resolve_invalid_networks(counter, delta)
+  if not yatm_core.is_table_empty(self.m_invalid_networks) then
+    local old_invalid_networks = self.m_invalid_networks
+    self.m_invalid_networks = {}
+    for network_id,_ in pairs(old_invalid_networks) do
+      local network = self.m_networks[network_id]
+      if network then
+        for member_hash,member_entry in pairs(network.members) do
+          local node = minetest.get_node(member_entry.pos)
+          if node.name ~= member_entry.name then
+            print(self.m_description, "expected", member_entry.name, "got", node.name, "unregistrering for refresh")
+            self:unregister_member(member_entry.pos)
+          end
+        end
+      end
+    end
+  end
+end
+
 function m:resolve_queue(counter, _delta)
   if not yatm_core.is_table_empty(self.m_queue) then
     local queue = self.m_queue
@@ -208,33 +269,38 @@ function m:resolve_queue(counter, _delta)
           end
         end
 
-        local network_id = self:generate_network_id()
-        local network = {
-          id = network_id,
-          members = {},
-          members_by_type = {},
-        }
-        for ohash,omember in pairs(members) do
-          local entry = self.m_members[ohash]
-          if entry then
-            entry.counter = counter
-            -- If it has an old network_id
-            if entry.network_id then
-              local n = self.m_networks[entry.network_id]
-              if n then
-                -- Remove it from the old network
-                n.members[ohash] = nil
+        if not yatm_core.is_table_empty(members) then
+          local network_id = self:generate_network_id()
+          local network = {
+            id = network_id,
+            members = {},
+            members_by_type = {},
+          }
+          for ohash,omember in pairs(members) do
+            local entry = self.m_members[ohash]
+            if entry then
+              entry.counter = counter
+              -- If it has an old network_id
+              if entry.network_id then
+                local n = self.m_networks[entry.network_id]
+                if n then
+                  -- Remove it from the old network
+                  n.members[ohash] = nil
+                end
               end
-            end
-            entry.network_id = network_id
-            network.members[ohash] = entry
-            network.members_by_type[entry.device_type] = network.members_by_type[entry.device_type] or {}
-            network.members_by_type[entry.device_type][ohash] = entry
-          end
-        end
+              entry.network_id = network_id
+              network.members[ohash] = entry
+              network.members_by_type[entry.device_type] = network.members_by_type[entry.device_type] or {}
+              network.members_by_type[entry.device_type][ohash] = entry
 
-        print(self.m_description, "new network", network_id)
-        self.m_networks[network_id] = network
+              local meta = minetest.get_meta(entry.pos)
+              meta:set_string("infotext", self.m_description .. " ID <" .. network_id .. ">")
+            end
+          end
+
+          print(self.m_description, "new network", network_id)
+          self.m_networks[network_id] = network
+        end
       end
     end
   end
@@ -257,14 +323,15 @@ function m:gc_networks(counter, delta)
     local network = self.m_networks[network_id]
     if yatm_core.is_table_empty(network.members) then
       self.m_networks[network_id] = nil
-      print("Removed empty network", network_id)
+      print(self.m_description, "Removed empty network", network_id)
     end
   end
 end
 
 function m:update(delta)
   local counter = self.m_counter
-  self:resolve_queue(counter)
+  self:resolve_invalid_networks(counter, delta)
+  self:resolve_queue(counter, delta)
   self:update_networks(counter, delta)
   if self.m_need_network_gc then
     self.m_need_network_gc = false

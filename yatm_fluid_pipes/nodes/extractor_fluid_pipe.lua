@@ -5,6 +5,10 @@ local function pipe_after_place_node(pos, _placer, _itemstack, _pointed_thing)
   FluidTransportNetwork:register_member(pos, node)
 end
 
+local function pipe_on_destruct(pos)
+  print("transporter_fluid_pipe_on_destruct", minetest.pos_to_string(pos))
+end
+
 local function pipe_after_destruct(pos, _old_node)
   FluidTransportNetwork:unregister_member(pos)
 end
@@ -57,4 +61,5 @@ minetest.register_node("yatm_fluid_pipes:extractor_fluid_pipe", {
 
   after_place_node = pipe_after_place_node,
   after_destruct = pipe_after_destruct,
+  on_destruct = pipe_on_destruct,
 })
