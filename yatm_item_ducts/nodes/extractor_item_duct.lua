@@ -27,7 +27,7 @@ minetest.register_node("yatm_item_ducts:extractor_item_duct", {
         type = "vertical_frames",
         aspect_w = 16,
         aspect_h = 16,
-        length = 0.5
+        length = 1.0
       },
     },
   },
