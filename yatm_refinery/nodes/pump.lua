@@ -33,7 +33,7 @@ function pump_yatm_network.refresh_infotext(pos, _node, _meta, event)
   local network_id = Network.get_meta_network_id(meta)
   local fluid_stack = FluidMeta.get_fluid(meta, nodedef.fluid_interface.tank_name)
   meta:set_string("infotext",
-    "Network ID <" .. network_id .. "> " .. state .. "\n" ..
+    "Network ID <" .. Network.format_id(network_id) .. "> " .. state .. "\n" ..
     "Tank <" .. FluidStack.to_string(fluid_stack, fluid_interface.capacity) .. "> "
   )
 end

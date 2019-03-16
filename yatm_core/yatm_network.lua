@@ -74,6 +74,14 @@ local function is_host_network_registered(pos, network_id)
   return false
 end
 
+function Network.format_id(network_id)
+  if network_id then
+    return network_id
+  else
+    return "NULL"
+  end
+end
+
 --[[
 @type network_id :: String.t
 @spec Network.initialize_network(vector3.t, network_id, String.t) :: network_id
@@ -366,7 +374,7 @@ function Network.default_handle_network_changed(pos, node, ts, network_id, state
         })
       else
         print("No yatm_network.refresh_infotext/4 defined for", node.name, "falling back to setting infotext manually")
-        meta:set_string("infotext", "Network ID <" .. network_id .. "> " .. state)
+        meta:set_string("infotext", "Network ID <" .. Network.format_id(network_id) .. "> " .. state)
       end
       if nodedef.yatm_network.on_network_state_changed then
         nodedef.yatm_network.on_network_state_changed(pos, node, state)

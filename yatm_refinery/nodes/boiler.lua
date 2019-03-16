@@ -54,7 +54,7 @@ function boiler_yatm_network.refresh_infotext(pos, node, meta, event)
   local steam_fluid_stack = FluidMeta.get_fluid(meta, STEAM_TANK)
   local water_fluid_stack = FluidMeta.get_fluid(meta, WATER_TANK)
   meta:set_string("infotext",
-    "Network ID <" .. network_id .. "> " .. state .. "\n" ..
+    "Network ID <" .. Network.format_id(network_id) .. "> " .. state .. "\n" ..
     "Steam Tank <" .. FluidStack.to_string(steam_fluid_stack, fluid_interface.capacity) .. ">\n" ..
     "Water Tank <" .. FluidStack.to_string(water_fluid_stack, fluid_interface.capacity) .. ">"
   )
