@@ -12,9 +12,15 @@ local compute_module_yatm_network = {
   }
 }
 
+local groups = {
+  cracky = 1,
+  yatm_data_device = 1,
+  yatm_energy_device = 1,
+}
+
 yatm.devices.register_network_device(compute_module_yatm_network.states.off, {
   description = "Compute Module",
-  groups = {cracky = 1},
+  groups = groups,
   drop = compute_module_yatm_network.states.off,
   tiles = {"yatm_compute_module_side.off.png"},
   paramtype = "light",
@@ -24,7 +30,7 @@ yatm.devices.register_network_device(compute_module_yatm_network.states.off, {
 
 yatm.devices.register_network_device(compute_module_yatm_network.states.error, {
   description = "Compute Module",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = compute_module_yatm_network.states.off,
   tiles = {"yatm_compute_module_side.error.png"},
   paramtype = "light",
@@ -34,7 +40,7 @@ yatm.devices.register_network_device(compute_module_yatm_network.states.error, {
 
 yatm.devices.register_network_device(compute_module_yatm_network.states.on, {
   description = "Compute Module",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = compute_module_yatm_network.states.on,
   tiles = {{
     name = "yatm_compute_module_side.on.png",

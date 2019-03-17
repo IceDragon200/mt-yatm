@@ -205,6 +205,14 @@ local function mailbox_after_place_node(pos, _placer, itemstack, _pointed_thing)
   mailbox_configure_formspec(pos, new_meta)
 end
 
+local groups = {
+  mailbox = 1,
+  cracky = 1,
+  lockable_object = 1,
+  item_interface_in = 1,
+  item_interface_out = 1,
+}
+
 for _,pair in ipairs(colors) do
   local basename = pair[1]
   local name = pair[2]
@@ -212,7 +220,7 @@ for _,pair in ipairs(colors) do
   local mailbox_basename = "yatm_mail:mailbox_wood_" .. basename
   minetest.register_node(mailbox_basename, {
     description = "Wood Mailbox (" .. name .. ")",
-    groups = { mailbox = 1, cracky = 1, lockable_object = 1 },
+    groups = groups,
     sounds = default.node_sound_wood_defaults(),
     is_ground_content = false,
     tiles = {

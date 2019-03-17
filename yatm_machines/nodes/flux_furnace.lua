@@ -20,9 +20,15 @@ function flux_furnace_yatm_network.update(pos, node)
   end
 end
 
+local groups = {
+  cracky = 1,
+  item_interface_in = 1,
+  item_interface_out = 1,
+}
+
 yatm.devices.register_network_device("yatm_machines:flux_furnace_off", {
   description = "Flux Furnace",
-  groups = {cracky = 1},
+  groups = groups,
   tiles = {
     "yatm_flux_furnace_top.off.png",
     "yatm_flux_furnace_bottom.png",
@@ -38,7 +44,7 @@ yatm.devices.register_network_device("yatm_machines:flux_furnace_off", {
 
 yatm.devices.register_network_device("yatm_machines:flux_furnace_error", {
   description = "Flux Furnace",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   tiles = {
     "yatm_flux_furnace_top.error.png",
     "yatm_flux_furnace_bottom.png",
@@ -54,7 +60,7 @@ yatm.devices.register_network_device("yatm_machines:flux_furnace_error", {
 
 yatm.devices.register_network_device("yatm_machines:flux_furnace_on", {
   description = "Flux Furnace",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   tiles = {
     "yatm_flux_furnace_top.on.png",
     "yatm_flux_furnace_bottom.png",

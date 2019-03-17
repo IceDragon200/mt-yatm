@@ -37,7 +37,12 @@ function condenser_yatm_network.update(pos, node, ot)
   --
 end
 
-local groups = {cracky = 1, fluid_interface_in = 1, fluid_interface_out = 1}
+local groups = {
+  cracky = 1,
+  fluid_interface_in = 1,
+  fluid_interface_out = 1,
+  yatm_energy_device = 1,
+}
 
 yatm.devices.register_network_device(condenser_yatm_network.states.off, {
   description = "Condenser",

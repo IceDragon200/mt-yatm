@@ -1,6 +1,12 @@
+local groups = {
+  cracky = 1,
+  item_interface_in = 1,
+  item_interface_out = 1,
+}
+
 minetest.register_node("yatm_foundry:mini_blast_furnace_off", {
   description = "Mini Blast Furnace",
-  groups = { stonecutters_table = 1, cracky = 1 },
+  groups = groups,
   tiles = {
     "yatm_mini_blast_furnace_top.off.png",
     "yatm_mini_blast_furnace_bottom.off.png",
@@ -17,7 +23,7 @@ minetest.register_node("yatm_foundry:mini_blast_furnace_off", {
 
 minetest.register_node("yatm_foundry:mini_blast_furnace_on", {
   description = "Mini Blast Furnace",
-  groups = { stonecutters_table = 1, cracky = 1, not_in_creative_inventory = 1 },
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   tiles = {
     "yatm_mini_blast_furnace_top.on.png",
     "yatm_mini_blast_furnace_bottom.on.png",

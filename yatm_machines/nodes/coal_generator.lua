@@ -19,9 +19,16 @@ end
 function coal_generator_yatm_network.update(pos, node, ot)
 end
 
+local groups = {
+  cracky = 1,
+  yatm_network_host = 3,
+  item_interface_in = 1,
+  yatm_energy_device = 1,
+}
+
 yatm.devices.register_network_device(coal_generator_yatm_network.states.off, {
   description = "Coal Generator",
-  groups = {cracky = 1, yatm_network_host = 3},
+  groups = groups,
   drop = coal_generator_yatm_network.states.off,
   tiles = {
     "yatm_coal_generator_top.off.png",
@@ -38,7 +45,7 @@ yatm.devices.register_network_device(coal_generator_yatm_network.states.off, {
 
 yatm.devices.register_network_device(coal_generator_yatm_network.states.error, {
   description = "Coal Generator",
-  groups = {cracky = 1, yatm_network_host = 3, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = coal_generator_yatm_network.states.off,
   tiles = {
     "yatm_coal_generator_top.error.png",
@@ -55,7 +62,7 @@ yatm.devices.register_network_device(coal_generator_yatm_network.states.error, {
 
 yatm.devices.register_network_device(coal_generator_yatm_network.states.on, {
   description = "Coal Generator",
-  groups = {cracky = 1, yatm_network_host = 3, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = coal_generator_yatm_network.states.off,
   tiles = {
     --"yatm_coal_generator_top.on.png",

@@ -19,9 +19,15 @@ function drive_case_yatm_network.update(pos, node)
   end
 end
 
+local groups = {
+  cracky = 1,
+  yatm_energy_device = 1,
+  yatm_data_device = 1,
+}
+
 yatm.devices.register_network_device(drive_case_yatm_network.states.off, {
   description = "Drive Case",
-  groups = {cracky = 1},
+  groups = groups,
   drop = drive_case_yatm_network.states.off,
   tiles = {
     "yatm_drive_case_top.off.png",
@@ -38,7 +44,7 @@ yatm.devices.register_network_device(drive_case_yatm_network.states.off, {
 
 yatm.devices.register_network_device(drive_case_yatm_network.states.error, {
   description = "Drive Case",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = drive_case_yatm_network.states.off,
   tiles = {
     "yatm_drive_case_top.error.png",
@@ -55,7 +61,7 @@ yatm.devices.register_network_device(drive_case_yatm_network.states.error, {
 
 yatm.devices.register_network_device(drive_case_yatm_network.states.on, {
   description = "Drive Case",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = drive_case_yatm_network.states.off,
   tiles = {
     "yatm_drive_case_top.on.png",

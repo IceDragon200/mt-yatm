@@ -24,9 +24,16 @@ function compactor_yatm_network.work(pos, node, energy, work_rate)
   return 1
 end
 
+local groups = {
+  cracky = 1,
+  yatm_energy_device = 1,
+  item_interface_in = 1,
+  item_interface_out = 1,
+}
+
 yatm.devices.register_network_device(compactor_yatm_network.states.off, {
   description = "Compactor",
-  groups = {cracky = 1},
+  groups = groups,
   drop = compactor_yatm_network.states.off,
   tiles = {
     "yatm_compactor_top.off.png",
@@ -43,7 +50,7 @@ yatm.devices.register_network_device(compactor_yatm_network.states.off, {
 
 yatm.devices.register_network_device(compactor_yatm_network.states.error, {
   description = "Compactor",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = compactor_yatm_network.states.off,
   tiles = {
     "yatm_compactor_top.error.png",
@@ -60,7 +67,7 @@ yatm.devices.register_network_device(compactor_yatm_network.states.error, {
 
 yatm.devices.register_network_device(compactor_yatm_network.states.on, {
   description = "Compactor",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = compactor_yatm_network.states.off,
   tiles = {
     "yatm_compactor_top.on.png",

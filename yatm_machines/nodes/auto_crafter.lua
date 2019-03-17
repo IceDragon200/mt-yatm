@@ -20,9 +20,16 @@ function auto_crafter_yatm_network.update(pos, node)
   end
 end
 
+local groups = {
+  cracky = 1,
+  yatm_energy_device = 1,
+  item_interface_out = 1,
+  item_interface_in = 1,
+}
+
 yatm.devices.register_network_device("yatm_machines:auto_crafter_off", {
   description = "Auto Crafter",
-  groups = {cracky = 1},
+  groups = groups,
   drop = auto_crafter_yatm_network.states.off,
   tiles = {
     "yatm_auto_crafter_top.off.png",
@@ -39,7 +46,7 @@ yatm.devices.register_network_device("yatm_machines:auto_crafter_off", {
 
 yatm.devices.register_network_device("yatm_machines:auto_crafter_error", {
   description = "Auto Crafter",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = auto_crafter_yatm_network.states.off,
   tiles = {
     "yatm_auto_crafter_top.error.png",
@@ -56,7 +63,7 @@ yatm.devices.register_network_device("yatm_machines:auto_crafter_error", {
 
 yatm.devices.register_network_device("yatm_machines:auto_crafter_on", {
   description = "Auto Crafter",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = auto_crafter_yatm_network.states.off,
   tiles = {
     -- "yatm_auto_crafter_top.off.png",

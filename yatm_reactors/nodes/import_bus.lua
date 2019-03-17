@@ -2,7 +2,7 @@ for _, variant in ipairs({"hazard", "coolant", "signal"}) do
   local import_bus_yatm_network = {
     kind = "machine",
     groups = {
-      reactor = 1,
+      reactor_part = 1,
       reactor_import_bus = 1,
     },
     states = {

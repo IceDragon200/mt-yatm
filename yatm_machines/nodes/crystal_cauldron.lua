@@ -35,9 +35,17 @@ local crysytal_cauldron_node_box = {
   }
 }
 
+local groups = {
+  cracky = 1,
+  item_interface_in = 1,
+  item_interface_out = 1,
+  fluid_interface_in = 1,
+  fluid_interface_out = 1,
+}
+
 yatm.devices.register_network_device("yatm_machines:crystal_cauldron_off", {
   description = "Crystal Cauldron",
-  groups = {cracky = 1},
+  groups = groups,
   tiles = {
     "yatm_crystal_cauldron_top.png",
     "yatm_crystal_cauldron_bottom.png",
@@ -55,7 +63,7 @@ yatm.devices.register_network_device("yatm_machines:crystal_cauldron_off", {
 
 yatm.devices.register_network_device("yatm_machines:crystal_cauldron_error", {
   description = "Crystal Cauldron",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   tiles = {
     "yatm_crystal_cauldron_top.png",
     "yatm_crystal_cauldron_bottom.png",
@@ -73,7 +81,7 @@ yatm.devices.register_network_device("yatm_machines:crystal_cauldron_error", {
 
 yatm.devices.register_network_device("yatm_machines:crystal_cauldron_on", {
   description = "Crystal Cauldron",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   tiles = {
     "yatm_crystal_cauldron_top.png",
     "yatm_crystal_cauldron_bottom.png",

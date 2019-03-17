@@ -43,9 +43,15 @@ local assembler_selection_box = {
   },
 }
 
+local groups = {
+  cracky = 1,
+  yatm_data_device = 1,
+  yatm_energy_device = 1,
+}
+
 yatm.devices.register_network_device("yatm_machines:assembler_off", {
   description = "Assembler",
-  groups = {cracky = 1},
+  groups = groups,
   drop = "yatm_machines:assembler_off",
   tiles = {"yatm_assembler_side.off.png"},
   paramtype = "light",
@@ -58,7 +64,7 @@ yatm.devices.register_network_device("yatm_machines:assembler_off", {
 
 yatm.devices.register_network_device("yatm_machines:assembler_error", {
   description = "Assembler",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = "yatm_machines:assembler_off",
   tiles = {"yatm_assembler_side.error.png"},
   paramtype = "light",
@@ -71,7 +77,7 @@ yatm.devices.register_network_device("yatm_machines:assembler_error", {
 
 yatm.devices.register_network_device("yatm_machines:assembler_on", {
   description = "Assembler",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = "yatm_machines:assembler_off",
   tiles = {{
     name = "yatm_assembler_side.on.png",

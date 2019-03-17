@@ -1,4 +1,6 @@
-local FluidStack =  yatm.fluids.FluidStack
+local FluidTanks = assert(yatm.fluids.FluidTanks)
+local FluidMeta = assert(yatm.fluids.FluidMeta)
+local FluidStack = assert(yatm.fluids.FluidStack)
 
 local fluid_replicator_yatm_network = {
   kind = "monitor",
@@ -21,14 +23,14 @@ local fluid_interface = {
 
 function fluid_interface:get(pos, dir)
   local meta = minetest.get_meta(pos)
-  local stack = yatm_core.fluids.get_fluid(meta, self.tank_name)
+  local stack = FluidMeta.get_fluid(meta, self.tank_name)
   stack.amount = capacity
   return stack
 end
 
 function fluid_interface:replace(pos, dir, new_stack, commit)
   local meta = minetest.get_meta(pos)
-  local stack, new_stack = yatm_core.fluids.set_fluid(meta, self.tank_name, new_stack, commit)
+  local stack, new_stack = FluidMeta.set_fluid(meta, self.tank_name, new_stack, commit)
   if commit then
     self:on_fluid_changed(pos, dir, new_stack)
   end
@@ -37,7 +39,7 @@ end
 
 function fluid_interface:fill(pos, dir, new_stack, commit)
   local meta = minetest.get_meta(pos)
-  local stack, new_stack = yatm_core.fluids.fill_fluid(meta,
+  local stack, new_stack = FluidMeta.fill_fluid(meta,
     self.tank_name,
     FluidStack.set_amount(new_stack, capacity),
     self.capacity, self.capacity, commit)
@@ -49,7 +51,7 @@ end
 
 function fluid_interface:drain(pos, dir, new_stack, commit)
   local meta = minetest.get_meta(pos)
-  local stack, new_stack = yatm_core.fluids.drain_fluid(meta,
+  local stack, new_stack = FluidMeta.drain_fluid(meta,
     self.tank_name,
     FluidStack.set_amount(new_stack, self.capacity),
     self.capacity, self.capacity, false)
@@ -60,13 +62,14 @@ function fluid_interface:drain(pos, dir, new_stack, commit)
 end
 
 function fluid_replicator_yatm_network.update(pos, node, ot)
+  local meta = minetest.get_meta(pos)
   -- Drain fluid from replicator into any adjacent fluid interface
   for _, dir in ipairs(yatm_core.DIR6) do
     local target_pos = vector.add(pos, yatm_core.DIR6_TO_VEC3[dir])
-    local stack = yatm_core.fluids.drain_fluid(meta,
-      self.tank_name,
-      FluidStack.new_wildcard(self.capacity),
-      self.capacity, self.capacity, false)
+    local stack = FluidMeta.drain_fluid(meta,
+      fluid_interface.tank_name,
+      FluidStack.new_wildcard(fluid_interface.capacity),
+      fluid_interface.capacity, fluid_interface.capacity, false)
     if stack then
       stack.amount = capacity
       local target_dir = yatm_core.invert_dir(dir)
@@ -75,7 +78,10 @@ function fluid_replicator_yatm_network.update(pos, node, ot)
   end
 end
 
-local groups = {cracky = 1, fluid_interface_out = 1}
+local groups = {
+  cracky = 1,
+  fluid_interface_out = 1,
+}
 
 yatm.devices.register_network_device(fluid_replicator_yatm_network.states.off, {
   description = "Fluid Replicator",
@@ -96,7 +102,7 @@ yatm.devices.register_network_device(fluid_replicator_yatm_network.states.off, {
 
 yatm.devices.register_network_device(fluid_replicator_yatm_network.states.error, {
   description = "Fluid Replicator",
-  groups = yatm_core.table_merge({not_in_creative_inventory = 1}),
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = fluid_replicator_yatm_network.states.off,
   tiles = {
     "yatm_fluid_replicator_top.error.png",
@@ -113,7 +119,7 @@ yatm.devices.register_network_device(fluid_replicator_yatm_network.states.error,
 
 yatm.devices.register_network_device(fluid_replicator_yatm_network.states.on, {
   description = "Fluid Replicator",
-  groups = yatm_core.table_merge({not_in_creative_inventory = 1}),
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = fluid_replicator_yatm_network.states.off,
   tiles = {
     "yatm_fluid_replicator_top.on.png",

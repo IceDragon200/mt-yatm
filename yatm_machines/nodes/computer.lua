@@ -20,9 +20,15 @@ function computer_yatm_network.update(pos, node)
   end
 end
 
+local groups = {
+  cracky = 1,
+  yatm_data_device = 1,
+  yatm_energy_device = 1,
+}
+
 yatm.devices.register_network_device(computer_yatm_network.states.off, {
   description = "Computer",
-  groups = {cracky = 1},
+  groups = groups,
   drop = computer_yatm_network.states.off,
   tiles = {
     "yatm_computer_top.off.png",
@@ -39,7 +45,7 @@ yatm.devices.register_network_device(computer_yatm_network.states.off, {
 
 yatm.devices.register_network_device(computer_yatm_network.states.error, {
   description = "Computer",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = computer_yatm_network.states.off,
   tiles = {
     "yatm_computer_top.error.png",
@@ -56,7 +62,7 @@ yatm.devices.register_network_device(computer_yatm_network.states.error, {
 
 yatm.devices.register_network_device(computer_yatm_network.states.on, {
   description = "Computer",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = computer_yatm_network.states.off,
   tiles = {
     "yatm_computer_top.on.png",
