@@ -20,9 +20,16 @@ local monitor_console_yatm_network = {
   },
 }
 
+local groups = {
+  cracky = 1,
+  monitor = 1,
+  yatm_energy_device = 1,
+  yatm_data_device = 1,
+}
+
 yatm.devices.register_network_device(monitor_console_yatm_network.states.off, {
   description = "Flat Monitor (console)",
-  groups = {cracky = 1},
+  groups = groups,
   drop = monitor_console_yatm_network.states.off,
   tiles = {
     "yatm_monitor_top.flat.png",
@@ -41,7 +48,7 @@ yatm.devices.register_network_device(monitor_console_yatm_network.states.off, {
 
 yatm.devices.register_network_device(monitor_console_yatm_network.states.error, {
   description = "Flat Monitor (console)",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = monitor_console_yatm_network.states.off,
   tiles = {
     "yatm_monitor_top.flat.png",
@@ -60,7 +67,7 @@ yatm.devices.register_network_device(monitor_console_yatm_network.states.error, 
 
 yatm.devices.register_network_device(monitor_console_yatm_network.states.on, {
   description = "Flat Monitor (console)",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = monitor_console_yatm_network.states.off,
   tiles = {
     "yatm_monitor_top.flat.png",
@@ -102,7 +109,7 @@ local monitor_crafting_yatm_network = {
 
 yatm.devices.register_network_device(monitor_crafting_yatm_network.states.off, {
   description = "Flat Monitor (crafting)",
-  groups = {cracky = 1},
+  groups = groups,
   drop = monitor_crafting_yatm_network.states.off,
   tiles = {
     "yatm_monitor_top.flat.png",
@@ -121,7 +128,7 @@ yatm.devices.register_network_device(monitor_crafting_yatm_network.states.off, {
 
 yatm.devices.register_network_device(monitor_crafting_yatm_network.states.error, {
   description = "Flat Monitor (crafting)",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = monitor_crafting_yatm_network.states.off,
   tiles = {
     "yatm_monitor_top.flat.png",
@@ -140,7 +147,7 @@ yatm.devices.register_network_device(monitor_crafting_yatm_network.states.error,
 
 yatm.devices.register_network_device(monitor_crafting_yatm_network.states.on, {
   description = "Flat Monitor (crafting)",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = monitor_crafting_yatm_network.states.off,
   tiles = {
     "yatm_monitor_top.flat.png",
@@ -174,7 +181,7 @@ local monitor_ele_yatm_network = {
 
 yatm.devices.register_network_device(monitor_ele_yatm_network.states.off, {
   description = "Flat Monitor (ele)",
-  groups = {cracky = 1},
+  groups = groups,
   drop = monitor_ele_yatm_network.states.off,
   tiles = {
     "yatm_monitor_top.flat.png",
@@ -193,7 +200,7 @@ yatm.devices.register_network_device(monitor_ele_yatm_network.states.off, {
 
 yatm.devices.register_network_device(monitor_ele_yatm_network.states.error, {
   description = "Flat Monitor (ele)",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = monitor_ele_yatm_network.states.off,
   tiles = {
     "yatm_monitor_top.flat.png",
@@ -212,7 +219,7 @@ yatm.devices.register_network_device(monitor_ele_yatm_network.states.error, {
 
 yatm.devices.register_network_device(monitor_ele_yatm_network.states.on, {
   description = "Flat Monitor (ele)",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = monitor_ele_yatm_network.states.off,
   tiles = {
     "yatm_monitor_top.flat.png",
@@ -246,7 +253,7 @@ local monitor_inventory_yatm_network = {
 
 yatm.devices.register_network_device(monitor_inventory_yatm_network.states.off, {
   description = "Flat Monitor (inventory)",
-  groups = {cracky = 1},
+  groups = groups,
   drop = monitor_inventory_yatm_network.states.off,
   tiles = {
     "yatm_monitor_top.flat.png",
@@ -265,7 +272,7 @@ yatm.devices.register_network_device(monitor_inventory_yatm_network.states.off, 
 
 yatm.devices.register_network_device(monitor_inventory_yatm_network.states.error, {
   description = "Flat Monitor (inventory)",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = monitor_inventory_yatm_network.states.off,
   tiles = {
     "yatm_monitor_top.flat.png",
@@ -284,7 +291,7 @@ yatm.devices.register_network_device(monitor_inventory_yatm_network.states.error
 
 yatm.devices.register_network_device(monitor_inventory_yatm_network.states.on, {
   description = "Flat Monitor (inventory)",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = monitor_inventory_yatm_network.states.off,
   tiles = {
     "yatm_monitor_top.flat.png",

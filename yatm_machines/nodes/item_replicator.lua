@@ -14,6 +14,7 @@ local item_replicator_yatm_network = {
 
 local groups = {
   cracky = 1,
+  yatm_energy_device = 1,
   item_interface_out = 1,
 }
 
