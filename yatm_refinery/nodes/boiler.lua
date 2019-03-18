@@ -12,6 +12,7 @@ local boiler_yatm_network = {
     energy_consumer = 1, -- This device consumes energy on the network
     has_update = 1, -- the device should be updated every network step
   },
+  default_state = "off",
   states = {
     conflict = "yatm_refinery:boiler_error",
     error = "yatm_refinery:boiler_error",
@@ -46,18 +47,21 @@ function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
   yatm_core.trigger_refresh_infotext(pos)
 end
 
-local function boiler_refresh_infotext(pos, node, meta, event)
-  local new_node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[new_node.name]
-  local state = nodedef.yatm_network.state
-  local network_id = Network.get_meta_network_id(meta)
-  local steam_fluid_stack = FluidMeta.get_fluid(meta, STEAM_TANK)
-  local water_fluid_stack = FluidMeta.get_fluid(meta, WATER_TANK)
-  meta:set_string("infotext",
-    "Network ID <" .. Network.format_id(network_id) .. "> " .. state .. "\n" ..
-    "Steam Tank <" .. FluidStack.to_string(steam_fluid_stack, fluid_interface.capacity) .. ">\n" ..
-    "Water Tank <" .. FluidStack.to_string(water_fluid_stack, fluid_interface.capacity) .. ">"
-  )
+local function boiler_refresh_infotext(pos)
+  local node = minetest.get_node(pos)
+  local nodedef = minetest.registered_nodes[node.name]
+  if nodedef then
+    local meta = minetest.get_meta(pos)
+    local state = nodedef.yatm_network.state
+    local network_id = Network.get_meta_network_id(meta)
+    local steam_fluid_stack = FluidMeta.get_fluid(meta, STEAM_TANK)
+    local water_fluid_stack = FluidMeta.get_fluid(meta, WATER_TANK)
+    meta:set_string("infotext",
+      "Network ID <" .. Network.format_id(network_id) .. "> " .. state .. "\n" ..
+      "Steam Tank <" .. FluidStack.pretty_format(steam_fluid_stack, fluid_interface.capacity) .. ">\n" ..
+      "Water Tank <" .. FluidStack.pretty_format(water_fluid_stack, fluid_interface.capacity) .. ">"
+    )
+  end
 end
 
 function boiler_yatm_network.work(pos, node, available_energy, work_rate, ot)
@@ -136,17 +140,18 @@ function boiler_yatm_network.work(pos, node, available_energy, work_rate, ot)
   return energy_consumed
 end
 
-local groups = {
-  cracky = 1,
-  fluid_interface_out = 1,
-  fluid_interface_in = 1,
-  item_energy_device = 1,
-}
-
-yatm.devices.register_network_device(boiler_yatm_network.states.off, {
+yatm.devices.register_stateful_network_device({
   description = "Boiler",
-  groups = groups,
+
+  groups = {
+    cracky = 1,
+    fluid_interface_out = 1,
+    fluid_interface_in = 1,
+    yatm_energy_device = 1,
+  },
+
   drop = boiler_yatm_network.states.off,
+
   tiles = {
     "yatm_boiler_top.off.png",
     "yatm_boiler_bottom.off.png",
@@ -155,50 +160,32 @@ yatm.devices.register_network_device(boiler_yatm_network.states.off, {
     "yatm_boiler_side.off.png",
     "yatm_boiler_side.off.png"
   },
+
   paramtype = "light",
   paramtype2 = "facedir",
   yatm_network = yatm_core.table_merge(boiler_yatm_network, {state = "off"}),
 
   fluid_interface = fluid_interface,
   refresh_infotext = boiler_refresh_infotext,
-})
-
-yatm.devices.register_network_device(boiler_yatm_network.states.error, {
-  description = "Boiler",
-  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-  drop = boiler_yatm_network.states.off,
-  tiles = {
-    "yatm_boiler_top.error.png",
-    "yatm_boiler_bottom.error.png",
-    "yatm_boiler_side.error.png",
-    "yatm_boiler_side.error.png",
-    "yatm_boiler_side.error.png",
-    "yatm_boiler_side.error.png"
+}, {
+  on = {
+    tiles = {
+      "yatm_boiler_top.on.png",
+      "yatm_boiler_bottom.on.png",
+      "yatm_boiler_side.on.png",
+      "yatm_boiler_side.on.png",
+      "yatm_boiler_side.on.png",
+      "yatm_boiler_side.on.png",
+    },
   },
-  paramtype = "light",
-  paramtype2 = "facedir",
-  yatm_network = yatm_core.table_merge(boiler_yatm_network, {state = "error"}),
-
-  fluid_interface = fluid_interface,
-  refresh_infotext = boiler_refresh_infotext,
-})
-
-yatm.devices.register_network_device(boiler_yatm_network.states.on, {
-  description = "Boiler",
-  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-  drop = boiler_yatm_network.states.off,
-  tiles = {
-    "yatm_boiler_top.on.png",
-    "yatm_boiler_bottom.on.png",
-    "yatm_boiler_side.on.png",
-    "yatm_boiler_side.on.png",
-    "yatm_boiler_side.on.png",
-    "yatm_boiler_side.on.png",
+  error = {
+    tiles = {
+      "yatm_boiler_top.error.png",
+      "yatm_boiler_bottom.error.png",
+      "yatm_boiler_side.error.png",
+      "yatm_boiler_side.error.png",
+      "yatm_boiler_side.error.png",
+      "yatm_boiler_side.error.png"
+    },
   },
-  paramtype = "light",
-  paramtype2 = "facedir",
-  yatm_network = yatm_core.table_merge(boiler_yatm_network, {state = "on"}),
-
-  fluid_interface = fluid_interface,
-  refresh_infotext = boiler_refresh_infotext,
 })

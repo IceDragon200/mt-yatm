@@ -91,6 +91,7 @@ yatm.devices.register_stateful_network_device({
     cracky = 1,
     fluid_interface_out = 1,
     addressable_spacetime_device = 1,
+    yatm_energy_device = 1,
   },
 
   paramtype = "light",
