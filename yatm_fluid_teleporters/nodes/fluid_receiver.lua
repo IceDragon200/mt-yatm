@@ -5,8 +5,8 @@ take fluids into their internal inventory, and then teleport them to a connected
 Like all other wireless devices, it has it's own address scheme and registration process.
 ]]
 local SpacetimeNetwork = assert(yatm.spacetime.Network)
-local FluidInterface = assert(yatm.fluids.FluidInterface)
 local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
+local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local YATM_NetworkMeta = assert(yatm.network)
@@ -16,6 +16,7 @@ local fluid_receiver_yatm_network = {
   groups = {
     energy_consumer = 1,
   },
+  default_state = "off",
   states = {
     off = "yatm_fluid_teleporters:fluid_receiver_off",
     inactive = "yatm_fluid_teleporters:fluid_receiver_inactive",
@@ -82,21 +83,15 @@ local function teleporter_refresh_infotext(pos)
   meta:set_string("infotext", infotext)
 end
 
-local yatm_spacetime_device = {
-  groups = {fluid_receiver = 1},
-}
-
-local groups = {
-  cracky = 1,
-  fluid_interface_out = 1,
-  addressable_spacetime_device = 1,
-}
-
-yatm.devices.register_network_device(fluid_receiver_yatm_network.states.off, {
+yatm.devices.register_stateful_network_device({
   description = "Fluid Receiver",
   drop = fluid_receiver_yatm_network.states.off,
 
-  groups = groups,
+  groups = {
+    cracky = 1,
+    fluid_interface_out = 1,
+    addressable_spacetime_device = 1,
+  },
 
   paramtype = "light",
   paramtype2 = "facedir",
@@ -122,7 +117,9 @@ yatm.devices.register_network_device(fluid_receiver_yatm_network.states.off, {
   fluid_interface = fluid_interface,
 
   yatm_network = fluid_receiver_yatm_network,
-  yatm_spacetime = yatm_spacetime_device,
+  yatm_spacetime = {
+    groups = {fluid_receiver = 1},
+  },
 
   on_destruct = teleporter_on_destruct,
 
@@ -132,88 +129,25 @@ yatm.devices.register_network_device(fluid_receiver_yatm_network.states.off, {
   change_spacetime_address = teleporter_change_spacetime_address,
 
   refresh_infotext = teleporter_refresh_infotext,
-})
-
-yatm.devices.register_network_device(fluid_receiver_yatm_network.states.error, {
-  description = "Fluid Receiver",
-  drop = fluid_receiver_yatm_network.states.off,
-
-  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-
-  paramtype = "light",
-  paramtype2 = "facedir",
-
-  tiles = {
-    "yatm_fluid_teleporter_top.receiver.error.png",
-    "yatm_fluid_teleporter_top.receiver.error.png",
-    "yatm_fluid_teleporter_side.receiver.error.png",
-    "yatm_fluid_teleporter_side.receiver.error.png",
-    "yatm_fluid_teleporter_side.receiver.error.png",
-    "yatm_fluid_teleporter_side.receiver.error.png",
-  },
-
-  drawtype = "nodebox",
-  node_box = {
-    type = "fixed",
-    fixed = {
-      {-0.5, -0.5, -0.5, 0.5, 0.375, 0.5}, -- NodeBox1
-      {-0.375, 0.375, -0.375, 0.375, 0.5, 0.375}, -- NodeBox2
+}, {
+  on = {
+    tiles = {
+      "yatm_fluid_teleporter_top.receiver.on.png",
+      "yatm_fluid_teleporter_top.receiver.on.png",
+      "yatm_fluid_teleporter_side.receiver.on.png",
+      "yatm_fluid_teleporter_side.receiver.on.png",
+      "yatm_fluid_teleporter_side.receiver.on.png",
+      "yatm_fluid_teleporter_side.receiver.on.png",
     }
   },
-
-  fluid_interface = fluid_interface,
-
-  yatm_network = fluid_receiver_yatm_network,
-  yatm_spacetime = yatm_spacetime_device,
-
-  on_destruct = teleporter_on_destruct,
-
-  after_place_node = teleporter_after_place_node,
-  after_destruct = teleporter_after_destruct,
-
-  change_spacetime_address = teleporter_change_spacetime_address,
-
-  refresh_infotext = teleporter_refresh_infotext,
-})
-
-yatm.devices.register_network_device(fluid_receiver_yatm_network.states.on, {
-  description = "Fluid Receiver",
-  drop = fluid_receiver_yatm_network.states.off,
-
-  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-
-  paramtype = "light",
-  paramtype2 = "facedir",
-
-  tiles = {
-    "yatm_fluid_teleporter_top.receiver.on.png",
-    "yatm_fluid_teleporter_top.receiver.on.png",
-    "yatm_fluid_teleporter_side.receiver.on.png",
-    "yatm_fluid_teleporter_side.receiver.on.png",
-    "yatm_fluid_teleporter_side.receiver.on.png",
-    "yatm_fluid_teleporter_side.receiver.on.png",
-  },
-
-  drawtype = "nodebox",
-  node_box = {
-    type = "fixed",
-    fixed = {
-      {-0.5, -0.5, -0.5, 0.5, 0.375, 0.5}, -- NodeBox1
-      {-0.375, 0.375, -0.375, 0.375, 0.5, 0.375}, -- NodeBox2
+  error = {
+    tiles = {
+      "yatm_fluid_teleporter_top.receiver.error.png",
+      "yatm_fluid_teleporter_top.receiver.error.png",
+      "yatm_fluid_teleporter_side.receiver.error.png",
+      "yatm_fluid_teleporter_side.receiver.error.png",
+      "yatm_fluid_teleporter_side.receiver.error.png",
+      "yatm_fluid_teleporter_side.receiver.error.png",
     }
-  },
-
-  fluid_interface = fluid_interface,
-
-  yatm_network = fluid_receiver_yatm_network,
-  yatm_spacetime = yatm_spacetime_device,
-
-
-  after_place_node = teleporter_after_place_node,
-  on_destruct = teleporter_on_destruct,
-  after_destruct = teleporter_after_destruct,
-
-  change_spacetime_address = teleporter_change_spacetime_address,
-
-  refresh_infotext = teleporter_refresh_infotext,
+  }
 })

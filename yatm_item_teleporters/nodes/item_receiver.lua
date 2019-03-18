@@ -5,10 +5,13 @@ take items into their internal inventory, and then teleport them to a connected 
 Like all other wireless devices, it has it's own address scheme and registration process.
 ]]
 local SpacetimeNetwork = assert(yatm.spacetime.Network)
+local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
 
 local function teleporter_after_place_node(pos, _placer, _itemstack, _pointed_thing)
   local node = minetest.get_node(pos)
   SpacetimeNetwork:maybe_register_node(pos, node)
+
+  assert(yatm_core.trigger_refresh_infotext(pos))
 end
 
 local function teleporter_on_destruct(pos)

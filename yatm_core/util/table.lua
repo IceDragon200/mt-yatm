@@ -12,6 +12,20 @@ function yatm_core.table_merge(...)
   return result
 end
 
+function yatm_core.table_deep_merge(...)
+  local result = {}
+  for _,t in ipairs({...}) do
+    for key,value in pairs(t) do
+      if type(result[key]) == "table" and type(value) == "table" and not result[key][1] and not value[1] then
+        result[key] = yatm_core.deep_merge_table(result[key], value)
+      else
+        result[key] = value
+      end
+    end
+  end
+  return result
+end
+
 --[[
 Makes a copy of the given table
 ]]

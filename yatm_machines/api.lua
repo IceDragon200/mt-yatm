@@ -176,7 +176,40 @@ function devices.register_network_device(name, nodedef)
     end
   end
 
-  minetest.register_node(name, nodedef)
+  return minetest.register_node(name, nodedef)
+end
+
+function devices.register_stateful_network_device(base_node_def, overrides)
+  overrides = overrides or {}
+  assert(base_node_def, "expected a nodedef")
+  assert(base_node_def.yatm_network, "expected a yatm_network")
+  assert(base_node_def.yatm_network.states, "expected a yatm_network.states")
+  assert(base_node_def.yatm_network.default_state, "expected a yatm_network.default_state")
+
+  local seen = {}
+
+  for state,name in pairs(base_node_def.yatm_network.states) do
+    if not seen[name] then
+      seen[name] = true
+
+      local ov = overrides[state]
+      if state == "conflict" and not ov then
+        state = "error"
+        ov = overrides[state]
+      end
+      ov = ov or {}
+      local node_def = yatm_core.table_deep_merge(base_node_def, ov)
+      local new_yatm_network = yatm_core.table_merge(node_def.yatm_network, {state = state})
+      node_def.yatm_network = new_yatm_network
+
+      if node_def.yatm_network.default_state ~= state then
+        local groups = yatm_core.table_merge(node_def.groups, {not_in_creative_inventory = 1})
+        node_def.groups = groups
+      end
+
+      devices.register_network_device(name, node_def)
+    end
+  end
 end
 
 yatm.devices = devices
