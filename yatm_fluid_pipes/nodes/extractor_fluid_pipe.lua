@@ -19,7 +19,7 @@ local size = (8 / 16.0) / 2
 minetest.register_node("yatm_fluid_pipes:extractor_fluid_pipe", {
   description = "Extractor Fluid Pipe",
 
-  groups = { cracky = 1, extractor_fluid_pipe = 1 },
+  groups = { cracky = 1, extractor_fluid_pipe = 1, extractor_fluid_device = 1 },
 
   paramtype = "light",
   paramtype2 = "facedir",
@@ -56,10 +56,12 @@ minetest.register_node("yatm_fluid_pipes:extractor_fluid_pipe", {
 
   fluid_transport_device = {
     type = "extractor",
+    subtype = "duct",
     bandwidth = 1000,
   },
 
+  on_destruct = pipe_on_destruct,
+
   after_place_node = pipe_after_place_node,
   after_destruct = pipe_after_destruct,
-  on_destruct = pipe_on_destruct,
 })

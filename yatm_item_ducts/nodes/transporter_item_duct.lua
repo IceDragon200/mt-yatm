@@ -32,8 +32,8 @@ for _,color_pair in ipairs(colors) do
 
   local node_name = "yatm_item_ducts:transporter_item_duct_" .. color_basename
   local connects_to = {
-    "group:extractor_item_duct",
-    "group:inserter_item_duct",
+    "group:extractor_item_device",
+    "group:inserter_item_device",
   }
   if color_basename == "default" then
     -- default can connect to anything

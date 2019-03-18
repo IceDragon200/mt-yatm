@@ -18,8 +18,10 @@ end
 function FluidTanks.replace(pos, dir, fluid_stack, commit)
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
-  if nodedef and nodedef.fluid_interface and nodedef.fluid_interface.replace then
-    return nodedef.fluid_interface:replace(pos, dir, fluid_stack, commit)
+  if nodedef and nodedef.groups.fluid_interface_in then
+    if nodedef.fluid_interface and nodedef.fluid_interface.replace then
+      return nodedef.fluid_interface:replace(pos, dir, fluid_stack, commit)
+    end
   end
   return nil
 end
@@ -30,8 +32,10 @@ function FluidTanks.drain(pos, dir, fluid_stack, commit)
   end
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
-  if nodedef and nodedef.fluid_interface and nodedef.fluid_interface.drain then
-    return nodedef.fluid_interface:drain(pos, dir, fluid_stack, commit)
+  if nodedef and nodedef.groups.fluid_interface_out then
+    if nodedef.fluid_interface and nodedef.fluid_interface.drain then
+      return nodedef.fluid_interface:drain(pos, dir, fluid_stack, commit)
+    end
   end
   return nil
 end
@@ -42,8 +46,10 @@ function FluidTanks.fill(pos, dir, fluid_stack, commit)
   end
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
-  if nodedef and nodedef.fluid_interface and nodedef.fluid_interface.fill then
-    return nodedef.fluid_interface:fill(pos, dir, fluid_stack, commit)
+  if nodedef and nodedef.groups.fluid_interface_in then
+    if nodedef.fluid_interface and nodedef.fluid_interface.fill then
+      return nodedef.fluid_interface:fill(pos, dir, fluid_stack, commit)
+    end
   end
   return nil
 end

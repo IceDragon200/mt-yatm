@@ -75,15 +75,16 @@ function m:update_member(pos, node, is_register)
   local nodedef = minetest.registered_nodes[node.name]
   local interface = assert(nodedef[self.m_node_interface_name])
   local device_type = assert(interface.type)
+  local device_subtype = interface.subtype
   local old_record = self.m_members[hash]
   local old_network_id = nil
   if old_record then
     if is_register then
       print("WARN", "duplicate registration attempted", minetest.pos_to_string(pos), node.name)
     end
-    self.m_members_by_type[device_type][hash] = nil
-    if yatm_core.is_table_empty(self.m_members_by_type[device_type]) then
-      self.m_members_by_type[device_type] = nil
+    self.m_members_by_type[old_record.device_type][hash] = nil
+    if yatm_core.is_table_empty(self.m_members_by_type[old_record.device_type]) then
+      self.m_members_by_type[old_record.device_type] = nil
     end
     if old_record.network_id then
       old_network_id = old_record.network_id
@@ -102,6 +103,8 @@ function m:update_member(pos, node, is_register)
     pos = pos,
     name = node.name,
     device_type = device_type,
+    device_subtype = device_type,
+    groups = interface.groups,
     counter = -1,
     interface = interface,
   }

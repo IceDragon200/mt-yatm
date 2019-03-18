@@ -16,11 +16,7 @@ local BARREL_CAPACITY = 36000 -- 4 buckets
 local BARREL_DRAIN_BANDWIDTH = BARREL_CAPACITY
 
 local function barrel_on_construct(pos)
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
-  if nodedef.refresh_infotext then
-    nodedef.refresh_infotext(pos, yatm_core.D_NONE, node, nil, 0, 0)
-  end
+  assert(yatm_core.trigger_refresh_infotext(pos))
 end
 
 local function barrel_on_destruct(pos)
@@ -39,15 +35,7 @@ end
 local barrel_fluid_interface = FluidInterface.new_simple("tank", BARREL_CAPACITY)
 
 function barrel_fluid_interface:on_fluid_changed(pos, dir, _fluid_stack)
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
-  if nodedef then
-    if nodedef.refresh_infotext then
-      nodedef.refresh_infotext(pos)
-    end
-  else
-    print("Undefined node", node.name)
-  end
+  yatm_core.trigger_refresh_infotext(pos)
 end
 
 local colors = {

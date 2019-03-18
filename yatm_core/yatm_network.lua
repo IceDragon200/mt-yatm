@@ -25,6 +25,15 @@ local Network = {
   }),
 }
 
+function Network.to_infotext(meta)
+  local network_id = Network.get_meta_network_id(meta)
+  if network_id then
+    return "<" .. network_id .. ">"
+  else
+    return "NIL"
+  end
+end
+
 local function v3s(vec3)
   return "(" .. vec3.x .. ", " .. vec3.y .. ", " .. vec3.z .. ")"
 end
@@ -365,15 +374,15 @@ function Network.default_handle_network_changed(pos, node, ts, network_id, state
       end
       Network.set_meta_network_id(meta, network_id)
       Network.set_network_state(meta, state)
-      if nodedef.yatm_network.refresh_infotext then
-        nodedef.yatm_network.refresh_infotext(pos, node, meta, {
+      if nodedef.refresh_infotext then
+        nodedef.refresh_infotext(pos, node, meta, {
           cause = "network_changed",
           network_id = network_id,
           network_ts = ts,
           state = state,
         })
       else
-        print("No yatm_network.refresh_infotext/4 defined for", node.name, "falling back to setting infotext manually")
+        print("No NodeDef.refresh_infotext/2 defined for", node.name, "falling back to setting infotext manually")
         meta:set_string("infotext", "Network ID <" .. Network.format_id(network_id) .. "> " .. state)
       end
       if nodedef.yatm_network.on_network_state_changed then

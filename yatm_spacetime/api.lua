@@ -1,1 +1,1 @@
-yatm.spacetime = yatm_spacetime
+yatm.spacetime = assert(yatm_spacetime)

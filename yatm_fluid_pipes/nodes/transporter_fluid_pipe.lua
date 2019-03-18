@@ -37,8 +37,8 @@ for _,color_pair in ipairs(colors) do
 
   local node_name = "yatm_fluid_pipes:transporter_fluid_pipe_" .. color_basename
   local connects_to = {
-    "group:extractor_fluid_pipe",
-    "group:inserter_fluid_pipe",
+    "group:extractor_fluid_device",
+    "group:inserter_fluid_device",
   }
   if color_basename == "default" then
     -- default can connect to anything

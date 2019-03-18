@@ -13,11 +13,7 @@ local barrel_nodebox = {
 }
 
 local function barrel_on_construct(pos)
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
-  if nodedef.refresh_infotext then
-    nodedef.refresh_infotext(pos, yatm_core.D_NONE, node, nil, 0, 0)
-  end
+  assert(yatm_core.trigger_refresh_infotext(pos))
 end
 
 local function barrel_on_destruct(pos)

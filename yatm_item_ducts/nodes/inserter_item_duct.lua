@@ -15,7 +15,7 @@ local size = (8 / 16.0) / 2
 minetest.register_node("yatm_item_ducts:inserter_item_duct", {
   description = "Inserter Item Duct",
 
-  groups = { cracky = 1, inserter_item_duct = 1 },
+  groups = { cracky = 1, inserter_item_duct = 1, inserter_item_device = 1 },
 
   paramtype = "light",
   paramtype2 = "facedir",
@@ -46,12 +46,13 @@ minetest.register_node("yatm_item_ducts:inserter_item_duct", {
 
   connects_to = {
     "group:item_interface_in",
-    "group:extractor_item_duct",
+    "group:extractor_item_device",
     "group:transporter_item_duct",
   },
 
   item_transport_device = {
     type = "inserter",
+    subtype = "duct",
   },
 
   after_place_node = duct_after_place_node,

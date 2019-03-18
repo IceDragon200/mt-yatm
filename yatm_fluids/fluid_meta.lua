@@ -119,4 +119,9 @@ function FluidMeta.inspect(meta, key)
   end
 end
 
+function FluidMeta.to_infotext(meta, key, capacity)
+  local fluid_stack = FluidMeta.get_fluid(meta, key)
+  return FluidStack.pretty_format(fluid_stack, capacity)
+end
+
 yatm_fluids.FluidMeta = FluidMeta

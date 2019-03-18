@@ -25,9 +25,15 @@ local server_node_box = {
   }
 }
 
+local groups = {
+  cracky = 1,
+  yatm_data_device = 1,
+  yatm_energy_device = 1,
+}
+
 yatm.devices.register_network_device(server_yatm_network.states.off, {
   description = "Server",
-  groups = {cracky = 1},
+  groups = yatm_core.table_merge(groups),
   drop = server_yatm_network.states.off,
   tiles = {
     "yatm_server_top.off.png",
@@ -46,7 +52,7 @@ yatm.devices.register_network_device(server_yatm_network.states.off, {
 
 yatm.devices.register_network_device(server_yatm_network.states.error, {
   description = "Server",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = server_yatm_network.states.off,
   tiles = {
     "yatm_server_top.error.png",
@@ -65,7 +71,7 @@ yatm.devices.register_network_device(server_yatm_network.states.error, {
 
 yatm.devices.register_network_device(server_yatm_network.states.on, {
   description = "Server",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = server_yatm_network.states.off,
   tiles = {
     "yatm_server_top.on.png",

@@ -144,6 +144,7 @@ function devices.register_network_device(name, nodedef)
   end
 
   if nodedef.yatm_network then
+    assert(nodedef.yatm_network.kind, "all devices must have a kind (" .. name .. ")")
     local ym = nodedef.yatm_network
     if ym.on_network_state_changed == nil then
       ym.on_network_state_changed = assert(devices.default_on_network_state_changed)

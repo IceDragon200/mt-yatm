@@ -24,6 +24,7 @@ end
 function FluidInterface.new_simple(tank_name, capacity)
   local fluid_interface = {
     capacity = capacity,
+    bandwidth = capacity,
     tank_name = tank_name,
     on_fluid_changed = default_on_fluid_changed,
   }
@@ -51,7 +52,7 @@ function FluidInterface.new_simple(tank_name, capacity)
     local stack, new_stack = FluidMeta.fill_fluid(meta,
       self.tank_name,
       fluid_stack,
-      self.capacity, self.capacity, commit)
+      self.bandwidth, self.capacity, commit)
     if commit then
       self:on_fluid_changed(pos, dir, new_stack)
     end
@@ -63,7 +64,7 @@ function FluidInterface.new_simple(tank_name, capacity)
     local stack, new_stack = FluidMeta.drain_fluid(meta,
       self.tank_name,
       fluid_stack,
-      self.capacity, self.capacity, commit)
+      self.bandwidth, self.capacity, commit)
     if commit then
       self:on_fluid_changed(pos, dir, new_stack)
     end

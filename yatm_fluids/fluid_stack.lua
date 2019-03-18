@@ -32,6 +32,28 @@ function FluidStack.to_string(fluid_stack, capacity)
   return result
 end
 
+--[[
+@spec FluidStack.pretty_format(FluidStack.t, capacity :: non_neg_integer | nil) :: String.t
+]]
+function FluidStack.pretty_format(fluid_stack, capacity)
+  local name = ""
+  local amount = 0
+  if fluid_stack then
+    local fluiddef = FluidRegistry.get_fluid(fluid_stack.name)
+    if fluiddef then
+      name = fluiddef.description or fluid_stack.name
+    else
+      name = fluid_stack.name
+    end
+    amount = fluid_stack.amount
+  end
+  if capacity then
+    return "<" .. name .. ">" .. " (" .. amount .. " / " .. capacity .. ")"
+  else
+    return "<" .. name .. ">" .. " (" .. amount .. ")"
+  end
+end
+
 function FluidStack.set_name(fluid_stack, name)
   assert(fluid_stack)
   return { name = name, amount = fluid_stack.amount }

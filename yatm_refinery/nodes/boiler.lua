@@ -43,10 +43,10 @@ fluid_interface.capacity = 16000
 fluid_interface.bandwidth = fluid_interface.capacity
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  boiler_yatm_network.refresh_infotext(pos, nil, minetest.get_meta(pos), { cause = "fluid_changed" })
+  yatm_core.trigger_refresh_infotext(pos)
 end
 
-function boiler_yatm_network.refresh_infotext(pos, node, meta, event)
+local function boiler_refresh_infotext(pos, node, meta, event)
   local new_node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[new_node.name]
   local state = nodedef.yatm_network.state
@@ -136,7 +136,12 @@ function boiler_yatm_network.work(pos, node, available_energy, work_rate, ot)
   return energy_consumed
 end
 
-local groups = { cracky = 1, fluid_interface_out = 1, fluid_interface_in = 1 }
+local groups = {
+  cracky = 1,
+  fluid_interface_out = 1,
+  fluid_interface_in = 1,
+  item_energy_device = 1,
+}
 
 yatm.devices.register_network_device(boiler_yatm_network.states.off, {
   description = "Boiler",
@@ -153,7 +158,9 @@ yatm.devices.register_network_device(boiler_yatm_network.states.off, {
   paramtype = "light",
   paramtype2 = "facedir",
   yatm_network = yatm_core.table_merge(boiler_yatm_network, {state = "off"}),
+
   fluid_interface = fluid_interface,
+  refresh_infotext = boiler_refresh_infotext,
 })
 
 yatm.devices.register_network_device(boiler_yatm_network.states.error, {
@@ -171,7 +178,9 @@ yatm.devices.register_network_device(boiler_yatm_network.states.error, {
   paramtype = "light",
   paramtype2 = "facedir",
   yatm_network = yatm_core.table_merge(boiler_yatm_network, {state = "error"}),
+
   fluid_interface = fluid_interface,
+  refresh_infotext = boiler_refresh_infotext,
 })
 
 yatm.devices.register_network_device(boiler_yatm_network.states.on, {
@@ -189,5 +198,7 @@ yatm.devices.register_network_device(boiler_yatm_network.states.on, {
   paramtype = "light",
   paramtype2 = "facedir",
   yatm_network = yatm_core.table_merge(boiler_yatm_network, {state = "on"}),
+
   fluid_interface = fluid_interface,
+  refresh_infotext = boiler_refresh_infotext,
 })

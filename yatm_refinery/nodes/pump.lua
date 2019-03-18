@@ -22,19 +22,18 @@ local pump_yatm_network = {
 local fluid_interface = yatm.fluids.FluidInterface.new_simple("tank", 16000)
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  pump_yatm_network.refresh_infotext(pos, nil, minetest.get_meta(pos), { cause = "fluid_changed" })
+  yatm_core.trigger_refresh_infotext(pos)
 end
 
-function pump_yatm_network.refresh_infotext(pos, _node, _meta, event)
+local function pump_refresh_infotext(pos)
   local new_node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[new_node.name]
   local meta = minetest.get_meta(pos)
   local state = nodedef.yatm_network.state
-  local network_id = Network.get_meta_network_id(meta)
   local fluid_stack = FluidMeta.get_fluid(meta, nodedef.fluid_interface.tank_name)
   meta:set_string("infotext",
-    "Network ID <" .. Network.format_id(network_id) .. "> " .. state .. "\n" ..
-    "Tank <" .. FluidStack.to_string(fluid_stack, fluid_interface.capacity) .. "> "
+    "Network ID: " .. Network.to_infotext(meta) .. " " .. state .. "\n" ..
+    "Tank: " .. FluidStack.pretty_format(fluid_stack, fluid_interface.capacity) .. "> "
   )
 end
 
@@ -114,8 +113,10 @@ yatm.devices.register_network_device(pump_yatm_network.states.off, {
   },
   paramtype = "light",
   paramtype2 = "facedir",
+
   yatm_network = yatm_core.table_merge(pump_yatm_network, {state = "off"}),
   fluid_interface = fluid_interface,
+  refresh_infotext = pump_refresh_infotext,
 })
 
 yatm.devices.register_network_device(pump_yatm_network.states.error, {
@@ -132,8 +133,10 @@ yatm.devices.register_network_device(pump_yatm_network.states.error, {
   },
   paramtype = "light",
   paramtype2 = "facedir",
+
   yatm_network = yatm_core.table_merge(pump_yatm_network, {state = "error"}),
   fluid_interface = fluid_interface,
+  refresh_infotext = pump_refresh_infotext,
 })
 
 yatm.devices.register_network_device(pump_yatm_network.states.on, {
@@ -150,6 +153,8 @@ yatm.devices.register_network_device(pump_yatm_network.states.on, {
   },
   paramtype = "light",
   paramtype2 = "facedir",
+
   yatm_network = yatm_core.table_merge(pump_yatm_network, {state = "on"}),
   fluid_interface = fluid_interface,
+  refresh_infotext = pump_refresh_infotext,
 })

@@ -1,4 +1,6 @@
-local Network = assert(yatm_spacetime.Network)
+local Network = assert(yatm.spacetime.Network)
+local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
+
 local teleporter_node_box = {
   type = "fixed",
   fixed = {
@@ -70,15 +72,17 @@ end
 
 local function maybe_teleport_all_players_on_teleporter(pos, node)
   local meta = minetest.get_meta(pos)
-  local address = yatm_spacetime.get_address_in_meta(meta)
+  local address = SpacetimeMeta.get_address(meta)
   if not yatm_core.is_blank(address) then
     local hash = minetest.hash_node_position(pos)
     local positions = {}
-    for h,target_pos in pairs(Network.poses_for_address(address)) do
-      if h ~= hash then
-        positions[h] = target_pos
+
+    Network.each_member_in_group_by_address("player_teleporter", address, function (member_hash, member)
+      if member_hash ~= hash then
+        positions[member_hash] = member.pos
       end
-    end
+      return true
+    end)
 
     if yatm_core.is_table_empty(positions) then
       print("No target positions!")
@@ -123,20 +127,24 @@ local function teleporter_after_place_node(pos, placer, itemstack, pointed_thing
   local new_meta = minetest.get_meta(pos)
   local old_meta = itemstack:get_meta()
 
-  yatm_spacetime.copy_address_in_meta(old_meta, new_meta)
+  SpacetimeMeta.copy_address(old_meta, new_meta)
 
-  local address = yatm_spacetime.patch_address_in_meta(new_meta)
-  yatm_spacetime.Network.register_device(pos, address)
+  local address = SpacetimeMeta.patch_address(new_meta)
+  local node = minetest.get_node(pos)
+  Network:maybe_register_node(pos, node)
 
   yatm.devices.device_after_place_node(pos, placer, itemstack, pointed_thing)
 
-  local node = minetest.get_node(pos)
   minetest.after(0, mesecon.on_placenode, pos, node)
 end
 
 local function teleporter_on_destruct(pos)
-  yatm_spacetime.Network.unregister_device(pos)
+  Network:unregister_device(pos)
   yatm.devices.device_on_destruct(pos)
+end
+
+local function teleporter_after_destruct(pos, _old_node)
+  yatm.devices.device_after_destruct(pos)
 end
 
 local function teleporter_preserve_metadata(pos, oldnode, old_meta_table, drops)
@@ -144,15 +152,14 @@ local function teleporter_preserve_metadata(pos, oldnode, old_meta_table, drops)
 
   local old_meta = yatm_core.FakeMetaRef:new(old_meta_table)
   local new_meta = stack:get_meta()
-  yatm_spacetime.copy_address_in_meta(old_meta, new_meta)
+  SpacetimeMeta.copy_address(old_meta, new_meta)
 end
 
-local function teleporter_change_address(pos, node, new_address)
+local function teleporter_change_spacetime_address(pos, node, new_address)
   local meta = minetest.get_meta(pos)
 
-  yatm_spacetime.Network.unregister_device(pos)
-  yatm_spacetime.set_address_in_meta(meta, new_address)
-  yatm_spacetime.Network.register_device(pos, new_address)
+  SpacetimeMeta.set_address(meta, new_address)
+  Network:update_node(pos, node)
 
   local nodedef = minetest.registered_nodes[node.name]
   if yatm_core.is_blank(new_address) then
@@ -186,9 +193,11 @@ yatm.devices.register_network_device(teleporter_yatm_network.states.off, {
 
   after_place_node = teleporter_after_place_node,
   on_destruct = teleporter_on_destruct,
+  after_destruct = teleporter_after_destruct,
+
   preserve_metadata = teleporter_preserve_metadata,
 
-  change_address = teleporter_change_address,
+  change_spacetime_address = teleporter_change_spacetime_address,
 })
 
 yatm.devices.register_network_device(teleporter_yatm_network.states.error, {
@@ -212,9 +221,11 @@ yatm.devices.register_network_device(teleporter_yatm_network.states.error, {
 
   after_place_node = teleporter_after_place_node,
   on_destruct = teleporter_on_destruct,
+  after_destruct = teleporter_after_destruct,
+
   preserve_metadata = teleporter_preserve_metadata,
 
-  change_address = teleporter_change_address,
+  change_spacetime_address = teleporter_change_spacetime_address,
 })
 
 yatm.devices.register_network_device(teleporter_yatm_network.states.inactive, {
@@ -238,9 +249,11 @@ yatm.devices.register_network_device(teleporter_yatm_network.states.inactive, {
 
   after_place_node = teleporter_after_place_node,
   on_destruct = teleporter_on_destruct,
+  after_destruct = teleporter_after_destruct,
+
   preserve_metadata = teleporter_preserve_metadata,
 
-  change_address = teleporter_change_address,
+  change_spacetime_address = teleporter_change_spacetime_address,
 })
 
 yatm.devices.register_network_device(teleporter_yatm_network.states.on, {
@@ -272,7 +285,12 @@ yatm.devices.register_network_device(teleporter_yatm_network.states.on, {
 
   after_place_node = teleporter_after_place_node,
   on_destruct = teleporter_on_destruct,
+  after_destruct = teleporter_after_destruct,
+
   preserve_metadata = teleporter_preserve_metadata,
 
-  change_address = teleporter_change_address,
+  change_spacetime_address = teleporter_change_spacetime_address,
+  yatm_spacetime = {
+    groups = {player_teleporter = 1},
+  },
 })
