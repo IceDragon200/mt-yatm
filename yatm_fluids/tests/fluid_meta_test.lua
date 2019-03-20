@@ -119,6 +119,26 @@ case:describe("fill_fluid/6", function (t2)
     local fluid_stack = m.get_fluid(meta, "water_tank")
     t3:refute(fluid_stack)
   end)
+
+  t2:test("will modify meta if commit is true", function (t3)
+    local meta = MetaRef:new()
+
+    local used_stack, new_stack = m.fill_fluid(meta, "water_tank", FluidStack.new("default:water", 1000), 1000, 1000, true)
+
+    t3:assert(used_stack)
+    t3:assert(used_stack.name, "default:water")
+    t3:assert(used_stack.amount, 1000)
+
+    t3:assert(new_stack)
+    t3:assert(new_stack.name, "default:water")
+    t3:assert(new_stack.amount, 1000)
+
+    local fluid_stack = m.get_fluid(meta, "water_tank")
+
+    t3:assert(fluid_stack)
+    t3:assert(fluid_stack.name, "default:water")
+    t3:assert(fluid_stack.amount, 1000)
+  end)
 end)
 
 case:execute()

@@ -25,7 +25,7 @@ end
 
 function FluidMeta.increase_amount(meta, key, amount, capacity, commit)
   local existing_amount = Measurable.get_measurable_amount(meta, key)
-  local new_amount
+  local new_amount = 0
   if capacity then
     new_amount = math.min(existing_amount + amount, capacity)
   else
@@ -98,6 +98,7 @@ function FluidMeta.increase_fluid(meta, key, fluid_stack, capacity, commit)
     local set_amount, new_amount = FluidMeta.increase_amount(meta, key, fluid_stack.amount, capacity, commit)
     return FluidStack.new(match_name, set_amount), FluidStack.new(dest_fluid_name, new_amount)
   else
+    print("Name mismatch ", dest_fluid_name, src_fluid_name)
     return nil, FluidMeta.get_fluid(meta, key)
   end
 end

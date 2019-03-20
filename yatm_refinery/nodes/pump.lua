@@ -32,9 +32,20 @@ function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
   yatm_core.queue_refresh_infotext(pos)
 end
 
+local old_fill = fluid_interface.fill
+function fluid_interface:fill(pos, dir, fluid_stack, commit)
+  local node = minetest.get_node(pos)
+  local pump_in_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_DOWN)
+  if dir == pump_in_dir then
+    return old_fill(self, pos, dir, fluid_stack, commit)
+  else
+    return nil
+  end
+end
+
 local function pump_refresh_infotext(pos)
-  local new_node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[new_node.name]
+  local node = minetest.get_node(pos)
+  local nodedef = minetest.registered_nodes[node.name]
   local meta = minetest.get_meta(pos)
   local state = nodedef.yatm_network.state
   local fluid_stack = FluidMeta.get_fluid(meta, nodedef.fluid_interface.tank_name)
@@ -47,6 +58,8 @@ end
 
 function pump_yatm_network.work(pos, node, energy_available, work_rate, ot)
   local energy_consumed = 0
+  local meta = minetest.get_meta(pos)
+  local nodedef = minetest.registered_nodes[node.name]
 
   local pump_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_DOWN)
   local target_pos = vector.add(pos, yatm_core.DIR6_TO_VEC3[pump_dir])
@@ -54,7 +67,7 @@ function pump_yatm_network.work(pos, node, energy_available, work_rate, ot)
   local fluid_name = FluidRegistry.item_name_to_fluid_name(target_node.name)
 
   if fluid_name then
-    local used_stack = FluidTanks.fill(pos, pump_dir, FluidStack.new(fluid_name, 1000), true)
+    local used_stack = FluidMeta.fill_fluid(meta, "tank", FluidStack.new(fluid_name, 1000), nodedef.fluid_interface.capacity, nodedef.fluid_interface.capacity, true)
     if used_stack and used_stack.amount > 0 then
       energy_consumed = energy_consumed + math.floor(100 * used_stack.amount / 1000)
       minetest.remove_node(target_pos)
@@ -64,7 +77,7 @@ function pump_yatm_network.work(pos, node, energy_available, work_rate, ot)
     local drained_stack = FluidTanks.drain(target_pos, inverted_dir, FluidStack.new_wildcard(1000), false)
     if drained_stack and drained_stack.amount > 0 then
       local existing = FluidTanks.get(pos, pump_dir)
-      local filled_stack = FluidTanks.fill(pos, pump_dir, drained_stack, true)
+      local filled_stack = FluidMeta.fill_fluid(meta, "tank", drained_stack, nodedef.fluid_interface.capacity, nodedef.fluid_interface.capacity, true)
 
       if filled_stack and filled_stack.amount > 0 then
         FluidTanks.drain(target_pos,
@@ -75,7 +88,6 @@ function pump_yatm_network.work(pos, node, energy_available, work_rate, ot)
     end
   end
 
-  local meta = minetest.get_meta(pos)
   do
     local new_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
     local target_pos = vector.add(pos, yatm_core.DIR6_TO_VEC3[new_dir])
@@ -97,17 +109,6 @@ function pump_yatm_network.work(pos, node, energy_available, work_rate, ot)
   end
 
   return energy_consumed
-end
-
-local old_fill = fluid_interface.fill
-function fluid_interface:fill(pos, dir, fluid_stack, commit)
-  local node = minetest.get_node(pos)
-  local pump_in_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_DOWN)
-  if dir == pump_in_dir then
-    return old_fill(self, pos, dir, fluid_stack, commit)
-  else
-    return nil
-  end
 end
 
 yatm.devices.register_stateful_network_device({
@@ -133,7 +134,7 @@ yatm.devices.register_stateful_network_device({
   paramtype = "light",
   paramtype2 = "facedir",
 
-  yatm_network = yatm_core.table_merge(pump_yatm_network, {state = "off"}),
+  yatm_network = pump_yatm_network,
   fluid_interface = fluid_interface,
   refresh_infotext = pump_refresh_infotext,
 }, {

@@ -22,12 +22,13 @@ local cell_types = {
 local function energy_cell_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
   local node = minetest.get_node(pos)
+  local nodedef = minetest.registered_nodes[node.name]
 
   local usable = EnergyDevices.get_usable_stored_energy(pos, node)
 
   local infotext =
     "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
-    "Energy: " .. Energy.to_infotext(meta, "internal") .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, "internal", nodedef.yatm_network.energy.capacity) .. "\n" ..
     "Usable En.:" .. tostring(usable)
 
   meta:set_string("infotext", infotext)
@@ -49,7 +50,9 @@ for cell_type, cell_config in pairs(cell_types) do
       energy_receiver = 1,
     },
 
-    energy = {}
+    energy = {
+      capacity = cell_config.capacity,
+    }
   }
 
   local function on_energy_changed(pos, node)
