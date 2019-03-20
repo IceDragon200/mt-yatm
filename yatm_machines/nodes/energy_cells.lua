@@ -1,3 +1,7 @@
+local Network = assert(yatm.network)
+local Energy = assert(yatm.energy)
+local EnergyDevices = assert(yatm.energy.EnergyDevices)
+
 -- network frames * seconds * minutes
 local hours = 20 * 60 * 60
 local cell_types = {
@@ -15,6 +19,20 @@ local cell_types = {
   },
 }
 
+local function energy_cell_refresh_infotext(pos)
+  local meta = minetest.get_meta(pos)
+  local node = minetest.get_node(pos)
+
+  local usable = EnergyDevices.get_usable_stored_energy(pos, node)
+
+  local infotext =
+    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, "internal") .. "\n" ..
+    "Usable En.:" .. tostring(usable)
+
+  meta:set_string("infotext", infotext)
+end
+
 for cell_type, cell_config in pairs(cell_types) do
   local energy_cell_yatm_network = {
     basename = "yatm_machines:energy_cell_" .. cell_type,
@@ -29,12 +47,14 @@ for cell_type, cell_config in pairs(cell_types) do
       energy_storage = 1,
       -- it qualifies as an energy receiver device
       energy_receiver = 1,
-    }
+    },
+
+    energy = {}
   }
 
-  local function refresh(pos, node)
+  local function on_energy_changed(pos, node)
     local meta = minetest.get_meta(pos)
-    local current_energy = meta:get_int("energy")
+    local current_energy = Energy.get_energy(meta, "internal")
     local stage = math.min(math.floor(8 * current_energy / cell_config.capacity), 7);
 
     local new_name = energy_cell_yatm_network.basename .. "_" .. stage
@@ -42,33 +62,37 @@ for cell_type, cell_config in pairs(cell_types) do
       node.name = new_name
       minetest.swap_node(pos, node)
     end
+    yatm_core.queue_refresh_infotext(pos)
   end
 
-  local function change_energy(pos, node, energy)
+  function energy_cell_yatm_network.energy.receive_energy(pos, node, amount)
     local meta = minetest.get_meta(pos)
-    meta:set_int("energy", energy)
-    print("ENERGY STORED", pos.x, pos.y, pos.z, node.name, energy, "/", cell_config.capacity)
-    refresh(pos, node)
+    local used_amount = Energy.receive_energy(meta, "internal", amount, cell_config.bandwidth, cell_config.capacity, true)
+    if used_amount > 0 then
+      on_energy_changed(pos, node)
+    end
+    return used_amount
   end
 
-  function energy_cell_yatm_network.receive_energy(pos, node, amount)
+  function energy_cell_yatm_network.energy.get_usable_stored_energy(pos, node)
     local meta = minetest.get_meta(pos)
-    return yatm_core.energy.receive_energy(meta, "internal", amount, cell_config.bandwidth, cell_config.capacity, true)
+    return Energy.get_energy_throughput(meta, "internal", cell_config.bandwidth)
   end
 
-  function energy_cell_yatm_network.get_usable_stored_energy(pos, node)
+  function energy_cell_yatm_network.energy.use_stored_energy(pos, node, amount)
     local meta = minetest.get_meta(pos)
-    return yatm_core.energy.get_energy_throughput(meta, "internal", cell_config.bandwidth)
-  end
-
-  function energy_cell_yatm_network.use_stored_energy(pos, node, amount)
-    local meta = minetest.get_meta(pos)
-    return yatm_core.energy.consume_energy(meta, "internal", amount, cell_config.bandwidth, cell_config.capacity, true)
+    local consumed_amount = Energy.consume_energy(meta, "internal", amount, cell_config.bandwidth, cell_config.capacity, true)
+    if consumed_amount > 0 then
+      on_energy_changed(pos, node)
+    end
+    return consumed_amount
   end
 
   for stage = 0,7 do
     groups = {
-      cracky = 1, yatm_network_host = 2, yatm_energy_device = 1,
+      cracky = 1,
+      yatm_network_host = 2,
+      yatm_energy_device = 1,
     }
     if stage > 0 then
       groups.not_in_creative_inventory = 1
@@ -91,9 +115,12 @@ for cell_type, cell_config in pairs(cell_types) do
       },
       paramtype = "light",
       paramtype2 = "facedir",
+
       yatm_network = energy_cell_yatm_network,
 
       sounds = default.node_sound_glass_defaults(),
+
+      refresh_infotext = energy_cell_refresh_infotext,
     })
   end
 
@@ -112,27 +139,29 @@ for cell_type, cell_config in pairs(cell_types) do
       energy_storage = 1,
       -- it qualifies as an energy receiver device
       energy_receiver = 1,
-    }
+    },
+    energy = {}
   }
 
-  function creative_energy_cell_yatm_network.receive_energy(pos, node, amount)
-    local meta = minetest.get_meta(pos)
+  function creative_energy_cell_yatm_network.energy.receive_energy(pos, node, amount)
     return 0
   end
 
-  function creative_energy_cell_yatm_network.get_usable_stored_energy(pos, node)
-    local meta = minetest.get_meta(pos)
+  function creative_energy_cell_yatm_network.energy.get_usable_stored_energy(pos, node)
     return cell_config.bandwidth
   end
 
-  function creative_energy_cell_yatm_network.use_stored_energy(pos, node, amount)
-    local meta = minetest.get_meta(pos)
+  function creative_energy_cell_yatm_network.energy.use_stored_energy(pos, node, amount)
     return amount
   end
 
   yatm.devices.register_network_device(creative_energy_cell_yatm_network.basename, {
     description = "Energy Cell ("..cell_type..") [Creative]",
-    groups = {cracky = 1, yatm_network_host = 2, yatm_energy_device = 1},
+    groups = {
+      cracky = 1,
+      yatm_network_host = 2,
+      yatm_energy_device = 1,
+    },
     is_ground_content = false,
     tiles = {
       {
@@ -147,7 +176,10 @@ for cell_type, cell_config in pairs(cell_types) do
     },
     paramtype = "light",
     paramtype2 = "facedir",
+
     yatm_network = creative_energy_cell_yatm_network,
+
+    refresh_infotext = energy_cell_refresh_infotext,
 
     sounds = default.node_sound_glass_defaults(),
   })

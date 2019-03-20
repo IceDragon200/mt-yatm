@@ -36,7 +36,7 @@ local function teleporter_after_place_node(pos, _placer, itemstack, _pointed_thi
   SpacetimeNetwork:maybe_register_node(pos, node)
 
   yatm.devices.device_after_place_node(pos, placer, itemstack, pointed_thing)
-  assert(yatm_core.trigger_refresh_infotext(pos))
+  assert(yatm_core.queue_refresh_infotext(pos))
 end
 
 local function teleporter_on_destruct(pos)
@@ -62,14 +62,14 @@ local function teleporter_change_spacetime_address(pos, node, new_address)
     node.name = fluid_receiver_yatm_network.states.on
     minetest.swap_node(pos, node)
   end
-  assert(yatm_core.trigger_refresh_infotext(pos))
+  assert(yatm_core.queue_refresh_infotext(pos))
   return new_address
 end
 
 local fluid_interface = FluidInterface.new_simple("tank", 16000)
 
 function fluid_interface:on_fluid_changed(pos, dir, _fluid_stack)
-  assert(yatm_core.trigger_refresh_infotext(pos))
+  assert(yatm_core.queue_refresh_infotext(pos))
 end
 
 local function teleporter_refresh_infotext(pos)

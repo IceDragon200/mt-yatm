@@ -11,7 +11,7 @@ local function teleporter_after_place_node(pos, _placer, _itemstack, _pointed_th
   local node = minetest.get_node(pos)
   SpacetimeNetwork:maybe_register_node(pos, node)
 
-  assert(yatm_core.trigger_refresh_infotext(pos))
+  assert(yatm_core.queue_refresh_infotext(pos))
 end
 
 local function teleporter_on_destruct(pos)

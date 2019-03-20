@@ -41,10 +41,7 @@ local combustion_engine_yatm_network = {
 
 function combustion_engine_yatm_network.energy.produce_energy(pos, node, should_commit)
   local meta = minetest.get_meta(pos)
-  if meta then
-    return 100
-  end
-  return 0
+  return 1000
 end
 
 local fluid_interface = yatm.fluids.FluidInterface.new_simple("tank", 16000)
@@ -56,6 +53,7 @@ yatm.devices.register_stateful_network_device({
     cracky = 1,
     yatm_network_host = 3,
     fluid_interface_in = 1,
+    yatm_energy_device = 1,
   },
 
   drop = combustion_engine_yatm_network.states.off,

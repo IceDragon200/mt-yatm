@@ -3,13 +3,25 @@ local battery_bank_yatm_network = {
   groups = {
     energy_storage = 1,
   },
+  default_state = "off",
   states = {
     conflict = "yatm_machines:battery_bank_error",
     error = "yatm_machines:battery_bank_error",
     off = "yatm_machines:battery_bank_off",
     on = "yatm_machines:battery_bank_on",
+  },
+  energy = {
+
   }
 }
+
+function battery_bank_yatm_network.energy.get_usable_stored_energy(pos, node)
+  return 0
+end
+
+function battery_bank_yatm_network.energy.use_stored_energy(pos, node, energy_to_use)
+  return energy_to_use
+end
 
 yatm.devices.register_network_device(battery_bank_yatm_network.states.off, {
   description = "Battery Bank",

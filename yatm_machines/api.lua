@@ -1,4 +1,8 @@
-local devices = {}
+local Network = assert(yatm_core.Network)
+
+local devices = {
+  ENERGY_BUFFER_KEY = "energy_buffer"
+}
 
 function devices.device_on_destruct(pos)
   return yatm.network.device_on_destruct(pos)
@@ -26,17 +30,22 @@ function devices.device_passive_consume_energy(pos, node, amount)
   if nodedef and nodedef.yatm_network then
     local ym = nodedef.yatm_network
     local energy = assert(ym.energy)
+    -- Passive lost affects how much energy is available
+    -- Passive lost will not affect the node's current buffer only the consumable amount
     local passive_lost = energy.passive_lost
     if passive_lost > 0 then
       consumed = consumed + math.min(amount, passive_lost)
     end
     local remaining = amount - consumed
-    local charge_bandwidth = energy.network_charge_bandwidth
-    if charge_bandwidth and charge_bandwidth > 0 and remaining > 0 then
-      local capacity = energy.capacity
-      local meta = minetest.get_meta(pos)
-      local stored = yatm.energy.receive_energy(meta, "energy_buffer", remaining, charge_bandwidth, capacity, true)
-      consumed = consumed + stored
+    if remaining > 0 then
+      local charge_bandwidth = energy.network_charge_bandwidth
+      if charge_bandwidth and charge_bandwidth > 0 then
+        local capacity = energy.capacity
+        local meta = minetest.get_meta(pos)
+        local stored = yatm.energy.receive_energy(meta, devices.ENERGY_BUFFER_KEY, remaining, charge_bandwidth, capacity, true)
+        Network:queue_refresh_infotext(pos)
+        consumed = consumed + stored
+      end
     end
     --print("CONSUMED", pos.x, pos.y, pos.z, node.name, "CONSUMED", consumed, "GIVEN", amount)
   end
@@ -48,12 +57,12 @@ function devices.worker_update(pos, node, ot)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef then
     local meta = minetest.get_meta(pos, node)
-    local total_available = yatm.energy.get_energy(meta, "energy_buffer")
+    local total_available = yatm.energy.get_energy(meta, devices.ENERGY_BUFFER_KEY)
     local ym = nodedef.yatm_network
 
     --print("Energy Available", total_available)
     if ym.state == "off" then
-      if total_available >= ym.startup_energy_threshold then
+      if total_available >= ym.energy.startup_threshold then
         ym.on_network_state_changed(pos, node, "on")
       end
     end
@@ -67,15 +76,16 @@ function devices.worker_update(pos, node, ot)
       if thresh and thresh > 0 then
         work_rate = total_available / thresh
       end
-      local available_energy = yatm.energy.consume_energy(meta, "energy_buffer", bandwidth, bandwidth, capacity, false)
+      local available_energy = yatm.energy.consume_energy(meta, devices.ENERGY_BUFFER_KEY, bandwidth, bandwidth, capacity, false)
       local consumed = ym.work(pos, node, available_energy, work_rate, ot)
       if consumed > 0 then
-        yatm.energy.consume_energy(meta, "energy_buffer", consumed, bandwidth, capacity, true)
+        yatm.energy.consume_energy(meta, devices.ENERGY_BUFFER_KEY, consumed, bandwidth, capacity, true)
+        Network:queue_refresh_infotext(pos)
       end
       --print("devices.worker_update/3", yatm_core.vec3_to_string(pos), dump(node.name), "consumed energy", consumed)
     end
 
-    local total_available = yatm.energy.get_energy(meta, "energy_buffer")
+    local total_available = yatm.energy.get_energy(meta, devices.ENERGY_BUFFER_KEY)
     if total_available == 0 then
       ym.on_network_state_changed(pos, node, "off")
     end
@@ -93,9 +103,9 @@ function devices.default_on_network_state_changed(pos, node, state)
       -- the intention is to activate the node
       if state == "on" then
         local meta = minetest.get_meta(pos, node)
-        local total_available = yatm.energy.get_energy(meta, "energy_buffer")
-        local threshold = nodedef.yatm_network.startup_energy_threshold or 0
-        print("TRY ONLINE", pos.x, pos.y, pos.z, node.name, total_available, threshold)
+        local total_available = yatm.energy.get_energy(meta, devices.ENERGY_BUFFER_KEY)
+        local threshold = nodedef.yatm_network.energy.startup_threshold or 0
+        --print("TRY ONLINE", pos.x, pos.y, pos.z, node.name, total_available, threshold)
         if total_available < threshold then
           new_state = "off"
         end
@@ -156,7 +166,7 @@ function devices.register_network_device(name, nodedef)
         ym.update = devices.worker_update
 
         assert(ym.state, name .. " a machine_worker must have a `state`")
-        assert(ym.energy, name .. " a machine_worker requires an `energy` table containing all energy behaviour")
+        assert(ym.energy, name .. " a machine_worker requires an `energy` interface containing all energy behaviour")
         assert(ym.energy.capacity, name .. " a machine_worker requires an `energy.capacity`")
         assert(ym.energy.network_charge_bandwidth, name .. " a machine_worker require `energy.network_charge_bandwidth`")
         assert(ym.energy.startup_threshold, name .. " a machine_worker requires a `energy.startup_threshold`")
@@ -166,17 +176,26 @@ function devices.register_network_device(name, nodedef)
         assert(ym.update, "expected update/3 to be defined")
       end
       if ym.groups.energy_producer then
-        assert(ym.energy, name .. " energy_producer requires an `energy` table containing all energy behaviour")
+        assert(ym.energy, name .. " energy_producer requires an `energy` interface containing all energy behaviour")
         assert(ym.energy.produce_energy, "expected produce_energy/2 to be defined")
       end
       if ym.groups.energy_consumer then
-        assert(ym.energy, name .. " energy_consumer requires an `energy` table containing all energy behaviour")
+        assert(ym.energy, name .. " energy_consumer requires an `energy` interface containing all energy behaviour")
         if ym.energy.passive_lost == nil then
           ym.energy.passive_lost = 10
         end
         if ym.energy.consume_energy == nil then
           ym.energy.consume_energy = assert(devices.device_passive_consume_energy)
         end
+      end
+      if ym.groups.energy_storage then
+        assert(ym.energy, name .. " energy_storage requires an `energy` interface")
+        assert(ym.energy.get_usable_stored_energy, name .. " expected a `get_usable_stored_energy` function to be defined")
+        assert(ym.energy.use_stored_energy, name .. " expected a `use_stored_energy` function to be defined")
+      end
+      if ym.groups.energy_receiver then
+        assert(ym.energy, name .. " energy_receiver requires an `energy` interface")
+        assert(ym.energy.receive_energy, name .. " expected a receive_energy function to be defined")
       end
     end
   end

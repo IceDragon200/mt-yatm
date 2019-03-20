@@ -4,6 +4,7 @@ local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidUtils = assert(yatm.fluids.Utils)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local Network = assert(yatm.network)
+local Energy = assert(yatm.energy)
 
 local boiler_yatm_network = {
   kind = "machine",
@@ -45,7 +46,7 @@ local fluid_interface = FluidInterface.new_directional(get_fluid_tank_name)
 fluid_interface.capacity = 16000
 fluid_interface.bandwidth = fluid_interface.capacity
 
-function boiler_yatm_network:work(pos, node, available_energy, work_rate, ot)
+function boiler_yatm_network.work(pos, node, available_energy, work_rate, ot)
   return 0
 end
 

@@ -13,7 +13,7 @@ local barrel_nodebox = {
 }
 
 local function barrel_on_construct(pos)
-  assert(yatm_core.trigger_refresh_infotext(pos))
+  assert(yatm_core.queue_refresh_infotext(pos))
 end
 
 local function barrel_on_destruct(pos)

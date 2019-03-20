@@ -18,6 +18,8 @@ dofile(yatm_core.modpath .. "/meta_schema.lua")
 dofile(yatm_core.modpath .. "/changeset.lua")
 dofile(yatm_core.modpath .. "/ui.lua")
 dofile(yatm_core.modpath .. "/groups.lua")
+-- Node Utilities
+dofile(yatm_core.modpath .. "/energy_devices.lua")
 -- Networks
 dofile(yatm_core.modpath .. "/generic_transport_network.lua")
 dofile(yatm_core.modpath .. "/yatm_network.lua")

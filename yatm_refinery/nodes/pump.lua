@@ -3,26 +3,33 @@ local FluidRegistry = assert(yatm.fluids.FluidRegistry)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
 local Network = assert(yatm.network)
+local Energy = assert(yatm.energy)
 
 local pump_yatm_network = {
   kind = "machine",
   groups = {
-    machine = 1,
-    has_update = 1, -- the device should be updated every network step
+    machine_worker = 1,
+    energy_consumer = 1,
   },
+  default_state = "off",
   states = {
     conflict = "yatm_refinery:pump_error",
     error = "yatm_refinery:pump_error",
     off = "yatm_refinery:pump_off",
     on = "yatm_refinery:pump_on",
   },
-  passive_energy_lost = 0
+  energy = {
+    passive_lost = 0,
+    capacity = 16000,
+    network_charge_bandwidth = 1000,
+    startup_threshold = 1000,
+  }
 }
 
 local fluid_interface = yatm.fluids.FluidInterface.new_simple("tank", 16000)
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  yatm_core.trigger_refresh_infotext(pos)
+  yatm_core.queue_refresh_infotext(pos)
 end
 
 local function pump_refresh_infotext(pos)
@@ -32,12 +39,15 @@ local function pump_refresh_infotext(pos)
   local state = nodedef.yatm_network.state
   local fluid_stack = FluidMeta.get_fluid(meta, nodedef.fluid_interface.tank_name)
   meta:set_string("infotext",
-    "Network ID: " .. Network.to_infotext(meta) .. " " .. state .. "\n" ..
-    "Tank: " .. FluidStack.pretty_format(fluid_stack, fluid_interface.capacity) .. "> "
+    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    "Tank: " .. FluidStack.pretty_format(fluid_stack, fluid_interface.capacity)
   )
 end
 
-function pump_yatm_network.update(pos, node, _ot)
+function pump_yatm_network.work(pos, node, energy_available, work_rate, ot)
+  local energy_consumed = 0
+
   local pump_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_DOWN)
   local target_pos = vector.add(pos, yatm_core.DIR6_TO_VEC3[pump_dir])
   local target_node = minetest.get_node(target_pos)
@@ -46,6 +56,7 @@ function pump_yatm_network.update(pos, node, _ot)
   if fluid_name then
     local used_stack = FluidTanks.fill(pos, pump_dir, FluidStack.new(fluid_name, 1000), true)
     if used_stack and used_stack.amount > 0 then
+      energy_consumed = energy_consumed + math.floor(100 * used_stack.amount / 1000)
       minetest.remove_node(target_pos)
     end
   else
@@ -59,6 +70,7 @@ function pump_yatm_network.update(pos, node, _ot)
         FluidTanks.drain(target_pos,
           inverted_dir,
           filled_stack, true)
+        energy_consumed = energy_consumed + math.floor(100 * filled_stack.amount / 1000)
       end
     end
   end
@@ -73,8 +85,9 @@ function pump_yatm_network.update(pos, node, _ot)
       fluid_interface.capacity, fluid_interface.capacity, false)
     if stack and stack.amount > 0 then
       local target_dir = yatm_core.invert_dir(new_dir)
-      local filled_stack = FluidStack.presence(FluidTanks.fill(target_pos, target_dir, stack, true))
-      if filled_stack then
+      local filled_stack = FluidTanks.fill(target_pos, target_dir, stack, true)
+      if filled_stack and filled_stack.amount > 0 then
+        energy_consumed = energy_consumed + math.floor(100 * filled_stack.amount / 1000)
         FluidMeta.drain_fluid(meta,
           "tank",
           filled_stack,
@@ -82,6 +95,8 @@ function pump_yatm_network.update(pos, node, _ot)
       end
     end
   end
+
+  return energy_consumed
 end
 
 local old_fill = fluid_interface.fill
@@ -95,14 +110,17 @@ function fluid_interface:fill(pos, dir, fluid_stack, commit)
   end
 end
 
-local groups = {
-  cracky = 1, fluid_interface_out = 1, yatm_energy_device = 1,
-}
-
-yatm.devices.register_network_device(pump_yatm_network.states.off, {
+yatm.devices.register_stateful_network_device({
   description = "Pump",
-  groups = groups,
+
+  groups = {
+    cracky = 1,
+    fluid_interface_out = 1,
+    yatm_energy_device = 1,
+  },
+
   drop = pump_yatm_network.states.off,
+
   tiles = {
     "yatm_pump_top.png",
     "yatm_pump_bottom.png",
@@ -111,50 +129,32 @@ yatm.devices.register_network_device(pump_yatm_network.states.off, {
     "yatm_pump_back.off.png",
     "yatm_pump_front.off.png"
   },
+
   paramtype = "light",
   paramtype2 = "facedir",
 
   yatm_network = yatm_core.table_merge(pump_yatm_network, {state = "off"}),
   fluid_interface = fluid_interface,
   refresh_infotext = pump_refresh_infotext,
-})
-
-yatm.devices.register_network_device(pump_yatm_network.states.error, {
-  description = "Pump",
-  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-  drop = pump_yatm_network.states.off,
-  tiles = {
-    "yatm_pump_top.png",
-    "yatm_pump_bottom.png",
-    "yatm_pump_side.error.png",
-    "yatm_pump_side.error.png^[transformFX",
-    "yatm_pump_back.error.png",
-    "yatm_pump_front.error.png"
+}, {
+  error = {
+    tiles = {
+      "yatm_pump_top.png",
+      "yatm_pump_bottom.png",
+      "yatm_pump_side.error.png",
+      "yatm_pump_side.error.png^[transformFX",
+      "yatm_pump_back.error.png",
+      "yatm_pump_front.error.png"
+    },
   },
-  paramtype = "light",
-  paramtype2 = "facedir",
-
-  yatm_network = yatm_core.table_merge(pump_yatm_network, {state = "error"}),
-  fluid_interface = fluid_interface,
-  refresh_infotext = pump_refresh_infotext,
-})
-
-yatm.devices.register_network_device(pump_yatm_network.states.on, {
-  description = "Pump",
-  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-  drop = pump_yatm_network.states.off,
-  tiles = {
-    "yatm_pump_top.png",
-    "yatm_pump_bottom.png",
-    "yatm_pump_side.on.png",
-    "yatm_pump_side.on.png^[transformFX",
-    "yatm_pump_back.on.png",
-    "yatm_pump_front.on.png",
-  },
-  paramtype = "light",
-  paramtype2 = "facedir",
-
-  yatm_network = yatm_core.table_merge(pump_yatm_network, {state = "on"}),
-  fluid_interface = fluid_interface,
-  refresh_infotext = pump_refresh_infotext,
+  on = {
+    tiles = {
+      "yatm_pump_top.png",
+      "yatm_pump_bottom.png",
+      "yatm_pump_side.on.png",
+      "yatm_pump_side.on.png^[transformFX",
+      "yatm_pump_back.on.png",
+      "yatm_pump_front.on.png",
+    },
+  }
 })

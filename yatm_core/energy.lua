@@ -77,6 +77,17 @@ function energy.consume_energy(meta, key, amount, bandwidth, capacity, commit)
   return consumed_amount
 end
 
+function energy.to_infotext(meta, key, capacity)
+  assert(meta, "expected a meta")
+  assert(key, "expected a key")
+  local amount = energy.get_energy(meta, key)
+  if capacity then
+    return tostring(amount) .. " / " .. capacity .. ""
+  else
+    return tostring(amount)
+  end
+end
+
 yatm_core.energy = energy
 
 -- Tests

@@ -4,6 +4,7 @@ local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidUtils = assert(yatm.fluids.Utils)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local Network = assert(yatm.network)
+local Energy = assert(yatm.energy)
 
 local boiler_yatm_network = {
   kind = "machine",
@@ -46,7 +47,7 @@ fluid_interface.capacity = 16000
 fluid_interface.bandwidth = fluid_interface.capacity
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  yatm_core.trigger_refresh_infotext(pos)
+  yatm_core.queue_refresh_infotext(pos)
 end
 
 local function boiler_refresh_infotext(pos)
@@ -59,9 +60,10 @@ local function boiler_refresh_infotext(pos)
     local steam_fluid_stack = FluidMeta.get_fluid(meta, STEAM_TANK)
     local water_fluid_stack = FluidMeta.get_fluid(meta, WATER_TANK)
     meta:set_string("infotext",
-      "Network ID <" .. Network.format_id(network_id) .. "> " .. state .. "\n" ..
-      "Steam Tank <" .. FluidStack.pretty_format(steam_fluid_stack, fluid_interface.capacity) .. ">\n" ..
-      "Water Tank <" .. FluidStack.pretty_format(water_fluid_stack, fluid_interface.capacity) .. ">"
+      "Network ID: <" .. Network.format_id(network_id) .. "> " .. state .. "\n" ..
+      "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+      "Steam Tank: <" .. FluidStack.pretty_format(steam_fluid_stack, fluid_interface.capacity) .. ">\n" ..
+      "Water Tank: <" .. FluidStack.pretty_format(water_fluid_stack, fluid_interface.capacity) .. ">"
     )
   end
 end

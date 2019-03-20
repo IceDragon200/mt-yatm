@@ -16,7 +16,7 @@ local BARREL_CAPACITY = 36000 -- 4 buckets
 local BARREL_DRAIN_BANDWIDTH = BARREL_CAPACITY
 
 local function barrel_on_construct(pos)
-  assert(yatm_core.trigger_refresh_infotext(pos))
+  assert(yatm_core.queue_refresh_infotext(pos))
 end
 
 local function barrel_on_destruct(pos)
@@ -35,7 +35,7 @@ end
 local barrel_fluid_interface = FluidInterface.new_simple("tank", BARREL_CAPACITY)
 
 function barrel_fluid_interface:on_fluid_changed(pos, dir, _fluid_stack)
-  yatm_core.trigger_refresh_infotext(pos)
+  yatm_core.queue_refresh_infotext(pos)
 end
 
 local colors = {

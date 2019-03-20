@@ -7,16 +7,16 @@ __group__ `energy_producer`
 ```lua
 -- Attempt to produce energy, the function should return how much energy is produced
 -- This energy can be taken from a buffer or generated on fly
-yatm_network.produce_energy(pos, node) -- => energy_produced :: integer
+yatm_network.energy.produce_energy(pos, node) -- => energy_produced :: integer
 ```
 
 __group__ `energy_storage`
 
 ```lua
 -- This should return how much energy is USABLE right now from the storage (not it's total capacity)
-yatm_network.get_usable_stored_energy(pos, node) -- => energy_available :: integer
+yatm_network.energy.get_usable_stored_energy(pos, node) -- => energy_available :: integer
 -- This callback is used to commit energy changes to the storage, the storage should subtract as much of the amount as it can and return the amount it was able to subtract.
-yatm_network.use_stored_energy(pos, node, amount) -- => energy_used :: integer
+yatm_network.energy.use_stored_energy(pos, node, amount) -- => energy_used :: integer
 ```
 
 __group__ `energy_consumer`
@@ -24,14 +24,14 @@ __group__ `energy_consumer`
 ```lua
 -- This should use the energy provided in some way, and return how much of that energy was used
 -- Note it's called consume, but this is called from the network as an order to the node "consume this energy"
-yatm_network.consume_energy(pos, node, amount) -- => energy_consumed :: integer
+yatm_network.energy.consume_energy(pos, node, amount) -- => energy_consumed :: integer
 ```
 
 __group__ `energy_receiver`
 
 ```lua
 -- This should receive the given energy, and return how much was received
-yatm_network.receive_energy(pos, node, amount) :: (energy_received :: integer)
+yatm_network.energy.receive_energy(pos, node, amount) -- => (energy_received :: integer)
 ```
 
 ### Notes
