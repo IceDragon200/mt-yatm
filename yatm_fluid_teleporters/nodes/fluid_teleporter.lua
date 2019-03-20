@@ -41,7 +41,10 @@ local fluid_teleporter_yatm_network = {
     on = "yatm_fluid_teleporters:fluid_teleporter_on",
     error = "yatm_fluid_teleporters:fluid_teleporter_error",
     conflict = "yatm_fluid_teleporters:fluid_teleporter_error",
-  }
+  },
+  energy = {
+    passive_lost = 10,
+  },
 }
 
 function fluid_teleporter_yatm_network.update(pos, node, ot)

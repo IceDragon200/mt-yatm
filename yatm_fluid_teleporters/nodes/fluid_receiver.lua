@@ -23,7 +23,10 @@ local fluid_receiver_yatm_network = {
     on = "yatm_fluid_teleporters:fluid_receiver_on",
     error = "yatm_fluid_teleporters:fluid_receiver_error",
     conflict = "yatm_fluid_teleporters:fluid_receiver_error",
-  }
+  },
+  energy = {
+    passive_lost = 10,
+  },
 }
 
 local function teleporter_after_place_node(pos, _placer, itemstack, _pointed_thing)
