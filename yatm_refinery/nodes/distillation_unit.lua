@@ -77,7 +77,12 @@ end
 yatm.devices.register_stateful_network_device({
   description = "Distillation Unit",
 
-  groups = {cracky = 1, fluid_interface_in = 1, fluid_interface_out = 1},
+  groups = {
+    cracky = 1,
+    fluid_interface_in = 1,
+    fluid_interface_out = 1,
+    yatm_energy_device = 1,
+  },
 
   tiles = {
     "yatm_distillation_unit_top.off.png",

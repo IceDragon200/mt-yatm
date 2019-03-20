@@ -6,7 +6,7 @@ local FluidMeta = assert(yatm.fluids.FluidMeta)
 local Network = assert(yatm.network)
 local Energy = assert(yatm.energy)
 
-local boiler_yatm_network = {
+local cracking_boiler_yatm_network = {
   kind = "machine",
   groups = {
     machine_worker = 1, -- Use the machine worker behaviour
@@ -29,7 +29,7 @@ local boiler_yatm_network = {
 }
 
 local STEAM_TANK = "steam_tank"
-local WATER_TANK = "water_tank"
+local FLUID_TANK = "fluid_tank"
 
 local function get_fluid_tank_name(self, pos, dir)
   local node = minetest.get_node(pos)
@@ -37,7 +37,7 @@ local function get_fluid_tank_name(self, pos, dir)
   if new_dir == yatm_core.D_UP then
     return STEAM_TANK, self.capacity
   else
-    return WATER_TANK, self.capacity
+    return FLUID_TANK, self.capacity
   end
   return nil, nil
 end
@@ -46,18 +46,36 @@ local fluid_interface = FluidInterface.new_directional(get_fluid_tank_name)
 fluid_interface.capacity = 16000
 fluid_interface.bandwidth = fluid_interface.capacity
 
-function boiler_yatm_network.work(pos, node, available_energy, work_rate, ot)
+function cracking_boiler_yatm_network.work(pos, node, available_energy, work_rate, ot)
   return 0
 end
 
-local groups = {cracky = 1, fluid_interface_in = 1, fluid_interface_out = 1}
+function cracking_boiler_refresh_infotext(pos)
+  local meta = minetest.get_meta(pos)
+
+  local steam_fluid_stack = FluidMeta.get_fluid(meta, STEAM_TANK)
+  local fluid_stack = FluidMeta.get_fluid(meta, FLUID_TANK)
+
+  local infotext =
+    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    "Steam Tank: " .. FluidStack.pretty_format(steam_fluid_stack, fluid_interface.capacity) .. "\n" ..
+    "Fluid Tank: " .. FluidStack.pretty_format(fluid_stack, fluid_interface.capacity)
+
+  meta:set_string("infotext", infotext)
+end
 
 yatm.devices.register_stateful_network_device({
   description = "Cracking Boiler",
 
-  groups = yatm_core.table_merge(groups, {}),
+  groups = {
+    cracky = 1,
+    fluid_interface_in = 1,
+    fluid_interface_out = 1,
+    yatm_energy_device = 1,
+  },
 
-  drop = boiler_yatm_network.states.off,
+  drop = cracking_boiler_yatm_network.states.off,
 
   tiles = {
     "yatm_cracking_boiler_top.off.png",
@@ -71,9 +89,11 @@ yatm.devices.register_stateful_network_device({
   paramtype = "light",
   paramtype2 = "facedir",
 
-  yatm_network = yatm_core.table_merge(boiler_yatm_network, {state = "off"}),
+  yatm_network = yatm_core.table_merge(cracking_boiler_yatm_network, {state = "off"}),
 
   fluid_interface = fluid_interface,
+
+  refresh_infotext = cracking_boiler_refresh_infotext,
 }, {
   error = {
     tiles = {
