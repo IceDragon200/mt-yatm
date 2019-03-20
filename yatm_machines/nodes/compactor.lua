@@ -11,12 +11,15 @@ local compactor_yatm_network = {
     off = "yatm_machines:compactor_off",
     on = "yatm_machines:compactor_on",
   },
-  -- compactors require a lot of energy and have a small capacity
-  energy_capacity = 20 * 60 * 10,
-  startup_energy_threshold = 600,
-  work_rate_energy_threshold = 600,
-  work_energy_bandwidth = 100,
-  network_charge_bandwidth = 400,
+  energy = {
+    -- compactors require a lot of energy and have a small capacity
+    capacity = 20 * 60 * 10,
+    passive_lost = 0,
+    startup_threshold = 600,
+    work_rate_threshold = 600,
+    work_bandwidth = 100,
+    network_charge_bandwidth = 1000,
+  },
 }
 
 function compactor_yatm_network.work(pos, node, energy, work_rate)

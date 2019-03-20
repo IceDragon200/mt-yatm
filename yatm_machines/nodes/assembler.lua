@@ -1,16 +1,23 @@
 local assembler_yatm_network = {
   kind = "machine",
   groups = {
-    machine = 1,
+    item_assembler = 1,
     energy_consumer = 1,
+    item_consumer = 1,
+    item_producer = 1,
     has_update = 1,
   },
+  default_state = "off",
   states = {
     conflict = "yatm_machines:assembler_error",
     error = "yatm_machines:assembler_error",
     off = "yatm_machines:assembler_off",
     on = "yatm_machines:assembler_on",
-  }
+  },
+  energy = {
+    capacity = 4000,
+    passive_lost = 0, -- assemblers won't passively start losing energy
+  },
 }
 
 function assembler_yatm_network.update(pos, node, ot)
@@ -49,49 +56,36 @@ local groups = {
   yatm_energy_device = 1,
 }
 
-yatm.devices.register_network_device("yatm_machines:assembler_off", {
-  description = "Assembler",
+yatm.devices.register_stateful_network_device({
+  description = "Item Assembler",
+
   groups = groups,
-  drop = "yatm_machines:assembler_off",
+
+  drop = assembler_yatm_network.states.off,
+
   tiles = {"yatm_assembler_side.off.png"},
-  paramtype = "light",
-  paramtype2 = "facedir",
-  yatm_network = assembler_yatm_network,
   drawtype = "nodebox",
   node_box = assembler_node_box,
-  selection_box = assembler_selection_box,
-})
 
-yatm.devices.register_network_device("yatm_machines:assembler_error", {
-  description = "Assembler",
-  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-  drop = "yatm_machines:assembler_off",
-  tiles = {"yatm_assembler_side.error.png"},
-  paramtype = "light",
-  paramtype2 = "facedir",
-  yatm_network = assembler_yatm_network,
-  drawtype = "nodebox",
-  node_box = assembler_node_box,
   selection_box = assembler_selection_box,
-})
 
-yatm.devices.register_network_device("yatm_machines:assembler_on", {
-  description = "Assembler",
-  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-  drop = "yatm_machines:assembler_off",
-  tiles = {{
-    name = "yatm_assembler_side.on.png",
-    animation = {
-      type = "vertical_frames",
-      aspect_w = 16,
-      aspect_h = 16,
-      length = 1.0
-    },
-  }},
   paramtype = "light",
   paramtype2 = "facedir",
+
   yatm_network = assembler_yatm_network,
-  drawtype = "nodebox",
-  node_box = assembler_node_box,
-  selection_box = assembler_selection_box,
+}, {
+  on = {
+    tiles = {{
+      name = "yatm_assembler_side.on.png",
+      animation = {
+        type = "vertical_frames",
+        aspect_w = 16,
+        aspect_h = 16,
+        length = 1.0
+      },
+    }},
+  },
+  error = {
+    tiles = {"yatm_assembler_side.error.png"},
+  }
 })

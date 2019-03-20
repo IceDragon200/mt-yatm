@@ -12,12 +12,16 @@ local steam_turbine_yatm_network = {
     energy_producer = 1,
     has_update = 1, -- the device should be updated every network step
   },
+  default_state = "off",
   states = {
     conflict = "yatm_machines:steam_turbine_error",
     error = "yatm_machines:steam_turbine_error",
     off = "yatm_machines:steam_turbine_off",
     on = "yatm_machines:steam_turbine_on",
-  }
+  },
+  energy = {
+    capacity = 4000,
+  },
 }
 
 local capacity = 16000
@@ -39,7 +43,7 @@ end
 
 local fluid_interface = FluidInterface.new_directional(get_fluid_tank_name)
 
-function steam_turbine_yatm_network.produce_energy(pos, node, ot)
+function steam_turbine_yatm_network.energy.produce_energy(pos, node, ot)
   local meta = minetest.get_meta(pos)
   local stack, new_amount = FluidMeta.drain_fluid(meta,
     STEAM_TANK,

@@ -21,16 +21,25 @@ local combustion_engine_nodebox = {
 
 local combustion_engine_yatm_network = {
   kind = "energy_producer",
-  groups = {energy_producer = 1, energy_consumer = 1},
+  groups = {
+    energy_producer = 1,
+    fluid_consumer = 1,
+  },
+
+  default_state = "off",
   states = {
     conflict = "yatm_machines:combustion_engine_error",
     error = "yatm_machines:combustion_engine_error",
     off = "yatm_machines:combustion_engine_off",
     on = "yatm_machines:combustion_engine_on",
   },
+
+  energy = {
+    capacity = 16000,
+  }
 }
 
-function combustion_engine_yatm_network.produce_energy(pos, node, should_commit)
+function combustion_engine_yatm_network.energy.produce_energy(pos, node, should_commit)
   local meta = minetest.get_meta(pos)
   if meta then
     return 100
@@ -40,16 +49,17 @@ end
 
 local fluid_interface = yatm.fluids.FluidInterface.new_simple("tank", 16000)
 
-local groups = {
-  cracky = 1,
-  yatm_network_host = 3,
-  fluid_interface_in = 1,
-}
-
-yatm.devices.register_network_device(combustion_engine_yatm_network.states.off, {
+yatm.devices.register_stateful_network_device({
   description = "Combustion Engine",
-  groups = groups,
+
+  groups = {
+    cracky = 1,
+    yatm_network_host = 3,
+    fluid_interface_in = 1,
+  },
+
   drop = combustion_engine_yatm_network.states.off,
+
   tiles = {
     "yatm_combustion_engine_top.off.png",
     "yatm_combustion_engine_bottom.off.png",
@@ -58,50 +68,34 @@ yatm.devices.register_network_device(combustion_engine_yatm_network.states.off, 
     "yatm_combustion_engine_back.off.png",
     "yatm_combustion_engine_front.off.png",
   },
-  paramtype = "light",
-  paramtype2 = "facedir",
   drawtype = "nodebox",
   node_box = combustion_engine_nodebox,
-  yatm_network = combustion_engine_yatm_network,
-  fluid_interface = fluid_interface,
-})
 
-yatm.devices.register_network_device(combustion_engine_yatm_network.states.error, {
-  description = "Combustion Engine",
-  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-  drop = combustion_engine_yatm_network.states.off,
-  tiles = {
-    "yatm_combustion_engine_top.error.png",
-    "yatm_combustion_engine_bottom.error.png",
-    "yatm_combustion_engine_side.error.png",
-    "yatm_combustion_engine_side.error.png",
-    "yatm_combustion_engine_back.error.png",
-    "yatm_combustion_engine_front.error.png",
-  },
   paramtype = "light",
   paramtype2 = "facedir",
-  drawtype = "nodebox",
-  node_box = combustion_engine_nodebox,
-  yatm_network = combustion_engine_yatm_network,
-  fluid_interface = fluid_interface,
-})
 
-yatm.devices.register_network_device(combustion_engine_yatm_network.states.on, {
-  description = "Combustion Engine",
-  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-  drop = combustion_engine_yatm_network.states.off,
-  tiles = {
-    "yatm_combustion_engine_top.on.png",
-    "yatm_combustion_engine_bottom.on.png",
-    "yatm_combustion_engine_side.on.png",
-    "yatm_combustion_engine_side.on.png",
-    "yatm_combustion_engine_back.on.png",
-    "yatm_combustion_engine_front.on.png",
-  },
-  paramtype = "light",
-  paramtype2 = "facedir",
-  drawtype = "nodebox",
-  node_box = combustion_engine_nodebox,
   yatm_network = combustion_engine_yatm_network,
+
   fluid_interface = fluid_interface,
+}, {
+  on = {
+    tiles = {
+      "yatm_combustion_engine_top.on.png",
+      "yatm_combustion_engine_bottom.on.png",
+      "yatm_combustion_engine_side.on.png",
+      "yatm_combustion_engine_side.on.png",
+      "yatm_combustion_engine_back.on.png",
+      "yatm_combustion_engine_front.on.png",
+    },
+  },
+  error = {
+    tiles = {
+      "yatm_combustion_engine_top.error.png",
+      "yatm_combustion_engine_bottom.error.png",
+      "yatm_combustion_engine_side.error.png",
+      "yatm_combustion_engine_side.error.png",
+      "yatm_combustion_engine_back.error.png",
+      "yatm_combustion_engine_front.error.png",
+    },
+  }
 })

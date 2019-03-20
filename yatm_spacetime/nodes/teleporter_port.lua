@@ -50,6 +50,7 @@ local teleporter_port_yatm_network = {
     teleporter_port = 1,
     energy_consumer = 1,
   },
+  default_state = "off",
   states = {
     conflict = "yatm_spacetime:teleporter_port_error",
     error = "yatm_spacetime:teleporter_port_error",
@@ -57,10 +58,12 @@ local teleporter_port_yatm_network = {
     on = "yatm_spacetime:teleporter_port_on",
     inactive = "yatm_spacetime:teleporter_port_inactive",
   },
-  passive_energy_lost = 5
+  energy = {
+    passive_lost = 5,
+  },
 }
 
-yatm.devices.register_network_device(teleporter_port_yatm_network.states.off, {
+yatm.devices.register_stateful_network_device({
   description = "Teleporter Port",
   groups = {cracky = 1, spacetime_device = 1, addressable_spacetime_device = 1},
   drop = teleporter_port_yatm_network.states.off,
@@ -81,85 +84,47 @@ yatm.devices.register_network_device(teleporter_port_yatm_network.states.off, {
   after_place_node = teleporter_port_after_place_node,
   on_destruct = teleporter_port_on_destruct,
   preserve_metadata = teleporter_port_preserve_metadata,
-})
-
-yatm.devices.register_network_device(teleporter_port_yatm_network.states.error, {
-  description = "Teleporter Port",
-  groups = {cracky = 1, spacetime_device = 1, addressable_spacetime_device = 1, not_in_creative_inventory = 1},
-  drop = teleporter_port_yatm_network.states.off,
-  tiles = {
-    "yatm_teleporter_port_top.error.png",
-    "yatm_teleporter_port_bottom.png",
-    "yatm_teleporter_port_side.error.png",
-    "yatm_teleporter_port_side.error.png^[transformFX",
-    "yatm_teleporter_port_side.error.png",
-    "yatm_teleporter_port_side.error.png",
-  },
-  drawtype = "nodebox",
-  paramtype = "light",
-  paramtype2 = "facedir",
-  node_box = teleporter_port_node_box,
-  yatm_network = teleporter_port_yatm_network,
-
-  after_place_node = teleporter_port_after_place_node,
-  on_destruct = teleporter_port_on_destruct,
-  preserve_metadata = teleporter_port_preserve_metadata,
-})
-
-yatm.devices.register_network_device(teleporter_port_yatm_network.states.inactive, {
-  description = "Teleporter Port",
-  groups = {cracky = 1, spacetime_device = 1, addressable_spacetime_device = 1, not_in_creative_inventory = 1},
-  drop = teleporter_port_yatm_network.states.off,
-  tiles = {
-    "yatm_teleporter_port_top.inactive.png",
-    "yatm_teleporter_port_bottom.png",
-    "yatm_teleporter_port_side.inactive.png",
-    "yatm_teleporter_port_side.inactive.png^[transformFX",
-    "yatm_teleporter_port_side.inactive.png",
-    "yatm_teleporter_port_side.inactive.png",
-  },
-  drawtype = "nodebox",
-  paramtype = "light",
-  paramtype2 = "facedir",
-  node_box = teleporter_port_node_box,
-  yatm_network = teleporter_port_yatm_network,
-
-  after_place_node = teleporter_port_after_place_node,
-  on_destruct = teleporter_port_on_destruct,
-  preserve_metadata = teleporter_port_preserve_metadata,
-})
-
-yatm.devices.register_network_device(teleporter_port_yatm_network.states.on, {
-  description = "Teleporter Port",
-  groups = {cracky = 1, spacetime_device = 1, addressable_spacetime_device = 1, not_in_creative_inventory = 1},
-  drop = teleporter_port_yatm_network.states.off,
-  tiles = {
-    {
-      name = "yatm_teleporter_port_top.on.png",
-      animation = {
-        type = "vertical_frames",
-        aspect_w = 16,
-        aspect_h = 16,
-        length = 1.0
-      },
+}, {
+  error = {
+    tiles = {
+      "yatm_teleporter_port_top.error.png",
+      "yatm_teleporter_port_bottom.png",
+      "yatm_teleporter_port_side.error.png",
+      "yatm_teleporter_port_side.error.png^[transformFX",
+      "yatm_teleporter_port_side.error.png",
+      "yatm_teleporter_port_side.error.png",
     },
-    "yatm_teleporter_port_bottom.png",
-    "yatm_teleporter_port_side.on.png",
-    "yatm_teleporter_port_side.on.png^[transformFX",
-    "yatm_teleporter_port_side.on.png",
-    "yatm_teleporter_port_side.on.png",
   },
-  drawtype = "nodebox",
-  paramtype = "light",
-  paramtype2 = "facedir",
-  node_box = teleporter_port_node_box,
-  yatm_network = teleporter_port_yatm_network,
-
-  after_place_node = teleporter_port_after_place_node,
-  on_destruct = teleporter_port_on_destruct,
-  preserve_metadata = teleporter_port_preserve_metadata,
-
-  yatm_spacetime = {
-    groups = {player_teleporter = 1},
+  inactive = {
+    tiles = {
+      "yatm_teleporter_port_top.inactive.png",
+      "yatm_teleporter_port_bottom.png",
+      "yatm_teleporter_port_side.inactive.png",
+      "yatm_teleporter_port_side.inactive.png^[transformFX",
+      "yatm_teleporter_port_side.inactive.png",
+      "yatm_teleporter_port_side.inactive.png",
+    },
   },
+  on = {
+    tiles = {
+      {
+        name = "yatm_teleporter_port_top.on.png",
+        animation = {
+          type = "vertical_frames",
+          aspect_w = 16,
+          aspect_h = 16,
+          length = 1.0
+        },
+      },
+      "yatm_teleporter_port_bottom.png",
+      "yatm_teleporter_port_side.on.png",
+      "yatm_teleporter_port_side.on.png^[transformFX",
+      "yatm_teleporter_port_side.on.png",
+      "yatm_teleporter_port_side.on.png",
+    },
+
+    yatm_spacetime = {
+      groups = {player_port = 1},
+    },
+  }
 })

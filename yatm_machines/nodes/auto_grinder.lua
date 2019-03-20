@@ -1,22 +1,27 @@
 local auto_grinder_yatm_network = {
   kind = "machine",
   groups = {
-    machine = 1,
+    machine_worker = 1,
     energy_consumer = 1,
-    has_update = 1, -- the device should be updated every network step
+    item_consumer = 1,
+    item_producer = 1,
   },
+  default_state = "off",
   states = {
     conflict = "yatm_machines:auto_grinder_error",
     error = "yatm_machines:auto_grinder_error",
     off = "yatm_machines:auto_grinder_off",
     on = "yatm_machines:auto_grinder_on",
-  }
+  },
+  energy = {
+    passive_lost = 0,
+    capacity = 4000,
+    startup_threshold = 100,
+    network_charge_bandwidth = 1000,
+  },
 }
 
-function auto_grinder_yatm_network.update(pos, node)
-  local nodedef = minetest.registered_nodes[node.name]
-  if nodedef then
-  end
+function auto_grinder_yatm_network.work(pos, node, energy_available, work_rate, ot)
 end
 
 local groups = {
@@ -25,10 +30,13 @@ local groups = {
   item_interface_out = 1,
 }
 
-yatm.devices.register_network_device("yatm_machines:auto_grinder_off", {
+yatm.devices.register_stateful_network_device({
   description = "Auto Grinder",
+
   groups = groups,
+
   drop = auto_grinder_yatm_network.states.off,
+
   tiles = {
     "yatm_auto_grinder_top.off.png",
     "yatm_auto_grinder_bottom.png",
@@ -37,50 +45,39 @@ yatm.devices.register_network_device("yatm_machines:auto_grinder_off", {
     "yatm_auto_grinder_back.off.png",
     "yatm_auto_grinder_front.off.png",
   },
+
   paramtype = "light",
   paramtype2 = "facedir",
-  yatm_network = auto_grinder_yatm_network,
-})
 
-yatm.devices.register_network_device("yatm_machines:auto_grinder_error", {
-  description = "Auto Grinder",
-  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-  drop = auto_grinder_yatm_network.states.off,
-  tiles = {
-    "yatm_auto_grinder_top.error.png",
-    "yatm_auto_grinder_bottom.png",
-    "yatm_auto_grinder_side.error.png",
-    "yatm_auto_grinder_side.error.png^[transformFX",
-    "yatm_auto_grinder_back.error.png",
-    "yatm_auto_grinder_front.error.png",
-  },
-  paramtype = "light",
-  paramtype2 = "facedir",
   yatm_network = auto_grinder_yatm_network,
-})
-
-yatm.devices.register_network_device("yatm_machines:auto_grinder_on", {
-  description = "Auto Grinder",
-  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-  drop = auto_grinder_yatm_network.states.off,
-  tiles = {
-    "yatm_auto_grinder_top.on.png",
-    "yatm_auto_grinder_bottom.png",
-    "yatm_auto_grinder_side.on.png",
-    "yatm_auto_grinder_side.on.png^[transformFX",
-    "yatm_auto_grinder_back.on.png",
-    -- "yatm_auto_grinder_front.off.png"
-    {
-      name = "yatm_auto_grinder_front.on.png",
-      animation = {
-        type = "vertical_frames",
-        aspect_w = 16,
-        aspect_h = 16,
-        length = 0.25
+}, {
+  on = {
+    tiles = {
+      "yatm_auto_grinder_top.on.png",
+      "yatm_auto_grinder_bottom.png",
+      "yatm_auto_grinder_side.on.png",
+      "yatm_auto_grinder_side.on.png^[transformFX",
+      "yatm_auto_grinder_back.on.png",
+      -- "yatm_auto_grinder_front.off.png"
+      {
+        name = "yatm_auto_grinder_front.on.png",
+        animation = {
+          type = "vertical_frames",
+          aspect_w = 16,
+          aspect_h = 16,
+          length = 0.25
+        },
       },
     },
   },
-  paramtype = "light",
-  paramtype2 = "facedir",
-  yatm_network = auto_grinder_yatm_network,
+  error = {
+    tiles = {
+      "yatm_auto_grinder_top.error.png",
+      "yatm_auto_grinder_bottom.png",
+      "yatm_auto_grinder_side.error.png",
+      "yatm_auto_grinder_side.error.png^[transformFX",
+      "yatm_auto_grinder_back.error.png",
+      "yatm_auto_grinder_front.error.png",
+    },
+  },
 })

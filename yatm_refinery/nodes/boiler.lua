@@ -19,10 +19,12 @@ local boiler_yatm_network = {
     off = "yatm_refinery:boiler_off",
     on = "yatm_refinery:boiler_on",
   },
-  passive_energy_lost = 0,
-  startup_energy_threshold = 0,
-  energy_capacity = 16000,
-  network_charge_bandwidth = 1000,
+  energy = {
+    passive_lost = 0,
+    startup_threshold = 0,
+    capacity = 16000,
+    network_charge_bandwidth  = 1000,
+  },
 }
 
 local STEAM_TANK = "steam_tank"

@@ -1,23 +1,29 @@
 local crystal_cauldron_yatm_network = {
   kind = "machine",
   groups = {
-    machine = 1,
+    machine_worker = 1,
     energy_consumer = 1,
-    has_update = 1, -- the device should be updated every network step
+    item_consumer = 1,
+    item_producer = 1,
+    fluid_consumer = 1,
+    fluid_producer = 1,
   },
+  default_state = "off",
   states = {
     conflict = "yatm_machines:crystal_cauldron_error",
     error = "yatm_machines:crystal_cauldron_error",
     off = "yatm_machines:crystal_cauldron_off",
     on = "yatm_machines:crystal_cauldron_on",
   },
-  passive_energy_lost = 50
+  energy = {
+    passive_lost = 50,
+    capacity = 12000,
+    startup_threshold = 1000,
+    network_charge_bandwidth = 2000,
+  },
 }
 
-function crystal_cauldron_yatm_network.update(pos, node)
-  local nodedef = minetest.registered_nodes[node.name]
-  if nodedef then
-  end
+function crystal_cauldron_yatm_network.work(pos, node, available_energy, work_rate, ot)
 end
 
 local crysytal_cauldron_node_box = {
@@ -35,17 +41,19 @@ local crysytal_cauldron_node_box = {
   }
 }
 
-local groups = {
-  cracky = 1,
-  item_interface_in = 1,
-  item_interface_out = 1,
-  fluid_interface_in = 1,
-  fluid_interface_out = 1,
-}
-
-yatm.devices.register_network_device("yatm_machines:crystal_cauldron_off", {
+yatm.devices.register_stateful_network_device({
   description = "Crystal Cauldron",
-  groups = groups,
+
+  groups =  {
+    cracky = 1,
+    item_interface_in = 1,
+    item_interface_out = 1,
+    fluid_interface_in = 1,
+    fluid_interface_out = 1,
+  },
+
+  drop = crystal_cauldron_yatm_network.states.off,
+
   tiles = {
     "yatm_crystal_cauldron_top.png",
     "yatm_crystal_cauldron_bottom.png",
@@ -54,45 +62,32 @@ yatm.devices.register_network_device("yatm_machines:crystal_cauldron_off", {
     "yatm_crystal_cauldron_side.off.png",
     "yatm_crystal_cauldron_side.off.png",
   },
-  paramtype = "light",
-  paramtype2 = "facedir",
   drawtype = "nodebox",
   node_box = crysytal_cauldron_node_box,
-  yatm_network = crystal_cauldron_yatm_network,
-})
 
-yatm.devices.register_network_device("yatm_machines:crystal_cauldron_error", {
-  description = "Crystal Cauldron",
-  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-  tiles = {
-    "yatm_crystal_cauldron_top.png",
-    "yatm_crystal_cauldron_bottom.png",
-    "yatm_crystal_cauldron_side.error.png",
-    "yatm_crystal_cauldron_side.error.png",
-    "yatm_crystal_cauldron_side.error.png",
-    "yatm_crystal_cauldron_side.error.png",
-  },
   paramtype = "light",
   paramtype2 = "facedir",
-  drawtype = "nodebox",
-  node_box = crysytal_cauldron_node_box,
-  yatm_network = crystal_cauldron_yatm_network,
-})
 
-yatm.devices.register_network_device("yatm_machines:crystal_cauldron_on", {
-  description = "Crystal Cauldron",
-  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-  tiles = {
-    "yatm_crystal_cauldron_top.png",
-    "yatm_crystal_cauldron_bottom.png",
-    "yatm_crystal_cauldron_side.on.png",
-    "yatm_crystal_cauldron_side.on.png",
-    "yatm_crystal_cauldron_side.on.png",
-    "yatm_crystal_cauldron_side.on.png",
-  },
-  paramtype = "light",
-  paramtype2 = "facedir",
-  drawtype = "nodebox",
-  node_box = crysytal_cauldron_node_box,
   yatm_network = crystal_cauldron_yatm_network,
+}, {
+  on = {
+    tiles = {
+      "yatm_crystal_cauldron_top.png",
+      "yatm_crystal_cauldron_bottom.png",
+      "yatm_crystal_cauldron_side.on.png",
+      "yatm_crystal_cauldron_side.on.png",
+      "yatm_crystal_cauldron_side.on.png",
+      "yatm_crystal_cauldron_side.on.png",
+    },
+  },
+  error = {
+    tiles = {
+      "yatm_crystal_cauldron_top.png",
+      "yatm_crystal_cauldron_bottom.png",
+      "yatm_crystal_cauldron_side.error.png",
+      "yatm_crystal_cauldron_side.error.png",
+      "yatm_crystal_cauldron_side.error.png",
+      "yatm_crystal_cauldron_side.error.png",
+    },
+  }
 })

@@ -25,14 +25,15 @@ function devices.device_passive_consume_energy(pos, node, amount)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef and nodedef.yatm_network then
     local ym = nodedef.yatm_network
-    local passive_lost = ym.passive_energy_lost
+    local energy = assert(ym.energy)
+    local passive_lost = energy.passive_lost
     if passive_lost > 0 then
       consumed = consumed + math.min(amount, passive_lost)
     end
     local remaining = amount - consumed
-    local charge_bandwidth = ym.network_charge_bandwidth
+    local charge_bandwidth = energy.network_charge_bandwidth
     if charge_bandwidth and charge_bandwidth > 0 and remaining > 0 then
-      local capacity = ym.energy_capacity
+      local capacity = energy.capacity
       local meta = minetest.get_meta(pos)
       local stored = yatm.energy.receive_energy(meta, "energy_buffer", remaining, charge_bandwidth, capacity, true)
       consumed = consumed + stored
@@ -59,7 +60,7 @@ function devices.worker_update(pos, node, ot)
 
     if ym.state == "on" then
       local state = yatm.network.get_network_state(meta)
-      local capacity = ym.energy_capacity
+      local capacity = ym.energy.capacity
       local bandwidth = ym.work_energy_bandwidth or capacity
       local thresh = ym.work_rate_energy_threshold
       local work_rate = 1.0
@@ -154,23 +155,27 @@ function devices.register_network_device(name, nodedef)
         ym.groups.has_update = 1
         ym.update = devices.worker_update
 
-        assert(ym.state, name .. " machine_worker must have a `state`")
-        assert(ym.energy_capacity, name .. " machine_worker requires an `energy_capacity`")
-        assert(ym.network_charge_bandwidth, name .. " machine_worker require `network_charge_bandwidth`")
-        assert(ym.startup_energy_threshold, name .. " machine_worker requires a `startup_energy_threshold`")
+        assert(ym.state, name .. " a machine_worker must have a `state`")
+        assert(ym.energy, name .. " a machine_worker requires an `energy` table containing all energy behaviour")
+        assert(ym.energy.capacity, name .. " a machine_worker requires an `energy.capacity`")
+        assert(ym.energy.network_charge_bandwidth, name .. " a machine_worker require `energy.network_charge_bandwidth`")
+        assert(ym.energy.startup_threshold, name .. " a machine_worker requires a `energy.startup_threshold`")
+        assert(ym.work, name .. " a machine_worker requries a `work/5` function")
       end
       if ym.groups.has_update then
         assert(ym.update, "expected update/3 to be defined")
       end
       if ym.groups.energy_producer then
-        assert(ym.produce_energy, "expected produce_energy/2 to be defined")
+        assert(ym.energy, name .. " energy_producer requires an `energy` table containing all energy behaviour")
+        assert(ym.energy.produce_energy, "expected produce_energy/2 to be defined")
       end
       if ym.groups.energy_consumer then
-        if ym.passive_energy_lost == nil then
-          ym.passive_energy_lost = 10
+        assert(ym.energy, name .. " energy_consumer requires an `energy` table containing all energy behaviour")
+        if ym.energy.passive_lost == nil then
+          ym.energy.passive_lost = 10
         end
-        if ym.consume_energy == nil then
-          ym.consume_energy = assert(devices.device_passive_consume_energy)
+        if ym.energy.consume_energy == nil then
+          ym.energy.consume_energy = assert(devices.device_passive_consume_energy)
         end
       end
     end
