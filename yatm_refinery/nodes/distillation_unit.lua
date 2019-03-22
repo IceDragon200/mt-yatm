@@ -5,6 +5,7 @@ local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidUtils = assert(yatm.fluids.Utils)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local Energy = assert(yatm.energy)
+local DistillationRegistry = assert(yatm.refinery.DistillationRegistry)
 
 local distillation_unit_yatm_network = {
   kind = "machine",
@@ -54,7 +55,45 @@ fluid_interface.capacity = 16000
 fluid_interface.bandwidth = fluid_interface.capacity
 
 function distillation_unit_yatm_network.work(pos, node, available_energy, work_rate, ot)
-  return 10
+  local meta = minetest.get_meta(pos)
+  local fluid_stack = FluidMeta.get_fluid(meta, INPUT_STEAM_TANK)
+  if fluid_stack and fluid_stack.amount > 0 then
+    -- limit the stack to only 100 units of fluid
+    fluid_stack.amount = math.min(fluid_stack.amount, 100)
+    local fluid_name = fluid_stack.name
+    local recipe = DistillationRegistry:get_distillation_recipe(fluid_name)
+    if recipe then
+      local input_vapour_ratio = recipe.ratios[1]
+      local distill_ratio = recipe.ratios[2]
+      local output_vapour_ratio = recipe.ratios[3]
+      -- how many units or blocks of fluid can be converted at the moment
+      local units = math.floor(fluid_stack.amount / input_vapour_ratio)
+
+      local distilled_fluid_stack = FluidStack.new(recipe.distilled_fluid_name, units * distill_ratio / input_vapour_ratio)
+      local output_vapour_fluid_stack = FluidStack.new(recipe.output_vapour_name, units * output_vapour_ratio / input_vapour_ratio)
+
+      -- Since the distillation unit has to deal with multiple fluids, the filling is not committed but instead done as a kind of transaction
+      -- Where we simulate adding the fluid
+      local used_distilled_stack, new_distilled_stack = FluidMeta.fill_fluid(meta, DISTILLED_TANK, distilled_fluid_stack, fluid_interface.capacity, fluid_interface.capacity, false)
+      local used_output_stack, new_output_stack = FluidMeta.fill_fluid(meta, OUTPUT_STEAM_TANK, output_vapour_fluid_stack, fluid_interface.capacity, fluid_interface.capacity, false)
+
+      if used_output_stack and used_distilled_stack then
+        -- All the fluid must be used
+        if used_distilled_stack.amount == distilled_fluid_stack.amount and
+           used_output_stack.amount == output_vapour_fluid_stack.amount then
+          local used_amount = units * input_vapour_ratio
+          local new_input_stack = FluidStack.set_amount(fluid_stack, fluid_stack.amount - used_amount)
+          FluidMeta.set_fluid(meta, INPUT_STEAM_TANK, new_input_stack)
+          FluidMeta.set_fluid(meta, DISTILLED_TANK, new_distilled_stack)
+          FluidMeta.set_fluid(meta, OUTPUT_STEAM_TANK, new_output_stack)
+          yatm_core.queue_refresh_infotext(pos)
+
+          return math.max(used_amount / 100, 1)
+        end
+      end
+    end
+  end
+  return 0
 end
 
 function distillation_unit_refresh_infotext(pos)
