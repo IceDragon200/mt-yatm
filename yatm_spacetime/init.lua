@@ -20,7 +20,7 @@ minetest.register_lbm({
   },
   run_at_every_load = true,
   action = function (pos, node)
-    yatm_spacetime.Network:maybe_register_node(pos, node)
+    yatm_spacetime.Network:maybe_update_node(pos, node)
   end,
 })
 

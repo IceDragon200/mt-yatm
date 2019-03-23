@@ -19,7 +19,7 @@ function m:register_device(groups, pos, address)
   local hash = minetest.hash_node_position(pos)
 
   if self.m_members[hash] then
-    error("multiple registrations detected, did you mean to use `update_device/2`?", minetest.pos_to_string(pos))
+    error("multiple registrations detected, did you mean to use `update_device/2`?" .. minetest.pos_to_string(pos))
   else
     self.m_members[hash] = {
       pos = pos,
