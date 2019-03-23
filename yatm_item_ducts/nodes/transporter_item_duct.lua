@@ -49,6 +49,8 @@ for _,color_pair in ipairs(colors) do
 
     groups = groups,
 
+    sounds = default.node_sound_metal_defaults(),
+
     paramtype = "light",
     paramtype2 = "facedir",
 

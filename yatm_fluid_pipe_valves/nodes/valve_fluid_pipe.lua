@@ -74,6 +74,8 @@ for _,color_pair in ipairs(colors) do
 
     groups = groups,
 
+    sounds = default.node_sound_metal_defaults(),
+
     paramtype = "light",
     paramtype2 = "facedir",
 
@@ -115,6 +117,8 @@ for _,color_pair in ipairs(colors) do
     drop = node_name .. "_off",
 
     groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
+
+    sounds = default.node_sound_metal_defaults(),
 
     paramtype = "light",
     paramtype2 = "facedir",

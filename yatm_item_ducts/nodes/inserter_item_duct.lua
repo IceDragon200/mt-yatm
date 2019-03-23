@@ -17,6 +17,8 @@ minetest.register_node("yatm_item_ducts:inserter_item_duct", {
 
   groups = { cracky = 1, inserter_item_duct = 1, inserter_item_device = 1 },
 
+  sounds = default.node_sound_metal_defaults(),
+
   paramtype = "light",
   paramtype2 = "facedir",
 
