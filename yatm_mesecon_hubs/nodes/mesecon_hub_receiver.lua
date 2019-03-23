@@ -88,6 +88,7 @@ minetest.register_node("yatm_mesecon_hubs:mesecon_hub_receiver_off", {
   change_hub_address = hub_change_hub_address,
   after_place_node = hub_after_place_node,
   on_destruct = hub_on_destruct,
+  on_blast = mesecon.on_blastnode,
 
   mesecons = {
     receptor = {
@@ -134,6 +135,7 @@ minetest.register_node("yatm_mesecon_hubs:mesecon_hub_receiver_on", {
   change_hub_address = hub_change_hub_address,
   after_place_node = hub_after_place_node,
   on_destruct = hub_on_destruct,
+  on_blast = mesecon.on_blastnode,
 
   mesecons = {
     receptor = {

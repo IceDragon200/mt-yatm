@@ -60,6 +60,7 @@ minetest.register_node("yatm_mesecon_hubs:mesecon_hub_emitter_off", {
 
   change_hub_address = hub_change_hub_address,
   after_place_node = hub_after_place_node,
+  on_blast = mesecon.on_blastnode,
 
   mesecons = {
     effector = {
@@ -72,7 +73,7 @@ minetest.register_node("yatm_mesecon_hubs:mesecon_hub_emitter_off", {
         hub_emit_change_event(pos, 1)
       end
     }
-  }
+  },
 })
 
 minetest.register_node("yatm_mesecon_hubs:mesecon_hub_emitter_on", {
@@ -102,6 +103,7 @@ minetest.register_node("yatm_mesecon_hubs:mesecon_hub_emitter_on", {
 
   change_hub_address = hub_change_hub_address,
   after_place_node = hub_after_place_node,
+  on_blast = mesecon.on_blastnode,
 
   mesecons = {
     effector = {
