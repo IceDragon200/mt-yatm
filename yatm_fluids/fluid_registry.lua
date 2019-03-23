@@ -85,7 +85,7 @@ function FluidRegistry.register_fluid_tank(modname, fluid_name, nodedef)
     light_source = nodedef.light_source,
     sounds = default.node_sound_glass_defaults(),
     after_place_node = function (pos, _placer, _itemstack, _pointed_thing)
-      yatm.fluids.FluidTanks.replace(pos, yatm_core.D_NONE,
+      yatm.fluids.FluidTanks.replace_fluid(pos, yatm_core.D_NONE,
         yatm.fluids.FluidStack.new(fluiddef.name, tank_fluid_interface.capacity), true)
     end,
     fluid_interface = tank_fluid_interface,

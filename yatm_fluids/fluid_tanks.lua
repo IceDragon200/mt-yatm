@@ -6,7 +6,7 @@ local FluidStack = assert(yatm_fluids.FluidStack)
 local FluidTanks = {
 }
 
-function FluidTanks.get(pos, dir)
+function FluidTanks.get_fluid(pos, dir)
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef and nodedef.fluid_interface and nodedef.fluid_interface.get then
@@ -15,7 +15,7 @@ function FluidTanks.get(pos, dir)
   return nil
 end
 
-function FluidTanks.replace(pos, dir, fluid_stack, commit)
+function FluidTanks.replace_fluid(pos, dir, fluid_stack, commit)
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef and nodedef.groups.fluid_interface_in then
@@ -26,7 +26,7 @@ function FluidTanks.replace(pos, dir, fluid_stack, commit)
   return nil
 end
 
-function FluidTanks.drain(pos, dir, fluid_stack, commit)
+function FluidTanks.drain_fluid(pos, dir, fluid_stack, commit)
   if fluid_stack.amount <= 0 then
     return nil
   end
@@ -40,18 +40,20 @@ function FluidTanks.drain(pos, dir, fluid_stack, commit)
   return nil
 end
 
-function FluidTanks.fill(pos, dir, fluid_stack, commit)
+function FluidTanks.fill_fluid(pos, dir, fluid_stack, commit)
   if fluid_stack.amount <= 0 then
-    return nil
+    return nil, "fluid stack was empty"
   end
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef and nodedef.groups.fluid_interface_in then
     if nodedef.fluid_interface and nodedef.fluid_interface.fill then
       return nodedef.fluid_interface:fill(pos, dir, fluid_stack, commit)
+    else
+      return nil, "no fluid_interface or no fluid_interface.fill"
     end
   end
-  return nil
+  return nil, "no nodedef or no fluid_interface_in"
 end
 
 function FluidTanks.trigger_on_fluid_changed(pos, dir, fluid_stack)

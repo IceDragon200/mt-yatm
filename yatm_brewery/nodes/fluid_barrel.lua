@@ -24,7 +24,7 @@ end
 
 local function barrel_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
-  local stack = FluidTanks.get(pos, yatm_core.D_NONE)
+  local stack = FluidTanks.get_fluid(pos, yatm_core.D_NONE)
   if stack and stack.amount > 0 then
     meta:set_string("infotext", "Barrel: " .. stack.name .. " " .. stack.amount .. " / " .. BARREL_CAPACITY)
   else

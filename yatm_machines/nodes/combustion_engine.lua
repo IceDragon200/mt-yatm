@@ -1,5 +1,8 @@
+local Network = assert(yatm.network)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidUtils = assert(yatm.fluids.Utils)
+local FluidMeta = assert(yatm.fluids.FluidMeta)
+local FluidRegistry = assert(yatm.fluids.FluidRegistry)
 
 local combustion_engine_nodebox = {
   type = "fixed",
@@ -39,12 +42,65 @@ local combustion_engine_yatm_network = {
   }
 }
 
-function combustion_engine_yatm_network.energy.produce_energy(pos, node, should_commit)
-  local meta = minetest.get_meta(pos)
-  return 1000
+local fluid_interface = yatm.fluids.FluidInterface.new_simple("tank", 16000)
+
+function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
+  yatm_core.queue_refresh_infotext(pos)
 end
 
-local fluid_interface = yatm.fluids.FluidInterface.new_simple("tank", 16000)
+function combustion_engine_yatm_network.energy.produce_energy(pos, node, should_commit)
+  local need_refresh = false
+  local energy_produced = 0
+  local meta = minetest.get_meta(pos)
+  local fluid_stack = FluidMeta.get_fluid(meta, "tank")
+  if fluid_stack and fluid_stack.amount > 0 then
+    local fluid = FluidRegistry.get_fluid(fluid_stack.name)
+    if fluid then
+      fluid_stack.amount = 20
+      -- TODO: a FluidFuelRegistry
+      if fluid.groups.crude_oil then
+        -- Crude is absolutely terrible energy wise
+        local consumed_stack = FluidMeta.drain_fluid(meta, "tank", fluid_stack, fluid_interface.capacity, fluid_interface.capacity, true)
+        if consumed_stack and consumed_stack.amount > 0 then
+          energy_produced = energy_produced + consumed_stack.amount * 5
+          need_refresh = true
+        end
+      elseif fluid.groups.heavy_oil then
+        -- Heavy oil doesn't produce much energy, but it lasts a bit longer
+        local consumed_stack = FluidMeta.drain_fluid(meta, "tank", fluid_stack, fluid_interface.capacity, fluid_interface.capacity, true)
+        if consumed_stack and consumed_stack.amount > 0 then
+          energy_produced = energy_produced + consumed_stack.amount * 10
+          need_refresh = true
+        end
+      elseif fluid.groups.light_oil then
+        -- Light oil produces more energy at the saem fluid cost
+        local consumed_stack = FluidMeta.drain_fluid(meta, "tank", fluid_stack, fluid_interface.capacity, fluid_interface.capacity, true)
+        if consumed_stack and consumed_stack.amount > 0 then
+          energy_produced = energy_produced + consumed_stack.amount  * 15
+          need_refresh = true
+        end
+      end
+    end
+  end
+
+  if need_refresh then
+    yatm_core.queue_refresh_infotext(pos)
+  end
+
+  return energy_produced
+end
+
+function combustion_engine_refresh_infotext(pos)
+  local meta = minetest.get_meta(pos)
+
+  local tank_fluid_stack = FluidMeta.get_fluid(meta, "tank")
+
+  local infotext =
+    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    "Tank: " .. FluidStack.pretty_format(tank_fluid_stack, fluid_interface.capacity)
+
+  meta:set_string("infotext", infotext)
+end
 
 yatm.devices.register_stateful_network_device({
   description = "Combustion Engine",
@@ -75,6 +131,8 @@ yatm.devices.register_stateful_network_device({
   yatm_network = combustion_engine_yatm_network,
 
   fluid_interface = fluid_interface,
+
+  refresh_infotext = combustion_engine_refresh_infotext,
 }, {
   on = {
     tiles = {

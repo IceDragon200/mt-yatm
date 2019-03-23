@@ -7,6 +7,7 @@ dofile(yatm_fluids.modpath .. "/fluid_stack.lua")
 dofile(yatm_fluids.modpath .. "/fluid_meta.lua")
 dofile(yatm_fluids.modpath .. "/fluid_interface.lua")
 dofile(yatm_fluids.modpath .. "/fluid_tanks.lua")
+dofile(yatm_fluids.modpath .. "/fluid_exchange.lua")
 
 dofile(yatm_fluids.modpath .. "/api.lua")
 

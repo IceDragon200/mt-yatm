@@ -217,7 +217,7 @@ function yatm_core.dir_to_wallmounted_facedir(dir)
   return nil
 end
 
-function yatm_core.facedir_wallmount_after_place_node(pos, placer, _itemstack, pointed_thing)
+function yatm_core.facedir_wallmount_after_place_node(pos, _placer, _itemstack, pointed_thing)
   assert(pointed_thing, "expected a pointed thing")
   local above = pointed_thing.above
   local under = pointed_thing.under

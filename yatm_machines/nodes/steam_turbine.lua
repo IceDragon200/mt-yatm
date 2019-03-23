@@ -1,3 +1,4 @@
+local Network = assert(yatm.network)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
@@ -42,30 +43,60 @@ local function get_fluid_tank_name(_self, pos, dir)
 end
 
 local fluid_interface = FluidInterface.new_directional(get_fluid_tank_name)
+fluid_interface.capacity = capacity
+
+function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
+  yatm_core.queue_refresh_infotext(pos)
+end
+
+function steam_turbine_refresh_infotext(pos)
+  local meta = minetest.get_meta(pos)
+
+  local water_tank_fluid_stack = FluidMeta.get_fluid(meta, WATER_TANK)
+  local steam_tank_fluid_stack = FluidMeta.get_fluid(meta, STEAM_TANK)
+
+  local infotext =
+    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    "Water Tank: " .. FluidStack.pretty_format(water_tank_fluid_stack, fluid_interface.capacity) .. "\n" ..
+    "Steam Tank: " .. FluidStack.pretty_format(steam_tank_fluid_stack, fluid_interface.capacity)
+
+  meta:set_string("infotext", infotext)
+end
 
 function steam_turbine_yatm_network.energy.produce_energy(pos, node, ot)
+  local need_refresh = false
+  local energy_produced = 0
   local meta = minetest.get_meta(pos)
-  local stack, new_amount = FluidMeta.drain_fluid(meta,
+  local drained_stack, new_amount = FluidMeta.drain_fluid(meta,
     STEAM_TANK,
     FluidStack.new("group:steam", 100),
     capacity, capacity, false)
-  if stack then
+  if drained_stack and drained_stack.amount > 0 then
+    local water_from_steam = FluidStack.new("default:water", drained_stack.amount / 2)
     local filled_stack, new_amount = FluidMeta.fill_fluid(meta,
       WATER_TANK,
-      FluidStack.set_name(stack, "default:water"),
+      water_from_steam,
       capacity, capacity, true)
+
     if filled_stack then
       local stack, new_amount = FluidMeta.drain_fluid(meta,
         STEAM_TANK,
-        FluidStack.set_amount(stack, filled_stack.amount),
+        drained_stack,
         capacity, capacity, true)
-      return filled_stack.amount
+
+      need_refresh = true
+      energy_produced = energy_produced +  filled_stack.amount
     end
   end
-  return 0
+  if need_refresh then
+    yatm_core.queue_refresh_infotext(pos)
+  end
+  return energy_produced
 end
 
 function steam_turbine_yatm_network.update(pos, node, ot)
+  local need_refresh = false
+
   for _, dir in ipairs(yatm_core.DIR4) do
     local new_dir = yatm_core.facedir_to_face(node.param2, dir)
 
@@ -75,11 +106,12 @@ function steam_turbine_yatm_network.update(pos, node, ot)
     if nnodedef then
       if yatm_core.groups.get_item(nnodedef, "fluid_tank") then
         local target_dir = yatm_core.invert_dir(new_dir)
-        local stack = FluidTanks.drain(npos, target_dir, FluidStack.new("group:steam", 200), false)
+        local stack = FluidTanks.drain_fluid(npos, target_dir, FluidStack.new("group:steam", 200), false)
         if stack then
-          local filled_stack = FluidTanks.fill(pos, new_dir, stack, true)
+          local filled_stack = FluidTanks.fill_fluid(pos, new_dir, stack, true)
           if filled_stack then
-            FluidTanks.drain(npos, target_dir, filled_stack, true)
+            FluidTanks.drain_fluid(npos, target_dir, filled_stack, true)
+            need_refresh = true
           end
         end
       end
@@ -101,16 +133,21 @@ function steam_turbine_yatm_network.update(pos, node, ot)
       local tank_nodedef = minetest.registered_nodes[tank_node.name]
       if tank_nodedef then
         if yatm_core.groups.get_item(tank_nodedef, "fluid_tank") then
-          local drained_stack, new_amount = FluidTanks.fill(tank_pos, yatm_core.invert_dir(tank_dir), stack, true)
-          if drained_stack then
+          local drained_stack, new_amount = FluidTanks.fill_fluid(tank_pos, yatm_core.invert_dir(tank_dir), stack, true)
+          if drained_stack and drained_stack.amount > 0 then
             FluidMeta.drain_fluid(meta,
               WATER_TANK,
               FluidStack.set_amount(stack, drained_stack.amount),
               capacity, capacity, true)
+            need_refresh = true
           end
         end
       end
     end
+  end
+
+  if need_refresh then
+    yatm_core.queue_refresh_infotext(pos)
   end
 end
 
@@ -124,7 +161,7 @@ local groups = {
 
 local table_merge = assert(yatm_core.table_merge)
 
-yatm.devices.register_network_device(steam_turbine_yatm_network.states.off, {
+yatm.devices.register_stateful_network_device({
   description = "Steam Turbine",
   groups = groups,
   drop = steam_turbine_yatm_network.states.off,
@@ -139,49 +176,37 @@ yatm.devices.register_network_device(steam_turbine_yatm_network.states.off, {
   paramtype = "light",
   paramtype2 = "facedir",
   yatm_network = steam_turbine_yatm_network,
-  fluid_interface = fluid_interface,
-})
 
-yatm.devices.register_network_device(steam_turbine_yatm_network.states.error, {
-  description = "Steam Turbine",
-  groups = table_merge(groups, {not_in_creative_inventory = 1}),
-  drop = steam_turbine_yatm_network.states.off,
-  tiles = {
-    "yatm_steam_turbine_top.error.png",
-    "yatm_steam_turbine_bottom.png",
-    "yatm_steam_turbine_side.error.png",
-    "yatm_steam_turbine_side.error.png",
-    "yatm_steam_turbine_side.error.png",
-    "yatm_steam_turbine_side.error.png"
-  },
-  paramtype = "light",
-  paramtype2 = "facedir",
-  yatm_network = steam_turbine_yatm_network,
   fluid_interface = fluid_interface,
-})
 
-yatm.devices.register_network_device(steam_turbine_yatm_network.states.on, {
-  description = "Steam Turbine",
-  groups = table_merge(groups, {not_in_creative_inventory = 1}),
-  drop = steam_turbine_yatm_network.states.off,
-  tiles = {
-    {
-      name = "yatm_steam_turbine_top.on.png",
-      animation = {
-        type = "vertical_frames",
-        aspect_w = 16,
-        aspect_h = 16,
-        length = 0.4
-      },
+  refresh_infotext = steam_turbine_refresh_infotext,
+}, {
+  error = {
+    tiles = {
+      "yatm_steam_turbine_top.error.png",
+      "yatm_steam_turbine_bottom.png",
+      "yatm_steam_turbine_side.error.png",
+      "yatm_steam_turbine_side.error.png",
+      "yatm_steam_turbine_side.error.png",
+      "yatm_steam_turbine_side.error.png"
     },
-    "yatm_steam_turbine_bottom.png",
-    "yatm_steam_turbine_side.on.png",
-    "yatm_steam_turbine_side.on.png",
-    "yatm_steam_turbine_side.on.png",
-    "yatm_steam_turbine_side.on.png"
   },
-  paramtype = "light",
-  paramtype2 = "facedir",
-  yatm_network = steam_turbine_yatm_network,
-  fluid_interface = fluid_interface,
+  on = {
+    tiles = {
+      {
+        name = "yatm_steam_turbine_top.on.png",
+        animation = {
+          type = "vertical_frames",
+          aspect_w = 16,
+          aspect_h = 16,
+          length = 0.4
+        },
+      },
+      "yatm_steam_turbine_bottom.png",
+      "yatm_steam_turbine_side.on.png",
+      "yatm_steam_turbine_side.on.png",
+      "yatm_steam_turbine_side.on.png",
+      "yatm_steam_turbine_side.on.png"
+    },
+  },
 })

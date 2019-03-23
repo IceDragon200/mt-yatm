@@ -44,7 +44,7 @@ function fluid_tank_fluid_interface:fill(pos, dir, fluid_stack, commit)
     local new_pos = vector.add(pos, yatm_core.V3_UP)
     local new_node = minetest.get_node(new_pos)
     if minetest.get_item_group(new_node.name, "fluid_tank") > 0 then
-      local used_stack2 = FluidTanks.fill(new_pos, dir, left_stack, commit)
+      local used_stack2 = FluidTanks.fill_fluid(new_pos, dir, left_stack, commit)
       used_stack = FluidStack.merge(used_stack, used_stack2)
     end
   end

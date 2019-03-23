@@ -44,7 +44,7 @@ function m:update_extractor_duct(extractor_hash, extractor, fluids_available)
     local new_pos = vector.add(extractor.pos, v3)
     local node_face_dir = invert_dir(vdir)
     --print("Attempting drain", minetest.pos_to_string(new_pos), dir)
-    local stack = FluidTanks.drain(new_pos, node_face_dir, wildcard_stack, false)
+    local stack = FluidTanks.drain_fluid(new_pos, node_face_dir, wildcard_stack, false)
     if stack and stack.amount > 0 then
       --print("Extractor", inspect_node(extractor.pos, vdir), "extracted", FluidStack.to_string(stack), "from", inspect_node(new_pos, node_face_dir))
       local nhash = minetest.hash_node_position(new_pos)
@@ -70,10 +70,10 @@ function m:update_inserter_duct(inserter_hash, inserter, fluids_available)
         for fin_node_hash,entry in pairs(entries) do
           local stack = entry.stack
           local filling_stack = FluidStack.set_amount(stack, math.min(stack.amount, inserter.interface.bandwidth or 1000))
-          local used_stack = FluidTanks.fill(target_pos, filling_dir, filling_stack, true)
+          local used_stack = FluidTanks.fill_fluid(target_pos, filling_dir, filling_stack, true)
           if used_stack and used_stack.amount > 0 then
             --print("Inserter", inspect_node(inserter.pos, vdir), "filled", inspect_node(target_pos, filling_dir), "with", FluidStack.to_string(stack), "from", inspect_node(entry.pos, entry.dir))
-            FluidTanks.drain(entry.pos, entry.dir, used_stack, true)
+            FluidTanks.drain_fluid(entry.pos, entry.dir, used_stack, true)
             local new_stack = FluidStack.dec_amount(stack, used_stack.amount)
             entry.stack = new_stack
           end

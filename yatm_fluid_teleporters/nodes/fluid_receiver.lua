@@ -10,11 +10,14 @@ local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local YATM_NetworkMeta = assert(yatm.network)
+local Energy = assert(yatm.energy)
 
 local fluid_receiver_yatm_network = {
   kind = "machine",
   groups = {
+    machine_worker = 1,
     energy_consumer = 1,
+    fluid_receiver = 1,
   },
   default_state = "off",
   states = {
@@ -25,9 +28,16 @@ local fluid_receiver_yatm_network = {
     conflict = "yatm_fluid_teleporters:fluid_receiver_error",
   },
   energy = {
-    passive_lost = 10,
+    passive_lost = 0,
+    capacity = 10000,
+    network_charge_bandwidth = 200,
+    startup_threshold = 100,
   },
 }
+
+function fluid_receiver_yatm_network.work(pos, node, available_energy, work_rate, ot)
+  return 10
+end
 
 local function teleporter_after_place_node(pos, _placer, itemstack, _pointed_thing)
   local new_meta = minetest.get_meta(pos)
@@ -72,7 +82,7 @@ end
 local fluid_interface = FluidInterface.new_simple("tank", 16000)
 
 function fluid_interface:on_fluid_changed(pos, dir, _fluid_stack)
-  assert(yatm_core.queue_refresh_infotext(pos))
+  yatm_core.queue_refresh_infotext(pos)
 end
 
 local function teleporter_refresh_infotext(pos)
@@ -80,6 +90,7 @@ local function teleporter_refresh_infotext(pos)
 
   local infotext =
     "Net.ID: " .. YATM_NetworkMeta.to_infotext(meta) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "S.Address: " .. SpacetimeMeta.to_infotext(meta) .. "\n" ..
     "Tank: " .. FluidMeta.to_infotext(meta, "tank", fluid_interface.capacity)
 
@@ -92,6 +103,7 @@ yatm.devices.register_stateful_network_device({
 
   groups = {
     cracky = 1,
+    fluid_interface_in = 1,
     fluid_interface_out = 1,
     addressable_spacetime_device = 1,
     yatm_energy_device = 1,
@@ -118,7 +130,7 @@ yatm.devices.register_stateful_network_device({
     }
   },
 
-  fluid_interface = fluid_interface,
+  fluid_interface = assert(fluid_interface),
 
   yatm_network = fluid_receiver_yatm_network,
   yatm_spacetime = {

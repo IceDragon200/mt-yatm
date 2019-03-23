@@ -1,4 +1,5 @@
 local Network = assert(yatm_core.Network)
+local FluidRegistry = assert(yatm.fluids.FluidRegistry)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
@@ -6,6 +7,7 @@ local FluidUtils = assert(yatm.fluids.Utils)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local Energy = assert(yatm.energy)
 local DistillationRegistry = assert(yatm.refinery.DistillationRegistry)
+local FluidExchange = assert(yatm.fluids.FluidExchange)
 
 local distillation_unit_yatm_network = {
   kind = "machine",
@@ -54,7 +56,29 @@ local fluid_interface = FluidInterface.new_directional(get_fluid_tank_name)
 fluid_interface.capacity = 16000
 fluid_interface.bandwidth = fluid_interface.capacity
 
+function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
+  yatm_core.queue_refresh_infotext(pos)
+end
+
+function fluid_interface:allow_fill(pos, dir, fluid_stack)
+  if fluid_stack then
+    local name, _capacity = self:get_fluid_tank_name(pos, dir)
+    if name == INPUT_STEAM_TANK then
+      local fluid = FluidRegistry.get_fluid(fluid_stack.name)
+      if fluid then
+        -- only vapours
+        if fluid.groups.vapourized then
+          return true
+        end
+      end
+    end
+  end
+  return false
+end
+
 function distillation_unit_yatm_network.work(pos, node, available_energy, work_rate, ot)
+  local energy_consumed = 0
+  local need_refresh = false
   local meta = minetest.get_meta(pos)
   local fluid_stack = FluidMeta.get_fluid(meta, INPUT_STEAM_TANK)
   if fluid_stack and fluid_stack.amount > 0 then
@@ -69,8 +93,8 @@ function distillation_unit_yatm_network.work(pos, node, available_energy, work_r
       -- how many units or blocks of fluid can be converted at the moment
       local units = math.floor(fluid_stack.amount / input_vapour_ratio)
 
-      local distilled_fluid_stack = FluidStack.new(recipe.distilled_fluid_name, units * distill_ratio / input_vapour_ratio)
-      local output_vapour_fluid_stack = FluidStack.new(recipe.output_vapour_name, units * output_vapour_ratio / input_vapour_ratio)
+      local distilled_fluid_stack = FluidStack.new(recipe.distilled_fluid_name, units * distill_ratio)
+      local output_vapour_fluid_stack = FluidStack.new(recipe.output_vapour_name, units * output_vapour_ratio)
 
       -- Since the distillation unit has to deal with multiple fluids, the filling is not committed but instead done as a kind of transaction
       -- Where we simulate adding the fluid
@@ -83,17 +107,57 @@ function distillation_unit_yatm_network.work(pos, node, available_energy, work_r
            used_output_stack.amount == output_vapour_fluid_stack.amount then
           local used_amount = units * input_vapour_ratio
           local new_input_stack = FluidStack.set_amount(fluid_stack, fluid_stack.amount - used_amount)
-          FluidMeta.set_fluid(meta, INPUT_STEAM_TANK, new_input_stack)
-          FluidMeta.set_fluid(meta, DISTILLED_TANK, new_distilled_stack)
-          FluidMeta.set_fluid(meta, OUTPUT_STEAM_TANK, new_output_stack)
-          yatm_core.queue_refresh_infotext(pos)
+          FluidMeta.set_fluid(meta, INPUT_STEAM_TANK, new_input_stack, true)
+          FluidMeta.set_fluid(meta, DISTILLED_TANK, new_distilled_stack, true)
+          FluidMeta.set_fluid(meta, OUTPUT_STEAM_TANK, new_output_stack, true)
 
-          return math.max(used_amount / 100, 1)
+          energy_consumed = energy_consumed + math.max(used_amount / 100, 1)
+
+          need_refresh = true
         end
       end
     end
   end
-  return 0
+
+  do -- output new vapour
+    local output_tank_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
+    local output_tank_pos = vector.add(pos, yatm_core.DIR6_TO_VEC3[output_tank_dir])
+
+    local fs = FluidExchange.transfer_from_meta_to_tank(
+      meta, { tank_name = OUTPUT_STEAM_TANK, capacity = fluid_interface.capacity, bandwidth = fluid_interface.capacity },
+      FluidStack.new_wildcard(100),
+      output_tank_pos, yatm_core.invert_dir(output_tank_dir),
+      true
+    )
+
+    if fs and fs.amount > 0 then
+      need_refresh = true
+    end
+  end
+
+  do -- output distilled fluids
+    for _,dir_code in pairs(yatm_core.DIR4) do
+      local output_tank_dir = yatm_core.facedir_to_face(node.param2, dir_code)
+      local output_tank_pos = vector.add(pos, yatm_core.DIR6_TO_VEC3[output_tank_dir])
+
+      local fs = FluidExchange.transfer_from_meta_to_tank(
+        meta, { tank_name = DISTILLED_TANK, capacity = fluid_interface.capacity, bandwidth = fluid_interface.capacity },
+        FluidStack.new_wildcard(100),
+        output_tank_pos, yatm_core.invert_dir(output_tank_dir),
+        true
+      )
+
+      if fs and fs.amount > 0 then
+        need_refresh = true
+      end
+    end
+  end
+
+  if need_refresh then
+    yatm_core.queue_refresh_infotext(pos)
+  end
+
+  return energy_consumed
 end
 
 function distillation_unit_refresh_infotext(pos)
@@ -154,6 +218,14 @@ yatm.devices.register_stateful_network_device({
   refresh_infotext = distillation_unit_refresh_infotext,
 }, {
   error = {
+    tiles = {
+      "yatm_distillation_unit_top.error.png",
+      "yatm_distillation_unit_bottom.error.png",
+      "yatm_distillation_unit_side.error.png",
+      "yatm_distillation_unit_side.error.png",
+      "yatm_distillation_unit_side.error.png",
+      "yatm_distillation_unit_side.error.png",
+    },
   },
   on = {
     tiles = {
@@ -164,5 +236,6 @@ yatm.devices.register_stateful_network_device({
       "yatm_distillation_unit_side.on.png",
       "yatm_distillation_unit_side.on.png",
     },
+    light_source = 7,
   }
 })

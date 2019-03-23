@@ -74,13 +74,13 @@ function pump_yatm_network.work(pos, node, energy_available, work_rate, ot)
     end
   else
     local inverted_dir = yatm_core.invert_dir(pump_dir)
-    local drained_stack = FluidTanks.drain(target_pos, inverted_dir, FluidStack.new_wildcard(1000), false)
+    local drained_stack = FluidTanks.drain_fluid(target_pos, inverted_dir, FluidStack.new_wildcard(1000), false)
     if drained_stack and drained_stack.amount > 0 then
-      local existing = FluidTanks.get(pos, pump_dir)
+      local existing = FluidTanks.get_fluid(pos, pump_dir)
       local filled_stack = FluidMeta.fill_fluid(meta, "tank", drained_stack, nodedef.fluid_interface.capacity, nodedef.fluid_interface.capacity, true)
 
       if filled_stack and filled_stack.amount > 0 then
-        FluidTanks.drain(target_pos,
+        FluidTanks.drain_fluid(target_pos,
           inverted_dir,
           filled_stack, true)
         energy_consumed = energy_consumed + math.floor(100 * filled_stack.amount / 1000)
@@ -97,7 +97,7 @@ function pump_yatm_network.work(pos, node, energy_available, work_rate, ot)
       fluid_interface.capacity, fluid_interface.capacity, false)
     if stack and stack.amount > 0 then
       local target_dir = yatm_core.invert_dir(new_dir)
-      local filled_stack = FluidTanks.fill(target_pos, target_dir, stack, true)
+      local filled_stack = FluidTanks.fill_fluid(target_pos, target_dir, stack, true)
       if filled_stack and filled_stack.amount > 0 then
         energy_consumed = energy_consumed + math.floor(100 * filled_stack.amount / 1000)
         FluidMeta.drain_fluid(meta,

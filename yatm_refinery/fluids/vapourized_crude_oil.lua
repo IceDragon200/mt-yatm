@@ -4,7 +4,7 @@ yatm.fluids.FluidRegistry.register("yatm_refinery", "vapourized_crude_oil", {
 
   groups = {
     gas = 1,
-    vapour = 1,
+    vapourized = 1,
     vapourized_crude_oil = 1,
   },
 

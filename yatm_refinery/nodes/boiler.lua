@@ -80,13 +80,13 @@ function boiler_yatm_network.work(pos, node, available_energy, work_rate, ot)
     if water_tank_nodedef then
       if yatm_core.groups.get_item(water_tank_nodedef, "fluid_tank") then
         local target_dir = yatm_core.invert_dir(water_tank_dir)
-        local stack = FluidTanks.drain(water_tank_pos,
+        local stack = FluidTanks.drain_fluid(water_tank_pos,
           target_dir,
           FluidStack.new("group:water", 1000), false)
         if stack then
-          local filled_stack = FluidTanks.fill(pos, water_tank_dir, stack, true)
+          local filled_stack = FluidTanks.fill_fluid(pos, water_tank_dir, stack, true)
           if filled_stack and filled_stack.amount > 0 then
-            FluidTanks.drain(water_tank_pos, target_dir, filled_stack, true)
+            FluidTanks.drain_fluid(water_tank_pos, target_dir, filled_stack, true)
             energy_consumed = energy_consumed + 1
           end
         end
@@ -131,10 +131,10 @@ function boiler_yatm_network.work(pos, node, available_energy, work_rate, ot)
       local steam_tank_nodedef = minetest.registered_nodes[steam_tank_node.name]
 
       if steam_tank_nodedef then
-        local filled_stack = FluidTanks.fill(steam_tank_pos,
+        local filled_stack = FluidTanks.fill_fluid(steam_tank_pos,
           yatm_core.invert_dir(steam_tank_dir), stack, true)
         if filled_stack and filled_stack.amount > 0 then
-          FluidTanks.drain(pos, steam_tank_dir, filled_stack, true)
+          FluidTanks.drain_fluid(pos, steam_tank_dir, filled_stack, true)
           energy_consumed = energy_consumed + 1
         end
       end
@@ -172,16 +172,6 @@ yatm.devices.register_stateful_network_device({
   fluid_interface = fluid_interface,
   refresh_infotext = boiler_refresh_infotext,
 }, {
-  on = {
-    tiles = {
-      "yatm_boiler_top.on.png",
-      "yatm_boiler_bottom.on.png",
-      "yatm_boiler_side.on.png",
-      "yatm_boiler_side.on.png",
-      "yatm_boiler_side.on.png",
-      "yatm_boiler_side.on.png",
-    },
-  },
   error = {
     tiles = {
       "yatm_boiler_top.error.png",
@@ -191,5 +181,16 @@ yatm.devices.register_stateful_network_device({
       "yatm_boiler_side.error.png",
       "yatm_boiler_side.error.png"
     },
+  },
+  on = {
+    tiles = {
+      "yatm_boiler_top.on.png",
+      "yatm_boiler_bottom.on.png",
+      "yatm_boiler_side.on.png",
+      "yatm_boiler_side.on.png",
+      "yatm_boiler_side.on.png",
+      "yatm_boiler_side.on.png",
+    },
+    light_source = 7,
   },
 })

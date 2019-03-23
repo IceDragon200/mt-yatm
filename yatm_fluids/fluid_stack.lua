@@ -20,6 +20,10 @@ function FluidStack.new_wildcard(amount)
   return FluidStack.new("*", amount)
 end
 
+function FluidStack.copy(fluid_stack)
+  return { name = fluid_stack.name, amount = fluid_stack.amount }
+end
+
 function FluidStack.to_string(fluid_stack, capacity)
   local result = "Empty"
   if fluid_stack and fluid_stack.amount > 0 then
