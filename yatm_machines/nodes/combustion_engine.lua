@@ -60,24 +60,24 @@ function combustion_engine_yatm_network.energy.produce_energy(pos, node, should_
       -- TODO: a FluidFuelRegistry
       if fluid.groups.crude_oil then
         -- Crude is absolutely terrible energy wise
-        local consumed_stack = FluidMeta.drain_fluid(meta, "tank", fluid_stack, fluid_interface.capacity, fluid_interface.capacity, true)
+        local consumed_stack = FluidMeta.drain_fluid(meta, "tank", fluid_stack, fluid_interface.capacity, fluid_interface.capacity, should_commit)
         if consumed_stack and consumed_stack.amount > 0 then
           energy_produced = energy_produced + consumed_stack.amount * 5
-          need_refresh = true
+          need_refresh = should_commit
         end
       elseif fluid.groups.heavy_oil then
         -- Heavy oil doesn't produce much energy, but it lasts a bit longer
-        local consumed_stack = FluidMeta.drain_fluid(meta, "tank", fluid_stack, fluid_interface.capacity, fluid_interface.capacity, true)
+        local consumed_stack = FluidMeta.drain_fluid(meta, "tank", fluid_stack, fluid_interface.capacity, fluid_interface.capacity, should_commit)
         if consumed_stack and consumed_stack.amount > 0 then
           energy_produced = energy_produced + consumed_stack.amount * 10
-          need_refresh = true
+          need_refresh = should_commit
         end
       elseif fluid.groups.light_oil then
         -- Light oil produces more energy at the saem fluid cost
-        local consumed_stack = FluidMeta.drain_fluid(meta, "tank", fluid_stack, fluid_interface.capacity, fluid_interface.capacity, true)
+        local consumed_stack = FluidMeta.drain_fluid(meta, "tank", fluid_stack, fluid_interface.capacity, fluid_interface.capacity, should_commit)
         if consumed_stack and consumed_stack.amount > 0 then
           energy_produced = energy_produced + consumed_stack.amount  * 15
-          need_refresh = true
+          need_refresh = should_commit
         end
       end
     end
