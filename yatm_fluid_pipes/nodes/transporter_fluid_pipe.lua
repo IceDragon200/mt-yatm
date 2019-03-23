@@ -42,11 +42,14 @@ for _,color_pair in ipairs(colors) do
   }
   if color_basename == "default" then
     -- default can connect to anything
+    table.insert(connects_to, "group:valve_fluid_pipe")
     table.insert(connects_to, "group:transporter_fluid_pipe")
   else
     -- colored pipes can only connect to it's own color OR default
     table.insert(connects_to, "group:" .. colored_group_name)
     table.insert(connects_to, "group:transporter_fluid_pipe_default")
+    table.insert(connects_to, "group:valve_fluid_pipe_" .. color_basename)
+    table.insert(connects_to, "group:valve_fluid_pipe_default")
   end
 
   minetest.register_node(node_name, {

@@ -50,7 +50,8 @@ minetest.register_node("yatm_fluid_pipes:inserter_fluid_pipe", {
 
   connects_to = {
     "group:fluid_interface_in",
-    "group:extractor_fluid_pipe",
+    "group:extractor_fluid_device",
+    "group:valve_fluid_pipe",
     "group:transporter_fluid_pipe",
   },
 

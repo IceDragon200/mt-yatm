@@ -1,7 +1,7 @@
 --[[
 Generic Transport Network
 
-GTN is an implementation of the IET (Inserter, Extractor, Transporter) pattern in YATM.
+GTN is an implementation of the IETV (Inserter, Extractor, Transporter, Valve) pattern in YATM.
 
 Currently it's only used for Items and Fluids, but could be used for other resources.
 ]]
@@ -113,7 +113,7 @@ function m:update_member(pos, node, is_register)
   self.m_members_by_type[device_type][hash] = record
 
   -- register will cause a refresh on it's own position
-  self.m_queue[hash] = pos
+  self:queue_all_adjacent(pos)
 end
 
 function m:queue_all_adjacent(pos)
@@ -191,8 +191,13 @@ function m:get_connected_pos(pos, node, nodedef, to_visit)
           if neighbour_interface.type ~= "inserter" then
             table.insert(to_visit, npos)
           end
+        elseif interface.type == "valve" then
+          -- Valves can only connect if their state is on
+          if interface.state == "on" then
+            table.insert(to_visit, npos)
+          end
         elseif interface.type == "transporter" then
-          -- Transporters can connect to anything that is a FTD, that's kinda their job.
+          -- Transporters can connect to anything that is a transport device, that's kinda their job.
           table.insert(to_visit, npos)
         end
       end
