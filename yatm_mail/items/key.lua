@@ -44,6 +44,7 @@ for _,material_pair in ipairs(materials) do
       groups = {
         lockable_key = 1,
         toothed_key = 1,
+        not_in_creative_inventory = 1,
       },
       inventory_image = "yatm_key_" .. material_basename .. "_" .. color_basename .. "_toothed.png",
       dye_color = color_basename,
@@ -51,11 +52,13 @@ for _,material_pair in ipairs(materials) do
       stack_max = 1,
     })
 
+    -- These are broken keys
     minetest.register_craftitem(key_states.toothless, {
       description = material_name .. " Toothless Key (" .. color_name .. ")",
       groups = {
         lockable_key = 1,
         toothless_key = 1,
+        not_in_creative_inventory = 1,
       },
       inventory_image = "yatm_key_" .. material_basename .. "_" .. color_basename .. "_toothless.png",
       dye_color = color_basename,
