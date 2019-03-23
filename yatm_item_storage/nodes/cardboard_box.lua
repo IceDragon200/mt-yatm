@@ -1,7 +1,13 @@
 minetest.register_node("yatm_item_storage:cardboard_box", {
   description = "Cardboard Box",
 
-  groups = {cracky = 1, cardboard = 1, cardboard_box = 1},
+  groups = {
+    cracky = 1,
+    cardboard = 1,
+    cardboard_box = 1,
+    item_interface_in = 1,
+    item_interface_out = 1,
+  },
 
   stack_max = 1,
 
