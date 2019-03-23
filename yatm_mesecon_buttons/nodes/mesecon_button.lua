@@ -44,6 +44,7 @@ for _,color in pairs(colors) do
   local description = "Mesecon Toggle Button (" .. color_name .. ")"
   local off_name = "yatm_mesecon_buttons:mesecon_toggle_button_" .. color_basename .. "_off"
   local on_name = "yatm_mesecon_buttons:mesecon_toggle_button_" .. color_basename .. "_on"
+
   minetest.register_node(off_name, {
     description = description,
 
@@ -96,7 +97,7 @@ for _,color in pairs(colors) do
     after_place_node = button_after_place_node,
   })
 
-  minetest.register_node("yatm_mesecon_buttons:mesecon_toggle_button_" .. color_basename .. "_on", {
+  minetest.register_node(on_name, {
     description = description,
 
     drop = off_name,
