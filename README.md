@@ -17,9 +17,17 @@ As someone who lacks the ability to focus on one specific topic, it does everyth
 
 For now:
 
+__yatm_armoury__
+
+Nothing here yet, but it will have a Lemonade.
+
 __yatm_bees__
 
 A simple bee keeping module, based off Growthcraft's Bees.
+
+__yatm_brewery__
+
+Currently provides barrels for storing fluids, in the future it will act like Growthcraft's Cellar module.
 
 __yatm_cables__
 
@@ -33,7 +41,21 @@ __yatm_decor__
 
 Decoration blocks
 
+__yatm_fluid_pipe_valves__
+
+__yatm_fluid_pipes__
+
+__yatm_fluid_teleporters__
+
+__yatm_fluids__
+
 __yatm_foundry__
+
+__yatm_item_ducts__
+
+__yatm_item_storage__
+
+__yatm_item_teleporters__
 
 __yatm_machines__
 
@@ -41,6 +63,7 @@ Where a bulk of the machines are
 
 __yatm_mail__
 
+Get your very own mailbox!
 
 __yatm_oku__
 
