@@ -61,7 +61,6 @@ for _,pair in ipairs(colors) do
       sounds = default.node_sound_stone_defaults(),
       paramtype = "light",
       paramtype2 = "facedir",
-      place_param2 = 0,
       drawtype = "nodebox",
       node_box = plate_nodebox,
       dye_color = color_basename,
