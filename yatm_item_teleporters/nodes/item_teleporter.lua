@@ -6,30 +6,52 @@ Like all other wireless devices, it has it's own address scheme and registration
 ]]
 local SpacetimeNetwork = assert(yatm.spacetime.Network)
 local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
+local YATM_NetworkMeta = assert(yatm.network)
+local Energy = assert(yatm.energy)
+
+local function item_teleporter_refresh_infotext(pos)
+  local meta = minetest.get_meta(pos)
+
+  local infotext =
+    "Net.ID: " .. YATM_NetworkMeta.to_infotext(meta) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    "S.Address: " .. SpacetimeMeta.to_infotext(meta)
+
+  meta:set_string("infotext", infotext)
+end
 
 local item_teleporter_yatm_network = {
   kind = "machine",
   groups = {
+    machine_worker = 1,
     energy_consumer = 1,
-    has_update = 1,
   },
+  default_state = "off",
   states = {
     off = "yatm_item_teleporters:item_teleporter_off",
     on = "yatm_item_teleporters:item_teleporter_on",
     error = "yatm_item_teleporters:item_teleporter_error",
     conflict = "yatm_item_teleporters:item_teleporter_error",
-  }
+  },
+  energy = {
+    passive_lost = 0,
+    network_charge_bandwidth = 200,
+    capacity = 10000,
+    startup_threshold = 100,
+  },
 }
 
-function item_teleporter_yatm_network.update(pos, node, ot)
+function item_teleporter_yatm_network.work(pos, node, available_energy, work_rate, ot)
+  local energy_consumed = 0
   local meta = minetest.get_meta(pos)
   local address = SpacetimeMeta.get_address(meta)
   if not yatm_core.is_blank(address) then
 
   end
+  return energy_consumed
 end
 
-local function teleporter_after_place_node(pos, _placer, _itemstack, _pointed_thing)
+local function teleporter_after_place_node(pos, _placer, itemstack, _pointed_thing)
   local new_meta = minetest.get_meta(pos)
   local old_meta = itemstack:get_meta()
   SpacetimeMeta.copy_address(old_meta, new_meta)
@@ -51,7 +73,7 @@ local function teleporter_after_destruct(pos, old_node)
   yatm.devices.device_after_destruct(pos, old_node)
 end
 
-local function teleporter_change_spacetime_address(pos, node, new_address)
+local function item_teleporter_change_spacetime_address(pos, node, new_address)
   local meta = minetest.get_meta(pos)
 
   SpacetimeMeta.set_address(meta, new_address)
@@ -83,7 +105,7 @@ local groups = {
   addressable_spacetime_device = 1,
 }
 
-minetest.register_node(item_teleporter_yatm_network.states.off, {
+yatm.devices.register_stateful_network_device({
   description = "Item Teleporter",
   drop = item_teleporter_yatm_network.states.off,
 
@@ -114,79 +136,28 @@ minetest.register_node(item_teleporter_yatm_network.states.off, {
   on_destruct = teleporter_on_destruct,
   after_destruct = teleporter_after_destruct,
 
-  change_spacetime_address = teleporter_change_spacetime_address,
+  change_spacetime_address = item_teleporter_change_spacetime_address,
 
-  refresh_infotext = teleporter_refresh_infotext,
-})
-
-minetest.register_node(item_teleporter_yatm_network.states.error, {
-  description = "Item Teleporter",
-  drop = item_teleporter_yatm_network.states.off,
-
-  groups = groups,
-
-  paramtype = "light",
-  paramtype2 = "facedir",
-
-  tiles = {
-    "yatm_item_teleporter_top.teleporter.error.png",
-    "yatm_item_teleporter_top.teleporter.error.png",
-    "yatm_item_teleporter_side.teleporter.error.png",
-    "yatm_item_teleporter_side.teleporter.error.png",
-    "yatm_item_teleporter_side.teleporter.error.png",
-    "yatm_item_teleporter_side.teleporter.error.png",
+  refresh_infotext = item_teleporter_refresh_infotext,
+}, {
+  error = {
+    tiles = {
+      "yatm_item_teleporter_top.teleporter.error.png",
+      "yatm_item_teleporter_top.teleporter.error.png",
+      "yatm_item_teleporter_side.teleporter.error.png",
+      "yatm_item_teleporter_side.teleporter.error.png",
+      "yatm_item_teleporter_side.teleporter.error.png",
+      "yatm_item_teleporter_side.teleporter.error.png",
+    }
   },
-
-  drawtype = "nodebox",
-  node_box = teleporter_node_box,
-
-  yatm_network = item_teleporter_yatm_network,
-  yatm_spacetime = {
-    groups = {item_teleporter = 1},
-  },
-
-  after_place_node = teleporter_after_place_node,
-
-  on_destruct = teleporter_on_destruct,
-  after_destruct = teleporter_after_destruct,
-
-  change_spacetime_address = teleporter_change_spacetime_address,
-
-  refresh_infotext = teleporter_refresh_infotext,
-})
-
-minetest.register_node(item_teleporter_yatm_network.states.on, {
-  description = "Item Teleporter",
-  drop = item_teleporter_yatm_network.states.off,
-
-  groups = groups,
-
-  paramtype = "light",
-  paramtype2 = "facedir",
-
-  tiles = {
-    "yatm_item_teleporter_top.teleporter.on.png",
-    "yatm_item_teleporter_top.teleporter.on.png",
-    "yatm_item_teleporter_side.teleporter.on.png",
-    "yatm_item_teleporter_side.teleporter.on.png",
-    "yatm_item_teleporter_side.teleporter.on.png",
-    "yatm_item_teleporter_side.teleporter.on.png",
-  },
-
-  drawtype = "nodebox",
-  node_box = teleporter_node_box,
-
-  yatm_network = item_teleporter_yatm_network,
-  yatm_spacetime = {
-    groups = {item_teleporter = 1},
-  },
-
-  after_place_node = teleporter_after_place_node,
-
-  on_destruct = teleporter_on_destruct,
-  after_destruct = teleporter_after_destruct,
-
-  change_spacetime_address = teleporter_change_spacetime_address,
-
-  refresh_infotext = teleporter_refresh_infotext,
+  on = {
+    tiles = {
+      "yatm_item_teleporter_top.teleporter.on.png",
+      "yatm_item_teleporter_top.teleporter.on.png",
+      "yatm_item_teleporter_side.teleporter.on.png",
+      "yatm_item_teleporter_side.teleporter.on.png",
+      "yatm_item_teleporter_side.teleporter.on.png",
+      "yatm_item_teleporter_side.teleporter.on.png",
+    },
+  }
 })
