@@ -6,12 +6,38 @@ function yatm_core.inspect_itemstack(stack)
   end
 end
 
+function yatm_core.itemstack_new_blank()
+  return ItemStack({
+    name = "",
+    count = 0,
+    wear = 0
+  })
+end
+
 function yatm_core.itemstack_is_blank(stack)
   if stack then
     return yatm_core.is_blank(stack:get_name()) or stack:get_count() == 0
   else
     return true
   end
+end
+
+-- A non-destructive version of ItemStack#take_item,
+-- this will return the taken stack as the first value and the remaining as the second
+function yatm_core.itemstack_take(stack, length)
+  local max = stack:get_count()
+  local takable = math.min(length, max)
+  if takable == max then
+    return stack, yatm_core.itemstack_new_blank()
+  else
+    return stack:peek_item(takable), stack:peek_item(max - takable)
+  end
+end
+
+function yatm_core.itemstack_maybe_merge(base_stack, merging_stack)
+  local result = base_stack:peek_item(base_stack:get_count())
+  local leftover = result:add_item(merging_stack)
+  return result, leftover
 end
 
 local function assert_itemstack_meta(itemstack)
