@@ -47,10 +47,10 @@ function m:update_extractor_duct(extractor_hash, extractor, fluids_available)
     local stack = FluidTanks.drain_fluid(new_pos, node_face_dir, wildcard_stack, false)
     if stack and stack.amount > 0 then
       --print("Extractor", inspect_node(extractor.pos, vdir), "extracted", FluidStack.to_string(stack), "from", inspect_node(new_pos, node_face_dir))
-      local nhash = minetest.hash_node_position(new_pos)
+      local new_hash = minetest.hash_node_position(new_pos)
       fluids_available[extractor_hash] = fluids_available[extractor_hash] or {}
       local fa = fluids_available[extractor_hash]
-      fa[nhash] = {pos = new_pos, dir = node_face_dir, stack = stack}
+      fa[new_hash] = {pos = new_pos, dir = node_face_dir, stack = stack}
       wildcard_stack = FluidStack.dec_amount(wildcard_stack, stack.amount)
     end
   end
