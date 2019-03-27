@@ -6,6 +6,7 @@ yatm_item_storage.modpath = minetest.get_modpath(minetest.get_current_modname())
 
 dofile(yatm_item_storage.modpath .. "/item_interface.lua")
 dofile(yatm_item_storage.modpath .. "/inventory_serializer.lua")
+dofile(yatm_item_storage.modpath .. "/item_device.lua")
 
 dofile(yatm_item_storage.modpath .. "/nodes.lua")
 

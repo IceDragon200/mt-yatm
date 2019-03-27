@@ -11,6 +11,7 @@ The 3 main components of an item transport are:
 local GenericTransportNetwork = assert(yatm.transport.GenericTransportNetwork)
 local DIR6_TO_VEC3 = assert(yatm_core.DIR6_TO_VEC3)
 local invert_dir = assert(yatm_core.invert_dir)
+local ItemDevice = assert(yatm_item_storage.ItemDevice)
 
 local ItemTransportNetwork = GenericTransportNetwork:extends()
 local m = assert(ItemTransportNetwork.instance_class)
