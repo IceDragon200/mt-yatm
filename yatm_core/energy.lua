@@ -89,22 +89,3 @@ function energy.to_infotext(meta, key, capacity)
 end
 
 yatm_core.energy = energy
-
--- Tests
-do
-  assert(energy.allowed_energy(100, 10) == 10, "expected allowed_energy to limit given energy by the bandwidth")
-  assert(energy.allowed_energy(100, nil) == 100, "expected allowed_energy given a nil bandwidth to return energy")
-  assert(energy.allowed_energy(10, 100) == 10, "expected allowed_energy given a bandwidth greater than the energy to return it as is")
-end
-
-do
-  local new_energy, actual_amount = energy.calc_received_energy(15, 10, 10, 20)
-  assert(new_energy == 20, "expected new energy to be 20 but got " .. new_energy)
-  assert(actual_amount == 5, "expected actual_amount to be lower than the given")
-end
-
-do
-  local new_energy, actual_amount = energy.calc_consumed_energy(5, 15, 10, 20)
-  assert(new_energy == 0, "expected new energy to be 0 but got " .. new_energy)
-  assert(actual_amount == 5, "expected actual_amount to be lower than the given")
-end
