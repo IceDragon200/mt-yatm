@@ -106,7 +106,7 @@ local function is_mailbox_open(pos)
 
     local key_stack = inv:get_stack("access_key", 1)
     local is_open = yatm_mail.is_stack_a_key_for_locked_node(key_stack, pos)
-    print("mailbox is open?", yatm_core.vec3_to_string(pos), is_open)
+    print("mailbox is open?", minetest.pos_to_string(pos), is_open)
     return is_open
   end
 end

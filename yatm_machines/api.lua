@@ -53,7 +53,7 @@ function devices.device_passive_consume_energy(pos, node, amount)
 end
 
 function devices.worker_update(pos, node, ot)
-  --print("devices.worker_update/3", yatm_core.vec3_to_string(pos), dump(node.name))
+  --print("devices.worker_update/3", minetest.pos_to_string(pos), dump(node.name))
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef then
     local meta = minetest.get_meta(pos, node)
@@ -82,7 +82,7 @@ function devices.worker_update(pos, node, ot)
         yatm.energy.consume_energy(meta, devices.ENERGY_BUFFER_KEY, consumed, bandwidth, capacity, true)
         Network:queue_refresh_infotext(pos)
       end
-      --print("devices.worker_update/3", yatm_core.vec3_to_string(pos), dump(node.name), "consumed energy", consumed)
+      --print("devices.worker_update/3", minetest.pos_to_string(pos), dump(node.name), "consumed energy", consumed)
     end
 
     local total_available = yatm.energy.get_energy(meta, devices.ENERGY_BUFFER_KEY)

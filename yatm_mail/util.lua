@@ -229,7 +229,7 @@ function yatm_mail.is_stack_a_key_for_locked_node(stack, pos)
         return false
       end
     else
-      print("node was not a lockable object", yatm_core.vec3_to_string(pos), lockable_node.name)
+      print("node was not a lockable object", minetest.pos_to_string(pos), lockable_node.name)
     end
   else
     print("stack was not a toothed key: ", yatm_core.inspect_itemstack(stack))
