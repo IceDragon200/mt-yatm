@@ -103,11 +103,13 @@ function devices.default_on_network_state_changed(pos, node, state)
       -- the intention is to activate the node
       if state == "on" then
         local meta = minetest.get_meta(pos, node)
-        local total_available = yatm.energy.get_energy(meta, devices.ENERGY_BUFFER_KEY)
-        local threshold = nodedef.yatm_network.energy.startup_threshold or 0
-        --print("TRY ONLINE", pos.x, pos.y, pos.z, node.name, total_available, threshold)
-        if total_available < threshold then
-          new_state = "off"
+        if nodedef.yatm_network.groups.energy_consumer then
+          local total_available = yatm.energy.get_energy(meta, devices.ENERGY_BUFFER_KEY)
+          local threshold = nodedef.yatm_network.energy.startup_threshold or 0
+          --print("TRY ONLINE", pos.x, pos.y, pos.z, node.name, total_available, threshold)
+          if total_available < threshold then
+            new_state = "off"
+          end
         end
       end
     end
