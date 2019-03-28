@@ -163,8 +163,13 @@ local table_merge = assert(yatm_core.table_merge)
 
 yatm.devices.register_stateful_network_device({
   description = "Steam Turbine",
+
   groups = groups,
+
   drop = steam_turbine_yatm_network.states.off,
+
+  sounds = default.node_sound_metal_defaults(),
+
   tiles = {
     "yatm_steam_turbine_top.off.png",
     "yatm_steam_turbine_bottom.png",
