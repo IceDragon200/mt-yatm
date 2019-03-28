@@ -6,7 +6,10 @@ local node_box = {
   }
 }
 
-local groups = { item_interface_out = 1 }
+local groups = {
+  item_interface_out = 1,
+  apiary = 1,
+}
 
 minetest.register_node("yatm_bees:apiary_wood", {
   description = "Apiary (Wood)",
