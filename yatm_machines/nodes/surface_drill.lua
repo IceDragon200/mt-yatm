@@ -1,16 +1,22 @@
 local surface_drill_yatm_network = {
   kind = "machine",
   groups = {
-    machine = 1,
-    has_update = 1, -- the device should be updated every network step
+    machine_worker = 1,
+    energy_consumer = 1,
   },
+  default_state = "off",
   states = {
     conflict = "yatm_machines:surface_drill_error",
     error = "yatm_machines:surface_drill_error",
     off = "yatm_machines:surface_drill_off",
     on = "yatm_machines:surface_drill_on",
   },
-  passive_energy_lost = 0
+  energy = {
+    passive_lost = 0,
+    capacity = 16000,
+    network_charge_bandwidth = 500,
+    startup_threshold = 200,
+  },
 }
 
 local function update_bit(pos, node)
@@ -47,46 +53,48 @@ local function update_bit(pos, node)
   end
 end
 
-function surface_drill_yatm_network.update(pos, node, _ot)
-  local nodedef = minetest.registered_nodes[node.name]
-  if nodedef then
-    local meta = minetest.get_meta(pos)
-    local timer = meta:get_int("work_timer")
-    local new_face = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
-    assert(new_face)
-    local up_dirv3 = yatm_core.DIR6_TO_VEC3[new_face]
-    local decr = 1
-    local ext_pos = pos
-    while true do
-      ext_pos = vector.add(ext_pos, up_dirv3)
-      local ext_node = minetest.get_node(ext_pos)
-      local ext_nodedef = minetest.registered_nodes[ext_node.name]
-      if ext_nodedef then
-        --print("node def", ext_pos.x, ext_pos.y, ext_pos.z, ext_node.name)
-        if ext_nodedef.groups.surface_drill_ext then
-          decr = decr + 1
-        else
-          break
-        end
+function surface_drill_yatm_network.work(pos, node, energy_available, work_rate, _ot)
+  local meta = minetest.get_meta(pos)
+  local timer = meta:get_int("work_timer")
+  local new_face = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
+  assert(new_face)
+  local up_dirv3 = yatm_core.DIR6_TO_VEC3[new_face]
+  local decr = 1
+  local ext_pos = pos
+  -- Count all the attached extensions
+  while true do
+    ext_pos = vector.add(ext_pos, up_dirv3)
+    local ext_node = minetest.get_node(ext_pos)
+    local ext_nodedef = minetest.registered_nodes[ext_node.name]
+    if ext_nodedef then
+      --print("node def", ext_pos.x, ext_pos.y, ext_pos.z, ext_node.name)
+      if ext_nodedef.groups.surface_drill_ext then
+        decr = decr + 1
       else
-        --print("No node def", ext_pos.x, ext_pos.y, ext_pos.z, ext_node.name)
         break
       end
-    end
-    if timer <= 0 then
-      update_bit(pos, node)
-      timer = 20
     else
-      --print("decr timer", decr, pos.x, pos.y, pos.z, node.name)
-      timer = timer - decr
+      --print("No node def", ext_pos.x, ext_pos.y, ext_pos.z, ext_node.name)
+      break
     end
-    meta:set_int("work_timer", timer)
   end
+  if timer <= 0 then
+    update_bit(pos, node)
+    timer = 20
+  else
+    --print("decr timer", decr, pos.x, pos.y, pos.z, node.name)
+    timer = timer - decr
+  end
+  meta:set_int("work_timer", timer)
 end
 
-yatm.devices.register_network_device(surface_drill_yatm_network.states.off, {
+yatm.devices.register_stateful_network_device({
   description = "Surface Drill",
-  groups = {cracky = 1},
+
+  groups = {cracky = 1, surface_drill = 1},
+
+  drop = surface_drill_yatm_network.states.off,
+
   tiles = {
     "yatm_surface_drill_top.off.png",
     "yatm_surface_drill_bottom.png",
@@ -95,43 +103,31 @@ yatm.devices.register_network_device(surface_drill_yatm_network.states.off, {
     "yatm_surface_drill_back.off.png",
     "yatm_surface_drill_front.off.png"
   },
-  paramtype = "light",
-  paramtype2 = "facedir",
-  yatm_network = surface_drill_yatm_network,
-})
 
-yatm.devices.register_network_device(surface_drill_yatm_network.states.error, {
-  description = "Surface Drill",
-  drop = surface_drill_yatm_network.states.off,
-  groups = {cracky = 1, not_in_creative_inventory = 1},
-  tiles = {
-    "yatm_surface_drill_top.error.png",
-    "yatm_surface_drill_bottom.png",
-    "yatm_surface_drill_side.error.png",
-    "yatm_surface_drill_side.error.png^[transformFX",
-    "yatm_surface_drill_back.error.png",
-    "yatm_surface_drill_front.error.png"
-  },
   paramtype = "light",
   paramtype2 = "facedir",
   yatm_network = surface_drill_yatm_network,
-})
-
-yatm.devices.register_network_device(surface_drill_yatm_network.states.on, {
-  description = "Surface Drill",
-  drop = surface_drill_yatm_network.states.off,
-  groups = {cracky = 1, not_in_creative_inventory = 1},
-  tiles = {
-    "yatm_surface_drill_top.on.png",
-    "yatm_surface_drill_bottom.png",
-    "yatm_surface_drill_side.on.png",
-    "yatm_surface_drill_side.on.png^[transformFX",
-    "yatm_surface_drill_back.on.png",
-    "yatm_surface_drill_front.on.png",
+}, {
+  error = {
+    tiles = {
+      "yatm_surface_drill_top.error.png",
+      "yatm_surface_drill_bottom.png",
+      "yatm_surface_drill_side.error.png",
+      "yatm_surface_drill_side.error.png^[transformFX",
+      "yatm_surface_drill_back.error.png",
+      "yatm_surface_drill_front.error.png"
+    },
   },
-  paramtype = "light",
-  paramtype2 = "facedir",
-  yatm_network = surface_drill_yatm_network,
+  on = {
+    tiles = {
+      "yatm_surface_drill_top.on.png",
+      "yatm_surface_drill_bottom.png",
+      "yatm_surface_drill_side.on.png",
+      "yatm_surface_drill_side.on.png^[transformFX",
+      "yatm_surface_drill_back.on.png",
+      "yatm_surface_drill_front.on.png",
+    },
+  }
 })
 
 local surface_drill_ext_yatm_network = {
@@ -139,26 +135,24 @@ local surface_drill_ext_yatm_network = {
   kind = "machine",
   groups = {
     machine = 1,
-    has_update = 1, -- the device should be updated every network step
+    energy_consumer = 1,
   },
+  default_state = "off",
   states = {
     conflict = "yatm_machines:surface_drill_ext_error",
     error = "yatm_machines:surface_drill_ext_error",
     off = "yatm_machines:surface_drill_ext_off",
     on = "yatm_machines:surface_drill_ext_on",
   },
-  passive_energy_lost = 0
+  energy = {
+    passive_lost = 10,
+  },
 }
 
-function surface_drill_ext_yatm_network.update(pos, node)
-  local nodedef = minetest.registered_nodes[node.name]
-  if nodedef then
-  end
-end
-
-yatm.devices.register_network_device(surface_drill_ext_yatm_network.states.off, {
+yatm.devices.register_stateful_network_device({
   description = "Surface Drill Extension",
   groups = {cracky = 1, surface_drill_ext = 1},
+  drop = surface_drill_ext_yatm_network.states.off,
   tiles = {
     "yatm_surface_drill_top.off.png",
     "yatm_surface_drill_bottom.png",
@@ -170,40 +164,27 @@ yatm.devices.register_network_device(surface_drill_ext_yatm_network.states.off, 
   paramtype = "light",
   paramtype2 = "facedir",
   yatm_network = surface_drill_ext_yatm_network,
-})
-
-yatm.devices.register_network_device(surface_drill_ext_yatm_network.states.error, {
-  description = "Surface Drill Extension",
-  drop = surface_drill_ext_yatm_network.states.off,
-  groups = {cracky = 1, surface_drill_ext = 1, not_in_creative_inventory = 1},
-  tiles = {
-    "yatm_surface_drill_top.error.png",
-    "yatm_surface_drill_bottom.png",
-    "yatm_surface_drill_side.ext.error.png",
-    "yatm_surface_drill_side.ext.error.png",
-    "yatm_surface_drill_side.ext.error.png",
-    "yatm_surface_drill_side.ext.error.png"
+}, {
+  error = {
+    tiles = {
+      "yatm_surface_drill_top.error.png",
+      "yatm_surface_drill_bottom.png",
+      "yatm_surface_drill_side.ext.error.png",
+      "yatm_surface_drill_side.ext.error.png",
+      "yatm_surface_drill_side.ext.error.png",
+      "yatm_surface_drill_side.ext.error.png"
+    },
   },
-  paramtype = "light",
-  paramtype2 = "facedir",
-  yatm_network = surface_drill_ext_yatm_network,
-})
-
-yatm.devices.register_network_device(surface_drill_ext_yatm_network.states.on, {
-  description = "Surface Drill Extension",
-  drop = surface_drill_ext_yatm_network.states.off,
-  groups = {cracky = 1, surface_drill_ext = 1, not_in_creative_inventory = 1},
-  tiles = {
-    "yatm_surface_drill_top.on.png",
-    "yatm_surface_drill_bottom.png",
-    "yatm_surface_drill_side.ext.on.png",
-    "yatm_surface_drill_side.ext.on.png",
-    "yatm_surface_drill_side.ext.on.png",
-    "yatm_surface_drill_side.ext.on.png",
-  },
-  paramtype = "light",
-  paramtype2 = "facedir",
-  yatm_network = surface_drill_ext_yatm_network,
+  on = {
+    tiles = {
+      "yatm_surface_drill_top.on.png",
+      "yatm_surface_drill_bottom.png",
+      "yatm_surface_drill_side.ext.on.png",
+      "yatm_surface_drill_side.ext.on.png",
+      "yatm_surface_drill_side.ext.on.png",
+      "yatm_surface_drill_side.ext.on.png",
+    },
+  }
 })
 
 minetest.register_node("yatm_machines:surface_drill_bit", {
