@@ -1,3 +1,12 @@
+function yatm_core.table_key_of(t, expected_value)
+  for key,value in pairs(t) do
+    if value == expected_value then
+      return key
+    end
+  end
+  return nil
+end
+
 --[[
 Used to merge multiple map-like tables together, if you need to merge lists
 use `list_concat/*` instead

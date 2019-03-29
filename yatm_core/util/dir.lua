@@ -75,14 +75,15 @@ yatm_core.INVERTED_DIR6_TO_VEC3 = {
   [yatm_core.D_DOWN] = yatm_core.V3_UP,
 }
 
-yatm_core.AXIS_Yp = 0
-yatm_core.AXIS_Ym = 20
+-- Facedir Axis
+yatm_core.FD_AXIS_Yp = 0
+yatm_core.FD_AXIS_Ym = 20
 
-yatm_core.AXIS_Xp = 12
-yatm_core.AXIS_Xm = 16
+yatm_core.FD_AXIS_Xp = 12
+yatm_core.FD_AXIS_Xm = 16
 
-yatm_core.AXIS_Zp = 4
-yatm_core.AXIS_Zm = 8
+yatm_core.FD_AXIS_Zp = 4
+yatm_core.FD_AXIS_Zm = 8
 
 local fm = function(n, e, s, w, d, u)
   return {
@@ -198,21 +199,21 @@ W = nil
 D = nil
 U = nil
 
-function yatm_core.dir_to_wallmounted_facedir(dir)
+function yatm_core.vdir_to_wallmounted_facedir(dir)
   if dir.x > 0 then
-    return yatm_core.AXIS_Xp
+    return yatm_core.FD_AXIS_Xp
   elseif dir.x < 0 then
-    return yatm_core.AXIS_Xm
+    return yatm_core.FD_AXIS_Xm
   end
   if dir.y > 0 then
-    return yatm_core.AXIS_Yp
+    return yatm_core.FD_AXIS_Yp
   elseif dir.y < 0 then
-    return yatm_core.AXIS_Ym
+    return yatm_core.FD_AXIS_Ym
   end
   if dir.z > 0 then
-    return yatm_core.AXIS_Zp
+    return yatm_core.FD_AXIS_Zp
   elseif dir.z < 0 then
-    return yatm_core.AXIS_Zm
+    return yatm_core.FD_AXIS_Zm
   end
   return nil
 end
@@ -227,6 +228,174 @@ function yatm_core.facedir_wallmount_after_place_node(pos, _placer, _itemstack, 
     z = above.z - under.z
   }
   local node = minetest.get_node(pos)
-  node.param2 = yatm_core.dir_to_wallmounted_facedir(dir)
+  node.param2 = yatm_core.vdir_to_wallmounted_facedir(dir)
   minetest.swap_node(pos, node)
+end
+
+--[[
+Determines what direction the `looker` is from the `target`
+]]
+function yatm_core.cardinal_direction_from(axis, target, looker)
+  local normal = {
+    x = looker.x - target.x,
+    y = looker.y - target.y,
+    z = looker.z - target.z,
+  }
+
+  if axis == yatm_core.D_UP then
+    -- Coordinates are pretty plain and boring
+    -- y-axis should be ignored
+    local ax = math.abs(normal.x)
+    local az = math.abs(normal.z)
+    if ax > az then
+      if normal.x > 0 then
+        return yatm_core.D_EAST
+      else
+        return yatm_core.D_WEST
+      end
+    else
+      if normal.z > 0 then
+        return yatm_core.D_NORTH
+      else
+        return yatm_core.D_SOUTH
+      end
+    end
+  elseif axis == yatm_core.D_DOWN then
+    -- Coordinates are inverted
+    -- y-axis should be ignored
+    local ax = math.abs(normal.x)
+    local az = math.abs(normal.z)
+    if ax > az then
+      if normal.x > 0 then
+        return yatm_core.D_WEST
+      else
+        return yatm_core.D_EAST
+      end
+    else
+      if normal.z > 0 then
+        return yatm_core.D_NORTH
+      else
+        return yatm_core.D_SOUTH
+      end
+    end
+  elseif axis == yatm_core.D_NORTH then
+    -- Coordinates are normal
+    -- z-axis should be ignored
+    local ax = math.abs(normal.x)
+    local ay = math.abs(normal.y)
+    if ax > ay then
+      if normal.x > 0 then
+        return yatm_core.D_EAST
+      else
+        return yatm_core.D_WEST
+      end
+    else
+      if normal.y > 0 then
+        return yatm_core.D_NORTH
+      else
+        return yatm_core.D_SOUTH
+      end
+    end
+  elseif axis == yatm_core.D_EAST then
+    -- Coordinates are normal
+    -- x-axis should be ignored
+    local ay = math.abs(normal.y)
+    local az = math.abs(normal.z)
+    if az > ay then
+      if normal.z > 0 then
+        return yatm_core.D_EAST
+      else
+        return yatm_core.D_WEST
+      end
+    else
+      if normal.y > 0 then
+        return yatm_core.D_NORTH
+      else
+        return yatm_core.D_SOUTH
+      end
+    end
+  elseif axis == yatm_core.D_SOUTH then
+    -- Coordinates are inverted
+    -- z-axis should be ignored
+    local ax = math.abs(normal.x)
+    local ay = math.abs(normal.y)
+    if ax > ay then
+      if normal.x > 0 then
+        return yatm_core.D_WEST
+      else
+        return yatm_core.D_EAST
+      end
+    else
+      if normal.y > 0 then
+        return yatm_core.D_NORTH
+      else
+        return yatm_core.D_SOUTH
+      end
+    end
+  elseif axis == yatm_core.D_WEST then
+    -- Coordinates are inverted
+    -- x-axis should be ignored
+    local ay = math.abs(normal.y)
+    local az = math.abs(normal.z)
+    if az > ay then
+      if normal.z > 0 then
+        return yatm_core.D_WEST
+      else
+        return yatm_core.D_EAST
+      end
+    else
+      if normal.y > 0 then
+        return yatm_core.D_NORTH
+      else
+        return yatm_core.D_SOUTH
+      end
+    end
+  end
+  return yatm_core.D_NONE
+end
+
+function yatm_core.axis_to_facedir(axis)
+  if axis == yatm_core.D_UP then
+    return yatm_core.FD_AXIS_Yp
+  elseif axis == yatm_core.D_DOWN then
+    return yatm_core.FD_AXIS_Ym
+  elseif axis == yatm_core.D_EAST then
+    return yatm_core.FD_AXIS_Xp
+  elseif axis == yatm_core.D_WEST then
+    return yatm_core.FD_AXIS_Xm
+  elseif axis == yatm_core.D_SOUTH then
+    return yatm_core.FD_AXIS_Zm
+  elseif axis == yatm_core.D_NORTH then
+    return yatm_core.FD_AXIS_Zp
+  end
+  return 0
+end
+
+function yatm_core.axis_to_facedir_rotation(axis)
+  if axis == yatm_core.D_NORTH then
+    return 0
+  elseif axis == yatm_core.D_EAST then
+    return 1
+  elseif axis == yatm_core.D_SOUTH then
+    return 2
+  elseif axis == yatm_core.D_WEST then
+    return 3
+  end
+  return 0
+end
+
+--[[
+yatm_core.facedir_from_axis_and_rotation(axis :: DIR6, rotation :: DIR4)
+]]
+function yatm_core.facedir_from_axis_and_rotation(axis, rotation)
+  local base = yatm_core.axis_to_facedir(axis)
+  return base + yatm_core.axis_to_facedir_rotation(rotation)
+end
+
+function yatm_core.inspect_axis(axis)
+  return yatm_core.DIR_TO_STRING[axis]
+end
+
+function yatm_core.inspect_axis_and_rotation(axis, rotation)
+  return yatm_core.DIR_TO_STRING[axis] .. " rotated to " .. yatm_core.DIR_TO_STRING[rotation]
 end

@@ -65,6 +65,23 @@ case:describe("list_sample/1", function (t2)
   end)
 end)
 
+case:describe("list_get_next/2", function (t2)
+  local l = {"abc", "def", "xyz", "123", "456"}
+
+  t2:test("will return the first element given a nil element", function (t3)
+    t3:assert_eq(yatm_core.list_get_next(l, nil), "abc")
+  end)
+
+  t2:test("will return the next element given an existing element name", function (t3)
+    t3:assert_eq(yatm_core.list_get_next(l, "abc"), "def")
+    t3:assert_eq(yatm_core.list_get_next(l, "def"), "xyz")
+  end)
+
+  t2:test("will loop around the next element given an existing element name", function (t3)
+    t3:assert_eq(yatm_core.list_get_next(l, "456"), "abc")
+  end)
+end)
+
 case:describe("is_table_empty/1", function (t2)
   t2:test("returns true if a table is empty", function (t3)
     t3:assert(m.is_table_empty({}))
