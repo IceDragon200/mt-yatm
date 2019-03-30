@@ -1,5 +1,29 @@
 local Energy = assert(yatm.energy)
 local ItemInterface = assert(yatm.items.ItemInterface)
+local Groups = assert(yatm_core.groups)
+local Network = assert(yatm.network)
+
+local RollerRegistry = {}
+
+function RollerRegistry:get_roller_recipe(item_stack)
+  local itemdef = item_stack:get_definition()
+  if Groups.get_item(itemdef, "ingot") then
+    -- ingot recipe
+    if item_stack:get_count() >= 2 then
+      local result = ItemStack({
+        name = "yatm_core:plate_" .. assert(itemdef.material_name),
+        count = 1,
+      })
+      assert(result:is_known())
+      return {
+        required_count = 2,
+        duration = 0.25, -- 1/4 second to form a plate
+        result = result,
+      }
+    end
+  end
+  return nil
+end
 
 local function get_roller_formspec(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
@@ -16,6 +40,16 @@ local function get_roller_formspec(pos)
     "listring[current_player;main]" ..
     default.get_hotbar_bg(0,4.85)
   return formspec
+end
+
+function roller_refresh_infotext(pos)
+  local meta = minetest.get_meta(pos)
+
+  local infotext =
+    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
+
+  meta:set_string("infotext", infotext)
 end
 
 local roller_yatm_network = {
@@ -41,10 +75,47 @@ local roller_yatm_network = {
 }
 
 function roller_yatm_network.work(pos, node, energy_available, work_rate, ot)
+  local energy_consumed = 0
   local meta = minetest.get_meta(pos)
   local inv = meta:get_inventory()
 
-  return 0
+  do
+    local processing_stack = inv:get_stack("roller_processing", 1)
+    if yatm_core.itemstack_is_blank(processing_stack) then
+      local input_stack = inv:get_stack("roller_input", 1)
+      if not yatm_core.itemstack_is_blank(input_stack) then
+        local recipe = RollerRegistry:get_roller_recipe(input_stack)
+        if recipe then
+          local consumed_stack = input_stack:peek_item(recipe.required_count)
+          print("Taking", consumed_stack:to_string(), "for recipe", recipe.result:to_string())
+          -- FIXME: once the deltas are being used instead of fixed time, this can be changed
+          local timespan = math.floor(recipe.duration * 60)
+          meta:set_int("work_timespan", timespan)
+          meta:set_int("work_duration", timespan)
+          inv:remove_item("roller_input", consumed_stack)
+          inv:set_stack("roller_processing", 1, consumed_stack)
+        end
+      end
+    end
+  end
+
+  do
+    local processing_stack = inv:get_stack("roller_processing", 1)
+    if not yatm_core.itemstack_is_blank(processing_stack) then
+      if yatm_core.metaref_dec_int(meta, "work_duration", 1) <= 0 then
+        local recipe = RollerRegistry:get_roller_recipe(processing_stack)
+        if recipe then
+          if inv:room_for_item("roller_output", recipe.result) then
+            print("Adding to roller_output", recipe.result:to_string())
+            inv:add_item("roller_output", recipe.result)
+            inv:set_stack("roller_processing", 1, ItemStack(nil))
+          end
+        end
+      end
+    end
+  end
+
+  return energy_consumed
 end
 
 local item_interface = ItemInterface.new_directional(function (self, pos, dir)
@@ -101,12 +172,16 @@ yatm.devices.register_stateful_network_device({
     local meta = minetest.get_meta(pos)
     local inv = meta:get_inventory()
 
-    return inv:is_empty("roller_input") and inv:is_empty("roller_output")
+    return inv:is_empty("roller_input") and
+      inv:is_empty("roller_processing") and
+      inv:is_empty("roller_output")
   end,
 
   yatm_network = roller_yatm_network,
 
   item_interface = item_interface,
+
+  refresh_infotext = roller_refresh_infotext,
 }, {
   error = {
     tiles = {
