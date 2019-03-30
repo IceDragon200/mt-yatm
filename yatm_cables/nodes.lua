@@ -20,7 +20,7 @@ function yatm_cables.register_cable_state(params, size)
   local states = {}
 
   if params.state then
-    texture_name = texture_basename .. assert(params.postfix) .. "_15.png"
+    texture_name = texture_basename .. assert(params.state_postfix) .. assert(params.postfix) .. ".png"
 
     -- the cable has multiple states
     for _,sub_state in ipairs(params.states) do
@@ -30,7 +30,7 @@ function yatm_cables.register_cable_state(params, size)
     states["conflict"] = states["error"]
     name = states[params.state]
   else
-    texture_name = texture_basename .. "_15.png"
+    texture_name = texture_basename .. assert(params.postfix) .. ".png"
     -- table does not have multiple states
     states["default"] = name
     name = states["default"]
@@ -111,13 +111,13 @@ function yatm_cables.register_cable(params, size)
     for _,state in ipairs(params.states) do
       local state_postfix = "." .. state
       yatm_cables.register_cable_state(yatm_core.table_merge(params, {
-        postfix = state_postfix,
+        state_postfix = state_postfix,
         state = state,
       }), size)
     end
   else
     yatm_cables.register_cable_state(yatm_core.table_merge(params, {
-      postfix = false,
+      state_postfix = false,
       state = false,
       states = {},
     }), size)
@@ -139,6 +139,8 @@ yatm_cables.register_cable({
     "group:yatm_data_device",
     "group:yatm_energy_device",
   },
+
+  postfix = "_15",
 }, 8 * yatm_core.PX16)
 
 yatm_cables.register_cable({
@@ -154,6 +156,8 @@ yatm_cables.register_cable({
     "group:yatm_data_device",
     "group:yatm_energy_device",
   },
+
+  postfix = "_15",
 }, 6 * yatm_core.PX16)
 yatm_cables.register_cable({
   name = "yatm_cables:small_cable",
@@ -170,6 +174,8 @@ yatm_cables.register_cable({
     "group:yatm_data_device",
     "group:yatm_energy_device",
   },
+
+  postfix = "_15",
 }, 4 * yatm_core.PX16)
 
 -- Glass cables are data cables, they do not carry power
@@ -186,6 +192,8 @@ yatm_cables.register_cable({
     "group:data_cable",
     "group:yatm_data_device",
   },
+
+  postfix = "_15",
 }, 4 * yatm_core.PX16)
 
 yatm_cables.register_cable({
@@ -200,6 +208,8 @@ yatm_cables.register_cable({
     "group:data_cable",
     "group:yatm_data_device",
   },
+
+  postfix = "_15",
 }, 4 * yatm_core.PX16)
 
 yatm_cables.register_cable({
@@ -214,6 +224,8 @@ yatm_cables.register_cable({
     "group:data_cable",
     "group:yatm_data_device",
   },
+
+  postfix = "_15",
 }, 4 * yatm_core.PX16)
 
 -- Standard pipe cables only carry energy
@@ -228,6 +240,8 @@ yatm_cables.register_cable({
     "group:energy_cable",
     "group:yatm_energy_device",
   },
+
+  postfix = "_15",
 }, 4 * yatm_core.PX16)
 
 yatm_cables.register_cable({
@@ -241,4 +255,60 @@ yatm_cables.register_cable({
     "group:energy_cable",
     "group:yatm_energy_device",
   },
+
+  postfix = "_15",
 }, 4 * yatm_core.PX16)
+
+
+yatm_cables.register_cable({
+  name = "yatm_cables:copper_cable_uninsulated",
+  description = "Copper Cable",
+  texture_basename = "yatm_copper_cable_side.uninsulated",
+  states = false,
+
+  groups = { cracky = 1, copper_cable = 1, copper_cable_uninsulated = 1, energy_cable = 1 },
+  connects_to = {
+    "group:energy_cable",
+    "group:copper_cable",
+    "group:yatm_energy_device",
+  },
+
+  postfix = "",
+}, 4 * yatm_core.PX16)
+
+do
+  local colors = {
+    {"white", "White"}
+  }
+
+  -- If the dye module is available, use the colors from there instead.
+  if dye then
+    colors = dye.dyes
+  end
+
+  for _,color_pair in ipairs(colors) do
+    local color_basename = color_pair[1]
+    local color_name = color_pair[2]
+
+    local colored_group_name = "copper_cable_" .. color_basename
+    local groups = { cracky = 1, copper_cable = 1, [colored_group_name] = 1, energy_cable = 1 }
+
+    local node_name = "yatm_cables:copper_cable_" .. color_basename
+
+    yatm_cables.register_cable({
+      name = node_name,
+      description = "Copper Cable",
+      texture_basename = "yatm_copper_cable_" .. color_basename .. ".on",
+      states = false,
+
+      groups = groups,
+      connects_to = {
+        "group:copper_cable_uninsulated",
+        "group:" .. colored_group_name,
+        "group:yatm_energy_device",
+      },
+
+      postfix = "",
+    }, 6 * yatm_core.PX16)
+  end
+end
