@@ -1,3 +1,20 @@
+function yatm_core.itemstack_is_blank(stack)
+  if stack then
+    -- return yatm_core.is_blank(stack:get_name()) or stack:get_count() == 0
+    return stack:is_empty()
+  else
+    return true
+  end
+end
+
+function yatm_core.itemstack_get_itemdef(stack)
+  if not yatm_core.itemstack_is_blank(stack) then
+    local name = stack:get_name()
+    return minetest.registered_items[name]
+  end
+  return nil
+end
+
 function yatm_core.inspect_itemstack(stack)
   if stack then
     return "stack[" .. stack:get_name() .. "/" .. stack:get_count() .. "]"
@@ -12,14 +29,6 @@ function yatm_core.itemstack_new_blank()
     count = 0,
     wear = 0
   })
-end
-
-function yatm_core.itemstack_is_blank(stack)
-  if stack then
-    return yatm_core.is_blank(stack:get_name()) or stack:get_count() == 0
-  else
-    return true
-  end
 end
 
 -- A non-destructive version of ItemStack#take_item,
@@ -50,7 +59,7 @@ function yatm_core.get_itemstack_description(itemstack)
   assert_itemstack_meta(itemstack)
   local desc = itemstack:get_meta():get_string("description")
   if yatm_core.is_blank(desc) then
-    local itemdef = minetest.registered_items[itemstack:get_name()]
+    local itemdef = itemstack:get_definition()
     return itemdef.description or itemstack:get_name()
   else
     return desc
