@@ -4,6 +4,10 @@ local devices = {
   ENERGY_BUFFER_KEY = "energy_buffer"
 }
 
+function devices.device_on_construct(pos)
+  --return yatm.network.device_on_destruct(pos)
+end
+
 function devices.device_on_destruct(pos)
   return yatm.network.device_on_destruct(pos)
 end
@@ -78,7 +82,7 @@ function devices.worker_update(pos, node, ot)
       end
       local available_energy = yatm.energy.consume_energy(meta, devices.ENERGY_BUFFER_KEY, bandwidth, bandwidth, capacity, false)
       local consumed = ym.work(pos, node, available_energy, work_rate, ot)
-      if consumed > 0 then
+      if consumed and consumed > 0 then
         yatm.energy.consume_energy(meta, devices.ENERGY_BUFFER_KEY, consumed, bandwidth, capacity, true)
         Network:queue_refresh_infotext(pos)
       end
