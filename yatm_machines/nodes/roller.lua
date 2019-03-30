@@ -1,6 +1,23 @@
 local Energy = assert(yatm.energy)
 local ItemInterface = assert(yatm.items.ItemInterface)
 
+local function get_roller_formspec(pos)
+  local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+  local formspec =
+    "size[8,9]" ..
+    "list[nodemeta:" .. spos .. ";roller_input;0,0.3;1,1;]" ..
+    "list[nodemeta:" .. spos .. ";roller_processing;1.5,0.3;1,1;]" ..
+    "list[nodemeta:" .. spos .. ";roller_output;3,0.3;1,1;]" ..
+    "list[current_player;main;0,4.85;8,1;]" ..
+    "list[current_player;main;0,6.08;8,3;8]" ..
+    "listring[nodemeta:" .. spos .. ";roller_input]" ..
+    "listring[current_player;main]" ..
+    "listring[nodemeta:" .. spos .. ";roller_output]" ..
+    "listring[current_player;main]" ..
+    default.get_hotbar_bg(0,4.85)
+  return formspec
+end
+
 local roller_yatm_network = {
   kind = "machine",
   groups = {
@@ -24,7 +41,10 @@ local roller_yatm_network = {
 }
 
 function roller_yatm_network.work(pos, node, energy_available, work_rate, ot)
+  local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
 
+  return 0
 end
 
 local item_interface = ItemInterface.new_directional(function (self, pos, dir)
@@ -38,7 +58,12 @@ end)
 
 yatm.devices.register_stateful_network_device({
   description = "Roller",
-  groups = {cracky = 1, item_interface_in = 1, item_interface_out = 1},
+  groups = {
+    cracky = 1,
+    item_interface_in = 1,
+    item_interface_out = 1,
+    yatm_energy_device = 1,
+  },
   drop = roller_yatm_network.states.off,
 
   sounds = default.node_sound_metal_defaults(),
@@ -56,11 +81,20 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
 
   on_construct = function (pos)
-    yatm.devices.default_on_construct
+    yatm.devices.device_on_construct(pos)
     local meta = minetest.get_meta(pos)
     local inv = meta:get_inventory()
     inv:set_size("roller_input", 1)
+    inv:set_size("roller_processing", 1)
     inv:set_size("roller_output", 1)
+  end,
+
+  on_rightclick = function (pos, node, clicker)
+    minetest.show_formspec(
+      clicker:get_player_name(),
+      "yatm_machines:roller",
+      get_roller_formspec(pos)
+    )
   end,
 
   can_dig = function (pos)
