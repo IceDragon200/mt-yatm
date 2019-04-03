@@ -29,6 +29,7 @@ end
 
 local function default_insert_item(self, pos, dir, item_stack, commit)
   if self.allow_insert_item(pos, dir, item_stack) then
+    local meta = minetest.get_meta(pos)
     local inv = meta:get_inventory()
     local list = inv:get_list(self.inventory_name)
     local new_list, remaining = InventoryList.merge_stack(list, item_stack)
@@ -37,20 +38,25 @@ local function default_insert_item(self, pos, dir, item_stack, commit)
     end
     return remaining
   end
-  return nil
+  return nil, "insert not allowed"
 end
 
 local function default_extract_item(self, pos, dir, item_stack_or_count, commit)
   if self.allow_extract_item(pos, dir, item_stack_or_count) then
+    local meta = minetest.get_meta(pos)
     local inv = meta:get_inventory()
     local list = inv:get_list(self.inventory_name)
-    local new_list, extracted = InventoryList.extract_stack(list, item_stack_or_count)
-    if commit then
-      inv:set_list(self.inventory_name, new_list)
+    if list then
+      local new_list, extracted = InventoryList.extract_stack(list, item_stack_or_count)
+      if commit then
+        inv:set_list(self.inventory_name, new_list)
+      end
+      return extracted
+    else
+      return nil, "list not available"
     end
-    return extracted
   end
-  return nil
+  return nil, "extract not allowed"
 end
 
 local function directional_get_item(self, pos, dir)
@@ -61,7 +67,7 @@ local function directional_get_item(self, pos, dir)
     local list = inv:get_list(inventory_name)
     return InventoryList.first_stack(list)
   end
-  return nil
+  return nil, "no inventory"
 end
 
 local function directional_replace_item(self, pos, dir, item_stack, commit)
@@ -75,32 +81,38 @@ local function directional_insert_item(self, pos, dir, item_stack, commit)
   if self.allow_insert_item(pos, dir, item_stack) then
     local inventory_name = self:dir_to_inventory_name(pos, dir)
     if inventory_name then
+      local meta = minetest.get_meta(pos)
       local inv = meta:get_inventory()
       local list = inv:get_list(inventory_name)
       local new_list, remaining = InventoryList.merge_stack(list, item_stack)
       if commit then
-        inv:set_list(self.inventory_name, new_list)
+        inv:set_list(inventory_name, new_list)
       end
       return remaining
+    else
+      return nil, "no inventory"
     end
   end
-  return nil
+  return nil, "insert not allowed"
 end
 
 local function directional_extract_item(self, pos, dir, item_stack_or_count, commit)
   if self.allow_extract_item(pos, dir, item_stack_or_count) then
     local inventory_name = self:dir_to_inventory_name(pos, dir)
     if inventory_name then
+      local meta = minetest.get_meta(pos)
       local inv = meta:get_inventory()
       local list = inv:get_list(inventory_name)
       local new_list, extracted = InventoryList.extract_stack(list, item_stack_or_count)
       if commit then
-        inv:set_list(self.inventory_name, new_list)
+        inv:set_list(inventory_name, new_list)
       end
       return extracted
+    else
+      return nil, "no inventory"
     end
   end
-  return nil
+  return nil, "extract not allowed"
 end
 
 function ItemInterface.new()

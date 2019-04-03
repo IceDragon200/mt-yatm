@@ -23,6 +23,7 @@ function ItemDevice.insert_item(pos, dir, item_stack, commit)
   if nodedef then
     if nodedef.item_interface then
       if nodedef.item_interface.insert_item then
+        --print("ItemDevice.insert_item/4", minetest.pos_to_string(pos), yatm_core.inspect_axis(dir), yatm_core.itemstack_inspect(item_stack), commit)
         return nodedef.item_interface:insert_item(pos, dir, item_stack, commit)
       else
         return nil, "no insert_item/4"

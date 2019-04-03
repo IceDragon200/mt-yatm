@@ -15,7 +15,7 @@ function yatm_core.itemstack_get_itemdef(stack)
   return nil
 end
 
-function yatm_core.inspect_itemstack(stack)
+function yatm_core.itemstack_inspect(stack)
   if stack then
     return "stack[" .. stack:get_name() .. "/" .. stack:get_count() .. "]"
   else

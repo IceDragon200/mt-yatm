@@ -1,3 +1,5 @@
+local ItemInterface = assert(yatm.items.ItemInterface)
+
 function get_cardboard_box_formspec(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
@@ -10,6 +12,8 @@ function get_cardboard_box_formspec(pos)
     default.get_hotbar_bg(0,4.85)
   return formspec
 end
+
+local item_interface = ItemInterface.new_simple("main")
 
 minetest.register_node("yatm_item_storage:cardboard_box", {
   description = "Cardboard Box",
@@ -39,6 +43,8 @@ minetest.register_node("yatm_item_storage:cardboard_box", {
 
   paramtype = "light",
   paramtype2 = "facedir",
+
+  item_interface = item_interface,
 
   on_construct = function (pos)
     local meta = minetest.get_meta(pos)
