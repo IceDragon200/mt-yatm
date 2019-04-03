@@ -9,7 +9,7 @@ local groups = {
 }
 
 local monitor_console_yatm_network = {
-  basename = "yatm_machines:monitor_console",
+  basename = "yatm_dscs:monitor_console",
   kind = "monitor",
   groups = {
     monitor = 1,
@@ -17,10 +17,10 @@ local monitor_console_yatm_network = {
   },
   default_state = "off",
   states = {
-    error = "yatm_machines:monitor_console_error",
-    conflict = "yatm_machines:monitor_console_error",
-    off = "yatm_machines:monitor_console_off",
-    on = "yatm_machines:monitor_console_on",
+    error = "yatm_dscs:monitor_console_error",
+    conflict = "yatm_dscs:monitor_console_error",
+    off = "yatm_dscs:monitor_console_off",
+    on = "yatm_dscs:monitor_console_on",
   },
   energy = {
     passive_lost = 10,
@@ -82,7 +82,7 @@ yatm.devices.register_stateful_network_device({
 
 ]]
 local monitor_crafting_yatm_network = {
-  basename = "yatm_machines:monitor_crafting",
+  basename = "yatm_dscs:monitor_crafting",
 
   kind = "monitor",
 
@@ -94,10 +94,10 @@ local monitor_crafting_yatm_network = {
   default_state = "off",
 
   states = {
-    error = "yatm_machines:monitor_crafting_error",
-    conflict = "yatm_machines:monitor_crafting_error",
-    off = "yatm_machines:monitor_crafting_off",
-    on = "yatm_machines:monitor_crafting_on",
+    error = "yatm_dscs:monitor_crafting_error",
+    conflict = "yatm_dscs:monitor_crafting_error",
+    off = "yatm_dscs:monitor_crafting_off",
+    on = "yatm_dscs:monitor_crafting_on",
   },
 
   energy = {
@@ -154,7 +154,7 @@ yatm.devices.register_stateful_network_device({
 
 ]]
 local monitor_ele_yatm_network = {
-  basename = "yatm_machines:monitor_ele",
+  basename = "yatm_dscs:monitor_ele",
   kind = "monitor",
   groups = {
     monitor = 1,
@@ -162,10 +162,10 @@ local monitor_ele_yatm_network = {
   },
   default_state = "off",
   states = {
-    error = "yatm_machines:monitor_ele_error",
-    conflict = "yatm_machines:monitor_ele_error",
-    off = "yatm_machines:monitor_ele_off",
-    on = "yatm_machines:monitor_ele_on",
+    error = "yatm_dscs:monitor_ele_error",
+    conflict = "yatm_dscs:monitor_ele_error",
+    off = "yatm_dscs:monitor_ele_off",
+    on = "yatm_dscs:monitor_ele_on",
   },
   energy = {
     passive_lost = 1,
@@ -222,7 +222,7 @@ yatm.devices.register_stateful_network_device({
 
 ]]
 local monitor_inventory_yatm_network = {
-  basename = "yatm_machines:monitor_inventory",
+  basename = "yatm_dscs:monitor_inventory",
   kind = "monitor",
   groups = {
     monitor = 1,
@@ -230,10 +230,10 @@ local monitor_inventory_yatm_network = {
   },
   default_state = "off",
   states = {
-    error = "yatm_machines:monitor_inventory_error",
-    conflict = "yatm_machines:monitor_inventory_error",
-    off = "yatm_machines:monitor_inventory_off",
-    on = "yatm_machines:monitor_inventory_on",
+    error = "yatm_dscs:monitor_inventory_error",
+    conflict = "yatm_dscs:monitor_inventory_error",
+    off = "yatm_dscs:monitor_inventory_off",
+    on = "yatm_dscs:monitor_inventory_on",
   },
   energy = {
     passive_lost = 1,

@@ -11,10 +11,10 @@ local compute_module_yatm_network = {
   },
   default_state = "off",
   states = {
-    conflict = "yatm_machines:compute_module_error",
-    error = "yatm_machines:compute_module_error",
-    off = "yatm_machines:compute_module_off",
-    on = "yatm_machines:compute_module_on",
+    conflict = "yatm_dscs:compute_module_error",
+    error = "yatm_dscs:compute_module_error",
+    off = "yatm_dscs:compute_module_off",
+    on = "yatm_dscs:compute_module_on",
   },
   energy = {
     passive_lost = 10,

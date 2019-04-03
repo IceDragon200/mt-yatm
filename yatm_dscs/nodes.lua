@@ -1,0 +1,6 @@
+dofile(yatm_dscs.modpath .. "/nodes/assembler.lua")
+dofile(yatm_dscs.modpath .. "/nodes/compute_module.lua")
+dofile(yatm_dscs.modpath .. "/nodes/inventory_controller.lua")
+dofile(yatm_dscs.modpath .. "/nodes/drive_case.lua")
+dofile(yatm_dscs.modpath .. "/nodes/monitor.lua")
+dofile(yatm_dscs.modpath .. "/nodes/flat_monitor.lua")

@@ -9,10 +9,10 @@ local assembler_yatm_network = {
   },
   default_state = "off",
   states = {
-    conflict = "yatm_machines:assembler_error",
-    error = "yatm_machines:assembler_error",
-    off = "yatm_machines:assembler_off",
-    on = "yatm_machines:assembler_on",
+    conflict = "yatm_dscs:assembler_error",
+    error = "yatm_dscs:assembler_error",
+    off = "yatm_dscs:assembler_off",
+    on = "yatm_dscs:assembler_on",
   },
   energy = {
     capacity = 4000,

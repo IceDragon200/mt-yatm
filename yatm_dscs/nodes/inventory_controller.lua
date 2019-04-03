@@ -11,10 +11,10 @@ local inventory_controller_yatm_network = {
   },
   default_state = "off",
   states = {
-    conflict = "yatm_machines:inventory_controller_error",
-    error = "yatm_machines:inventory_controller_error",
-    off = "yatm_machines:inventory_controller_off",
-    on = "yatm_machines:inventory_controller_on",
+    conflict = "yatm_dscs:inventory_controller_error",
+    error = "yatm_dscs:inventory_controller_error",
+    off = "yatm_dscs:inventory_controller_off",
+    on = "yatm_dscs:inventory_controller_on",
   },
   energy = {
     passive_lost = 10,

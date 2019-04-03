@@ -14,10 +14,10 @@ local monitor_console_yatm_network = {
   },
   default_state = "off",
   states = {
-    error = "yatm_machines:flat_monitor_console_error",
-    conflict = "yatm_machines:flat_monitor_console_error",
-    off = "yatm_machines:flat_monitor_console_off",
-    on = "yatm_machines:flat_monitor_console_on",
+    error = "yatm_dscs:flat_monitor_console_error",
+    conflict = "yatm_dscs:flat_monitor_console_error",
+    off = "yatm_dscs:flat_monitor_console_off",
+    on = "yatm_dscs:flat_monitor_console_on",
   },
   energy = {
     passive_lost = 10,
@@ -92,10 +92,10 @@ local monitor_crafting_yatm_network = {
   },
   default_state = "off",
   states = {
-    error = "yatm_machines:flat_monitor_crafting_error",
-    conflict = "yatm_machines:flat_monitor_crafting_error",
-    off = "yatm_machines:flat_monitor_crafting_off",
-    on = "yatm_machines:flat_monitor_crafting_on",
+    error = "yatm_dscs:flat_monitor_crafting_error",
+    conflict = "yatm_dscs:flat_monitor_crafting_error",
+    off = "yatm_dscs:flat_monitor_crafting_off",
+    on = "yatm_dscs:flat_monitor_crafting_on",
   },
   energy = {
     passive_lost = 10,
@@ -157,10 +157,10 @@ local monitor_ele_yatm_network = {
   },
   default_state = "off",
   states = {
-    error = "yatm_machines:flat_monitor_ele_error",
-    conflict = "yatm_machines:flat_monitor_ele_error",
-    off = "yatm_machines:flat_monitor_ele_off",
-    on = "yatm_machines:flat_monitor_ele_on",
+    error = "yatm_dscs:flat_monitor_ele_error",
+    conflict = "yatm_dscs:flat_monitor_ele_error",
+    off = "yatm_dscs:flat_monitor_ele_off",
+    on = "yatm_dscs:flat_monitor_ele_on",
   },
   energy = {
     passive_lost = 10,
@@ -217,10 +217,10 @@ local monitor_inventory_yatm_network = {
   },
   default_state = "off",
   states = {
-    error = "yatm_machines:flat_monitor_inventory_error",
-    conflict = "yatm_machines:flat_monitor_inventory_error",
-    off = "yatm_machines:flat_monitor_inventory_off",
-    on = "yatm_machines:flat_monitor_inventory_on",
+    error = "yatm_dscs:flat_monitor_inventory_error",
+    conflict = "yatm_dscs:flat_monitor_inventory_error",
+    off = "yatm_dscs:flat_monitor_inventory_off",
+    on = "yatm_dscs:flat_monitor_inventory_on",
   },
   energy = {
     passive_lost = 10,
