@@ -17,9 +17,48 @@ local ItemTransportNetwork = GenericTransportNetwork:extends()
 local m = assert(ItemTransportNetwork.instance_class)
 
 function m:update_extractor_duct(extractor_hash, extractor, items_available)
+  for vdir,v3 in pairs(DIR6_TO_VEC3) do
+    local new_pos = vector.add(extractor.pos, v3)
+    local node_face_dir = invert_dir(vdir)
+
+    local stack = ItemDevice.extract_item(new_pos, node_face_dir, 1, false)
+    if not yatm_core.itemstack_is_blank(stack) then
+      items_available[extractor_hash] = items_available[extractor_hash] or {}
+      local ia = items_available[extractor_hash]
+      ia[new_hash] = {pos = new_pos, dir = node_face_dir, stack = stack}
+      break
+    end
+  end
 end
 
 function m:update_inserter_duct(inserter_hash, inserter, items_available)
+  for vdir,v3 in pairs(DIR6_TO_VEC3) do
+    if yatm_core.is_table_empty(items_available) then
+      break
+    end
+
+    local insert_dir = invert_dir(vdir)
+    local target_pos = vector.add(inserter.pos, v3)
+
+    local old_items_available = items_available
+    items_available = {}
+
+    for extractor_hash,entries in pairs(old_items_available) do
+      local new_entries = {}
+
+      for fin_node_hash,entry in pairs(entries) do
+        local stack = entry.stack
+
+        local remaining = ItemDevice.insert_item(target_pos, insert_dir, stack, true)
+        ItemDevice.extract_item(entry.pos, entry.dir, stack, true)
+      end
+
+      if not yatm_core.is_table_empty(new_entries) then
+        items_available[extractor_hash] = new_entries
+      end
+    end
+  end
+  return items_available
 end
 
 function m:update_network(network, counter, delta)
