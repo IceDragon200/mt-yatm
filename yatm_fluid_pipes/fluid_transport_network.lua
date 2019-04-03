@@ -38,7 +38,7 @@ end
 function m:update_extractor_duct(extractor_hash, extractor, fluids_available)
   local wildcard_stack = FluidStack.new_wildcard(extractor.interface.bandwidth or 1000)
   for vdir,v3 in pairs(DIR6_TO_VEC3) do
-    if wildcard_stack.amount == 0 then
+    if wildcard_stack.amount <= 0 then
       break
     end
     local new_pos = vector.add(extractor.pos, v3)
@@ -58,34 +58,35 @@ end
 
 function m:update_inserter_duct(inserter_hash, inserter, fluids_available)
   for vdir,v3 in pairs(DIR6_TO_VEC3) do
-    if not yatm_core.is_table_empty(fluids_available) then
-      local filling_dir = invert_dir(vdir)
-      local target_pos = vector.add(inserter.pos, v3)
+    if yatm_core.is_table_empty(fluids_available) then
+      break
+    end
+    local filling_dir = invert_dir(vdir)
+    local target_pos = vector.add(inserter.pos, v3)
 
-      local old_fluids_available = fluids_available
-      fluids_available = {}
+    local old_fluids_available = fluids_available
+    fluids_available = {}
 
-      for extractor_hash,entries in pairs(old_fluids_available) do
-        local new_entries = {}
-        for fin_node_hash,entry in pairs(entries) do
-          local stack = entry.stack
-          local filling_stack = FluidStack.set_amount(stack, math.min(stack.amount, inserter.interface.bandwidth or 1000))
-          local used_stack = FluidTanks.fill_fluid(target_pos, filling_dir, filling_stack, true)
-          if used_stack and used_stack.amount > 0 then
-            --print("Inserter", inspect_node(inserter.pos, vdir), "filled", inspect_node(target_pos, filling_dir), "with", FluidStack.to_string(stack), "from", inspect_node(entry.pos, entry.dir))
-            FluidTanks.drain_fluid(entry.pos, entry.dir, used_stack, true)
-            local new_stack = FluidStack.dec_amount(stack, used_stack.amount)
-            entry.stack = new_stack
-          end
-
-          if entry.stack.amount > 0 then
-            new_entries[fin_node_hash] = entry
-          end
+    for extractor_hash,entries in pairs(old_fluids_available) do
+      local new_entries = {}
+      for fin_node_hash,entry in pairs(entries) do
+        local stack = entry.stack
+        local filling_stack = FluidStack.set_amount(stack, math.min(stack.amount, inserter.interface.bandwidth or 1000))
+        local used_stack = FluidTanks.fill_fluid(target_pos, filling_dir, filling_stack, true)
+        if used_stack and used_stack.amount > 0 then
+          --print("Inserter", inspect_node(inserter.pos, vdir), "filled", inspect_node(target_pos, filling_dir), "with", FluidStack.to_string(stack), "from", inspect_node(entry.pos, entry.dir))
+          FluidTanks.drain_fluid(entry.pos, entry.dir, used_stack, true)
+          local new_stack = FluidStack.dec_amount(stack, used_stack.amount)
+          entry.stack = new_stack
         end
 
-        if not yatm_core.is_table_empty(new_entries) then
-          fluids_available[extractor_hash] = new_entries
+        if entry.stack.amount > 0 then
+          new_entries[fin_node_hash] = entry
         end
+      end
+
+      if not yatm_core.is_table_empty(new_entries) then
+        fluids_available[extractor_hash] = new_entries
       end
     end
   end
