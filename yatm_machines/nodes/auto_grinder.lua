@@ -22,10 +22,21 @@ local auto_grinder_yatm_network = {
 }
 
 function auto_grinder_yatm_network.work(pos, node, energy_available, work_rate, ot)
+  return 0
+end
+
+function auto_grinder_on_construct(pos)
+  yatm.devices.device_on_construct(pos)
+  local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
+  inv:set_size("grinder_input", 1)
+  inv:set_size("grinder_processing", 1)
+  inv:set_size("grinder_output", 1)
 end
 
 local groups = {
   cracky = 1,
+  yatm_energy_device = 1,
   item_interface_in = 1,
   item_interface_out = 1,
 }
@@ -48,6 +59,8 @@ yatm.devices.register_stateful_network_device({
 
   paramtype = "light",
   paramtype2 = "facedir",
+
+  on_construct = auto_grinder_on_construct,
 
   yatm_network = auto_grinder_yatm_network,
 }, {
