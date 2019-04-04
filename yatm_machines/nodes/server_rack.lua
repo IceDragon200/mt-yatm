@@ -69,7 +69,7 @@ yatm.devices.register_stateful_network_device({
           type = "vertical_frames",
           aspect_w = 16,
           aspect_h = 16,
-          length = 1.0
+          length = 2.0
         },
       }
     },
