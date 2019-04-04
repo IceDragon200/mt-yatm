@@ -20,12 +20,20 @@ local mixer_yatm_network = {
 }
 
 function mixer_yatm_network.work(pos, node, available_energy, work_rate, ot)
+  return 0
 end
 
 yatm.devices.register_stateful_network_device({
   description = "Mixer",
 
-  groups = {cracky = 1},
+  groups = {
+    cracky = 1,
+    item_interface_in = 1,
+    item_interface_out = 1,
+    fluid_interface_in = 1,
+    fluid_interface_out = 1,
+    yatm_energy_device = 1,
+  },
 
   drop = mixer_yatm_network.states.off,
 
