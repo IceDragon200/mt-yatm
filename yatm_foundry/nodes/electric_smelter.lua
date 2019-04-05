@@ -23,6 +23,7 @@ local electric_smelter_yatm_network = {
 }
 
 function electric_smelter_yatm_network.work(pos, node, available_energy, work_rate, ot)
+  return 0
 end
 
 local groups = {
