@@ -7,6 +7,10 @@ function yatm_core.itemstack_is_blank(stack)
   end
 end
 
+function yatm_core.itemstack_copy(stack)
+  return stack:peek_item(stack:get_count())
+end
+
 function yatm_core.itemstack_get_itemdef(stack)
   if not yatm_core.itemstack_is_blank(stack) then
     local name = stack:get_name()
