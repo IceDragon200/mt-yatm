@@ -1,0 +1,6 @@
+dofile(yatm_foundry.modpath .. "/fluids/molten_tin.lua")
+dofile(yatm_foundry.modpath .. "/fluids/molten_copper.lua")
+dofile(yatm_foundry.modpath .. "/fluids/molten_iron.lua")
+dofile(yatm_foundry.modpath .. "/fluids/molten_bronze.lua")
+dofile(yatm_foundry.modpath .. "/fluids/molten_gold.lua")
+dofile(yatm_foundry.modpath .. "/fluids/molten_carbon_steel.lua")

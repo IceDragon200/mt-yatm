@@ -1,5 +1,6 @@
-local FluidInteface = assert(yatm.fluids.FluidInteface)
-local ItemInteface = assert(yatm.items.ItemInteface)
+local FluidInterface = assert(yatm.fluids.FluidInterface)
+local FluidStack = assert(yatm.fluids.FluidStack)
+local ItemInterface = assert(yatm.items.ItemInterface)
 
 local function get_electric_molder_formspec(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
@@ -41,10 +42,39 @@ local electric_molder_yatm_network = {
   },
 }
 
-local fluid_interface = FluidInteface.new_directional(function ()
+local fluid_interface = FluidInterface.new_directional(function (self, pos, dir)
+  local node = minetest.get_node(pos)
+  local new_dir = yatm_core.facedir_to_face(node.param2, dir)
+  if new_dir == yatm_core.D_UP or new_dir == yatm_core.D_DOWN then
+    return "molding_fluid"
+  end
+  return nil
 end)
 
-local item_interface = ItemInterface.new_directional(function ()
+function fluid_interface:allow_replace(pos, dir, fluid_stack)
+  local tank_name = self:get_fluid_tank_name(pos, dir)
+  if tank_name then
+    if tank_name == "molding_fluid" then
+      local fluid = FluidStack.get_fluid(fluid_stack)
+      -- If the fluid is molten, then it can be replaced
+      if fluid and fluid.groups.molten then
+        return true
+      end
+    end
+  end
+  return false
+end
+
+fluid_interface.allow_fill = fluid_interface.allow_replace
+fluid_interface.allow_drain = fluid_interface.allow_replace
+
+local item_interface = ItemInterface.new_directional(function (self, pos, dir)
+  local node = minetest.get_node(pos)
+  local new_dir = yatm_core.facedir_to_face(node.param2, dir)
+  if new_dir == yatm_core.D_UP or new_dir == yatm_core.D_DOWN then
+    return "mold_slot"
+  end
+  return "output_slot"
 end)
 
 function electric_molder_yatm_network.work(pos, node, available_energy, work_rate, ot)
@@ -93,6 +123,8 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
 
   yatm_network = electric_molder_yatm_network,
+  fluid_interface = fluid_interface,
+  item_interface = item_interface,
 
   on_construct = function (pos)
     yatm.devices.device_on_construct(pos)
