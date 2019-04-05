@@ -46,7 +46,7 @@ r("Carbon Steel Dust to Molten Carbon Steel", ItemStack("yatm_core:dust_carbon_s
 --
 -- Molding Recipes
 --
-local MoldingRegistry = assert(yatm.smelting.MoldingRegistry)
+local MoldingRegistry = assert(yatm.molding.MoldingRegistry)
 local r = MoldingRegistry:method("register_molding_recipe")
 
 local materials = {
@@ -59,9 +59,9 @@ local materials = {
 }
 
 for material_basename,material_name in pairs(materials) do
-  r("Molten " .. material_name " to " .. material_name .. " Plate", ItemStack("yatm_foundry:mold_plate"), FluidStack.new("yatm_foundry:molten_" .. material_basename, 250), ItemStack("yatm_core:plate_" .. material_basename), tns(1))
-  r("Molten " .. material_name " to " .. material_name .. " Ingot", ItemStack("yatm_foundry:mold_ingot"), FluidStack.new("yatm_foundry:molten_" .. material_basename, 250), ItemStack("yatm_core:ingot_" .. material_basename), tns(1))
-  r("Molten " .. material_name " to " .. material_name .. " Gear",  ItemStack("yatm_foundry:mold_gear"),  FluidStack.new("yatm_foundry:molten_" .. material_basename, 500), ItemStack("yatm_core:gear_" .. material_basename), tns(1))
+  r("Molten " .. material_name .. " to " .. material_name .. " Plate", ItemStack("yatm_foundry:mold_plate"), FluidStack.new("yatm_foundry:molten_" .. material_basename, 250), ItemStack("yatm_core:plate_" .. material_basename), tns(1))
+  r("Molten " .. material_name .. " to " .. material_name .. " Ingot", ItemStack("yatm_foundry:mold_ingot"), FluidStack.new("yatm_foundry:molten_" .. material_basename, 250), ItemStack("yatm_core:ingot_" .. material_basename), tns(1))
+  r("Molten " .. material_name .. " to " .. material_name .. " Gear",  ItemStack("yatm_foundry:mold_gear"),  FluidStack.new("yatm_foundry:molten_" .. material_basename, 500), ItemStack("yatm_core:gear_" .. material_basename), tns(1))
 end
 
 r("Molten Copper to Copper Block", ItemStack("yatm_foundry:mold_block"), FluidStack.new("yatm_foundry:molten_copper", 4250), ItemStack("default:copperblock"), tns(1))
@@ -73,13 +73,13 @@ r("Molten Carbon Steel to Carbon Steel Block", ItemStack("yatm_foundry:mold_bloc
 --
 -- Kiln Recipes
 --
-local KilnRegistry = assert(yatm.smelting.KilnRegistry)
+local KilnRegistry = assert(yatm.kiln.KilnRegistry)
 local r = KilnRegistry:method("register_drying_recipe")
 --r()
 
 --
 -- Blasting Recipes
 --
-local BlastingRegistry = assert(yatm.smelting.BlastingRegistry)
+local BlastingRegistry = assert(yatm.blasting.BlastingRegistry)
 local r = BlastingRegistry:method("register_blasting_recipe")
 r()

@@ -1,6 +1,8 @@
 local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidStack = assert(yatm.fluids.FluidStack)
+local FluidMeta = assert(yatm.fluids.FluidMeta)
 local ItemInterface = assert(yatm.items.ItemInterface)
+local MoldingRegistry = assert(yatm.molding.MoldingRegistry)
 
 local function get_electric_molder_formspec(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
@@ -42,11 +44,12 @@ local electric_molder_yatm_network = {
   },
 }
 
+local TANK_CAPACITY = 4000
 local fluid_interface = FluidInterface.new_directional(function (self, pos, dir)
   local node = minetest.get_node(pos)
   local new_dir = yatm_core.facedir_to_face(node.param2, dir)
   if new_dir == yatm_core.D_UP or new_dir == yatm_core.D_DOWN then
-    return "molding_fluid"
+    return "molten_tank", TANK_CAPACITY
   end
   return nil
 end)
@@ -54,7 +57,7 @@ end)
 function fluid_interface:allow_replace(pos, dir, fluid_stack)
   local tank_name = self:get_fluid_tank_name(pos, dir)
   if tank_name then
-    if tank_name == "molding_fluid" then
+    if tank_name == "molten_tank" then
       local fluid = FluidStack.get_fluid(fluid_stack)
       -- If the fluid is molten, then it can be replaced
       if fluid and fluid.groups.molten then
@@ -78,7 +81,43 @@ local item_interface = ItemInterface.new_directional(function (self, pos, dir)
 end)
 
 function electric_molder_yatm_network.work(pos, node, available_energy, work_rate, ot)
-  return 0
+  local energy_consumed = 0
+  local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
+
+  local molding_fluid = FluidMeta.get_fluid_stack(meta, "molding_tank")
+  if not FluidStack.presence(molding_fluid) then
+    local mold_item_stack = inv:get_stack("mold_slot",  1)
+
+    if not yatm_core.itemstack_is_blank(mold_item_stack) then
+      local molten_fluid = FluidMeta.get_fluid_stack(meta, "molten_tank")
+      local recipe = MoldingRegistry:get_molding_recipe(mold_item_stack, molten_fluid)
+      if recipe then
+        meta:set_int("duration", recipe.duration)
+        local drained_fluid = FluidMeta.drain_fluid(meta, "molten_tank", recipe.molten_fluid, TANK_CAPACITY, TANK_CAPACITY, true)
+        FluidMeta.fill_fluid(meta, "molding_tank", drained_fluid, TANK_CAPACITY, TANK_CAPACITY, true)
+      end
+    end
+  end
+
+  local molding_fluid = FluidMeta.get_fluid_stack(meta, "molding_tank")
+  if FluidStack.presence(molding_fluid) then
+    if yatm_core.metaref_dec_int(meta, "duration", 1) <= 0 then
+      local mold_item_stack = inv:get_stack("mold_slot",  1)
+      local recipe = MoldingRegistry:get_molding_recipe(mold_item_stack, molding_fluid)
+
+      if inv:room_for_item("output_slot", recipe.result_item_stack) then
+        local result = yatm_core.itemstack_copy(recipe.result_item_stack)
+
+        inv:add_item("output_slot", result)
+        FluidMeta.drain_fluid(meta, "molten_tank", recipe.molten_fluid, TANK_CAPACITY, TANK_CAPACITY, true)
+      end
+    else
+      energy_consumed = energy_consumed + 5
+    end
+  end
+
+  return energy_consumed
 end
 
 local groups = {
