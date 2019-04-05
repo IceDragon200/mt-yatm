@@ -24,6 +24,13 @@ function FluidStack.copy(fluid_stack)
   return { name = fluid_stack.name, amount = fluid_stack.amount }
 end
 
+function FluidStack.get_fluid(fluid_stack)
+  if fluid_stack and fluid_stack.name then
+    return FluidRegistry.get_fluid(fluid_stack.name)
+  end
+  return nil
+end
+
 function FluidStack.to_string(fluid_stack, capacity)
   local result = "Empty"
   if fluid_stack and fluid_stack.amount > 0 then
