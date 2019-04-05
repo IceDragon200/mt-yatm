@@ -1,5 +1,6 @@
-YATM Machines
-=============
+# YATM Machines
+
+The glorious ~~dumping grounds of~~ devices that do all the work.
 
 ## Naming Convention
 

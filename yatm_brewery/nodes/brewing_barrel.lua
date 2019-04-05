@@ -14,6 +14,9 @@ local barrel_nodebox = {
 
 local function barrel_on_construct(pos)
   assert(yatm_core.queue_refresh_infotext(pos))
+
+  local meta = minetest.get_meta(pos)
+
 end
 
 local function barrel_on_destruct(pos)
@@ -62,9 +65,17 @@ for _,pair in ipairs(colors) do
   local color_basename = pair[1]
   local color_name = pair[2]
 
-  minetest.register_node("yatm_brewery:brewing_barrel_wood_" .. color_basename, {
+  local node_name = "yatm_brewery:brewing_barrel_wood_" .. color_basename
+  minetest.register_node(node_name, {
     description = "Brewing Barrel (Wood / " .. color_name .. ")",
-    groups = {brewing_barrel = 1, cracky = 1, fluid_interface_in = 1, fluid_interface_out = 1},
+
+    groups = {
+      brewing_barrel = 1,
+      cracky = 1,
+      fluid_interface_in = 1,
+      fluid_interface_out = 1,
+    },
+
     sounds = default.node_sound_wood_defaults(),
     tiles = {
       "yatm_barrel_wood_brewing_" .. color_basename .. "_top.png",
