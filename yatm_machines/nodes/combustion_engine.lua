@@ -52,7 +52,7 @@ function combustion_engine_yatm_network.energy.produce_energy(pos, node, should_
   local need_refresh = false
   local energy_produced = 0
   local meta = minetest.get_meta(pos)
-  local fluid_stack = FluidMeta.get_fluid(meta, "tank")
+  local fluid_stack = FluidMeta.get_fluid_stack(meta, "tank")
   if fluid_stack and fluid_stack.amount > 0 then
     local fluid = FluidRegistry.get_fluid(fluid_stack.name)
     if fluid then
@@ -93,7 +93,7 @@ end
 function combustion_engine_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
 
-  local tank_fluid_stack = FluidMeta.get_fluid(meta, "tank")
+  local tank_fluid_stack = FluidMeta.get_fluid_stack(meta, "tank")
 
   local infotext =
     "Network ID: " .. Network.to_infotext(meta) .. "\n" ..

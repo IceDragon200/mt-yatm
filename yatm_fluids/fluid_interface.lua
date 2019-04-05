@@ -40,7 +40,7 @@ end
 
 local function default_simple_get(self, pos, dir)
   local meta = minetest.get_meta(pos)
-  local stack = FluidMeta.get_fluid(meta, self.tank_name)
+  local stack = FluidMeta.get_fluid_stack(meta, self.tank_name)
   return stack
 end
 
@@ -107,7 +107,7 @@ local function default_directional_get(self, pos, dir)
   local meta = minetest.get_meta(pos)
   local tank_name, _capacity = self:get_fluid_tank_name(pos, dir)
   if tank_name then
-    local stack = FluidMeta.get_fluid(meta, tank_name)
+    local stack = FluidMeta.get_fluid_stack(meta, tank_name)
     return stack
   end
   return nil

@@ -73,7 +73,7 @@ function vapourizer_yatm_network.work(pos, node, available_energy, work_rate, ot
   end
 
   -- Conversion
-  local fluid_stack = FluidMeta.get_fluid(meta, FLUID_TANK)
+  local fluid_stack = FluidMeta.get_fluid_stack(meta, FLUID_TANK)
   if fluid_stack and fluid_stack.amount > 0 then
     local fluid_name = fluid_stack.name
     local recipe = VapourRegistry:get_recipe_for_fluid(fluid_name)
@@ -117,8 +117,8 @@ end
 function vapourizer_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
 
-  local vapour_fluid_stack = FluidMeta.get_fluid(meta, VAPOUR_TANK)
-  local fluid_stack = FluidMeta.get_fluid(meta, FLUID_TANK)
+  local vapour_fluid_stack = FluidMeta.get_fluid_stack(meta, VAPOUR_TANK)
+  local fluid_stack = FluidMeta.get_fluid_stack(meta, FLUID_TANK)
 
   local infotext =
     "Network ID: " .. Network.to_infotext(meta) .. "\n" ..

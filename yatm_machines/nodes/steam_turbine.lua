@@ -52,8 +52,8 @@ end
 function steam_turbine_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
 
-  local water_tank_fluid_stack = FluidMeta.get_fluid(meta, WATER_TANK)
-  local steam_tank_fluid_stack = FluidMeta.get_fluid(meta, STEAM_TANK)
+  local water_tank_fluid_stack = FluidMeta.get_fluid_stack(meta, WATER_TANK)
+  local steam_tank_fluid_stack = FluidMeta.get_fluid_stack(meta, STEAM_TANK)
 
   local infotext =
     "Network ID: " .. Network.to_infotext(meta) .. "\n" ..

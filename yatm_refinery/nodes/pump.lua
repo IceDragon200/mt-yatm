@@ -48,7 +48,7 @@ local function pump_refresh_infotext(pos)
   local nodedef = minetest.registered_nodes[node.name]
   local meta = minetest.get_meta(pos)
   local state = nodedef.yatm_network.state
-  local fluid_stack = FluidMeta.get_fluid(meta, nodedef.fluid_interface.tank_name)
+  local fluid_stack = FluidMeta.get_fluid_stack(meta, nodedef.fluid_interface.tank_name)
   meta:set_string("infotext",
     "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..

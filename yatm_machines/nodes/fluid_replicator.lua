@@ -23,7 +23,7 @@ local fluid_interface = {
 
 function fluid_interface:get(pos, dir)
   local meta = minetest.get_meta(pos)
-  local stack = FluidMeta.get_fluid(meta, self.tank_name)
+  local stack = FluidMeta.get_fluid_stack(meta, self.tank_name)
   stack.amount = capacity
   return stack
 end

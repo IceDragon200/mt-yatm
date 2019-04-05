@@ -80,7 +80,7 @@ function distillation_unit_yatm_network.work(pos, node, available_energy, work_r
   local energy_consumed = 0
   local need_refresh = false
   local meta = minetest.get_meta(pos)
-  local fluid_stack = FluidMeta.get_fluid(meta, INPUT_STEAM_TANK)
+  local fluid_stack = FluidMeta.get_fluid_stack(meta, INPUT_STEAM_TANK)
   if fluid_stack and fluid_stack.amount > 0 then
     -- limit the stack to only 100 units of fluid
     fluid_stack.amount = math.min(fluid_stack.amount, 100)
@@ -163,9 +163,9 @@ end
 function distillation_unit_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
 
-  local output_steam_fluid_stack = FluidMeta.get_fluid(meta, OUTPUT_STEAM_TANK)
-  local input_steam_fluid_stack = FluidMeta.get_fluid(meta, INPUT_STEAM_TANK)
-  local distilled_fluid_stack = FluidMeta.get_fluid(meta, DISTILLED_TANK)
+  local output_steam_fluid_stack = FluidMeta.get_fluid_stack(meta, OUTPUT_STEAM_TANK)
+  local input_steam_fluid_stack = FluidMeta.get_fluid_stack(meta, INPUT_STEAM_TANK)
+  local distilled_fluid_stack = FluidMeta.get_fluid_stack(meta, DISTILLED_TANK)
 
   local infotext =
     "Network ID: " .. Network.to_infotext(meta) .. "\n" ..

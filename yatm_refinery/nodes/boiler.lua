@@ -57,8 +57,8 @@ local function boiler_refresh_infotext(pos)
     local meta = minetest.get_meta(pos)
     local state = nodedef.yatm_network.state
     local network_id = Network.get_meta_network_id(meta)
-    local steam_fluid_stack = FluidMeta.get_fluid(meta, STEAM_TANK)
-    local water_fluid_stack = FluidMeta.get_fluid(meta, WATER_TANK)
+    local steam_fluid_stack = FluidMeta.get_fluid_stack(meta, STEAM_TANK)
+    local water_fluid_stack = FluidMeta.get_fluid_stack(meta, WATER_TANK)
     meta:set_string("infotext",
       "Network ID: <" .. Network.format_id(network_id) .. "> " .. state .. "\n" ..
       "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..

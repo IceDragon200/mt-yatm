@@ -45,7 +45,7 @@ function FluidMeta.receive_amount(meta, key, amount, bandwidth, capacity, commit
   return FluidMeta.increase_amount(meta, key, math.min(bandwidth, amount), capacity, commit)
 end
 
-function FluidMeta.get_fluid(meta, key)
+function FluidMeta.get_fluid_stack(meta, key)
   assert(meta, "expected a meta ref")
   assert(key, "expected a key")
   local fluid_stack = Measurable.get_measurable(meta, key)
@@ -79,7 +79,7 @@ function FluidMeta.decrease_fluid(meta, key, fluid_stack, capacity, commit)
       return FluidStack.new(dest_fluid_name, set_amount), FluidStack.new(dest_fluid_name, new_amount)
     end
   end
-  return nil, FluidMeta.get_fluid(meta, key)
+  return nil, FluidMeta.get_fluid_stack(meta, key)
 end
 
 function FluidMeta.increase_fluid(meta, key, fluid_stack, capacity, commit)
@@ -98,7 +98,7 @@ function FluidMeta.increase_fluid(meta, key, fluid_stack, capacity, commit)
     local set_amount, new_amount = FluidMeta.increase_amount(meta, key, fluid_stack.amount, capacity, commit)
     return FluidStack.new(match_name, set_amount), FluidStack.new(dest_fluid_name, new_amount)
   else
-    return nil, FluidMeta.get_fluid(meta, key)
+    return nil, FluidMeta.get_fluid_stack(meta, key)
   end
 end
 
@@ -111,7 +111,7 @@ function FluidMeta.fill_fluid(meta, key, fluid_stack, bandwidth, capacity, commi
 end
 
 function FluidMeta.inspect(meta, key)
-  local fluid_stack = FluidMeta.get_fluid(meta, key)
+  local fluid_stack = FluidMeta.get_fluid_stack(meta, key)
   if fluid_stack then
     return FluidStack.to_string(fluid_stack)
   else
@@ -120,7 +120,7 @@ function FluidMeta.inspect(meta, key)
 end
 
 function FluidMeta.to_infotext(meta, key, capacity)
-  local fluid_stack = FluidMeta.get_fluid(meta, key)
+  local fluid_stack = FluidMeta.get_fluid_stack(meta, key)
   return FluidStack.pretty_format(fluid_stack, capacity)
 end
 

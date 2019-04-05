@@ -12,7 +12,7 @@ case:describe("set_fluid/4", function (t2)
 
     m.set_fluid(meta, "tank", FluidStack.new("default:water", 1000), false)
 
-    t3:refute(m.get_fluid(meta, "tank"))
+    t3:refute(m.get_fluid_stack(meta, "tank"))
   end)
 
   t2:test("will modify meta if commit is true", function (t3)
@@ -20,7 +20,7 @@ case:describe("set_fluid/4", function (t2)
 
     m.set_fluid(meta, "tank", FluidStack.new("default:water", 1000), true)
 
-    local fluid_stack = m.get_fluid(meta, "tank")
+    local fluid_stack = m.get_fluid_stack(meta, "tank")
 
     t3:assert(fluid_stack, "expected a fluid stack")
     t3:assert_eq(fluid_stack.name, "default:water")
@@ -34,7 +34,7 @@ case:describe("set_fluid/4", function (t2)
 
     m.set_fluid(meta, "tank", FluidStack.new("yatm_fluids:steam", 4000), true)
 
-    local fluid_stack = m.get_fluid(meta, "tank")
+    local fluid_stack = m.get_fluid_stack(meta, "tank")
 
     t3:assert(fluid_stack, "expected a fluid stack")
     t3:assert_eq(fluid_stack.name, "yatm_fluids:steam")
@@ -47,12 +47,12 @@ case:describe("set_fluid/4", function (t2)
     m.set_fluid(meta, "water_tank", FluidStack.new("default:water", 1000), true)
     m.set_fluid(meta, "steam_tank", FluidStack.new("yatm_fluids:steam", 4000), true)
 
-    local fluid_stack = m.get_fluid(meta, "water_tank")
+    local fluid_stack = m.get_fluid_stack(meta, "water_tank")
     t3:assert(fluid_stack, "expected a fluid stack")
     t3:assert_eq(fluid_stack.name, "default:water")
     t3:assert_eq(fluid_stack.amount, 1000)
 
-    local fluid_stack = m.get_fluid(meta, "steam_tank")
+    local fluid_stack = m.get_fluid_stack(meta, "steam_tank")
 
     t3:assert(fluid_stack, "expected a fluid stack")
     t3:assert_eq(fluid_stack.name, "yatm_fluids:steam")
@@ -76,7 +76,7 @@ case:describe("drain_fluid/6", function (t2)
     t3:assert_eq(new_stack.name, "default:water")
     t3:assert_eq(new_stack.amount, 0)
 
-    local fluid_stack = m.get_fluid(meta, "water_tank")
+    local fluid_stack = m.get_fluid_stack(meta, "water_tank")
     t3:assert(fluid_stack, "expected a fluid stack")
     t3:assert_eq(fluid_stack.name, "default:water")
     t3:assert_eq(fluid_stack.amount, 1000)
@@ -97,7 +97,7 @@ case:describe("drain_fluid/6", function (t2)
     t3:assert_eq(new_stack.name, "default:water")
     t3:assert_eq(new_stack.amount, 0)
 
-    local fluid_stack = m.get_fluid(meta, "water_tank")
+    local fluid_stack = m.get_fluid_stack(meta, "water_tank")
     t3:refute(fluid_stack)
   end)
 end)
@@ -116,7 +116,7 @@ case:describe("fill_fluid/6", function (t2)
     t3:assert(new_stack.name, "default:water")
     t3:assert(new_stack.amount, 1000)
 
-    local fluid_stack = m.get_fluid(meta, "water_tank")
+    local fluid_stack = m.get_fluid_stack(meta, "water_tank")
     t3:refute(fluid_stack)
   end)
 
@@ -133,7 +133,7 @@ case:describe("fill_fluid/6", function (t2)
     t3:assert(new_stack.name, "default:water")
     t3:assert(new_stack.amount, 1000)
 
-    local fluid_stack = m.get_fluid(meta, "water_tank")
+    local fluid_stack = m.get_fluid_stack(meta, "water_tank")
 
     t3:assert(fluid_stack)
     t3:assert(fluid_stack.name, "default:water")
