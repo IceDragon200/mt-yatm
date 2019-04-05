@@ -8,6 +8,18 @@ local Class = {
   instance_class = {}
 }
 
+function Class.instance_class:method(name)
+  local func = assert(self[name], "function not found")
+  if type(func) == "function" then
+    local target = self
+    return function (...)
+      func(target, ...)
+    end
+  else
+    error("expected a function")
+  end
+end
+
 function Class:extends()
   local klass = {
     instance_class = {},
