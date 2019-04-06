@@ -36,6 +36,18 @@ r("(YATM) Steel Ingot to Molten Carbon Steel", ItemStack("yatm_core:ingot_carbon
 r("(YATM) Gold Ingot to Molten Gold", ItemStack("yatm_core:ingot_gold"), {FluidStack.new("yatm_foundry:molten_gold", 250)}, tns(1))
 r("(YATM) Bronze Ingot to Molten Bronze", ItemStack("yatm_core:ingot_bronze"), {FluidStack.new("yatm_foundry:molten_bronze", 250)}, tns(1))
 
+r("(YATM) Iron Plate to Molten Iron", ItemStack("yatm_core:plate_iron"), {FluidStack.new("yatm_foundry:molten_iron", 250)}, tns(1))
+r("(YATM) Copper Plate to Molten Copper", ItemStack("yatm_core:plate_copper"), {FluidStack.new("yatm_foundry:molten_copper", 250)}, tns(1))
+r("(YATM) Steel Plate to Molten Carbon Steel", ItemStack("yatm_core:plate_carbon_steel"), {FluidStack.new("yatm_foundry:molten_carbon_steel", 250)}, tns(1))
+r("(YATM) Gold Plate to Molten Gold", ItemStack("yatm_core:plate_gold"), {FluidStack.new("yatm_foundry:molten_gold", 250)}, tns(1))
+r("(YATM) Bronze Plate to Molten Bronze", ItemStack("yatm_core:plate_bronze"), {FluidStack.new("yatm_foundry:molten_bronze", 250)}, tns(1))
+
+r("(YATM) Iron Gear to Molten Iron", ItemStack("yatm_core:gear_iron"), {FluidStack.new("yatm_foundry:molten_iron", 500)}, tns(1))
+r("(YATM) Copper Gear to Molten Copper", ItemStack("yatm_core:gear_copper"), {FluidStack.new("yatm_foundry:molten_copper", 500)}, tns(1))
+r("(YATM) Steel Gear to Molten Carbon Steel", ItemStack("yatm_core:gear_carbon_steel"), {FluidStack.new("yatm_foundry:molten_carbon_steel", 500)}, tns(1))
+r("(YATM) Gold Gear to Molten Gold", ItemStack("yatm_core:gear_gold"), {FluidStack.new("yatm_foundry:molten_gold", 500)}, tns(1))
+r("(YATM) Bronze Gear to Molten Bronze", ItemStack("yatm_core:gear_bronze"), {FluidStack.new("yatm_foundry:molten_bronze", 500)}, tns(1))
+
 r("Iron Dust to Molten Iron", ItemStack("yatm_core:dust_iron"), {FluidStack.new("yatm_foundry:molten_iron", 250)}, tns(1))
 r("Copper Dust to Molten Copper", ItemStack("yatm_core:dust_copper"), {FluidStack.new("yatm_foundry:molten_copper", 250)}, tns(1))
 r("Tin Dust to Molten Tin", ItemStack("yatm_core:dust_tin"), {FluidStack.new("yatm_foundry:molten_tin", 250)}, tns(1))
