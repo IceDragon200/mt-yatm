@@ -110,6 +110,15 @@ function FluidMeta.fill_fluid(meta, key, fluid_stack, bandwidth, capacity, commi
   return FluidMeta.increase_fluid(meta, key, FluidStack.set_amount(fluid_stack, math.min(bandwidth, fluid_stack.amount)), capacity, commit)
 end
 
+function FluidMeta.room_for_fluid(meta, key, fluid_stack, bandwidth, capacity)
+  local used_fluid_stack = FluidMeta.fill_fluid(meta, key, fluid_stack, bandwidth, capacity, false)
+  if used_fluid_stack then
+    return used_fluid_stack.amount == fluid_stack.amount
+  else
+    return false
+  end
+end
+
 function FluidMeta.inspect(meta, key)
   local fluid_stack = FluidMeta.get_fluid_stack(meta, key)
   if fluid_stack then

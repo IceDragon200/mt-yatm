@@ -80,7 +80,9 @@ function m:update_member(pos, node, is_register)
   local old_network_id = nil
   if old_record then
     if is_register then
-      print("WARN", "duplicate registration attempted", minetest.pos_to_string(pos), node.name)
+      print(self.m_description, "WARN", "duplicate registration attempted", minetest.pos_to_string(pos), node.name)
+    else
+      print(self.m_description, "removing old record", minetest.pos_to_string(pos), node.name)
     end
     self.m_members_by_type[old_record.device_type][hash] = nil
     if yatm_core.is_table_empty(self.m_members_by_type[old_record.device_type]) then
@@ -94,7 +96,11 @@ function m:update_member(pos, node, is_register)
         n.members[hash] = nil
         if n.members_by_type[old_record.device_type] then
           n.members_by_type[old_record.device_type][hash] = nil
+        else
+          print(self.m_description, "WARN", "no members of type", network_id, old_record.device_type)
         end
+      else
+        print(self.m_description, "ERROR", "network does not exist", network_id, minetest.pos_to_string(pos), node.name)
       end
     end
   end
@@ -138,12 +144,14 @@ function m:unregister_member(pos)
     if yatm_core.is_table_empty(self.m_members_by_type[device_type]) then
       self.m_members_by_type[device_type] = nil
     end
-    local network = self.m_networks[record.network_id]
-    if network then
-      network.members[hash] = nil
-      local mbt = network.members_by_type[record.device_type]
-      if mbt then
-        network.members_by_type[record.device_type][hash] = nil
+    if record.network_id then
+      local network = self.m_networks[record.network_id]
+      if network then
+        network.members[hash] = nil
+        local mbt = network.members_by_type[record.device_type]
+        if mbt then
+          mbt[hash] = nil
+        end
       end
     end
     -- unregister will cause a refresh on ALL positions adjacent to the current
@@ -293,7 +301,15 @@ function m:resolve_queue(counter, _delta)
                 local n = self.m_networks[entry.network_id]
                 if n then
                   -- Remove it from the old network
+                  print(self.m_description, "WARN", "node still exists in a network", entry.network_id)
                   n.members[ohash] = nil
+                  local mbt = n.members_by_type[entry.device_type]
+                  if mbt then
+                    mbt[ohash] = nil
+                  end
+                  if yatm_core.is_table_empty(mbt) then
+                    n.members_by_type[entry.device_type] = nil
+                  end
                 end
               end
               entry.network_id = network_id

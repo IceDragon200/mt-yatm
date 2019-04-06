@@ -31,6 +31,22 @@ function FluidStack.get_fluid(fluid_stack)
   return nil
 end
 
+function FluidStack.is_member_of_group(fluid_stack, groupname)
+  if fluid_stack then
+    if fluid_stack.name == "*" then
+      return true
+    elseif fluid_stack.name == ("group:" .. groupname) then
+      return true
+    else
+      local fluid = FluidStack.get_fluid(fluid_stack)
+      if fluid and fluid.groups[groupname] then
+        return true
+      end
+    end
+  end
+  return false
+end
+
 function FluidStack.to_string(fluid_stack, capacity)
   local result = "Empty"
   if fluid_stack and fluid_stack.amount > 0 then

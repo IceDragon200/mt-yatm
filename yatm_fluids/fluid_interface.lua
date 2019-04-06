@@ -45,7 +45,8 @@ local function default_simple_get(self, pos, dir)
 end
 
 function default_simple_replace(self, pos, dir, new_stack, commit)
-  if self:allow_replace(pos, dir, new_stack) then
+  local allowed, reason = self:allow_replace(pos, dir, new_stack)
+  if allowed then
     local meta = minetest.get_meta(pos)
     local stack, new_stack = FluidMeta.set_fluid(meta,
       self.tank_name,
@@ -56,12 +57,13 @@ function default_simple_replace(self, pos, dir, new_stack, commit)
     end
     return stack
   else
-    return nil
+    return nil, reason
   end
 end
 
 function default_simple_fill(self, pos, dir, fluid_stack, commit)
-  if self:allow_fill(pos, dir, fluid_stack) then
+  local allowed, reason = self:allow_fill(pos, dir, fluid_stack)
+  if allowed then
     local meta = minetest.get_meta(pos)
     local stack, new_stack = FluidMeta.fill_fluid(meta,
       self.tank_name,
@@ -71,11 +73,14 @@ function default_simple_fill(self, pos, dir, fluid_stack, commit)
       self:on_fluid_changed(pos, dir, new_stack)
     end
     return stack
+  else
+    return nil, reason
   end
 end
 
 function default_simple_drain(self, pos, dir, fluid_stack, commit)
-  if self:allow_drain(pos, dir, fluid_stack) then
+  local allowed, reason = self:allow_drain(pos, dir, fluid_stack)
+  if allowed then
     local meta = minetest.get_meta(pos)
     local stack, new_stack = FluidMeta.drain_fluid(meta,
       self.tank_name,
@@ -85,10 +90,14 @@ function default_simple_drain(self, pos, dir, fluid_stack, commit)
       self:on_fluid_changed(pos, dir, new_stack)
     end
     return stack
+  else
+    return nil, reason
   end
 end
 
 function FluidInterface.new_simple(tank_name, capacity)
+  assert(tank_name, "expecetd a tank name")
+  assert(capacity, "expecetd a capacity")
   local fluid_interface = FluidInterface.new()
 
   fluid_interface.capacity = capacity
@@ -114,7 +123,8 @@ local function default_directional_get(self, pos, dir)
 end
 
 local function default_directional_replace(self, pos, dir, fluid_stack, commit)
-  if self:allow_replace(pos, dir, fluid_stack) then
+  local allowed, reason = self:allow_replace(pos, dir, fluid_stack)
+  if allowed then
     local meta = minetest.get_meta(pos)
     local tank_name, _capacity = self:get_fluid_tank_name(pos, dir)
     if tank_name then
@@ -127,12 +137,14 @@ local function default_directional_replace(self, pos, dir, fluid_stack, commit)
       end
       return stack
     end
+  else
+    return nil, reason
   end
-  return nil
 end
 
 local function default_directional_fill(self, pos, dir, fluid_stack, commit)
-  if self:allow_fill(pos, dir, fluid_stack) then
+  local allowed, reason = self:allow_fill(pos, dir, fluid_stack)
+  if allowed then
     local meta = minetest.get_meta(pos)
     local tank_name, capacity = self:get_fluid_tank_name(pos, dir)
     if tank_name then
@@ -144,9 +156,12 @@ local function default_directional_fill(self, pos, dir, fluid_stack, commit)
         self:on_fluid_changed(pos, dir, new_stack)
       end
       return stack
+    else
+      return nil, "no tank"
     end
+  else
+    return nil, reason
   end
-  return nil
 end
 
 local function default_directional_drain(self, pos, dir, fluid_stack, commit)
@@ -162,6 +177,8 @@ local function default_directional_drain(self, pos, dir, fluid_stack, commit)
         self:on_fluid_changed(pos, dir, new_stack)
       end
       return stack
+    else
+      return nil, "no tank"
     end
   end
   return nil
