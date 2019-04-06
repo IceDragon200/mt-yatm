@@ -1,11 +1,13 @@
 -- Time in 'Network' frames, all networks run at the same speed so this function will return the equivalent network frame count
 
 function yatm_core.time_network_frames(time)
-  return math.floor(time)
+  --return math.floor(time)
+  return time
 end
 
 function yatm_core.time_network_seconds(s)
-  return yatm_core.time_network_frames(s * 60)
+  ---return yatm_core.time_network_frames(s * 60)
+  return s
 end
 
 function yatm_core.time_network_minutes(m)

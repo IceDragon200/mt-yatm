@@ -107,6 +107,8 @@ end
 ]]
 function Network.initialize_network(pos, network_id, node_name)
   Network.networks[network_id] = {
+    idle_time = 0,
+
     id = network_id,
     -- host node name
     node_name = node_name,

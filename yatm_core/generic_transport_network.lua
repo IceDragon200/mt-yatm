@@ -301,7 +301,7 @@ function m:resolve_queue(counter, _delta)
                 local n = self.m_networks[entry.network_id]
                 if n then
                   -- Remove it from the old network
-                  print(self.m_description, "WARN", "node still exists in a network", entry.network_id)
+                  print(self.m_description, "WARN", "node still exists in a network", minetest.pos_to_string(entry.pos), entry.network_id)
                   n.members[ohash] = nil
                   local mbt = n.members_by_type[entry.device_type]
                   if mbt then

@@ -101,7 +101,7 @@ function electric_smelter_yatm_network.work(pos, node, available_energy, work_ra
 
   local processing_item_stack = inv:get_stack("processing_slot",  1)
   if not yatm_core.itemstack_is_blank(processing_item_stack) then
-    if yatm_core.metaref_dec_int(meta, "duration", 1) <= 0 then
+    if yatm_core.metaref_dec_float(meta, "duration", dtime) <= 0 then
       local recipe = SmeltingRegistry:get_smelting_recipe(processing_item_stack)
       if recipe then
         local result_fluid_stack = recipe.results[1]

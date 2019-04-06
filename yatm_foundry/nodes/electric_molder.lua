@@ -124,7 +124,7 @@ function electric_molder_yatm_network.work(pos, node, available_energy, work_rat
 
   local molding_fluid = FluidMeta.get_fluid_stack(meta, "molding_tank")
   if FluidStack.presence(molding_fluid) then
-    if yatm_core.metaref_dec_int(meta, "duration", 1) <= 0 then
+    if yatm_core.metaref_dec_float(meta, "duration", dtime) <= 0 then
       local mold_item_stack = inv:get_stack("molding_slot",  1)
       local recipe = MoldingRegistry:get_molding_recipe(mold_item_stack, molding_fluid)
 
