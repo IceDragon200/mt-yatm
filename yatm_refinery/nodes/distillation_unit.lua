@@ -76,7 +76,7 @@ function fluid_interface:allow_fill(pos, dir, fluid_stack)
   return false
 end
 
-function distillation_unit_yatm_network.work(pos, node, available_energy, work_rate, ot)
+function distillation_unit_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
   local energy_consumed = 0
   local need_refresh = false
   local meta = minetest.get_meta(pos)
@@ -116,6 +116,8 @@ function distillation_unit_yatm_network.work(pos, node, available_energy, work_r
           need_refresh = true
         end
       end
+    else
+      yatm.devices.set_idle(meta, 5)
     end
   end
 

@@ -335,7 +335,11 @@ function m:update_networks(counter, delta)
     if yatm_core.is_table_empty(network.members) then
       self.m_need_network_gc = true
     else
-      self:update_network(network, counter, delta)
+      network.wait = (network.wait or 0) - delta
+      while network.wait <= 0 do
+        network.wait = network.wait + 0.25
+        self:update_network(network, counter, delta)
+      end
     end
   end
 end

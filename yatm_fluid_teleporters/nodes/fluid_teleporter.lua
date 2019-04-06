@@ -52,7 +52,7 @@ local fluid_teleporter_yatm_network = {
   },
 }
 
-function fluid_teleporter_yatm_network.work(pos, node, energy_available, work_rate, ot)
+function fluid_teleporter_yatm_network.work(pos, node, energy_available, work_rate, dtime, ot)
   local energy_consumed = 0
   local meta = minetest.get_meta(pos)
   local address = SpacetimeMeta.get_address(meta)

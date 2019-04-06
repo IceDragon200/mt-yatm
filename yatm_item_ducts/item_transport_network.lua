@@ -30,7 +30,7 @@ function m:update_extractor_duct(extractor_hash, extractor, items_available)
         local ia = items_available[extractor_hash]
         local new_hash = minetest.hash_node_position(new_pos)
         ia[new_hash] = {pos = new_pos, dir = node_face_dir, stack = stack}
-        print("ITN: Found an item stack", minetest.pos_to_string(new_pos), yatm_core.inspect_axis(node_face_dir), stack:to_string())
+        --print("ITN: Found an item stack", minetest.pos_to_string(new_pos), yatm_core.inspect_axis(node_face_dir), stack:to_string())
         break
       end
     end
@@ -57,12 +57,12 @@ function m:update_inserter_duct(inserter_hash, inserter, items_available)
 
         local remaining, err = ItemDevice.insert_item(target_pos, insert_dir, stack, true)
         if err then
-          print("ITN: insert error", err, minetest.pos_to_string(target_pos), yatm_core.inspect_axis(insert_dir))
+          --print("ITN: insert error", err, minetest.pos_to_string(target_pos), yatm_core.inspect_axis(insert_dir))
           new_entries[fin_node_hash] = entry
         else
           if remaining:get_count() < stack:get_count() then
-            print("ITN: inserted item", minetest.pos_to_string(target_pos), yatm_core.inspect_axis(insert_dir), yatm_core.itemstack_inspect(stack))
-            print("ITN: remaining item", minetest.pos_to_string(target_pos), yatm_core.inspect_axis(insert_dir), yatm_core.itemstack_inspect(remaining))
+            --print("ITN: inserted item", minetest.pos_to_string(target_pos), yatm_core.inspect_axis(insert_dir), yatm_core.itemstack_inspect(stack))
+            --print("ITN: remaining item", minetest.pos_to_string(target_pos), yatm_core.inspect_axis(insert_dir), yatm_core.itemstack_inspect(remaining))
             ItemDevice.extract_item(entry.pos, entry.dir, stack, true)
           end
         end

@@ -660,7 +660,7 @@ local function update_network(pot, dtime, counter, network_id, network)
   local span = trace.span_start(ot, "energy_producer")
   local energy_produced = reduce_group_members(network, "energy_producer", 0, function (pos, node, acc)
     debug("network_energy_update", "PRODUCE ENERGY", pos.x, pos.y, pos.z, node.name)
-    acc = acc + EnergyDevices.produce_energy(pos, node, span)
+    acc = acc + EnergyDevices.produce_energy(pos, node, dtime, span)
     return true, acc
   end)
   trace.span_end(span)
@@ -671,7 +671,7 @@ local function update_network(pot, dtime, counter, network_id, network)
   local span = trace.span_start(ot, "energy_storage")
   local energy_stored = reduce_group_members(network, "energy_storage", 0, function (pos, node, acc)
     local nodedef = minetest.registered_nodes[node.name]
-    acc = acc + EnergyDevices.get_usable_stored_energy(pos, node, span)
+    acc = acc + EnergyDevices.get_usable_stored_energy(pos, node, dtime, span)
     return true, acc
   end)
   trace.span_end(span)
@@ -684,7 +684,7 @@ local function update_network(pot, dtime, counter, network_id, network)
 
   -- Consumers are different from receivers, they use energy without any intention of storing it
   local energy_consumed = reduce_group_members(network, "energy_consumer", 0, function (pos, node, acc)
-    local consumed = EnergyDevices.consume_energy(pos, node, energy_available, span)
+    local consumed = EnergyDevices.consume_energy(pos, node, energy_available, dtime, span)
     if consumed then
       energy_available = energy_available - consumed
       acc = acc + consumed
@@ -701,7 +701,7 @@ local function update_network(pot, dtime, counter, network_id, network)
   -- if we went over the produced, then the rest must be taken from the storage
   if energy_storage_consumed > 0 then
     reduce_group_members(network, "energy_storage", 0, function (pos, node, acc)
-      local used = EnergyDevices.use_stored_energy(pos, node, energy_storage_consumed, span)
+      local used = EnergyDevices.use_stored_energy(pos, node, energy_storage_consumed, dtime, span)
       if used then
         energy_storage_consumed = energy_storage_consumed + used
       end
@@ -721,7 +721,7 @@ local function update_network(pot, dtime, counter, network_id, network)
     -- Receivers are the lowest priority, they accept any left over energy from the production
     -- Incidentally, storage nodes tend to be also receivers
     reduce_group_members(network, "energy_receiver", 0, function (pos, node, acc)
-      local energy_received = EnergyDevices.receive_energy(pos, node, energy_left, span)
+      local energy_received = EnergyDevices.receive_energy(pos, node, energy_left, dtime, span)
       if energy_received then
         energy_left = energy_left -  energy_received
       end
@@ -736,7 +736,7 @@ local function update_network(pot, dtime, counter, network_id, network)
     if nodedef then
       if nodedef.yatm_network and nodedef.yatm_network.update then
         local s = trace.span_start(span, node.name)
-        nodedef.yatm_network.update(pos, node, s)
+        nodedef.yatm_network.update(pos, node, dtime, s)
         trace.span_end(s)
       else
         debug("network_device_update", "INVALID UPDATABLE DEVICE", pos.x, pos.y, pos.z, node.name)
@@ -768,11 +768,14 @@ function Network:update(dtime)
   local ot = yatm_core.trace.new("self.update_networks")
 
   for network_id,network in pairs(self.networks) do
-    update_network(ot, dtime, counter, network_id, network)
+    network.idle_time = network.idle_time - dtime
+    while network.idle_time <= 0 do
+      network.idle_time = network.idle_time + 0.25
+      update_network(ot, dtime, counter, network_id, network)
+    end
   end
 
   yatm_core.trace.span_end(ot)
-  --yatm_core.trace.inspect(ot, "")
 
   local ot = yatm_core.trace.new("self.handle_pending_actions")
   if not yatm_core.is_table_empty(self.pending_actions) then
@@ -785,7 +788,9 @@ function Network:update(dtime)
       if nodedef then
         if action.refresh_infotext then
           if nodedef.refresh_infotext then
-            nodedef.refresh_infotext(action.pos)
+            local ot2 = yatm_core.trace.span_start(ot, node.name .. " refresh_infotext/2")
+            nodedef.refresh_infotext(action.pos, node)
+            yatm_core.trace.span_end(ot2)
           end
         end
       end

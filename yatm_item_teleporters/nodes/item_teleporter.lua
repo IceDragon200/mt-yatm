@@ -41,7 +41,7 @@ local item_teleporter_yatm_network = {
   },
 }
 
-function item_teleporter_yatm_network.work(pos, node, available_energy, work_rate, ot)
+function item_teleporter_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
   local energy_consumed = 0
   local meta = minetest.get_meta(pos)
   local address = SpacetimeMeta.get_address(meta)

@@ -23,7 +23,8 @@ local crystal_cauldron_yatm_network = {
   },
 }
 
-function crystal_cauldron_yatm_network.work(pos, node, available_energy, work_rate, ot)
+function crystal_cauldron_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
+  return 0
 end
 
 local crysytal_cauldron_node_box = {

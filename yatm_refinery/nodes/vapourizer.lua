@@ -52,7 +52,7 @@ function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
   yatm_core.queue_refresh_infotext(pos)
 end
 
-function vapourizer_yatm_network.work(pos, node, available_energy, work_rate, ot)
+function vapourizer_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
   local energy_consumed = 0
   local need_refresh = false
   local meta = minetest.get_meta(pos)

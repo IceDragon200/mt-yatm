@@ -19,7 +19,7 @@ local mixer_yatm_network = {
   },
 }
 
-function mixer_yatm_network.work(pos, node, available_energy, work_rate, ot)
+function mixer_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
   return 0
 end
 

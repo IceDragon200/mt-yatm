@@ -28,7 +28,8 @@ end
 --[[
 @spec devices.device_passive_consume_energy(vector3.t, Node.t, non_neg_integer)
 ]]
-function devices.device_passive_consume_energy(pos, node, amount)
+function devices.device_passive_consume_energy(pos, node, amount, dtime, ot)
+  local span = yatm_core.trace.span_start(ot, "device_passive_consume_energy")
   local consumed = 0
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef and nodedef.yatm_network then
@@ -53,10 +54,16 @@ function devices.device_passive_consume_energy(pos, node, amount)
     end
     --print("CONSUMED", pos.x, pos.y, pos.z, node.name, "CONSUMED", consumed, "GIVEN", amount)
   end
+  yatm_core.trace.span_end(span)
   return consumed
 end
 
-function devices.worker_update(pos, node, ot)
+function devices.set_idle(meta, duration_sec)
+  local duration = yatm_core.time_network_seconds(duration_sec)
+  meta:set_int("idle_time", duration)
+end
+
+function devices.worker_update(pos, node, dtime, ot)
   --print("devices.worker_update/3", minetest.pos_to_string(pos), dump(node.name))
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef then
@@ -72,21 +79,24 @@ function devices.worker_update(pos, node, ot)
     end
 
     if ym.state == "on" then
-      local state = yatm.network.get_network_state(meta)
-      local capacity = ym.energy.capacity
-      local bandwidth = ym.work_energy_bandwidth or capacity
-      local thresh = ym.work_rate_energy_threshold
-      local work_rate = 1.0
-      if thresh and thresh > 0 then
-        work_rate = total_available / thresh
+      if yatm_core.metaref_dec_int(meta, "idle_time", 1) <= 0 then
+        devices.set_idle(meta, 0)
+        local state = yatm.network.get_network_state(meta)
+        local capacity = ym.energy.capacity
+        local bandwidth = ym.work_energy_bandwidth or capacity
+        local thresh = ym.work_rate_energy_threshold
+        local work_rate = 1.0
+        if thresh and thresh > 0 then
+          work_rate = total_available / thresh
+        end
+        local available_energy = yatm.energy.consume_energy(meta, devices.ENERGY_BUFFER_KEY, bandwidth, bandwidth, capacity, false)
+        local consumed = ym.work(pos, node, available_energy, work_rate, dtime, ot)
+        if consumed and consumed > 0 then
+          yatm.energy.consume_energy(meta, devices.ENERGY_BUFFER_KEY, consumed, bandwidth, capacity, true)
+          Network:queue_refresh_infotext(pos)
+        end
+        --print("devices.worker_update/3", minetest.pos_to_string(pos), dump(node.name), "consumed energy", consumed)
       end
-      local available_energy = yatm.energy.consume_energy(meta, devices.ENERGY_BUFFER_KEY, bandwidth, bandwidth, capacity, false)
-      local consumed = ym.work(pos, node, available_energy, work_rate, ot)
-      if consumed and consumed > 0 then
-        yatm.energy.consume_energy(meta, devices.ENERGY_BUFFER_KEY, consumed, bandwidth, capacity, true)
-        Network:queue_refresh_infotext(pos)
-      end
-      --print("devices.worker_update/3", minetest.pos_to_string(pos), dump(node.name), "consumed energy", consumed)
     end
 
     local total_available = yatm.energy.get_energy(meta, devices.ENERGY_BUFFER_KEY)
@@ -183,7 +193,7 @@ function devices.register_network_device(name, nodedef)
       end
       if ym.groups.energy_producer then
         assert(ym.energy, name .. " energy_producer requires an `energy` interface containing all energy behaviour")
-        assert(ym.energy.produce_energy, "expected produce_energy/2 to be defined")
+        assert(ym.energy.produce_energy, "expected produce_energy/4 to be defined")
       end
       if ym.groups.energy_consumer then
         assert(ym.energy, name .. " energy_consumer requires an `energy` interface containing all energy behaviour")

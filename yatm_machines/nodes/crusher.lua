@@ -21,8 +21,9 @@ local crusher_yatm_network = {
   }
 }
 
-function crusher_yatm_network.work(pos, node, available_energy, work_rate, ot)
+function crusher_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
   --
+  return 0
 end
 
 yatm.devices.register_stateful_network_device({

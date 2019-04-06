@@ -27,24 +27,24 @@ local function get_energy_interface_function(pos, node, function_name)
   end
 end
 
-function EnergyDevices.produce_energy(pos, node, ot)
-  return get_energy_interface_function(pos, node, "produce_energy")(pos, node, ot)
+function EnergyDevices.produce_energy(pos, node, dtime, ot)
+  return get_energy_interface_function(pos, node, "produce_energy")(pos, node, dtime, ot)
 end
 
-function EnergyDevices.get_usable_stored_energy(pos, node, ot)
-  return get_energy_interface_function(pos, node, "get_usable_stored_energy")(pos, node, ot)
+function EnergyDevices.get_usable_stored_energy(pos, node, dtime, ot)
+  return get_energy_interface_function(pos, node, "get_usable_stored_energy")(pos, node, dtime, ot)
 end
 
-function EnergyDevices.consume_energy(pos, node, energy_available, ot)
-  return get_energy_interface_function(pos, node, "consume_energy")(pos, node, energy_available, ot)
+function EnergyDevices.consume_energy(pos, node, energy_available, dtime, ot)
+  return get_energy_interface_function(pos, node, "consume_energy")(pos, node, energy_available, dtime, ot)
 end
 
-function EnergyDevices.use_stored_energy(pos, node, amount_to_consume, ot)
-  return get_energy_interface_function(pos, node, "use_stored_energy")(pos, node, amount_to_consume, ot)
+function EnergyDevices.use_stored_energy(pos, node, amount_to_consume, dtime, ot)
+  return get_energy_interface_function(pos, node, "use_stored_energy")(pos, node, amount_to_consume, dtime, ot)
 end
 
-function EnergyDevices.receive_energy(pos, node, energy_left, ot)
-  return get_energy_interface_function(pos, node, "receive_energy")(pos, node, energy_left, ot)
+function EnergyDevices.receive_energy(pos, node, energy_left, dtime, ot)
+  return get_energy_interface_function(pos, node, "receive_energy")(pos, node, energy_left, dtime, ot)
 end
 
 yatm_core.EnergyDevices = EnergyDevices

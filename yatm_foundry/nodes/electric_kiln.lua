@@ -22,7 +22,7 @@ local electric_kiln_yatm_network = {
   },
 }
 
-function electric_kiln_yatm_network.work(pos, node, available_energy, work_rate, ot)
+function electric_kiln_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
   return 0
 end
 

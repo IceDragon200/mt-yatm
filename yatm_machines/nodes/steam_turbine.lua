@@ -1,3 +1,4 @@
+
 local Network = assert(yatm.network)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
@@ -63,7 +64,7 @@ function steam_turbine_refresh_infotext(pos)
   meta:set_string("infotext", infotext)
 end
 
-function steam_turbine_yatm_network.energy.produce_energy(pos, node, ot)
+function steam_turbine_yatm_network.energy.produce_energy(pos, node, dtime, ot)
   local need_refresh = false
   local energy_produced = 0
   local meta = minetest.get_meta(pos)

@@ -32,7 +32,7 @@ local item_receiver_yatm_network = {
   },
 }
 
-function item_receiver_yatm_network.work(pos, node, available_energy, work_rate, ot)
+function item_receiver_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
   return 10
 end
 

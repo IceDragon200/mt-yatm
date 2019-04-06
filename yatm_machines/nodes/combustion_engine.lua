@@ -48,8 +48,9 @@ function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
   yatm_core.queue_refresh_infotext(pos)
 end
 
-function combustion_engine_yatm_network.energy.produce_energy(pos, node, should_commit)
+function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, ot)
   local need_refresh = false
+  local should_commit = true
   local energy_produced = 0
   local meta = minetest.get_meta(pos)
   local fluid_stack = FluidMeta.get_fluid_stack(meta, "tank")

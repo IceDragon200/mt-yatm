@@ -68,8 +68,10 @@ local function boiler_refresh_infotext(pos)
   end
 end
 
-function boiler_yatm_network.work(pos, node, available_energy, work_rate, ot)
+function boiler_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
   local energy_consumed = 0
+  local meta = minetest.get_meta(pos)
+  yatm.devices.set_idle(meta, 1)
   -- Drain water from adjacent tanks
   for _, dir in ipairs(yatm_core.DIR4) do
     local water_tank_dir = yatm_core.facedir_to_face(node.param2, dir)

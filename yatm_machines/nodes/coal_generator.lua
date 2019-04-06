@@ -17,7 +17,7 @@ local coal_generator_yatm_network = {
   }
 }
 
-function coal_generator_yatm_network.energy.produce_energy(pos, node, ot)
+function coal_generator_yatm_network.energy.produce_energy(pos, node, dtime, ot)
   return 0
 end
 

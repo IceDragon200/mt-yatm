@@ -22,7 +22,7 @@ local compactor_yatm_network = {
   },
 }
 
-function compactor_yatm_network.work(pos, node, energy, work_rate)
+function compactor_yatm_network.work(pos, node, energy, work_rate, dtime, ot)
   --print("compacting", pos.x, pos.y, pos.z, node.name, energy, work_rate)
   return 1
 end

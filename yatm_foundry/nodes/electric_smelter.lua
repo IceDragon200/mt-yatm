@@ -16,8 +16,6 @@ local function get_electric_smelter_formspec(pos)
     "list[current_player;main;0,6.08;8,3;8]" ..
     "listring[nodemeta:" .. spos .. ";input_slot]" ..
     "listring[current_player;main]" ..
-    "listring[nodemeta:" .. spos .. ";processing_slot]" ..
-    "listring[current_player;main]" ..
     default.get_hotbar_bg(0,4.85)
   return formspec
 end
@@ -80,7 +78,7 @@ function electric_smelter_refresh_infotext(pos)
   meta:set_string("infotext", infotext)
 end
 
-function electric_smelter_yatm_network.work(pos, node, available_energy, work_rate, ot)
+function electric_smelter_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
   local energy_consumed = 0
   local meta = minetest.get_meta(pos)
   local inv = meta:get_inventory()

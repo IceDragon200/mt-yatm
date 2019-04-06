@@ -53,7 +53,7 @@ local function update_bit(pos, node)
   end
 end
 
-function surface_drill_yatm_network.work(pos, node, energy_available, work_rate, _ot)
+function surface_drill_yatm_network.work(pos, node, energy_available, work_rate, dtime, _ot)
   local meta = minetest.get_meta(pos)
   local timer = meta:get_int("work_timer")
   local new_face = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)

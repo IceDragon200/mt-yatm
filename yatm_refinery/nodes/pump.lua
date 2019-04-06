@@ -56,7 +56,7 @@ local function pump_refresh_infotext(pos)
   )
 end
 
-function pump_yatm_network.work(pos, node, energy_available, work_rate, ot)
+function pump_yatm_network.work(pos, node, energy_available, work_rate, dtime, ot)
   local energy_consumed = 0
   local meta = minetest.get_meta(pos)
   local nodedef = minetest.registered_nodes[node.name]

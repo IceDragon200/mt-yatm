@@ -19,7 +19,7 @@ local solar_panel_yatm_network = {
   }
 }
 
-function solar_panel_yatm_network.energy.produce_energy(pos, node, should_commit)
+function solar_panel_yatm_network.energy.produce_energy(pos, node, dtime, ot)
   local light = minetest.get_node_light(pos, nil)
   return light * 3
 end
@@ -69,8 +69,6 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
 
   yatm_network = solar_panel_yatm_network,
-
-  fluid_interface = fluid_interface,
 
   refresh_infotext = solar_panel_refresh_infotext,
 }, {

@@ -57,7 +57,6 @@ local roller_yatm_network = {
   groups = {
     machine_worker = 1,
     energy_consumer = 1,
-    has_update = 1, -- the device should be updated every network step
   },
   default_state = "off",
   states = {
@@ -74,7 +73,7 @@ local roller_yatm_network = {
   }
 }
 
-function roller_yatm_network.work(pos, node, energy_available, work_rate, ot)
+function roller_yatm_network.work(pos, node, energy_available, work_rate, dtime, ot)
   local energy_consumed = 0
   local meta = minetest.get_meta(pos)
   local inv = meta:get_inventory()
@@ -94,6 +93,8 @@ function roller_yatm_network.work(pos, node, energy_available, work_rate, ot)
           meta:set_int("work_duration", timespan)
           inv:remove_item("roller_input", consumed_stack)
           inv:set_stack("roller_processing", 1, consumed_stack)
+        else
+          yatm.devices.set_idle(meta, 5)
         end
       end
     end

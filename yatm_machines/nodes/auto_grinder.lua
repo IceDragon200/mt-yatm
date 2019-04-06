@@ -21,7 +21,7 @@ local auto_grinder_yatm_network = {
   },
 }
 
-function auto_grinder_yatm_network.work(pos, node, energy_available, work_rate, ot)
+function auto_grinder_yatm_network.work(pos, node, energy_available, work_rate, dtime, ot)
   return 0
 end
 
