@@ -88,7 +88,7 @@ function roller_yatm_network.work(pos, node, energy_available, work_rate, dtime,
           local consumed_stack = input_stack:peek_item(recipe.required_count)
           print("Taking", consumed_stack:to_string(), "for recipe", recipe.result:to_string())
           -- FIXME: once the deltas are being used instead of fixed time, this can be changed
-          meta:set_int("work_timespan", timespan)
+          meta:set_int("work_timespan", recipe.duration)
           meta:set_float("work_duration", recipe.duration)
           inv:remove_item("roller_input", consumed_stack)
           inv:set_stack("roller_processing", 1, consumed_stack)
