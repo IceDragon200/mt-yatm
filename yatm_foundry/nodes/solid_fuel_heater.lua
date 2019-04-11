@@ -1,3 +1,21 @@
+local ItemInterface = assert(yatm.items.ItemInterface)
+
+local function is_item_solid_fuel(item_stack)
+  if not item_stack or item_stack:get_count() == 0 then
+    return false
+  end
+  local ingredient_stack = ItemStack(item_stack)
+  ingredient_stack:set_count(1)
+
+  local recipe, decremented_input = minetest.get_craft_result({
+    method = "fuel",
+    width = 1,
+    items = { ingredient_stack }
+  })
+
+  return recipe.time > 0
+end
+
 local function get_solid_fuel_heater_formspec(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
@@ -16,7 +34,7 @@ local function solid_fuel_heater_on_construct(pos)
   local meta = minetest.get_meta(pos)
   local inv = meta:get_inventory()
   inv:set_size("fuel_slot", 1)
-end,
+end
 
 local function solid_fuel_heater_on_rightclick(pos, node, clicker)
   minetest.show_formspec(
@@ -27,24 +45,10 @@ local function solid_fuel_heater_on_rightclick(pos, node, clicker)
 end
 
 local function solid_fuel_heater_allow_metadata_inventory_put(pos, listname, index, item_stack, player)
-  local meta = minetest.get_meta(pos)
-  local inv = meta:get_inventory()
-  -- The slot should be the fuel slot, I mean it's the only slot there.
-
-  local teststack = ItemStack(stack)
-  teststack:set_count(1)
-
-  local output, decremented_input = minetest.get_craft_result({method="fuel", width=1, items={teststack}})
-
-  if replace_item:is_empty() then
-    -- For most fuels, just allow to place everything
-    return stack:get_count()
+  if is_item_solid_fuel(item_stack) then
+    return item_stack:get_count()
   else
-    if inv:get_stack(listname, index):get_count() == 0 then
-      return 1
-    else
-      return 0
-    end
+    return 0
   end
 end
 
@@ -54,30 +58,64 @@ end
 
 local function solid_fuel_heater_node_timer(pos, elapsed)
   local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
+
   local fuel_time = meta:get_float("fuel_time") or 0
-  local fuel_totaltime = meta:get_float("fuel_totaltime") or 0
+  local fuel_time_max = meta:get_float("fuel_time_max") or 0
+  local heat = meta:get_int("heat") or 0
+
   if fuel_time > 0 then
     meta:set_float("fuel_time", fuel_time - elapsed)
+    meta:set_int("heat", math.min(heat + math.floor(10 * elapsed), 1600))
+
+    yatm_core.queue_refresh_infotext(pos)
     return true
   else
-    local fuellist = inv:get_list("fuel")
-    local fuel, afterfuel = minetest.get_craft_result({method="fuel", width=1, items=fuellist})
-    if fuel.time == 0 then
-      meta:set_float("fuel_time", 0)
-      meta:set_float("fuel_totaltime", 0)
-
-      minetest.swap_node(pos, {name = "yatm_foundry:solid_fuel_heater_off"})
-      return false
-    else
-      inv:set_stack("fuel", 1, afterfuel.items[1])
+    local fuel_list = inv:get_list("fuel_slot")
+    local fuel, afterfuel = minetest.get_craft_result({
+      method = "fuel",
+      width = 1,
+      items = fuel_list
+    })
+    if fuel.time > 0 then
+      inv:set_stack("fuel_slot", 1, afterfuel.items[1])
 
       meta:set_float("fuel_time", fuel.time)
-      meta:set_float("fuel_totaltime", fuel.time)
+      meta:set_float("fuel_time_max", fuel.time)
 
       minetest.swap_node(pos, {name = "yatm_foundry:solid_fuel_heater_on"})
+      yatm_core.queue_refresh_infotext(pos)
       return true
+    else
+      meta:set_float("fuel_time", 0)
+      meta:set_float("fuel_time_max", 0)
+
+      minetest.swap_node(pos, {name = "yatm_foundry:solid_fuel_heater_off"})
+      yatm_core.queue_refresh_infotext(pos)
+      return false
     end
   end
+end
+
+local function solid_fuel_heater_refresh_infotext(pos)
+  local meta = minetest.get_meta(pos)
+
+  local fuel_time = meta:get_float("fuel_time")
+  local fuel_time_max = meta:get_float("fuel_time_max")
+
+  local heat = meta:get_int("heat")
+
+  meta:set_string("infotext",
+    -- TODO: pull the max heat from configuration
+    "Heat: " .. heat .. " / 1600" .. "\n" ..
+    "Fuel Time: " .. yatm_core.format_pretty_time(fuel_time) .. " / " .. yatm_core.format_pretty_time(fuel_time_max)
+  )
+end
+
+local solid_fuel_heater_item_interface = ItemInterface.new_simple("fuel_slot")
+
+function solid_fuel_heater_item_interface:allow_insert_item(pos, dir, item_stack)
+  return is_item_solid_fuel(item_stack)
 end
 
 local groups = {
@@ -113,17 +151,23 @@ minetest.register_node("yatm_foundry:solid_fuel_heater_off", {
 
   sounds = default.node_sound_stone_defaults(),
 
+  item_interface = solid_fuel_heater_item_interface,
+
   on_construct = solid_fuel_heater_on_construct,
   on_rightclick = solid_fuel_heater_on_rightclick,
   on_timer = solid_fuel_heater_node_timer,
 
   allow_metadata_inventory_put = solid_fuel_heater_allow_metadata_inventory_put,
   on_metadata_inventory_put = solid_fuel_heater_on_metadata_inventory_put,
+
+  refresh_infotext = solid_fuel_heater_refresh_infotext,
 })
 
 minetest.register_node("yatm_foundry:solid_fuel_heater_on", {
   description = "Solid Fuel Heater",
+
   groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
+
   tiles = {
     "yatm_solid_fuel_heater_top.on.png",
     "yatm_solid_fuel_heater_bottom.on.png",
@@ -140,10 +184,14 @@ minetest.register_node("yatm_foundry:solid_fuel_heater_on", {
 
   sounds = default.node_sound_stone_defaults(),
 
+  item_interface = solid_fuel_heater_item_interface,
+
   on_construct = solid_fuel_heater_on_construct,
   on_rightclick = solid_fuel_heater_on_rightclick,
   on_timer = solid_fuel_heater_node_timer,
 
   allow_metadata_inventory_put = solid_fuel_heater_allow_metadata_inventory_put,
   on_metadata_inventory_put = solid_fuel_heater_on_metadata_inventory_put,
+
+  refresh_infotext = solid_fuel_heater_refresh_infotext,
 })
