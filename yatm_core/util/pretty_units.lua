@@ -34,3 +34,27 @@ function yatm_core.format_pretty_unit(value, unit)
   end
   return result .. unit
 end
+
+local function pad_number(number, len)
+  local str = tostring(number)
+  -- the naive approach
+  while #str < len do
+    str = "0" .. str
+  end
+  return str
+end
+
+function yatm_core.format_pretty_time(value)
+  value = math.floor(value)
+  local hours = math.floor(value / 60 / 60)
+  local minutes = math.floor(value / 60) % 60
+  local seconds = math.floor(value % 60)
+
+  if hours > 0 then
+    return pad_number(hours, 2) .. ":" .. pad_number(minutes, 2) .. ":" .. pad_number(seconds, 2)
+  elseif minutes > 0 then
+    return pad_number(minutes, 2) .. ":" .. pad_number(seconds, 2)
+  else
+    return pad_number(seconds, 2)
+  end
+end

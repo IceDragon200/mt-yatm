@@ -128,6 +128,35 @@ case:describe("random_string/1", function (t2)
   end)
 end)
 
+case:describe("format_pretty_time/1", function (t2)
+  t2:test("can format a value greater than an hour", function (t3)
+    local result = m.format_pretty_time(3 * 60 * 60 + 60 * 5 + 32)
+    t3:assert_eq(result, "03:05:32")
+
+    local result = m.format_pretty_time(12 * 60 * 60 + 60 * 11 + 9)
+    t3:assert_eq(result, "12:11:09")
+  end)
+
+  t2:test("can format a value greater than a minute", function (t3)
+    local result = m.format_pretty_time(60 * 5 + 7)
+    t3:assert_eq(result, "05:07")
+
+    local result = m.format_pretty_time(60 * 5 + 32)
+    t3:assert_eq(result, "05:32")
+
+    local result = m.format_pretty_time(60 * 32 + 32)
+    t3:assert_eq(result, "32:32")
+  end)
+
+  t2:test("can format a value less than a minute", function (t3)
+    local result = m.format_pretty_time(32)
+    t3:assert_eq(result, "32")
+
+    local result = m.format_pretty_time(5)
+    t3:assert_eq(result, "05")
+  end)
+end)
+
 case:execute()
 case:display_stats()
 case:maybe_error()
