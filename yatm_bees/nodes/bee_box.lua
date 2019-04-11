@@ -1,8 +1,11 @@
+--[[
+Bee Box, keeps all your bees in one easy to access place.
+]]
 local node_box = {
   type = "fixed",
   fixed = {
-    {-0.5, 0.3125, -0.5, 0.5, 0.5, 0.5}, -- NodeBox1
-    {-0.4375, -0.5, -0.4375, 0.4375, 0.3125, 0.4375}, -- NodeBox2
+    {-0.5, 0.3125, -0.5, 0.5, 0.5, 0.5}, -- Cap
+    {-0.4375, -0.5, -0.4375, 0.4375, 0.3125, 0.4375}, -- Base
   }
 }
 
@@ -17,6 +20,7 @@ local function bee_box_on_construct(pos)
 
   -- There are 4 rows of comb slots each with 4 columns
   -- Yes it's split this way since it requires 4 frames, one for each row.
+  -- This also makes it easier to drop slots from the formspec as needed.
   inv:set_size("comb_slots_1", 4)
   inv:set_size("comb_slots_2", 4)
   inv:set_size("comb_slots_3", 4)
@@ -35,12 +39,14 @@ local function bee_box_on_timer(pos, elapsed)
 end
 
 minetest.register_node("yatm_bees:bee_box_wood", {
-  description = "Apiary (Wood)",
+  description = "Bee Box (Wood)",
 
   groups = yatm_core.table_merge(groups, { choppy = 1 }),
 
   paramtype = "light",
   paramtype2 = "facedir",
+
+  sounds = default.node_sound_wood_defaults(),
 
   tiles = {
     "yatm_bee_box_wood_top.png",
@@ -58,12 +64,14 @@ minetest.register_node("yatm_bees:bee_box_wood", {
 })
 
 minetest.register_node("yatm_bees:bee_box_metal", {
-  description = "Apiary (Metal)",
+  description = "Bee Box (Metal)",
 
   groups = yatm_core.table_merge(groups, { cracky = 1 }),
 
   paramtype = "light",
   paramtype2 = "facedir",
+
+  sounds = default.node_sound_metal_defaults(),
 
   tiles = {
     "yatm_bee_box_metal_top.png",
