@@ -1,1 +1,1 @@
-dofile(yatm_bees.modpath .. "/nodes/apiary.lua")
+dofile(yatm_bees.modpath .. "/nodes/bee_box.lua")
