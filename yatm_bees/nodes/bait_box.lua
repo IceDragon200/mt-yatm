@@ -34,18 +34,18 @@ minetest.register_node("yatm_bees:bait_box_wood", {
   sounds = default.node_sound_wood_defaults(),
 
   tiles = {
-    "yatm_bee_box_wood_top.png",
-    "yatm_bee_box_wood_bottom.png",
-    "yatm_bee_box_wood_side.png",
-    "yatm_bee_box_wood_side.png",
-    "yatm_bee_box_wood_side.png",
-    "yatm_bee_box_wood_side.png"
+    "yatm_bait_box_wood_top.png",
+    "yatm_bait_box_wood_bottom.png",
+    "yatm_bait_box_wood_side.png",
+    "yatm_bait_box_wood_side.png",
+    "yatm_bait_box_wood_side.png",
+    "yatm_bait_box_wood_side.png"
   },
   drawtype = "nodebox",
   node_box = node_box,
 
   on_construct = bait_box_on_construct,
-}
+})
 
 minetest.register_node("yatm_bees:bait_box_metal", {
   description = "Bait Box (Metal)",
@@ -69,4 +69,4 @@ minetest.register_node("yatm_bees:bait_box_metal", {
   node_box = node_box,
 
   on_construct = bait_box_on_construct,
-}
+})

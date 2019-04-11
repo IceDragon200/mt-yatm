@@ -5,7 +5,7 @@ local migrations = {
 
 for from, to in pairs(migrations) do
   minetest.register_lbm({
-    name = "yatm_dscs:migrate_" .. string.gsub(from, ":", "_"),
+    name = "yatm_bees:migrate_" .. string.gsub(from, ":", "_"),
     nodenames = {
       from,
     },
