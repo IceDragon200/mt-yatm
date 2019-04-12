@@ -21,14 +21,14 @@ local function default_get_item(self, pos, dir)
 end
 
 local function default_replace_item(self, pos, dir, item_stack, commit)
-  if self.allow_replace_item(pos, dir, item_stack) then
+  if self:allow_replace_item(pos, dir, item_stack) then
     -- replace is not implemented by default
   end
   return nil
 end
 
 local function default_insert_item(self, pos, dir, item_stack, commit)
-  if self.allow_insert_item(pos, dir, item_stack) then
+  if self:allow_insert_item(pos, dir, item_stack) then
     local meta = minetest.get_meta(pos)
     local inv = meta:get_inventory()
     local list = inv:get_list(self.inventory_name)
@@ -42,7 +42,7 @@ local function default_insert_item(self, pos, dir, item_stack, commit)
 end
 
 local function default_extract_item(self, pos, dir, item_stack_or_count, commit)
-  if self.allow_extract_item(pos, dir, item_stack_or_count) then
+  if self:allow_extract_item(pos, dir, item_stack_or_count) then
     local meta = minetest.get_meta(pos)
     local inv = meta:get_inventory()
     local list = inv:get_list(self.inventory_name)
@@ -71,14 +71,14 @@ local function directional_get_item(self, pos, dir)
 end
 
 local function directional_replace_item(self, pos, dir, item_stack, commit)
-  if self.allow_replace_item(pos, dir, item_stack) then
+  if self:allow_replace_item(pos, dir, item_stack) then
     -- replace is not implemented by default
   end
   return nil
 end
 
 local function directional_insert_item(self, pos, dir, item_stack, commit)
-  if self.allow_insert_item(pos, dir, item_stack) then
+  if self:allow_insert_item(pos, dir, item_stack) then
     local inventory_name = self:dir_to_inventory_name(pos, dir)
     if inventory_name then
       local meta = minetest.get_meta(pos)
@@ -101,7 +101,7 @@ local function directional_insert_item(self, pos, dir, item_stack, commit)
 end
 
 local function directional_extract_item(self, pos, dir, item_stack_or_count, commit)
-  if self.allow_extract_item(pos, dir, item_stack_or_count) then
+  if self:allow_extract_item(pos, dir, item_stack_or_count) then
     local inventory_name = self:dir_to_inventory_name(pos, dir)
     if inventory_name then
       local meta = minetest.get_meta(pos)
