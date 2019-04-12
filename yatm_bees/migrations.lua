@@ -9,7 +9,7 @@ for from, to in pairs(migrations) do
     nodenames = {
       from,
     },
-    run_at_every_load = true,
+    run_at_every_load = false,
     action = function (pos, node)
       node.name = to
       minetest.swap_node(pos, node)
