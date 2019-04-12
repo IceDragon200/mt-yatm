@@ -21,7 +21,7 @@ function m:update_extractor_duct(extractor_hash, extractor, items_available)
     local new_pos = vector.add(extractor.pos, v3)
     local node_face_dir = invert_dir(vdir)
 
-    local stack, err = ItemDevice.extract_item(new_pos, node_face_dir, 1, false)
+    local stack, err = ItemDevice.extract_item(new_pos, node_face_dir, 6, false)
     if err then
       --print("ITN: error", err, minetest.pos_to_string(new_pos), yatm_core.inspect_axis(node_face_dir))
     else
@@ -53,7 +53,8 @@ function m:update_inserter_duct(inserter_hash, inserter, items_available)
       local new_entries = {}
 
       for fin_node_hash,entry in pairs(entries) do
-        local stack = entry.stack
+        local stack = ItemStack(entry.stack)
+        stack:set_count(1)
 
         local remaining, err = ItemDevice.insert_item(target_pos, insert_dir, stack, true)
         if err then
