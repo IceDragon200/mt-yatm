@@ -45,9 +45,13 @@ end
 function roller_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
 
+  local recipe_time = meta:get_float("recipe_time")
+  local recipe_time_max = meta:get_float("recipe_time_max")
+
   local infotext =
     "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
-    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    "Time Remaining: " .. yatm_core.format_pretty_time(recipe_time) .. " / " .. yatm_core.format_pretty_time(recipe_time_max)
 
   meta:set_string("infotext", infotext)
 end
@@ -88,8 +92,8 @@ function roller_yatm_network.work(pos, node, energy_available, work_rate, dtime,
           local consumed_stack = input_stack:peek_item(recipe.required_count)
           print("Taking", consumed_stack:to_string(), "for recipe", recipe.result:to_string())
           -- FIXME: once the deltas are being used instead of fixed time, this can be changed
-          meta:set_int("work_timespan", recipe.duration)
-          meta:set_float("work_duration", recipe.duration)
+          meta:set_float("recipe_time", recipe.duration)
+          meta:set_float("recipe_time_max", recipe.duration)
           inv:remove_item("roller_input", consumed_stack)
           inv:set_stack("roller_processing", 1, consumed_stack)
         else
@@ -102,15 +106,20 @@ function roller_yatm_network.work(pos, node, energy_available, work_rate, dtime,
   do
     local processing_stack = inv:get_stack("roller_processing", 1)
     if not yatm_core.itemstack_is_blank(processing_stack) then
-      if yatm_core.metaref_dec_float(meta, "work_duration", dtime) <= 0 then
+      if yatm_core.metaref_dec_float(meta, "recipe_time", dtime) <= 0 then
         local recipe = RollerRegistry:get_roller_recipe(processing_stack)
         if recipe then
           if inv:room_for_item("roller_output", recipe.result) then
             print("Adding to roller_output", recipe.result:to_string())
             inv:add_item("roller_output", recipe.result)
             inv:set_stack("roller_processing", 1, ItemStack(nil))
+            meta:set_float("recipe_time", 0)
+            meta:set_float("recipe_time_max", 0)
+            yatm_core.queue_refresh_infotext(pos)
           end
         end
+      else
+        energy_consumed = energy_consumed + 5
       end
     end
   end
