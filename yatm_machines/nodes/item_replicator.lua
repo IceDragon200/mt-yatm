@@ -66,15 +66,15 @@ function item_replicator_yatm_network.work(pos, node, energy_available, work_rat
     if inv:room_for_item("output_slot", replicate_stack) then
       inv:add_item("output_slot", replicate_stack)
       energy_consumed = energy_consumed + 10
-      yatm.devices.set_idle(meta, 1)
+      yatm.devices.set_idle(meta, 0.25)
       yatm_core.queue_refresh_infotext(pos)
     else
-      yatm.devices.set_idle(meta, 5)
-      --print("No room for stack in output", minetest.pos_to_string(pos), yatm_core.itemstack_inspect(replicate_stack))
+      yatm.devices.set_idle(meta, 1)
+      print("WARN", minetest.pos_to_string(pos), "No room for stack in output", yatm_core.itemstack_inspect(replicate_stack))
     end
   else
-    yatm.devices.set_idle(meta, 5)
-    --print("No stack to replicate", minetest.pos_to_string(pos))
+    yatm.devices.set_idle(meta, 2)
+    print("WARN", minetest.pos_to_string(pos), "No stack to replicate")
   end
   return energy_consumed
 end
