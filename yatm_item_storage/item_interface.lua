@@ -17,14 +17,19 @@ local function default_get_item(self, pos, dir)
   local meta = minetest.get_meta(pos)
   local inv = meta:get_inventory()
   local list = inv:get_list(self.inventory_name)
-  return InventoryList.first_stack(list)
+  if list then
+    return InventoryList.first_stack(list)
+  else
+    print("ERROR", minetest.pos_to_string(pos), "inventory does not exist", self.inventory_name)
+    return nil, "inventory not found"
+  end
 end
 
 local function default_replace_item(self, pos, dir, item_stack, commit)
   if self:allow_replace_item(pos, dir, item_stack) then
     -- replace is not implemented by default
   end
-  return nil
+  return nil, "not implemented"
 end
 
 local function default_insert_item(self, pos, dir, item_stack, commit)
@@ -65,7 +70,12 @@ local function directional_get_item(self, pos, dir)
     local meta = minetest.get_meta(pos)
     local inv = meta:get_inventory()
     local list = inv:get_list(inventory_name)
-    return InventoryList.first_stack(list)
+    if list then
+      return InventoryList.first_stack(list)
+    else
+      print("ERROR", minetest.pos_to_string(pos), "inventory does not exist", inventory_name)
+      return nil, "inventory not found"
+    end
   end
   return nil, "no inventory"
 end
@@ -74,7 +84,7 @@ local function directional_replace_item(self, pos, dir, item_stack, commit)
   if self:allow_replace_item(pos, dir, item_stack) then
     -- replace is not implemented by default
   end
-  return nil
+  return nil, "not implemented"
 end
 
 local function directional_insert_item(self, pos, dir, item_stack, commit)
