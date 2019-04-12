@@ -24,4 +24,8 @@ dofile(yatm_foundry.modpath .. "/fluids.lua")
 
 dofile(yatm_foundry.modpath .. "/recipes.lua")
 
+dofile(yatm_foundry.modpath .. "/abms.lua")
+
+dofile(yatm_foundry.modpath .. "/migrations.lua")
+
 dofile(yatm_foundry.modpath .. "/tests.lua")

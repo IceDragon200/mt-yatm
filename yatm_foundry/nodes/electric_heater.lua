@@ -7,10 +7,10 @@ local heater_yatm_network = {
   },
   default_state = "off",
   states = {
-    conflict = "yatm_machines:heater_error",
-    error = "yatm_machines:heater_error",
-    off = "yatm_machines:heater",
-    on = "yatm_machines:heater_on",
+    conflict = "yatm_foundry:electric_heater_error",
+    error = "yatm_foundry:electric_heater_error",
+    off = "yatm_foundry:electric_heater_off",
+    on = "yatm_foundry:electric_heater_on",
   },
   energy = {
     passive_lost = 100, -- heaters devour energy like no tomorrow
@@ -18,9 +18,9 @@ local heater_yatm_network = {
 }
 
 yatm.devices.register_stateful_network_device({
-  description = "Heater",
+  description = "Electric Heater",
 
-  groups = {cracky = 1},
+  groups = { cracky = 1, heating_device = 1 },
 
   drop = heater_yatm_network.states.off,
 
