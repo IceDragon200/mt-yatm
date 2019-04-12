@@ -1,7 +1,11 @@
+local Energy = assert(yatm.energy)
+local Network = assert(yatm.network)
+local HeatableDevice = assert(yatm.heating.HeatableDevice)
+
 local heater_yatm_network = {
   kind = "machine",
   groups = {
-    machine = 1,
+    machine_worker = 1,
     energy_consumer = 1,
     heat_producer = 1,
   },
@@ -13,9 +17,42 @@ local heater_yatm_network = {
     on = "yatm_foundry:electric_heater_on",
   },
   energy = {
-    passive_lost = 100, -- heaters devour energy like no tomorrow
+    passive_lost = 0,
+    capacity = 32000,
+    network_charge_bandwidth = 500,
+    startup_threshold = 1000,
   },
 }
+
+local HEAT_MAX = 1600
+
+function heater_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
+  local meta = minetest.get_meta(pos)
+  local heat = meta:get_int("heat")
+  local new_heat = math.min(heat + 10 * dtime, HEAT_MAX)
+  meta:set_float("heat", new_heat)
+  -- due to precision issues with floating point numbers,
+  -- Just check if the old heat is less than the new one
+  if heat < new_heat then
+    yatm_core.queue_refresh_infotext(pos)
+  end
+  -- heaters devour energy like no tomorrow
+  return math.floor(100 * dtime)
+end
+
+local function electric_heater_refresh_infotext(pos)
+  local meta = minetest.get_meta(pos)
+
+  -- We only really care about the integral heat, it's only a float because of the dtime.
+  local heat = math.floor(meta:get_float("heat"))
+
+  local infotext =
+    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    "Heat: " .. heat .. " / " .. HEAT_MAX
+
+  meta:set_string("infotext", infotext)
+end
 
 yatm.devices.register_stateful_network_device({
   description = "Electric Heater",
@@ -37,6 +74,9 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
 
   yatm_network = heater_yatm_network,
+
+  refresh_infotext = electric_heater_refresh_infotext,
+  transfer_heat = assert(yatm.heating.default_transfer_heat),
 }, {
   error = {
     tiles = {

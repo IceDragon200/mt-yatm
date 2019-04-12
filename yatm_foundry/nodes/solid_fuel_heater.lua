@@ -62,11 +62,11 @@ local function solid_fuel_heater_node_timer(pos, elapsed)
 
   local fuel_time = meta:get_float("fuel_time") or 0
   local fuel_time_max = meta:get_float("fuel_time_max") or 0
-  local heat = meta:get_int("heat") or 0
+  local heat = meta:get_float("heat") or 0
 
   if fuel_time > 0 then
     meta:set_float("fuel_time", fuel_time - elapsed)
-    meta:set_int("heat", math.min(heat + math.floor(10 * elapsed), 1600))
+    meta:set_float("heat", math.min(heat + 10 * elapsed, 1600))
 
     yatm_core.queue_refresh_infotext(pos)
     return true
@@ -92,7 +92,7 @@ local function solid_fuel_heater_node_timer(pos, elapsed)
 
       if heat > 0 then
         -- Heat dissipation logic - wow!
-        meta:set_int("heat", math.max(heat - math.floor(5 * elapsed), 0))
+        meta:set_float("heat", math.max(heat - 5 * elapsed, 0))
         yatm_core.queue_refresh_infotext(pos)
         return true
       else
@@ -110,7 +110,7 @@ local function solid_fuel_heater_refresh_infotext(pos)
   local fuel_time = meta:get_float("fuel_time")
   local fuel_time_max = meta:get_float("fuel_time_max")
 
-  local heat = meta:get_int("heat")
+  local heat = math.floor(meta:get_float("heat"))
 
   meta:set_string("infotext",
     -- TODO: pull the max heat from configuration
@@ -169,6 +169,7 @@ minetest.register_node("yatm_foundry:solid_fuel_heater_off", {
   on_metadata_inventory_put = solid_fuel_heater_on_metadata_inventory_put,
 
   refresh_infotext = solid_fuel_heater_refresh_infotext,
+  transfer_heat = assert(yatm.heating.default_transfer_heat),
 })
 
 minetest.register_node("yatm_foundry:solid_fuel_heater_on", {
@@ -202,4 +203,5 @@ minetest.register_node("yatm_foundry:solid_fuel_heater_on", {
   on_metadata_inventory_put = solid_fuel_heater_on_metadata_inventory_put,
 
   refresh_infotext = solid_fuel_heater_refresh_infotext,
+  transfer_heat = assert(yatm.heating.default_transfer_heat),
 })
