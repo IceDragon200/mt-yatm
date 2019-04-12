@@ -45,7 +45,7 @@ for _,color_pair in ipairs(colors) do
   end
 
   minetest.register_node(node_name, {
-    description = "Inserter Item Duct (" .. color_name .. ")",
+    description = "Transporter Item Duct (" .. color_name .. ")",
 
     groups = groups,
 
