@@ -187,6 +187,8 @@ minetest.register_node("yatm_foundry:smelter_on", {
   paramtype = "light",
   paramtype2 = "facedir",
 
+  light_source = 7,
+
   sounds = default.node_sound_stone_defaults(),
 
   refresh_infotext = smelter_refresh_infotext,

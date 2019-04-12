@@ -196,6 +196,8 @@ minetest.register_node("yatm_foundry:solid_fuel_heater_on", {
   paramtype = "light",
   paramtype2 = "facedir",
 
+  light_source = 7,
+
   sounds = default.node_sound_stone_defaults(),
 
   item_interface = solid_fuel_heater_item_interface,
