@@ -93,7 +93,7 @@ function roller_yatm_network.work(pos, node, energy_available, work_rate, dtime,
           inv:remove_item("roller_input", consumed_stack)
           inv:set_stack("roller_processing", 1, consumed_stack)
         else
-          yatm.devices.set_idle(meta, 5)
+          yatm.devices.set_idle(meta, 2)
         end
       end
     end
