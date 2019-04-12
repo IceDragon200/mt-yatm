@@ -59,7 +59,7 @@ function devices.device_passive_consume_energy(pos, node, amount, dtime, ot)
 end
 
 function devices.set_idle(meta, duration_sec)
-  meta:set_int("idle_time", duration_sec)
+  meta:set_float("idle_time", duration_sec)
 end
 
 function devices.worker_update(pos, node, dtime, ot)
@@ -78,8 +78,10 @@ function devices.worker_update(pos, node, dtime, ot)
     end
 
     if ym.state == "on" then
-      if yatm_core.metaref_dec_float(meta, "idle_time", dtime) <= 0 then
-        devices.set_idle(meta, 0)
+      local idle_time = meta:get_float("idle_time")
+      idle_time = math.max(0, idle_time - dtime)
+      meta:set_float("idle_time", idle_time)
+      if idle_time == 0 then
         local state = yatm.network.get_network_state(meta)
         local capacity = ym.energy.capacity
         local bandwidth = ym.work_energy_bandwidth or capacity
