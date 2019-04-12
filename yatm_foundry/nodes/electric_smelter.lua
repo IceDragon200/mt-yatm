@@ -69,11 +69,14 @@ function electric_smelter_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
 
   local molten_tank_fluid_stack = FluidMeta.get_fluid_stack(meta, "molten_tank")
+  local recipe_time = meta:get_float("recipe_time")
+  local recipe_time_max = meta:get_float("recipe_time_max")
 
   local infotext =
     "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
-    "Molten Tank: " .. FluidStack.pretty_format(molten_tank_fluid_stack, fluid_interface.capacity)
+    "Molten Tank: " .. FluidStack.pretty_format(molten_tank_fluid_stack, fluid_interface.capacity) .. "\n" ..
+    "Time Remaining: " .. yatm_core.format_pretty_time(recipe_time) .. " / " .. yatm_core.format_pretty_time(recipe_time_max)
 
   meta:set_string("infotext", infotext)
 end
@@ -90,7 +93,8 @@ function electric_smelter_yatm_network.work(pos, node, available_energy, work_ra
     if not yatm_core.itemstack_is_blank(input_item_stack) then
       local recipe = SmeltingRegistry:get_smelting_recipe(input_item_stack)
       if recipe then
-        meta:set_int("duration", recipe.duration)
+        meta:set_float("recipe_time", recipe.duration)
+        meta:set_float("recipe_time_max", recipe.duration)
 
         local processing_item_stack = yatm_core.itemstack_copy(recipe.source_item_stack)
         inv:add_item("processing_slot", processing_item_stack)
@@ -101,13 +105,15 @@ function electric_smelter_yatm_network.work(pos, node, available_energy, work_ra
 
   local processing_item_stack = inv:get_stack("processing_slot",  1)
   if not yatm_core.itemstack_is_blank(processing_item_stack) then
-    if yatm_core.metaref_dec_float(meta, "duration", dtime) <= 0 then
+    if yatm_core.metaref_dec_float(meta, "recipe_time", dtime) <= 0 then
       local recipe = SmeltingRegistry:get_smelting_recipe(processing_item_stack)
       if recipe then
         local result_fluid_stack = recipe.results[1]
         if FluidMeta.room_for_fluid(meta, "molten_tank", result_fluid_stack, TANK_CAPACITY, TANK_CAPACITY) then
           FluidMeta.fill_fluid(meta, "molten_tank", result_fluid_stack, TANK_CAPACITY, TANK_CAPACITY, true)
           inv:remove_item("processing_slot", processing_item_stack)
+          meta:set_float("recipe_time", 0)
+          meta:set_float("recipe_time_max", 0)
           yatm_core.queue_refresh_infotext(pos)
         end
       end

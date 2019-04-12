@@ -32,7 +32,7 @@ function yatm.heating.default_transfer_heat(pos, node)
       )
       if used_heat <= heat_per_dir then
         if err then
-          print("ERROR", minetest.pos_to_string(neighbour_pos), "heat transfer error", err)
+          --print("ERROR", minetest.pos_to_string(neighbour_pos), "heat transfer error", err)
         else
           available_heat = available_heat - used_heat
         end

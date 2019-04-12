@@ -81,13 +81,16 @@ function electric_molder_refresh_infotext(pos)
   local molten_tank_fluid_stack = FluidMeta.get_fluid_stack(meta, "molten_tank")
   local molding_tank_fluid_stack = FluidMeta.get_fluid_stack(meta, "molding_tank")
   local recipe_name = meta:get_string("recipe_name")
+  local recipe_time = meta:get_float("recipe_time")
+  local recipe_time_max = meta:get_float("recipe_time_max")
 
   local infotext =
     "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "Recipe: " .. recipe_name .. "\n" ..
     "Molten Tank: " .. FluidStack.pretty_format(molten_tank_fluid_stack, fluid_interface.capacity) .. "\n" ..
-    "Molding Tank: " .. FluidStack.pretty_format(molding_tank_fluid_stack, fluid_interface.capacity)
+    "Molding Tank: " .. FluidStack.pretty_format(molding_tank_fluid_stack, fluid_interface.capacity) .. "\n" ..
+    "Time Remaining: " .. yatm_core.format_pretty_time(recipe_time) .. " / " .. yatm_core.format_pretty_time(recipe_time_max)
 
   meta:set_string("infotext", infotext)
 end
@@ -107,7 +110,8 @@ function electric_molder_yatm_network.work(pos, node, available_energy, work_rat
       if recipe then
         local drained_fluid = FluidMeta.drain_fluid(meta, "molten_tank", recipe.molten_fluid, TANK_CAPACITY, TANK_CAPACITY, false)
         if FluidMeta.room_for_fluid(meta, "molding_tank", drained_fluid, TANK_CAPACITY, TANK_CAPACITY) then
-          meta:set_int("duration", recipe.duration)
+          meta:set_float("recipe_time", recipe.duration)
+          meta:set_float("recipe_time_max", recipe.duration)
           meta:set_string("recipe_name", recipe.name)
           inv:add_item("molding_slot", mold_item_stack)
           inv:remove_item("mold_slot", mold_item_stack)
@@ -124,7 +128,10 @@ function electric_molder_yatm_network.work(pos, node, available_energy, work_rat
 
   local molding_fluid = FluidMeta.get_fluid_stack(meta, "molding_tank")
   if FluidStack.presence(molding_fluid) then
-    if yatm_core.metaref_dec_float(meta, "duration", dtime) <= 0 then
+    local recipe_time = meta:get_float("recipe_time")
+    recipe_time = math.max(recipe_time - dtime, 0)
+    meta:set_float("recipe_time", recipe_time)
+    if recipe_time == 0 then
       local mold_item_stack = inv:get_stack("molding_slot",  1)
       local recipe = MoldingRegistry:get_molding_recipe(mold_item_stack, molding_fluid)
 
@@ -138,6 +145,8 @@ function electric_molder_yatm_network.work(pos, node, available_energy, work_rat
           inv:add_item("mold_slot", mold_item_stack)
           inv:remove_item("molding_slot", mold_item_stack)
           meta:set_string("recipe_name", "")
+          meta:set_float("recipe_time", 0)
+          meta:set_float("recipe_time_max", 0)
           yatm_core.queue_refresh_infotext(pos)
         end
       end

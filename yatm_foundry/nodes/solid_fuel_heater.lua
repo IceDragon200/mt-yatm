@@ -122,7 +122,12 @@ end
 local solid_fuel_heater_item_interface = ItemInterface.new_simple("fuel_slot")
 
 function solid_fuel_heater_item_interface:allow_insert_item(pos, dir, item_stack)
-  return is_item_solid_fuel(item_stack)
+  if is_item_solid_fuel(item_stack) then
+    return true
+  else
+    print("Cannot insert", minetest.pos_to_string(pos), yatm_core.inspect_axis(dir), yatm_core.itemstack_inspect(item_stack))
+    return false, "item is not solid fuel"
+  end
 end
 
 local groups = {
