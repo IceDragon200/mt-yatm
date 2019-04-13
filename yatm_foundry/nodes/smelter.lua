@@ -113,7 +113,7 @@ local function smelter_on_timer(pos, dtime)
       meta:set_float("heat", math.max(available_heat - 5 * applyable_dtime, 0))
 
       local recipe_time = meta:get_float("recipe_time")
-      recipe_time = math.max(recipe_time - dtime, 0)
+      recipe_time = math.max(recipe_time - applyable_dtime, 0)
       meta:set_float("recipe_time", recipe_time)
       if recipe_time == 0 then
         local recipe = SmeltingRegistry:get_smelting_recipe(processing_item_stack)
