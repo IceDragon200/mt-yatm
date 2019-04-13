@@ -65,7 +65,7 @@ function m:update_inserter_duct(inserter_hash, inserter, items_available)
           --print("ITN: insert error", err, minetest.pos_to_string(target_pos), yatm_core.inspect_axis(insert_dir))
           new_entries[entry_hash] = entry
         else
-          if remaining:get_count() < stack:get_count() then
+          if remaining:is_empty() then
             local extracted = ItemDevice.extract_item(entry.pos, entry.dir, stack, true)
             --print("ITN: inserted item", minetest.pos_to_string(target_pos), yatm_core.inspect_axis(insert_dir), yatm_core.itemstack_inspect(stack))
             --print("ITN: remaining item", minetest.pos_to_string(target_pos), yatm_core.inspect_axis(insert_dir), yatm_core.itemstack_inspect(remaining))
