@@ -4,6 +4,7 @@ minetest.register_craftitem("yatm_bees:honey_comb_empty", {
   groups = {
     wax_comb = 1,
     empty_comb = 1,
+    empty_honey_comb = 1,
   },
 
   inventory_image = "yatm_honey_comb_empty.png",

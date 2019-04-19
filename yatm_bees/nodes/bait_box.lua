@@ -1,3 +1,8 @@
+local ItemInterface = assert(yatm.items.ItemInterface)
+
+local item_interface = ItemInterface.new_directional(function (self, pos, dir)
+end)
+
 local function bait_box_on_construct(pos)
   local meta = minetest.get_meta(pos)
   local inv = meta:get_inventory()
@@ -7,6 +12,9 @@ local function bait_box_on_construct(pos)
 
   -- And then some bees!
   inv:set_size("bees_slot", 16)
+end
+
+local function bait_box_on_timer(pos, elapsed)
 end
 
 local node_box = {
@@ -45,6 +53,9 @@ minetest.register_node("yatm_bees:bait_box_wood", {
   node_box = node_box,
 
   on_construct = bait_box_on_construct,
+  on_timer = bait_box_on_timer,
+
+  item_interface = item_interface,
 })
 
 minetest.register_node("yatm_bees:bait_box_metal", {
@@ -69,4 +80,7 @@ minetest.register_node("yatm_bees:bait_box_metal", {
   node_box = node_box,
 
   on_construct = bait_box_on_construct,
+  on_timer = bait_box_on_timer,
+
+  item_interface = item_interface,
 })
