@@ -5,8 +5,8 @@ function get_ammo_can_formspec(pos)
   local formspec =
     "size[12,9]" ..
     "list[nodemeta:" .. spos .. ";main;0,0.3;12,4;]" ..
-    "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]" ..
+    "list[current_player;main;2,4.85;8,1;]" ..
+    "list[current_player;main;2,6.08;8,3;8]" ..
     "listring[nodemeta:" .. spos .. ";main]" ..
     "listring[current_player;main]" ..
     default.get_hotbar_bg(2,4.85)
