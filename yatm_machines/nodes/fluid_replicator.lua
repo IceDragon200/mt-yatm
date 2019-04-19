@@ -6,13 +6,21 @@ local fluid_replicator_yatm_network = {
   kind = "monitor",
   groups = {
     creative_replicator = 1,
-    has_update = 1,
+    machine_worker = 1,
+    energy_consumer = 1,
   },
+  default_state = "off",
   states = {
     error = "yatm_machines:fluid_replicator_error",
     conflict = "yatm_machines:fluid_replicator_error",
     off = "yatm_machines:fluid_replicator_off",
     on = "yatm_machines:fluid_replicator_on",
+  },
+  energy = {
+    passive_lost = 0,
+    capacity = 4000,
+    network_charge_bandwidth = 1000,
+    startup_threshold = 100,
   },
 }
 
@@ -61,7 +69,8 @@ function fluid_interface:drain(pos, dir, new_stack, commit)
   return stack
 end
 
-function fluid_replicator_yatm_network.update(pos, node, ot)
+function fluid_replicator_yatm_network.work(pos, node, energy_available, work_rate, dtime, ot)
+  local energy_consumed = 0
   local meta = minetest.get_meta(pos)
   -- Drain fluid from replicator into any adjacent fluid interface
   for _, dir in ipairs(yatm_core.DIR6) do
@@ -70,12 +79,16 @@ function fluid_replicator_yatm_network.update(pos, node, ot)
       fluid_interface.tank_name,
       FluidStack.new_wildcard(fluid_interface.capacity),
       fluid_interface.capacity, fluid_interface.capacity, false)
+
     if stack then
       stack.amount = capacity
       local target_dir = yatm_core.invert_dir(dir)
       yatm_core.fluid_tanks.fill(target_pos, target_dir, stack.name, stack.amount, true)
+      energy_consumed = energy_consumed + 10
+      yatm_core.queue_refresh_infotext(pos)
     end
   end
+  return energy_consumed
 end
 
 local groups = {
@@ -84,7 +97,7 @@ local groups = {
   fluid_interface_out = 1,
 }
 
-yatm.devices.register_network_device(fluid_replicator_yatm_network.states.off, {
+yatm.devices.register_stateful_network_device({
   description = "Fluid Replicator",
   groups = groups,
   drop = fluid_replicator_yatm_network.states.off,
@@ -99,54 +112,41 @@ yatm.devices.register_network_device(fluid_replicator_yatm_network.states.off, {
   paramtype = "light",
   paramtype2 = "facedir",
   yatm_network = fluid_replicator_yatm_network,
-})
-
-yatm.devices.register_network_device(fluid_replicator_yatm_network.states.error, {
-  description = "Fluid Replicator",
-  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-  drop = fluid_replicator_yatm_network.states.off,
-  tiles = {
-    "yatm_fluid_replicator_top.error.png",
-    "yatm_fluid_replicator_bottom.png",
-    "yatm_fluid_replicator_side.error.png",
-    "yatm_fluid_replicator_side.error.png^[transformFX",
-    "yatm_fluid_replicator_back.error.png",
-    "yatm_fluid_replicator_front.error.png",
-  },
-  paramtype = "light",
-  paramtype2 = "facedir",
-  yatm_network = fluid_replicator_yatm_network,
-})
-
-yatm.devices.register_network_device(fluid_replicator_yatm_network.states.on, {
-  description = "Fluid Replicator",
-  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-  drop = fluid_replicator_yatm_network.states.off,
-  tiles = {
-    "yatm_fluid_replicator_top.on.png",
-    "yatm_fluid_replicator_bottom.png",
-    "yatm_fluid_replicator_side.on.png",
-    "yatm_fluid_replicator_side.on.png^[transformFX",
-    {
-      name = "yatm_fluid_replicator_back.on.png",
-      animation = {
-        type = "vertical_frames",
-        aspect_w = 16,
-        aspect_h = 16,
-        length = 1.0
-      },
+}, {
+  error = {
+    tiles = {
+      "yatm_fluid_replicator_top.error.png",
+      "yatm_fluid_replicator_bottom.png",
+      "yatm_fluid_replicator_side.error.png",
+      "yatm_fluid_replicator_side.error.png^[transformFX",
+      "yatm_fluid_replicator_back.error.png",
+      "yatm_fluid_replicator_front.error.png",
     },
-    {
-      name = "yatm_fluid_replicator_front.on.png",
-      animation = {
-        type = "vertical_frames",
-        aspect_w = 16,
-        aspect_h = 16,
-        length = 2.0
+  },
+  on = {
+    tiles = {
+      "yatm_fluid_replicator_top.on.png",
+      "yatm_fluid_replicator_bottom.png",
+      "yatm_fluid_replicator_side.on.png",
+      "yatm_fluid_replicator_side.on.png^[transformFX",
+      {
+        name = "yatm_fluid_replicator_back.on.png",
+        animation = {
+          type = "vertical_frames",
+          aspect_w = 16,
+          aspect_h = 16,
+          length = 1.0
+        },
+      },
+      {
+        name = "yatm_fluid_replicator_front.on.png",
+        animation = {
+          type = "vertical_frames",
+          aspect_w = 16,
+          aspect_h = 16,
+          length = 2.0
+        },
       },
     },
   },
-  paramtype = "light",
-  paramtype2 = "facedir",
-  yatm_network = fluid_replicator_yatm_network,
 })
