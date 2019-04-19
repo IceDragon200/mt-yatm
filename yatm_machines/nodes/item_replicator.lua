@@ -66,7 +66,6 @@ function item_replicator_yatm_network.work(pos, node, energy_available, work_rat
     if inv:room_for_item("output_slot", replicate_stack) then
       inv:add_item("output_slot", replicate_stack)
       energy_consumed = energy_consumed + 10
-      yatm.devices.set_idle(meta, 0.25)
       yatm_core.queue_refresh_infotext(pos)
     else
       yatm.devices.set_idle(meta, 1)
