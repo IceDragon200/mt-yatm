@@ -8,3 +8,5 @@ Add various weapons and tools
 
 * [ ] Grenades
   * [ ] Lemonade
+* [ ] Firearms
+  * [ ]
