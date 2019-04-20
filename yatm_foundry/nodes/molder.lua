@@ -40,7 +40,7 @@ function heat_interface:on_heat_changed(pos, node, old_heat, new_heat)
   minetest.get_node_timer(pos):start(1.0)
 end
 
-local TANK_CAPACITY = 4000
+local TANK_CAPACITY = 8000
 local fluid_interface = FluidInterface.new_simple("molten_tank", TANK_CAPACITY)
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
@@ -68,7 +68,7 @@ local item_interface = ItemInterface.new_directional(function (self, pos, dir)
   return "output_slot"
 end)
 
-function molder_refresh_infotext(pos)
+local function molder_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
 
   local heat = math.floor(meta:get_float("heat"))
@@ -99,6 +99,7 @@ local function molder_on_construct(pos)
 end
 
 local function molder_on_rightclick(pos, node, clicker)
+  minetest.get_node_timer(pos):start(1.0)
   minetest.show_formspec(
     clicker:get_player_name(),
     "yatm_foundry:molder",
@@ -176,6 +177,7 @@ end
 
 local groups = {
   cracky = 1,
+  fluid_interface_in = 1,
   item_interface_in = 1,
   item_interface_out = 1,
   heated_device = 1,
@@ -220,7 +222,7 @@ minetest.register_node("yatm_foundry:molder_off", {
   item_interface = item_interface,
   heat_interface = heat_interface,
 
-  refresh_infotext = electric_molder_refresh_infotext,
+  refresh_infotext = molder_refresh_infotext,
 
   on_construct = molder_on_construct,
   on_rightclick = molder_on_rightclick,
@@ -255,7 +257,7 @@ minetest.register_node("yatm_foundry:molder_on", {
   item_interface = item_interface,
   heat_interface = heat_interface,
 
-  refresh_infotext = electric_molder_refresh_infotext,
+  refresh_infotext = molder_refresh_infotext,
 
   on_construct = molder_on_construct,
   on_rightclick = molder_on_rightclick,

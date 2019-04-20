@@ -57,7 +57,7 @@ end
 yatm.devices.register_stateful_network_device({
   description = "Electric Heater",
 
-  groups = { cracky = 1, heating_device = 1 },
+  groups = { cracky = 1, heater_device = 1 },
 
   drop = heater_yatm_network.states.off,
 

@@ -80,7 +80,7 @@ r("Molten Copper to Copper Block", ItemStack("yatm_foundry:mold_block"), FluidSt
 r("Molten Tin to Tin Block", ItemStack("yatm_foundry:mold_block"), FluidStack.new("yatm_foundry:molten_tin", 4250), ItemStack("default:tinblock"), tns(1))
 r("Molten Iron to Iron Block", ItemStack("yatm_foundry:mold_block"), FluidStack.new("yatm_foundry:molten_iron", 4250), ItemStack("default:ironblock"), tns(1))
 r("Molten Gold to Gold Block", ItemStack("yatm_foundry:mold_block"), FluidStack.new("yatm_foundry:molten_gold", 4250), ItemStack("default:goldblock"), tns(1))
-r("Molten Carbon Steel to Carbon Steel Block", ItemStack("yatm_foundry:mold_block"), FluidStack.new("yatm_foundry:molten_carbon_steel", 4250), ItemStack("yatm_core:carbon_stele_block"), tns(1))
+r("Molten Carbon Steel to Carbon Steel Block", ItemStack("yatm_foundry:mold_block"), FluidStack.new("yatm_foundry:molten_carbon_steel", 4250), ItemStack("yatm_foundry:carbon_steel_block"), tns(1))
 
 --
 -- Kiln Recipes

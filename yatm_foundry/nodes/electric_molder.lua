@@ -47,7 +47,7 @@ local electric_molder_yatm_network = {
   },
 }
 
-local TANK_CAPACITY = 4000
+local TANK_CAPACITY = 8000
 local fluid_interface = FluidInterface.new_simple("molten_tank", TANK_CAPACITY)
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
@@ -75,7 +75,7 @@ local item_interface = ItemInterface.new_directional(function (self, pos, dir)
   return "output_slot"
 end)
 
-function electric_molder_refresh_infotext(pos)
+local function electric_molder_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
 
   local molten_tank_fluid_stack = FluidMeta.get_fluid_stack(meta, "molten_tank")
