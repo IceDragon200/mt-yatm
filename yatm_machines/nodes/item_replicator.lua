@@ -69,11 +69,11 @@ function item_replicator_yatm_network.work(pos, node, energy_available, work_rat
       yatm_core.queue_refresh_infotext(pos)
     else
       yatm.devices.set_idle(meta, 1)
-      print("WARN", minetest.pos_to_string(pos), "No room for stack in output", yatm_core.itemstack_inspect(replicate_stack))
+      --print("WARN", minetest.pos_to_string(pos), "No room for stack in output", yatm_core.itemstack_inspect(replicate_stack))
     end
   else
     yatm.devices.set_idle(meta, 2)
-    print("WARN", minetest.pos_to_string(pos), "No stack to replicate")
+    --print("WARN", minetest.pos_to_string(pos), "No stack to replicate")
   end
   return energy_consumed
 end
