@@ -18,6 +18,9 @@ end)
 
 local heat_interface = HeatInterface.new_simple("heat", 400)
 
+local function kettle_on_construct(pos)
+end
+
 local groups = {
   -- Tool groups
   cracky = 1,
@@ -52,7 +55,6 @@ minetest.register_node("yatm_brewery:kettle_off", {
   paramtype2 = "facedir",
 
   on_construct = kettle_on_construct,
-  on_destruct = kettle_on_destruct,
 
   fluid_interface = fluid_interface,
   item_interface = item_interface,
@@ -78,7 +80,6 @@ minetest.register_node("yatm_brewery:kettle_on", {
   paramtype2 = "facedir",
 
   on_construct = kettle_on_construct,
-  on_destruct = kettle_on_destruct,
 
   fluid_interface = fluid_interface,
   item_interface = item_interface,
