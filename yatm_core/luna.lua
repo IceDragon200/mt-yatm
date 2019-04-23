@@ -38,6 +38,11 @@ function c:describe(name, func)
   return luna
 end
 
+function c:xtest(name, func)
+  table.insert(self.tests, {"xtest", name, func})
+  return self
+end
+
 function c:test(name, func)
   table.insert(self.tests, {"test", name, func})
   return self
@@ -97,6 +102,8 @@ function c:execute(depth, prefix, tags)
     if test[1] == "describe" then
       local prefix2 = prefix .. "  " .. test[2]
       test[3]:execute(depth + 1, prefix2, test_tags)
+    elseif test[1] == "xtest" then
+      print("* D " .. prefix, test[2], "DISABLED")
     elseif test[1] == "test" then
       local test_func = test[3]
       --print("* " .. prefix, test[2])
