@@ -5,6 +5,7 @@ local compactor_yatm_network = {
     energy_consumer = 1,
     machine_worker = 1, -- the device should be updated every network step
   },
+  default_state = "off",
   states = {
     conflict = "yatm_machines:compactor_error",
     error = "yatm_machines:compactor_error",

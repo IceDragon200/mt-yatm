@@ -17,6 +17,9 @@ end
 
 dofile(yatm_oku.modpath .. "/oku.lua")
 
+dofile(yatm_oku.modpath .. "/nodes.lua")
+dofile(yatm_oku.modpath .. "/items.lua")
+
 dofile(yatm_oku.modpath .. "/tests.lua")
 
 yatm_oku.ffi = nil
