@@ -56,11 +56,15 @@ function m:maybe_register_node(pos, node)
   if nodedef then
     local meta = minetest.get_meta(pos)
     local address = yatm_spacetime.SpacetimeMeta.get_address(meta)
-    local spacetime_groups = assert(nodedef.yatm_spacetime).groups or {}
-    if not yatm_core.is_blank(address) then
-      return self:register_device(spacetime_groups, pos, address)
+    if nodedef.yatm_spacetime then
+      local spacetime_groups = nodedef.yatm_spacetime.groups or {}
+      if not yatm_core.is_blank(address) then
+        return self:register_device(spacetime_groups, pos, address)
+      else
+        return false
+      end
     else
-      return false
+      error("expected node " .. node.name .. " to have a yatm_spacetime")
     end
   else
     error("No such node " .. node.name)
@@ -72,8 +76,12 @@ function m:maybe_update_node(pos, node)
   if nodedef then
     local meta = minetest.get_meta(pos)
     local address = yatm_spacetime.SpacetimeMeta.get_address(meta)
-    local spacetime_groups = assert(nodedef.yatm_spacetime).groups or {}
-    return self:update_device(spacetime_groups, pos, address)
+    if nodedef.yatm_spacetime then
+      local spacetime_groups = nodedef.yatm_spacetime.groups or {}
+      return self:update_device(spacetime_groups, pos, address)
+    else
+      error("expected node " .. node.name .. " to have a yatm_spacetime")
+    end
   else
     error("No such node " .. node.name)
   end
