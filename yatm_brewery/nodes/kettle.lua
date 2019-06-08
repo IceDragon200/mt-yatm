@@ -64,7 +64,7 @@ minetest.register_node("yatm_brewery:kettle_off", {
 minetest.register_node("yatm_brewery:kettle_on", {
   description = "Kettle",
 
-  groups = groups,
+  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = "yatm_brewery:kettle_off",
 
   tiles = {
