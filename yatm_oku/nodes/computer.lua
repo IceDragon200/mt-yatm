@@ -6,10 +6,10 @@ local computer_yatm_network = {
   },
   default_state = "off",
   states = {
-    conflict = "yatm_machines:computer_error",
-    error = "yatm_machines:computer_error",
-    off = "yatm_machines:computer_off",
-    on = "yatm_machines:computer_on",
+    conflict = "yatm_oku:computer_error",
+    error = "yatm_oku:computer_error",
+    off = "yatm_oku:computer_off",
+    on = "yatm_oku:computer_on",
   },
   energy = {
     capacity = 4000,
