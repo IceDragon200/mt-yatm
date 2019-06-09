@@ -1,4 +1,4 @@
-# YATM
+# ![YATM Logo](logo.png) YATM
 
 YATM - Yet Another Tech Mod.
 
