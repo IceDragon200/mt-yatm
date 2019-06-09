@@ -146,8 +146,8 @@ local function teleporter_on_destruct(pos)
   yatm.devices.device_on_destruct(pos)
 end
 
-local function teleporter_after_destruct(pos, _old_node)
-  yatm.devices.device_after_destruct(pos)
+local function teleporter_after_destruct(pos, old_node)
+  yatm.devices.device_after_destruct(pos, old_node)
 end
 
 local function teleporter_preserve_metadata(pos, oldnode, old_meta_table, drops)
