@@ -3,7 +3,7 @@ minetest.register_node("yatm_foundry:carbon_steel_block", {
   groups = {cracky = 1},
 
   tiles = {
-    "yatm_carbon_steel_block.png",
+    "yatm_carbon_steel_block_side.png",
   },
   paramtype = "light",
   paramtype2 = "facedir",
