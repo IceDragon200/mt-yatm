@@ -26,7 +26,7 @@ function yatm_core.table_deep_merge(...)
   for _,t in ipairs({...}) do
     for key,value in pairs(t) do
       if type(result[key]) == "table" and type(value) == "table" and not result[key][1] and not value[1] then
-        result[key] = yatm_core.deep_merge_table(result[key], value)
+        result[key] = yatm_core.table_deep_merge(result[key], value)
       else
         result[key] = value
       end
