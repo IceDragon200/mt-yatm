@@ -15,11 +15,16 @@ for variant, variant_texture_name in pairs({
     groups = {cracky = 3, reactor_glass = 1, reactor_structure = 1},
     sounds = glass_sounds,
     tiles = {
-      "yatm_reactor_glass." .. variant_texture_name .. ".png"
+      --"yatm_reactor_glass." .. variant_texture_name .. ".png",
+      --"yatm_reactor_layers_border." .. variant_texture_name .. ".png",
+      --"yatm_reactor_layers_panel.glass.png",
+      "yatm_reactor_layers_border-1-1_16." .. variant_texture_name .. ".png",
+      "yatm_reactor_layers_panel.glass.png",
     },
     paramtype = "light",
     paramtype2 = "facedir",
-    drawtype = "allfaces",
+    --drawtype = "allfaces",
+    drawtype = "glasslike_framed",
     sunlight_propagates = true,
     is_ground_content = false,
   })

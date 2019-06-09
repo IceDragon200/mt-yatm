@@ -20,10 +20,39 @@ for variant, variant_texture_name in pairs({
     groups = {cracky = 1, reactor_panel = 1, reactor_structure = 1},
     drop = panel_yatm_network.states._default,
     tiles = {
-      "yatm_reactor_panel." .. variant_texture_name .. ".png"
+      "yatm_reactor_panel." .. variant_texture_name .. ".png",
+      --"yatm_reactor_layers_border-1-1_16." .. variant_texture_name .. ".png",
+      --"yatm_reactor_layers_panel.plain.png",
     },
+    --drawtype = "glasslike_framed",
     paramtype = "light",
     paramtype2 = "facedir",
     yatm_network = panel_yatm_network,
+  })
+
+  local casing_yatm_network = {
+    kind = "machine",
+    groups = {
+      reactor = 1,
+      reactor_panel = 1,
+    },
+    states = {
+      _default = "yatm_reactors:casing_" .. variant
+    }
+  }
+
+  yatm.devices.register_network_device(casing_yatm_network.states._default, {
+    description = "Reactor Casing (" .. variant .. ")",
+    groups = {cracky = 1, reactor_panel = 1, reactor_structure = 1},
+    drop = panel_yatm_network.states._default,
+    tiles = {
+      --"yatm_reactor_layers_border-1-1_16." .. variant_texture_name .. ".png",
+      --"yatm_reactor_layers_panel.casing.png",
+      "yatm_reactor_casing." .. variant_texture_name .. ".png",
+    },
+    --drawtype = "glasslike_framed",
+    paramtype = "light",
+    paramtype2 = "facedir",
+    yatm_network = casing_yatm_network,
   })
 end
