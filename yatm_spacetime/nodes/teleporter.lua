@@ -1,3 +1,5 @@
+local YATM_NetworkMeta = assert(yatm.network)
+local Energy = assert(yatm.energy)
 local Network = assert(yatm.spacetime.Network)
 local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
 
@@ -80,15 +82,16 @@ local function maybe_teleport_all_players_on_teleporter(pos, node)
     local hash = minetest.hash_node_position(pos)
     local positions = {}
 
-    Network.each_member_in_group_by_address("player_teleporter", address, function (member_hash, member)
+    Network:each_member_in_group_by_address("player_teleporter_destination", address, function (member_hash, member)
       if member_hash ~= hash then
         positions[member_hash] = member.pos
       end
       return true
     end)
 
+    print(dump(positions))
     if yatm_core.is_table_empty(positions) then
-      print("No target positions!")
+      print(minetest.pos_to_string(pos), address, "No target positions!")
     else
       local all_sources = find_all_connected_relays(pos, { [hash] = pos })
       local hashes = yatm_core.table_keys(positions)
@@ -104,7 +107,7 @@ local function maybe_teleport_all_players_on_teleporter(pos, node)
       end
     end
   else
-    print("No address present!")
+    print(minetest.pos_to_string(pos), "No address present!")
   end
 end
 
@@ -162,7 +165,7 @@ local function teleporter_change_spacetime_address(pos, node, new_address)
   local meta = minetest.get_meta(pos)
 
   SpacetimeMeta.set_address(meta, new_address)
-  Network:update_node(pos, node)
+  Network:maybe_update_node(pos, node)
 
   local nodedef = minetest.registered_nodes[node.name]
   if yatm_core.is_blank(new_address) then
@@ -172,7 +175,17 @@ local function teleporter_change_spacetime_address(pos, node, new_address)
     node.name = nodedef.yatm_network.states.on
     minetest.swap_node(pos, node)
   end
+  assert(yatm_core.queue_refresh_infotext(pos))
   return new_address
+end
+
+local function teleporter_refresh_infotext(pos, node)
+  local meta = minetest.get_meta(pos)
+  local infotext =
+    "Net.ID: " .. YATM_NetworkMeta.to_infotext(meta) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    "S.Address: " .. SpacetimeMeta.to_infotext(meta)
+  meta:set_string("infotext", infotext)
 end
 
 yatm.devices.register_stateful_network_device({
@@ -194,6 +207,8 @@ yatm.devices.register_stateful_network_device({
   yatm_network = teleporter_yatm_network,
   yatm_spacetime = {},
   mesecons = teleporter_mesecons,
+
+  refresh_infotext = teleporter_refresh_infotext,
 
   after_place_node = teleporter_after_place_node,
   on_destruct = teleporter_on_destruct,
@@ -242,8 +257,12 @@ yatm.devices.register_stateful_network_device({
       "yatm_teleporter_side.on.png^[transformFX",
       "yatm_teleporter_side.on.png",
     },
+    mesecons = teleporter_on_mesecons,
     yatm_spacetime = {
-      groups = {player_teleporter = 1},
+      groups = {
+        player_teleporter = 1,
+        player_teleporter_destination = 1,
+      },
     },
   },
 })

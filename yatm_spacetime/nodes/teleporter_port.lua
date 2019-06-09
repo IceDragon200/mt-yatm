@@ -1,3 +1,5 @@
+local YATM_NetworkMeta = assert(yatm.network)
+local Energy = assert(yatm.energy)
 local Network = assert(yatm.spacetime.Network)
 local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
 
@@ -7,6 +9,15 @@ local teleporter_port_node_box = {
     {-0.5, -0.5, -0.5, 0.5, (1 / 16) - 0.5, 0.5},
   }
 }
+
+local function teleporter_port_refresh_infotext(pos, node)
+  local meta = minetest.get_meta(pos)
+  local infotext =
+    "Net.ID: " .. YATM_NetworkMeta.to_infotext(meta) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    "S.Address: " .. SpacetimeMeta.to_infotext(meta)
+  meta:set_string("infotext", infotext)
+end
 
 local function teleporter_port_after_place_node(pos, placer, itemstack, pointed_thing)
   print("teleporter_port_after_place_node/4")
@@ -22,6 +33,8 @@ local function teleporter_port_after_place_node(pos, placer, itemstack, pointed_
   Network:maybe_register_node(pos, node)
 
   yatm.devices.device_after_place_node(pos, placer, itemstack, pointed_thing)
+
+  assert(yatm_core.queue_refresh_infotext(pos))
 
   minetest.after(0, mesecon.on_placenode, pos, node)
 end
@@ -79,7 +92,11 @@ yatm.devices.register_stateful_network_device({
   paramtype = "light",
   paramtype2 = "facedir",
   node_box = teleporter_port_node_box,
+
+  refresh_infotext = teleporter_port_refresh_infotext,
+
   yatm_network = teleporter_port_yatm_network,
+  yatm_spacetime = {},
 
   after_place_node = teleporter_port_after_place_node,
   on_destruct = teleporter_port_on_destruct,
@@ -124,7 +141,9 @@ yatm.devices.register_stateful_network_device({
     },
 
     yatm_spacetime = {
-      groups = {player_port = 1},
+      groups = {
+        player_teleporter_destination = 1,
+      },
     },
   }
 })

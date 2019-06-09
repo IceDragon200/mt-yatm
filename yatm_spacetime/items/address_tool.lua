@@ -26,7 +26,9 @@ end
 
 function yatm_spacetime.default_change_spacetime_address(pos, node, new_address)
   local meta = minetest.get_meta(pos)
-  address = SpacetimeMeta.set_address(meta, new_address)
+  local address = SpacetimeMeta.set_address(meta, new_address)
+  assert(yatm_core.queue_refresh_infotext(pos))
+  return address
 end
 
 local function address_tool_on_use(itemstack, user, pointed_thing)
@@ -37,11 +39,11 @@ local function address_tool_on_use(itemstack, user, pointed_thing)
     if nodedef then
       if yatm_core.groups.get_item(nodedef, "addressable_spacetime_device") then
         local address = nil
+        local new_address = SpacetimeMeta.get_address(itemstack:get_meta())
         if nodedef.change_spacetime_address then
-          local new_address = SpacetimeMeta.get_address(itemstack:get_meta())
           address = nodedef.change_spacetime_address(pos, node, new_address)
         else
-          yatm_spacetime.default_change_spacetime_address(pos, node, new_address)
+          address = yatm_spacetime.default_change_spacetime_address(pos, node, new_address)
         end
         if user and user:is_player() then
           if yatm_core.is_blank(address) then

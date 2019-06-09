@@ -5,10 +5,12 @@ local TeleporterAddressSchema = yatm_core.MetaSchema:new("teleporter_address", "
 local SpacetimeMeta = {}
 SpacetimeMeta.schema = TeleporterAddressSchema:compile("spaddr")
 
+-- @spec SpacetimeMeta.get_address(NodeMeta)
 function SpacetimeMeta.get_address(src)
   return SpacetimeMeta.schema:get_address(src)
 end
 
+-- @spec SpacetimeMeta.set_address(NodeMeta, String.t)
 function SpacetimeMeta.set_address(dest, address)
   SpacetimeMeta.schema:set_address(dest, address)
 end

@@ -32,7 +32,7 @@ local teleporter_relay_yatm_network = {
 
 yatm.devices.register_stateful_network_device({
   description = "Teleporter Relay",
-  groups = {cracky = 1, spacetime_device = 1},
+  groups = {cracky = 1, spacetime_device = 1, teleporter_relay = 1},
   drop = teleporter_relay_yatm_network.states.off,
   tiles = {
     "yatm_teleporter_relay_top.off.png",
@@ -46,6 +46,7 @@ yatm.devices.register_stateful_network_device({
   paramtype = "light",
   paramtype2 = "facedir",
   node_box = teleporter_node_box,
+
   yatm_network = teleporter_relay_yatm_network,
 }, {
   error = {
