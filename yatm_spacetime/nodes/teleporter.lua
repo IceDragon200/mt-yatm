@@ -192,6 +192,7 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
   node_box = teleporter_node_box,
   yatm_network = teleporter_yatm_network,
+  yatm_spacetime = {},
   mesecons = teleporter_mesecons,
 
   after_place_node = teleporter_after_place_node,
@@ -212,6 +213,7 @@ yatm.devices.register_stateful_network_device({
       "yatm_teleporter_side.error.png",
     },
   },
+
   inactive = {
     tiles = {
       "yatm_teleporter_top.inactive.png",
