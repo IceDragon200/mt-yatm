@@ -597,7 +597,7 @@ function Network.schedule_refresh_network_topography(pos, params)
   table.insert(Network.refresh_queue, {pos, params})
 end
 
-local function reduce_group_members(network, name, acc, fun)
+local function reduce_group_members(network, name, acc, reducer)
   local group = network.group_members[name]
   if group then
     local cont = true
@@ -605,9 +605,13 @@ local function reduce_group_members(network, name, acc, fun)
       local member = network.members[member_id]
       local pos = member.pos
       local node = minetest.get_node(pos)
-      cont, acc = fun(pos, node, acc)
-      if not cont then
-        break
+      if node.name == "ignore" then
+        print("YATM Network; WARN: ignoring node", minetest.pos_to_string(pos), "of group", name)
+      else
+        cont, acc = reducer(pos, node, acc)
+        if not cont then
+          break
+        end
       end
     end
   end

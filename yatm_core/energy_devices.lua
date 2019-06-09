@@ -14,13 +14,13 @@ local function get_energy_interface_function(pos, node, function_name)
         if func then
           return func
         else
-          error("expected yatm_network.energy." .. function_name .. " to be defined for " .. node.name)
+          error("expected yatm_network.energy." .. function_name .. " to be defined for node `" .. node.name .. "`")
         end
       else
-        error("expected a yatm_network.energy interface for " .. node.name)
+        error("expected a yatm_network.energy interface for node `" .. node.name .. "`")
       end
     else
-      error("expected a yatm_network configuration for " .. node.name)
+      error("expected a yatm_network configuration for node `" .. node.name .. "`")
     end
   else
     error("expected a registered node for " .. node.name)
