@@ -1,3 +1,17 @@
+local function pipe_after_place_node(pos, _placer, _itemstack, _pointed_thing)
+  local node = minetest.get_node(pos)
+  FluidTransportNetwork:register_member(pos, node)
+end
+
+local function pipe_on_destruct(pos)
+  print("transporter_fluid_pipe_on_destruct", minetest.pos_to_string(pos))
+end
+
+local function pipe_after_destruct(pos, _old_node)
+  print("transporter_fluid_pipe_after_destruct", minetest.pos_to_string(pos))
+  FluidTransportNetwork:unregister_member(pos)
+end
+
 local colors = {
   {"white", "White"}
 }
@@ -115,7 +129,7 @@ for _,color_pair in ipairs(colors) do
       type = "connected",
       fixed          = yatm_core.Cuboid:new(4, 0, 4, 8, 4, 8):fast_node_box(),
       connect_top    = yatm_core.Cuboid:new(5, 4, 5, 6,12, 6):fast_node_box(), -- y+
-      connect_bottom = yatm_core.Cuboid:new(0, 0, 0, 0, 0, 0):fast_node_box(), -- y-
+      connect_bottom = yatm_core.Cuboid:new(3, 0, 3,10, 1,10):fast_node_box(), -- y-
       connect_front  = yatm_core.Cuboid:new(5, 0, 0, 6, 2, 4):fast_node_box(), -- z-
       connect_back   = yatm_core.Cuboid:new(5, 0,12, 6, 2, 4):fast_node_box(), -- z+
       connect_left   = yatm_core.Cuboid:new(0, 0, 5, 4, 2, 6):fast_node_box(), -- x-
