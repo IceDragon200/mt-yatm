@@ -1,20 +1,7 @@
 --[[
 Registers:
-
--- General Purpose Registers (8-bit)
-A
-B
-C
-D
-E
-
--- Memory Registers (16 bit)
-SP - Stack Pointer
-PC - Program Counter
-
--- Union Registers (16 bit)
-BC
-DE
+x0-x31
+pc
 ]]
 
 -- string.rep to initialize the memory
@@ -29,12 +16,7 @@ local m = OKU.instance_class
 
 function m:initialize()
   self.registers = {
-    a = 0,
-    b = 0,
-    c = 0,
-    d = 0,
-    e = 0,
-    sp = 0,
+
     pc = 0,
   }
 
