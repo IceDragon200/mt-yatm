@@ -1,6 +1,7 @@
 dofile(yatm_core.modpath .. "/util/value.lua")
 dofile(yatm_core.modpath .. "/util/dir.lua")
 dofile(yatm_core.modpath .. "/util/table.lua")
+dofile(yatm_core.modpath .. "/util/cuboid.lua")
 dofile(yatm_core.modpath .. "/util/list.lua")
 dofile(yatm_core.modpath .. "/util/iodata.lua")
 dofile(yatm_core.modpath .. "/util/string.lua")
