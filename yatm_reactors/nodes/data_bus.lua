@@ -5,6 +5,7 @@ for _, variant in ipairs({"hazard", "coolant", "signal"}) do
       reactor = 1,
       reactor_data_bus = 1,
     },
+    default_state = "off",
     states = {
       conflict = "yatm_reactors:data_bus_" .. variant .. "_error",
       error = "yatm_reactors:data_bus_" .. variant .. "_error",
@@ -15,7 +16,7 @@ for _, variant in ipairs({"hazard", "coolant", "signal"}) do
 
   yatm.devices.register_network_device(data_bus_yatm_network.states.off, {
     description = "Reactor Data Bus (" .. variant .. ")",
-    groups = {cracky = 1},
+    groups = {cracky = 1, yatm_data_device = 1},
     drop = data_bus_yatm_network.states.off,
     tiles = {
       "yatm_reactor_casing.plain.png",
@@ -32,7 +33,7 @@ for _, variant in ipairs({"hazard", "coolant", "signal"}) do
 
   yatm.devices.register_network_device(data_bus_yatm_network.states.error, {
     description = "Reactor Data Bus (" .. variant .. ")",
-    groups = {cracky = 1, not_in_creative_inventory = 1},
+    groups = {cracky = 1, yatm_data_device = 1, not_in_creative_inventory = 1},
     drop = data_bus_yatm_network.states.off,
     tiles = {
       "yatm_reactor_casing.plain.png",
@@ -49,7 +50,7 @@ for _, variant in ipairs({"hazard", "coolant", "signal"}) do
 
   yatm.devices.register_network_device(data_bus_yatm_network.states.on, {
     description = "Reactor Data Bus (" .. variant .. ")",
-    groups = {cracky = 1, not_in_creative_inventory = 1},
+    groups = {cracky = 1, yatm_data_device = 1, not_in_creative_inventory = 1},
     drop = data_bus_yatm_network.states.off,
     tiles = {
       "yatm_reactor_casing.plain.png",
