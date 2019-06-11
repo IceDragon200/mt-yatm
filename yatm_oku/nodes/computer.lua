@@ -47,6 +47,10 @@ yatm.devices.register_stateful_network_device({
   paramtype = "light",
   paramtype2 = "facedir",
   yatm_network = computer_yatm_network,
+  data_network_device = {
+    color = color_basename,
+    type = "device",
+  },
 }, {
   error = {
     tiles = {

@@ -1,15 +1,30 @@
-local function pipe_after_place_node(pos, _placer, _itemstack, _pointed_thing)
+local data_network = assert(yatm.oku.data_network)
+
+local function data_cable_refresh_infotext(pos, node)
+  local meta = minetest.get_meta(pos)
+  local network_id = data_network:get_network_id(pos)
+  if not network_id then
+    network_id = "NULL"
+  end
+  local infotext =
+    "Data Network: " .. network_id
+
+  meta:set_string("infotext", infotext)
+end
+
+local function data_cable_after_place_node(pos, _placer, _itemstack, _pointed_thing)
   local node = minetest.get_node(pos)
-  FluidTransportNetwork:register_member(pos, node)
+  data_network:register_member(pos, node)
+  yatm_core.queue_refresh_infotext(pos)
 end
 
-local function pipe_on_destruct(pos)
-  print("transporter_fluid_pipe_on_destruct", minetest.pos_to_string(pos))
+local function data_cable_on_destruct(pos)
+  print("data_cable_on_destruct", minetest.pos_to_string(pos))
 end
 
-local function pipe_after_destruct(pos, _old_node)
-  print("transporter_fluid_pipe_after_destruct", minetest.pos_to_string(pos))
-  FluidTransportNetwork:unregister_member(pos)
+local function data_cable_after_destruct(pos, old_node)
+  print("data_cable_after_place_node", minetest.pos_to_string(pos))
+  data_network:unregister_member(pos, old_node)
 end
 
 local colors = {
@@ -80,9 +95,16 @@ for _,color_pair in ipairs(colors) do
 
     dye_color = color_basename,
 
-    --after_place_node = pipe_after_place_node,
-    --after_destruct = pipe_after_destruct,
-    --on_destruct = pipe_on_destruct,
+    data_network_device = {
+      color = color_basename,
+      type = "cable",
+    },
+
+    after_place_node = data_cable_after_place_node,
+    after_destruct = data_cable_after_destruct,
+    on_destruct = data_cable_on_destruct,
+
+    refresh_infotext = data_cable_refresh_infotext,
   })
 
   local colored_group_name = "data_cable_bus_" .. color_basename
@@ -93,13 +115,10 @@ for _,color_pair in ipairs(colors) do
     "group:yatm_data_device",
   }
   if color_basename == "multi" then
-    -- multi can connect to anything
-    table.insert(connects_to, "group:data_cable_bus")
+    -- multi can connect to any cable
     table.insert(connects_to, "group:data_cable")
   else
-    -- colored pipes can only connect to it's own color OR multi
-    table.insert(connects_to, "group:" .. colored_group_name)
-    table.insert(connects_to, "group:data_cable_bus_multi")
+    -- colored cables can only connect to it's own color OR multi
     table.insert(connects_to, "group:data_cable_" .. color_basename)
     table.insert(connects_to, "group:data_cable_multi")
   end
@@ -140,8 +159,15 @@ for _,color_pair in ipairs(colors) do
 
     dye_color = color_basename,
 
-    --after_place_node = pipe_after_place_node,
-    --after_destruct = pipe_after_destruct,
-    --on_destruct = pipe_on_destruct,
+    data_network_device = {
+      color = color_basename,
+      type = "bus",
+    },
+
+    after_place_node = data_cable_after_place_node,
+    after_destruct = data_cable_after_destruct,
+    on_destruct = data_cable_on_destruct,
+
+    refresh_infotext = data_cable_refresh_infotext,
   })
 end
