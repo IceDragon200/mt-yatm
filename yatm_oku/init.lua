@@ -16,7 +16,6 @@ end
 
 
 dofile(yatm_oku.modpath .. "/oku.lua")
-dofile(yatm_oku.modpath .. "/data_network.lua")
 
 dofile(yatm_oku.modpath .. "/api.lua")
 

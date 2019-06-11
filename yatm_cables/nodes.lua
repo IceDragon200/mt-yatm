@@ -44,7 +44,6 @@ function yatm_cables.register_cable_state(params, size)
     kind = "cable", -- this is a cable
     groups = {
       energy_cable = 1, -- this cable can transport energy
-      data_cable = 1, -- this cable can transport data
       network_cable = 1, -- this cable can be used for networking
       dense_cable = 1, -- this cable is dense
     },
@@ -133,7 +132,7 @@ yatm_cables.register_cable({
   default_state = "off",
   states =  {"on", "off", "error"},
 
-  groups = { cracky = 1, any_cable = 1, energy_cable = 1, data_cable = 1, dense_cable = 1 },
+  groups = { cracky = 1, any_cable = 1, energy_cable = 1, network_cable = 1, dense_cable = 1 },
   connects_to = {
     "group:any_cable",
     "group:yatm_data_device",
@@ -150,7 +149,7 @@ yatm_cables.register_cable({
   default_state = "off",
   states =  {"on", "off", "error"},
 
-  groups = { cracky = 1, any_cable = 1, energy_cable = 1, data_cable = 1, medium_cable = 1 },
+  groups = { cracky = 1, any_cable = 1, energy_cable = 1, network_cable = 1, medium_cable = 1 },
   connects_to = {
     "group:any_cable",
     "group:yatm_data_device",
@@ -168,7 +167,7 @@ yatm_cables.register_cable({
   default_state = "off",
   states =  {"on", "off", "error"},
 
-  groups = { cracky = 1, any_cable = 1, energy_cable = 1, data_cable = 1, small_cable = 1 },
+  groups = { cracky = 1, any_cable = 1, energy_cable = 1, network_cable = 1, small_cable = 1 },
   connects_to = {
     "group:any_cable",
     "group:yatm_data_device",

@@ -1,4 +1,7 @@
-local data_network = assert(yatm.oku.data_network)
+--
+--
+--
+local data_network = assert(yatm.data_network)
 
 local function data_cable_refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
@@ -45,7 +48,7 @@ for _,color_pair in ipairs(colors) do
   local colored_group_name = "data_cable_" .. color_basename
   local groups = { cracky = 1, data_cable = 1, [colored_group_name] = 1 }
 
-  local node_name = "yatm_oku:data_cable_" .. color_basename
+  local node_name = "yatm_data_network:data_cable_" .. color_basename
   local connects_to = {}
   if color_basename == "multi" then
     -- multi can connect to anything
@@ -110,7 +113,7 @@ for _,color_pair in ipairs(colors) do
   local colored_group_name = "data_cable_bus_" .. color_basename
   local groups = { cracky = 1, data_cable_bus = 1, [colored_group_name] = 1 }
 
-  local node_name = "yatm_oku:data_cable_bus_" .. color_basename
+  local node_name = "yatm_data_network:data_cable_bus_" .. color_basename
   local connects_to = {
     "group:yatm_data_device",
   }

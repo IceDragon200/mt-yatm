@@ -1,3 +1,6 @@
+--
+--
+--
 local DataNetwork = yatm_core.Class:extends()
 local ic = assert(DataNetwork.instance_class)
 
@@ -63,7 +66,7 @@ end
 function ic:do_unregister_network_member(member)
   local network = self.m_networks[member.network_id]
   if network then
-    network.members[member_id] = nil
+    network.members[member.id] = nil
     if yatm_core.is_table_empty(network.members) then
       self:remove_network(member.network_id)
     end
@@ -76,12 +79,16 @@ function ic:register_member(pos, node)
   local member_id = minetest.hash_node_position(pos)
   local member = self.m_members[member_id]
   if member then
-    error("already registered " .. minetest.pos_to_string(pos))
+    error("cannot register " .. minetest.pos_to_string(pos) .. " " .. node.name .. " it was already registered by " .. member.node.name)
   end
 
   local nodedef = minetest.registered_nodes[node.name]
 
   -- hah dungeons and dragons... I'll see myself out
+  if not nodedef.data_network_device then
+    error("cannot register " .. node.name .. " it does not have a data_network_device field defined")
+  end
+
   local dnd = assert(nodedef.data_network_device)
 
   member = {
@@ -137,7 +144,7 @@ function ic:remove_network(network_id)
 end
 
 function ic:send_value_to_network(network_id, member_id, port, value)
-  local network = self.m_networks[member.network_id]
+  local network = self.m_networks[network_id]
   if network then
     self.m_members[member_id].last_value = value
     network.ready_to_send[port] = member_id
@@ -145,6 +152,8 @@ function ic:send_value_to_network(network_id, member_id, port, value)
   return self
 end
 
+-- Call this from a node to emit a value unto it's network on a specified port
+-- You can emit on any port, doesn't mean anyone will receive your value.
 function ic:send_value(pos, port, value)
   local member_id = minetest.hash_node_position(pos)
   local member = self.m_members[member_id]
@@ -155,9 +164,10 @@ function ic:send_value(pos, port, value)
 end
 
 function ic:mark_ready_to_receive_in_network(network_id, member_id, port)
-  local network = self.m_networks[member.network_id]
+  local network = self.m_networks[network_id]
   if network then
-    network.ready_to_receive[port] = member_id
+    network.ready_to_receive[port] = network.ready_to_receive[port] or {}
+    network.ready_to_receive[port][member_id] = true
   end
   return self
 end
@@ -186,21 +196,23 @@ function ic:update_network(network)
     -- yes, this purposely doesn't support multiple members sending on the same port.
     for port, member_id in pairs(network.ready_to_send) do
       local sender = self.m_members[member_id]
-      for port, member_id in pairs(network.ready_to_receive) do
-        local receiver = self.m_members[member_id]
+      local receivers = network.ready_to_receive[port]
+      if receivers then
+        for member_id, _ in pairs(receivers) do
+          local receiver = self.m_members[member_id]
 
-        local receiver_node = minetest.get_node(receiver.pos)
-        if receiver_node.name ~= "ignore" then
-          local nodedef = minetest.registered_nodes[receiver_node.node]
+          local receiver_node = minetest.get_node(receiver.pos)
+          if receiver_node.name ~= "ignore" then
+            local nodedef = minetest.registered_nodes[receiver_node.name]
 
-          if nodedef.data_interface then
-            nodedef.data_interface.receive_pdu(pos, receiver_node, port, sender.last_value)
-          else
-            print("WARN: ", receiver_node.name, "does not have a data interface")
+            if nodedef.data_interface then
+              nodedef.data_interface.receive_pdu(receiver.pos, receiver_node, port, sender.last_value)
+            else
+              print("WARN: ", receiver_node.name, "does not have a data interface")
+            end
           end
         end
       end
-
       sender.last_value = nil
     end
 
@@ -236,8 +248,8 @@ local function can_connect_to_device(from_device, to_device)
 end
 
 function ic:refresh_from_pos(base_pos)
-  local hash = minetest.hash_node_position(base_pos)
-  local member = self.m_members[hash]
+  local member_id = minetest.hash_node_position(base_pos)
+  local member = self.m_members[member_id]
   if member then
     if member.resolution_id == self.m_resolution_id then
       -- no need to refresh, we've already resolved from this position
@@ -248,7 +260,7 @@ function ic:refresh_from_pos(base_pos)
   local seen = {}
   local found = {}
   local to_check = {}
-  to_check[hash] = base_pos
+  to_check[member_id] = base_pos
 
   while not yatm_core.is_table_empty(to_check) do
     local old_to_check = to_check
@@ -278,7 +290,7 @@ function ic:refresh_from_pos(base_pos)
                   local other_device = other_nodedef.data_network_device
                   if other_device then
                     if can_connect_to_device(device, other_device) then
-                      to_check[new_hash] = other_pos
+                      to_check[other_hash] = other_pos
                     end
                   end
                 end
@@ -310,6 +322,10 @@ function ic:refresh_from_pos(base_pos)
       -- go through the unregistration process, in case the node wasn't already unregistered
       self:unregister_member(pos, nil)
 
+      local node = minetest.get_node(pos)
+      local nodedef = minetest.registered_nodes[node.name]
+      local dnd = assert(nodedef.data_network_device)
+
       -- Now to re-register it without the register_member function
       -- Since that includes the side effect of causing yet another refresh...
       --
@@ -317,7 +333,8 @@ function ic:refresh_from_pos(base_pos)
       self.m_members[member_id] = {
         id = member_id,
         pos = pos,
-        node = minetest.get_node(pos),
+        node = node,
+        groups = dnd.groups or {},
         resolution_id = self.m_resolution_id,
         network_id = network_id,
       }
@@ -327,6 +344,10 @@ function ic:refresh_from_pos(base_pos)
       -- ya know, I'm not too 100% on this actually...
       yatm_core.queue_refresh_infotext(pos)
     end
+  end
+
+  if not yatm_core.is_table_empty(network.members) then
+    self.m_networks[network.id] = network
   end
 end
 
@@ -364,7 +385,7 @@ do
   end)
 
   minetest.register_lbm({
-    name = "yatm_oku:data_network_reload_lbm",
+    name = "yatm_data_network:data_network_reload_lbm",
     nodenames = {
       "group:data_network_device",
       "group:data_cable",
@@ -377,5 +398,5 @@ do
   })
 end
 
-yatm_oku.DataNetwork = DataNetwork
-yatm_oku.data_network = data_network
+yatm_data_network.DataNetwork = DataNetwork
+yatm_data_network.data_network = data_network

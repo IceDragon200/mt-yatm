@@ -1,6 +1,39 @@
---[[
-Not sure what I'm going to do with this, but it looks pretty cute.
-]]
+--
+-- Not sure what I'm going to do with this, but it looks pretty cute.
+--
+local data_network = assert(yatm.data_network)
+local Energy = assert(yatm.energy)
+local Network = assert(yatm.network)
+
+local function server_controller_refresh_infotext(pos, node)
+  local meta = minetest.get_meta(pos)
+  local network_id = data_network:get_network_id(pos)
+  if not network_id then
+    network_id = "NULL"
+  end
+  local infotext =
+    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    "Data Network: " .. network_id
+
+  meta:set_string("infotext", infotext)
+end
+
+local function server_controller_after_place_node(pos, _placer, _item_stack, _pointed_thing)
+  local node = minetest.get_node(pos)
+  data_network:register_member(pos, node)
+  yatm.devices.device_after_place_node(pos, node)
+end
+
+local function server_controller_on_destruct(pos)
+  yatm.devices.device_on_destruct(pos)
+end
+
+local function server_controller_after_destruct(pos, old_node)
+  data_network:unregister_member(pos, node)
+  yatm.devices.device_after_destruct(pos, old_node)
+end
+
 local server_controller_node_box = {
   type = "fixed",
   fixed = {
@@ -11,7 +44,7 @@ local server_controller_node_box = {
 local server_controller_yatm_network = {
   kind = "machine",
   groups = {
-    machine = 1,
+    machine_worker = 1,
     energy_consumer = 1,
   },
   default_state = "off",
@@ -22,14 +55,26 @@ local server_controller_yatm_network = {
     on = "yatm_machines:server_controller_on",
   },
   energy = {
-    passive_lost = 5
+    capacity = 2000,
+    network_charge_bandwidth = 100,
+    passive_lost = 5,
+    startup_threshold = 20,
   }
 }
+
+function server_controller_yatm_network.work(pos, node, energy_available, work_rate, dtime, ot)
+  data_network:send_value(pos, 1, 10)
+  return 0
+end
 
 yatm.devices.register_stateful_network_device({
   description = "Server Controller",
 
-  groups = {cracky = 1},
+  groups = {
+    cracky = 1,
+    yatm_data_device = 1,
+    yatm_energy_device = 1,
+  },
 
   drop = server_controller_yatm_network.states.off,
 
@@ -48,6 +93,16 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
 
   yatm_network = server_controller_yatm_network,
+
+  data_network_device = {
+    type = "device",
+  },
+
+  refresh_infotext = server_controller_refresh_infotext,
+
+  after_place_node = server_controller_after_place_node,
+  on_destruct = server_controller_on_destruct,
+  after_destruct = server_controller_after_destruct,
 }, {
   error = {
     tiles = {
