@@ -146,9 +146,7 @@ do
   minetest.register_lbm({
     name = "yatm_fluid_pipes:fluid_transport_network_reload_lbm",
     nodenames = {
-      "group:transporter_fluid_pipe",
-      "group:inserter_fluid_pipe",
-      "group:extractor_fluid_pipe",
+      "group:fluid_network_device",
     },
     run_at_every_load = true,
     action = function (pos, node)

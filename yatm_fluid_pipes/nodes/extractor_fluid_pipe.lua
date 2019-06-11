@@ -19,7 +19,7 @@ local size = (8 / 16.0) / 2
 minetest.register_node("yatm_fluid_pipes:extractor_fluid_pipe", {
   description = "Extractor Fluid Pipe",
 
-  groups = { cracky = 1, extractor_fluid_pipe = 1, extractor_fluid_device = 1 },
+  groups = { cracky = 1, fluid_network_device = 1, extractor_fluid_pipe = 1, extractor_fluid_device = 1 },
 
   sounds = default.node_sound_metal_defaults(),
 

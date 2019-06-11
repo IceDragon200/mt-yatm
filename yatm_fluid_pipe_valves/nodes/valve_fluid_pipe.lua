@@ -46,6 +46,7 @@ for _,color_pair in ipairs(colors) do
   local colored_group_name = "valve_fluid_pipe_" .. color_basename
   local groups = {
     cracky = 1,
+    fluid_network_device = 1,
     valve_fluid_pipe = 1,
     [colored_group_name] = 1,
   }

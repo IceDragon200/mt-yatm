@@ -126,9 +126,7 @@ do
   minetest.register_lbm({
     name = "yatm_item_ducts:item_transport_network_reload_lbm",
     nodenames = {
-      "group:transporter_item_duct",
-      "group:inserter_item_duct",
-      "group:extractor_item_duct",
+      "group:item_network_device",
     },
     run_at_every_load = true,
     action = function (pos, node)
