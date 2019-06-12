@@ -5,13 +5,7 @@ local data_network = assert(yatm.data_network)
 
 local function data_cable_refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
-  local network_id = data_network:get_network_id(pos)
-  if not network_id then
-    network_id = "NULL"
-  end
-  local infotext =
-    "Data Network: " .. network_id
-
+  local infotext = data_network:get_infotext(pos)
   meta:set_string("infotext", infotext)
 end
 

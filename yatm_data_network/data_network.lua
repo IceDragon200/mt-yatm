@@ -4,12 +4,41 @@
 local DataNetwork = yatm_core.Class:extends()
 local ic = assert(DataNetwork.instance_class)
 
+DataNetwork.PORT_RANGE = 16
+DataNetwork.COLOR_RANGE = {
+-- name      = {offset :: integer, range :: integer}
+  multi      = { offset = 0,   range = DataNetwork.PORT_RANGE * 16},
+  white      = { offset = 16,  range = DataNetwork.PORT_RANGE},
+  grey       = { offset = 32,  range = DataNetwork.PORT_RANGE},
+  dark_grey  = { offset = 48,  range = DataNetwork.PORT_RANGE},
+  black      = { offset = 64,  range = DataNetwork.PORT_RANGE},
+  violet     = { offset = 80,  range = DataNetwork.PORT_RANGE},
+  blue       = { offset = 96,  range = DataNetwork.PORT_RANGE},
+  cyan       = { offset = 112, range = DataNetwork.PORT_RANGE},
+  dark_green = { offset = 128, range = DataNetwork.PORT_RANGE},
+  green      = { offset = 144, range = DataNetwork.PORT_RANGE},
+  yellow     = { offset = 160, range = DataNetwork.PORT_RANGE},
+  brown      = { offset = 176, range = DataNetwork.PORT_RANGE},
+  orange     = { offset = 192, range = DataNetwork.PORT_RANGE},
+  red        = { offset = 208, range = DataNetwork.PORT_RANGE},
+  magenta    = { offset = 224, range = DataNetwork.PORT_RANGE},
+  pink       = { offset = 240, range = DataNetwork.PORT_RANGE},
+}
+
 function ic:initialize()
   self.m_queued_refreshes = {}
   self.m_networks = {}
   self.m_members = {}
   self.m_members_by_group = {}
   self.m_resolution_id = 0
+end
+
+function ic:local_port_to_net_port(local_port, color)
+  return DataNetwork.PORT_RANGE[color].offset + local_port
+end
+
+function ic:net_port_to_local_port(net_port, color)
+  return net_port - DataNetwork.PORT_RANGE[color].offset
 end
 
 function ic:generate_network_id()
@@ -96,7 +125,8 @@ function ic:register_member(pos, node)
     pos = pos,
     node = node,
     network_id = nil,
-    groups = dnd.groups or {}
+    groups = dnd.groups or {},
+    attached_color = nil,
   }
 
   self.m_members[member_id] = member
@@ -143,11 +173,22 @@ function ic:remove_network(network_id)
   return self
 end
 
-function ic:send_value_to_network(network_id, member_id, port, value)
+function ic:send_value_to_network(network_id, member_id, local_port, value)
   local network = self.m_networks[network_id]
   if network then
-    self.m_members[member_id].last_value = value
-    network.ready_to_send[port] = member_id
+    local member = self.m_members[member_id]
+    member.last_value = value
+    if member.attached_color then
+      local port_offset = DataNetwork.COLOR_RANGE[member.attached_color]
+
+      if local_port >= 1 and local_port <= port_offset.range then
+        network.ready_to_send[port_offset.offset + local_port] = member_id
+      else
+        print("ERR: ", member.node.name, "port out of range", local_port, "expected to be between 1 and " .. port_offset.range)
+      end
+    else
+      print("WARN: ", member.node.name, "does not have an attached color")
+    end
   end
   return self
 end
@@ -163,11 +204,23 @@ function ic:send_value(pos, port, value)
   return self
 end
 
-function ic:mark_ready_to_receive_in_network(network_id, member_id, port)
+function ic:mark_ready_to_receive_in_network(network_id, member_id, local_port)
   local network = self.m_networks[network_id]
   if network then
-    network.ready_to_receive[port] = network.ready_to_receive[port] or {}
-    network.ready_to_receive[port][member_id] = true
+    local member = self.m_members[member_id]
+    if member.attached_color then
+      local port_offset = DataNetwork.COLOR_RANGE[member.attached_color]
+
+      if local_port >= 1 and local_port <= port_offset.range then
+        local port = port_offset.offset + local_port
+        network.ready_to_receive[port] = network.ready_to_receive[port] or {}
+        network.ready_to_receive[port][member_id] = true
+      else
+        print("ERR: ", member.node.name, "port out of range", local_port, "expected to be between 1 and " .. port_offset.range)
+      end
+    else
+      print("WARN: ", member.node.name, "does not have an attached color")
+    end
   end
   return self
 end
@@ -190,23 +243,46 @@ function ic:get_network_id(pos)
   return nil
 end
 
+function ic:get_attached_color(pos)
+  local member_id = minetest.hash_node_position(pos)
+  local member = self.m_members[member_id]
+  if member then
+    return member.attached_color
+  end
+  return nil
+end
+
+function ic:get_port_offset_for_color(color)
+  return DataNetwork.PORT_RANGE[color].offset
+end
+
+function ic:get_port_range_for_color(color)
+  return DataNetwork.PORT_RANGE[color].range
+end
+
 function ic:update_network(network)
   -- Need both senders and receivers
-  if not yatm_core.is_table_empty(network.ready_to_send) and not yatm_core.is_table_empty(network.ready_to_receive) then
+  if not yatm_core.is_table_empty(network.ready_to_send) and
+     not yatm_core.is_table_empty(network.ready_to_receive) then
     -- yes, this purposely doesn't support multiple members sending on the same port.
     for port, member_id in pairs(network.ready_to_send) do
       local sender = self.m_members[member_id]
       local receivers = network.ready_to_receive[port]
+      local local_port = self:net_port_to_local_port(port, sender.attached_color)
       if receivers then
         for member_id, _ in pairs(receivers) do
           local receiver = self.m_members[member_id]
 
+          local receiver.attached_color
           local receiver_node = minetest.get_node(receiver.pos)
           if receiver_node.name ~= "ignore" then
             local nodedef = minetest.registered_nodes[receiver_node.name]
 
             if nodedef.data_interface then
-              nodedef.data_interface.receive_pdu(receiver.pos, receiver_node, port, sender.last_value)
+              nodedef.data_interface.receive_pdu(receiver.pos,
+                                                 receiver_node,
+                                                 local_port,
+                                                 sender.last_value)
             else
               print("WARN: ", receiver_node.name, "does not have a data interface")
             end
@@ -260,16 +336,16 @@ function ic:refresh_from_pos(base_pos)
   local seen = {}
   local found = {}
   local to_check = {}
-  to_check[member_id] = base_pos
+  to_check[member_id] = { pos = base_pos, color = "multi" }
 
   while not yatm_core.is_table_empty(to_check) do
     local old_to_check = to_check
     to_check = {}
 
-    for hash, pos in pairs(old_to_check) do
+    for hash, entry in pairs(old_to_check) do
       if not seen[hash] then
         seen[hash] = true
-        local node = minetest.get_node(pos)
+        local node = minetest.get_node(entry.pos)
         local nodedef = minetest.registered_nodes[node.name]
 
         if nodedef then
@@ -277,20 +353,26 @@ function ic:refresh_from_pos(base_pos)
 
           if device then
             found[device.type] = found[device.type] or {}
-            found[device.type][hash] = pos
+            found[device.type][hash] = {
+              pos = pos,
+              color = entry.color,
+            }
 
             if device.type == "cable" or device.type == "bus" then
               for dir,v3 in pairs(yatm_core.DIR6_TO_VEC3) do
                 local other_pos = vector.add(pos, v3)
                 local other_hash = minetest.hash_node_position(other_pos)
                 local other_node = minetest.get_node(other_pos)
-                local other_nodedef =  minetest.registered_nodes[other_node.name]
+                local other_nodedef = minetest.registered_nodes[other_node.name]
 
                 if other_nodedef then
                   local other_device = other_nodedef.data_network_device
                   if other_device then
                     if can_connect_to_device(device, other_device) then
-                      to_check[other_hash] = other_pos
+                      to_check[other_hash] = {
+                        pos = other_pos,
+                        color = other_device.color
+                      }
                     end
                   end
                 end
@@ -318,8 +400,10 @@ function ic:refresh_from_pos(base_pos)
     ready_to_receive = {},
   }
   for device_type, devices in pairs(found) do
-    for member_id, pos in pairs(devices) do
+    for member_id, entry in pairs(devices) do
       -- go through the unregistration process, in case the node wasn't already unregistered
+      local pos = entry.pos
+      local color = entry.color
       self:unregister_member(pos, nil)
 
       local node = minetest.get_node(pos)
@@ -337,6 +421,12 @@ function ic:refresh_from_pos(base_pos)
         groups = dnd.groups or {},
         resolution_id = self.m_resolution_id,
         network_id = network_id,
+        -- the color is used to determine what port range is usable
+        -- this also affects emission
+        -- each cable color has a maximum of 16 ports (1-16)
+        -- the exception to this rule is the `multi`, which allows 256 (1-256)
+        -- when a value is emitted on the network, it is adjusted by it's color
+        attached_color = color,
       }
 
       network.members[member_id] = true
@@ -371,6 +461,16 @@ end
 function ic:terminate()
   --
   print("DataNetwork", "terminating")
+end
+
+function ic:get_infotext(pos)
+  local network_id = data_network:get_network_id(pos)
+  local color = data_network:get_attached_color(pos)
+
+  return "Data Network: " ..
+    network_id ..
+    " (" .. color .. ") " ..
+    " (" .. data_network:get_port_offset_for_color(color) .. "/" .. data_network:get_port_range_for_color(color) .. ")"
 end
 
 local data_network = DataNetwork:new()
