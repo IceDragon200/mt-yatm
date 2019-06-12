@@ -14,8 +14,12 @@ if insec then
   yatm_oku.ffi = ffi
 end
 
+if not yatm_oku.ffi then
+  error("yatm_oku requires LuaJIT's FFI, please add yatm_oku to your trusted mods list if you use LuaJIT, or disable yatm_oku otherwise.")
+end
 
 dofile(yatm_oku.modpath .. "/oku.lua")
+dofile(yatm_oku.modpath .. "/computers.lua")
 
 dofile(yatm_oku.modpath .. "/api.lua")
 

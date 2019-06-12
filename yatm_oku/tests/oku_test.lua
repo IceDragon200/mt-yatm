@@ -4,6 +4,7 @@ local case = Luna:new("yatm_oku.OKU")
 
 case:describe("memory benchmark", function (t2)
   t2:xtest("addressing memory slices", function (t3)
+    print("Creating oku for memory slice test")
     local oku = yatm_oku.OKU:new()
     local last_value = {0}
     for i=0,oku.memory.size - 1 do
@@ -28,7 +29,7 @@ case:describe("memory benchmark", function (t2)
     end
   end)
 
-  t2:test("addressing memory bytes", function (t3)
+  t2:xtest("addressing memory bytes", function (t3)
     local oku = yatm_oku.OKU:new()
 
     for i=0,oku.memory.size - 1 do

@@ -1,3 +1,6 @@
+--
+--
+--
 local data_network = assert(yatm.data_network)
 local Energy = assert(yatm.energy)
 local Network = assert(yatm.network)
@@ -12,7 +15,23 @@ local function computer_refresh_infotext(pos, node)
   meta:set_string("infotext", infotext)
 end
 
-local function computer_data_interface(pos, node, port, value)
+local function computer_after_place_node(pos, _placer, _item_stack, _pointed_thing)
+  local node = minetest.get_node(pos)
+  data_network:register_member(pos, node)
+  yatm.devices.device_after_place_node(pos, node)
+end
+
+local function computer_on_destruct(pos)
+  yatm.devices.device_on_destruct(pos)
+end
+
+local function computer_after_destruct(pos, old_node)
+  data_network:unregister_member(pos, old_node)
+  yatm.devices.device_after_destruct(pos, old_node)
+end
+
+local computer_data_interface = {}
+function computer_data_interface.receive_pdu(pos, node, port, value)
 end
 
 local computer_yatm_network = {
@@ -74,6 +93,10 @@ yatm.devices.register_stateful_network_device({
   data_interface = computer_data_interface,
 
   refresh_infotext = computer_refresh_infotext,
+
+  after_place_node = computer_after_place_node,
+  on_destruct = computer_on_destruct,
+  after_destruct = computer_after_destruct,
 }, {
   error = {
     tiles = {
