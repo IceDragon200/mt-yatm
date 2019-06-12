@@ -7,14 +7,10 @@ local Network = assert(yatm.network)
 
 local function server_refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
-  local network_id = data_network:get_network_id(pos)
-  if not network_id then
-    network_id = "NULL"
-  end
   local infotext =
     "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
-    "Data Network: " .. network_id
+    data_network:get_infotext(pos)
 
   meta:set_string("infotext", infotext)
 end
