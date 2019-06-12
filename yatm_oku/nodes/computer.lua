@@ -1,3 +1,20 @@
+local data_network = assert(yatm.data_network)
+local Energy = assert(yatm.energy)
+local Network = assert(yatm.network)
+
+local function computer_refresh_infotext(pos, node)
+  local meta = minetest.get_meta(pos)
+  local infotext =
+    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    data_network:get_infotext(pos)
+
+  meta:set_string("infotext", infotext)
+end
+
+local function computer_data_interface(pos, node, port, value)
+end
+
 local computer_yatm_network = {
   kind = "machine",
   groups = {
@@ -46,11 +63,17 @@ yatm.devices.register_stateful_network_device({
   },
   paramtype = "light",
   paramtype2 = "facedir",
+
   yatm_network = computer_yatm_network,
+
   data_network_device = {
     color = color_basename,
     type = "device",
   },
+
+  data_interface = computer_data_interface,
+
+  refresh_infotext = computer_refresh_infotext,
 }, {
   error = {
     tiles = {
