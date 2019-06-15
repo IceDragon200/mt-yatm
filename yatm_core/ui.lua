@@ -1,15 +1,13 @@
---[[
-Utility module for dealing with formspecs, or rather to not deal with them.
-
-I don't particularly enjoy messing with strings all day you know.
-]]
+--
+-- Utility module for dealing with formspecs, or rather to not deal with them.
+--
+-- I don't particularly enjoy messing with strings all day you know.
+--
 local Form = yatm_core.Class:extends()
 
 local c = Form.instance_class
 
---[[
-@spec c:initialize(kind :: "form" | "container")
-]]
+-- @spec c:initialize(kind :: "form" | "container")
 function c:initialize(kind)
   self.kind = kind or "form"
   self.name = ""

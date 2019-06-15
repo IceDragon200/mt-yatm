@@ -29,9 +29,15 @@ dofile(yatm_core.modpath .. "/measurable.lua") -- similar to energy, but has a n
 dofile(yatm_core.modpath .. "/nodes.lua")
 dofile(yatm_core.modpath .. "/items.lua")
 
--- Tests
+-- Test Utils
 dofile(yatm_core.modpath .. "/fake_meta_ref.lua")
 dofile(yatm_core.modpath .. "/luna.lua")
-dofile(yatm_core.modpath .. "/tests.lua")
 
+-- Formspec Handle system
+dofile(yatm_core.modpath .. "/formspec_handles.lua")
+
+-- API
 dofile(yatm_core.modpath .. "/api.lua")
+
+-- Tests
+dofile(yatm_core.modpath .. "/tests.lua")
