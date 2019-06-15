@@ -1,7 +1,8 @@
 --[[
 OKU - Octet Kompute Unit
 
-Is an 8-bit computer for YATM, it offers mimimal control over some YATM features.
+Is a 32-bit computer for YATM, it offers some control over some YATM
+features using the data network.
 
 The machine is programmed in actual assembly, and emulated in lua.
 ]]

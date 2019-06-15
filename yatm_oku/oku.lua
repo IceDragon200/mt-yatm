@@ -4,9 +4,8 @@ x0-x31
 pc
 ]]
 
--- string.rep to initialize the memory
--- string.unpack and string.pack to deserialize and serialize data
 yatm_oku.OKU = yatm_core.Class:extends()
+yatm_oku.OKU.ins = {}
 
 dofile(yatm_oku.modpath .. "/lib/oku/memory.lua")
 
@@ -21,10 +20,10 @@ union yatm_oku_register32 {
   uint16_t u16v[2];
   int32_t  i32v[1];
   uint32_t u32v[1];
-  float  fv[1];
+  float    fv[1];
   int32_t  i;
   uint32_t u;
-  float  f;
+  float    f;
 };
 ]]
 
@@ -66,87 +65,39 @@ struct yatm_oku_registers32 {
 };
 ]]
 
-ffi.cdef[[
-union yatm_oku_rv32i_isa {
-  int32_t value;
-  struct r {
-    int8_t opcode : 7;
-    int8_t rd : 5;
-    int8_t funct3 : 3;
-    int8_t rs1 : 5;
-    int8_t rs2 : 5;
-    int8_t funct7 : 7;
-  };
-  struct i {
-    int8_t opcode : 7;
-    int8_t rd : 5;
-    int8_t funct3 : 3;
-    int8_t rs1 : 5;
-    int16_t imm : 12;
-  };
-  struct s {
-    int8_t opcode : 7;
-    int8_t imm0 : 5;
-    int8_t funct3 : 3;
-    int8_t rs1 : 5;
-    int8_t rs2 : 5;
-    int8_t imm1 : 7;
-  };
-  struct u {
-    int8_t opcode : 7;
-    int8_t rd : 5;
-    int32_t imm : 20;
-  };
-  struct b {
-    int8_t opcode : 7;
-    int8_t imm0 : 1;
-    int8_t imm1 : 4;
-    int8_t funct3 : 3;
-    int8_t rs1 : 5;
-    int8_t rs2 : 5;
-    int8_t imm2 : 6;
-    int8_t imm3 : 1;
-  };
-  struct j {
-    int8_t opcode : 7;
-    int8_t rd : 5;
-    union {
-      int32_t offset : 20;
-      struct {
-        int8_t imm0 : 8;
-        int8_t imm1 : 1;
-        int16_t imm2 : 10;
-        int8_t imm3 : 1;
-      };
-    };
-  };
-};
-]]
+-- You know, I really wanted to emulate a RISC-V core, but god damn the tooling
+-- I just wanted a boring plain assembler to test against and even that is hard to get!
+--dofile(yatm_oku.modpath .. "/lib/oku/isa/riscv.lua")
+dofile(yatm_oku.modpath .. "/lib/oku/isa/oku.lua")
 
 local OKU = yatm_oku.OKU
-local m = OKU.instance_class
+local ic = OKU.instance_class
 
-function m:initialize()
+function ic:initialize()
+  -- the registers
   self.registers = ffi.new("yatm_oku_registers32")
+  -- utility for decoding instructions
+  self.ins = ffi.new("yatm_oku_rv32i_ins")
+  -- memory
   self.memory = yatm_oku.OKU.Memory:new(0x40000 --[[ Roughly 256kb ]])
 end
 
-function m:step()
+function ic:step()
 end
 
-function m:get_memory_byte(index)
+function ic:get_memory_byte(index)
   return self.memory:i8(index)
 end
 
-function m:put_memory_byte(index, value)
+function ic:put_memory_byte(index, value)
   return self.memory:w_i8(index, value)
 end
 
-function m:get_memory_slice(index, len)
+function ic:get_memory_slice(index, len)
   return self.memory:bytes(index, len)
 end
 
-function m:put_memory_slice(index, bytes)
+function ic:put_memory_slice(index, bytes)
   return self.memory:put_bytes(index, bytes)
 end
 
