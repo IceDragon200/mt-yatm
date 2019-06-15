@@ -99,14 +99,14 @@ yatm.devices.register_stateful_network_device({
   },
   data_interface = {
     receive_pdu = function (pos, node, port, value)
-      print("received a pdu", minetest.pos_to_string(pos), node.name, port, value)
+      --print("received a pdu", minetest.pos_to_string(pos), node.name, port, value)
     end,
   },
   refresh_infotext = server_refresh_infotext,
 
-  after_place_node = server_controller_after_place_node,
-  on_destruct = server_controller_on_destruct,
-  after_destruct = server_controller_after_destruct,
+  after_place_node = server_after_place_node,
+  on_destruct = server_on_destruct,
+  after_destruct = server_after_destruct,
 }, {
   error = {
     tiles = {
