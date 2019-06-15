@@ -5,12 +5,11 @@ pc
 ]]
 
 yatm_oku.OKU = yatm_core.Class:extends()
-yatm_oku.OKU.ins = {}
+yatm_oku.OKU.isa = {}
 
 dofile(yatm_oku.modpath .. "/lib/oku/memory.lua")
 
 local ffi = assert(yatm_oku.ffi)
-
 
 ffi.cdef[[
 union yatm_oku_register32 {

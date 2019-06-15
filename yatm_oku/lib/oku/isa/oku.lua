@@ -2,8 +2,7 @@
 -- The OKU ISA is an overly simplified instruction set
 --
 -- It uses a structure similar to RISC-V, just a bit simplified to avoid headaches.
-local ISA = {}
-
+--
 -- So first up, it's a purely integer cpu, no floats.
 --
 -- rd - register destination
@@ -59,35 +58,35 @@ local ISA = {}
 --   ecall
 --   ebreak
 --
+local ffi = assert(yatm_oku.ffi)
+
 local oku32_isa = {}
 
-ffi.cdef[[
-union yatm_oku_oku32_ins {
-  int32_t i32;
+oku32_isa._native = ffi.new[[
+union {
+  int32_t  i32;
   uint32_t u32;
-  struct o {
+  struct {
     int8_t opcode : 7;
-    int32_t imm : 25;
-  };
-  struct r {
+    int32_t imm   : 25;
+  } o;
+  struct {
     int8_t opcode : 7;
-    int8_t rd : 5;
+    int8_t rd     : 5;
     int8_t funct3 : 3;
-    int8_t rs1 : 5;
-    int8_t rs2 : 5;
+    int8_t rs1    : 5;
+    int8_t rs2    : 5;
     int8_t funct7 : 7;
-  };
-  struct i {
+  } r;
+  struct {
     int8_t opcode : 7;
-    int8_t rd : 5;
+    int8_t rd     : 5;
     int8_t funct3 : 3;
-    int8_t rs1 : 5;
-    int16_t imm : 12;
-  };
-};
+    int8_t rs1    : 5;
+    int16_t imm   : 12;
+  } i;
+}
 ]]
-
-oku32_isa._native = ffi.new("yatm_oku_oku32_ins")
 
 function oku32_isa.step(oku)
   local pc = oku.registers.pc
