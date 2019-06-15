@@ -86,7 +86,7 @@ end
 function ic:do_unregister_member_groups(member)
   for group, _priority in pairs(member.groups) do
     if self.m_members_by_group[group] then
-      self.m_members_by_group[group][member_id] = nil
+      self.m_members_by_group[group][member.id] = nil
     end
   end
   return self
@@ -95,7 +95,15 @@ end
 function ic:do_register_member_groups(member)
   for group, _priority in pairs(member.groups) do
     self.m_members_by_group[group] = self.m_members_by_group[group] or {}
-    self.m_members_by_group[group][member_id] = true
+    self.m_members_by_group[group][member.id] = true
+
+    if member.network_id then
+      local network = self.m_networks[member.network_id]
+      if network then
+        network.members_by_group[group] = network.members_by_group[group] or {}
+        network.members_by_group[group][member.id] = true
+      end
+    end
   end
   return self
 end
@@ -260,7 +268,7 @@ function ic:get_attached_color(pos)
   return nil
 end
 
-function ic:update_network(network)
+function ic:update_network(network, dt)
   -- Need both senders and receivers
   if not yatm_core.is_table_empty(network.ready_to_send) and
      not yatm_core.is_table_empty(network.ready_to_receive) then
@@ -293,6 +301,23 @@ function ic:update_network(network)
 
     network.ready_to_send = {}
     network.ready_to_receive = {}
+  end
+
+  local updatable = network.members_by_group["updatable"]
+  if updatable then
+    for member_id, _ in pairs(updatable) do
+      local member = self.m_members[member_id]
+      if member then
+        local nodedef = minetest.registered_nodes[member.node.name]
+        if nodedef.data_interface then
+          nodedef.data_interface.update(member.pos, member.node, dt)
+        else
+          print("WARN: Node cannot be subject to updatable group without a data_interface", minetest.pos_to_string(member.pos), member.node.name)
+        end
+      else
+        print("WARN: Network contains invalid member", member_id)
+      end
+    end
   end
 end
 
@@ -389,6 +414,7 @@ function ic:refresh_from_pos(base_pos)
   local network = {
     id = network_id,
     members = {},
+    members_by_group = {},
     ready_to_send = {},
     ready_to_receive = {},
   }
@@ -455,7 +481,7 @@ end
 
 function ic:update(dt)
   for network_id, network in pairs(self.m_networks) do
-    self:update_network(network)
+    self:update_network(network, dt)
   end
 
   if not yatm_core.is_table_empty(self.m_queued_refreshes) then
