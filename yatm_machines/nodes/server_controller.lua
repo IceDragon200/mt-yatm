@@ -26,7 +26,7 @@ local function server_controller_on_destruct(pos)
 end
 
 local function server_controller_after_destruct(pos, old_node)
-  data_network:unregister_member(pos, node)
+  data_network:unregister_member(pos, old_node)
   yatm.devices.device_after_destruct(pos, old_node)
 end
 
