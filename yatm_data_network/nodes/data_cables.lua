@@ -35,6 +35,28 @@ end
 
 colors = yatm_core.list_concat({{"multi", "Multi"}}, colors)
 
+local data_cable_nodebox = {
+  type = "connected",
+  fixed          = yatm_core.Cuboid:new(5, 0, 5, 6, 2, 6):fast_node_box(),
+  connect_top    = yatm_core.Cuboid:new(5, 2, 5, 6,14, 6):fast_node_box(), -- y+
+  connect_bottom = yatm_core.Cuboid:new(0, 0, 0, 0, 0, 0):fast_node_box(), -- y-
+  connect_front  = yatm_core.Cuboid:new(5, 0, 0, 6, 2, 5):fast_node_box(), -- z-
+  connect_back   = yatm_core.Cuboid:new(5, 0,11, 6, 2, 5):fast_node_box(), -- z+
+  connect_left   = yatm_core.Cuboid:new(0, 0, 5, 5, 2, 6):fast_node_box(), -- x-
+  connect_right  = yatm_core.Cuboid:new(11,0, 5, 5, 2, 6):fast_node_box(), -- x+
+}
+
+local data_bus_nodebox = {
+  type = "connected",
+  fixed          = yatm_core.Cuboid:new(4, 0, 4, 8, 4, 8):fast_node_box(),
+  connect_top    = yatm_core.Cuboid:new(5, 4, 5, 6,12, 6):fast_node_box(), -- y+
+  connect_bottom = yatm_core.Cuboid:new(3, 0, 3,10, 1,10):fast_node_box(), -- y-
+  connect_front  = yatm_core.Cuboid:new(5, 0, 0, 6, 2, 4):fast_node_box(), -- z-
+  connect_back   = yatm_core.Cuboid:new(5, 0,12, 6, 2, 4):fast_node_box(), -- z+
+  connect_left   = yatm_core.Cuboid:new(0, 0, 5, 4, 2, 6):fast_node_box(), -- x-
+  connect_right  = yatm_core.Cuboid:new(12,0, 5, 4, 2, 6):fast_node_box(), -- x+
+}
+
 for _,color_pair in ipairs(colors) do
   local color_basename = color_pair[1]
   local color_name = color_pair[2]
@@ -77,16 +99,7 @@ for _,color_pair in ipairs(colors) do
     },
 
     drawtype = "nodebox",
-    node_box = {
-      type = "connected",
-      fixed          = yatm_core.Cuboid:new(5, 0, 5, 6, 2, 6):fast_node_box(),
-      connect_top    = yatm_core.Cuboid:new(5, 2, 5, 6,14, 6):fast_node_box(), -- y+
-      connect_bottom = yatm_core.Cuboid:new(0, 0, 0, 0, 0, 0):fast_node_box(), -- y-
-      connect_front  = yatm_core.Cuboid:new(5, 0, 0, 6, 2, 5):fast_node_box(), -- z-
-      connect_back   = yatm_core.Cuboid:new(5, 0,11, 6, 2, 5):fast_node_box(), -- z+
-      connect_left   = yatm_core.Cuboid:new(0, 0, 5, 5, 2, 6):fast_node_box(), -- x-
-      connect_right  = yatm_core.Cuboid:new(11,0, 5, 5, 2, 6):fast_node_box(), -- x+
-    },
+    node_box = data_cable_nodebox,
 
     connects_to = connects_to,
 
@@ -141,16 +154,7 @@ for _,color_pair in ipairs(colors) do
     },
 
     drawtype = "nodebox",
-    node_box = {
-      type = "connected",
-      fixed          = yatm_core.Cuboid:new(4, 0, 4, 8, 4, 8):fast_node_box(),
-      connect_top    = yatm_core.Cuboid:new(5, 4, 5, 6,12, 6):fast_node_box(), -- y+
-      connect_bottom = yatm_core.Cuboid:new(3, 0, 3,10, 1,10):fast_node_box(), -- y-
-      connect_front  = yatm_core.Cuboid:new(5, 0, 0, 6, 2, 4):fast_node_box(), -- z-
-      connect_back   = yatm_core.Cuboid:new(5, 0,12, 6, 2, 4):fast_node_box(), -- z+
-      connect_left   = yatm_core.Cuboid:new(0, 0, 5, 4, 2, 6):fast_node_box(), -- x-
-      connect_right  = yatm_core.Cuboid:new(12,0, 5, 4, 2, 6):fast_node_box(), -- x+
-    },
+    node_box = data_bus_nodebox,
 
     connects_to = connects_to,
 
