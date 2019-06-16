@@ -69,6 +69,9 @@ local micro_controller_data_network_device = {
 local function micro_controller_on_construct(pos)
   local node = minetest.get_node(pos)
   data_network:register_member(pos, node)
+  yatm.computers:register_computer(pos, node, {
+    memory_size = 16 * 4, -- 16 ins * 4 bytes wide
+  })
 end
 
 local function micro_controller_after_place_node(pos, _placer, _item_stack, _pointed_thing)
@@ -93,6 +96,7 @@ local function micro_controller_after_place_node(pos, _placer, _item_stack, _poi
 end
 
 local function micro_controller_on_destruct(pos)
+  --
 end
 
 local function micro_controller_after_destruct(pos, old_node)

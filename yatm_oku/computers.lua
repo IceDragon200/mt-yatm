@@ -10,14 +10,15 @@ function ic:initialize()
   self.m_computers = {}
 end
 
-function ic:register_computer(pos, node)
+function ic:register_computer(pos, node, options)
   local hash = minetest.hash_node_position(pos)
   self.m_computers[hash] = {
     id = hash,
     pos = pos,
     node = node,
+    options = options,
 
-    oku = OKU:new()
+    oku = OKU:new(options)
   }
 end
 
