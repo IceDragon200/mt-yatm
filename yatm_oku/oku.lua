@@ -83,9 +83,9 @@ function ic:initialize(options)
     error("requested memory size too larger, cannot exceed 1mb")
   end
   -- the registers
-  self.registers = ffi.new("yatm_oku_registers32")
+  self.registers = ffi.new("struct yatm_oku_registers32")
   -- utility for decoding instructions
-  self.ins = ffi.new("yatm_oku_rv32i_ins")
+  self.ins = ffi.new("union yatm_oku_rv32i_ins")
   -- memory
   self.memory = yatm_oku.OKU.Memory:new(options.memory_size --[[ Roughly 256kb ]])
 end
