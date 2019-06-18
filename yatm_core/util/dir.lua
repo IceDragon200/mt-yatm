@@ -232,6 +232,30 @@ function yatm_core.facedir_wallmount_after_place_node(pos, _placer, _itemstack, 
   minetest.swap_node(pos, node)
 end
 
+function yatm_core.rotate_position_by_facedir(p, from_facedir, to_facedir)
+  if from_facedir == to_facedir then
+    return p
+  end
+
+  local n = yatm_core.facedir_to_face(from_facedir, yatm_core.D_NORTH)
+  local e = yatm_core.facedir_to_face(from_facedir, yatm_core.D_EAST)
+  local u = yatm_core.facedir_to_face(from_facedir, yatm_core.D_UP)
+
+  local to_n = yatm_core.facedir_to_face(to_facedir, n)
+  local to_e = yatm_core.facedir_to_face(to_facedir, e)
+  local to_u = yatm_core.facedir_to_face(to_facedir, u)
+
+  local vz = yatm_core.DIR6_TO_VEC3[to_n]
+  local vx = yatm_core.DIR6_TO_VEC3[to_e]
+  local vy = yatm_core.DIR6_TO_VEC3[to_u]
+
+  return {
+    x = vx.x * p.x + vy.x * p.y + vz.x * p.z,
+    y = vx.y * p.x + vy.y * p.y + vz.y * p.z,
+    z = vx.z * p.x + vy.z * p.y + vz.z * p.z,
+  }
+end
+
 --[[
 Determines what direction the `looker` is from the `target`
 ]]
