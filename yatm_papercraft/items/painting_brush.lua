@@ -48,10 +48,14 @@ local function painting_brush_on_use(itemstack, user, pointed_thing)
     local nodedef = minetest.registered_nodes[node.name]
 
     if not Groups.get_item(nodedef, "painting_canvas") then
+      print("Target is not a painting_canvas")
       return
     end
+    -- Floor mounted paintings are all correct now, but not so much for wall ones
+    -- TODO: fix wall mounted paintings
     local facing_axis = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
-    local new_rotation = yatm_core.cardinal_direction_from(facing_axis, pointed_thing.under, user:get_pos())
+    local facing_rotation = yatm_core.cardinal_direction_from(facing_axis, pointed_thing.under, user:get_pos())
+    local new_rotation = yatm_core.invert_dir(facing_rotation)
     local new_facedir = yatm_core.facedir_from_axis_and_rotation(facing_axis, new_rotation)
 
     print(yatm_core.inspect_axis_and_rotation(facing_axis, new_rotation), new_facedir)
@@ -61,25 +65,21 @@ local function painting_brush_on_use(itemstack, user, pointed_thing)
     -- Now to arrange the canvases into a 2d table of some sorts
     local canvas_world_map = {}
     for _hash,entry in pairs(canvases) do
-      if facing_axis == yatm_core.D_UP then
-        canvas_world_map[entry.pos.z] = canvas_world_map[entry.pos.z] or {}
-        canvas_world_map[entry.pos.z][entry.pos.x] = entry
-      elseif facing_axis == yatm_core.D_DOWN then
-        canvas_world_map[entry.pos.z] = canvas_world_map[entry.pos.z] or {}
-        canvas_world_map[entry.pos.z][entry.pos.x] = entry
-      elseif facing_axis == yatm_core.D_NORTH then
-        canvas_world_map[entry.pos.y] = canvas_world_map[entry.pos.y] or {}
-        canvas_world_map[entry.pos.y][entry.pos.x] = entry
-      elseif facing_axis == yatm_core.D_EAST then
-        canvas_world_map[entry.pos.y] = canvas_world_map[entry.pos.y] or {}
-        canvas_world_map[entry.pos.y][entry.pos.z] = entry
-      elseif facing_axis == yatm_core.D_SOUTH then
-        canvas_world_map[entry.pos.y] = canvas_world_map[entry.pos.y] or {}
-        canvas_world_map[entry.pos.y][entry.pos.x] = entry
-      elseif facing_axis == yatm_core.D_WEST then
-        canvas_world_map[entry.pos.y] = canvas_world_map[entry.pos.y] or {}
-        canvas_world_map[entry.pos.y][entry.pos.z] = entry
+      local y
+      local x
+      if facing_axis == yatm_core.D_UP or facing_axis == yatm_core.D_DOWN then
+        y = entry.pos.z
+        x = entry.pos.x
+      elseif facing_axis == yatm_core.D_NORTH or facing_axis == yatm_core.D_SOUTH then
+        y = entry.pos.y
+        x = entry.pos.x
+      elseif facing_axis == yatm_core.D_EAST or facing_axis == yatm_core.D_WEST then
+        y = entry.pos.y
+        x = entry.pos.z
       end
+
+      canvas_world_map[y] = canvas_world_map[y] or {}
+      canvas_world_map[y][x] = entry
     end
 
     -- Then we figure out the extents
@@ -130,59 +130,40 @@ local function painting_brush_on_use(itemstack, user, pointed_thing)
       canvas_local_map[y - y1] = new_row
     end
 
-    local w = x2 - x1 + 1
-    local h = y2 - y1 + 1
-
-    local new_canvas_local_map = {}
-    if new_rotation == yatm_core.D_NORTH then
-      -- nothing to do
-      new_canvas_local_map = canvas_local_map
-    elseif new_rotation == yatm_core.D_SOUTH then
-      for y,row in pairs(canvas_local_map) do
-        -- flip the rows around
-        new_canvas_local_map[h - 1 - y] = row
-      end
-    elseif new_rotation == yatm_core.D_EAST then
-      w, h = h, w
-      for y,row in pairs(canvas_local_map) do
-        for x,entry in pairs(row) do
-          new_canvas_local_map[x] = new_canvas_local_map[x] or {}
-          new_canvas_local_map[x][y] = entry
-        end
-      end
-    elseif new_rotation == yatm_core.D_WEST then
-      w, h = h, w
-      for y,row in pairs(canvas_local_map) do
-        for x,entry in pairs(row) do
-          new_canvas_local_map[x] = new_canvas_local_map[x] or {}
-          new_canvas_local_map[x][y] = entry
-        end
-      end
-    else
-      print("WARN: no valid rotation")
-      new_canvas_local_map = canvas_local_map
-    end
-
-    print(dump(new_canvas_local_map))
+    -- native width and height
+    local nw = x2 - x1 + 1
+    local nh = y2 - y1 + 1
 
     -- Now ensure that we have a quad of some kind for real.
     local valid = true
-    for y = 0,h-1 do
+    for y = 0,nh-1 do
       if not valid then
         break
       end
-      for x = 0,w-1 do
-        if not new_canvas_local_map[y][x] then
+      for x = 0,nw-1 do
+        if not canvas_local_map[y][x] then
           print("Missing entry for", x, y)
           valid = false
           break
         end
       end
     end
-    print("expecting a painting of", w, h)
 
     if valid then
-      print("canvas is valid")
+      local w
+      local h
+      local r90 = false
+      if facing_rotation == yatm_core.D_NORTH or facing_rotation == yatm_core.D_SOUTH then
+        w = nw
+        h = nh
+      elseif facing_rotation == yatm_core.D_WEST or facing_rotation == yatm_core.D_EAST then
+        -- w, h remain the same
+        r90 = true
+        w = nh
+        h = nw
+      end
+
+      print("canvas is valid", w, h)
 
       -- It's valid!
       -- Now we finally lookup a painting that matches the resolution
@@ -204,8 +185,33 @@ local function painting_brush_on_use(itemstack, user, pointed_thing)
           -- FIXME: don't directly access members
           local painting_entry = Paintings.members[new_name]
 
+          -- Set all the canvas cells to the painting cells
           for cell_name,cell in pairs(painting_entry.cells) do
-            local canvas_cell_entry = new_canvas_local_map[cell.pos.y][cell.pos.x]
+            local cx
+            local cy
+            if r90 then
+              cx = cell.pos.y
+              cy = cell.pos.x
+            else
+              cx = cell.pos.x
+              cy = cell.pos.y
+            end
+
+            if facing_rotation == yatm_core.D_NORTH then
+              -- north needs it's x coord flipped
+              cx = w - 1 - cx
+            elseif facing_rotation == yatm_core.D_SOUTH then
+              -- south has it's y coord flipped
+              cy = h - 1 - cy
+            elseif facing_rotation == yatm_core.D_WEST then
+              -- needs to have both it's coords flipped
+              cx = h - 1 - cx
+              cy = w - 1 - cy
+            elseif facing_rotation == yatm_core.D_EAST then
+              -- east is only normal face
+            end
+
+            local canvas_cell_entry = assert(canvas_local_map[cy][cx])
 
             local new_node = {
               name = cell_name,
@@ -216,8 +222,10 @@ local function painting_brush_on_use(itemstack, user, pointed_thing)
         end
       end
     else
-      print("canvas is not valid!")
+      print("canvas is not valid!", w, h)
     end
+  else
+    print("Target is not a node, got", pointed_thing.type)
   end
   return itemstack
 end
