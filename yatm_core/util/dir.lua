@@ -46,6 +46,41 @@ yatm_core.DIR6_TO_VEC3 = {
   [yatm_core.D_UP] = yatm_core.V3_UP,
 }
 
+-- Clockwise and Anti-Clockwise tables
+yatm_core.DIR4_CW_ROTATION = {
+  [yatm_core.D_NORTH] = yatm_core.D_EAST,
+  [yatm_core.D_EAST] = yatm_core.D_SOUTH,
+  [yatm_core.D_SOUTH] = yatm_core.D_WEST,
+  [yatm_core.D_WEST] = yatm_core.D_NORTH,
+}
+
+yatm_core.DIR4_ACW_ROTATION = {
+  [yatm_core.D_NORTH] = yatm_core.D_WEST,
+  [yatm_core.D_EAST] = yatm_core.D_NORTH,
+  [yatm_core.D_SOUTH] = yatm_core.D_EAST,
+  [yatm_core.D_WEST] = yatm_core.D_SOUTH,
+}
+
+-- Axis Index to Axis facedir offsets
+yatm_core.FD_AXIS = {
+  [0] = yatm_core.FD_AXIS_Yp,
+  [1] = yatm_core.FD_AXIS_Zp,
+  [2] = yatm_core.FD_AXIS_Zm,
+  [3] = yatm_core.FD_AXIS_Xp,
+  [4] = yatm_core.FD_AXIS_Xm,
+  [5] = yatm_core.FD_AXIS_Ym,
+}
+
+-- Axis index to D_* constant
+yatm_core.AXIS = {
+  [0] = yatm_core.D_UP,
+  [1] = yatm_core.D_NORTH,
+  [2] = yatm_core.D_SOUTH,
+  [3] = yatm_core.D_EAST,
+  [4] = yatm_core.D_WEST,
+  [5] = yatm_core.D_DOWN,
+}
+
 -- A helper table for converting the D_* constants to strings
 yatm_core.DIR_TO_STRING = {
   [yatm_core.D_NONE] = "NONE",
@@ -167,6 +202,34 @@ function yatm_core.facedir_to_face(facedir, base_face)
   else
     return nil
   end
+end
+
+-- TODO
+--function yatm_core.facedir_to_axis_and_rotation(facedir)
+--  local axis_index = math.floor((facedir % 32) / 4)
+--  local axis = assert(yatm_core.FD_AXIS[axis_index])
+--  return axis, facedir % 4
+--end
+
+function yatm_core.facedir_to_fd_axis_and_fd_rotation(facedir)
+  local fd_axis = math.floor((facedir % 32) / 4)
+  local fd_rotation = (facedir % 4)
+  return fd_axis * 4, fd_rotation
+end
+
+function yatm_core.rotate_facedir_face_clockwise(facedir)
+  local fd_axis, fd_rotation = yatm_core.facedir_to_fd_axis_and_fd_rotation(facedir)
+  return fd_axis + ((fd_rotation + 1) % 4)
+end
+
+function yatm_core.rotate_facedir_face_anticlockwise(facedir)
+  local fd_axis, fd_rotation = yatm_core.facedir_to_fd_axis_and_fd_rotation(facedir)
+  return fd_axis + ((fd_rotation - 1) % 4)
+end
+
+function yatm_core.rotate_facedir_face_180(facedir)
+  local fd_axis, fd_rotation = yatm_core.facedir_to_fd_axis_and_fd_rotation(facedir)
+  return fd_axis + ((fd_rotation + 2) % 4)
 end
 
 function yatm_core.invert_dir_to_vec3(dir)
