@@ -35,14 +35,19 @@ end
 -- aka. don't mess around with the cray-cray place_node code
 local lamp_after_place_node = yatm_core.facedir_wallmount_after_place_node
 
+local lamp_rules = {}
+if mesecons then
+  lamp_rules = mesecon.rules.default
+end
+
 local lamp_mesecons = {
   effector = {
-    rules = mesecon.rules.default,
+    rules = lamp_rules,
 
     -- Boring lamp stuff
     action_on = function (pos, node)
       local nodedef = minetest.registered_nodes[node.name]
-      print("Lamp on", pos, node)
+      print("Lamp on", minetest.pos_to_string(pos), node.name)
       if nodedef and nodedef.yatm then
         local new_state = "on"
         if nodedef.yatm.normal_state == "off" then
@@ -57,7 +62,7 @@ local lamp_mesecons = {
 
     action_off = function (pos, node)
       local nodedef = minetest.registered_nodes[node.name]
-      print("Lamp off", pos, node)
+      print("Lamp off", minetest.pos_to_string(pos), node.name)
       if nodedef and nodedef.yatm then
         local new_state = "off"
         if nodedef.yatm.normal_state == "off" then
