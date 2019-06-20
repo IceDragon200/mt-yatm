@@ -120,4 +120,14 @@ register_painting("yatm_papercraft:painting_8", 3, 2, {
   texture_basename = "yatm_painting_E11326",
 })
 
+register_painting("yatm_papercraft:painting_9", 3, 4, {
+  description = "Painting #9",
+  texture_basename = "yatm_painting_rabbit_hare_pet_cute_0",
+})
+
+register_painting("yatm_papercraft:painting_10", 3, 4, {
+  description = "Painting #10",
+  texture_basename = "yatm_painting_samurai_warrior_samurai_fighter",
+})
+
 yatm_papercraft.Paintings = Paintings
