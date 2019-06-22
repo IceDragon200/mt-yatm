@@ -35,9 +35,9 @@ function yatm_core.table_deep_merge(...)
   return result
 end
 
---[[
-Makes a copy of the given table
-]]
+--
+-- Makes a copy of the given table
+--
 function yatm_core.table_copy(t)
   return yatm_core.table_merge(t)
 end

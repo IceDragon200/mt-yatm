@@ -7,6 +7,11 @@ yatm_core.modpath = minetest.get_modpath(minetest.get_current_modname())
 -- This is yatm's shared namespace, use the apis from this instead of the module's name when possible
 yatm = rawget(_G, "yatm") or {}
 
+local insec = minetest.request_insecure_environment()
+if insec then
+  yatm.io = assert(insec.io, "no IO available on the insecure environment!")
+end
+
 -- Classes, yadda, yadda, OOP is evil, yeah I get it, just use OOP sparingly.
 dofile(yatm_core.modpath .. "/class.lua")
 -- Util
@@ -38,6 +43,11 @@ dofile(yatm_core.modpath .. "/formspec_handles.lua")
 
 -- API
 dofile(yatm_core.modpath .. "/api.lua")
+-- Post Load Hooks
+dofile(yatm_core.modpath .. "/post_hooks.lua")
 
 -- Tests
 dofile(yatm_core.modpath .. "/tests.lua")
+
+-- prevent io from leaking out
+yatm.io = nil
