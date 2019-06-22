@@ -1,15 +1,29 @@
 --[[
 FluidInterface
 
+@since "1.0.0"
 @callback get(self, pos, dir, node) :: FluidStack
+
+@since "1.1.0"
+@callback get_capacity(self, pos, dir, node) :: integer
+
+@since "1.0.0"
 @callback replace(self, pos, dir, node, fluid_stack :: FluidStack, commit :: boolean)
+
+@since "1.0.0"
 @callback fill(self, pos, dir, node, fluid_stack :: FluidStack, commit :: boolean)
+
+@since "1.0.0"
 @callback drain(self, pos, dir, node, fluid_stack :: FluidStack, commit :: boolean)
+
+@since "1.0.0"
 @callback on_fluid_changed(pos, dir, fluid_stack :: FluidStack)
 ]]
 local FluidMeta = assert(yatm_fluids.FluidMeta)
 
-local FluidInterface = {}
+local FluidInterface = {
+  version = "1.1.0",
+}
 
 local function default_on_fluid_changed(self, pos, dir, new_stack)
   -- Do nothing
@@ -42,6 +56,10 @@ local function default_simple_get(self, pos, dir)
   local meta = minetest.get_meta(pos)
   local stack = FluidMeta.get_fluid_stack(meta, self.tank_name)
   return stack
+end
+
+local function default_simple_get(self, _pos, _dir)
+  return self.capacity
 end
 
 function default_simple_replace(self, pos, dir, new_stack, commit)
@@ -105,6 +123,7 @@ function FluidInterface.new_simple(tank_name, capacity)
   fluid_interface.tank_name = tank_name
 
   fluid_interface.get = default_simple_get
+  fluid_interface.get_capacity = default_simple_get_capacity
   fluid_interface.replace = default_simple_replace
   fluid_interface.fill = default_simple_fill
   fluid_interface.drain = default_simple_drain
@@ -112,12 +131,21 @@ function FluidInterface.new_simple(tank_name, capacity)
   return fluid_interface
 end
 
-local function default_directional_get(self, pos, dir)
+local function default_directional_get(self, pos, dir, _node)
   local meta = minetest.get_meta(pos)
   local tank_name, _capacity = self:get_fluid_tank_name(pos, dir)
   if tank_name then
     local stack = FluidMeta.get_fluid_stack(meta, tank_name)
     return stack
+  end
+  return nil
+end
+
+local function default_directional_get_capacity(self, pos, dir, _node)
+  local meta = minetest.get_meta(pos)
+  local tank_name, capacity = self:get_fluid_tank_name(pos, dir)
+  if tank_name then
+    return capacity
   end
   return nil
 end
@@ -190,6 +218,7 @@ function FluidInterface.new_directional(get_fluid_tank_name)
   fluid_interface.on_fluid_changed = default_on_fluid_changed
 
   fluid_interface.get = default_directional_get
+  fluid_interface.get_capacity = default_directional_get_capacity
   fluid_interface.replace = default_directional_replace
   fluid_interface.fill = default_directional_fill
   fluid_interface.drain = default_directional_drain
