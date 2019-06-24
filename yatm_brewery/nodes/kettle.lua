@@ -37,18 +37,38 @@ local groups = {
   heated_device = 1,
 }
 
+local kettle_node_box = {
+  type = "fixed",
+  fixed = {
+    -- legs
+    yatm_core.Cuboid:new(2, 0, 2, 3, 2, 3):fast_node_box(),
+    yatm_core.Cuboid:new(11,0, 2, 3, 2, 3):fast_node_box(),
+    yatm_core.Cuboid:new(2, 0,11, 3, 2, 3):fast_node_box(),
+    yatm_core.Cuboid:new(11,0,11, 3, 2, 3):fast_node_box(),
+    --
+    yatm_core.Cuboid:new(1, 2, 1,14, 3,14):fast_node_box(), -- base plate
+    --
+    yatm_core.Cuboid:new(0, 4, 0,16,12, 2):fast_node_box(), -- north side
+    yatm_core.Cuboid:new(0, 4,14,16,12, 2):fast_node_box(), -- south side
+    yatm_core.Cuboid:new(0, 4, 0, 2,12,16):fast_node_box(), -- west side
+    yatm_core.Cuboid:new(14,4, 0, 2,12,16):fast_node_box(), -- east side
+  },
+}
+
 minetest.register_node("yatm_brewery:kettle_off", {
   description = "Kettle",
 
   groups = groups,
 
+  drawtype = "nodebox",
+  node_box = kettle_node_box,
   tiles = {
-    "yatm_kettle_top.off.png",
-    "yatm_kettle_bottom.off.png",
-    "yatm_kettle_side.off.png",
-    "yatm_kettle_side.off.png",
-    "yatm_kettle_side.off.png",
-    "yatm_kettle_side.off.png",
+    "yatm_kettle_top.png",
+    "yatm_kettle_bottom.png",
+    "yatm_kettle_side.png",
+    "yatm_kettle_side.png",
+    "yatm_kettle_side.png",
+    "yatm_kettle_side.png",
   },
 
   paramtype = "light",
@@ -67,13 +87,15 @@ minetest.register_node("yatm_brewery:kettle_on", {
   groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   drop = "yatm_brewery:kettle_off",
 
+  drawtype = "nodebox",
+  node_box = kettle_node_box,
   tiles = {
-    "yatm_kettle_top.on.png",
-    "yatm_kettle_bottom.on.png",
-    "yatm_kettle_side.on.png",
-    "yatm_kettle_side.on.png",
-    "yatm_kettle_side.on.png",
-    "yatm_kettle_side.on.png",
+    "yatm_kettle_top.png",
+    "yatm_kettle_bottom.png",
+    "yatm_kettle_side.png",
+    "yatm_kettle_side.png",
+    "yatm_kettle_side.png",
+    "yatm_kettle_side.png",
   },
 
   paramtype = "light",
