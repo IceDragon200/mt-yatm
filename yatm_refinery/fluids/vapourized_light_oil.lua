@@ -9,8 +9,8 @@ yatm.fluids.FluidRegistry.register("yatm_refinery", "vapourized_light_oil", {
   },
 
   tiles = {
-    source = "yatm_vapourized_light_oil_source",
-    flowing = "yatm_vapourized_light_oil_flowing",
+    source = "yatm_vapourized_light_oil_source.png",
+    flowing = "yatm_vapourized_light_oil_flowing.png",
   },
 
   fluid_tank = {
