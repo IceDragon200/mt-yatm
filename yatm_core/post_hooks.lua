@@ -12,8 +12,11 @@ minetest.register_on_mods_loaded(function ()
         [name] = {
           description = def.description,
           tiles = def.tiles,
+          special_tiles = def.special_tiles,
           drawtype = def.drawtype,
           node_box = def.node_box,
+          paramtype = def.paramtype,
+          paramtype2 = def.paramtype2,
         }
       })
     end
