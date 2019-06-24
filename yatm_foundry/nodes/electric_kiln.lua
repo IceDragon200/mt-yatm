@@ -42,10 +42,10 @@ yatm.devices.register_stateful_network_device({
 
   tiles = {
     "yatm_electric_kiln_top.off.png",
-    "yatm_electric_kiln_bottom.png",
+    "yatm_electric_kiln_bottom.off.png",
     "yatm_electric_kiln_side.off.png",
     "yatm_electric_kiln_side.off.png^[transformFX",
-    "yatm_electric_kiln_back.png",
+    "yatm_electric_kiln_back.off.png",
     "yatm_electric_kiln_front.off.png"
   },
 
@@ -57,10 +57,10 @@ yatm.devices.register_stateful_network_device({
   error = {
     tiles = {
       "yatm_electric_kiln_top.error.png",
-      "yatm_electric_kiln_bottom.png",
+      "yatm_electric_kiln_bottom.error.png",
       "yatm_electric_kiln_side.error.png",
       "yatm_electric_kiln_side.error.png^[transformFX",
-      "yatm_electric_kiln_back.png",
+      "yatm_electric_kiln_back.error.png",
       "yatm_electric_kiln_front.error.png"
     },
   },
@@ -68,10 +68,10 @@ yatm.devices.register_stateful_network_device({
   on = {
     tiles = {
       "yatm_electric_kiln_top.on.png",
-      "yatm_electric_kiln_bottom.png",
+      "yatm_electric_kiln_bottom.on.png",
       "yatm_electric_kiln_side.on.png",
       "yatm_electric_kiln_side.on.png^[transformFX",
-      "yatm_electric_kiln_back.png",
+      "yatm_electric_kiln_back.on.png",
       "yatm_electric_kiln_front.on.png"
     },
     light_source = 7,
