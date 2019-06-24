@@ -94,6 +94,7 @@ end
 
 function ic:do_register_member_groups(member)
   for group, _priority in pairs(member.groups) do
+    print("DataNetwork", "do_register_member_groups", "registering to group", member.id, group)
     self.m_members_by_group[group] = self.m_members_by_group[group] or {}
     self.m_members_by_group[group][member.id] = true
 
@@ -121,6 +122,7 @@ end
 
 -- @spec register_member(Vector3.t, Node.t) :: DataNetwork.t
 function ic:register_member(pos, node)
+  print("DataNetwork", "register_member", minetest.pos_to_string(pos), node.name)
   local member_id = minetest.hash_node_position(pos)
   local member = self.m_members[member_id]
   if member then
@@ -143,6 +145,7 @@ function ic:register_member(pos, node)
     network_id = nil,
     groups = dnd.groups or {},
     attached_color = nil,
+    port_values = {}
   }
 
   self.m_members[member_id] = member
@@ -153,6 +156,7 @@ end
 
 -- @spec update_member(Vector3.t, Node.t) :: DataNetwork.t
 function ic:update_member(pos, node)
+  print("DataNetwork", "update_member", minetest.pos_to_string(pos), node.name)
   local member_id = minetest.hash_node_position(pos)
   local member = self.m_members[member_id]
   if member then
@@ -170,6 +174,7 @@ end
 
 -- @spec unregister_member(Vector3.t, Node.t | nil) :: DataNetwork.t
 function ic:unregister_member(pos, node)
+  print("DataNetwork", "unregister_member", minetest.pos_to_string(pos))
   local member_id = minetest.hash_node_position(pos)
   local member = self.m_members[member_id]
   if member then
@@ -193,12 +198,12 @@ function ic:send_value_to_network(network_id, member_id, local_port, value)
   local network = self.m_networks[network_id]
   if network then
     local member = self.m_members[member_id]
-    member.last_value = value
     if member.attached_color then
       local port_offset = DataNetwork.COLOR_RANGE[member.attached_color]
-
       if local_port >= 1 and local_port <= port_offset.range then
-        network.ready_to_send[port_offset.offset + local_port] = member_id
+        local global_port = port_offset.offset + local_port
+        member.port_values[global_port] = value
+        network.ready_to_send[global_port] = member_id
       else
         print("ERR: ", member.node.name, "port out of range", local_port, "expected to be between 1 and " .. port_offset.range)
       end
@@ -278,6 +283,7 @@ function ic:update_network(network, dt)
       local receivers = network.ready_to_receive[port]
       local local_port = self:net_port_to_local_port(port, sender.attached_color)
       if receivers then
+        local value = sender.port_values[port]
         for member_id, _ in pairs(receivers) do
           local receiver = self.m_members[member_id]
 
@@ -289,14 +295,14 @@ function ic:update_network(network, dt)
               nodedef.data_interface.receive_pdu(receiver.pos,
                                                  receiver_node,
                                                  local_port,
-                                                 sender.last_value)
+                                                 value)
             else
               print("WARN: ", receiver_node.name, "does not have a data interface")
             end
           end
         end
       end
-      sender.last_value = nil
+      sender.port_values[port] = nil
     end
 
     network.ready_to_send = {}
@@ -440,6 +446,7 @@ function ic:refresh_from_pos(base_pos)
         groups = dnd.groups or {},
         resolution_id = self.m_resolution_id,
         network_id = network_id,
+        port_values = {},
       }
 
       network.members[member_id] = true
@@ -529,7 +536,7 @@ do
   minetest.register_lbm({
     name = "yatm_data_network:data_network_reload_lbm",
     nodenames = {
-      "group:data_network_device",
+      "group:yatm_data_device",
       "group:data_cable",
       "group:data_cable_bus",
     },
