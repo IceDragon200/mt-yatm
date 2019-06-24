@@ -58,7 +58,7 @@ local function default_simple_get(self, pos, dir)
   return stack
 end
 
-local function default_simple_get(self, _pos, _dir)
+local function default_simple_get_capacity(self, _pos, _dir)
   return self.capacity
 end
 

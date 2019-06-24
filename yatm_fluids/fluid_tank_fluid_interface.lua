@@ -1,3 +1,6 @@
+--
+-- FluidInterface implementation used for fluid tanks
+--
 local FluidStack = assert(yatm_fluids.FluidStack)
 local FluidInterface = assert(yatm_fluids.FluidInterface)
 local FluidTanks = assert(yatm_fluids.FluidTanks)
