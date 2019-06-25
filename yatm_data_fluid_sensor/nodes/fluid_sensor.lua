@@ -125,10 +125,10 @@ local fluid_sensor_node_box = {
   fixed          = yatm_core.Cuboid:new(3, 3, 3,10,10,10):fast_node_box(),
   connect_top    = yatm_core.Cuboid:new(2,13, 2,12, 3,12):fast_node_box(), -- y+
   connect_bottom = yatm_core.Cuboid:new(2, 0, 2,12, 3,12):fast_node_box(), -- y-
-  connect_front  = yatm_core.Cuboid:new(3, 0, 0,10,13, 3):fast_node_box(), -- z-
-  connect_back   = yatm_core.Cuboid:new(3, 0,13,10,13, 3):fast_node_box(), -- z+
-  connect_left   = yatm_core.Cuboid:new(0, 0, 3, 3,13,10):fast_node_box(), -- x-
-  connect_right  = yatm_core.Cuboid:new(13,0, 3, 3,13,10):fast_node_box(), -- x+
+  connect_front  = yatm_core.Cuboid:new(4, 0, 0, 8,13, 3):fast_node_box(), -- z-
+  connect_back   = yatm_core.Cuboid:new(4, 0,13, 8,13, 3):fast_node_box(), -- z+
+  connect_left   = yatm_core.Cuboid:new(0, 0, 4, 3,13, 8):fast_node_box(), -- x-
+  connect_right  = yatm_core.Cuboid:new(13,0, 4, 3,13, 8):fast_node_box(), -- x+
 }
 
 local connects_to = {
