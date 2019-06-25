@@ -3,6 +3,10 @@ for variant, variant_texture_name in pairs({
   ["red_black_stripes"] = "rb.stripes",
   ["white_black_stripes"] = "wb.stripes",
   ["yellow_black_stripes"] = "yb.stripes",
+  ["orange_black_stripes"] = "ob.stripes",
+  ["blue_black_stripes"] = "bb.stripes",
+  ["green_black_stripes"] = "gb.stripes",
+  ["purple_black_stripes"] = "pb.stripes",
 }) do
   local panel_yatm_network = {
     kind = "machine",
