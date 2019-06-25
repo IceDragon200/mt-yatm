@@ -10,8 +10,8 @@ yatm.fluids.FluidRegistry.register("yatm_fluids", "petroleum_gas", {
   },
 
   tiles = {
-    source = "yatm_petroleum_gas_source",
-    flowing = "yatm_petroleum_gas_flowing",
+    source = "yatm_petroleum_gas_source.png",
+    flowing = "yatm_petroleum_gas_flowing.png",
   },
 
   fluid_tank = {
