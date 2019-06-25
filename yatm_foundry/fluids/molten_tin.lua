@@ -8,8 +8,8 @@ yatm.fluids.FluidRegistry.register("yatm_foundry", "molten_tin", {
   },
 
   tiles = {
-    source = "yatm_molten_tin_source",
-    flowing = "yatm_molten_tin_flowing",
+    source = "yatm_molten_tin_source.png",
+    flowing = "yatm_molten_tin_flowing.png",
   },
 
   fluid_tank = {
