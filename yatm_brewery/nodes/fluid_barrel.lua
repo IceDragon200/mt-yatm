@@ -1,3 +1,7 @@
+--
+-- FluidBarrels as their name states contain fluids.
+-- Unlike the brewing barrel used to age booze.
+--
 local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
 
@@ -12,7 +16,7 @@ local barrel_nodebox = {
   }
 }
 
-local BARREL_CAPACITY = 36000 -- 4 buckets
+local BARREL_CAPACITY = 36000 -- 36 buckets
 local BARREL_DRAIN_BANDWIDTH = BARREL_CAPACITY
 
 local function barrel_on_construct(pos)
@@ -55,7 +59,7 @@ for _,pair in ipairs(colors) do
 
   minetest.register_node("yatm_brewery:fluid_barrel_wood_" .. color_basename, {
     description = "Fluid Barrel (Wood / " .. color_name .. ")",
-    groups = {fluid_barrel = 1, cracky = 2, fluid_interface_in = 1, fluid_interface_out = 1},
+    groups = { fluid_barrel = 1, wood_fluid_barrel = 1, cracky = 2, fluid_interface_in = 1, fluid_interface_out = 1 },
     sounds = default.node_sound_wood_defaults(),
     tiles = {
       "yatm_barrel_wood_fluid_" .. color_basename .. "_top.png",
@@ -83,7 +87,7 @@ for _,pair in ipairs(colors) do
 
   minetest.register_node("yatm_brewery:fluid_barrel_metal_" .. color_basename, {
     description = "Fluid Barrel (Metal / " .. color_name .. ")",
-    groups = {fluid_barrel = 1, cracky = 1, fluid_interface_in = 1, fluid_interface_out = 1},
+    groups = { fluid_barrel = 1, metal_fluid_barrel = 1, cracky = 1, fluid_interface_in = 1, fluid_interface_out = 1 },
     sounds = default.node_sound_metal_defaults(),
     tiles = {
       "yatm_barrel_metal_fluid_" .. color_basename .. "_top.png",
