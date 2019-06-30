@@ -114,6 +114,21 @@ case:describe("table_intersperse/2", function (t2)
   end)
 end)
 
+case:describe("table_bury/3", function (t2)
+  t2:test("deeply place value into map", function (t3)
+    local t = {}
+
+    -- a single key
+    m.table_bury(t, {"a"}, 1)
+
+    t3:assert_eq(t["a"], 1)
+
+    m.table_bury(t, {"b", "c"}, 2)
+    t3:assert(t["b"])
+    t3:assert_eq(t["b"]["c"], 2)
+  end)
+end)
+
 case:describe("list_concat/*", function (t2)
   t2:test("can concatentate multiple list-like tables together", function (t3)
     local a = {"abc", "def"}

@@ -7,10 +7,20 @@ function yatm_core.table_key_of(t, expected_value)
   return nil
 end
 
---[[
-Used to merge multiple map-like tables together, if you need to merge lists
-use `list_concat/*` instead
-]]
+--
+-- Create-And-Push
+function yatm_core.table_cpush(t, key, value)
+  if not t[key] then
+    t[key] = {}
+  end
+  table.insert(t[key], value)
+  return t
+end
+
+--
+-- Used to merge multiple map-like tables together, if you need to merge lists
+-- use `list_concat/*` instead
+--
 function yatm_core.table_merge(...)
   local result = {}
   for _,t in ipairs({...}) do
@@ -44,6 +54,21 @@ end
 
 function yatm_core.table_put(t, k, v)
   t[k] = v
+  return t
+end
+
+-- Puts a value nested into a table
+--
+-- @spec table_bury(table, keys :: [string | integer], value :: term)
+function yatm_core.table_bury(t, keys, value)
+  local top = t
+  for i in 1,(#keys - 1) do
+    if not top[keys[i]] then
+      top[keys[i]] = {}
+    end
+    top = top[keys[i]]
+  end
+  top[keys[#keys]] = value
   return t
 end
 
