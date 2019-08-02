@@ -62,7 +62,7 @@ end
 -- @spec table_bury(table, keys :: [string | integer], value :: term)
 function yatm_core.table_bury(t, keys, value)
   local top = t
-  for i in 1,(#keys - 1) do
+  for i = 1,(#keys - 1) do
     if not top[keys[i]] then
       top[keys[i]] = {}
     end
