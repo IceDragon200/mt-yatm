@@ -1,12 +1,15 @@
 local ItemInterface = assert(yatm.items.ItemInterface)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
 local HeatInterface = assert(yatm.heating.HeatInterface)
+local brewing_registry = assert(yatm.brew.brewing_registry)
+local FluidMeta = assert(yatm.fluids.FluidMeta)
+local FluidExchange = assert(yatm.fluids.FluidExchange)
 
 local tank_capacity = 4000
 local fluid_interface = FluidInterface.new_directional(function (self, pos, dir)
   local node = minetest.get_node(pos)
   local new_dir = yatm_core.facedir_to_face(node.param2, dir)
-  if new_dir == yatm_core.D_DOWN then
+  if new_dir == yatm_core.D_DOWN or new_dir == yatm_core.D_UP then
     return "input_fluid_tank", tank_capacity
   else
     return "output_fluid_tank", tank_capacity
@@ -14,11 +17,111 @@ local fluid_interface = FluidInterface.new_directional(function (self, pos, dir)
 end)
 
 local item_interface = ItemInterface.new_directional(function (self, pos, dir)
+  local node = minetest.get_node(pos)
+  local new_dir = yatm_core.facedir_to_face(node.param2, dir)
+  if new_dir == yatm_core.D_DOWN or new_dir == yatm_core.D_UP then
+    return "input_item"
+  else
+    return "output_item"
+  end
 end)
 
 local heat_interface = HeatInterface.new_simple("heat", 400)
 
+function heat_interface:on_heat_changed(pos, node, old_heat, new_heat)
+  if math.floor(new_heat) > 0 then
+    minetest.swap_node(pos, {name = "yatm_brewery:kettle_on"})
+  else
+    minetest.swap_node(pos, {name = "yatm_brewery:kettle_off"})
+  end
+  yatm_core.queue_refresh_infotext(pos)
+  minetest.get_node_timer(pos):start(1.0)
+end
+
 local function kettle_on_construct(pos)
+  local meta = minetest.get_meta(pos)
+
+  local inv = meta:get_inventory()
+
+  inv:set_size("input_item", 1)
+  inv:set_size("output_item", 1)
+  inv:set_size("processing_item", 1)
+end
+
+local function kettle_on_timer(pos, dt)
+  local meta = minetest.get_meta(pos)
+  local available_heat = meta:get_float("heat")
+  if available_heat > 0 then
+    local meta = minetest.get_meta(pos)
+    local inv = meta:get_inventory()
+    --local node = minetest.get_node(pos)
+
+    local remaining_time = meta:get_float("remaining_time")
+    if remaining_time > 0 then
+      remaining_time = math.max(remaining_time - dt, 0)
+
+      if remaining_time < 0 then
+        local stack = inv:get_stack("processing_item", 1)
+        local fluid_stack = FluidMeta.get_fluid_stack(meta, "processing_fluid_tank")
+
+        local input = {
+          item = stack,
+          fluid = fluid_stack
+        }
+
+        local recipe = brewing_registry:get_brewing_recipe(input)
+        if recipe then
+        else
+          -- refund
+          inv:add_item("input_item", stack)
+          inv:remove_item("processing_item", stack)
+          local transferred_fluid_stack =
+            FluidExchange.transfer_from_meta_to_meta(
+              meta,
+              {
+                tank_name = "processing_fluid_tank",
+                capacity = tank_capacity,
+                bandwidth = tank_capacity
+              },
+              fluid_stack,
+              meta,
+              {
+                tank_name = "input_fluid_tank",
+                capacity = tank_capacity,
+                bandwidth = tank_capacity
+              },
+              true
+            )
+
+          if transferred_fluid_stack.amount == fluid_stack.amount then
+            -- TODO: exit refund state
+          else
+            -- TODO: keep refund state
+          end
+        end
+      end
+    end
+
+    if remaining_time <= 0 then
+      local stack = inv:get_stack("input_item", 1)
+
+      if not stack:is_empty() then
+        local fluid_stack = FluidMeta.get_fluid_stack(meta, "input_fluid_tank")
+        local input = {
+          item = stack,
+          fluid = fluid_stack
+        }
+
+        local recipe = brewing_registry:get_brewing_recipe(input)
+        if recipe then
+          meta:set_float("remaining_time", recipe.duration)
+        end
+      end
+    end
+    return true
+  else
+    return false
+  end
 end
 
 local groups = {
@@ -75,6 +178,7 @@ minetest.register_node("yatm_brewery:kettle_off", {
   paramtype2 = "facedir",
 
   on_construct = kettle_on_construct,
+  on_timer = kettle_on_timer,
 
   fluid_interface = fluid_interface,
   item_interface = item_interface,
@@ -102,6 +206,7 @@ minetest.register_node("yatm_brewery:kettle_on", {
   paramtype2 = "facedir",
 
   on_construct = kettle_on_construct,
+  on_timer = kettle_on_timer,
 
   fluid_interface = fluid_interface,
   item_interface = item_interface,

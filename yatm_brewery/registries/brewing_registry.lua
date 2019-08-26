@@ -71,7 +71,7 @@ end
 
 -- @spec get_brewing_recipe(input) :: recipe_def | nil
 function ic:get_brewing_recipe(input)
-  if input.fluid and input.item then
+  if input.fluid and input.fluid.amount > 0 and input.item and not input.item:is_empty() then
     if input.fluid.name then
       local item_name_to_recipe_id = self.m_recipes_index[input.fluid.name]
       if item_name_to_recipe_id then

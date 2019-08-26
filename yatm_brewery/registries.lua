@@ -1,2 +1,2 @@
-dofile(yatm_brewery.modpath .. "/nodes/aging_registry.lua")
-dofile(yatm_brewery.modpath .. "/nodes/brewing_registry.lua")
+dofile(yatm_brewery.modpath .. "/registries/aging_registry.lua")
+dofile(yatm_brewery.modpath .. "/registries/brewing_registry.lua")

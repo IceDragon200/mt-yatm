@@ -1,3 +1,4 @@
+local ItemInterface = assert(yatm.items.ItemInterface)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
 
@@ -14,7 +15,7 @@ local barrel_nodebox = {
 
 local function barrel_on_timer(pos, dt)
   -- loop
-  get_node_timer(pos).start(1.0)
+  minetest.get_node_timer(pos):start(1.0)
 end
 
 local function barrel_on_construct(pos)
@@ -62,15 +63,15 @@ local barrel_item_interface = ItemInterface.new_simple("culture_slot")
 
 
 local function on_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
-  get_node_timer(pos).start(1.0)
+  minetest.get_node_timer(pos):start(1.0)
 end
 
 local function on_metadata_inventory_put(pos, listname, index, stack, player)
-  get_node_timer(pos).start(1.0)
+  minetest.get_node_timer(pos):start(1.0)
 end
 
 local function on_metadata_inventory_take(pos, listname, index, stack, player)
-  get_node_timer(pos).start(1.0)
+  minetest.get_node_timer(pos):start(1.0)
 end
 
 
