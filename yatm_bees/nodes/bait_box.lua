@@ -1,3 +1,8 @@
+--[[
+
+  A bait box attracts bees, if you're lucky you'll get a queen!
+
+]]
 local ItemInterface = assert(yatm.items.ItemInterface)
 
 local item_interface = ItemInterface.new_directional(function (self, pos, dir)

@@ -1,5 +1,7 @@
 --[[
-AKA. fake honey, can't be eaten, but can be used as a substitute for some recipes.
+
+  AKA. fake honey, can't be eaten, but can be used as a substitute for some recipes.
+
 ]]
 yatm.fluids.FluidRegistry.register("yatm_bees", "synthetic_honey", {
   description = "Synthetic Honey",

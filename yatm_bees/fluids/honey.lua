@@ -1,5 +1,7 @@
 --[[
-The real McCoy.
+
+  The real McCoy.
+
 ]]
 yatm.fluids.FluidRegistry.register("yatm_bees", "honey", {
   description = "Honey",

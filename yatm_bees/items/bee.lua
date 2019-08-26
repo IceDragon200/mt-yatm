@@ -1,15 +1,29 @@
 --[[
-Bees, there are 5 bee variants currently and within those variants are 2 different 'colors',
-or subkinds.
 
-This is completely fictional so don't even bother saying "HEY, THAT'S NOT HOW BEES WORK", I know.
+  Bees, there are 5 bee variants currently and within those variants are 2 different 'colors',
+  or subkinds.
 
-But let me tell you how I intend to make it work, as stated before there are 5 variants,
-2 gold variants, 2 silver variants and a worker.
+  This is completely fictional so don't even bother saying "HEY, THAT'S NOT HOW BEES WORK", I know.
 
-'Default' bees produce normal honey and combs in their apiary.
-'Tech' bees produce synthetic honey (you can't eat it) and combs,
-while the honey can't be eaten, it does substitute for making medicine.
+  There are 5 variants:
+
+    * 2 gold (Queen and Princess)
+    * 2 silver (Queen and Princess)
+    * 1 worker
+
+  'Default' bees produce normal honey and combs in the apiary.
+  'Tech' bees produce synthetic honey and combs, in the apiary.
+
+    Synthetic honey can be used as a substitute for some recipes, but cannot be eaten.
+
+  Queens produce eggs, which hatch into workers, overtime workers can become princesses.
+
+  Princesses that appear will be of the same rank as the Queen at that time (Silver or Gold).
+
+  Gold bees produce more honey than silver.
+
+  Silver however produces more workers.
+
 ]]
 local colors = {
   {"default", "Default"},
@@ -27,9 +41,11 @@ local variants = {
 for _,variant_pair in ipairs(variants) do
   local variant_basename = variant_pair[1]
   local variant_name = variant_pair[2]
+
   for _,color_pair in ipairs(colors) do
     local color_basename = color_pair[1]
     local color_name = color_pair[2]
+
     minetest.register_craftitem("yatm_bees:bee_" .. variant_basename .. "_" .. color_basename, {
       description = variant_name .. " Bee (" .. color_name .. ")",
 

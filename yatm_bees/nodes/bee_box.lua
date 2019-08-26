@@ -1,5 +1,7 @@
 --[[
-Bee Box, keeps all your bees in one easy to access place.
+
+  Bee Box, keeps all your bees in one easy to access place.
+
 ]]
 local ItemInterface = assert(yatm.items.ItemInterface)
 
