@@ -1,6 +1,8 @@
 --[[
-The painting brush item is used to change a painting canvas group,
-it will trigger a refresh of the nodes to change the painting.
+
+  The painting brush item is used to change a painting canvas group,
+  it will trigger a refresh of the nodes to change the painting.
+
 ]]
 local Paintings = assert(yatm_papercraft.Paintings)
 local Groups = assert(yatm_core.groups)
