@@ -1,3 +1,21 @@
+local Energy = assert(yatm.energy)
+local Network = assert(yatm.network)
+
+local function get_electric_kiln_formspec(pos)
+  local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+  local formspec =
+    "size[8,9]" ..
+    --"list[nodemeta:" .. spos .. ";input_slot;0,0.3;1,1;]" ..
+    --"list[nodemeta:" .. spos .. ";processing_slot;2,0.3;1,1;]" ..
+    "list[current_player;main;0,4.85;8,1;]" ..
+    "list[current_player;main;0,6.08;8,3;8]" ..
+    --"listring[nodemeta:" .. spos .. ";input_slot]" ..
+    "listring[current_player;main]" ..
+    default.get_hotbar_bg(0,4.85)
+
+  return formspec
+end
+
 local electric_kiln_yatm_network = {
   kind = "machine",
   groups = {
@@ -24,6 +42,16 @@ local electric_kiln_yatm_network = {
 
 function electric_kiln_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
   return 0
+end
+
+function electric_kiln_refresh_infotext(pos)
+  local meta = minetest.get_meta(pos)
+
+  local infotext =
+    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
+
+  meta:set_string("infotext", infotext)
 end
 
 local groups = {
@@ -53,6 +81,24 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
 
   yatm_network = electric_kiln_yatm_network,
+
+  refresh_infotext = electric_kiln_refresh_infotext,
+
+  on_construct = function (pos)
+    yatm.devices.device_on_construct(pos)
+    local meta = minetest.get_meta(pos)
+    local inv = meta:get_inventory()
+    --inv:set_size("input_slot", 1)
+    --inv:set_size("processing_slot", 1)
+  end,
+
+  on_rightclick = function (pos, node, clicker)
+    minetest.show_formspec(
+      clicker:get_player_name(),
+      "yatm_foundry:electric_kiln",
+      get_electric_kiln_formspec(pos)
+    )
+  end,
 }, {
   error = {
     tiles = {

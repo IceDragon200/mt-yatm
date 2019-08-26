@@ -1,3 +1,6 @@
+local Energy = assert(yatm.energy)
+local Network = assert(yatm.network)
+
 local electric_furnace_yatm_network = {
   kind = "machine",
   groups = {
@@ -53,6 +56,22 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
 
   yatm_network = electric_furnace_yatm_network,
+
+  on_construct = function (pos)
+    yatm.devices.device_on_construct(pos)
+    local meta = minetest.get_meta(pos)
+    local inv = meta:get_inventory()
+    --inv:set_size("input_slot", 1)
+    --inv:set_size("processing_slot", 1)
+  end,
+
+  on_rightclick = function (pos, node, clicker)
+    minetest.show_formspec(
+      clicker:get_player_name(),
+      "yatm_foundry:electric_furnace",
+      get_electric_smelter_formspec(pos)
+    )
+  end,
 }, {
   error = {
     tiles = {

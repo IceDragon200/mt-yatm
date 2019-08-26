@@ -1,7 +1,24 @@
+local HeatInterface = assert(yatm.heating.HeatInterface)
+
+local heat_interface = HeatInterface.new_simple("heat", 1200)
+function heat_interface:on_heat_changed(pos, node, old_heat, new_heat)
+  if math.floor(new_heat) > 0 then
+    node.name = "yatm_foundry:mini_blast_furnace_on"
+    minetest.swap_node(pos, node)
+  else
+    node.name = "yatm_foundry:mini_blast_furnace_off"
+    minetest.swap_node(pos, node)
+  end
+  yatm_core.queue_refresh_infotext(pos)
+  minetest.get_node_timer(pos):start(1.0)
+end
+
 local groups = {
   cracky = 1,
   item_interface_in = 1,
   item_interface_out = 1,
+  heated_device = 1,
+  heat_interface_in = 1,
 }
 
 minetest.register_node("yatm_foundry:mini_blast_furnace_off", {
@@ -19,6 +36,7 @@ minetest.register_node("yatm_foundry:mini_blast_furnace_off", {
   paramtype2 = "facedir",
 
   sounds = default.node_sound_stone_defaults(),
+  heat_interface = heat_interface,
 })
 
 minetest.register_node("yatm_foundry:mini_blast_furnace_on", {
@@ -36,4 +54,5 @@ minetest.register_node("yatm_foundry:mini_blast_furnace_on", {
   paramtype2 = "facedir",
 
   sounds = default.node_sound_stone_defaults(),
+  heat_interface = heat_interface,
 })

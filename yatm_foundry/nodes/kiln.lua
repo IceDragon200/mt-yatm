@@ -3,9 +3,11 @@ local HeatInterface = assert(yatm.heating.HeatInterface)
 local heat_interface = HeatInterface.new_simple("heat", 400)
 function heat_interface:on_heat_changed(pos, node, old_heat, new_heat)
   if math.floor(new_heat) > 0 then
-    minetest.swap_node(pos, {name = "yatm_foundry:kiln_on"})
+    node.name = "yatm_foundry:kiln_on"
+    minetest.swap_node(pos, node)
   else
-    minetest.swap_node(pos, {name = "yatm_foundry:kiln_off"})
+    node.name = "yatm_foundry:kiln_off"
+    minetest.swap_node(pos, node)
   end
   yatm_core.queue_refresh_infotext(pos)
 end
