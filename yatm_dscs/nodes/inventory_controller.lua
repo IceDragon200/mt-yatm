@@ -1,8 +1,6 @@
---[[
-Compute Modules are no-op blocks that act as a bonus modifier to assemblers on the network.
-
-Each compute module will speed up the auto-crafting process.
-]]
+--
+-- Inventory Controller
+--
 local inventory_controller_yatm_network = {
   kind = "machine",
   groups = {

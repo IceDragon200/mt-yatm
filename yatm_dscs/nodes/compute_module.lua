@@ -1,7 +1,9 @@
 --[[
-Compute Modules are no-op blocks that act as a bonus modifier to assemblers on the network.
 
-Each compute module will speed up the auto-crafting process.
+  Compute Modules are no-op blocks that act as a bonus modifier to assemblers on the network.
+
+  Each compute module will speed up the auto-crafting process.
+
 ]]
 local compute_module_yatm_network = {
   kind = "machine",
