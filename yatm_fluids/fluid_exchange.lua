@@ -65,4 +65,33 @@ function FluidExchange.transfer_from_tank_to_meta(tank_pos, tank_face, fluid_sta
   return nil
 end
 
+--
+--
+-- @spec transfer_from_meta_to_meta(MetaRef, meta_config, fluid_stack, MetaRef, meta_config, boolean) :: FluidStack
+function FluidExchange.transfer_from_meta_to_meta(from_meta, from_meta_config, fluid_stack, to_meta, to_meta_config, commit)
+  local sdrained_fluid = FluidMeta.drain_fluid(from_meta,
+                                               from_meta_config.tank_name,
+                                               fluid_stack,
+                                               from_meta_config.bandwidth,
+                                               from_meta_config.capacity,
+                                               false)
+  if sdrained_fluid and sdrained_fluid.amount > 0 then
+    local used_fluid = FluidMeta.fill_fluid(to_meta,
+                                            to_meta_config.tank_name,
+                                            sdrained_fluid,
+                                            to_meta_config.bandwidth,
+                                            to_meta_config.capacity,
+                                            commit)
+    if used_fluid and used_fluid.amount > 0 then
+      local drained_fluid = FluidMeta.drain_fluid(from_meta,
+                                                  from_meta_config.tank_name,
+                                                  fluid_stack,
+                                                  from_meta_config.bandwidth,
+                                                  from_meta_config.capacity,
+                                                  commit)
+      return drained_fluid
+    end
+  end
+end
+
 yatm_fluids.FluidExchange = FluidExchange

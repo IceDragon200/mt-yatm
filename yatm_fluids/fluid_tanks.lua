@@ -1,6 +1,6 @@
---[[
-Utility module for interacting with fluid tanks in the world.
-]]
+--
+-- Utility module for interacting with fluid tanks in the world.
+--
 local FluidStack = assert(yatm_fluids.FluidStack)
 
 local FluidTanks = {
