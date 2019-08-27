@@ -20,10 +20,14 @@ function Class.instance_class:method(name)
   end
 end
 
-function Class:extends()
+function Class:extends(name)
   local klass = {
+    _super = self,
+    name = name,
     instance_class = {},
   }
+  klass.instance_class._super = klass._super.instance_class
+  klass.instance_class._class = klass
   setmetatable(klass, { __index = self })
   setmetatable(klass.instance_class, { __index = self.instance_class })
   return klass
