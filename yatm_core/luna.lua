@@ -3,12 +3,18 @@ Luna is a test framework to replace knife.test, this has been extracted from my 
 
 You are free to copy and use this module/class
 ]]
+local DefaultReporter = {}
+function DefaultReporter:report(...)
+  print(...)
+end
+
 local Luna = yatm_core.Class:extends()
 
 local c = Luna.instance_class
 
 function c:initialize(name)
   self.name = name
+  self.reporter = DefaultReporter
   self.stats = {
     time_elapsed = 0.0,
     assertions_passed = 0,
@@ -20,6 +26,8 @@ function c:initialize(name)
   self.children = {}
   self.setup_callbacks = {}
   self.setup_all_callbacks = {}
+  self.finalize_callbacks = {}
+  self.finalize_all_callbacks = {}
 end
 
 function c:setup(callback)
@@ -30,8 +38,17 @@ function c:setup_all(callback)
   table.insert(self.setup_all_callbacks, callback)
 end
 
+function c:finalize(callback)
+  table.insert(self.finalize_callbacks, callback)
+end
+
+function c:finalize_all(callback)
+  table.insert(self.finalize_all_callbacks, callback)
+end
+
 function c:describe(name, func)
-  local luna = Luna:new(name)
+  local luna = self._class:new(name)
+  luna.reporter = self.reporter
   table.insert(self.tests, {"describe", name, luna})
   table.insert(self.children, luna)
   func(luna)
@@ -103,10 +120,10 @@ function c:execute(depth, prefix, tags)
       local prefix2 = prefix .. "  " .. test[2]
       test[3]:execute(depth + 1, prefix2, test_tags)
     elseif test[1] == "xtest" then
-      print("* D " .. prefix, test[2], "DISABLED")
+      self.reporter:report("* D " .. prefix, test[2], "DISABLED")
     elseif test[1] == "test" then
       local test_func = test[3]
-      --print("* " .. prefix, test[2])
+      --self.reporter:report("* " .. prefix, test[2])
       local x_us = minetest.get_us_time()
       local success, err = xpcall(test_func, debug.traceback, self, test_tags)
       local y_us = minetest.get_us_time()
@@ -114,13 +131,19 @@ function c:execute(depth, prefix, tags)
       local diff = diff_us / 1000000.0
       local elapsed = yatm_core.format_pretty_unit(diff, "s")
       if success then
-        print("* O " .. prefix, test[2], "OK", elapsed)
+        self.reporter:report("* O " .. prefix, test[2], "OK", elapsed)
         self.stats.tests_passed = self.stats.tests_passed + 1
       else
-        print("* X " .. prefix, test[2], "ERROR", elapsed, "\n\t" .. err)
+        self.reporter:report("* X " .. prefix, test[2], "ERROR", elapsed, "\n\t" .. err)
         self.stats.tests_failed = self.stats.tests_failed + 1
       end
     end
+    for _,callback in ipairs(self.finalize_callbacks) do
+      callback(test_tags)
+    end
+  end
+  for _,callback in ipairs(self.finalize_all_callbacks) do
+    callback(tags)
   end
   return self
 end
@@ -148,10 +171,10 @@ function c:display_stats()
   local stats = self:bake_stats()
   local total_tests = stats.tests_passed + stats.tests_failed
   local total_assertions = stats.assertions_passed + stats.assertions_failed
-  print("\n")
-  print(stats.tests_passed .. " passed", stats.tests_failed .. " failed", total_tests .. " total")
-  print(stats.assertions_passed .. " assertions passed", stats.assertions_failed .. " assertions failed", total_assertions .. " total assertions")
-  print("\n")
+  self.reporter:report("\n")
+  self.reporter:report(stats.tests_passed .. " passed", stats.tests_failed .. " failed", total_tests .. " total")
+  self.reporter:report(stats.assertions_passed .. " assertions passed", stats.assertions_failed .. " assertions failed", total_assertions .. " total assertions")
+  self.reporter:report("\n")
   return self
 end
 
