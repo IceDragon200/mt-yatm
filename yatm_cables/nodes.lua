@@ -180,7 +180,7 @@ yatm_cables.register_cable({
 -- Glass cables are data cables, they do not carry power
 local glass_sounds = default.node_sound_glass_defaults()
 yatm_cables.register_cable({
-  name = "yatm_cables:pipe_glass",
+  name = "yatm_cables:pipe_glass", -- TODO: rename to glass_cable
   description = "Glass Cable",
   texture_basename = "yatm_pipe.glass",
   states = false,
