@@ -33,9 +33,14 @@ function Class:extends(name)
   return klass
 end
 
-function Class:new(...)
+function Class:alloc()
   local instance = {}
   setmetatable(instance, { __index = self.instance_class })
+  return instance
+end
+
+function Class:new(...)
+  local instance = self:alloc()
   if instance.initialize then
     instance:initialize(...)
   end
