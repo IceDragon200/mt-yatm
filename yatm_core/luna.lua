@@ -1,7 +1,9 @@
 --[[
-Luna is a test framework to replace knife.test, this has been extracted from my own personal project for use in minetest.
 
-You are free to copy and use this module/class
+  Luna is a test framework to replace knife.test, this has been extracted from my own personal project for use in minetest.
+
+  You are free to copy and use this module/class
+
 ]]
 local DefaultReporter = {}
 function DefaultReporter:report(...)

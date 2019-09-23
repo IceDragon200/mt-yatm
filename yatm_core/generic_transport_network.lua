@@ -1,9 +1,11 @@
 --[[
-Generic Transport Network
 
-GTN is an implementation of the IETV (Inserter, Extractor, Transporter, Valve) pattern in YATM.
+  Generic Transport Network
 
-Currently it's only used for Items and Fluids, but could be used for other resources.
+  GTN is an implementation of the IETV (Inserter, Extractor, Transporter, Valve) pattern in YATM.
+
+  Currently it's only used for Items and Fluids, but could be used for other resources.
+
 ]]
 local GenericTransportNetwork = yatm_core.Class:extends()
 local m = assert(GenericTransportNetwork.instance_class)

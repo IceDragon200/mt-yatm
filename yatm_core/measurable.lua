@@ -1,6 +1,8 @@
 --[[
-A general registry for all things measurable, that includes fluids,
-gases and whatever else I feel like throwing in here.
+
+  A general registry for all things measurable, that includes fluids,
+  gases and whatever else I feel like throwing in here.
+
 ]]
 
 local m = {

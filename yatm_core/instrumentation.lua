@@ -1,5 +1,7 @@
 --[[
-A limited implementation of OpenTrace for instrumenting parts of YATM's code
+
+  A limited implementation of OpenTrace for instrumenting parts of YATM's code
+
 ]]
 yatm_core.trace = {}
 

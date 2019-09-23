@@ -1,5 +1,7 @@
 --[[
-The public API exposed by the yatm_core
+
+  The public API exposed by the yatm_core
+
 ]]
 
 yatm.network = assert(yatm_core.Network)
