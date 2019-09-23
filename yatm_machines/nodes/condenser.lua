@@ -1,12 +1,18 @@
 --[[
-Condensers turn gases into liquids, primarily steam back into water.
+
+  Condensers turn gases into liquids, primarily steam back into water.
+
 ]]
+local YATM_NetworkMeta = assert(yatm.network)
+local Energy = assert(yatm.energy)
+
 local condenser_yatm_network = {
   kind = "machine",
   groups = {
     machine = 1,
     has_update = 1, -- the device should be updated every network step
   },
+  default_state = "off",
   states = {
     conflict = "yatm_machines:condenser_error",
     error = "yatm_machines:condenser_error",
@@ -14,6 +20,16 @@ local condenser_yatm_network = {
     on = "yatm_machines:condenser_on",
   }
 }
+
+function condenser_refresh_infotext(pos)
+  local meta = minetest.get_meta(pos)
+
+  local infotext =
+    "Network ID: " .. YATM_NetworkMeta.to_infotext(meta) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
+
+  meta:set_string("infotext", infotext)
+end
 
 local capacity = 16000
 local function get_fluid_tank_name(_self, pos, dir)
@@ -44,7 +60,7 @@ local groups = {
   yatm_energy_device = 1,
 }
 
-yatm.devices.register_network_device(condenser_yatm_network.states.off, {
+yatm.devices.register_stateful_network_device({
   description = "Condenser",
   groups = groups,
   drop = condenser_yatm_network.states.off,
@@ -58,58 +74,47 @@ yatm.devices.register_network_device(condenser_yatm_network.states.off, {
   },
   paramtype = "light",
   paramtype2 = "facedir",
-  yatm_network = condenser_yatm_network,
-  fluid_interface = fluid_interface,
-})
 
-yatm.devices.register_network_device(condenser_yatm_network.states.error, {
-  description = "Condenser",
-  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-  drop = condenser_yatm_network.states.off,
-  tiles = {
-    "yatm_condenser_top.error.png",
-    "yatm_condenser_bottom.error.png",
-    "yatm_condenser_side.error.png",
-    "yatm_condenser_side.error.png^[transformFX",
-    "yatm_condenser_back.error.png",
-    "yatm_condenser_front.error.png"
-  },
-  paramtype = "light",
-  paramtype2 = "facedir",
   yatm_network = condenser_yatm_network,
-  fluid_interface = fluid_interface,
-})
 
-yatm.devices.register_network_device(condenser_yatm_network.states.on, {
-  description = "Condenser",
-  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-  drop = condenser_yatm_network.states.off,
-  tiles = {
-    {
-      name = "yatm_condenser_top.on.png",
-      animation = {
-        type = "vertical_frames",
-        aspect_w = 16,
-        aspect_h = 16,
-        length = 0.4
-      },
-    },
-    "yatm_condenser_bottom.on.png",
-    "yatm_condenser_side.on.png",
-    "yatm_condenser_side.on.png^[transformFX",
-    {
-      name = "yatm_condenser_back.on.png",
-      animation = {
-        type = "vertical_frames",
-        aspect_w = 16,
-        aspect_h = 16,
-        length = 0.4
-      },
-    },
-    "yatm_condenser_front.on.png"
-  },
-  paramtype = "light",
-  paramtype2 = "facedir",
-  yatm_network = condenser_yatm_network,
   fluid_interface = fluid_interface,
+
+  refresh_infotext = condenser_refresh_infotext,
+}, {
+  error = {
+    tiles = {
+      "yatm_condenser_top.error.png",
+      "yatm_condenser_bottom.error.png",
+      "yatm_condenser_side.error.png",
+      "yatm_condenser_side.error.png^[transformFX",
+      "yatm_condenser_back.error.png",
+      "yatm_condenser_front.error.png"
+    },
+  },
+  on = {
+    tiles = {
+      {
+        name = "yatm_condenser_top.on.png",
+        animation = {
+          type = "vertical_frames",
+          aspect_w = 16,
+          aspect_h = 16,
+          length = 0.4
+        },
+      },
+      "yatm_condenser_bottom.on.png",
+      "yatm_condenser_side.on.png",
+      "yatm_condenser_side.on.png^[transformFX",
+      {
+        name = "yatm_condenser_back.on.png",
+        animation = {
+          type = "vertical_frames",
+          aspect_w = 16,
+          aspect_h = 16,
+          length = 0.4
+        },
+      },
+      "yatm_condenser_front.on.png"
+    },
+  }
 })
