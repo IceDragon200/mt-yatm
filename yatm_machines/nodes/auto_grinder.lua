@@ -1,3 +1,25 @@
+local ItemInterface = assert(yatm.items.ItemInterface)
+local YATM_NetworkMeta = assert(yatm.network)
+local Energy = assert(yatm.energy)
+local GrindingRegistry = assert(yatm.grinding.GrindingRegistry)
+
+local function get_auto_grinder_formspec(pos)
+  local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+  local formspec =
+    "size[8,9]" ..
+    "list[nodemeta:" .. spos .. ";grinder_input;0,0.3;1,1;]" ..
+    "list[nodemeta:" .. spos .. ";grinder_processing;2,0.3;1,1;]" ..
+    "list[nodemeta:" .. spos .. ";grinder_output;4,0.3;2,2;]" ..
+    "list[current_player;main;0,4.85;8,1;]" ..
+    "list[current_player;main;0,6.08;8,3;8]" ..
+    "listring[nodemeta:" .. spos .. ";grinder_input]" ..
+    "listring[current_player;main]" ..
+    "listring[nodemeta:" .. spos .. ";grinder_output]" ..
+    "listring[current_player;main]" ..
+    default.get_hotbar_bg(0,4.85)
+  return formspec
+end
+
 local auto_grinder_yatm_network = {
   kind = "machine",
   groups = {
@@ -21,17 +43,125 @@ local auto_grinder_yatm_network = {
   },
 }
 
-function auto_grinder_yatm_network.work(pos, node, energy_available, work_rate, dtime, ot)
-  return 0
-end
+local item_interface =
+  ItemInterface.new_directional(function (self, pos, dir)
+    local node = minetest.get_node(pos)
+    local new_dir = yatm_core.facedir_to_face(node.param2, dir)
+    if new_dir == yatm_core.D_UP or new_dir == yatm_core.D_DOWN then
+      return "grinder_input"
+    end
+    return "grinder_output"
+  end)
 
-function auto_grinder_on_construct(pos)
-  yatm.devices.device_on_construct(pos)
+function auto_grinder_yatm_network.work(pos, node, energy_available, work_rate, dtime, ot)
   local meta = minetest.get_meta(pos)
   local inv = meta:get_inventory()
+
+  local consumed = 0
+
+  if meta:get_string("active_recipe") then
+    local work_time = meta:get_float("work_time")
+    work_time = work_time - dt
+    if work_time > 0 then
+      meta:set_float("work_time", work_time)
+      -- should probably be optional
+      yatm_core.queue_refresh_infotext(pos)
+    else
+      local input_stack = inv:get_stack("grinder_processing")
+      local recipe = GrindingRegistry:get_grinding_recipe(input_stack)
+      if recipe then
+        local room_for_all = true
+        for _,item_stack in ipairs(recipe.result_item_stacks) do
+          room_for_all = room_for_all and
+                         inv:room_for_item("grinder_output", item_stack)
+        end
+
+        if room_for_all then
+          for _,item_stack in ipairs(recipe.result_item_stacks) do
+            inv:add_item("grinder_output", item_stack)
+          end
+
+          meta:set_string("active_recipe", nil)
+          meta:set_string("error", nil)
+          meta:set_float("duration", 0)
+          meta:set_float("work_time", 0)
+
+          yatm_core.queue_refresh_infotext(pos)
+        else
+          meta:set_string("error", "output full")
+          yatm.devices.set_idle(meta, 1)
+
+          yatm_core.queue_refresh_infotext(pos)
+        end
+      else
+        inv:add_item("grinder_rejected", input_stack)
+        inv:remove_item("grinder_processing", input_stack)
+
+        meta:set_string("active_recipe", nil)
+        meta:set_string("error", nil)
+        meta:set_float("duration", 0)
+        meta:set_float("work_time", 0)
+
+        yatm_core.queue_refresh_infotext(pos)
+      end
+    end
+  else
+    -- check for recipe
+    local input_stack = inv:get_stack("grinder_input", 1)
+    local recipe = GrindingRegistry:get_grinding_recipe(input_stack)
+
+    if recipe then
+      meta:set_string("active_recipe", recipe.name)
+      meta:set_float("duration", recipe.duration)
+      meta:set_float("work_time", recipe.duration)
+      local processing_stack, rest = yatm_core.itemstack_split(input_stack, 1)
+      inv:add_item("grinder_processing", processing_stack)
+      inv:set_stack("grinder_input", rest)
+
+      yatm_core.queue_refresh_infotext(pos)
+    else
+      -- to idle
+      yatm.devices.set_idle(meta, 1)
+    end
+  end
+
+  return consumed
+end
+
+local function auto_grinder_refresh_infotext(pos)
+  local meta = minetest.get_meta(pos)
+
+  local recipe_name = meta:get_string("active_recipe") or ""
+  local work_time = meta:get_float("work_time")
+  local duration = meta:get_float("duration")
+
+  local infotext =
+    "Network ID: " .. YATM_NetworkMeta.to_infotext(meta) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    "Recipe: " .. recipe_name .. "\n" ..
+    "Time: " .. yatm_core.format_pretty_time(work_time) .. " / " .. yatm_core.format_pretty_time(duration)
+
+  meta:set_string("infotext", infotext)
+end
+
+local function auto_grinder_on_construct(pos)
+  yatm.devices.device_on_construct(pos)
+  --
+  local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
+  --
   inv:set_size("grinder_input", 1)
   inv:set_size("grinder_processing", 1)
-  inv:set_size("grinder_output", 1)
+  inv:set_size("grinder_rejected", 1)
+  inv:set_size("grinder_output", 4)
+end
+
+local function auto_grinder_on_rightclick(pos, node, clicker)
+  minetest.show_formspec(
+    clicker:get_player_name(),
+    "yatm_machines:auto_grinder",
+    get_auto_grinder_formspec(pos)
+  )
 end
 
 local groups = {
@@ -63,6 +193,8 @@ yatm.devices.register_stateful_network_device({
   on_construct = auto_grinder_on_construct,
 
   yatm_network = auto_grinder_yatm_network,
+  item_interface = item_interface,
+  refresh_infotext = auto_grinder_refresh_infotext,
 }, {
   on = {
     tiles = {
