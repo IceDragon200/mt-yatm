@@ -1,6 +1,6 @@
 local itemstack_new_blank = assert(yatm_core.itemstack_new_blank)
 local itemstack_is_blank = assert(yatm_core.itemstack_is_blank)
-local itemstack_take = assert(yatm_core.itemstack_take)
+local itemstack_split = assert(yatm_core.itemstack_split)
 local itemstack_maybe_merge = assert(yatm_core.itemstack_maybe_merge)
 local InventoryList = {}
 
@@ -23,7 +23,7 @@ function InventoryList.merge_stack(list, stack)
       break
     end
     if itemstack_is_blank(item_stack) then
-      new_stack, stack = itemstack_take(stack, max_stack_size)
+      new_stack, stack = itemstack_split(stack, max_stack_size)
       list[i] = new_stack
     else
       new_stack, stack = itemstack_maybe_merge(item_stack, stack)

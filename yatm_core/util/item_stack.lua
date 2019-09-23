@@ -37,7 +37,7 @@ end
 
 -- A non-destructive version of ItemStack#take_item,
 -- this will return the taken stack as the first value and the remaining as the second
-function yatm_core.itemstack_take(stack, length)
+function yatm_core.itemstack_split(stack, length)
   local max = stack:get_count()
   local takable = math.min(length, max)
   if takable == max then
