@@ -1,13 +1,18 @@
 --[[
-Item Teleporters behave slightly different from ducts, they will have a 1-frame delay since they will
-take items into their internal inventory, and then teleport them to a connected teleporter.
 
-Like all other wireless devices, it has it's own address scheme and registration process.
+  Item Teleporters behave slightly different from ducts, they will have a 1-frame delay since they will
+  take items into their internal inventory, and then teleport them to a connected teleporter.
+
+  Like all other wireless devices, it has it's own address scheme and registration process.
+
 ]]
 local SpacetimeNetwork = assert(yatm.spacetime.Network)
 local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
 local YATM_NetworkMeta = assert(yatm.network)
 local Energy = assert(yatm.energy)
+local ItemInterface = assert(yatm.items.ItemInterface)
+
+local item_interface = ItemInterface.new_simple("main")
 
 local item_receiver_yatm_network = {
   kind = "machine",
@@ -66,10 +71,10 @@ local function item_receiver_change_spacetime_address(pos, node, new_address)
 
   local nodedef = minetest.registered_nodes[node.name]
   if yatm_core.is_blank(new_address) then
-    node.name = fluid_receiver_yatm_network.states.off
+    node.name = item_receiver_yatm_network.states.off
     minetest.swap_node(pos, node)
   else
-    node.name = fluid_receiver_yatm_network.states.on
+    node.name = item_receiver_yatm_network.states.on
     minetest.swap_node(pos, node)
   end
   assert(yatm_core.queue_refresh_infotext(pos))
@@ -78,11 +83,15 @@ end
 
 local function item_receiver_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
+
+  local stack = inv:get_stack("main", 1)
 
   local infotext =
     "Net.ID: " .. YATM_NetworkMeta.to_infotext(meta) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
-    "S.Address: " .. SpacetimeMeta.to_infotext(meta)
+    "S.Address: " .. SpacetimeMeta.to_infotext(meta) .. "\n" ..
+    "Item: " .. yatm_core.itemstack_inspect(stack)
 
   meta:set_string("infotext", infotext)
 end
@@ -94,6 +103,7 @@ yatm.devices.register_stateful_network_device({
   groups = {
     cracky = 1,
     item_interface_out = 1,
+    item_interface_in = 1, -- required to interact with the teleporter
     addressable_spacetime_device = 1,
   },
 
@@ -124,6 +134,8 @@ yatm.devices.register_stateful_network_device({
   yatm_spacetime = {
     groups = {item_receiver = 1},
   },
+
+  item_interface = item_interface,
 
   on_destruct = teleporter_on_destruct,
   after_place_node = teleporter_after_place_node,

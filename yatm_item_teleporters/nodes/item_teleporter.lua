@@ -1,21 +1,31 @@
 --[[
-Item Teleporters behave slightly different from ducts, they will have a 1-frame delay since they will
-take items into their internal inventory, and then teleport them to a connected teleporter.
 
-Like all other wireless devices, it has it's own address scheme and registration process.
+  Item Teleporters behave slightly different from ducts, they will have a 1-frame delay since they will
+  take items into their internal inventory, and then teleport them to a connected teleporter.
+
+  Like all other wireless devices, it has it's own address scheme and registration process.
+
 ]]
 local SpacetimeNetwork = assert(yatm.spacetime.Network)
 local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
 local YATM_NetworkMeta = assert(yatm.network)
 local Energy = assert(yatm.energy)
+local ItemInterface = assert(yatm.items.ItemInterface)
+local ItemDevice = assert(yatm.items.ItemDevice)
+
+local item_interface = ItemInterface.new_simple("main")
 
 local function item_teleporter_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
+
+  local stack = inv:get_stack("main", 1)
 
   local infotext =
     "Net.ID: " .. YATM_NetworkMeta.to_infotext(meta) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
-    "S.Address: " .. SpacetimeMeta.to_infotext(meta)
+    "S.Address: " .. SpacetimeMeta.to_infotext(meta) .. "\n" ..
+    "Item: " .. yatm_core.itemstack_inspect(stack)
 
   meta:set_string("infotext", infotext)
 end
@@ -45,8 +55,24 @@ function item_teleporter_yatm_network.work(pos, node, available_energy, work_rat
   local energy_consumed = 0
   local meta = minetest.get_meta(pos)
   local address = SpacetimeMeta.get_address(meta)
-  if not yatm_core.is_blank(address) then
 
+  if not yatm_core.is_blank(address) then
+    local inv = meta:get_inventory()
+
+    local stack = inv:get_stack("main", 1)
+
+    if not yatm_core.itemstack_is_blank(stack) then
+      SpacetimeNetwork:each_member_in_group_by_address("item_receiver", address, function (sp_hash, member)
+        local remaining_stack, error_message = ItemDevice.insert_item(member.pos, yatm_core.D_NONE, stack, true)
+        if not error_message then
+          -- TODO: improve upon this, it should check if the stack was
+          --       was actually consumed
+          energy_consumed = energy_consumed + 10
+        end
+        stack = remaining_stack
+        return not yatm_core.itemstack_is_blank(stack)
+      end)
+    end
   end
   return energy_consumed
 end
@@ -62,6 +88,15 @@ local function teleporter_after_place_node(pos, _placer, itemstack, _pointed_thi
 
   yatm.devices.device_after_place_node(pos, placer, itemstack, pointed_thing)
   assert(yatm_core.queue_refresh_infotext(pos))
+end
+
+local function teleporter_on_construct(pos)
+  yatm.devices.device_on_construct(pos)
+
+  local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
+
+  inv:set_size("main", 1)
 end
 
 local function teleporter_on_destruct(pos)
@@ -132,9 +167,11 @@ yatm.devices.register_stateful_network_device({
   yatm_spacetime = {
     groups = {item_teleporter = 1},
   },
+  item_interface = item_interface,
 
   after_place_node = teleporter_after_place_node,
 
+  on_construct = teleporter_on_construct,
   on_destruct = teleporter_on_destruct,
   after_destruct = teleporter_after_destruct,
 
