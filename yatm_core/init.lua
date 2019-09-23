@@ -33,6 +33,8 @@ dofile(yatm_core.modpath .. "/measurable.lua") -- similar to energy, but has a n
 -- Nodes and Items
 dofile(yatm_core.modpath .. "/nodes.lua")
 dofile(yatm_core.modpath .. "/items.lua")
+-- Recipes
+dofile(yatm_core.modpath .. "/recipes.lua")
 
 -- Test Utils
 dofile(yatm_core.modpath .. "/fake_meta_ref.lua")

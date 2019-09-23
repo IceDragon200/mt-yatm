@@ -1,4 +1,48 @@
-local materials = {
+local materials
+
+materials = {
+  {"copper", "Copper"},
+  {"gold", "Gold"},
+  {"tin", "Tin"},
+  {"carbon_steel", "Carbon Steel"},
+}
+
+minetest.register_craftitem("yatm_core:ic", {
+  description = "Integrated Circuit",
+  inventory_image = "yatm_materials_ic.png",
+
+  groups = {
+    ic = 1,
+  },
+})
+
+minetest.register_craftitem("yatm_core:spool", {
+  description = "Spool",
+  inventory_image = "yatm_materials_spool.png",
+
+  groups = {
+    spool_spindle = 1,
+  },
+})
+
+for _,material_pair in ipairs(materials) do
+  local material_basename = material_pair[1]
+  local material_name = material_pair[2]
+
+  minetest.register_craftitem("yatm_core:spool_" .. material_basename, {
+    description = material_name .. " Spool",
+    inventory_image = "yatm_materials_spool." .. material_basename .. ".png",
+
+    groups = {
+      spool = 1,
+      ["spool_" .. material_basename] = 1,
+    },
+
+    material_name = material_basename,
+  })
+end
+
+materials = {
   {"copper", "Copper"},
   {"bronze", "Bronze"},
   {"gold", "Gold"},
