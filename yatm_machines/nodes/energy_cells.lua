@@ -29,7 +29,7 @@ local function energy_cell_refresh_infotext(pos)
   local infotext =
     "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, "internal", nodedef.yatm_network.energy.capacity) .. "\n" ..
-    "Usable En.:" .. tostring(usable)
+    "Usable Energy: " .. tostring(usable)
 
   meta:set_string("infotext", infotext)
 end

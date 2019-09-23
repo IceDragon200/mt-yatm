@@ -66,14 +66,15 @@ end
 fluid_interface.allow_fill = fluid_interface.allow_replace
 fluid_interface.allow_drain = fluid_interface.allow_replace
 
-local item_interface = ItemInterface.new_directional(function (self, pos, dir)
-  local node = minetest.get_node(pos)
-  local new_dir = yatm_core.facedir_to_face(node.param2, dir)
-  if new_dir == yatm_core.D_UP or new_dir == yatm_core.D_DOWN then
-    return "mold_slot"
-  end
-  return "output_slot"
-end)
+local item_interface =
+  ItemInterface.new_directional(function (self, pos, dir)
+    local node = minetest.get_node(pos)
+    local new_dir = yatm_core.facedir_to_face(node.param2, dir)
+    if new_dir == yatm_core.D_UP or new_dir == yatm_core.D_DOWN then
+      return "mold_slot"
+    end
+    return "output_slot"
+  end)
 
 local function electric_molder_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)

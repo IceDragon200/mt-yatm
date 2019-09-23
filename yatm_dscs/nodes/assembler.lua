@@ -1,3 +1,6 @@
+--
+-- It looks just like AE2's Molecular Assembler, and has the same function too.
+--
 local assembler_yatm_network = {
   kind = "machine",
   groups = {
