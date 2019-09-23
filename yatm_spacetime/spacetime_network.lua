@@ -138,7 +138,7 @@ function m:on_shutdown()
 end
 
 yatm_spacetime.SpacetimeNetwork = SpacetimeNetwork
-yatm_spacetime.Network = SpacetimeNetwork:new()
+yatm_spacetime.Network = SpacetimeNetwork:new("yatm.spacetime.network")
 
 minetest.register_on_shutdown(function ()
   yatm_spacetime.Network.on_shutdown()
