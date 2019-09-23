@@ -20,12 +20,22 @@ local solar_panel_yatm_network = {
 }
 
 function solar_panel_yatm_network.energy.produce_energy(pos, node, dtime, ot)
+  -- TODO: can we get sunlight instead?
+  local meta = minetest.get_meta(pos)
   local light = minetest.get_node_light(pos, nil)
-  return light * 3
+  local energy = 0
+  if light > 5 then
+    energy = light * 3
+  end
+  yatm_core.queue_refresh_infotext(pos)
+  meta:set_int("last_produced_energy", energy)
+  return energy
 end
 
 function solar_panel_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
+
+  local last_produced_energy = meta:get_int("last_produced_energy")
 
   local infotext =
     "Network ID: " .. Network.to_infotext(meta)
