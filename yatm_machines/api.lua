@@ -254,3 +254,7 @@ function devices.register_stateful_network_device(base_node_def, overrides)
 end
 
 yatm.devices = devices
+
+yatm.grinding = {
+  GrindingRegistry = assert(yatm_machines.GrindingRegistry),
+}

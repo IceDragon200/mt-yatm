@@ -24,5 +24,9 @@ startup_energy_threshold :: integer
 yatm_machines = rawget(_G, "yatm_machines") or {}
 yatm_machines.modpath = minetest.get_modpath(minetest.get_current_modname())
 
+dofile(yatm_machines.modpath .. "/grinding_registry.lua")
+
 dofile(yatm_machines.modpath .. "/api.lua")
 dofile(yatm_machines.modpath .. "/nodes.lua")
+
+dofile(yatm_machines.modpath .. "/recipes.lua")
