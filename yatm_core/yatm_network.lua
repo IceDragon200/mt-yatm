@@ -287,23 +287,23 @@ function Network.reduce_network(origin_pos, acc, func)
     local current_positions = positions
     positions = {}
     local n = 0
+
     for _,pair in ipairs(current_positions) do
       local from_dir = pair[1]
       local pos = pair[2]
-      if not visited[pos.y] then
-        visited[pos.y] = {}
-      end
-      if not visited[pos.y][pos.z] then
-        visited[pos.y][pos.z] = {}
-      end
-      if not visited[pos.y][pos.z][pos.x] then
-        visited[pos.y][pos.z][pos.x] = true
+      local visited_hash = minetest.hash_node_position(pos)
+
+      if not visited[visited_hash] then
+        visited[visited_hash] = true
+
         local node = minetest.get_node(pos)
         local nodedef = minetest.registered_nodes[node.name]
         local explore_neighbours
+
         for dir,_ in pairs(yatm_core.DIR6_TO_VEC3) do
           accessible_dirs[dir] = true
         end
+
         explore_neighbours, acc = func(pos, node, nodedef, accessible_dirs, acc)
         if explore_neighbours then
           for dir,flag in pairs(accessible_dirs) do
