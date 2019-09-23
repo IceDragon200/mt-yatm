@@ -29,15 +29,24 @@ local colors = {
 -- If the dye module is available, use the colors from there instead.
 if dye then
   colors = dye.dyes
+else
+  print("yatm_decor", "dye is not available, lamps will only be available in white")
 end
 
 -- Fixes the orientation of the lamp after it was placed
 -- aka. don't mess around with the cray-cray place_node code
-local lamp_after_place_node = yatm_core.facedir_wallmount_after_place_node
+local lamp_after_place_node = function (pos, placer, itemstack, pointed_thing)
+  -- FIXME: If the digtron places the node, YATM will override the param2
+  --        This causes the lamp to be placed in the wrong direction.
+  --print(pos, placer.get_player_name())
+  yatm_core.facedir_wallmount_after_place_node(pos, placer, itemstack, pointed_thing)
+end
 
 local lamp_rules = {}
-if mesecons then
-  lamp_rules = mesecon.rules.default
+if mesecon then
+  lamp_rules = assert(mesecon.rules.default)
+else
+  print("yatm_decor", "mesecons is unavailable, lamps cannot be toggled")
 end
 
 local lamp_mesecons = {
