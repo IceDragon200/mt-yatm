@@ -40,6 +40,18 @@ for _,material_pair in ipairs(materials) do
 
     material_name = material_basename,
   })
+
+  minetest.register_craftitem("yatm_core:transformer_" .. material_basename, {
+    description = material_name .. " Transformer",
+    inventory_image = "yatm_materials_transformer." .. material_basename .. ".png",
+
+    groups = {
+      transformer = 1,
+      ["transformer_" .. material_basename] = 1,
+    },
+
+    material_name = material_basename,
+  })
 end
 
 materials = {
