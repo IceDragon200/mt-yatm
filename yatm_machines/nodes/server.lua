@@ -54,6 +54,9 @@ local server_yatm_network = {
 function server_yatm_network.work(pos, node, energy_available, work_rate, dtime, ot)
   data_network:mark_ready_to_receive(pos, 1)
   data_network:mark_ready_to_receive(pos, 2)
+  data_network:mark_ready_to_receive(pos, 3)
+  data_network:mark_ready_to_receive(pos, 4)
+  data_network:mark_ready_to_receive(pos, 5)
   return 0
 end
 
