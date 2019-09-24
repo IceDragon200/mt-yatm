@@ -6,6 +6,16 @@ local FluidStack = assert(yatm_fluids.FluidStack)
 local FluidTanks = {
 }
 
+function FluidTanks.has_fluid_interface(pos, dir)
+  local node = minetest.get_node(pos)
+  local nodedef = minetest.registered_nodes[node.name]
+
+  if nodedef and nodedef.fluid_interface then
+    return true
+  end
+  return nil, "no nodedef, or fluid_interface"
+end
+
 function FluidTanks.get_capacity(pos, dir)
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
