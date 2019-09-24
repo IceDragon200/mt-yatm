@@ -38,7 +38,8 @@ function solar_panel_refresh_infotext(pos)
   local last_produced_energy = meta:get_int("last_produced_energy")
 
   local infotext =
-    "Network ID: " .. Network.to_infotext(meta)
+    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    "Energy: " .. last_produced_energy
 
   meta:set_string("infotext", infotext)
 end
