@@ -216,7 +216,8 @@ end
 
 -- Call this from a node to emit a value unto it's network on a specified port
 -- You can emit on any port, doesn't mean anyone will receive your value.
-function ic:send_value(pos, port, value)
+function ic:send_value(pos, node, port, value)
+  print("send_value", minetest.pos_to_string(pos), node.name, port, value)
   local member_id = minetest.hash_node_position(pos)
   local member = self.m_members[member_id]
   if member and member.network_id then
@@ -311,18 +312,33 @@ function ic:update_network(network, dt)
 
   local updatable = network.members_by_group["updatable"]
   if updatable then
-    for member_id, _ in pairs(updatable) do
+    local needs_fix = false
+    for member_id,_is_present in pairs(updatable) do
       local member = self.m_members[member_id]
       if member then
         local nodedef = minetest.registered_nodes[member.node.name]
         if nodedef.data_interface then
           nodedef.data_interface.update(member.pos, member.node, dt)
         else
-          print("WARN: Node cannot be subject to updatable group without a data_interface", minetest.pos_to_string(member.pos), member.node.name)
+          print("WARN: Node cannot be subject to updatable group without a data_interface",
+                minetest.pos_to_string(member.pos), member.node.name)
         end
       else
         print("WARN: Network contains invalid member", member_id)
+        needs_fix = true
       end
+    end
+
+    if needs_fix then
+      local new_updatable = {}
+      for member_id,value in pairs(updatable) do
+        local member = self.m_members[member_id]
+        if member then
+          new_updatable[member_id] = value
+        end
+      end
+
+      network.members_by_group["updatable"] = new_updatable
     end
   end
 end
