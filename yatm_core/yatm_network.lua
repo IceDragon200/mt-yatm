@@ -777,7 +777,7 @@ function Network:update(dtime)
     network.idle_time = network.idle_time - dtime
     while network.idle_time <= 0 do
       network.idle_time = network.idle_time + 0.25
-      update_network(ot, dtime, counter, network_id, network)
+      update_network(ot, 0.25, counter, network_id, network)
     end
   end
 
