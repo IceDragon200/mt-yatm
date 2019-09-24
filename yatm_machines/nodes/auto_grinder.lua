@@ -59,15 +59,33 @@ function auto_grinder_yatm_network.work(pos, node, energy_available, work_rate, 
 
   local consumed = 0
 
-  if meta:get_string("active_recipe") then
+  if yatm_core.is_blank(meta:get_string("active_recipe")) then
+    -- check for recipe
+    local input_stack = inv:get_stack("grinder_input", 1)
+    local recipe = GrindingRegistry:get_grinding_recipe(input_stack)
+
+    if recipe then
+      meta:set_string("active_recipe", recipe.name)
+      meta:set_float("duration", recipe.duration)
+      meta:set_float("work_time", recipe.duration)
+      local processing_stack, rest = yatm_core.itemstack_split(input_stack, 1)
+      inv:add_item("grinder_processing", processing_stack)
+      inv:set_stack("grinder_input", 1, rest)
+
+      yatm_core.queue_refresh_infotext(pos)
+    else
+      -- to idle
+      yatm.devices.set_idle(meta, 1)
+    end
+  else
     local work_time = meta:get_float("work_time")
-    work_time = work_time - dt
+    work_time = work_time - dtime
     if work_time > 0 then
       meta:set_float("work_time", work_time)
       -- should probably be optional
       yatm_core.queue_refresh_infotext(pos)
     else
-      local input_stack = inv:get_stack("grinder_processing")
+      local input_stack = inv:get_stack("grinder_processing", 1)
       local recipe = GrindingRegistry:get_grinding_recipe(input_stack)
       if recipe then
         local room_for_all = true
@@ -80,6 +98,8 @@ function auto_grinder_yatm_network.work(pos, node, energy_available, work_rate, 
           for _,item_stack in ipairs(recipe.result_item_stacks) do
             inv:add_item("grinder_output", item_stack)
           end
+
+          inv:remove_item("grinder_processing", input_stack)
 
           meta:set_string("active_recipe", nil)
           meta:set_string("error", nil)
@@ -104,24 +124,6 @@ function auto_grinder_yatm_network.work(pos, node, energy_available, work_rate, 
 
         yatm_core.queue_refresh_infotext(pos)
       end
-    end
-  else
-    -- check for recipe
-    local input_stack = inv:get_stack("grinder_input", 1)
-    local recipe = GrindingRegistry:get_grinding_recipe(input_stack)
-
-    if recipe then
-      meta:set_string("active_recipe", recipe.name)
-      meta:set_float("duration", recipe.duration)
-      meta:set_float("work_time", recipe.duration)
-      local processing_stack, rest = yatm_core.itemstack_split(input_stack, 1)
-      inv:add_item("grinder_processing", processing_stack)
-      inv:set_stack("grinder_input", rest)
-
-      yatm_core.queue_refresh_infotext(pos)
-    else
-      -- to idle
-      yatm.devices.set_idle(meta, 1)
     end
   end
 
@@ -191,6 +193,7 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
 
   on_construct = auto_grinder_on_construct,
+  on_rightclick = auto_grinder_on_rightclick,
 
   yatm_network = auto_grinder_yatm_network,
   item_interface = item_interface,

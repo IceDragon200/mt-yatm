@@ -18,7 +18,7 @@ rgr("Iron Ingot to Iron Dust",
 rgr("Iron Block to Iron Dust",
     ItemStack("yatm_core:iron_block"),
     {ItemStack("yatm_core:dust_iron 9")},
-    5))
+    5)
 
 --
 -- Carbon Steel
@@ -131,12 +131,17 @@ rgr("Coal Block to Coal Dust",
 --
 -- Stone
 --
-rgr("Stone Block to Gravel",
-    ItemStack("default:stone_block"),
+rgr("Stone to Gravel",
+    ItemStack("default:stone"),
+    {ItemStack("default:gravel 2")},
+    3)
+
+rgr("Cobblestone to Gravel",
+    ItemStack("default:cobble"),
     {ItemStack("default:gravel 2")},
     2)
 
 rgr("Gravel to Sand",
     ItemStack("default:gravel"),
     {ItemStack("default:sand 2")},
-    2)
+    1)
