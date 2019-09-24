@@ -20,7 +20,7 @@ local function data_cable_on_destruct(pos)
 end
 
 local function data_cable_after_destruct(pos, old_node)
-  print("data_cable_after_place_node", minetest.pos_to_string(pos))
+  print("data_cable_after_destruct", minetest.pos_to_string(pos))
   data_network:unregister_member(pos, old_node)
 end
 
@@ -134,7 +134,7 @@ for _,color_pair in ipairs(colors) do
   end
 
   minetest.register_node(node_name, {
-    description = "Data Cable Bus (" .. color_name .. ")",
+    description = "Data Bus (" .. color_name .. ")",
 
     groups = groups,
 
