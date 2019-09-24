@@ -73,6 +73,8 @@ function item_teleporter_yatm_network.work(pos, node, available_energy, work_rat
         return not yatm_core.itemstack_is_blank(stack)
       end)
     end
+
+    inv:set_stack("main", 1, stack)
   end
   return energy_consumed
 end

@@ -89,6 +89,8 @@ local groups = {
 yatm.devices.register_stateful_network_device({
   description = "Item Replicator",
 
+  drop = item_replicator_yatm_network.states.off,
+
   groups = groups,
 
   tiles = {

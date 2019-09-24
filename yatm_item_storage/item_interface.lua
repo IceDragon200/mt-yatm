@@ -37,11 +37,15 @@ local function default_insert_item(self, pos, dir, item_stack, commit)
     local meta = minetest.get_meta(pos)
     local inv = meta:get_inventory()
     local list = inv:get_list(self.inventory_name)
-    local new_list, remaining = InventoryList.merge_stack(list, item_stack)
-    if commit then
-      inv:set_list(self.inventory_name, new_list)
+    if list then
+      local new_list, remaining = InventoryList.merge_stack(list, item_stack)
+      if commit then
+        inv:set_list(self.inventory_name, new_list)
+      end
+      return remaining
+    else
+      return nil, "internal list invalid"
     end
-    return remaining
   end
   return nil, "insert not allowed"
 end

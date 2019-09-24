@@ -41,6 +41,15 @@ function item_receiver_yatm_network.work(pos, node, available_energy, work_rate,
   return 10
 end
 
+local function teleporter_on_construct(pos)
+  yatm.devices.device_on_construct(pos)
+
+  local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
+
+  inv:set_size("main", 1)
+end
+
 local function teleporter_after_place_node(pos, _placer, itemstack, _pointed_thing)
   local new_meta = minetest.get_meta(pos)
   local old_meta = itemstack:get_meta()
@@ -98,7 +107,8 @@ end
 
 yatm.devices.register_stateful_network_device({
   description = "Item Receiver",
-  drop = "yatm_item_teleporters:item_receiver_off",
+
+  drop = item_receiver_yatm_network.states.off,
 
   groups = {
     cracky = 1,
@@ -137,8 +147,10 @@ yatm.devices.register_stateful_network_device({
 
   item_interface = item_interface,
 
-  on_destruct = teleporter_on_destruct,
+  on_construct = teleporter_on_construct,
   after_place_node = teleporter_after_place_node,
+
+  on_destruct = teleporter_on_destruct,
   after_destruct = teleporter_after_destruct,
 
   change_spacetime_address = item_receiver_change_spacetime_address,
