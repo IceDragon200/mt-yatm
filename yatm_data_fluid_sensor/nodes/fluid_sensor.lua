@@ -6,25 +6,19 @@
 --
 local data_network = assert(yatm.data_network)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
+local FluidStack = assert(yatm.fluids.FluidStack)
+local Changeset = assert(yatm_core.Changeset)
 
 local function get_fluid_sensor_formspec(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local meta = minetest.get_meta(pos)
   local formspec =
-    "size[8,9]"
-
-  for i = 0,15 do
-    local x = 0.25 + math.floor(i % 4)
-    local y = 0.5 + math.floor(i / 4)
-    local port_id = i + 1
-    local port_value = meta:get_int("p" .. port_id)
-    formspec = formspec ..
-      "field[" .. x .. "," .. y .. ";1,1;p" .. port_id .. ";Port " .. port_id .. ";" .. port_value .. "]" ..
-      "field_close_on_enter[p" .. port_id .. ",false]"
-  end
-
-  formspec =
-    formspec ..
+    "size[8,9]" ..
+    "field[0.5,0.5;4,1;capacity_port;Capacity Port;" .. meta:get_int("capacity_port") .. "]" ..
+    "field[4.5,0.5;4,1;amount_port;Amount Port;" .. meta:get_int("amount_port") .. "]" ..
+    "field[0.5,1.5;4,1;remaining_capacity_port;Remaining Capacity Port;" .. meta:get_int("remaining_capacity_port") .. "]" ..
+    "field[0.5,2.5;4,1;fluid_test_port;Fluid Test Port;" .. meta:get_int("fluid_test_port") .. "]" ..
+    "field[4.5,2.5;4,1;empty_test_port;EMpty Test Port;" .. meta:get_int("empty_test_port") .. "]" ..
     "list[current_player;main;0,4.85;8,1;]" ..
     "list[current_player;main;0,6.08;8,3;8]" ..
     default.get_hotbar_bg(0,4.85)
@@ -32,15 +26,45 @@ local function get_fluid_sensor_formspec(pos)
   return formspec
 end
 
+local FieldsSchema = {
+  capacity_port = {
+    type = "integer"
+  },
+  amount_port = {
+    type = "integer"
+  },
+  remaining_capacity_port = {
+    type = "integer"
+  },
+  fluid_test_port = {
+    type = "integer"
+  },
+  empty_test_port = {
+    type = "integer"
+  }
+}
+
 local function fluid_sensor_on_receive_fields(player, formname, fields, assigns)
   local meta = minetest.get_meta(assigns.pos)
 
-  for i = 1,16 do
-    local field_name = "p" .. i
-    if fields[field_name] then
-      local port_id = math.min(256, math.max(0, math.floor(tonumber(fields[field_name]))))
-      meta:set_int(field_name, port_id)
-    end
+  local changeset = Changeset:new(FieldsSchema, {})
+  changeset:cast(
+    fields,
+    {
+      "capacity_port",
+      "amount_port",
+      "remaining_capacity_port",
+      "fluid_test_port",
+      "empty_test_port"
+    }
+  )
+
+  if changeset.is_valid then
+    local new_fields = changeset:apply_changes()
+    print("New Fields", dump(new_fields))
+    yatm_core.metaref_merge_fields_from_table(meta, new_fields)
+
+    print("New Meta", dump(meta:to_table()))
   end
 
   return true
@@ -67,34 +91,74 @@ function fluid_sensor_data_interface.update(pos, node, dt)
   --
   -- TODO: Allow configuring a sampling interval for the sensor
   --print("FluidSensor", "data update", minetest.pos_to_string(pos), node.name)
+  local meta = minetest.get_meta(pos)
+
+  local capacity_port = meta:get_int("capacity_port")
+  local amount_port = meta:get_int("amount_port")
+  local remaining_capacity_port = meta:get_int("remaining_capacity_port")
+  local fluid_test_port = meta:get_int("fluid_test_port")
+  local empty_test_port = meta:get_int("empty_test_port")
+
   for d6, v3 in pairs(yatm_core.DIR6_TO_VEC3) do
     local new_pos = vector.add(pos, v3)
     local node = minetest.get_node(new_pos)
 
     if node.name ~= "air" then
       local id6 = yatm_core.invert_dir(d6)
-      -- TODO: based on the configuration, values should be sent over different ports
-      --   Some functions are:
-      --     Report capacity (capacity)
-      --     Report fluid amount (fluid_stack.amount)
-      --     Report remaining capacity (capacity - fluid_stack.amount)
-      --     Report has fluid (1 if has fluid, 0 otherwise)
-      --     Report is empty (1 if empty, 0 otherwise)
-      local fluid_stack = FluidTanks.get_fluid(new_pos, id6)
-      local capacity, err = FluidTanks.get_capacity(new_pos, id6)
-      if capacity then
-        --print("Reporting capacity to port 1", minetest.pos_to_string(new_pos), capacity)
-        data_network:send_value(pos, 1, capacity)
-      else
-        --print("no capacity", minetest.pos_to_string(new_pos), id6, node.name, err)
-      end
-      if fluid_stack then
-        --print("Reporting fluid_stack.amount to port 2", minetest.pos_to_string(new_pos), fluid_stack.amount)
-        data_network:send_value(pos, 2, fluid_stack.amount)
-      end
 
-      if fluid_stack or capacity then
-        --print("got a capacity or fluid_stack", minetest.pos_to_string(new_pos))
+      if FluidTanks.has_fluid_interface(new_pos, id6) then
+        local fluid_stack = FluidStack.presence(FluidTanks.get_fluid(new_pos, id6))
+        local capacity, err = FluidTanks.get_capacity(new_pos, id6)
+
+        if capacity_port > 0 then
+          if capacity then
+            --print("Reporting capacity to port", capacity_port, minetest.pos_to_string(new_pos), capacity)
+            data_network:send_value(pos, node, capacity_port, capacity)
+          else
+            --print("no capacity", minetest.pos_to_string(new_pos), id6, node.name, err)
+            data_network:send_value(pos, node, capacity_port, 0)
+          end
+        end
+
+        if amount_port > 0 then
+          if fluid_stack then
+            --print("Reporting fluid_stack.amount to port 2", minetest.pos_to_string(new_pos), fluid_stack.amount)
+            data_network:send_value(pos, node, amount_port, fluid_stack.amount)
+          else
+            data_network:send_value(pos, node, amount_port, 0)
+          end
+        end
+
+        if remaining_capacity_port > 0 then
+          if capacity then
+            if fluid_stack then
+              local remaining_capacity = capacity - fluid_stack.amount
+              data_network:send_value(pos, node, remaining_capacity_port, remaining_capacity)
+            else
+              data_network:send_value(pos, node, remaining_capacity_port, capacity)
+            end
+          else
+            data_network:send_value(pos, node, remaining_capacity_port, 0)
+          end
+        end
+
+        if fluid_test_port > 0 then
+          if fluid_stack then
+            data_network:send_value(pos, node, fluid_test_port, 1)
+          else
+            data_network:send_value(pos, node, fluid_test_port, 0)
+          end
+        end
+
+        if empty_test_port > 0 then
+          if fluid_stack then
+            data_network:send_value(pos, node, empty_test_port, 0)
+          else
+            data_network:send_value(pos, node, empty_test_port, 1)
+          end
+        end
+
+        -- Only the first fluid interface is interacted with
         break
       end
     end
@@ -105,15 +169,26 @@ function fluid_sensor_data_interface.receive_pdu(pos, node, port, value)
 end
 
 local function fluid_sensor_on_construct(pos)
+  --
+  local meta = minetest.get_meta(pos)
+
+  meta:set_int("capacity_port", 0)
+  meta:set_int("amount_port", 0)
+  meta:set_int("remaining_capacity_port", 0)
+  meta:set_int("fluid_test_port", 0)
+  meta:set_int("empty_test_port", 0)
+end
+
+local function fluid_sensor_after_place_node(pos, _placer, _item_stack, _pointed_thin)
+  print("fluid_sensor_after_place_node", minetest.pos_to_string(pos))
   local node = minetest.get_node(pos)
   data_network:register_member(pos, node)
 end
 
-local function fluid_sensor_after_place_node(pos, _placer, _item_stack, _pointed_thin)
-end
-
-local function fluid_sensor_on_destruct(pos)
+local function fluid_sensor_on_destruct(pos, old_node)
+  print("fluid_sensor_on_destruct", minetest.pos_to_string(pos))
   --
+  data_network:unregister_member(pos, old_node)
 end
 
 local function fluid_sensor_after_destruct(pos, old_node)
@@ -142,8 +217,8 @@ local groups = {
   yatm_data_device = 1,
 }
 
-minetest.register_node("yatm_data_fluid_sensor:fluid_sensor_off", {
-  description = "Fluid Sensor (OFF)",
+minetest.register_node("yatm_data_fluid_sensor:fluid_sensor", {
+  description = "Fluid Sensor",
 
   groups = groups,
 
