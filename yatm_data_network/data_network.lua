@@ -217,7 +217,7 @@ end
 -- Call this from a node to emit a value unto it's network on a specified port
 -- You can emit on any port, doesn't mean anyone will receive your value.
 function ic:send_value(pos, node, port, value)
-  print("send_value", minetest.pos_to_string(pos), node.name, port, value)
+  --print("send_value", minetest.pos_to_string(pos), node.name, port, value)
   local member_id = minetest.hash_node_position(pos)
   local member = self.m_members[member_id]
   if member and member.network_id then
