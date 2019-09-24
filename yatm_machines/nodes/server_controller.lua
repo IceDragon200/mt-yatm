@@ -59,7 +59,7 @@ local server_controller_yatm_network = {
 }
 
 function server_controller_yatm_network.work(pos, node, energy_available, work_rate, dtime, ot)
-  data_network:send_value(pos, 1, 10)
+  data_network:send_value(pos, node, 1, 10)
   return 0
 end
 
