@@ -1,6 +1,7 @@
 function yatm_core.list_map(list, fun)
-  return List.reduce(list, {}, function (value, acc)
-    return List.push(acc, fun(value)), false
+  return yatm_core.list_reduce(list, {}, function (value, acc)
+    table.insert(acc, fun(value))
+    return acc, false
   end)
 end
 

@@ -1,7 +1,4 @@
 local ByteBuf = yatm_core.ByteBuf
-local ArrayType = yatm_core.binary_types.Array
-local MapType = yatm_core.binary_types.Map
-local ScalarTypes = yatm_core.binary_types.Scalar
 
 local BinSchema = yatm_core.Class:extends("BinSchema")
 local ic = BinSchema.instance_class
@@ -44,6 +41,7 @@ local ic = BinSchema.instance_class
 function ic:initialize(definition)
   ic._super.initialize(self)
   assert(definition, "expected a definition list")
+
   self.definition = yatm_core.list_map(definition, function (element)
     if type(element) == "number" then
       return {type = 0, length = element}
@@ -56,22 +54,22 @@ function ic:initialize(definition)
         if t == "*array" then
           local value_type = element[3]
           assert(value_type, "expected a value_type")
-          return {name = name, type = ArrayType:new(value_type, -1)}
+          return {name = name, type = yatm_core.binary_types.Array:new(value_type, -1)}
         -- fixed length array
         elseif t == "array" then
           local value_type = element[3]
           assert(value_type, "expected a value_type")
           local len = element[4]
           assert(len, "expected a length")
-          return {name = name, type = ArrayType:new(value_type, len)}
+          return {name = name, type = yatm_core.binary_types.Array:new(value_type, len)}
         elseif t == "map" then
           local kt = element[3]
           assert(kt, "expected a key type")
           local vt = element[4]
           assert(vt, "expected a value type")
-          return {name = name, type = MapType:new(kt, vt)}
-        elseif ScalarTypes[t] then
-          return {name = name, type = ScalarTypes[t]}
+          return {name = name, type = yatm_core.binary_types.Map:new(kt, vt)}
+        elseif yatm_core.binary_types.Scalars[t] then
+          return {name = name, type = yatm_core.binary_types.Scalars[t]}
         else
           error("unexpected type " .. t)
         end
@@ -126,4 +124,4 @@ function ic:read(file, target)
   end)
 end
 
-return BinSchema
+yatm_core.BinSchema = BinSchema

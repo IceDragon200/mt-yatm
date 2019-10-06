@@ -1,5 +1,5 @@
 local ByteBuf = assert(yatm_core.ByteBuf)
-local Scalars = yatm_core.binary_types.Scalars
+local Scalars = assert(yatm_core.binary_types.Scalars)
 
 local Map = yatm_core.Class:extends("Map")
 local ic = Map.instance_class
@@ -52,4 +52,4 @@ function ic:read(file)
   end
 end
 
-yatm_core.binary_types.Map
+yatm_core.binary_types.Map = Map
