@@ -14,15 +14,36 @@ Changeset.Types = {
   array = {},
 }
 
-Changeset.Types.number.cast = tonumber
-Changeset.Types.integer.cast = function (value) return math.floor(tonumber(value)) end
-Changeset.Types.float.cast = tonumber
-Changeset.Types.string.cast = tostring
-Changeset.Types.map.cast = function (value)
-  return value
+function Changeset.Types.number.cast(value)
+  return tonumber(value)
 end
-Changeset.Types.array.cast = function (value)
-  return value
+
+function Changeset.Types.integer.cast(value)
+  return math.floor(tonumber(value))
+end
+
+function Changeset.Types.float.cast(value)
+  return tonumber(value)
+end
+
+function Changeset.Types.string.cast(value)
+  return tostring(value)
+end
+
+function Changeset.Types.map.cast(value)
+  if type(value) == 'table' then
+    return value
+  else
+    error("expected a table")
+  end
+end
+
+function Changeset.Types.array.cast(value)
+  if type(value) == 'table' then
+    return value
+  else
+    error("expected a table")
+  end
 end
 
 local ic = Changeset.instance_class

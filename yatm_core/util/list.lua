@@ -1,3 +1,20 @@
+function yatm_core.list_map(list, fun)
+  return List.reduce(list, {}, function (value, acc)
+    return List.push(acc, fun(value)), false
+  end)
+end
+
+function yatm_core.list_reduce(list, acc, fun)
+  local should_break
+  for _, v in ipairs(list) do
+    acc, should_break = fun(v, acc)
+    if should_break then
+      break
+    end
+  end
+  return acc
+end
+
 function yatm_core.list_sample(l)
   local c = #l
   return l[math.random(c)]
