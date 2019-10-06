@@ -4,12 +4,14 @@
 local variants = {
   -- nuclear - depleted nuclear material, causes poisoning effect, handle with care
   {"nuclear", "Nuclear", {radioactive = 1}},
-  -- standard - default ammunition, should have the it's regular effect
+  -- standard - default ammunition, should have the regular effect
   {"standard", "Standard", {}},
   -- he - high-explosive, should deal more damage with explosive damage
   {"he", "High-Explosive", {explosive = 1}},
   -- ele - elemental round, when firing it also consumes MP from the user to deal additional damage
   {"ele", "Elemental", {elemental = 1, magical = 1}},
+  -- frost - FROST special issued rounds, causes a freezing effect
+  {"frost", "FROST", {freezing = 1}},
 }
 
 for _index,variant_row in ipairs(variants) do
