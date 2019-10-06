@@ -15,3 +15,7 @@ dofile(yatm_core.modpath .. "/util/meta_ref.lua")
 dofile(yatm_core.modpath .. "/util/time.lua")
 dofile(yatm_core.modpath .. "/util/type_conversion.lua")
 dofile(yatm_core.modpath .. "/util/toml.lua")
+-- Binary Serializer
+dofile(yatm_core.modpath .. "/util/byte_buf.lua")
+dofile(yatm_core.modpath .. "/util/bin_schema.lua")
+dofile(yatm_core.modpath .. "/util/bin_types.lua")

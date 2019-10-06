@@ -1,10 +1,9 @@
+local bit = yatm.bit
 local ByteBuf = {}
-local inspect = require("vendor/inspect").inspect
-local Map = require("app/util/map")
 
---[[
-Writer
-]]
+--
+-- Writer functions
+--
 function ByteBuf.write(file, data)
   local t = type(data)
   local num_bytes = 0
@@ -255,7 +254,7 @@ end
 
 function ByteBuf.w_map(file, key_type, value_type, data)
   -- length
-  local len = Map.length(data)
+  local len = yatm_core.table_length(data)
   -- number of items in the map
   local num_bytes = ByteBuf.w_u32(file, len)
   local writer_name = "w_" .. value_type
@@ -298,9 +297,9 @@ function ByteBuf.w_array(file, type, data)
   return all_bytes_written + bytes_written, err
 end
 
---[[
-Reader
-]]
+--
+-- Reader
+--
 function ByteBuf.read(file, len)
   return file:read(len)
 end
@@ -482,4 +481,4 @@ function ByteBuf.r_array(file, value_type)
   end
 end
 
-return ByteBuf
+yatm_core.ByteBuf = ByteBuf

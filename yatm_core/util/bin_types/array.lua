@@ -1,8 +1,8 @@
-local ByteBuf = require("app/util/byte_buf")
-local ScalarTypes = require("app/util/bin_types/scalars")
+local ByteBuf = assert(yatm_core.ByteBuf)
+local ScalarTypes = yatm_core.binary_types.Scalars
 
-local ArrayType = LilyObject:extends("ArrayType")
-local ic = ArrayType.instance_class
+local Array = yatm_core.Class:extends("Array")
+local ic = Array.instance_class
 
 function ic:initialize(value_type, len)
   ic._super.initialize(self)
@@ -54,4 +54,4 @@ function ic:read(file)
   return result, all_bytes_read
 end
 
-return ArrayType
+yatm_core.binary_types.Array = Array

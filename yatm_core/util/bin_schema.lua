@@ -1,7 +1,7 @@
-local ByteBuf = require("app/util/byte_buf")
-local ArrayType = require("app/util/bin_types/array")
-local MapType = require("app/util/bin_types/map")
-local ScalarTypes = require("app/util/bin_types/scalars")
+local ByteBuf = yatm_core.ByteBuf
+local ArrayType = yatm_core.binary_types.Array
+local MapType = yatm_core.binary_types.Map
+local ScalarTypes = yatm_core.binary_types.Scalar
 
 local BinSchema = yatm_core.Class:extends("BinSchema")
 local ic = BinSchema.instance_class

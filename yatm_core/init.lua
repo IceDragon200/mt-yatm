@@ -10,6 +10,7 @@ yatm = rawget(_G, "yatm") or {}
 local insec = minetest.request_insecure_environment()
 if insec then
   yatm.io = assert(insec.io, "no IO available on the insecure environment!")
+  yatm.bit = insec.require("bit")
 end
 
 -- Classes, yadda, yadda, OOP is evil, yeah I get it, just use OOP sparingly.
@@ -53,3 +54,4 @@ dofile(yatm_core.modpath .. "/tests.lua")
 
 -- prevent io from leaking out
 yatm.io = nil
+yatm.bit = nil

@@ -1,20 +1,19 @@
-local ByteBuf = require("app/util/byte_buf")
-local ScalarTypes = require("app/util/bin_types/scalars")
-local Map = require("app/util/map")
+local ByteBuf = assert(yatm_core.ByteBuf)
+local Scalars = yatm_core.binary_types.Scalars
 
-local MapType = LilyObject:extends("MapType")
-local ic = MapType.instance_class
+local Map = yatm_core.Class:extends("Map")
+local ic = Map.instance_class
 
 function ic:initialize(key_type, value_type)
   ic._super.initialize(self)
-  self.key_type = ScalarTypes.normalize_type(key_type)
-  self.value_type = ScalarTypes.normalize_type(value_type)
+  self.key_type = Scalars.normalize_type(key_type)
+  self.value_type = Scalars.normalize_type(value_type)
   assert(self.key_type, "expected key type to be set")
   assert(self.value_type, "expected value type to be set")
 end
 
 function ic:write(file, data)
-  local len = Map.length(data)
+  local len = yatm_core.table_length(data)
   local all_bytes_written = 0
   local bytes_written, err = ByteBuf.w_u32(file, len)
   all_bytes_written = all_bytes_written + bytes_written
@@ -53,4 +52,4 @@ function ic:read(file)
   end
 end
 
-return MapType
+yatm_core.binary_types.Map

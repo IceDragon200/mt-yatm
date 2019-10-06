@@ -1,6 +1,6 @@
-local ByteBuf = require("app/util/byte_buf")
+local ByteBuf = assert(yatm_core.ByteBuf)
 
-local Bytes = LilyObject:extends("Bytes")
+local Bytes = yatm_core.Class:extends("Bytes")
 local ic = Bytes.instance_class
 
 function ic:initialize(length)

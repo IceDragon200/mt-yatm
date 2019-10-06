@@ -7,6 +7,23 @@ function yatm_core.table_key_of(t, expected_value)
   return nil
 end
 
+function yatm_core.table_reduce(tbl, acc, fun)
+  local should_break
+  for k, v in pairs(tbl) do
+    acc, should_break = fun(k, v, acc)
+    if should_break then
+      break
+    end
+  end
+  return acc
+end
+
+function yatm_core.table_length(tbl)
+  return yatm_core.table_reduce(tbl, 0, function (_k, _v, acc)
+    return acc + 1
+  end)
+end
+
 --
 -- Create-And-Push
 function yatm_core.table_cpush(t, key, value)

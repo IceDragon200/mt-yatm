@@ -1,5 +1,5 @@
-local ByteBuf = require("app/util/byte_buf")
-local BinSchema = require("app/util/bin_schema")
+local ByteBuf = assert(yatm_core.ByteBuf)
+local BinSchema = assert(yatm_core.BinSchema)
 
 local NaiveDateTimeSchema0 = BinSchema:new({
   {"year", "u16"},
@@ -10,7 +10,7 @@ local NaiveDateTimeSchema0 = BinSchema:new({
   {"second", "u8"},
 })
 
-local NaiveDateTime = LilyObject:extends("NaiveDateTimeBinType")
+local NaiveDateTime = yatm_core.Class:extends("NaiveDateTime")
 local ic = NaiveDateTime.instance_class
 
 function ic:write(file, datetime)
@@ -35,4 +35,4 @@ function ic:read(file)
   end
 end
 
-return NaiveDateTime
+yatm_core.binary_types.NaiveDateTime = NaiveDateTime

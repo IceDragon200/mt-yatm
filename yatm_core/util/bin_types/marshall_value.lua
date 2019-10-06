@@ -1,4 +1,4 @@
-local ByteBuf = require("app/util/byte_buf")
+local ByteBuf = assert(yatm_core.ByteBuf)
 
 --[[
 Marshall values can be a specific scalar type, annotated by a letter code
@@ -9,7 +9,7 @@ Q for u32 strings
 B for u8 booleans
 T for tables
 ]]
-local MarshallValue = LilyObject:extends("MarshallValue")
+local MarshallValue = yatm_core.Class:extends("MarshallValue")
 local ic = MarshallValue.instance_class
 
 function ic:initialize()
@@ -178,4 +178,4 @@ function ic:read(file)
   end
 end
 
-return MarshallValue
+yatm_core.binary_types.MarshallValue = MarshallValue
