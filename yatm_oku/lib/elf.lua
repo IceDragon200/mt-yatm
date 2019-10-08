@@ -225,6 +225,14 @@ function ic:initialize(options)
   self.m_prog_segments = options.prog_segments
 end
 
+function ic:inspect()
+  return dump({
+    ehdr = self.m_ehdr,
+    sections = self.m_sections,
+    prog_segments = self.m_prog_segments,
+  })
+end
+
 function yatm_oku.elf:read(stream)
   local ehdr = yatm_oku.elf.ELF32.Ehdr:read(stream)
 

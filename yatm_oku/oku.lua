@@ -126,8 +126,8 @@ end
 function ic:load_elf_binary(blob)
   local stream = yatm_core.StringBuf:new(blob)
 
-  local elf_file = yatm_oku.elf:read(stream)
-  print("ELF-FILE", dump(elf_file))
+  local elf_prog = yatm_oku.elf:read(stream)
+  print(elf_prog:inspect())
 end
 
 --
@@ -135,30 +135,49 @@ end
 --
 
 function ic:bindump(stream)
-  -- TODO: handle write errors
   local bytes_written = 0
-  local bw = ByteBuf.write(stream, "OKU1")
+  local bw, err = ByteBuf.write(stream, "OKU1")
+  bytes_written = bytes_written + bw
+  if err then
+    return bytes_written, err
+  end
+
+  local bw, err = ByteBuf.w_u8string(stream, "rv32i")
   bytes_written = bytes_written + bw
 
-  local bw = ByteBuf.w_u8string(stream, "rv32i")
-  bytes_written = bytes_written + bw
+  if err then
+    return bytes_written, err
+  end
 
   for i = 0,31 do
     local rv = self.registers.x[i].i32
-    local bw = ByteBuf.w_i32(stream, rv)
+    local bw, err = ByteBuf.w_i32(stream, rv)
     bytes_written = bytes_written + bw
+
+    if err then
+      return bytes_written, err
+    end
   end
 
   local bw = ByteBuf.w_u32(stream, self.size)
   bytes_written = bytes_written + bw
+  if err then
+    return bytes_written, err
+  end
 
   local bw = ByteBuf.w_u8bool(stream, true)
   bytes_written = bytes_written + bw
+  if err then
+    return bytes_written, err
+  end
 
   local bw = self.memory:bindump(stream)
   bytes_written = bytes_written + bw
+  if err then
+    return bytes_written, err
+  end
 
-  return bytes_written
+  return bytes_written, nil
 end
 
 function ic:binload(stream)
