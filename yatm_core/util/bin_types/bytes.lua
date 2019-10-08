@@ -7,6 +7,10 @@ function ic:initialize(length)
   self.length = length
 end
 
+function ic:size()
+  return self.length
+end
+
 function ic:write(file, data)
   data = data or ""
   local payload = string.sub(data, 1, self.length)
@@ -27,4 +31,4 @@ function ic:read(file)
   return ByteBuf.read(file, self.length)
 end
 
-return Bytes
+yatm_core.binary_types.Bytes = Bytes

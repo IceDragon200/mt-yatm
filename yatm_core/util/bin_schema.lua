@@ -36,13 +36,14 @@ local ic = BinSchema.instance_class
   {name :: String, "map", key_type, value_type} | -- Map
   {name :: String, element_type} | -- Any other type
 ]
-@spec initialize(definition) :: void
+@spec initialize(String, definition) :: void
 ]]
-function ic:initialize(definition)
+function ic:initialize(name, definition)
   ic._super.initialize(self)
   assert(definition, "expected a definition list")
 
-  self.definition = yatm_core.list_map(definition, function (element)
+  self.m_name = assert(name)
+  self.m_definition = yatm_core.list_map(definition, function (element)
     if type(element) == "number" then
       return {type = 0, length = element}
     elseif type(element) == "table" then
@@ -74,8 +75,9 @@ function ic:initialize(definition)
           error("unexpected type " .. t)
         end
       elseif type(t) == "table" then
-        assert(t.write, "expected write/3")
-        assert(t.read, "expected write/2")
+        assert(t.write, name .. "; expected write/3")
+        assert(t.read, name .. "; expected write/2")
+        assert(t.size, name .. "; expected size/0")
         return {name = name, type = t}
       else
         error("expected a named type or type table")
@@ -86,11 +88,26 @@ function ic:initialize(definition)
   end)
 end
 
-function ic:write(file, data)
-  return yatm_core.list_reduce(self.definition, 0, function (block, all_bytes_written)
+function ic:size()
+  return yatm_core.list_reduce(self.m_definition, 0, function (block, current_size)
+    -- Padding
+    if block.type == 0 then
+      return current_size + block.length
+    else
+      if block.type.size then
+        return current_size + block.type:size()
+      else
+        error("field " .. block.name .. "; type has no `size` function")
+      end
+    end
+  end)
+end
+
+function ic:write(stream, data)
+  return yatm_core.list_reduce(self.m_definition, 0, function (block, all_bytes_written)
     if block.type == 0 then
       for _ = 1,block.length do
-        local bytes_written, err = ByteBuf.w_u8(file, 0)
+        local bytes_written, err = ByteBuf.w_u8(stream, 0)
         all_bytes_written = all_bytes_written + bytes_written
         if err then
           error(err)
@@ -98,7 +115,7 @@ function ic:write(file, data)
       end
     else
       local item = data[block.name]
-      local bytes_written, err = block.type:write(file, item)
+      local bytes_written, err = block.type:write(stream, item)
       all_bytes_written = all_bytes_written + bytes_written
       if err then
         error(err)
@@ -108,17 +125,18 @@ function ic:write(file, data)
   end), nil
 end
 
-function ic:read(file, target)
+function ic:read(stream, target)
   target = target or {}
-  return target, yatm_core.list_reduce(self.definition, 0, function (block, all_bytes_read)
+  return target, yatm_core.list_reduce(self.m_definition, 0, function (block, all_bytes_read)
     if block.type == 0 then
-      local _, bytes_read = ByteBuf.read(file, block.length)
+      local _, bytes_read = ByteBuf.read(stream, block.length)
       all_bytes_read = all_bytes_read + bytes_read
     else
-      print("BinSchema", "reading field", block.name)
-      local value, bytes_read = block.type:read(file)
+      print("debug", "BinSchema", self.m_name, "reading field", block.name, "at pos", stream:tell())
+      local value, bytes_read = block.type:read(stream)
       all_bytes_read = all_bytes_read + bytes_read
       target[block.name] = value
+      print("debug", "BinSchema", self.m_name, "read field", block.name)
     end
     return all_bytes_read
   end)

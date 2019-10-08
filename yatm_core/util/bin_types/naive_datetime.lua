@@ -1,7 +1,7 @@
 local ByteBuf = assert(yatm_core.ByteBuf)
 local BinSchema = assert(yatm_core.BinSchema)
 
-local NaiveDateTimeSchema0 = BinSchema:new({
+local NaiveDateTimeSchema0 = BinSchema:new("NaiveDateTimeSchema", {
   {"year", "u16"},
   {"month", "u8"},
   {"day", "u8"},

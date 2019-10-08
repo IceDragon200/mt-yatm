@@ -22,6 +22,83 @@ local Scalars = {
   u32string = {},
 }
 
+function Scalars.i8:size()
+  return 1
+end
+
+function Scalars.i16:size()
+  return 2
+end
+
+function Scalars.i24:size()
+  return 3
+end
+
+function Scalars.i32:size()
+  return 4
+end
+
+function Scalars.i64:size()
+  return 8
+end
+
+function Scalars.u8:size()
+  return 1
+end
+
+function Scalars.u16:size()
+  return 2
+end
+
+function Scalars.u24:size()
+  return 3
+end
+
+function Scalars.u32:size()
+  return 4
+end
+
+function Scalars.u64:size()
+  return 8
+end
+
+function Scalars.f16:size()
+  return 2
+end
+
+function Scalars.f24:size()
+  return 3
+end
+
+function Scalars.f32:size()
+  return 4
+end
+
+function Scalars.f64:size()
+  return 8
+end
+
+function Scalars.u8bool:size()
+  return 1
+end
+
+function Scalars.u8string:size()
+  error("cannot determine size of u8string")
+end
+
+function Scalars.u16string:size()
+  error("cannot determine size of u16string")
+end
+
+function Scalars.u24string:size()
+  error("cannot determine size of u24string")
+end
+
+function Scalars.u32string:size()
+  error("cannot determine size of u32string")
+end
+
+
 function Scalars.i8:write(file, data)
   return ByteBuf.w_i8(file, data)
 end

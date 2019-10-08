@@ -196,6 +196,16 @@ function ByteBuf.w_u8bool(file, bool)
   end
 end
 
+-- Null-Terminated string
+function ByteBuf.w_cstring(file, str)
+  local num_bytes, err = ByteBuf.write(file, str)
+  if err then
+    return num_bytes, err
+  end
+  local nbytes, err = ByteBuf.w_u8(file, 0)
+  return num_bytes + nbytes, err
+end
+
 function ByteBuf.w_u8string(file, data)
   -- length
   local len = #data
@@ -392,10 +402,28 @@ end
 function ByteBuf.r_u8bool(file, bool)
   local result, bytes_read = ByteBuf.r_u8(file)
   if bytes_read > 0 then
-    return result == 1, bytes_read
+    return result ~= 0, bytes_read
   else
     return nil, bytes_read
   end
+end
+
+function ByteBuf.r_cstring(file)
+  local bytes_read = 0
+  local result = ''
+  while true do
+    local c = ByteBuf.read(file, 1)
+    bytes_read = bytes_read + 1
+    if c == '\0' then
+      result = result .. '\0'
+      break
+    elseif c == '' then
+      error("unexpected termination")
+    else
+      result = result .. c
+    end
+  end
+  return result, bytes_read
 end
 
 function ByteBuf.r_u8string(file)
