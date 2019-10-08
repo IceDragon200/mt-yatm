@@ -1,6 +1,6 @@
---[[
-StringBuf is an in-memory equivalent of love's File interface
-]]
+--
+-- StringBuf is an in-memory equivalent of love's File interface
+--
 local StringBuf = yatm_core.Class:extends()
 local ic = StringBuf.instance_class
 

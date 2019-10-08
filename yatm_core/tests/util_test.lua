@@ -242,3 +242,5 @@ end)
 case:execute()
 case:display_stats()
 case:maybe_error()
+
+dofile(yatm_core.modpath .. "/tests/util/bin_buf_test.lua")
