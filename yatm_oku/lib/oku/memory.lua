@@ -26,10 +26,9 @@ function m:initialize(size)
   self.size = size
   self.data_size = math.floor(self.size / UNION_BYTE_SIZE) -- the data size is a 1/4 of the given size
 
-  assert((self.data_size * UNION_BYTE_SIZE) == self.size, "size be a factor of " .. UNION_BYTE_SIZE)
-  -- yes, I'm using short instead of char here, I don't want to deal with sign juggling
-  -- It's easier to artificially restrict the size before it's stored than it is to switch between signed and unsigned
+  assert((self.data_size * UNION_BYTE_SIZE) == self.size, "expected size to be a factor of " .. UNION_BYTE_SIZE)
   self.data = assert(ffi.new("union yatm_oku_memory_cell32[?]", self.data_size))
+  ffi.fill(self.data, self.size, 0)
 end
 
 function m:check_bounds(index, len)
@@ -114,6 +113,60 @@ function m:put_bytes(index, value)
     end
   end
   return self
+end
+
+function m:upload(blob)
+  ffi.copy(self.data, blob)
+  return self
+end
+
+--
+-- Binary Serialization
+--
+local ByteBuf = assert(yatm_core.ByteBuf)
+
+function m:bindump(stream)
+  local bytes_written = 0
+  if ffi.abi("le") then
+    local bw = ByteBuf.write(stream, "le")
+    bytes_written = bytes_written + bw
+  else
+    local bw = ByteBuf.write(stream, "be")
+    bytes_written = bytes_written + bw
+  end
+
+  local blob = ffi.string(self.data, self.size)
+  local bw = ByteBuf.write(stream, blob)
+  bytes_written = bytes_written + bw
+  return bytes_written, nil
+end
+
+function m:binload(stream)
+  local bytes_read = 0
+  local memory_bo, br = ByteBuf.read(stream, 2)
+  bytes_read = bytes_read + br
+  local memory_blob, br = ByteBuf.read(stream, memory_size)
+  bytes_read = bytes_read + br
+  if memory_bo == "le" then
+    -- the memory was dumped from a little endian machine
+    if ffi.abi("le") then
+      -- and we're running on an LE machine, thank goodness
+      ffi.copy(self.data, memory_blob)
+    else
+      -- oh snap, no, no, no
+      error("CRITICAL: Cannot restore little-endian memory dump in a big-endian host system")
+    end
+  elseif memory_bo == "be" then
+    -- the memory was dumped from a big endian machine
+    if ffi.abi("be") then
+      -- and we're running on an BE machine, yay!, wait, wat, that's rare
+      ffi.copy(self.data, memory_blob)
+    else
+      -- well, whoops
+      error("CRITICAL: Cannot restore big-endian memory dump in a little-endian host system")
+    end
+  end
+  return self, bytes_read
 end
 
 yatm_oku.OKU.Memory = Memory

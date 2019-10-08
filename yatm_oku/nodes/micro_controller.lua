@@ -66,17 +66,11 @@ local micro_controller_data_network_device = {
   }
 }
 
-local function micro_controller_on_construct(pos)
-  local node = minetest.get_node(pos)
-  data_network:register_member(pos, node)
-  yatm.computers:register_computer(pos, node, {
-    memory_size = 16 * 4, -- 16 ins * 4 bytes wide
-  })
-end
-
 local function micro_controller_after_place_node(pos, _placer, _item_stack, _pointed_thing)
-  -- Initialize the controller ports
+  local node = minetest.get_node(pos)
   local meta = minetest.get_meta(pos)
+
+  -- Initialize the controller ports
   meta:set_int("p1", 0)
   meta:set_int("p2", 0)
   meta:set_int("p3", 0)
@@ -93,6 +87,15 @@ local function micro_controller_after_place_node(pos, _placer, _item_stack, _poi
   meta:set_int("p14", 0)
   meta:set_int("p15", 0)
   meta:set_int("p16", 0)
+
+  -- Initialize secret
+  local secret = yatm_core.random_string(8)
+  meta:set_string("secret", "mctl." .. secret)
+  data_network:register_member(pos, node)
+
+  yatm.computers:create_computer(pos, node, secret, {
+    memory_size = 16 * 4, -- 16 ins * 4 bytes wide
+  })
 end
 
 local function micro_controller_on_destruct(pos)
@@ -101,6 +104,7 @@ end
 
 local function micro_controller_after_destruct(pos, old_node)
   data_network:unregister_member(pos, old_node)
+  yatm.computers:destroy_computer(pos, old_node)
 end
 
 local micro_controller_data_interface = {}
@@ -116,6 +120,7 @@ end
 local groups = {
   cracky = 1,
   yatm_data_device = 1,
+  yatm_computer = 1,
 }
 
 local micro_controller_nodebox = {
@@ -162,7 +167,6 @@ minetest.register_node("yatm_oku:oku_micro_controller", {
   refresh_infotext = micro_controller_refresh_infotext,
 
   after_place_node = micro_controller_after_place_node,
-  on_construct = micro_controller_on_construct,
   on_destruct = micro_controller_on_destruct,
   after_destruct = micro_controller_after_destruct,
 
@@ -177,4 +181,12 @@ minetest.register_node("yatm_oku:oku_micro_controller", {
       get_micro_controller_formspec(pos)
     )
   end,
+
+  register_computer = function (pos, node)
+    local meta = minetest.get_meta(pos)
+    local secret = meta:get_string("secret")
+    yatm.computers:register_computer(pos, node, secret, {
+      memory_size = 16 * 4, -- 16 ins * 4 bytes wide
+    })
+  end
 })

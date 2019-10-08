@@ -23,6 +23,7 @@ if not yatm_oku.bit then
 end
 
 dofile(yatm_oku.modpath .. "/oku.lua")
+dofile(yatm_oku.modpath .. "/lib/elf.lua")
 dofile(yatm_oku.modpath .. "/computers.lua")
 
 dofile(yatm_oku.modpath .. "/api.lua")
