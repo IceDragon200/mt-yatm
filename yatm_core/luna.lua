@@ -98,7 +98,7 @@ function c:assert_in(item, list, message)
 end
 
 function c:refute(truth_value, message)
-  return self:assert(not truth_value, message)
+  return self:assert(not truth_value, message or ("expected " .. dump(truth_value) .. " to be falsy"))
 end
 
 function c:refute_eq(a, b, message)
