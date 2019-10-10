@@ -6,6 +6,30 @@ function yatm_core.string_ends_with(str, expected)
   return expected == "" or string.sub(str, -#expected) == expected
 end
 
+function yatm_core.string_pad_leading(str, count, padding)
+  str = tostring(str)
+  if padding == "" then
+    error("argument error, expected padding to be a non-empty string")
+  end
+  local result = str
+  while #result < count do
+    result = padding .. result
+  end
+  return result
+end
+
+function yatm_core.string_pad_trailing(str, count, padding)
+  str = tostring(str)
+  if padding == "" then
+    error("argument error, expected padding to be a non-empty string")
+  end
+  local result = str
+  while #result < count do
+    result = result .. padding
+  end
+  return result
+end
+
 -- https://stackoverflow.com/a/1647577
 -- Modified for this
 function yatm_core.string_split_iter(str, pat)
