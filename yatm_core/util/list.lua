@@ -5,6 +5,18 @@ function yatm_core.list_map(list, fun)
   end)
 end
 
+function yatm_core.list_reverse(list)
+  -- https://forums.coronalabs.com/topic/61784-function-for-reversing-table-order/
+  local j = #list
+  local i = 1
+  while i < j do
+    list[i], list[j] = list[j], list[i]
+    i = i + 1
+    j = j - 1
+  end
+  return list
+end
+
 function yatm_core.list_reduce(list, acc, fun)
   local should_break
   for _, v in ipairs(list) do
