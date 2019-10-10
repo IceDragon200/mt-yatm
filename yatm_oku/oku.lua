@@ -1,8 +1,8 @@
---[[
-Registers:
-x0-x31
-pc
-]]
+--
+-- Registers:
+--   x0-x31
+--   pc
+--
 local ByteBuf = assert(yatm_core.ByteBuf)
 
 yatm_oku.OKU = yatm_core.Class:extends()
@@ -66,7 +66,7 @@ struct yatm_oku_registers32 {
       union yatm_oku_register32 x31;
     };
   };
-  uint32_t pc;
+  union yatm_oku_register32 pc;
 };
 ]]
 
@@ -86,18 +86,20 @@ end
 
 function ic:initialize(options)
   options = options or {}
-  options.memory_size = options.memory_size or 0x40000 --[[ Roughly 1Mb ]]
+  options.memory_size = options.memory_size or 0x20000 --[[ Roughly 512Kb ]]
   check_memory_size(options.memory_size)
   -- the registers
   self.registers = ffi.new("struct yatm_oku_registers32")
-  -- utility for decoding instructions
-  self.ins = ffi.new("union yatm_oku_rv32i_ins")
   -- memory
   self.memory = yatm_oku.OKU.Memory:new(options.memory_size)
+
+  self.exec_counter = 0
 end
 
-function ic:step()
-  yatm_oku.OKU.isa.RISCV.step(self)
+function ic:step(steps)
+  for _ = 1,steps do
+    yatm_oku.OKU.isa.RISCV.step(self)
+  end
 end
 
 function ic:get_memory_byte(index)
@@ -109,12 +111,19 @@ function ic:put_memory_byte(index, value)
   return self
 end
 
-function ic:get_memory_slice(index, len)
-  return self.memory:bytes(index, len)
+function ic:clear_memory_slice(index, size)
+  self.memory:fill_slice(index, size, 0)
+  return self
 end
 
-function ic:put_memory_slice(index, bytes)
-  self.memory:put_bytes(index, bytes)
+function ic:r_memory_blob(index, size)
+  return self.memory:r_blob(index, size)
+end
+
+function ic:w_memory_blob(index, bytes)
+  assert(index, "expected an index")
+  assert(index, "expected a blob")
+  self.memory:w_blob(index, bytes)
   return self
 end
 
@@ -127,7 +136,20 @@ function ic:load_elf_binary(blob)
   local stream = yatm_core.StringBuf:new(blob)
 
   local elf_prog = yatm_oku.elf:read(stream)
-  print(elf_prog:inspect())
+
+  elf_prog:reduce_segments(nil, function (segment, _unused)
+    if segment.header.type == "PT_LOAD" then
+      print(dump(segment))
+      self:clear_memory_slice(segment.header.vaddr, segment.header.memsz)
+      self:w_memory_blob(segment.header.vaddr, segment.blob)
+    end
+  end)
+
+  self.registers.pc.u32 = elf_prog:get_entry_vaddr()
+
+  --print(elf_prog:inspect())
+
+  return self
 end
 
 --
@@ -199,7 +221,6 @@ function ic:binload(stream)
         self.registers.x[i].i32 = rv
       end
 
-      self.ins = ffi.new("union yatm_oku_rv32i_ins")
       -- time to figure out what the memory size was
       local memory_size, br = ByteBuf.r_u32(stream)
       bytes_read = bytes_read + br

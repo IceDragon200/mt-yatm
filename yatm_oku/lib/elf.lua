@@ -233,6 +233,36 @@ function ic:inspect()
   })
 end
 
+function ic:reduce_sections(acc, fn)
+  return yatm_core.list_reduce(self.m_sections, acc, fn)
+end
+
+function ic:get_section(name)
+  for _,section in pairs(self.m_sections) do
+    if section.name == name then
+      return section
+    end
+  end
+  return nil
+end
+
+function ic:reduce_segments(acc, fn)
+  return yatm_core.list_reduce(self.m_prog_segments, acc, fn)
+end
+
+function ic:get_prog_segment(name)
+  for _,segment in pairs(self.m_prog_segments) do
+    if segment.name == name then
+      return segment
+    end
+  end
+  return nil
+end
+
+function ic:get_entry_vaddr()
+  return self.m_ehdr.entry
+end
+
 function yatm_oku.elf:read(stream)
   local ehdr = yatm_oku.elf.ELF32.Ehdr:read(stream)
 
@@ -293,16 +323,16 @@ function yatm_oku.elf:read(stream)
   end
 
   for _,phdr in ipairs(phdrs) do
-    local section = {
+    local segment = {
       header = phdr
     }
-    if phdr.offset > 0 and phdr.filesz > 0 then
+    if phdr.filesz > 0 then
       stream:seek(phdr.offset + 1)
 
       local blob = ByteBuf.read(stream, phdr.filesz)
-      section.blob = blob
+      segment.blob = blob
     end
-    table.insert(prog_segments, section)
+    table.insert(prog_segments, segment)
   end
 
   if ehdr.shstrndx > 0 then
