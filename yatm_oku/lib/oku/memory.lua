@@ -34,7 +34,7 @@ function m:check_bounds(index, len)
   len = len or 1
   assert(index >= 0, "expected index to greater than or equal to 0")
   local end_index = index + len
-  assert(end_index <= self.m_size, "expected end index to be inside memory")
+  assert(end_index <= self.m_size, "expected end index to be inside memory (got:" .. end_index .. ")")
 end
 
 local types = {

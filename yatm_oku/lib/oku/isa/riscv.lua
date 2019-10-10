@@ -139,7 +139,7 @@ isa._native = {
     iflag = 0,
     opcode = 0,
     rd = 0,
-    imm = 0,
+    imm20 = 0,
   },
   b = {
     iflag = 0,
@@ -171,6 +171,7 @@ local function format_hex(size, value)
 end
 
 local function format_bin(size, value, break_point)
+  local break_point = break_point or size + 1
   local result = {}
   local i = 0
   local digits = 0
@@ -200,7 +201,24 @@ local function format_bin(size, value, break_point)
   return "0b" .. result
 end
 
+local function to_signed(bits, value)
+  local signed = bit.band(bit.rshift(value, bits - 1), 0x1)
+  print("to_signed", format_bin(1, signed, 4), format_bin(bits, value, 4))
+  if signed == 1 then
+    local mask = math.pow(2, bits - 1) - 1
+    local base = bit.band(value, mask)
+    local max = math.pow(2, bits)
+    local last_bit = bit.lshift(1, bits - 1) - max
+    --print("to_signed", format_bin(1, signed, 4), format_bin(bits, value, 4), format_bin(bits, result, 4))
+    return bit.bor(last_bit, base)
+  else
+    return value
+  end
+end
+
 function isa:encode_syn_lui(hi, lo)
+  assert(hi, "expected hi value")
+  assert(lo, "expected lo value")
   local i = bit.bor(bit.lshift(bit.band(hi, 0xFFFFF), 12), bit.band(lo, 0xFFF))
 
   isa._itype.i32 = i
@@ -230,11 +248,12 @@ function isa:decode_head_ins(value, result)
     uint32_t rest : 25;
   } head;
   ]]
-  result = result or {}
+  assert(result, "expected a target result map")
   result.iflag = bit.band(value, 0x3)
   value = bit.rshift(value, 2)
   result.opcode = bit.band(value, 0x1F)
   value = bit.rshift(value, 5)
+  result.rest = value
   return value, result
 end
 
@@ -311,7 +330,7 @@ function isa:decode_s_ins(value, result)
     uint8_t imm1 : 7;
   } s;
   ]]
-  local value, result = self:decode_head_ins(value)
+  local value, result = self:decode_head_ins(value, result)
 
   result.imm0 = bit.band(value, 0x1F)
   value = bit.rshift(value, 5)
@@ -327,26 +346,26 @@ function isa:decode_s_ins(value, result)
   return value, result
 end
 
-function isa:decode_u_ins(value)
+function isa:decode_u_ins(value, result)
   --[[
   struct {
     uint8_t iflag : 2;
     uint8_t opcode : 5;
     uint8_t rd : 5;
-    uint32_t imm : 20;
+    uint32_t imm20 : 20;
   } u;
   ]]
-  local value, result = self:decode_head_ins(value)
+  local value, result = self:decode_head_ins(value, result)
 
   result.rd = bit.band(value, 0x1F)
   value = bit.rshift(value, 5)
-  result.imm = bit.band(value, 0xFFFFF)
+  result.imm20 = bit.band(value, 0xFFFFF)
   value = bit.rshift(value, 20)
 
   return value, result
 end
 
-function isa:decode_b_ins(value)
+function isa:decode_b_ins(value, result)
   --[[
   struct {
     uint8_t iflag : 2;
@@ -370,7 +389,7 @@ function isa:decode_b_ins(value)
     };
   } b;
   ]]
-  local value, result = self:decode_head_ins(value)
+  local value, result = self:decode_head_ins(value, result)
 
   result.bimm12lo = bit.band(value, 0x1F)
 
@@ -381,7 +400,7 @@ function isa:decode_b_ins(value)
 
   value = bit.rshift(value, 5)
 
-  result.funct3 = bit.band(lo, 0x7)
+  result.funct3 = bit.band(value, 0x7)
   value = bit.rshift(value, 3)
   result.rs1 = bit.band(value, 0x1F)
   value = bit.rshift(value, 5)
@@ -399,7 +418,7 @@ function isa:decode_b_ins(value)
   return value, result
 end
 
-function isa:decode_j_ins(value)
+function isa:decode_j_ins(org_value, result)
   --[[
   struct {
     uint8_t iflag : 2;
@@ -416,11 +435,10 @@ function isa:decode_j_ins(value)
     };
   } j;
   ]]
-  local value, result = self:decode_head_ins(value)
+  local value, result = self:decode_head_ins(org_value, result)
 
   result.rd = bit.band(value, 0x1F)
   value = bit.rshift(value, 5)
-  result.imm20 = bit.band(value, 0xFFFFF)
 
   result.imm8 = bit.band(value, 0xFF)
   value = bit.rshift(value, 8)
@@ -431,18 +449,35 @@ function isa:decode_j_ins(value)
   result.imm1_1 = bit.band(value, 0x1)
   value = bit.rshift(value, 1)
 
+  -- imm20 is a god damn odd ball, its parts are all over the place...
+  result.imm20 = bit.lshift(result.imm10, 1) +
+                 bit.lshift(result.imm1_0, 11) +
+                 bit.lshift(result.imm8, 12) +
+                 bit.lshift(result.imm1_1, 20)
+  --[[result.imm20 =
+    bit.bor(
+      bit.lshift(result.imm1_1, 19),
+      bit.bor(
+        bit.lshift(result.imm8, 11),
+        bit.bor(
+          bit.lshift(result.imm1_0, 10),
+          result.imm10
+        )
+      )
+    )]]
+
   return value, result
 end
 
 --
 -- Load Header
 --
-function isa:load_head(u32_ins)
-  self._itype.u32 = u32_ins
+function isa:load_head(i32_ins)
+  self._itype.i32 = i32_ins
   self._native.u32 = self._itype.u32
   self._native.i32 = self._itype.i32
 
-  self:decode_head_ins(self._native.u32, self._native.head)
+  self:decode_head_ins(self._native.i32, self._native.head)
   self:debug_native_head()
 end
 
@@ -450,27 +485,32 @@ end
 -- Load From Native
 --
 function isa:nload_r_ins()
-  self:decode_r_ins(self._native.u32, self._native.r)
+  self:decode_r_ins(self._native.i32, self._native.r)
   self:debug_native_r()
 end
 
 function isa:nload_i_ins()
-  self:decode_i_ins(self._native.u32, self._native.i)
+  self:decode_i_ins(self._native.i32, self._native.i)
   self:debug_native_i()
 end
 
 function isa:nload_s_ins()
-  self:decode_s_ins(self._native.u32, self._native.s)
+  self:decode_s_ins(self._native.i32, self._native.s)
   self:debug_native_s()
 end
 
+function isa:nload_u_ins()
+  self:decode_u_ins(self._native.i32, self._native.u)
+  self:debug_native_u()
+end
+
 function isa:nload_b_ins()
-  self:decode_b_ins(self._native.u32, self._native.b)
+  self:decode_b_ins(self._native.i32, self._native.b)
   self:debug_native_b()
 end
 
 function isa:nload_j_ins()
-  self:decode_j_ins(self._native.u32, self._native.j)
+  self:decode_j_ins(self._native.i32, self._native.j)
   self:debug_native_j()
 end
 
@@ -480,6 +520,41 @@ function isa:debug_native_head()
                           "rest:" .. format_hex(8, n.head.rest),
                           "opcode:" .. format_hex(2, n.head.opcode),
                           "iflag:" .. format_hex(1, n.head.iflag)
+        )
+end
+
+function isa:debug_native_i()
+  local n = self._native
+  print("rv32i_ins.i", format_hex(8, n.u32) .. "(" .. format_bin(32, n.u32, 4) .. ")", "|",
+                       "imm12:" .. format_hex(4, n.i.imm12),
+                       "rs1:" .. format_hex(2, n.i.rs1),
+                       "funct3:" .. format_hex(1, n.i.funct3),
+                       "rd:" .. format_hex(2, n.i.rd),
+                       "opcode:" .. format_hex(2, n.i.opcode) .. "(" .. format_bin(5, n.i.opcode, 4) .. ")",
+                       "iflag:" .. format_hex(1, n.i.iflag)
+        )
+end
+
+function isa:debug_native_s()
+  local n = self._native
+  print("rv32i_ins.s", format_hex(8, n.u32) .. "(" .. format_bin(32, n.u32, 4) .. ")", "|",
+                       "imm1:" .. format_hex(2, n.s.imm1),
+                       "rs2:" .. format_hex(2, n.s.rs2),
+                       "rs1:" .. format_hex(2, n.s.rs1),
+                       "funct3:" .. format_hex(1, n.s.funct3),
+                       "imm0:" .. format_hex(2, n.s.imm0),
+                       "opcode:" .. format_hex(2, n.s.opcode),
+                       "iflag:" .. format_hex(1, n.s.iflag)
+        )
+end
+
+function isa:debug_native_u()
+  local n = self._native
+  print("rv32i_ins.u", format_hex(8, n.u32) .. "(" .. format_bin(32, n.u32, 4) .. ")", "|",
+                       "imm20:" .. format_hex(8, n.u.imm20),
+                       "rd:" .. format_hex(2, n.u.rd),
+                       "opcode:" .. format_hex(2, n.u.opcode) .. "(" .. format_bin(5, n.u.opcode, 4) .. ")",
+                       "iflag:" .. format_hex(1, n.u.iflag)
         )
 end
 
@@ -496,15 +571,14 @@ function isa:debug_native_b()
         )
 end
 
-function isa:debug_native_i()
+
+function isa:debug_native_j()
   local n = self._native
-  print("rv32i_ins.i", format_hex(8, n.u32) .. "(" .. format_bin(32, n.u32, 4) .. ")", "|",
-                       "imm12:" .. format_hex(4, n.i.imm12),
-                       "rs1:" .. format_hex(2, n.i.rs1),
-                       "funct3:" .. format_hex(1, n.i.funct3),
-                       "rd:" .. format_hex(2, n.i.rd),
-                       "opcode:" .. format_hex(2, n.i.opcode) .. "(" .. format_bin(5, n.i.opcode, 4) .. ")",
-                       "iflag:" .. format_hex(1, n.i.iflag)
+  print("rv32i_ins.j", format_hex(8, n.u32) .. "(" .. format_bin(32, n.u32, 4) .. ")", "|",
+                       "imm20:" .. format_hex(1, n.j.imm20),
+                       "rd:" .. format_hex(2, n.j.rd),
+                       "opcode:" .. format_hex(2, n.j.opcode),
+                       "iflag:" .. format_hex(1, n.j.iflag)
         )
 end
 
@@ -559,30 +633,39 @@ function isa.ins.load(i, oku)
   isa:nload_i_ins()
   local rd = i.i.rd
   local rs1 = i.i.rs1
-  local imm12 = i.i.imm12
-  local m = isa.xr_i32(rs1, oku) + imm12
+  local offset = to_signed(12, i.i.imm12)
+  local addr = isa.xr_i32(rs1, oku) + offset
 
   if i.i.funct3 == 0 then
     -- lb
-    oku.memory:r_i8(m)
+    print("LB", addr)
+    isa.w_xr_i32(oku:get_memory_i8(addr))
   elseif i.i.funct3 == 1 then
     -- lh
-    oku.memory:r_i16(m)
+    print("LH", addr)
+    isa.w_xr_i32(oku:get_memory_i16(addr))
   elseif i.i.funct3 == 2 then
     -- lw
-    oku.memory:r_i32(m)
+    print("LW", addr)
+    isa.w_xr_i32(oku:get_memory_i32(addr))
   elseif i.i.funct3 == 3 then
     -- ld
-    oku.memory:r_i64(m)
+    print("LD", addr)
+    isa.w_xr_i64(oku:get_memory_i64(addr))
   elseif i.i.funct3 == 4 then
     -- lbu
-    oku.memory:r_u8(m)
+    print("LBU", addr)
+    isa.w_xr_u32(oku:get_memory_u8(addr))
   elseif i.i.funct3 == 5 then
     -- lhu
-    oku.memory:r_u16(m)
+    print("LHU", addr)
+    isa.w_xr_u32(oku:get_memory_u16(addr))
   elseif i.i.funct3 == 6 then
     -- lwu
-    oku.memory:r_u32(m)
+    print("LWU", addr)
+    isa.w_xr_u32(oku:get_memory_u32(addr))
+  else
+    print("unexpected load instruction funct3:" .. i.i.funct3)
   end
 end
 
@@ -591,9 +674,10 @@ function isa.ins.arithi(i, oku)
   isa:nload_i_ins()
   local rd = i.i.rd
   local rs1 = i.i.rs1
+  local imm12 = to_signed(12, i.i.imm12)
   if i.i.funct3 == 0 then
     -- addi
-    local value = isa.xr_i32(rs1, oku) + i.i.imm12
+    local value = isa.xr_i32(rs1, oku) + imm12
     print("ADDI", isa.REGISTER_NAME[rd], value)
     isa.w_xr_i32(rd, value, oku)
   elseif i.i.funct3 == 1 then
@@ -607,7 +691,7 @@ function isa.ins.arithi(i, oku)
     error("not implemented sltiu")
   elseif i.i.funct3 == 4 then
     -- xori
-    local value = bit.bxor(isa.xr_i32(rs1, oku), i.i.imm12)
+    local value = bit.bxor(isa.xr_i32(rs1, oku), imm12)
     print("XORI", isa.REGISTER_NAME[rd], value)
     isa.w_xr_i32(rd, value, oku)
   elseif i.i.funct3 == 5 then
@@ -615,12 +699,12 @@ function isa.ins.arithi(i, oku)
     error("not implemented srli and srai")
   elseif i.i.funct3 == 6 then
     -- ori
-    local value = bit.bor(isa.xr_i32(rs1, oku), i.i.imm12)
+    local value = bit.bor(isa.xr_i32(rs1, oku), imm12)
     print("ORI", isa.REGISTER_NAME[rd], value)
     isa.w_xr_i32(rd, value, oku)
   elseif i.i.funct3 == 7 then
     -- andi
-    local value = bit.band(isa.xr_i32(rs1, oku), i.i.imm12)
+    local value = bit.band(isa.xr_i32(rs1, oku), imm12)
     print("ANDI", isa.REGISTER_NAME[rd], value)
     isa.w_xr_i32(rd, value, oku)
   else
@@ -630,24 +714,32 @@ end
 
 -- Store
 function isa.ins.store(i, oku)
-  isa:nload_b_ins()
+  isa:nload_s_ins()
 
-  local offset = isa:encode_syn_boffset12(i.b.bimm12hi, i.b.bimm12lo).i32
-  local v1 = isa.xr_i32(i.b.rs1, oku) + offset
-  local v2 = isa.xr_i32(i.b.rs2, oku)
+  local offset = isa:encode_syn_boffset12(i.s.imm1, i.s.imm0).i32
+  local v1 = isa.xr_i32(i.s.rs1, oku)
+  local v2 = isa.xr_i32(i.s.rs2, oku)
 
-  if i.i.funct3 == 0 then
+  local addr = v1 + offset
+
+  if i.s.funct3 == 0 then
     -- sb
-    oku.memory:w_i8(v1, v2)
-  elseif i.i.funct3 == 1 then
+    print("SB", addr, v1, v2)
+    oku:put_memory_i8(addr, v2)
+  elseif i.s.funct3 == 1 then
     -- sh
-    oku.memory:w_i16(v1, v2)
-  elseif i.i.funct3 == 2 then
+    print("SH", addr, v1, v2)
+    oku:put_memory_i16(addr, v2)
+  elseif i.s.funct3 == 2 then
     -- sw
-    oku.memory:w_i32(v1, v2)
-  elseif i.i.funct3 == 3 then
+    print("SW", addr, v1, v2)
+    oku:put_memory_i32(addr, v2)
+  elseif i.s.funct3 == 3 then
     -- sd
-    oku.memory:w_i64(v1, v2)
+    print("SD", addr, v1, v2)
+    oku:put_memory_i64(addr, v2)
+  else
+    error("invalid store instruction; funct3:" .. i.s.funct3)
   end
 end
 
@@ -746,15 +838,16 @@ function isa.ins.arith(i, oku)
 end
 
 function isa.ins.lui(i, oku)
-  isa:nload_i_ins()
-  local rd = i.j.rd
-  local imm20 = i.j.imm20
+  isa:nload_u_ins()
+  local rd = i.u.rd
+  local imm20 = i.u.imm20
 
   local value = isa.xr_i32(rd, oku)
 
-  local lui_offset = self:encode_syn_lui(imm20, value).i32
+  local lui = isa:encode_syn_lui(imm20, value).i32
 
-  isa.xr_i32(rd, lui_offset, oku)
+  print("LUI", isa.REGISTER_NAME[rd], lui)
+  isa.w_xr_i32(rd, lui, oku)
 end
 
 function isa.ins.branch(i, oku)
@@ -769,35 +862,41 @@ function isa.ins.branch(i, oku)
   if i.b.funct3 == 0 then
     -- beq
     if v1 == v2 then
+      print("BEQ", format_hex(8, new_pc))
       oku.registers.pc.i32 = new_pc
     end
   elseif i.b.funct3 == 1 then
     -- bne
     if v1 ~= v2 then
+      print("BNE", format_hex(8, new_pc))
       oku.registers.pc.i32 = new_pc
     end
   elseif i.b.funct3 == 4 then
     -- blt
     if v1 < v2 then
+      print("BLT", format_hex(8, new_pc))
       oku.registers.pc.i32 = new_pc
     end
   elseif i.b.funct3 == 5 then
     -- bge
     if v1 >= v2 then
+      print("BGE", format_hex(8, new_pc))
       oku.registers.pc.i32 = new_pc
     end
   elseif i.b.funct3 == 6 then
     -- bltu
     if v1u < v2u then
+      print("BLTU", format_hex(8, new_pc))
       oku.registers.pc.i32 = new_pc
     end
   elseif i.b.funct3 == 7 then
     -- bgeu
     if v1u >= v2u then
+      print("BGEU", format_hex(8, new_pc))
       oku.registers.pc.i32 = new_pc
     end
   else
-    error("invalid instruction")
+    error("invalid branch instruction; funct3:" .. i.b.funct3)
   end
 end
 
@@ -805,7 +904,7 @@ function isa.ins.jalr(i, oku)
   isa:nload_i_ins()
   local rd = i.i.rd
   local rs1 = i.i.rs1
-  local imm12 = i.i.imm12
+  local imm12 = to_signed(12, i.i.imm12)
   local funct3 = i.i.funct3
 
   local pc = oku.registers.pc.i32
@@ -825,18 +924,18 @@ function isa.ins.jalr(i, oku)
 end
 
 function isa.ins.jal(i, oku)
-  isa:nload_i_ins()
-  local rd = i.i.rd
-  local jimm20 = i.i.imm20
+  isa:nload_j_ins()
+  local rd = i.j.rd
+  local offset = to_signed(20, i.j.imm20)
 
-  local pc = oku.registers.pc.i32
+  local npc = oku.registers.pc.u32
 
-  if i.i.funct3 == 0 then
-    local offset = jimm20
-    isa.w_xr_i32(rd, pc, oku)
-    oku.registers.pc.i32 = pc + offset
+  if rd == 0 then
+    oku.registers.pc.u32 = npc + offset
+    print("JAL", isa.REGISTER_NAME[rd], format_hex(8, oku.registers.pc.u32))
+    isa.w_xr_u32(rd, npc, oku)
   else
-    error("invalid instruction")
+    error("invalid jal instruction, rd:" .. i.j.rd)
   end
 end
 
@@ -876,21 +975,26 @@ function isa.ins.system(i, oku)
   end
 end
 
-function isa.step(oku)
-  oku.exec_counter = oku.exec_counter + 1
-  local pc = oku.registers.pc.u32
-  print(oku.exec_counter, "PC", string.format("%08x", pc))
-  isa:load_head(oku.memory:r_u32(pc))
+function isa.step_ins(oku, ins)
+  isa:load_head(ins)
 
+  local npc = oku.registers.pc.u32
   if isa._native.head.iflag == 0x3 then
+    oku.registers.pc.u32 = npc + 4
     local ins_name = assert(isa.OPCODE_TO_INS[isa._native.head.opcode])
-    print(oku.exec_counter, "STEP", ins_name, string.format("%08x", isa._native.u32))
+    print(oku.exec_counter .. " | PC:" .. format_hex(8, npc) .. " STEP:" .. ins_name .. "(" .. format_hex(8, isa._native.u32) .. ")")
     isa.ins[ins_name](isa._native, oku)
-    oku.registers.pc.u32 = oku.registers.pc.u32 + 4
   else
-    error(oku.exec_counter .. " Bad instruction " .. string.format("%08x", isa._native.u32))
+    error(oku.exec_counter .. " | PC:" .. format_hex(8, npc) .." Bad instruction " .. format_hex(8, isa._native.u32))
     -- TODO: error
   end
+end
+
+function isa.step(oku)
+  oku.exec_counter = oku.exec_counter + 1
+  assert(oku.registers.x[0].i32 == 0, "expected 0 register to be well 0 got:" .. oku.registers.x[0].i32)
+
+  isa.step_ins(oku, oku:get_memory_i32(oku.registers.pc.u32))
 end
 
 yatm_oku.OKU.isa.RISCV = isa

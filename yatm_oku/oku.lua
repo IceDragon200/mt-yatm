@@ -29,43 +29,7 @@ union yatm_oku_register32 {
 
 ffi.cdef[[
 struct yatm_oku_registers32 {
-  union {
-    union yatm_oku_register32 x[32];
-    struct {
-      union yatm_oku_register32 x0;
-      union yatm_oku_register32 x1;
-      union yatm_oku_register32 x2;
-      union yatm_oku_register32 x3;
-      union yatm_oku_register32 x4;
-      union yatm_oku_register32 x5;
-      union yatm_oku_register32 x6;
-      union yatm_oku_register32 x7;
-      union yatm_oku_register32 x8;
-      union yatm_oku_register32 x9;
-      union yatm_oku_register32 x10;
-      union yatm_oku_register32 x11;
-      union yatm_oku_register32 x12;
-      union yatm_oku_register32 x13;
-      union yatm_oku_register32 x14;
-      union yatm_oku_register32 x15;
-      union yatm_oku_register32 x16;
-      union yatm_oku_register32 x17;
-      union yatm_oku_register32 x18;
-      union yatm_oku_register32 x19;
-      union yatm_oku_register32 x20;
-      union yatm_oku_register32 x21;
-      union yatm_oku_register32 x22;
-      union yatm_oku_register32 x23;
-      union yatm_oku_register32 x24;
-      union yatm_oku_register32 x25;
-      union yatm_oku_register32 x26;
-      union yatm_oku_register32 x27;
-      union yatm_oku_register32 x28;
-      union yatm_oku_register32 x29;
-      union yatm_oku_register32 x30;
-      union yatm_oku_register32 x31;
-    };
-  };
+  union yatm_oku_register32 x[32];
   union yatm_oku_register32 pc;
 };
 ]]
@@ -91,7 +55,7 @@ function ic:initialize(options)
   -- the registers
   self.registers = ffi.new("struct yatm_oku_registers32")
   -- memory
-  self.memory = yatm_oku.OKU.Memory:new(options.memory_size)
+  self.m_memory = yatm_oku.OKU.Memory:new(options.memory_size)
 
   self.exec_counter = 0
 end
@@ -102,33 +66,35 @@ function ic:step(steps)
   end
 end
 
-function ic:get_memory_byte(index)
-  return self.memory:i8(index)
-end
+for _,key in ipairs({"i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64"}) do
+  ic["get_memory_" .. key] = function (self, index)
+    return self.m_memory["r_" .. key](self.m_memory, index)
+  end
 
-function ic:put_memory_byte(index, value)
-  self.memory:w_i8(index, value)
-  return self
+  ic["put_memory_" .. key] = function (self, index, value)
+    self.m_memory["w_" .. key](self.m_memory, index, value)
+    return self
+  end
 end
 
 function ic:clear_memory_slice(index, size)
-  self.memory:fill_slice(index, size, 0)
+  self.m_memory:fill_slice(index, size, 0)
   return self
 end
 
 function ic:r_memory_blob(index, size)
-  return self.memory:r_blob(index, size)
+  return self.m_memory:r_blob(index, size)
 end
 
 function ic:w_memory_blob(index, bytes)
   assert(index, "expected an index")
   assert(index, "expected a blob")
-  self.memory:w_blob(index, bytes)
+  self.m_memory:w_blob(index, bytes)
   return self
 end
 
 function ic:upload_memory(blob)
-  self.memory:upload(blob)
+  self.m_memory:upload(blob)
   return self
 end
 
@@ -193,7 +159,7 @@ function ic:bindump(stream)
     return bytes_written, err
   end
 
-  local bw = self.memory:bindump(stream)
+  local bw = self.m_memory:bindump(stream)
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
@@ -225,14 +191,14 @@ function ic:binload(stream)
       local memory_size, br = ByteBuf.r_u32(stream)
       bytes_read = bytes_read + br
       check_memory_size(memory_size) -- make sure someone isn't trying something funky.
-      self.memory = yatm_oku.OKU.Memory:new(memory_size)
+      self.m_memory = yatm_oku.OKU.Memory:new(memory_size)
 
       -- okay, now determine if the memory should be reloaded, or was it volatile
       local has_state, br = ByteBuf.r_u8bool(stream)
       bytes_read = bytes_read + br
       if has_state then
         -- the state was persisted, attempt to reload it
-        self.memory:binload(stream)
+        self.m_memory:binload(stream)
       else
         -- the state was not persisted, we're done now.
       end
