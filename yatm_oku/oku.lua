@@ -60,10 +60,20 @@ function ic:initialize(options)
   self.exec_counter = 0
 end
 
+-- Reset the stack pointer to the end of memory
+function ic:reset_sp()
+  self.registers.x[2].u32 = self.m_memory:size()
+end
+
 function ic:step(steps)
-  for _ = 1,steps do
-    yatm_oku.OKU.isa.RISCV.step(self)
+  assert(steps, "expected steps to a number")
+  for step_i = 1,steps do
+    local okay, err = yatm_oku.OKU.isa.RISCV.step(self)
+    if not okay then
+      return step_i, err
+    end
   end
+  return steps, nil
 end
 
 for _,key in ipairs({"i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64"}) do
@@ -105,7 +115,7 @@ function ic:load_elf_binary(blob)
 
   elf_prog:reduce_segments(nil, function (segment, _unused)
     if segment.header.type == "PT_LOAD" then
-      print(dump(segment))
+      --print(dump(segment))
       self:clear_memory_slice(segment.header.vaddr, segment.header.memsz)
       self:w_memory_blob(segment.header.vaddr, segment.blob)
     end
@@ -137,6 +147,8 @@ function ic:bindump(stream)
     return bytes_written, err
   end
 
+  --
+  -- Registers
   for i = 0,31 do
     local rv = self.registers.x[i].i32
     local bw, err = ByteBuf.w_i32(stream, rv)
@@ -147,7 +159,15 @@ function ic:bindump(stream)
     end
   end
 
-  local bw = ByteBuf.w_u32(stream, self.size)
+  local bw = ByteBuf.w_u32(stream, self.registers.pc.u32)
+  bytes_written = bytes_written + bw
+  if err then
+    return bytes_written, err
+  end
+
+  --
+  -- Memory
+  local bw = ByteBuf.w_u32(stream, self.m_memory:size())
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
@@ -169,6 +189,7 @@ function ic:bindump(stream)
 end
 
 function ic:binload(stream)
+  self.exec_counter = 0
   local bytes_read = 0
   -- First thing is to read the magic bytes
   local mahou, br = ByteBuf.read(stream, 4)
@@ -186,6 +207,7 @@ function ic:binload(stream)
         bytes_read = bytes_read + br
         self.registers.x[i].i32 = rv
       end
+      self.registers.pc.u32 = ByteBuf.r_u32(stream)
 
       -- time to figure out what the memory size was
       local memory_size, br = ByteBuf.r_u32(stream)
@@ -203,10 +225,10 @@ function ic:binload(stream)
         -- the state was not persisted, we're done now.
       end
     else
-      error("unhandled OKU arch " .. arch)
+      error("unhandled OKU arch got:" .. arch)
     end
   else
-    error("expected an OKU1 state")
+    error("expected an OKU1 state got:" .. dump(mahou))
   end
   return self, bytes_read
 end

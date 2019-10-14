@@ -30,11 +30,13 @@ local ComputerStateHeaderSchema =
   })
 
 function ic:initialize()
+  self.m_root_dir = yatm_core.path_join(minetest.get_worldpath(), "/yatm/oku")
+  minetest.mkdir(self.m_root_dir)
   self.m_computers = {}
 end
 
-local function pos_to_filename(pos)
-  return string.format("%04x-%04x-%04x", pos.x, pos.y, pos.z) .. ".bin"
+local function pos_to_basename(pos)
+  return string.format("computer-%08x", minetest.hash_node_position(pos)) .. ".bin"
 end
 
 --
@@ -48,20 +50,24 @@ end
 --
 -- @spec load_computer_state(Vector) :: {ComputerState | nil, error}
 function ic:load_computer_state(pos)
-  local filename = pos_to_filename(pos)
+  local basename = pos_to_basename(pos)
+  local filename = yatm_core.path_join(self.m_root_dir, basename)
 
   local file = io.open(filename, "r")
   if file then
+    local stream = yatm_core.StringBuf:new(file:read('*all'), 'r')
+    print("ComputerState", filename, stream:size())
+    file:close()
     -- FIXME: This entire section should be wrapped in a protected call
     --        and the file closed properly.
     -- Read the state header
     local state, _bytes_read =
-      ComputerStateHeaderSchema:read(file, {})
+      ComputerStateHeaderSchema:read(stream, {})
 
     -- Let OKU read the rest
     local oku, br = OKU:binload(stream)
 
-    file:close()
+    stream:close()
 
     local state_pos = vector.new(state.x, state.y, state.z)
     local node = {
@@ -86,13 +92,14 @@ end
 --
 -- @spec save_computer_state(ComputerState) :: {bytes_written :: non_neg_integer, error}
 function ic:save_computer_state(state)
-  local filename = pos_to_filename(state.pos)
+  local basename = pos_to_basename(state.pos)
+  local filename = yatm_core.path_join(self.m_root_dir, basename)
 
-  local file = io.open(filename, "r")
+  local stream = yatm_core.BinaryBuffer:new('', 'w')
 
   local bytes_written = 0
   local bw, err =
-    ComputerStateHeaderSchema:write(file, {
+    ComputerStateHeaderSchema:write(stream, {
       magic = "OCS1",
 
       version = 1,
@@ -110,20 +117,21 @@ function ic:save_computer_state(state)
   bytes_written = bytes_written + bw
 
   if err then
-    file:close()
+    stream:close()
     return bytes_written, "error while writing header " .. err
   end
 
-  local bw, err = state.oku:bindump(file)
+  local bw, err = state.oku:bindump(stream)
   bytes_written = bytes_written + bw
 
   if err then
-    file:close()
+    stream:close()
     return bytes_written, "error while writing oku state " .. err
   end
 
-  file:close()
+  stream:close()
 
+  minetest.safe_file_write(filename, stream:blob())
   return bytes_written, nil
 end
 
@@ -155,8 +163,9 @@ end
 
 function ic:update(dt)
   --
+  local clock_speed = math.floor(dt * 1000)
   for _, computer in pairs(self.m_computers) do
-    computer.oku:step()
+    computer.oku:step(clock_speed)
   end
 end
 
@@ -213,7 +222,7 @@ end
 -- This should be used for nodes that are being reloaded.
 --
 function ic:register_computer(pos, node, secret, options)
-  local old_state = load_computer_state(pos)
+  local old_state = self:load_computer_state(pos)
   if old_state then
     if old_state.secret == secret then
       self.m_computers[old_state.id] = old_state

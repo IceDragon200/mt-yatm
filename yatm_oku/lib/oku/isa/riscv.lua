@@ -1,13 +1,10 @@
 --
 -- The RISCV ISA.
 --
--- With 2 new instructions for interacting with YATM data's port system.
---
 -- rd - register destination
 -- rs - register source
 -- ro - register as operand
 -- imm - immediate value (i.e. an integer)
--- P - port number
 --
 -- Instructions:
 -- -- Arithmetic
@@ -28,10 +25,6 @@
 --   and rd, rs, ro
 --   andi rd, rs, imm
 --   not rd, rs
---
--- -- Port
---   pl rd, P
---   ps P, rs
 --
 -- -- Jump
 --   jlr rd, label
@@ -129,11 +122,14 @@ isa._native = {
   s = {
     iflag = 0,
     opcode = 0,
-    imm0 = 0,
+    imm12_0_5 = 0,
     funct3 = 0,
     rs1 = 0,
     rs2 = 0,
-    imm1 = 0,
+    imm12_5_7 = 0,
+    --
+    imm12 = 0,
+    s_imm12 = 0,
   },
   u = {
     iflag = 0,
@@ -144,25 +140,28 @@ isa._native = {
   b = {
     iflag = 0,
     opcode = 0,
-    bimm12lo = 0,
-    imm0 = 0,
-    imm1 = 0,
+    imm13_11_1 = 0,
+    imm13_1_4 = 0,
     funct3 = 0,
     rs1 = 0,
     rs2 = 0,
-    imm2 = 0,
-    imm3 = 0,
-    bimm12hi = 0
+    imm13_5_6 = 0,
+    imm13_12_1 = 0,
+    --
+    imm13 = 0,
+    s_imm13 = 0
   },
   j = {
     iflag = 0,
     opcode = 0,
     rd = 0,
-    imm20 = 0,
-    imm8 = 0,
-    imm1_0 = 0,
-    imm10 = 0,
-    imm1_1 = 0,
+    imm21_12_8 = 0,
+    imm21_11_1 = 0,
+    imm21_1_10 = 0,
+    imm21_20_1 = 0,
+    --
+    imm21 = 0,
+    s_imm21 = 0,
   }
 }
 
@@ -203,7 +202,7 @@ end
 
 local function to_signed(bits, value)
   local signed = bit.band(bit.rshift(value, bits - 1), 0x1)
-  print("to_signed", format_bin(1, signed, 4), format_bin(bits, value, 4))
+  --print("to_signed", format_bin(1, signed, 4), format_bin(bits, value, 4))
   if signed == 1 then
     local mask = math.pow(2, bits - 1) - 1
     local base = bit.band(value, mask)
@@ -216,9 +215,26 @@ local function to_signed(bits, value)
   end
 end
 
+local function ensure_aligned_address(address)
+  if math.floor(address / 4) * 4 == address then
+    return true, nil
+  else
+    return false, "instruction-address-misaligned"
+  end
+end
+
+local function attempt_jump(new_pc, oku)
+  local aligned, err = ensure_aligned_address(new_pc)
+  if not aligned then
+    return false, err
+  end
+  oku.registers.pc.u32 = new_pc
+  return true, nil
+end
+
 function isa:encode_syn_lui(hi, lo)
   assert(hi, "expected hi value")
-  assert(lo, "expected lo value")
+  assert(lo, "expected lo value") -- usually from a register
   local i = bit.bor(bit.lshift(bit.band(hi, 0xFFFFF), 12), bit.band(lo, 0xFFF))
 
   isa._itype.i32 = i
@@ -229,6 +245,7 @@ function isa:encode_syn_lui(hi, lo)
   }
 end
 
+-- TODO: remove
 function isa:encode_syn_boffset12(hi, lo)
   local i = bit.band(bit.bor(bit.lshift(bit.band(hi, 0x7F), 5), bit.band(lo, 0x1F)), 0xFFF)
 
@@ -310,29 +327,30 @@ function isa:decode_i_ins(value, result)
   value = bit.rshift(value, 3)
   result.rs1 = bit.band(value, 0x1F)
   value = bit.rshift(value, 5)
-  result.imm12 = bit.band(value, 0x3FF)
+  result.imm12 = bit.band(value, 0xFFF)
+  result.s_imm12 = to_signed(12, result.imm12)
   value = bit.rshift(value, 12)
 
-  result.imm12lo = bit.band(result.imm12, 0x3f)
-  result.imm12hi = bit.band(bit.rshift(result.imm12, 6), 0x3f)
+  result.imm12lo = bit.band(result.imm12, 0x3F)
+  result.imm12hi = bit.band(bit.rshift(result.imm12, 6), 0x3F)
   return value, result
 end
 
 function isa:decode_s_ins(value, result)
   --[[
-    struct {
+  struct {
     uint8_t iflag : 2;
     uint8_t opcode : 5;
-    uint8_t imm0 : 5;
+    uint8_t imm12_0_4 : 5;
     uint8_t funct3 : 3;
     uint8_t rs1 : 5;
     uint8_t rs2 : 5;
-    uint8_t imm1 : 7;
+    uint8_t imm12_5_7 : 7;
   } s;
   ]]
   local value, result = self:decode_head_ins(value, result)
 
-  result.imm0 = bit.band(value, 0x1F)
+  result.imm12_0_4 = bit.band(value, 0x1F)
   value = bit.rshift(value, 5)
   result.funct3 = bit.band(value, 0x7)
   value = bit.rshift(value, 3)
@@ -340,8 +358,11 @@ function isa:decode_s_ins(value, result)
   value = bit.rshift(value, 5)
   result.rs2 = bit.band(value, 0x1F)
   value = bit.rshift(value, 5)
-  result.imm1 = bit.band(value, 0x7F)
+  result.imm12_5_7 = bit.band(value, 0x7F)
   value = bit.rshift(value, 7)
+
+  result.imm12 = bit.bor(bit.lshift(result.imm12_5_7, 5), result.imm12_0_4)
+  result.s_imm12 = to_signed(12, result.imm12)
 
   return value, result
 end
@@ -361,6 +382,7 @@ function isa:decode_u_ins(value, result)
   value = bit.rshift(value, 5)
   result.imm20 = bit.band(value, 0xFFFFF)
   value = bit.rshift(value, 20)
+  result.s_imm20 = to_signed(20, result.imm20)
 
   return value, result
 end
@@ -370,35 +392,21 @@ function isa:decode_b_ins(value, result)
   struct {
     uint8_t iflag : 2;
     uint8_t opcode : 5;
-    union {
-      uint8_t bimm12lo : 5;
-      struct {
-        uint8_t imm0 : 1;
-        uint8_t imm1 : 4;
-      };
-    };
+    uint8_t imm13_11_1 : 1;
+    uint8_t imm13_1_4 : 4;
     uint8_t funct3 : 3;
     uint8_t rs1 : 5;
     uint8_t rs2 : 5;
-    union {
-      uint8_t bimm12hi : 7;
-      struct {
-        uint8_t imm2 : 6;
-        uint8_t imm3 : 1;
-      };
-    };
+    uint8_t imm13_5_6 : 6;
+    uint8_t imm13_12_1 : 1;
   } b;
   ]]
   local value, result = self:decode_head_ins(value, result)
 
-  result.bimm12lo = bit.band(value, 0x1F)
-
-  local lo = result.bimm12lo
-  result.imm0 = bit.band(lo, 0x1)
-  lo = bit.rshift(lo, 1)
-  result.imm1 = bit.band(lo, 0xF)
-
-  value = bit.rshift(value, 5)
+  result.imm13_11_1 = bit.band(value, 0x1)
+  value = bit.rshift(value, 1)
+  result.imm13_1_4 = bit.band(value, 0xF)
+  value = bit.rshift(value, 4)
 
   result.funct3 = bit.band(value, 0x7)
   value = bit.rshift(value, 3)
@@ -407,13 +415,17 @@ function isa:decode_b_ins(value, result)
   result.rs2 = bit.band(value, 0x1F)
   value = bit.rshift(value, 5)
 
-  result.bimm12hi = bit.band(value, 0x7F)
-  local hi = result.bimm12hi
-  result.imm2 = bit.band(hi, 0x3F)
-  hi = bit.rshift(hi, 6)
-  result.imm3 = bit.band(hi, 0x1)
+  result.imm13_5_6 = bit.band(value, 0x3F)
+  value = bit.rshift(value, 6)
+  result.imm13_12_1 = bit.band(value, 0x1)
+  value = bit.rshift(value, 1)
 
-  value = bit.rshift(value, 7)
+  result.imm13 = bit.lshift(result.imm13_12_1, 12) +
+                 bit.lshift(result.imm13_11_1, 11) +
+                 bit.lshift(result.imm13_5_6, 5) +
+                 bit.lshift(result.imm13_1_4, 1)
+
+  result.s_imm13 = to_signed(13, result.imm13)
 
   return value, result
 end
@@ -424,15 +436,10 @@ function isa:decode_j_ins(org_value, result)
     uint8_t iflag : 2;
     uint8_t opcode : 5;
     uint8_t rd : 5;
-    union {
-      uint32_t imm20 : 20;
-      struct {
-        uint8_t  imm8 : 8;
-        uint8_t  imm1_0 : 1;
-        uint16_t imm10 : 10;
-        uint8_t  imm1_1 : 1;
-      };
-    };
+    uint8_t  imm21_12_8 : 8;
+    uint8_t  imm21_11_1 : 1;
+    uint16_t imm21_1_10 : 10;
+    uint8_t  imm21_20_1 : 1;
   } j;
   ]]
   local value, result = self:decode_head_ins(org_value, result)
@@ -440,31 +447,21 @@ function isa:decode_j_ins(org_value, result)
   result.rd = bit.band(value, 0x1F)
   value = bit.rshift(value, 5)
 
-  result.imm8 = bit.band(value, 0xFF)
+  result.imm21_12_8 = bit.band(value, 0xFF)
   value = bit.rshift(value, 8)
-  result.imm1_0 = bit.band(value, 0x1)
+  result.imm21_11_1 = bit.band(value, 0x1)
   value = bit.rshift(value, 1)
-  result.imm10 = bit.band(value, 0x3FF)
+  result.imm21_1_10 = bit.band(value, 0x3FF)
   value = bit.rshift(value, 10)
-  result.imm1_1 = bit.band(value, 0x1)
+  result.imm21_20_1 = bit.band(value, 0x1)
   value = bit.rshift(value, 1)
 
-  -- imm20 is a god damn odd ball, its parts are all over the place...
-  result.imm20 = bit.lshift(result.imm10, 1) +
-                 bit.lshift(result.imm1_0, 11) +
-                 bit.lshift(result.imm8, 12) +
-                 bit.lshift(result.imm1_1, 20)
-  --[[result.imm20 =
-    bit.bor(
-      bit.lshift(result.imm1_1, 19),
-      bit.bor(
-        bit.lshift(result.imm8, 11),
-        bit.bor(
-          bit.lshift(result.imm1_0, 10),
-          result.imm10
-        )
-      )
-    )]]
+  -- imm21 is a god damn odd ball, its parts are all over the place...
+  result.imm21 = bit.lshift(result.imm21_20_1, 20) +
+                 bit.lshift(result.imm21_12_8, 12) +
+                 bit.lshift(result.imm21_11_1, 11) +
+                 bit.lshift(result.imm21_1_10, 1)
+  result.s_imm21 = to_signed(21, result.imm21)
 
   return value, result
 end
@@ -478,7 +475,7 @@ function isa:load_head(i32_ins)
   self._native.i32 = self._itype.i32
 
   self:decode_head_ins(self._native.i32, self._native.head)
-  self:debug_native_head()
+  --self:debug_native_head()
 end
 
 --
@@ -486,32 +483,32 @@ end
 --
 function isa:nload_r_ins()
   self:decode_r_ins(self._native.i32, self._native.r)
-  self:debug_native_r()
+  --self:debug_native_r()
 end
 
 function isa:nload_i_ins()
   self:decode_i_ins(self._native.i32, self._native.i)
-  self:debug_native_i()
+  --self:debug_native_i()
 end
 
 function isa:nload_s_ins()
   self:decode_s_ins(self._native.i32, self._native.s)
-  self:debug_native_s()
+  --self:debug_native_s()
 end
 
 function isa:nload_u_ins()
   self:decode_u_ins(self._native.i32, self._native.u)
-  self:debug_native_u()
+  --self:debug_native_u()
 end
 
 function isa:nload_b_ins()
   self:decode_b_ins(self._native.i32, self._native.b)
-  self:debug_native_b()
+  --self:debug_native_b()
 end
 
 function isa:nload_j_ins()
   self:decode_j_ins(self._native.i32, self._native.j)
-  self:debug_native_j()
+  --self:debug_native_j()
 end
 
 function isa:debug_native_head()
@@ -526,7 +523,7 @@ end
 function isa:debug_native_i()
   local n = self._native
   print("rv32i_ins.i", format_hex(8, n.u32) .. "(" .. format_bin(32, n.u32, 4) .. ")", "|",
-                       "imm12:" .. format_hex(4, n.i.imm12),
+                       "imm12:" .. format_hex(3, n.i.imm12) .. "; s_imm12:" .. format_hex(3, n.i.s_imm12),
                        "rs1:" .. format_hex(2, n.i.rs1),
                        "funct3:" .. format_hex(1, n.i.funct3),
                        "rd:" .. format_hex(2, n.i.rd),
@@ -538,11 +535,11 @@ end
 function isa:debug_native_s()
   local n = self._native
   print("rv32i_ins.s", format_hex(8, n.u32) .. "(" .. format_bin(32, n.u32, 4) .. ")", "|",
-                       "imm1:" .. format_hex(2, n.s.imm1),
+                       "imm12_5_7:" .. format_hex(2, n.s.imm12_5_7),
                        "rs2:" .. format_hex(2, n.s.rs2),
                        "rs1:" .. format_hex(2, n.s.rs1),
                        "funct3:" .. format_hex(1, n.s.funct3),
-                       "imm0:" .. format_hex(2, n.s.imm0),
+                       "imm12_0_4:" .. format_hex(2, n.s.imm12_0_4),
                        "opcode:" .. format_hex(2, n.s.opcode),
                        "iflag:" .. format_hex(1, n.s.iflag)
         )
@@ -561,11 +558,13 @@ end
 function isa:debug_native_b()
   local n = self._native
   print("rv32i_ins.b", format_hex(8, n.u32) .. "(" .. format_bin(32, n.u32, 4) .. ")", "|",
-                       "bimm12hi:" .. format_hex(2, n.b.bimm12hi) .. "(" .. format_hex(1, n.b.imm3) .. " " .. format_hex(2, n.b.imm2) .. ")",
+                       "imm13_12_1:" .. format_hex(1, n.b.imm13_12_1),
+                       "imm13_5_6:" .. format_hex(2, n.b.imm13_5_6),
                        "rs2:" .. format_hex(2, n.b.rs2),
                        "rs1:" .. format_hex(2, n.b.rs1),
                        "funct3:" .. format_hex(1, n.b.funct3),
-                       "bimm12lo:" .. format_hex(2, n.b.bimm12lo) .. "(" .. format_hex(1, n.b.imm1) .. " " .. format_hex(1, n.b.imm0) .. ")",
+                       "imm13_1_4:" .. format_hex(1, n.b.imm13_1_4),
+                       "imm13_11_1:" .. format_hex(1, n.b.imm13_11_1),
                        "opcode:" .. format_hex(2, n.b.opcode),
                        "iflag:" .. format_hex(1, n.b.iflag)
         )
@@ -575,7 +574,7 @@ end
 function isa:debug_native_j()
   local n = self._native
   print("rv32i_ins.j", format_hex(8, n.u32) .. "(" .. format_bin(32, n.u32, 4) .. ")", "|",
-                       "imm20:" .. format_hex(1, n.j.imm20),
+                       "imm21:" .. format_hex(6, n.j.imm21),
                        "rd:" .. format_hex(2, n.j.rd),
                        "opcode:" .. format_hex(2, n.j.opcode),
                        "iflag:" .. format_hex(1, n.j.iflag)
@@ -629,122 +628,182 @@ isa.OPCODE_TO_INS = {
 }
 isa.ins = {}
 
-function isa.ins.load(i, oku)
+function isa.ins.load(i, _npc, oku)
   isa:nload_i_ins()
   local rd = i.i.rd
   local rs1 = i.i.rs1
-  local offset = to_signed(12, i.i.imm12)
+  local offset = i.i.s_imm12
   local addr = isa.xr_i32(rs1, oku) + offset
 
   if i.i.funct3 == 0 then
     -- lb
-    print("LB", addr)
-    isa.w_xr_i32(oku:get_memory_i8(addr))
+    --print("LB", isa.REGISTER_NAME[rd], addr)
+    isa.w_xr_i32(rd, oku:get_memory_i8(addr), oku)
   elseif i.i.funct3 == 1 then
     -- lh
-    print("LH", addr)
-    isa.w_xr_i32(oku:get_memory_i16(addr))
+    --print("LH", isa.REGISTER_NAME[rd], addr)
+    isa.w_xr_i32(rd, oku:get_memory_i16(addr), oku)
   elseif i.i.funct3 == 2 then
     -- lw
-    print("LW", addr)
-    isa.w_xr_i32(oku:get_memory_i32(addr))
+    --print("LW", isa.REGISTER_NAME[rd], addr)
+    isa.w_xr_i32(rd, oku:get_memory_i32(addr), oku)
   elseif i.i.funct3 == 3 then
     -- ld
-    print("LD", addr)
-    isa.w_xr_i64(oku:get_memory_i64(addr))
+    --print("LD", isa.REGISTER_NAME[rd], addr)
+    isa.w_xr_i64(rd, oku:get_memory_i64(addr), oku)
   elseif i.i.funct3 == 4 then
     -- lbu
-    print("LBU", addr)
-    isa.w_xr_u32(oku:get_memory_u8(addr))
+    --print("LBU", isa.REGISTER_NAME[rd], addr)
+    isa.w_xr_u32(rd, oku:get_memory_u8(addr), oku)
   elseif i.i.funct3 == 5 then
     -- lhu
-    print("LHU", addr)
-    isa.w_xr_u32(oku:get_memory_u16(addr))
+    --print("LHU", isa.REGISTER_NAME[rd], addr)
+    isa.w_xr_u32(rd, oku:get_memory_u16(addr), oku)
   elseif i.i.funct3 == 6 then
     -- lwu
-    print("LWU", addr)
-    isa.w_xr_u32(oku:get_memory_u32(addr))
+    --print("LWU", isa.REGISTER_NAME[rd], addr)
+    isa.w_xr_u32(rd, oku:get_memory_u32(addr), oku)
+  elseif i.i.funct3 == 7 then
+    -- ldu
+    --print("LDU", isa.REGISTER_NAME[rd], addr)
+    isa.w_xr_u64(rd, oku:get_memory_u64(addr), oku)
   else
     print("unexpected load instruction funct3:" .. i.i.funct3)
   end
+  return true, nil
+end
+
+local function decode_shift_imm12(imm12)
+  local shamt = bit.band(imm12, 0x1F)
+  local rest = bit.rshift(imm12, 5)
+  return shamt, rest
 end
 
 -- Arithmetic with Immediate
-function isa.ins.arithi(i, oku)
+function isa.ins.arithi(i, _npc, oku)
   isa:nload_i_ins()
   local rd = i.i.rd
   local rs1 = i.i.rs1
-  local imm12 = to_signed(12, i.i.imm12)
+  local u_imm12 = i.i.imm12
+  local s_imm12 = i.i.s_imm12
   if i.i.funct3 == 0 then
     -- addi
-    local value = isa.xr_i32(rs1, oku) + imm12
-    print("ADDI", isa.REGISTER_NAME[rd], value)
+    local value = isa.xr_i32(rs1, oku) + s_imm12
+    --print("ADDI", isa.REGISTER_NAME[rd], value)
     isa.w_xr_i32(rd, value, oku)
   elseif i.i.funct3 == 1 then
     -- slli
-    error("not implemented slli")
+    local shamt, rest = decode_shift_imm12(s_imm12)
+    if rest == 0 then
+      local value = isa.xr_i32(rs1, oku)
+      --print("SLLI", isa.REGISTER_NAME[rd], shamt)
+      isa.w_xr_i32(rd, bit.lshift(value, shamt), oku)
+    else
+      error("illegal instruction")
+    end
   elseif i.i.funct3 == 2 then
     -- slti
-    error("not implemented slti")
+    local left = isa.xr_i32(rs1, oku)
+    --print("SLTI", isa.REGISTER_NAME[rd], isa.REGISTER_NAME[rs1], s_imm12)
+    if left < s_imm12 then
+      isa.w_xr_i32(rd, 1, oku)
+    else
+      isa.w_xr_i32(rd, 0, oku)
+    end
   elseif i.i.funct3 == 3 then
     -- sltiu
-    error("not implemented sltiu")
+    --print("SLTIU", isa.REGISTER_NAME[rd], isa.REGISTER_NAME[rs1], s_imm12)
+    local left = isa.xr_u32(rs1, oku)
+    if left < u_imm12 then
+      isa.w_xr_i32(rd, 1, oku)
+    else
+      isa.w_xr_i32(rd, 0, oku)
+    end
   elseif i.i.funct3 == 4 then
     -- xori
-    local value = bit.bxor(isa.xr_i32(rs1, oku), imm12)
-    print("XORI", isa.REGISTER_NAME[rd], value)
+    local value = bit.bxor(isa.xr_i32(rs1, oku), s_imm12)
+    --print("XORI", isa.REGISTER_NAME[rd], value)
     isa.w_xr_i32(rd, value, oku)
   elseif i.i.funct3 == 5 then
     -- srli & srai
-    error("not implemented srli and srai")
+    local shamt, rest = decode_shift_imm12(s_imm12)
+    if rest == 0 then
+      --print("SRLI", isa.REGISTER_NAME[rd], shamt)
+      local value = isa.xr_i32(rs1, oku)
+      isa.w_xr_i32(rd, bit.rshift(value, shamt), oku)
+    elseif rest == 0x20 then
+      --print("SRAI", isa.REGISTER_NAME[rd], shamt)
+      local value = isa.xr_i32(rs1, oku)
+      isa.w_xr_i32(rd, bit.rshift(value, shamt), oku)
+    else
+      error("illegal instruction")
+    end
   elseif i.i.funct3 == 6 then
     -- ori
-    local value = bit.bor(isa.xr_i32(rs1, oku), imm12)
-    print("ORI", isa.REGISTER_NAME[rd], value)
+    local value = bit.bor(isa.xr_i32(rs1, oku), s_imm12)
+    --print("ORI", isa.REGISTER_NAME[rd], value)
     isa.w_xr_i32(rd, value, oku)
   elseif i.i.funct3 == 7 then
     -- andi
-    local value = bit.band(isa.xr_i32(rs1, oku), imm12)
-    print("ANDI", isa.REGISTER_NAME[rd], value)
+    local value = bit.band(isa.xr_i32(rs1, oku), s_imm12)
+    --print("ANDI", isa.REGISTER_NAME[rd], value)
     isa.w_xr_i32(rd, value, oku)
   else
     error("unexpected funct3:" .. i.r.funct3)
   end
+  return true, nil
+end
+
+-- Add Upper Immediate to PC
+function isa.ins.auipc(i, npc, oku)
+  isa:nload_u_ins()
+
+  local offset = encode_syn_lui(i.u.imm20, 0).i32
+
+  offset = npc + offset
+
+  isa.w_xr_u32(rd, value, oku)
+  return true, nil
 end
 
 -- Store
-function isa.ins.store(i, oku)
+function isa.ins.store(i, _npc, oku)
   isa:nload_s_ins()
 
-  local offset = isa:encode_syn_boffset12(i.s.imm1, i.s.imm0).i32
-  local v1 = isa.xr_i32(i.s.rs1, oku)
+  local offset = i.s.s_imm12
+  local base = isa.xr_i32(i.s.rs1, oku)
   local v2 = isa.xr_i32(i.s.rs2, oku)
 
-  local addr = v1 + offset
+  local addr = base + offset
 
   if i.s.funct3 == 0 then
     -- sb
-    print("SB", addr, v1, v2)
-    oku:put_memory_i8(addr, v2)
+    local v = bit.band(v2, 0xFF)
+    --print("SB", addr, base, v)
+    oku:put_memory_i8(addr, v)
   elseif i.s.funct3 == 1 then
     -- sh
-    print("SH", addr, v1, v2)
-    oku:put_memory_i16(addr, v2)
+    local v = bit.band(v2, 0xFFFF)
+    --print("SH", addr, base, v)
+    oku:put_memory_i16(addr, v)
   elseif i.s.funct3 == 2 then
     -- sw
-    print("SW", addr, v1, v2)
-    oku:put_memory_i32(addr, v2)
+    local v = bit.band(v2, 0xFFFFFFFF)
+    --print("SW", addr, base, v)
+    oku:put_memory_i32(addr, v)
   elseif i.s.funct3 == 3 then
     -- sd
-    print("SD", addr, v1, v2)
-    oku:put_memory_i64(addr, v2)
+    local v = bit.band(v2, 0xFFFFFFFFFFFFFFFF)
+    --print("SD", addr, base, v)
+    oku:put_memory_i64(addr, v)
   else
     error("invalid store instruction; funct3:" .. i.s.funct3)
   end
+  return true, nil
 end
 
 -- Arithmetic with Register
-function isa.ins.arith(i, oku)
+function isa.ins.arith(i, _npc, oku)
   isa:nload_r_ins()
   local rd = i.r.rd
   local rs1 = i.r.rs1
@@ -812,19 +871,31 @@ function isa.ins.arith(i, oku)
       end
     elseif i.r.funct3 == 1 then
       -- sll
-      error("unimplemented: sll")
+      isa.w_xr_i32(rd, bit.lshift(v1, bit.band(v2, 0x1F)), oku)
     elseif i.r.funct3 == 2 then
       -- slt
-      error("unimplemented: slt")
+      if v1 < v2 then
+        isa.w_xr_i32(rd, 1, oku)
+      else
+        isa.w_xr_i32(rd, 0, oku)
+      end
     elseif i.r.funct3 == 3 then
       -- sltu
-      error("unimplemented: sltu")
+      if v1u < v2u then
+        isa.w_xr_i32(rd, 1, oku)
+      else
+        isa.w_xr_i32(rd, 0, oku)
+      end
     elseif i.r.funct3 == 4 then
       -- xor
       isa.w_xr_i32(rd, bit.bxor(v1, v2), oku)
     elseif i.r.funct3 == 5 then
       -- srl & sra
-      error("unimplemented: srl & sra")
+      if i.r.funct7 == 0 then
+        isa.w_xr_i32(rd, bit.rshift(v1, bit.band(v2, 0x1F)), oku)
+      elseif i.r.funct7 == 32 then
+        error("unimplemented: sra")
+      end
     elseif i.r.funct3 == 6 then
       -- or
       isa.w_xr_i32(rd, bit.bor(v1, v2), oku)
@@ -835,25 +906,23 @@ function isa.ins.arith(i, oku)
       error("unexpected funct3:" .. i.r.funct3)
     end
   end
+  return true, nil
 end
 
-function isa.ins.lui(i, oku)
+function isa.ins.lui(i, _npc, oku)
   isa:nload_u_ins()
   local rd = i.u.rd
   local imm20 = i.u.imm20
-
-  local value = isa.xr_i32(rd, oku)
-
-  local lui = isa:encode_syn_lui(imm20, value).i32
-
-  print("LUI", isa.REGISTER_NAME[rd], lui)
+  local lui = isa:encode_syn_lui(imm20, 0).i32
+  --print("LUI", isa.REGISTER_NAME[rd], lui)
   isa.w_xr_i32(rd, lui, oku)
+  return true, nil
 end
 
-function isa.ins.branch(i, oku)
+function isa.ins.branch(i, npc, oku)
   isa:nload_b_ins()
-  local offset =  isa:encode_syn_boffset12(i.b.bimm12hi, i.b.bimm12lo).i32
-  local new_pc = oku.registers.pc.i32 + offset
+  local offset = i.b.s_imm13
+  local new_pc = npc + offset
   local v1 = isa.xr_i32(i.b.rs1, oku)
   local v1u = isa.xr_u32(i.b.rs1, oku)
   local v2 = isa.xr_i32(i.b.rs2, oku)
@@ -862,84 +931,83 @@ function isa.ins.branch(i, oku)
   if i.b.funct3 == 0 then
     -- beq
     if v1 == v2 then
-      print("BEQ", format_hex(8, new_pc))
-      oku.registers.pc.i32 = new_pc
+      --print("BEQ", format_hex(8, new_pc))
+      return attempt_jump(new_pc, oku)
     end
+    return true, nil
   elseif i.b.funct3 == 1 then
     -- bne
     if v1 ~= v2 then
-      print("BNE", format_hex(8, new_pc))
-      oku.registers.pc.i32 = new_pc
+      --print("BNE", format_hex(8, new_pc))
+      return attempt_jump(new_pc, oku)
     end
+    return true, nil
   elseif i.b.funct3 == 4 then
     -- blt
     if v1 < v2 then
-      print("BLT", format_hex(8, new_pc))
-      oku.registers.pc.i32 = new_pc
+      --print("BLT", format_hex(8, new_pc))
+      return attempt_jump(new_pc, oku)
     end
+    return true, nil
   elseif i.b.funct3 == 5 then
     -- bge
     if v1 >= v2 then
-      print("BGE", format_hex(8, new_pc))
-      oku.registers.pc.i32 = new_pc
+      --print("BGE", format_hex(8, new_pc))
+      return attempt_jump(new_pc, oku)
     end
+    return true, nil
   elseif i.b.funct3 == 6 then
     -- bltu
     if v1u < v2u then
-      print("BLTU", format_hex(8, new_pc))
-      oku.registers.pc.i32 = new_pc
+      --print("BLTU", format_hex(8, new_pc))
+      return attempt_jump(new_pc, oku)
     end
+    return true, nil
   elseif i.b.funct3 == 7 then
     -- bgeu
     if v1u >= v2u then
-      print("BGEU", format_hex(8, new_pc))
-      oku.registers.pc.i32 = new_pc
+      --print("BGEU", format_hex(8, new_pc))
+      return attempt_jump(new_pc, oku)
     end
+    return true, nil
   else
     error("invalid branch instruction; funct3:" .. i.b.funct3)
   end
 end
 
-function isa.ins.jalr(i, oku)
+function isa.ins.jalr(i, npc, oku)
   isa:nload_i_ins()
   local rd = i.i.rd
   local rs1 = i.i.rs1
-  local imm12 = to_signed(12, i.i.imm12)
+  local imm12 = i.i.s_imm12
   local funct3 = i.i.funct3
 
-  local pc = oku.registers.pc.i32
-
   if funct3 == 0x0 then
-    local offset = isa.xr_i32(rs1, oku) + imm12
+    -- 0 lsb by shifting right and then back to the left
+    local offset = bit.lshift(bit.rshift(isa.xr_i32(rs1, oku) + imm12, 1), 1)
     if rs1 == 0x1 then
-      print("RET", isa.REGISTER_NAME[rd], offset)
+      --print("RET", isa.REGISTER_NAME[rd], offset)
     else
-      print("JALR", isa.REGISTER_NAME[rd], offset)
+      --print("JALR", isa.REGISTER_NAME[rd], offset)
     end
-    isa.w_xr_i32(rd, pc, oku)
-    oku.registers.pc.i32 = pc + offset
+    isa.w_xr_i32(rd, npc + 4, oku)
+    return attempt_jump(npc + offset, oku)
   else
     error("invalid 'jalr' instruction (got funct3:" .. funct3 .. ")")
   end
 end
 
-function isa.ins.jal(i, oku)
+function isa.ins.jal(i, npc, oku)
   isa:nload_j_ins()
   local rd = i.j.rd
-  local offset = to_signed(20, i.j.imm20)
+  local offset = i.j.s_imm21
 
-  local npc = oku.registers.pc.u32
-
-  if rd == 0 then
-    oku.registers.pc.u32 = npc + offset
-    print("JAL", isa.REGISTER_NAME[rd], format_hex(8, oku.registers.pc.u32))
-    isa.w_xr_u32(rd, npc, oku)
-  else
-    error("invalid jal instruction, rd:" .. i.j.rd)
-  end
+  --print("JAL", isa.REGISTER_NAME[rd], format_hex(8, oku.registers.pc.u32))
+  isa.w_xr_u32(rd, npc + 4, oku)
+  return attempt_jump(npc + offset, oku)
 end
 
-function isa.ins.system(i, oku)
+function isa.ins.system(i, _npc, oku)
   isa:nload_i_ins()
   if i.i.funct3 == 0 then
     if i.i.rd == 0 and i.i.rs1 == 0 then
@@ -979,14 +1047,18 @@ function isa.step_ins(oku, ins)
   isa:load_head(ins)
 
   local npc = oku.registers.pc.u32
-  if isa._native.head.iflag == 0x3 then
-    oku.registers.pc.u32 = npc + 4
-    local ins_name = assert(isa.OPCODE_TO_INS[isa._native.head.opcode])
-    print(oku.exec_counter .. " | PC:" .. format_hex(8, npc) .. " STEP:" .. ins_name .. "(" .. format_hex(8, isa._native.u32) .. ")")
-    isa.ins[ins_name](isa._native, oku)
+  if isa._native.u32 == 0 then
+    return nil, "illegal instruction"
   else
-    error(oku.exec_counter .. " | PC:" .. format_hex(8, npc) .." Bad instruction " .. format_hex(8, isa._native.u32))
-    -- TODO: error
+    if isa._native.head.iflag == 0x3 then
+      oku.registers.pc.u32 = npc + 4
+      local ins_name = assert(isa.OPCODE_TO_INS[isa._native.head.opcode])
+      --print(oku.exec_counter .. " | PC:" .. format_hex(8, npc) .. " STEP:" .. ins_name .. "(" .. format_hex(8, isa._native.u32) .. ")")
+      return isa.ins[ins_name](isa._native, npc, oku)
+    else
+      error(oku.exec_counter .. " | PC:" .. format_hex(8, npc) .." Bad instruction " .. format_hex(8, isa._native.u32))
+      -- TODO: error
+    end
   end
 end
 
@@ -994,7 +1066,7 @@ function isa.step(oku)
   oku.exec_counter = oku.exec_counter + 1
   assert(oku.registers.x[0].i32 == 0, "expected 0 register to be well 0 got:" .. oku.registers.x[0].i32)
 
-  isa.step_ins(oku, oku:get_memory_i32(oku.registers.pc.u32))
+  return isa.step_ins(oku, oku:get_memory_i32(oku.registers.pc.u32))
 end
 
 yatm_oku.OKU.isa.RISCV = isa

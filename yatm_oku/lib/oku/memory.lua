@@ -27,14 +27,26 @@ function m:initialize(size)
   self.m_size = size
   self.m_data = assert(ffi.new("uint8_t[?]", self.m_size))
   self.m_cell = assert(ffi.new("union yatm_oku_memory_cell32"))
+  -- Should indices be wrapped around to fit inside the address space
+  -- Or an error raised?
+  self.m_circular_access = false
   ffi.fill(self.m_data, self.m_size, 0)
 end
 
-function m:check_bounds(index, len)
-  len = len or 1
-  assert(index >= 0, "expected index to greater than or equal to 0")
-  local end_index = index + len
-  assert(end_index <= self.m_size, "expected end index to be inside memory (got:" .. end_index .. ")")
+function m:size()
+  return self.m_size
+end
+
+function m:check_and_adjust_index(index, len)
+  if self.m_circular_access then
+    return index % self.m_size
+  else
+    len = len or 1
+    assert(index >= 0, "expected index to greater than or equal to 0")
+    local end_index = index + len
+    assert(end_index <= self.m_size, "expected end index to be inside memory (got:" .. end_index .. ")")
+    return index
+  end
 end
 
 local types = {
@@ -51,15 +63,16 @@ local types = {
   f = 4,
   d = 8,
 }
+
 for type_name, size in pairs(types) do
   m["r_" .. type_name] = function (self, index)
-    self:check_bounds(index, size)
+    index = self:check_and_adjust_index(index, size)
     ffi.copy(self.m_cell, self.m_data + index, size)
     return self.m_cell[type_name][0]
   end
 
   m["w_" .. type_name] = function (self, index, value)
-    self:check_bounds(index, size)
+    index = self:check_and_adjust_index(index, size)
     self.m_cell[type_name][0] = value
     ffi.copy(self.m_data + index, self.m_cell, size)
     return self
@@ -71,7 +84,7 @@ function m:w_i8b(index, char)
 end
 
 function m:r_blob(index, size)
-  self:check_bounds(index, size)
+  index = self:check_and_adjust_index(index, size)
   return ffi.string(self.m_data + index, size)
 end
 
@@ -79,13 +92,13 @@ function m:w_blob(index, blob)
   assert(index, "expected an index")
   assert(blob, "expected a string blob")
   local size = #blob
-  self:check_bounds(index, size)
+  index = self:check_and_adjust_index(index, size)
   ffi.copy(self.m_data + index, blob, size)
   return self
 end
 
 function m:fill_slice(index, size, value)
-  self:check_bounds(index, size)
+  index = self:check_and_adjust_index(index, size)
   ffi.fill(self.m_data + index, size, value)
   return self
 end
@@ -97,10 +110,10 @@ end
 function m:w_bytes(index, value)
   if type(value) == "string" then
     local size = #value
-    self:check_bounds(index, size)
+    index = self:check_and_adjust_index(index, size)
     ffi.copy(self.m_data + index, value, size)
   elseif type(value) == "number" then
-    self:check_bounds(index, 1)
+    index = self:check_and_adjust_index(index, 1)
     self.m_data[index] = value
   elseif type(value) == "table" then
     -- all is well
@@ -109,8 +122,8 @@ function m:w_bytes(index, value)
       local end_index = index + size - 1
       local i = 1
       for j = index,end_index do
-        self:check_bounds(j, 1)
-        self.m_data.u8[index] = value[i]
+        j = self:check_and_adjust_index(j, 1)
+        self.m_data.u8[j] = value[i]
         i = i + 1
       end
     end
@@ -138,8 +151,8 @@ function m:bindump(stream)
     bytes_written = bytes_written + bw
   end
 
-  local blob = ffi.string(self.m_data, self.size)
-  local bw = ByteBuf.write(stream, blob)
+  local blob = ffi.string(self.m_data, self.m_size)
+  local bw = ByteBuf.write(stream, blob, self.m_size)
   bytes_written = bytes_written + bw
   return bytes_written, nil
 end
@@ -148,7 +161,7 @@ function m:binload(stream)
   local bytes_read = 0
   local memory_bo, br = ByteBuf.read(stream, 2)
   bytes_read = bytes_read + br
-  local memory_blob, br = ByteBuf.read(stream, memory_size)
+  local memory_blob, br = ByteBuf.read(stream, self.m_size)
   bytes_read = bytes_read + br
   if memory_bo == "le" then
     -- the memory was dumped from a little endian machine

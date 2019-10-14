@@ -111,6 +111,7 @@ end
 local groups = {
   cracky = 1,
   yatm_data_device = 1,
+  yatm_network_device = 1,
   yatm_energy_device = 1,
   yatm_computer = 1,
 }
@@ -159,7 +160,7 @@ yatm.devices.register_stateful_network_device({
   register_computer = function (pos, node)
     local meta = minetest.get_meta(pos)
     local secret = meta:get_string("secret")
-    yatm.computers.register_computer(pos, node, secret, {})
+    yatm.computers:register_computer(pos, node, secret, {})
   end
 }, {
   error = {
