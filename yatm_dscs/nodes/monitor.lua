@@ -5,7 +5,7 @@ local groups = {
   cracky = 1,
   monitor = 1,
   yatm_energy_device = 1,
-  yatm_data_device = 1,
+  yatm_network_device = 1,
 }
 
 local monitor_console_yatm_network = {

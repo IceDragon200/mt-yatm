@@ -2,14 +2,14 @@
 
   Compute Modules are no-op blocks that act as a bonus modifier to assemblers on the network.
 
-  Each compute module will speed up the auto-crafting process.
+  Each compute module will speed up the auto-crafting by parallel processing other requests.
 
 ]]
 local compute_module_yatm_network = {
   kind = "machine",
   groups = {
     energy_consumer = 1,
-    assembler_compute_module = 1,
+    dscs_compute_module = 1,
   },
   default_state = "off",
   states = {
@@ -25,7 +25,7 @@ local compute_module_yatm_network = {
 
 local groups = {
   cracky = 1,
-  yatm_data_device = 1,
+  yatm_network_device = 1,
   yatm_energy_device = 1,
 }
 

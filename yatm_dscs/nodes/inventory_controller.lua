@@ -1,11 +1,14 @@
 --
 -- Inventory Controller
 --
+-- Inventory controllers are required in a yatm network to store recipes
+-- And management automatic crafting, the node in question will remember
+-- all active requests.
 local inventory_controller_yatm_network = {
   kind = "machine",
   groups = {
     energy_consumer = 1,
-    assembler_inventory_controller = 1,
+    dscs_inventory_controller = 1,
   },
   default_state = "off",
   states = {
@@ -21,8 +24,9 @@ local inventory_controller_yatm_network = {
 
 local groups = {
   cracky = 1,
-  yatm_data_device = 1,
+  yatm_network_device = 1,
   yatm_energy_device = 1,
+  yatm_inventory_controller = 1,
 }
 
 yatm.devices.register_stateful_network_device({

@@ -1,14 +1,17 @@
 --
 -- It looks just like AE2's Molecular Assembler, and has the same function too.
 --
+local Network = assert(yatm.network)
+local Energy = assert(yatm.energy)
+
 local assembler_yatm_network = {
   kind = "machine",
   groups = {
-    item_assembler = 1,
+    dscs_assembler_module = 1,
     energy_consumer = 1,
     item_consumer = 1,
     item_producer = 1,
-    has_update = 1,
+    machine_worker = 1,
   },
   default_state = "off",
   states = {
@@ -19,12 +22,25 @@ local assembler_yatm_network = {
   },
   energy = {
     capacity = 4000,
+    startup_threshold = 200,
+    network_charge_bandwidth = 100,
     passive_lost = 0, -- assemblers won't passively start losing energy
   },
 }
 
-function assembler_yatm_network.update(pos, node, ot)
+local function refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
+  local infotext =
+    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
+
+  meta:set_string("infotext", infotext)
+end
+
+function assembler_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
+  local meta = minetest.get_meta(pos)
+
+  return 0
 end
 
 local assembler_node_box = {
@@ -55,7 +71,7 @@ local assembler_selection_box = {
 
 local groups = {
   cracky = 1,
-  yatm_data_device = 1,
+  yatm_network_device = 1,
   yatm_energy_device = 1,
 }
 
@@ -76,6 +92,8 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
 
   yatm_network = assembler_yatm_network,
+
+  refresh_infotext = refresh_infotext,
 }, {
   on = {
     tiles = {{

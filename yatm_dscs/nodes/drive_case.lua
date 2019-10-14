@@ -17,7 +17,7 @@ local drive_case_yatm_network = {
   groups = {
     drive_case = 1,
     energy_consumer = 1,
-    digital_item_storage = 1,
+    dscs_storage_module = 1,
   },
 
   default_state = "off",
@@ -39,7 +39,7 @@ yatm.devices.register_stateful_network_device({
   groups = {
     cracky = 1,
     yatm_energy_device = 1,
-    yatm_data_device = 1,
+    yatm_network_device = 1,
   },
 
   drop = drive_case_yatm_network.states.off,
