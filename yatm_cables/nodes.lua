@@ -135,7 +135,7 @@ yatm_cables.register_cable({
   groups = { cracky = 1, any_cable = 1, energy_cable = 1, network_cable = 1, dense_cable = 1 },
   connects_to = {
     "group:any_cable",
-    "group:yatm_data_device",
+    "group:yatm_network_device",
     "group:yatm_energy_device",
   },
 
@@ -152,7 +152,7 @@ yatm_cables.register_cable({
   groups = { cracky = 1, any_cable = 1, energy_cable = 1, network_cable = 1, medium_cable = 1 },
   connects_to = {
     "group:any_cable",
-    "group:yatm_data_device",
+    "group:yatm_network_device",
     "group:yatm_energy_device",
   },
 
@@ -170,7 +170,7 @@ yatm_cables.register_cable({
   groups = { cracky = 1, any_cable = 1, energy_cable = 1, network_cable = 1, small_cable = 1 },
   connects_to = {
     "group:any_cable",
-    "group:yatm_data_device",
+    "group:yatm_network_device",
     "group:yatm_energy_device",
   },
 
@@ -189,7 +189,7 @@ yatm_cables.register_cable({
   groups = { cracky = 1, any_cable = 1, glass_cable = 1, data_cable = 1  },
   connects_to = {
     "group:data_cable",
-    "group:yatm_data_device",
+    "group:yatm_network_device",
   },
 
   postfix = "_15",
@@ -205,7 +205,7 @@ yatm_cables.register_cable({
   groups = { cracky = 1, any_cable = 1, glass_cable = 1, data_cable = 1  },
   connects_to = {
     "group:data_cable",
-    "group:yatm_data_device",
+    "group:yatm_network_device",
   },
 
   postfix = "_15",
@@ -221,7 +221,7 @@ yatm_cables.register_cable({
   groups = { cracky = 1, any_cable = 1, glass_cable = 1, data_cable = 1 },
   connects_to = {
     "group:data_cable",
-    "group:yatm_data_device",
+    "group:yatm_network_device",
   },
 
   postfix = "_15",

@@ -13,7 +13,9 @@ local network_controller_yatm_network = {
 }
 
 local groups = {
-  cracky = 1, yatm_network_host = 1, yatm_data_device = 1, yatm_energy_device = 1,
+  cracky = 1, yatm_network_host = 1,
+              yatm_network_device = 1,
+              yatm_energy_device = 1,
 }
 
 yatm.devices.register_stateful_network_device({

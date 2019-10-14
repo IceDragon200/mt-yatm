@@ -16,16 +16,16 @@ local void_crate_yatm_network = {
   },
 }
 
-local groups =
+local groups = {
+  cracky = 1,
+  yatm_energy_device = 1,
+  yatm_network_device = 1,
+}
 
 yatm.devices.register_stateful_network_device({
   description = "Void Crate",
 
-  groups = {
-    cracky = 1,
-    yatm_energy_device = 1,
-    yatm_data_device = 1,
-  },
+  groups = groups,
 
   drop = void_crate_yatm_network.states.off,
 

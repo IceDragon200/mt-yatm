@@ -20,7 +20,7 @@ local groups = {
   item_interface_out = 1,
   item_interface_in = 1,
   yatm_energy_device = 1,
-  yatm_data_device = 1,
+  yatm_network_device = 1,
 }
 
 yatm.devices.register_stateful_network_device({
