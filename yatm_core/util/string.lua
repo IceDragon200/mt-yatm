@@ -6,6 +6,22 @@ function yatm_core.string_ends_with(str, expected)
   return expected == "" or string.sub(str, -#expected) == expected
 end
 
+function yatm_core.string_trim_leading(str, expected)
+  if string.sub(str, 1, #expected) == expected then
+    return string.sub(str, 1 + #expected, -1)
+  else
+    return str
+  end
+end
+
+function yatm_core.string_trim_trailing(str, expected)
+  if string.sub(str, -#expected) == expected then
+    return string.sub(str, 1, -(1 + #expected) )
+  else
+    return str
+  end
+end
+
 function yatm_core.string_pad_leading(str, count, padding)
   str = tostring(str)
   if padding == "" then

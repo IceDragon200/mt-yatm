@@ -74,22 +74,27 @@ function ByteBuf.w_iv(file, len, int)
 end
 
 function ByteBuf.w_i64(file, int)
+  assert(type(int) == "number", "expected an integer")
   return ByteBuf.w_iv(file, 8, int)
 end
 
 function ByteBuf.w_i32(file, int)
+  assert(type(int) == "number", "expected an integer")
   return ByteBuf.w_iv(file, 4, int)
 end
 
 function ByteBuf.w_i24(file, int)
+  assert(type(int) == "number", "expected an integer")
   return ByteBuf.w_iv(file, 3, int)
 end
 
 function ByteBuf.w_i16(file, int)
+  assert(type(int) == "number", "expected an integer")
   return ByteBuf.w_iv(file, 2, int)
 end
 
 function ByteBuf.w_i8(file, int)
+  assert(type(int) == "number", "expected an integer")
   return ByteBuf.w_iv(file, 1, int)
 end
 
@@ -111,22 +116,27 @@ function ByteBuf.w_uv(file, len, int)
 end
 
 function ByteBuf.w_u64(file, int)
+  assert(type(int) == "number", "expected an integer")
   return ByteBuf.w_uv(file, 8, int)
 end
 
 function ByteBuf.w_u32(file, int)
+  assert(type(int) == "number", "expected an integer")
   return ByteBuf.w_uv(file, 4, int)
 end
 
 function ByteBuf.w_u24(file, int)
+  assert(type(int) == "number", "expected an integer")
   return ByteBuf.w_uv(file, 3, int)
 end
 
 function ByteBuf.w_u16(file, int)
+  assert(type(int) == "number", "expected an integer")
   return ByteBuf.w_uv(file, 2, int)
 end
 
 function ByteBuf.w_u8(file, int)
+  assert(type(int) == "number", "expected an integer")
   return ByteBuf.w_uv(file, 1, int)
 end
 

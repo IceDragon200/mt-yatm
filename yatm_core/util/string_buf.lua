@@ -6,34 +6,43 @@ local ic = StringBuf.instance_class
 
 function ic:initialize(data, mode)
   ic._super.initialize(self)
-  self.data = data
+  self.m_data = data
   self:open(mode)
 end
 
+function ic:size()
+  return #self.m_data
+end
+
 function ic:open(mode)
-  self.cursor = 1
-  self.mode = mode or "r"
+  self.m_cursor = 1
+  self.m_mode = mode or "r"
   -- append
-  if self.mode == "a" then
-    self.cursor = 1 + #self.data
+  if self.m_mode == "a" then
+    self.m_cursor = 1 + #self.m_data
   end
 end
 
+function ic:close()
+  self.m_cursor = 1
+  self.m_mode = nil
+end
+
 function ic:isEOF()
-  return self.cursor > #self.data
+  return self.m_cursor > #self.m_data
 end
 
 function ic:rewind()
-  self.cursor = 1
+  self.m_cursor = 1
   return self
 end
 
 function ic:tell()
-  return self.cursor
+  return self.m_cursor
 end
 
 function ic:seek(pos)
-  self.cursor = pos
+  self.m_cursor = pos
   return self
 end
 
@@ -43,12 +52,12 @@ function ic:cseek(pos)
 end
 
 function ic:walk(distance)
-  self.cursor = self.cursor + 1
+  self.m_cursor = self.m_cursor + 1
   return self
 end
 
 function ic:find(pattern)
-  return string.find(self.data, pattern, self.cursor)
+  return string.find(self.m_data, pattern, self.m_cursor)
 end
 
 function ic:scan(pattern)
@@ -89,7 +98,7 @@ end
 function ic:skip(pattern)
   local i, j = self:find("^" .. pattern)
   if i then
-    self.cursor = j + 1
+    self.m_cursor = j + 1
     return true
   else
     return false
@@ -99,7 +108,7 @@ end
 function ic:skip_until(pattern)
   local i, j = self:find(pattern)
   if i then
-    self.cursor = j + 1
+    self.m_cursor = j + 1
     return true
   else
     return false
@@ -107,53 +116,53 @@ function ic:skip_until(pattern)
 end
 
 function ic:calc_read_length(len)
-  assert(self.mode == "r" or self.mode == "rw", "expected read mode")
-  local remaining_len = #self.data - self.cursor + 1
+  assert(self.m_mode == "r" or self.m_mode == "rw", "expected read mode")
+  local remaining_len = #self.m_data - self.m_cursor + 1
   local len = math.min(len or remaining_len, remaining_len)
   return len
 end
 
 function ic:peek_bytes(len)
   local len = self:calc_read_length(len)
-  return string.byte(self.data, self.cursor, self.cursor + len - 1), len
+  return string.byte(self.m_data, self.m_cursor, self.m_cursor + len - 1), len
 end
 
 function ic:read_bytes(len)
   local len = self:calc_read_length(len)
-  local pos = self.cursor
-  self.cursor = self.cursor + len
-  return string.byte(self.data, pos, pos + len - 1), len
+  local pos = self.m_cursor
+  self.m_cursor = self.m_cursor + len
+  return string.byte(self.m_data, pos, pos + len - 1), len
 end
 
 function ic:peek(len)
   local len = self:calc_read_length(len)
-  return string.sub(self.data, self.cursor, self.cursor + len - 1), len
+  return string.sub(self.m_data, self.m_cursor, self.m_cursor + len - 1), len
 end
 
 function ic:read(len)
   local len = self:calc_read_length(len)
-  local pos = self.cursor
-  self.cursor = self.cursor + len
-  return string.sub(self.data, pos, pos + len - 1), len
+  local pos = self.m_cursor
+  self.m_cursor = self.m_cursor + len
+  return string.sub(self.m_data, pos, pos + len - 1), len
 end
 
 function ic:write(data)
-  assert(self.mode == "w" or self.mode == "rw", "expected write mode")
+  assert(self.m_mode == "w" or self.m_mode == "rw", "expected write mode")
   data = tostring(data)
-  local current_len = #self.data
+  local current_len = #self.m_data
   local len = #data
-  local final_cursor = self.cursor + len
+  local final_cursor = self.m_cursor + len
   if final_cursor < current_len then
     -- the final cursor is still inside the string
-    local head = string.sub(self.data, 1, self.cursor)
-    local tail = string.sub(self.data, final_cursor, current_len)
-    self.data = head .. data .. tail
+    local head = string.sub(self.m_data, 1, self.m_cursor)
+    local tail = string.sub(self.m_data, final_cursor, current_len)
+    self.m_data = head .. data .. tail
   else
     -- the data will overwrite a section of the existing data and add new data
-    self.data = string.sub(self.data, 1, self.cursor)
-    self.data = self.data .. data
+    self.m_data = string.sub(self.m_data, 1, self.m_cursor)
+    self.m_data = self.m_data .. data
   end
-  self.cursor = final_cursor
+  self.m_cursor = final_cursor
   return true, nil
 end
 

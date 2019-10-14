@@ -18,7 +18,7 @@ function ic:initialize(initial_size_or_data, mode)
     allocated_size = initial_size_or_data
     data = ''
   else
-    data = initial_size_or_data
+    data = initial_size_or_data or ''
   end
   size = #data
   allocated_size = allocated_size or next_block_size(size)
@@ -29,6 +29,10 @@ function ic:initialize(initial_size_or_data, mode)
   ffi.copy(self.m_data, data, #data)
 
   self:open(mode)
+end
+
+function ic:blob()
+  return ffi.string(self.m_data, self.m_size)
 end
 
 function ic:resize(new_size)
