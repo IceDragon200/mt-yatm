@@ -1,5 +1,45 @@
 local EnergyDevices = assert(yatm_core.EnergyDevices)
 
+local NetworkCluster = yatm_core.Class:extends("NetworkCluster")
+local ic = NetworkCluster.instance_class
+
+function ic:initialize(pos, network_id, node_name)
+  self.idle_time = 0
+
+  self.id = network_id
+  -- host node name
+  self.node_name = node_name
+  -- origin position of the controller, can be used to index some features
+  self.pos = pos
+  -- {member_id = member_entry}
+  self.members = {}
+  -- {member_id = {group_id...}}
+  self.member_groups = {}
+  -- {group_id = {(member_id = true)...}}
+  self.group_members = {}
+end
+
+function ic:reduce_group_members(name, acc, reducer)
+  local group = self.group_members[name]
+  if group then
+    local cont = true
+    for member_id,_ in pairs(group) do
+      local member = self.members[member_id]
+      local pos = member.pos
+      local node = minetest.get_node(pos)
+      if node.name == "ignore" then
+        print("YATM Network; WARN: ignoring node", minetest.pos_to_string(pos), "of group", name)
+      else
+        cont, acc = reducer(pos, node, acc)
+        if not cont then
+          break
+        end
+      end
+    end
+  end
+  return acc
+end
+
 local Network = {
   dirty = true,
   networks = {},
@@ -9,6 +49,8 @@ local Network = {
   refresh_queue = {},
   counter = 0,
   timer = 0,
+
+  systems = {},
 
   STATE = "network_state",
   KEY = "network_id",
@@ -106,21 +148,7 @@ end
 @spec Network.initialize_network(vector3.t, network_id, String.t) :: network_id
 ]]
 function Network.initialize_network(pos, network_id, node_name)
-  Network.networks[network_id] = {
-    idle_time = 0,
-
-    id = network_id,
-    -- host node name
-    node_name = node_name,
-    -- origin position of the controller, can be used to index some features
-    pos = pos,
-    -- {member_id = member_entry}
-    members = {},
-    -- {member_id = {group_id...}}
-    member_groups = {},
-    -- {group_id = {(member_id = true)...}}
-    group_members = {},
-  }
+  Network.networks[network_id] = NetworkCluster:new(pos, network_id, node_name)
   return network_id
 end
 
@@ -597,27 +625,6 @@ function Network.schedule_refresh_network_topography(pos, params)
   table.insert(Network.refresh_queue, {pos, params})
 end
 
-local function reduce_group_members(network, name, acc, reducer)
-  local group = network.group_members[name]
-  if group then
-    local cont = true
-    for member_id,_ in pairs(group) do
-      local member = network.members[member_id]
-      local pos = member.pos
-      local node = minetest.get_node(pos)
-      if node.name == "ignore" then
-        print("YATM Network; WARN: ignoring node", minetest.pos_to_string(pos), "of group", name)
-      else
-        cont, acc = reducer(pos, node, acc)
-        if not cont then
-          break
-        end
-      end
-    end
-  end
-  return acc
-end
-
 local function update_network_refresh(dtime, counter)
   if Network.need_refresh then
     local ts = Network.time()
@@ -656,15 +663,15 @@ local function update_lost_nodes(dtime, counter)
   end
 end
 
-local function update_network(pot, dtime, counter, network_id, network)
+local function update_network(network, dtime, counter, pot)
   local trace = yatm_core.trace
-  local ot = trace.span_start(pot, network_id)
-  debug("network_update", counter, "UPDATING NETWORK", network_id)
+  local ot = trace.span_start(pot, network.id)
+  debug("network_update", counter, "UPDATING NETWORK", network.id)
 
   -- Highest priority, produce energy
   -- It's up to the node how it wants to deal with the energy, whether it's buffered, or just burst
   local span = trace.span_start(ot, "energy_producer")
-  local energy_produced = reduce_group_members(network, "energy_producer", 0, function (pos, node, acc)
+  local energy_produced = network:reduce_group_members("energy_producer", 0, function (pos, node, acc)
     debug("network_energy_update", "PRODUCE ENERGY", pos.x, pos.y, pos.z, node.name)
     acc = acc + EnergyDevices.produce_energy(pos, node, dtime, span)
     return true, acc
@@ -675,7 +682,7 @@ local function update_network(pot, dtime, counter, network_id, network)
   -- This is combined with the produced to determine how much is available
   -- The node is allowed to lie about it's contents, to cause energy trickle or gating
   local span = trace.span_start(ot, "energy_storage")
-  local energy_stored = reduce_group_members(network, "energy_storage", 0, function (pos, node, acc)
+  local energy_stored = network:reduce_group_members("energy_storage", 0, function (pos, node, acc)
     local nodedef = minetest.registered_nodes[node.name]
     acc = acc + EnergyDevices.get_usable_stored_energy(pos, node, dtime, span)
     return true, acc
@@ -689,7 +696,7 @@ local function update_network(pot, dtime, counter, network_id, network)
   debug("network_energy_update", "ENERGY_AVAILABLE", energy_available, "=", energy_stored, " + ", energy_produced)
 
   -- Consumers are different from receivers, they use energy without any intention of storing it
-  local energy_consumed = reduce_group_members(network, "energy_consumer", 0, function (pos, node, acc)
+  local energy_consumed = network:reduce_group_members("energy_consumer", 0, function (pos, node, acc)
     local consumed = EnergyDevices.consume_energy(pos, node, energy_available, dtime, span)
     if consumed then
       energy_available = energy_available - consumed
@@ -706,7 +713,7 @@ local function update_network(pot, dtime, counter, network_id, network)
   local energy_storage_consumed = energy_consumed - energy_produced
   -- if we went over the produced, then the rest must be taken from the storage
   if energy_storage_consumed > 0 then
-    reduce_group_members(network, "energy_storage", 0, function (pos, node, acc)
+    network:reduce_group_members("energy_storage", 0, function (pos, node, acc)
       local used = EnergyDevices.use_stored_energy(pos, node, energy_storage_consumed, dtime, span)
       if used then
         energy_storage_consumed = energy_storage_consumed + used
@@ -726,7 +733,7 @@ local function update_network(pot, dtime, counter, network_id, network)
     debug("network_energy_update", "ENERGY_LEFT", energy_left)
     -- Receivers are the lowest priority, they accept any left over energy from the production
     -- Incidentally, storage nodes tend to be also receivers
-    reduce_group_members(network, "energy_receiver", 0, function (pos, node, acc)
+    network:reduce_group_members("energy_receiver", 0, function (pos, node, acc)
       local energy_received = EnergyDevices.receive_energy(pos, node, energy_left, dtime, span)
       if energy_received then
         energy_left = energy_left -  energy_received
@@ -737,7 +744,7 @@ local function update_network(pot, dtime, counter, network_id, network)
   trace.span_end(span)
 
   local span = trace.span_start(ot, "has_update")
-  reduce_group_members(network, "has_update", 0, function (pos, node, acc)
+  network:reduce_group_members("has_update", 0, function (pos, node, acc)
     local nodedef = minetest.registered_nodes[node.name]
     if nodedef then
       if nodedef.yatm_network and nodedef.yatm_network.update then
@@ -777,7 +784,11 @@ function Network:update(dtime)
     network.idle_time = network.idle_time - dtime
     while network.idle_time <= 0 do
       network.idle_time = network.idle_time + 0.25
-      update_network(ot, 0.25, counter, network_id, network)
+      update_network(network, 0.25, counter, ot)
+
+      for _,system in pairs(self.systems) do
+        system:update_network(network, 0.25, counter, ot)
+      end
     end
   end
 
@@ -810,6 +821,11 @@ end
 
 function Network:on_shutdown()
   debug("yatm_core.Network.on_shutdown/0", "Shutting down")
+end
+
+function Network:register_system(name, system)
+  self.systems[name] = system
+  return self
 end
 
 function Network.on_host_destruct(pos, node)
@@ -877,9 +893,35 @@ end)
 
 yatm_core.Network = Network
 
---[[
-Register the Network Host ABM and LBMs
-]]
+minetest.register_chatcommand("yatm.networks", {
+  params = "<command> <params>",
+  description = "Issue various commands to yatm networks",
+  func = function (player_name, param)
+    minetest.log("action", "yatm.networks " .. param)
+    local params = string.split(param, ' ')
+    if params[1] == "ls" then
+      local network_ids = yatm_core.table_keys(Network.networks)
+      minetest.chat_send_player(player_name, "Network IDs:" .. table.concat(network_ids, ', '))
+    elseif params[1] == "describe" then
+      -- describe <network-id>
+      local network_id = params[2]
+      network_id = string.trim(network_id)
+      local network = Network.networks[network_id]
+      if network then
+        minetest.chat_send_player(player_name, network.node_name .. ' ' .. minetest.pos_to_string(network.pos) .. "\n" ..
+                                               yatm_core.table_length(network.members) .. " Members")
+      else
+        minetest.chat_send_player(player_name, 'Network not found')
+      end
+    else
+      minetest.chat_send_player(player_name, 'Invalid command')
+    end
+  end
+})
+
+--
+-- Register the Network Host ABM and LBMs
+--
 minetest.register_abm({
   label = "yatm_core:network_host_abm",
   nodenames = {
