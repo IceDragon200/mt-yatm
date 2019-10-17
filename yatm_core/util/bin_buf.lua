@@ -22,17 +22,22 @@ function ic:initialize(initial_size_or_data, mode)
   end
   size = #data
   allocated_size = allocated_size or next_block_size(size)
+  assert(allocated_size >= size)
   self.m_size = size
   self.m_allocated_size = allocated_size
   self.m_data = ffi.new('unsigned char[?]', self.m_allocated_size)
   ffi.fill(self.m_data, self.m_allocated_size)
-  ffi.copy(self.m_data, data, #data)
+  ffi.copy(self.m_data, data, self.m_size)
+
+  print("Allocated Binary Buffer", "allocated_size=" .. self.m_allocated_size, "size=" .. self.m_size)
 
   self:open(mode)
 end
 
-function ic:blob()
-  return ffi.string(self.m_data, self.m_size)
+function ic:blob(len)
+  len = len or self.m_size
+  print("Reading Blob allocated_size=" .. self.m_allocated_size .. " size=" .. self.m_size .. " len=" .. len)
+  return ffi.string(self.m_data, len)
 end
 
 function ic:resize(new_size)
@@ -78,13 +83,19 @@ function ic:calc_read_length(len)
   assert(self.m_mode == "r" or self.m_mode == "rw", "expected read mode")
   local remaining_len = self.m_size - self.m_cursor + 1
   local len = math.min(len or remaining_len, remaining_len)
-  return len
+  return len, remaining_len
 end
 
 function ic:read(len)
-  local len = self:calc_read_length(len)
+  local len, remlen = self:calc_read_length(len)
   local pos = self.m_cursor - 1
+
   self.m_cursor = self.m_cursor + len
+
+  if (pos + len) > self.m_size then
+    error("read exceeds length remaining=" .. remlen .. " len=" .. len)
+  end
+
   if len > 0 then
     return ffi.string(self.m_data + pos, len), len
   else
@@ -102,8 +113,8 @@ function ic:write(blob)
     self:resize_to_next_block()
   end
 
-  ffi.copy(self.m_data + (self.m_cursor - 1), blob)
-  self.m_cursor = self.m_cursor + #blob
+  ffi.copy(self.m_data + (self.m_cursor - 1), blob, blob_size)
+  self.m_cursor = self.m_cursor + blob_size
 
   --[[local i = 1
   while self.m_cursor < next_cursor do
@@ -112,8 +123,9 @@ function ic:write(blob)
     self.m_cursor = self.m_cursor + 1
   end]]
 
-  if self.m_size < self.m_cursor then
-    self.m_size = self.m_cursor
+  local new_size = self.m_cursor - 1
+  if self.m_size < new_size then
+    self.m_size = new_size
   end
 
   return true, nil
