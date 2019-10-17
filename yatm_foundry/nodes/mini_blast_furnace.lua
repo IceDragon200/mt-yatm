@@ -1,14 +1,14 @@
 local HeatInterface = assert(yatm.heating.HeatInterface)
 
 local heat_interface = HeatInterface.new_simple("heat", 1200)
-function heat_interface:on_heat_changed(pos, node, old_heat, new_heat)
+function heat_interface:on_heat_changed(pos, dir, old_heat, new_heat)
+  local node = minetest.get_node(pos)
   if math.floor(new_heat) > 0 then
     node.name = "yatm_foundry:mini_blast_furnace_on"
-    minetest.swap_node(pos, node)
   else
     node.name = "yatm_foundry:mini_blast_furnace_off"
-    minetest.swap_node(pos, node)
   end
+  minetest.swap_node(pos, node)
   yatm_core.queue_refresh_infotext(pos)
   minetest.get_node_timer(pos):start(1.0)
 end
