@@ -31,6 +31,10 @@ function ic:initialize()
   self.m_members = {}
   self.m_members_by_group = {}
   self.m_resolution_id = 0
+
+  yatm.clusters:observe('on_block_expired', 'yatm_data_network/block_unloader', function (block_entry)
+    self:unload_block(block_entry.id)
+  end)
 end
 
 function ic:get_port_offset_for_color(color)
@@ -163,6 +167,7 @@ function ic:update_member(pos, node)
     member.node = node
     self:do_unregister_member_groups(member)
 
+    local nodedef = minetest.registered_nodes[node.name]
     local dnd = assert(nodedef.data_network_device)
     member.groups = dnd.groups or {}
     self:do_register_member_groups(member)
@@ -170,6 +175,17 @@ function ic:update_member(pos, node)
     error("no such member " .. minetest.pos_to_string(pos))
   end
   return self
+end
+
+function ic:upsert_member(pos, node)
+  print("DataNetwork", "upsert_member", minetest.pos_to_string(pos), node.name)
+  local member_id = minetest.hash_node_position(pos)
+  local member = self.m_members[member_id]
+  if member then
+    return self:update_member(pos, node)
+  else
+    return self:register_member(pos, node)
+  end
 end
 
 -- @spec unregister_member(Vector3.t, Node.t | nil) :: DataNetwork.t
@@ -186,6 +202,9 @@ function ic:unregister_member(pos, node)
     self:queue_refresh(pos)
   end
   return self
+end
+
+function ic:unload_block(block_id)
 end
 
 function ic:remove_network(network_id)
@@ -208,7 +227,7 @@ function ic:send_value_to_network(network_id, member_id, local_port, value)
         print("ERR: ", member.node.name, "port out of range", local_port, "expected to be between 1 and " .. port_offset.range)
       end
     else
-      print("WARN: ", member.node.name, "does not have an attached color")
+      print("WARN: ", member.node.name, "does not have an attached color; cannot send")
     end
   end
   return self
@@ -241,7 +260,7 @@ function ic:mark_ready_to_receive_in_network(network_id, member_id, local_port)
         print("ERR: ", member.node.name, "port out of range", local_port, "expected to be between 1 and " .. port_offset.range)
       end
     else
-      print("WARN: ", member.node.name, "does not have an attached color")
+      print("WARN: ", member.node.name, "does not have an attached color; cannot be readied for receive")
     end
   end
   return self
@@ -521,7 +540,13 @@ end
 
 function ic:terminate()
   --
-  print("DataNetwork", "terminating")
+  print("yatm.data_network", "terminating")
+  -- release everything
+  self.m_queued_refreshes = {}
+  self.m_networks = {}
+  self.m_members = {}
+  self.m_members_by_group = {}
+  print("yatm.data_network", "terminated")
 end
 
 function ic:get_infotext(pos)
@@ -541,13 +566,8 @@ end
 local data_network = DataNetwork:new()
 
 do
-  minetest.register_globalstep(function (delta)
-    data_network:update(delta)
-  end)
-
-  minetest.register_on_shutdown(function ()
-    data_network:terminate()
-  end)
+  minetest.register_globalstep(data_network:method("update"))
+  minetest.register_on_shutdown(data_network:method("terminate"))
 
   minetest.register_lbm({
     name = "yatm_data_network:data_network_reload_lbm",
@@ -558,7 +578,7 @@ do
     },
     run_at_every_load = true,
     action = function (pos, node)
-      data_network:register_member(pos, node)
+      data_network:upsert_member(pos, node)
     end
   })
 end
