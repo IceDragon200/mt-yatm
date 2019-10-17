@@ -88,6 +88,7 @@ function ic:run_suites()
 end
 
 function ic:on_shutdown()
+  print("Autotest", "shutdown")
 end
 
 function ic:update(dtime)
