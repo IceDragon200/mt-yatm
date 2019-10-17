@@ -46,6 +46,9 @@ function devices.device_passive_consume_energy(pos, node, amount, dtime, ot)
       local charge_bandwidth = energy.network_charge_bandwidth
       if charge_bandwidth and charge_bandwidth > 0 then
         local capacity = energy.capacity
+        if not capacity then
+          error("node " .. node.name .. " needs a yatm_network.energy.capacity")
+        end
         local meta = minetest.get_meta(pos)
         local stored = yatm.energy.receive_energy(meta, devices.ENERGY_BUFFER_KEY, remaining, charge_bandwidth, capacity, true)
         Network:queue_refresh_infotext(pos)
