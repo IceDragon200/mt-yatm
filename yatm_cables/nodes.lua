@@ -50,6 +50,10 @@ function yatm_cables.register_cable_state(params, size)
     on_network_state_changed = yatm_core.Network.default_on_network_state_changed,
   }
 
+  if params.drop == nil then
+    params.drop = params.default_state
+  end
+
   local connects_to = {}
   if params.connects_to then
     connects_to = params.connects_to
@@ -186,9 +190,9 @@ yatm_cables.register_cable({
   states = false,
   sounds = glass_sounds,
 
-  groups = { cracky = 1, any_cable = 1, glass_cable = 1, data_cable = 1  },
+  groups = { cracky = 1, any_cable = 1, glass_cable = 1, yatm_cluster_cable = 1  },
   connects_to = {
-    "group:data_cable",
+    "group:yatm_cluster_cable",
     "group:yatm_network_device",
   },
 
@@ -202,9 +206,9 @@ yatm_cables.register_cable({
   states = false,
   sounds = glass_sounds,
 
-  groups = { cracky = 1, any_cable = 1, glass_cable = 1, data_cable = 1  },
+  groups = { cracky = 1, any_cable = 1, glass_cable = 1, yatm_cluster_cable = 1  },
   connects_to = {
-    "group:data_cable",
+    "group:yatm_cluster_cable",
     "group:yatm_network_device",
   },
 
@@ -218,9 +222,9 @@ yatm_cables.register_cable({
   states = false,
   sounds = glass_sounds,
 
-  groups = { cracky = 1, any_cable = 1, glass_cable = 1, data_cable = 1 },
+  groups = { cracky = 1, any_cable = 1, glass_cable = 1, yatm_cluster_cable = 1 },
   connects_to = {
-    "group:data_cable",
+    "group:yatm_cluster_cable",
     "group:yatm_network_device",
   },
 
