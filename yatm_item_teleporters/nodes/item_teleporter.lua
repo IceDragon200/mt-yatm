@@ -6,7 +6,7 @@
   Like all other wireless devices, it has it's own address scheme and registration process.
 
 ]]
-local SpacetimeNetwork = assert(yatm.spacetime.Network)
+local SpacetimeNetwork = assert(yatm.spacetime.network)
 local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
 local YATM_NetworkMeta = assert(yatm.network)
 local Energy = assert(yatm.energy)
