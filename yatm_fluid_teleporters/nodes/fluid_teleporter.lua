@@ -4,7 +4,7 @@ take fluids into their internal inventory, and then teleport them to a connected
 
 Like all other wireless devices, it has it's own address scheme and registration process.
 ]]
-local SpacetimeNetwork = assert(yatm.spacetime.Network)
+local SpacetimeNetwork = assert(yatm.spacetime.network)
 local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
