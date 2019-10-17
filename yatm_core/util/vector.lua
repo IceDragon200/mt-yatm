@@ -59,9 +59,17 @@ function yatm_core.vector3.divide(dest, v1, v2)
   return dest
 end
 
+function yatm_core.vector3.idivide(dest, v1, v2)
+  dest.x = math.floor(v1.x / v2.x)
+  dest.y = math.floor(v1.y / v2.y)
+  dest.z = math.floor(v1.z / v2.z)
+  return dest
+end
+
 yatm_core.vector3.sub = yatm_core.vector3.subtract
 yatm_core.vector3.mul = yatm_core.vector3.multiply
 yatm_core.vector3.div = yatm_core.vector3.divide
+yatm_core.vector3.idiv = yatm_core.vector3.idivide
 
 
 yatm_core.vector4 = {}
