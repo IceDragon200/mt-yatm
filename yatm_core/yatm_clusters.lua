@@ -9,6 +9,7 @@ local ic = Cluster.instance_class
 function ic:initialize(id)
   self.id = id
   self.m_nodes = {}
+  self.m_block_nodes = {}
   self.m_groups = {}
 end
 
@@ -99,6 +100,10 @@ function ic:on_node_removed(node_entry)
   --
 end
 
+function ic:on_block_expired(block_entry)
+  --
+end
+
 function ic:reduce_nodes_of_groups(groups, acc, reducer)
   local primary_group = groups[1]
   local groups_count = #groups
@@ -181,6 +186,8 @@ end
 -- Clusters represent a unified format and system for joining nodes together
 -- to form 'networks'.
 --
+local vector3 = yatm_core.vector3
+local MAP_BLOCK_SIZE3 = vector3.new(16, 16, 16)
 local Clusters = yatm_core.Class:extends("YATM.Clusters")
 local ic = Clusters.instance_class
 
@@ -189,6 +196,31 @@ function ic:initialize()
   self.m_clusters = {}
   self.m_groups = {}
   self.m_nodes = {}
+  -- A life-cycle system, this determines if a mapblock is still loaded
+  -- by checking 1 of it's nodes for "ignore", if it receives an "ignore"
+  -- the block is considered unloaded and all clusters will be notified
+  self.m_active_blocks = {}
+
+  self.m_counter = 0
+
+  self.m_observers = {}
+end
+
+function ic:mark_node_block(pos)
+  assert(pos, "expected a node position")
+  local block_pos = vector3.idiv({}, pos, MAP_BLOCK_SIZE3)
+  local block_hash = minetest.hash_node_position(block_pos)
+
+  print("clusters", "mark_node_block", minetest.pos_to_string(pos))
+  -- mark the block as still active
+  self.m_active_blocks[block_hash] = {
+    id = block_hash,
+    pos = pos,
+    mapblock_pos = block_pos,
+    expired = false,
+    counter = self.m_counter
+  }
+  return block_hash
 end
 
 function ic:create_cluster()
@@ -202,4 +234,69 @@ function ic:destroy_cluster(id)
   return self
 end
 
+function ic:update(dtime)
+  local has_expired_blocks = false
+
+  for block_hash,entry in pairs(self.m_active_blocks) do
+    if (self.m_counter - entry.counter) > 3 then
+      if minetest.get_node_or_nil(entry.pos) then
+        entry.counter = self.m_counter
+      else
+        entry.expired = true
+        has_expired_blocks = true
+      end
+    end
+  end
+
+  if has_expired_blocks then
+    local old_blocks = self.m_active_blocks
+    self.m_active_blocks = {}
+    for block_hash,entry in pairs(old_blocks) do
+      if entry.expired then
+        print("clusters", "block expired", entry.id, minetest.pos_to_string(entry.pos))
+        self:on_block_expired(entry)
+      else
+        self.m_active_blocks[block_hash] = entry
+      end
+    end
+  end
+
+  self.m_counter = self.m_counter + 1
+end
+
+function ic:_send_to_observers(group, message)
+  local observers = self.m_observers[group]
+  if observers then
+    for observer_id,observer_callback in pairs(observers) do
+      observer_callback(message, group, observer_id)
+    end
+  end
+end
+
+function ic:on_block_expired(entry)
+  for cluster_id,cluster in pairs(self.m_clusters) do
+    cluster:on_block_expired(entry)
+  end
+  self:_send_to_observers("on_block_expired", entry)
+end
+
+function ic:observe(group, id, callback)
+  assert(group, "requires a group")
+  assert(id, "requires a id")
+  assert(callback, "requires a callback")
+  print("registering callback group:" .. group .. " id:" .. id .. " callback:" .. dump(callback))
+  if not self.m_observers[group] then
+    self.m_observers[group] = {}
+  end
+  self.m_observers[group][id] = callback
+end
+
+function ic:disregard(group, id)
+  if self.m_observers[group] then
+    self.m_observers[group][id] = nil
+  end
+end
+
 yatm_core.clusters = Clusters:new()
+
+minetest.register_globalstep(yatm_core.clusters:method("update"))
