@@ -3,7 +3,7 @@
 --
 local iio = yatm.io
 
-minetest.register_on_mods_loaded(function ()
+--[[minetest.register_on_mods_loaded(function ()
   -- Export yatm specific nodes for documentation purposes
   local file = iio.open("yatm_exported_nodes.toml", "w")
   for name, def in pairs(minetest.registered_nodes) do
@@ -22,4 +22,4 @@ minetest.register_on_mods_loaded(function ()
     end
   end
   iio.close(file)
-end)
+end)]]
