@@ -24,6 +24,7 @@ union yatm_oku_memory_cell32 {
 -- Initializes a new binary memory, size is in bytes
 -- @spec initialize(size :: integer) :: void
 function m:initialize(size)
+  assert(size > 0, "expected memory size to be greater than 0")
   self.m_size = size
   self.m_data = assert(ffi.new("uint8_t[?]", self.m_size))
   self.m_cell = assert(ffi.new("union yatm_oku_memory_cell32"))
@@ -31,6 +32,7 @@ function m:initialize(size)
   -- Or an error raised?
   self.m_circular_access = false
   ffi.fill(self.m_data, self.m_size, 0)
+  print("oku", "Memory", "allocated size=" .. self.m_size)
 end
 
 function m:size()
@@ -151,23 +153,40 @@ function m:bindump(stream)
     bytes_written = bytes_written + bw
   end
 
-  local blob = ffi.string(self.m_data, self.m_size)
-  local bw = ByteBuf.write(stream, blob, self.m_size)
+  local bw = ByteBuf.w_u32(stream, self.m_size)
   bytes_written = bytes_written + bw
+
+  if self.m_size > 0 then
+    local blob = ffi.string(self.m_data, self.m_size)
+    assert(#blob == self.m_size, "expected blob to be the same size")
+    bw = ByteBuf.write(stream, blob, self.m_size)
+    bytes_written = bytes_written + bw
+  end
   return bytes_written, nil
 end
 
 function m:binload(stream)
   local bytes_read = 0
+
   local memory_bo, br = ByteBuf.read(stream, 2)
   bytes_read = bytes_read + br
-  local memory_blob, br = ByteBuf.read(stream, self.m_size)
+
+  local memory_size, br = ByteBuf.r_u32(stream)
   bytes_read = bytes_read + br
+
+  if memory_size ~= self.m_size then
+    error("memory size mismatch expected=" .. self.m_size .. " got=" .. memory_size)
+  end
+
+  local memory_blob, br = ByteBuf.read(stream, memory_size)
+  bytes_read = bytes_read + br
+
+
   if memory_bo == "le" then
     -- the memory was dumped from a little endian machine
     if ffi.abi("le") then
       -- and we're running on an LE machine, thank goodness
-      ffi.copy(self.m_data, memory_blob)
+      ffi.copy(self.m_data, memory_blob, memory_size)
     else
       -- oh snap, no, no, no
       error("CRITICAL: Cannot restore little-endian memory dump in a big-endian host system")
@@ -176,7 +195,7 @@ function m:binload(stream)
     -- the memory was dumped from a big endian machine
     if ffi.abi("be") then
       -- and we're running on an BE machine, yay!, wait, wat, that's rare
-      ffi.copy(self.m_data, memory_blob)
+      ffi.copy(self.m_data, memory_blob, memory_size)
     else
       -- well, whoops
       error("CRITICAL: Cannot restore big-endian memory dump in a little-endian host system")

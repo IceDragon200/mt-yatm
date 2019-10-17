@@ -53,11 +53,15 @@ function ic:load_computer_state(pos)
   local basename = pos_to_basename(pos)
   local filename = yatm_core.path_join(self.m_root_dir, basename)
 
+  local trace = yatm_core.trace.new('load_computer_state/' .. minetest.pos_to_string(pos))
   local file = io.open(filename, "r")
   if file then
+    local ot = yatm_core.trace.span_start(trace, 'read-binary')
     local stream = yatm_core.StringBuf:new(file:read('*all'), 'r')
-    print("ComputerState", filename, stream:size())
     file:close()
+    yatm_core.trace.span_end(ot)
+
+    local ot = yatm_core.trace.span_start(trace, 'decode-stream')
     -- FIXME: This entire section should be wrapped in a protected call
     --        and the file closed properly.
     -- Read the state header
@@ -68,6 +72,9 @@ function ic:load_computer_state(pos)
     local oku, br = OKU:binload(stream)
 
     stream:close()
+    yatm_core.trace.span_end(ot)
+    yatm_core.trace.span_end(trace)
+    yatm_core.trace.inspect(trace)
 
     local state_pos = vector.new(state.x, state.y, state.z)
     local node = {
@@ -91,10 +98,17 @@ end
 
 --
 -- @spec save_computer_state(ComputerState) :: {bytes_written :: non_neg_integer, error}
-function ic:save_computer_state(state)
+function ic:save_computer_state(state, parent_trace)
+  print("Saving Computer State", minetest.pos_to_string(state.pos))
   local basename = pos_to_basename(state.pos)
   local filename = yatm_core.path_join(self.m_root_dir, basename)
 
+  local ot
+  if parent_trace then
+    ot = yatm_core.trace.span_start(parent_trace, 'save_computer_state/' .. minetest.pos_to_string(state.pos))
+  else
+    ot = yatm_core.trace.new('save_computer_state/' .. minetest.pos_to_string(state.pos))
+  end
   local stream = yatm_core.BinaryBuffer:new('', 'w')
 
   local bytes_written = 0
@@ -132,6 +146,10 @@ function ic:save_computer_state(state)
   stream:close()
 
   minetest.safe_file_write(filename, stream:blob())
+  yatm_core.trace.span_end(ot)
+  if not parent_trace then
+    yatm_core.trace.inspect(ot)
+  end
   return bytes_written, nil
 end
 
@@ -151,22 +169,35 @@ function ic:delete_computer_state(pos)
 end
 
 function ic:persist_computer_states()
+  local ot = yatm_core.trace.new('persist_computer_states')
   for _hash,state in pairs(self.m_computers) do
-    self:save_computer_state(state)
+    self:save_computer_state(state, ot)
   end
+  yatm_core.trace.span_end(ot)
+  yatm_core.trace.inspect(ot)
 end
 
 function ic:terminate()
+  print("yatm.computers", "terminating")
   -- Persist all active computer states
   self:persist_computer_states()
+  -- release all the computers
+  self.m_computers = {}
+  print("yatm.computers", "terminated")
 end
 
 function ic:update(dt)
+  local ot = yatm_core.trace.new("oku_computers_update")
   --
   local clock_speed = math.floor(dt * 1000)
   for _, computer in pairs(self.m_computers) do
-    computer.oku:step(clock_speed)
+    local ct = yatm_core.trace.span_start(ot, "computer-" .. computer.node.name .. "-" .. minetest.pos_to_string(computer.pos))
+    --local steps_taken, err = computer.oku:step(clock_speed)
+    --print("STEPS", ct.name, steps_taken, err)
+    yatm_core.trace.span_end(ct)
   end
+  yatm_core.trace.span_end(ot)
+  --yatm_core.trace.inspect(ot)
 end
 
 --
@@ -175,6 +206,8 @@ end
 -- Options:
 --   See OKU:new() for details
 function ic:create_computer(pos, node, secret, options)
+  assert(type(secret) == "string", "expected secret to be a string got:" .. type(secret))
+  assert(type(options) == "table", "expected an options table got:" .. type(options))
   local hash = minetest.hash_node_position(pos)
   if self.m_computers[hash] then
     error("a computer already exists hash=" .. hash)
@@ -217,6 +250,20 @@ function ic:destroy_computer(pos, node)
   end
 end
 
+function ic:update_computer(pos, node, secret, options)
+  print("Updating Computer", minetest.pos_to_string(pos), node.name)
+  local hash = minetest.hash_node_position(pos)
+  local computer = self.m_computers[hash]
+
+  if computer then
+    computer.node = node
+    computer.secret = secret
+    -- TODO: maybe update oku state
+  else
+    error("no such computer hash:" .. hash)
+  end
+end
+
 --
 -- Registers a computer (possibly creating a new instance).
 -- This should be used for nodes that are being reloaded.
@@ -225,16 +272,27 @@ function ic:register_computer(pos, node, secret, options)
   local old_state = self:load_computer_state(pos)
   if old_state then
     if old_state.secret == secret then
+      local hash = minetest.hash_node_position(pos)
+      old_state.id = hash
       self.m_computers[old_state.id] = old_state
     else
       -- warn about a secret mismatch
       print("Secret Mismatch: got ", old_state.secret, "expected ", secret)
-      self:create_computer(pos, node, options)
+      self:create_computer(pos, node, secret, options)
     end
   else
-    self:create_computer(pos, node, options)
+    self:create_computer(pos, node, secret, options)
   end
   return self
+end
+
+function ic:upsert_computer(pos, node, secret, options)
+  local hash = minetest.hash_node_position(pos)
+  if self.m_computers[hash] then
+    return self:update_computer(pos, node, secret, options)
+  else
+    return self:register_computer(pos, node, secret, options)
+  end
 end
 
 yatm_oku.Computers = Computers

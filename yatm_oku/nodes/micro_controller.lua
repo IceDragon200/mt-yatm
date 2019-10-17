@@ -185,7 +185,11 @@ minetest.register_node("yatm_oku:oku_micro_controller", {
   register_computer = function (pos, node)
     local meta = minetest.get_meta(pos)
     local secret = meta:get_string("secret")
-    yatm.computers:register_computer(pos, node, secret, {
+    if not secret then
+      secret = yatm_core.random_string(8)
+      meta:set_string("secret", "mctl." .. secret)
+    end
+    yatm.computers:upsert_computer(pos, node, meta:get_string("secret"), {
       memory_size = 16 * 4, -- 16 ins * 4 bytes wide
     })
   end

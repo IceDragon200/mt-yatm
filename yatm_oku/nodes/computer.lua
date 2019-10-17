@@ -160,7 +160,11 @@ yatm.devices.register_stateful_network_device({
   register_computer = function (pos, node)
     local meta = minetest.get_meta(pos)
     local secret = meta:get_string("secret")
-    yatm.computers:register_computer(pos, node, secret, {})
+    if not secret then
+      secret = yatm_core.random_string(8)
+      meta:set_string("secret", "comp." .. secret)
+    end
+    yatm.computers:upsert_computer(pos, node, meta:get_string("secret"), {})
   end
 }, {
   error = {

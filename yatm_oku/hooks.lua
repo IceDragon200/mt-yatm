@@ -18,7 +18,7 @@ minetest.register_lbm({
   action = function (pos, node)
     local nodedef = minetest.registered_nodes[node.name]
     if nodedef then
-      minetest.log("debug", "registering computer node " .. minetest.pos_to_string(pos))
+      minetest.log("info", "registering computer node " .. minetest.pos_to_string(pos))
       nodedef.register_computer(pos, node)
     else
       minetest.log("error", "not a valid computer node " .. minetest.pos_to_string(pos))

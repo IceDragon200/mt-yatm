@@ -44,7 +44,7 @@ local function check_memory_size(memory_size)
     error("requested memory size too small")
   end
   if memory_size > 0x40000 then
-    error("requested memory size too larger, cannot exceed 1mb")
+    error("requested memory size too larger, cannot exceed 1Mb")
   end
 end
 
@@ -211,8 +211,9 @@ function ic:binload(stream)
 
       -- time to figure out what the memory size was
       local memory_size, br = ByteBuf.r_u32(stream)
+
       bytes_read = bytes_read + br
-      check_memory_size(memory_size) -- make sure someone isn't trying something funky.
+      check_memory_size(memory_size) -- make sure someone isn't trying something funny.
       self.m_memory = yatm_oku.OKU.Memory:new(memory_size)
 
       -- okay, now determine if the memory should be reloaded, or was it volatile
