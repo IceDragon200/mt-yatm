@@ -1,4 +1,4 @@
 yatm.mesecon_hubs = {
-  Network = assert(yatm_mesecon_hubs.Network),
   NetworkMeta = assert(yatm_mesecon_hubs.NetworkMeta),
+  wireless_network = assert(yatm_mesecon_hubs.wireless_network),
 }

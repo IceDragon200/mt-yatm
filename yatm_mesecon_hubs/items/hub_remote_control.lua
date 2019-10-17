@@ -1,5 +1,5 @@
 local NetworkMeta = assert(yatm.mesecon_hubs.NetworkMeta)
-local Network = assert(yatm.mesecon_hubs.Network)
+local Network = assert(yatm.mesecon_hubs.wireless_network)
 
 local function hub_remote_control_on_place(itemstack, placer, pointed_thing)
   if pointed_thing.type == "node" then
@@ -40,7 +40,7 @@ local function hub_remote_control_on_use(itemstack, user, pointed_thing)
       new_state = 0
     end
     itemstack:get_meta():set_int("last_state", new_state)
-    Network.emit_value(user:get_pos(), address, new_state)
+    Network:emit_value(user:get_pos(), address, new_state)
     minetest.chat_send_player(user:get_player_name(), "Toggled " .. address .. " " .. new_state)
   end
   return itemstack

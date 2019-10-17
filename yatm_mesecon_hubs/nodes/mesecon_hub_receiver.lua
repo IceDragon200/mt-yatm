@@ -1,4 +1,4 @@
-local Network = assert(yatm.mesecon_hubs.Network)
+local Network = assert(yatm.mesecon_hubs.wireless_network)
 local NetworkMeta = assert(yatm.mesecon_hubs.NetworkMeta)
 
 local mesecon_hub_node_box = {
@@ -21,21 +21,21 @@ local function hub_after_place_node(pos, placer, item_stack, pointed_thing)
   local meta = minetest.get_meta(pos)
   NetworkMeta.patch_hub_address(meta)
   hub_refresh_infotext(pos)
-  Network.register_listener(pos, NetworkMeta.get_hub_address(meta))
+  Network:register_listener(pos, NetworkMeta.get_hub_address(meta))
 end
 
 local function hub_on_destruct(pos)
-  Network.unregister_listener(pos)
+  Network:unregister_listener(pos)
 end
 
 local function hub_change_hub_address(pos, changer, new_address)
   local meta = minetest.get_meta(pos)
-  Network.unregister_listener(pos)
+  Network:unregister_listener(pos)
   do
     NetworkMeta.set_hub_address(meta, new_address)
     hub_refresh_infotext(pos)
   end
-  Network.register_listener(pos, NetworkMeta.get_hub_address(meta))
+  Network:register_listener(pos, NetworkMeta.get_hub_address(meta))
   return new_address
 end
 

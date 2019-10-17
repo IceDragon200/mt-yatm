@@ -7,59 +7,62 @@ But this one is used specifically for the wireless components of mesecon_hubs.
 
 In addition it also has an update step.
 ]]
-local Network = {
-  m_members = {},
-  m_members_by_address = {},
+local WirelessNetwork = yatm_core.Class:extends("WirelessNetwork")
+local ic = WirelessNetwork.instance_class
 
-  m_queue = {},
+function ic:initialize()
+  self.m_members = {}
+  self.m_members_by_address = {}
 
-  m_counter = 0,
-}
+  self.m_queue = {}
 
-function Network.register_listener(pos, address)
-  assert(pos, "expected a valid position")
-  assert(address, "expected a valid address")
-  print("yatm_mesecon_hubs.Network.register_listener/2", minetest.pos_to_string(pos), address)
-  local hash = minetest.hash_node_position(pos)
-
-  Network.m_members[hash] = address
-  Network.m_members_by_address[address] = Network.m_members_by_address[address] or {}
-  Network.m_members_by_address[address][hash] = pos
+  self.m_counter = 0
 end
 
-function Network.unregister_listener(pos)
+function ic:register_listener(pos, address)
   assert(pos, "expected a valid position")
-  print("yatm_mesecon_hubs.Network.unregister_listener/2", minetest.pos_to_string(pos))
+  assert(address, "expected a valid address")
+  print("yatm_mesecon_hubs.wireless_network", "register_listener/2", minetest.pos_to_string(pos), address)
   local hash = minetest.hash_node_position(pos)
 
-  local address = Network.m_members[hash]
-  Network.m_members[hash] = nil
+  self.m_members[hash] = address
+  self.m_members_by_address[address] = self.m_members_by_address[address] or {}
+  self.m_members_by_address[address][hash] = pos
+end
 
-  if address and Network.m_members_by_address[address] then
-    Network.m_members_by_address[address][hash] = nil
+function ic:unregister_listener(pos)
+  assert(pos, "expected a valid position")
+  print("yatm_mesecon_hubs.wireless_network", "unregister_listener/2", minetest.pos_to_string(pos))
+  local hash = minetest.hash_node_position(pos)
+
+  local address = self.m_members[hash]
+  self.m_members[hash] = nil
+
+  if address and self.m_members_by_address[address] then
+    self.m_members_by_address[address][hash] = nil
 
     -- Check if there are no more members in the members_by_address map
-    if yatm_core.is_table_empty(Network.m_members_by_address[address]) then
-      Network.m_members_by_address[address] = nil
+    if yatm_core.is_table_empty(self.m_members_by_address[address]) then
+      self.m_members_by_address[address] = nil
     end
   end
 end
 
-function Network.emit_value(from_pos, to_address, value)
+function ic:emit_value(from_pos, to_address, value)
   assert(from_pos, "expected an origin position")
   assert(to_address, "expected a target address")
   assert(value, "expected a value")
   --print("emit_value/3", minetest.pos_to_string(from_pos), dump(to_address), dump(value))
-  Network.m_queue[to_address] = { pos = from_pos, value = value }
+  self.m_queue[to_address] = { pos = from_pos, value = value }
 end
 
-function Network.dispatch_queued()
+function ic:dispatch_queued()
   local had_queued = false
-  for address,event in pairs(Network.m_queue) do
+  for address,event in pairs(self.m_queue) do
     had_queued = true
 
-    if Network.m_members_by_address[address] then
-      for _hash,pos in pairs(Network.m_members_by_address[address]) do
+    if self.m_members_by_address[address] then
+      for _hash,pos in pairs(self.m_members_by_address[address]) do
         local node = minetest.get_node(pos)
         if node then
           local nodedef = minetest.registered_nodes[node.name]
@@ -81,27 +84,30 @@ function Network.dispatch_queued()
     end
   end
   if had_queued then
-    Network.m_queue = {}
+    self.m_queue = {}
   end
 end
 
-function Network.update(dtime)
-  local counter = Network.m_counter
+function ic:update(dtime)
+  local counter = self.m_counter
 
-  local ot = yatm_core.trace.new("yatm_mesecon_hubs.Network.update/1")
-  Network.dispatch_queued()
+  local ot = yatm_core.trace.new("yatm_mesecon_hubs.wireless_network", "update/1")
+  self:dispatch_queued()
   yatm_core.trace.span_end(ot)
   --yatm_core.trace.inspect(ot)
 
-  Network.m_counter = counter + 1
+  self.m_counter = counter + 1
 end
 
-function Network.on_shutdown()
-  print("yatm_mesecon_hubs.Network.on_shutdown/0", "Shutting down")
+function ic:terminate()
+  print("yatm_mesecon_hubs.wireless_network", "terminate/0", "terminating")
+  print("yatm_mesecon_hubs.wireless_network", "terminate/0", "terminated")
 end
 
-minetest.register_globalstep(Network.update)
-minetest.register_on_shutdown(Network.on_shutdown)
+local wireless_network = WirelessNetwork:new()
+
+minetest.register_globalstep(wireless_network:method("update"))
+minetest.register_on_shutdown(wireless_network:method("terminate"))
 
 minetest.register_lbm({
   name = "yatm_mesecon_hubs:listening_hub_device_reregister",
@@ -113,9 +119,10 @@ minetest.register_lbm({
     local meta = minetest.get_meta(pos)
     local address = NetworkMeta.get_hub_address(meta)
     if not yatm_core.is_blank(address) then
-      Network.register_listener(pos, address)
+      wireless_network:register_listener(pos, address)
     end
   end,
 })
 
-yatm_mesecon_hubs.Network = Network
+yatm_mesecon_hubs.WirelessNetwork = WirelessNetwork
+yatm_mesecon_hubs.wireless_network = wireless_network
