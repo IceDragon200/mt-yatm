@@ -71,9 +71,16 @@ local assembler_selection_box = {
 
 local groups = {
   cracky = 1,
+  yatm_dscs_device = 1,
+  yatm_data_device = 1,
   yatm_network_device = 1,
   yatm_energy_device = 1,
 }
+
+local assembler_data_interface = {}
+function assembler_data_interface.receive_pdu(pos, node, port, value)
+  --
+end
 
 yatm.devices.register_stateful_network_device({
   description = "Item Assembler",
@@ -92,6 +99,10 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
 
   yatm_network = assembler_yatm_network,
+  data_network_device = {
+    type = "device",
+  },
+  data_interface = assembler_data_interface,
 
   refresh_infotext = refresh_infotext,
 }, {

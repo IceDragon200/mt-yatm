@@ -5,6 +5,9 @@
   Each compute module will speed up the auto-crafting by parallel processing other requests.
 
 ]]
+local Network = assert(yatm.network)
+local Energy = assert(yatm.energy)
+
 local compute_module_yatm_network = {
   kind = "machine",
   groups = {
@@ -19,9 +22,20 @@ local compute_module_yatm_network = {
     on = "yatm_dscs:compute_module_on",
   },
   energy = {
+    capacity = 4000,
     passive_lost = 10,
+    network_charge_bandwidth = 100,
   },
 }
+
+local function refresh_infotext(pos, node)
+  local meta = minetest.get_meta(pos)
+  local infotext =
+    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
+
+  meta:set_string("infotext", infotext)
+end
 
 local groups = {
   cracky = 1,
@@ -42,6 +56,8 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
 
   yatm_network = compute_module_yatm_network,
+
+  refresh_infotext = refresh_infotext,
 }, {
   on = {
     tiles = {{

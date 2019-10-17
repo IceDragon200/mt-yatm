@@ -20,6 +20,8 @@ local monitor_console_yatm_network = {
     on = "yatm_dscs:flat_monitor_console_on",
   },
   energy = {
+    capacity = 4000,
+    network_charge_bandwidth = 100,
     passive_lost = 10,
   },
 }
@@ -98,6 +100,8 @@ local monitor_crafting_yatm_network = {
     on = "yatm_dscs:flat_monitor_crafting_on",
   },
   energy = {
+    capacity = 4000,
+    network_charge_bandwidth = 100,
     passive_lost = 10,
   },
 }
@@ -163,6 +167,8 @@ local monitor_ele_yatm_network = {
     on = "yatm_dscs:flat_monitor_ele_on",
   },
   energy = {
+    capacity = 4000,
+    network_charge_bandwidth = 100,
     passive_lost = 10,
   },
 }
@@ -223,6 +229,8 @@ local monitor_inventory_yatm_network = {
     on = "yatm_dscs:flat_monitor_inventory_on",
   },
   energy = {
+    capacity = 4000,
+    network_charge_bandwidth = 100,
     passive_lost = 10,
   },
 }

@@ -11,7 +11,7 @@ end
 
 function ic:persist_network_inventory_state(network)
   network:reduce_group_members("dscs_inventory_controller", 0, function (pos, node, acc)
-    local basename = string.format("inv-controller-%04x-%04x-%04x.bin", pos.x, pos.y, pos.z)
+    local basename = string.format("inv-controller-%08x.bin", minetest.hash_node_position(pos))
     local filename = yatm_core.path_join(self.m_root_dir, basename)
     minetest.safe_file_write(filename)
     return true, acc + 1
@@ -19,14 +19,14 @@ function ic:persist_network_inventory_state(network)
 end
 
 function ic:update_network(network, dtime, counter, trace_context)
-  print("Updating Network", network.id)
+  --print("Updating Network", network.id)
   network:reduce_group_members("dscs_inventory_controller", 0, function (pos, node, acc)
-    print(dump(pos), dump(node))
+    --print(dump(pos), dump(node))
     return true, acc + 1
   end)
 
   network:reduce_group_members("dscs_compute_module", 0, function (pos, node, acc)
-    print(dump(pos), dump(node))
+    --print(dump(pos), dump(node))
     return true, acc + 1
   end)
 end

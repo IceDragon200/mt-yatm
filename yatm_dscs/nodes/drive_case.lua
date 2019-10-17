@@ -1,3 +1,6 @@
+local Network = assert(yatm.network)
+local Energy = assert(yatm.energy)
+
 local function get_drive_case_formspec(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
@@ -9,6 +12,15 @@ local function get_drive_case_formspec(pos)
     "listring[current_player;main]" ..
     default.get_hotbar_bg(0,4.85)
   return formspec
+end
+
+local function refresh_infotext(pos, node)
+  local meta = minetest.get_meta(pos)
+  local infotext =
+    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
+
+  meta:set_string("infotext", infotext)
 end
 
 local drive_case_yatm_network = {
@@ -29,6 +41,8 @@ local drive_case_yatm_network = {
   },
 
   energy = {
+    capacity = 4000,
+    network_charge_bandwidth = 100,
     passive_lost = 10,
   },
 }
@@ -57,6 +71,8 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
 
   yatm_network = drive_case_yatm_network,
+
+  refresh_infotext = refresh_infotext,
 
   on_construct = function (pos)
     yatm.devices.device_on_construct(pos)

@@ -4,6 +4,9 @@
 -- Inventory controllers are required in a yatm network to store recipes
 -- And management automatic crafting, the node in question will remember
 -- all active requests.
+local Network = assert(yatm.network)
+local Energy = assert(yatm.energy)
+
 local inventory_controller_yatm_network = {
   kind = "machine",
   groups = {
@@ -18,9 +21,20 @@ local inventory_controller_yatm_network = {
     on = "yatm_dscs:inventory_controller_on",
   },
   energy = {
+    capacity = 4000,
     passive_lost = 10,
+    network_charge_bandwidth = 100,
   },
 }
+
+local function refresh_infotext(pos, node)
+  local meta = minetest.get_meta(pos)
+  local infotext =
+    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
+
+  meta:set_string("infotext", infotext)
+end
 
 local groups = {
   cracky = 1,
@@ -42,6 +56,8 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
 
   yatm_network = inventory_controller_yatm_network,
+
+  refresh_infotext = refresh_infotext,
 }, {
   error = {
     tiles = {"yatm_inventory_controller_side.error.png"},

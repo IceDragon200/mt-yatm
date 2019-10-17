@@ -1,6 +1,18 @@
 --[[
 
 ]]
+local Network = assert(yatm.network)
+local Energy = assert(yatm.energy)
+
+local function refresh_infotext(pos, node)
+  local meta = minetest.get_meta(pos)
+  local infotext =
+    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
+
+  meta:set_string("infotext", infotext)
+end
+
 local groups = {
   cracky = 1,
   monitor = 1,
@@ -23,6 +35,8 @@ local monitor_console_yatm_network = {
     on = "yatm_dscs:monitor_console_on",
   },
   energy = {
+    capacity = 4000,
+    network_charge_bandwidth = 100,
     passive_lost = 10,
   },
 }
@@ -47,6 +61,8 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
 
   yatm_network = monitor_console_yatm_network,
+
+  refresh_infotext = refresh_infotext,
 }, {
   error = {
     tiles = {
@@ -101,6 +117,8 @@ local monitor_crafting_yatm_network = {
   },
 
   energy = {
+    capacity = 4000,
+    network_charge_bandwidth = 100,
     passive_lost = 1,
   },
 }
@@ -125,6 +143,8 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
 
   yatm_network = monitor_crafting_yatm_network,
+
+  refresh_infotext = refresh_infotext,
 }, {
   error = {
     tiles = {
@@ -168,6 +188,8 @@ local monitor_ele_yatm_network = {
     on = "yatm_dscs:monitor_ele_on",
   },
   energy = {
+    capacity = 4000,
+    network_charge_bandwidth = 100,
     passive_lost = 1,
   },
 }
@@ -192,6 +214,8 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
 
   yatm_network = monitor_ele_yatm_network,
+
+  refresh_infotext = refresh_infotext,
 }, {
   error = {
     tiles = {
@@ -236,6 +260,8 @@ local monitor_inventory_yatm_network = {
     on = "yatm_dscs:monitor_inventory_on",
   },
   energy = {
+    capacity = 4000,
+    network_charge_bandwidth = 100,
     passive_lost = 1,
   },
 }
@@ -260,6 +286,8 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
 
   yatm_network = monitor_inventory_yatm_network,
+
+  refresh_infotext = refresh_infotext,
 }, {
   error = {
     tiles = {
