@@ -1,43 +1,60 @@
 local SpacetimeMeta = assert(yatm_spacetime.SpacetimeMeta)
 
-local SpacetimeNetwork = yatm_core.Class:extends()
+local SpacetimeNetwork = yatm_core.Class:extends("SpacetimeNetwork")
+local ic = SpacetimeNetwork.instance_class
 
-local m = assert(SpacetimeNetwork.instance_class)
-
-function m:initialize(description)
+function ic:initialize(description)
   self.m_description = description
   self.m_members = {}
   self.m_members_by_address = {}
   self.m_members_by_group = {}
+  self.m_members_by_block = {}
+
+  yatm.clusters:observe('on_block_expired', 'yatm_spacetime_network/block_unloader', function (block_entry)
+    self:unload_block(block_entry.id)
+  end)
 end
 
-function m:register_device(groups, pos, address)
+function ic:register_device(groups, pos, address)
   assert(groups, "expected groups")
   assert(pos, "expected a valid position")
   assert(address, "expected a valid address")
   print(self.m_description, "register_device/3", dump(groups), minetest.pos_to_string(pos), address)
-  local hash = minetest.hash_node_position(pos)
+  local member_id = minetest.hash_node_position(pos)
 
-  if self.m_members[hash] then
+  if self.m_members[member_id] then
     error("multiple registrations detected, did you mean to use `update_device/2`?" .. minetest.pos_to_string(pos))
   else
-    self.m_members[hash] = {
+    local block_id = yatm.clusters:mark_node_block(pos)
+
+    self.m_members[member_id] = {
+      id = member_id,
+      block_id = block_id,
       pos = pos,
       address = address,
       groups = groups,
     }
-    for group_name,_ in pairs(self.m_members[hash].groups) do
+
+    for group_name,_ in pairs(self.m_members[member_id].groups) do
       self.m_members_by_group[group_name] = self.m_members_by_group[group_name] or {}
       local group_members = self.m_members_by_group[group_name]
-      group_members[hash] = true
+      group_members[member_id] = true
     end
-    self.m_members_by_address[address] = self.m_members_by_address[address] or {}
-    self.m_members_by_address[address][hash] = true
+
+    if not self.m_members_by_address[address] then
+      self.m_members_by_address[address] = {}
+    end
+    self.m_members_by_address[address][member_id] = true
+
+    if not self.m_members_by_block[block_id] then
+      self.m_members_by_block[block_id] = {}
+    end
+    self.m_members_by_block[block_id][member_id] = true
     return true
   end
 end
 
-function m:update_device(groups, pos, new_address)
+function ic:update_device(groups, pos, new_address)
   assert(pos, "expected a valid position")
   print(self.m_description, "update_device/3", dump(groups), minetest.pos_to_string(pos), dump(new_address))
   local hash = minetest.hash_node_position(pos)
@@ -51,7 +68,7 @@ function m:update_device(groups, pos, new_address)
   end
 end
 
-function m:maybe_register_node(pos, node)
+function ic:maybe_register_node(pos, node)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef then
     local meta = minetest.get_meta(pos)
@@ -71,7 +88,7 @@ function m:maybe_register_node(pos, node)
   end
 end
 
-function m:maybe_update_node(pos, node)
+function ic:maybe_update_node(pos, node)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef then
     local meta = minetest.get_meta(pos)
@@ -87,17 +104,25 @@ function m:maybe_update_node(pos, node)
   end
 end
 
-function m:unregister_device(pos)
+function ic:unregister_device(pos)
   assert(pos, "expected a valid position")
   print("unregister_device/2", minetest.pos_to_string(pos))
-  local hash = minetest.hash_node_position(pos)
 
-  local entry = self.m_members[hash]
-  self.m_members[hash] = nil
+  local member_id = minetest.hash_node_position(pos)
+
+  local entry = self.m_members[member_id]
+  self.m_members[member_id] = nil
 
   if entry then
+    if self.m_members_by_block[entry.block_id] then
+      self.m_members_by_block[entry.block_id][member_id] = nil
+      if yatm_core.is_table_empty(self.m_members_by_block[entry.block_id]) then
+        self.m_members_by_block[entry.block_id] = nil
+      end
+    end
+
     if self.m_members_by_address[entry.address] then
-      self.m_members_by_address[entry.address][hash] = nil
+      self.m_members_by_address[entry.address][member_id] = nil
       if yatm_core.is_table_empty(self.m_members_by_address[entry.address]) then
         self.m_members_by_address[entry.address] = nil
       end
@@ -105,7 +130,7 @@ function m:unregister_device(pos)
 
     for group_name,_ in pairs(entry.groups) do
       if self.m_members_by_group[group_name] then
-        self.m_members_by_group[group_name][hash] = nil
+        self.m_members_by_group[group_name][member_id] = nil
         if yatm_core.is_table_empty(self.m_members_by_group[group_name]) then
           self.m_members_by_group[group_name] = nil
         end
@@ -118,7 +143,7 @@ function m:unregister_device(pos)
   end
 end
 
-function m:each_member_in_group_by_address(group_name, address, callback)
+function ic:each_member_in_group_by_address(group_name, address, callback)
   if self.m_members_by_address[address] then
     if self.m_members_by_group[group_name] then
       local group_members = self.m_members_by_group[group_name]
@@ -133,15 +158,24 @@ function m:each_member_in_group_by_address(group_name, address, callback)
   end
 end
 
-function m:on_shutdown()
-  print("yatm_spacetime.Network.on_shutdown/0", "Shutting down")
+function ic:unload_block(block_id)
+  local block_members = self.m_members_by_block[block_id]
+  if block_members then
+    self.m_members_by_block[block_id] = nil
+
+    for member_id,_ in pairs(block_members) do
+      local member = self.m_members[member_id]
+      self:unregister_device(member.pos)
+    end
+  end
+end
+
+function ic:terminate()
+  print("yatm_spacetime.network", "terminating")
+  print("yatm_spacetime.network", "terminated")
 end
 
 yatm_spacetime.SpacetimeNetwork = SpacetimeNetwork
-yatm_spacetime.Network = SpacetimeNetwork:new("yatm.spacetime.network")
+yatm_spacetime.network = SpacetimeNetwork:new("yatm.spacetime.network")
 
-minetest.register_on_shutdown(function ()
-  yatm_spacetime.Network.on_shutdown()
-end)
-
-
+minetest.register_on_shutdown(yatm_spacetime.network:method("terminate"))

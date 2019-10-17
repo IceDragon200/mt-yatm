@@ -1,6 +1,6 @@
 local YATM_NetworkMeta = assert(yatm.network)
 local Energy = assert(yatm.energy)
-local Network = assert(yatm.spacetime.Network)
+local Network = assert(yatm.spacetime.network)
 local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
 
 local teleporter_port_node_box = {

@@ -1,4 +1,4 @@
-local Network = assert(yatm_spacetime.Network)
+local Network = assert(yatm_spacetime.network)
 
 --[[
 Teleporter relays are neutral nodes that are placed adjacent to a teleporter to expand it's teleportation effect range
