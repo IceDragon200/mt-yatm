@@ -1,46 +1,7 @@
 local EnergyDevices = assert(yatm_core.EnergyDevices)
 
-local NetworkCluster = yatm_core.Class:extends("NetworkCluster")
-local ic = NetworkCluster.instance_class
-
-function ic:initialize(pos, network_id, node_name)
-  self.idle_time = 0
-
-  self.id = network_id
-  -- host node name
-  self.node_name = node_name
-  -- origin position of the controller, can be used to index some features
-  self.pos = pos
-  -- {member_id = member_entry}
-  self.members = {}
-  -- {member_id = {group_id...}}
-  self.member_groups = {}
-  -- {group_id = {(member_id = true)...}}
-  self.group_members = {}
-end
-
-function ic:reduce_group_members(name, acc, reducer)
-  local group = self.group_members[name]
-  if group then
-    local cont = true
-    for member_id,_ in pairs(group) do
-      local member = self.members[member_id]
-      local pos = member.pos
-      local node = minetest.get_node(pos)
-      if node.name == "ignore" then
-        print("YATM Network; WARN: ignoring node", minetest.pos_to_string(pos), "of group", name)
-      else
-        cont, acc = reducer(pos, node, acc)
-        if not cont then
-          break
-        end
-      end
-    end
-  end
-  return acc
-end
-
 local Network = {
+  stage = 0,
   dirty = true,
   networks = {},
   has_lost_nodes = false,
@@ -71,19 +32,6 @@ local Network = {
   pending_actions = {},
 }
 
-function Network.to_infotext(meta)
-  local network_id = Network.get_meta_network_id(meta)
-  local state = Network.get_network_state(meta)
-  local result = "NIL"
-  if network_id then
-    result = "<" .. network_id .. ">"
-  else
-    result = "NIL"
-  end
-
-  return result .. " (" .. state .. ")"
-end
-
 local function v3s(vec3)
   return "(" .. vec3.x .. ", " .. vec3.y .. ", " .. vec3.z .. ")"
 end
@@ -100,6 +48,140 @@ local function debug(scope, ...)
     return
   end
   print(Network.counter, scope, ...)
+end
+
+--
+-- NetworkCluster
+--
+local NetworkCluster = yatm_core.Class:extends("NetworkCluster")
+local ic = NetworkCluster.instance_class
+
+function ic:initialize(pos, network_id, node_name)
+  self.idle_time = 0
+
+  self.id = network_id
+  -- host node name
+  self.node_name = node_name
+  -- origin position of the controller, can be used to index some features
+  self.pos = pos
+  -- {member_id = member_entry}
+  self.members = {}
+  -- {group_id = {(member_id = true)...}}
+  self.group_members = {}
+  -- {block_id = {member_id = true}}
+  self.member_blocks = {}
+end
+
+function ic:reduce_group_members(name, acc, reducer)
+  local group = self.group_members[name]
+  if group then
+    local cont = true
+    for member_id,_ in pairs(group) do
+      local member = self.members[member_id]
+      local pos = member.pos
+      local node = minetest.get_node(pos)
+      if node.name == "ignore" then
+        --print("YATM Network; WARN: ignoring node", minetest.pos_to_string(pos), "of group", name)
+      else
+        cont, acc = reducer(pos, node, acc)
+        if not cont then
+          break
+        end
+      end
+    end
+  end
+  return acc
+end
+
+function ic:add_member(pos, nodedef, ot)
+  debug("network_registry", "ADD MEMBER", v3s(pos), self.id)
+  local member_id = Network.hash_pos(pos)
+  if self.members[member_id] then
+    debug("network_registry", "ALREADY MEMBER", v3s(pos), self.id)
+    return false
+  else
+    local groups = nodedef.yatm_network.groups or {}
+    local block_id = yatm.clusters:mark_node_block(pos)
+
+    self.members[member_id] = {
+      block_id = block_id,
+      pos = pos,
+      groups = groups
+    }
+
+    if not self.member_blocks[block_id] then
+      self.member_blocks[block_id] = {}
+    end
+    self.member_blocks[block_id][member_id] = true
+
+    -- Indexing stuff, to use for faster lookups
+    if groups then
+      for group,rating in pairs(groups) do
+        if not self.group_members[group] then
+          self.group_members[group] = {}
+        end
+        self.group_members[group][member_id] = rating
+        debug("network_registry", "JOINED GROUP", v3s(pos), group)
+      end
+    end
+    debug("network_registry", "ADDED MEMBER", v3s(pos), self.id)
+  end
+  return true
+end
+
+function ic:remove_member(pos)
+  debug("network_registry", "REMOVE MEMBER", v3s(pos), self.id)
+  local member_id = Network.hash_pos(pos)
+  local member = self.members[member_id]
+  if member then
+    if member.groups then
+      for group_id,_ in pairs(member.groups) do
+        local group_members = self.group_members[group_id]
+        if group_members then
+          group_members[member_id] = nil
+          debug("network_registry", "LEFT GROUP", v3s(pos), group_id)
+        end
+      end
+    end
+    self.members[member_id] = nil
+    local block_members = self.member_blocks[member.block_id]
+    if block_members then
+      block_members[member_id] = nil
+    end
+    return true
+  end
+  return false
+end
+
+function ic:unload_block(block_id)
+  debug("network_registry", "UNLOAD BLOCK", block_id, self.id)
+  local block_members = self.member_blocks[block_id]
+  self.member_blocks[block_id] = nil
+  if block_members then
+    for member_id,_ in pairs(block_members) do
+      local member = self.members[member_id]
+      if member then
+        self:remove_member(member.pos)
+      end
+    end
+  end
+  debug("network_registry", "UNLOADED BLOCK", block_id, self.id)
+end
+
+--
+-- Network Defintiion
+--
+function Network.to_infotext(meta)
+  local network_id = Network.get_meta_network_id(meta)
+  local state = Network.get_network_state(meta)
+  local result = "NIL"
+  if network_id then
+    result = "<" .. network_id .. ">"
+  else
+    result = "NIL"
+  end
+
+  return result .. " (" .. state .. ")"
 end
 
 function Network.time()
@@ -184,21 +266,7 @@ function Network.leave_network(network_id, pos)
   local network = Network.networks[network_id]
   local left = false
   if network then
-    local key = Network.hash_pos(pos)
-    local member_group = network.member_groups[key]
-    if member_group then
-      for _index,group in ipairs(network.member_groups[key]) do
-        local member_map = network.group_members[group]
-        if member_map then
-          -- remove the member
-          member_map[key] = nil
-          debug("network_registry", "LEAVE GROUP", v3s(pos), group)
-        end
-      end
-    end
-    network.member_groups[key] = nil
-    network.members[key] = nil
-    left = true
+    left = network:remove_member(pos)
   end
   yatm_core.trace.span_end(ot)
   yatm_core.trace.inspect(ot)
@@ -211,30 +279,7 @@ function Network.join_network(network_id, pos, nodedef)
   if nodedef then
     local network = Network.networks[network_id]
     if network then
-      debug("network_registry", "JOINING NETWORK", v3s(pos), network_id)
-      local key = Network.hash_pos(pos)
-      if network.members[key] then
-        debug("network_registry", "ALREADY MEMBER", v3s(pos), network_id)
-      else
-        local groups = nodedef.yatm_network.groups or {}
-        network.members[key] = { pos = pos, groups = groups }
-        -- Indexing stuff, to use for faster lookups
-        if groups then
-          local member_groups = {}
-          local n = 0
-          for group,_rating in pairs(groups) do
-            n = n + 1
-            member_groups[n] = group
-            local member_map = network.group_members[group] or {}
-            member_map[key] = true
-            network.group_members[group] = member_map
-            debug("network_registry", "JOIN GROUP", v3s(pos), group)
-          end
-          network.member_groups[key] = member_groups
-        end
-        debug("network_registry", "JOINED NETWORK", v3s(pos), network_id)
-      end
-      joined = true
+      joined = network:add_member(pos, nodedef, ot)
     end
   end
   yatm_core.trace.span_end(ot)
@@ -245,19 +290,19 @@ end
 --[[
 Merge 2 networks together, given a leader and a list of followers
 
-@spec Network.merge_network(network_id, ...network_id) :: network_id
+@spec merge_network(network_id, ...network_id) :: network_id
 ]]
-function Network.merge_network(leader_id, ...)
+function Network:merge_network(leader_id, ...)
   local ot = yatm_core.trace.new("Network.merge_network/1+")
-  local leader_network = assert(Network.networks[leader_id], "expected leader network to exist")
+  local leader_network = assert(self.networks[leader_id], "expected leader network to exist")
   for _, follower_id in ipairs({...}) do
     if leader_id ~= follower_id then
       local span = yatm_core.trace.span_start(ot, "Follower:" .. follower_id)
-      local follower_network = Network.networks[follower_network]
+      local follower_network = self.networks[follower_network]
       if follower_network then
         for _, member in pairs(follower_network.members) do
-          Network.leave_network(follower_id, member.pos)
-          Network.join_network(leader_network, member.pos, member.groups)
+          self.leave_network(follower_id, member.pos)
+          self.join_network(leader_network, member.pos, member.groups)
         end
       end
       destroy_network(follower_id)
@@ -267,6 +312,12 @@ function Network.merge_network(leader_id, ...)
   yatm_core.trace.span_end(ot)
   yatm_core.trace.inspect(ot, "")
   return leader_id
+end
+
+function Network:unload_block(block_id)
+  for network_id,network in pairs(self.networks) do
+    network:unload_block(block_id)
+  end
 end
 
 function Network.has_network(network_id)
@@ -516,7 +567,7 @@ local function refresh_network(origin_pos, ts, ignore_ts)
             local follower_meta = minetest.get_meta(follower_host.pos)
             local follower_network_id = Network.get_meta_network_id(follower_meta)
             if follower_network_id then
-              Network.merge_network(leader_network_id, follower_network_id)
+              Network:merge_network(leader_network_id, follower_network_id)
             end
           end
         end
@@ -557,7 +608,7 @@ local function refresh_network(origin_pos, ts, ignore_ts)
           local follower_meta = minetest.get_meta(follower_host.pos)
           local follower_network_id = Network.get_meta_network_id(follower_meta)
           if follower_network_id then
-            Network.merge_network(leader_network_id, follower_network_id)
+            Network:merge_network(leader_network_id, follower_network_id)
           end
         end
       end
@@ -819,6 +870,13 @@ function Network:update(dtime)
   self.counter = counter + 1
 end
 
+function Network:start()
+  print("yatm_network", "registering on_block_expired observe in clusters")
+  yatm.clusters:observe('on_block_expired', 'yatm_network/block_unloader', function (block_entry)
+    Network:unload_block(block_entry.id)
+  end)
+end
+
 function Network:on_shutdown()
   debug("yatm_core.Network.on_shutdown/0", "Shutting down")
 end
@@ -886,8 +944,14 @@ end
 
 minetest.register_on_shutdown(function ()
   Network:on_shutdown()
+  Network.stage = 2
 end)
+
 minetest.register_globalstep(function (dtime)
+  if Network.stage == 0 then
+    Network:start()
+    Network.stage = 1
+  end
   Network:update(dtime)
 end)
 
