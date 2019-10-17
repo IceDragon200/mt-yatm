@@ -28,12 +28,14 @@ end)
 
 local heat_interface = HeatInterface.new_simple("heat", 400)
 
-function heat_interface:on_heat_changed(pos, node, old_heat, new_heat)
+function heat_interface:on_heat_changed(pos, dir, old_heat, new_heat)
+  local node = minetest.get_node(pos)
   if math.floor(new_heat) > 0 then
-    minetest.swap_node(pos, {name = "yatm_brewery:kettle_on"})
+    node.name = "yatm_brewery:kettle_on"
   else
-    minetest.swap_node(pos, {name = "yatm_brewery:kettle_off"})
+    node.name = "yatm_brewery:kettle_off"
   end
+  minetest.swap_node(pos, node)
   yatm_core.queue_refresh_infotext(pos)
   minetest.get_node_timer(pos):start(1.0)
 end
