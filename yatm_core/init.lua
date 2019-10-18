@@ -28,9 +28,6 @@ dofile(yatm_core.modpath .. "/groups.lua")
 -- Node Utilities
 dofile(yatm_core.modpath .. "/energy_devices.lua")
 -- Networks
-dofile(yatm_core.modpath .. "/yatm_clusters.lua")
-dofile(yatm_core.modpath .. "/generic_transport_network.lua")
-dofile(yatm_core.modpath .. "/yatm_network.lua")
 dofile(yatm_core.modpath .. "/energy.lua")
 dofile(yatm_core.modpath .. "/measurable.lua") -- similar to energy, but has a name field too
 -- Nodes and Items

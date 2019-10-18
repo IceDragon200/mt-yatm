@@ -370,4 +370,4 @@ function m:update(delta)
   self.m_counter = counter + 1
 end
 
-yatm_core.GenericTransportNetwork = GenericTransportNetwork
+yatm_clusters.GenericTransportNetwork = GenericTransportNetwork
