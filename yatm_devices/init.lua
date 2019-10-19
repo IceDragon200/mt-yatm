@@ -6,6 +6,8 @@ local DIR6_TO_VEC3 = yatm_core.DIR6_TO_VEC3
 local ClusterDevices = yatm_core.Class:extends("ClusterDevices")
 local ic = ClusterDevices.instance_class
 
+local CLUSTER_GROUP = 'yatm_device'
+
 function ic:initialize()
   --
 end
@@ -15,14 +17,14 @@ function ic:terminate()
 end
 
 function ic:register_system(id, update)
-  yatm.clusters:register_system('yatm_device', id, update)
+  yatm.clusters:register_system(CLUSTER_GROUP, id, update)
 end
 
 function ic:get_node_infotext(pos)
   local node_id = minetest.hash_node_position(pos)
 
   return yatm.clusters:reduce_node_clusters(pos, '', function (cluster, acc)
-    if cluster.groups['yatm_device'] then
+    if cluster.groups[CLUSTER_GROUP] then
       local state_string = cluster.assigns.state or 'unknown'
       if cluster.assigns.controller_id then
         if cluster.assigns.controller_id == node_id then
@@ -50,24 +52,24 @@ end
 function ic:schedule_add_node(pos, node)
   print('cluster.devices', 'schedule_add_node', minetest.pos_to_string(pos), node.name)
   local groups = self:get_node_device_groups(node)
-  yatm.clusters:schedule_node_event('yatm_device', 'add_node', pos, node, { groups = groups })
+  yatm.clusters:schedule_node_event(CLUSTER_GROUP, 'add_node', pos, node, { groups = groups })
 end
 
 function ic:schedule_load_node(pos, node)
   print('cluster.devices', 'schedule_load_node', minetest.pos_to_string(pos), node.name)
   local groups = self:get_node_device_groups(node)
-  yatm.clusters:schedule_node_event('yatm_device', 'load_node', pos, node, { groups = groups })
+  yatm.clusters:schedule_node_event(CLUSTER_GROUP, 'load_node', pos, node, { groups = groups })
 end
 
 function ic:schedule_update_node(pos, node)
   print('cluster.devices', 'schedule_update_node', minetest.pos_to_string(pos), node.name)
   local groups = self:get_node_device_groups(node)
-  yatm.clusters:schedule_node_event('yatm_device', 'update_node', pos, node, { groups = groups })
+  yatm.clusters:schedule_node_event(CLUSTER_GROUP, 'update_node', pos, node, { groups = groups })
 end
 
 function ic:schedule_remove_node(pos, node)
   print('cluster.devices', 'schedule_remove_node', minetest.pos_to_string(pos), node.name)
-  yatm.clusters:schedule_node_event('yatm_device', 'remove_node', pos, node, { })
+  yatm.clusters:schedule_node_event(CLUSTER_GROUP, 'remove_node', pos, node, { })
 end
 
 function ic:handle_node_event(cls, generation_id, event, node_clusters)
@@ -129,7 +131,7 @@ function ic:_handle_add_node(cls, generation_id, event, node_clusters)
   local cluster
   if is_table_empty(neighbours) then
     -- need a new cluster for this node
-    cluster = cls:create_cluster({ yatm_device = 1 })
+    cluster = cls:create_cluster({ [CLUSTER_GROUP] = 1 })
   else
     -- attempt to join an existing cluster
     local cluster_ids = {}
@@ -153,7 +155,7 @@ function ic:_handle_add_node(cls, generation_id, event, node_clusters)
   -- trash the generation_id
   cluster.assigns.generation_id = nil
 
-  cls:schedule_node_event('yatm_device', 'refresh_controller',
+  cls:schedule_node_event(CLUSTER_GROUP, 'refresh_controller',
                            event.pos, event.node,
                            { cluster_id = cluster.id, generation_id = generation_id })
 end
@@ -162,7 +164,7 @@ function ic:_handle_remove_node(cls, generation_id, event, node_clusters)
   -- TODO:
   local cluster_id =
     cls:reduce_node_clusters(event.pos, nil, function (cluster, acc)
-      if cluster.groups['yatm_device'] then
+      if cluster.groups[CLUSTER_GROUP] then
         return false, cluster.id
       else
         return true, acc
@@ -238,7 +240,7 @@ function ic:_handle_remove_node(cls, generation_id, event, node_clusters)
 
       local cluster_id =
         cls:reduce_node_clusters(pos, nil, function (cluster, acc)
-          if cluster.groups['yatm_device'] then
+          if cluster.groups[CLUSTER_GROUP] then
             return false, cluster.id
           else
             return true, acc
@@ -259,7 +261,7 @@ function ic:_handle_remove_node(cls, generation_id, event, node_clusters)
 
   for branch_id, nodes in pairs(branch_nodes) do
     if not is_table_empty(nodes) then
-      local cluster = cls:create_cluster({ yatm_device = 1 })
+      local cluster = cls:create_cluster({ [CLUSTER_GROUP] = 1 })
 
       for node_id, _ in pairs(nodes) do
         local pos = minetest.get_position_from_hash(node_id)
@@ -268,7 +270,7 @@ function ic:_handle_remove_node(cls, generation_id, event, node_clusters)
         cls:add_node_to_cluster(cluster.id, pos, node, self:get_node_device_groups(node))
       end
 
-      cls:schedule_node_event('yatm_device', 'refresh_controller',
+      cls:schedule_node_event(CLUSTER_GROUP, 'refresh_controller',
                                event.pos, event.node,
                                { cluster_id = cluster.id, generation_id = generation_id })
     end
@@ -276,7 +278,7 @@ function ic:_handle_remove_node(cls, generation_id, event, node_clusters)
 end
 
 local function transition_cluster_state(cls, cluster, generation_id, event, state)
-  cls:schedule_node_event('yatm_device', 'transition_state',
+  cls:schedule_node_event(CLUSTER_GROUP, 'transition_state',
                           event.pos, event.node,
                           {
                             state = state,
@@ -369,7 +371,7 @@ end
 
 yatm.cluster.devices = ClusterDevices:new()
 
-yatm.clusters:register_node_event_handler('yatm_device', yatm.cluster.devices:method('handle_node_event'))
+yatm.clusters:register_node_event_handler(CLUSTER_GROUP, yatm.cluster.devices:method('handle_node_event'))
 yatm.clusters:observe('terminate', 'yatm_devices/0.0.0', yatm.cluster.devices:method('terminate'))
 
 minetest.register_lbm({
