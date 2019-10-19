@@ -1,4 +1,4 @@
-local Network = assert(yatm.network)
+local cluster_devices = assert(yatm.cluster.devices)
 local Energy = assert(yatm.energy)
 local EnergyDevices = assert(yatm.energy.EnergyDevices)
 
@@ -27,7 +27,7 @@ local function energy_cell_refresh_infotext(pos)
   local usable = EnergyDevices.get_usable_stored_energy(pos, node)
 
   local infotext =
-    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, "internal", nodedef.yatm_network.energy.capacity) .. "\n" ..
     "Usable Energy: " .. tostring(usable)
 
@@ -40,6 +40,7 @@ for cell_type, cell_config in pairs(cell_types) do
     kind = "energy_storage",
     cell_config = cell_config,
     groups = {
+      device_controller = 2,
       -- it's an energy cell
       energy_cell = 1,
       -- the cell type + it's an energy cell
@@ -65,7 +66,7 @@ for cell_type, cell_config in pairs(cell_types) do
       node.name = new_name
       minetest.swap_node(pos, node)
     end
-    yatm_core.queue_refresh_infotext(pos)
+    yatm.queue_refresh_infotext(pos)
   end
 
   function energy_cell_yatm_network.energy.receive_energy(pos, node, amount)
@@ -94,9 +95,9 @@ for cell_type, cell_config in pairs(cell_types) do
   for stage = 0,7 do
     groups = {
       cracky = 1,
-      yatm_network_host = 2,
       yatm_energy_device = 1,
     }
+
     if stage > 0 then
       groups.not_in_creative_inventory = 1
     end
@@ -132,6 +133,7 @@ for cell_type, cell_config in pairs(cell_types) do
     kind = "energy_storage",
     cell_config = cell_config,
     groups = {
+      device_controller = 2,
       -- it's an energy cell
       energy_cell = 1,
       -- it's a creative energy cell
@@ -162,7 +164,6 @@ for cell_type, cell_config in pairs(cell_types) do
     description = "Energy Cell ("..cell_type..") [Creative]",
     groups = {
       cracky = 1,
-      yatm_network_host = 2,
       yatm_energy_device = 1,
     },
     is_ground_content = false,

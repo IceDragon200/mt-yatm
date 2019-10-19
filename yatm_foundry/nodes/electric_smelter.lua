@@ -1,5 +1,5 @@
+local cluster_devices = assert(yatm.cluster.devices)
 local Energy = assert(yatm.energy)
-local Network = assert(yatm.network)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
@@ -48,7 +48,7 @@ local TANK_CAPACITY = 4000
 local fluid_interface = FluidInterface.new_simple("molten_tank", TANK_CAPACITY)
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  yatm_core.queue_refresh_infotext(pos)
+  yatm.queue_refresh_infotext(pos)
 end
 
 function fluid_interface:allow_replace(pos, dir, fluid_stack)
@@ -73,7 +73,7 @@ function electric_smelter_refresh_infotext(pos)
   local recipe_time_max = meta:get_float("recipe_time_max")
 
   local infotext =
-    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "Molten Tank: " .. FluidStack.pretty_format(molten_tank_fluid_stack, fluid_interface.capacity) .. "\n" ..
     "Time Remaining: " .. yatm_core.format_pretty_time(recipe_time) .. " / " .. yatm_core.format_pretty_time(recipe_time_max)
@@ -114,7 +114,7 @@ function electric_smelter_yatm_network.work(pos, node, available_energy, work_ra
           inv:remove_item("processing_slot", processing_item_stack)
           meta:set_float("recipe_time", 0)
           meta:set_float("recipe_time_max", 0)
-          yatm_core.queue_refresh_infotext(pos)
+          yatm.queue_refresh_infotext(pos)
         end
       end
     else

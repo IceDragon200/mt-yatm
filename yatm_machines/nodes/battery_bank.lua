@@ -25,7 +25,7 @@ end
 
 yatm.devices.register_network_device(battery_bank_yatm_network.states.off, {
   description = "Battery Bank",
-  groups = {cracky = 1, yatm_network_host = 2},
+  groups = {cracky = 1, device_cluster_controller = 2},
   drop = battery_bank_yatm_network.states.off,
   tiles = {
     "yatm_battery_bank_top.off.png",
@@ -42,7 +42,7 @@ yatm.devices.register_network_device(battery_bank_yatm_network.states.off, {
 
 yatm.devices.register_network_device(battery_bank_yatm_network.states.error, {
   description = "Battery Bank",
-  groups = {cracky = 1, yatm_network_host = 2, not_in_creative_inventory = 1},
+  groups = {cracky = 1, device_cluster_controller = 2, not_in_creative_inventory = 1},
   drop = battery_bank_yatm_network.states.off,
   tiles = {
     "yatm_battery_bank_top.error.png",
@@ -60,7 +60,7 @@ yatm.devices.register_network_device(battery_bank_yatm_network.states.error, {
 
 yatm.devices.register_network_device(battery_bank_yatm_network.states.on, {
   description = "Battery Bank",
-  groups = {cracky = 1, yatm_network_host = 2, not_in_creative_inventory = 1},
+  groups = {cracky = 1, device_cluster_controller = 2, not_in_creative_inventory = 1},
   drop = battery_bank_yatm_network.states.off,
   tiles = {
     -- "yatm_battery_bank_top.on.png",

@@ -1,4 +1,4 @@
-local YATM_NetworkMeta = assert(yatm.network)
+local cluster_devices = assert(yatm.cluster.devices)
 local Energy = assert(yatm.energy)
 local Network = assert(yatm.spacetime.network)
 local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
@@ -175,14 +175,14 @@ local function teleporter_change_spacetime_address(pos, node, new_address)
     node.name = nodedef.yatm_network.states.on
     minetest.swap_node(pos, node)
   end
-  assert(yatm_core.queue_refresh_infotext(pos))
+  assert(yatm.queue_refresh_infotext(pos))
   return new_address
 end
 
 local function teleporter_refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
   local infotext =
-    "Net.ID: " .. YATM_NetworkMeta.to_infotext(meta) .. "\n" ..
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "S.Address: " .. SpacetimeMeta.to_infotext(meta)
   meta:set_string("infotext", infotext)

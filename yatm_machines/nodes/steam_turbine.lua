@@ -1,5 +1,4 @@
-
-local Network = assert(yatm.network)
+local cluster_devices = assert(yatm.cluster.devices)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
@@ -47,7 +46,7 @@ local fluid_interface = FluidInterface.new_directional(get_fluid_tank_name)
 fluid_interface.capacity = capacity
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  yatm_core.queue_refresh_infotext(pos)
+  yatm.queue_refresh_infotext(pos)
 end
 
 function steam_turbine_refresh_infotext(pos)
@@ -57,7 +56,7 @@ function steam_turbine_refresh_infotext(pos)
   local steam_tank_fluid_stack = FluidMeta.get_fluid_stack(meta, STEAM_TANK)
 
   local infotext =
-    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
     "Water Tank: " .. FluidStack.pretty_format(water_tank_fluid_stack, fluid_interface.capacity) .. "\n" ..
     "Steam Tank: " .. FluidStack.pretty_format(steam_tank_fluid_stack, fluid_interface.capacity)
 
@@ -90,7 +89,7 @@ function steam_turbine_yatm_network.energy.produce_energy(pos, node, dtime, ot)
     end
   end
   if need_refresh then
-    yatm_core.queue_refresh_infotext(pos)
+    yatm.queue_refresh_infotext(pos)
   end
   return energy_produced
 end
@@ -148,13 +147,13 @@ function steam_turbine_yatm_network.update(pos, node, ot)
   end
 
   if need_refresh then
-    yatm_core.queue_refresh_infotext(pos)
+    yatm.queue_refresh_infotext(pos)
   end
 end
 
 local groups = {
   cracky = 1,
-  yatm_network_host = 2,
+  device_cluster_controller = 2,
   fluid_interface_in = 1,
   fluid_interface_out = 1,
   yatm_energy_device = 1,

@@ -1,5 +1,5 @@
+local cluster_devices = assert(yatm.cluster.devices)
 local Energy = assert(yatm.energy)
-local Network = assert(yatm.network)
 local ItemInterface = assert(yatm.items.ItemInterface)
 
 local item_replicator_yatm_network = {
@@ -47,7 +47,7 @@ function item_replicator_refresh_infotext(pos)
   local stack = inv:get_stack("input_slot", 1)
 
   local infotext =
-    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "Replicating: " .. yatm_core.itemstack_inspect(stack)
 
@@ -66,7 +66,7 @@ function item_replicator_yatm_network.work(pos, node, energy_available, work_rat
     if inv:room_for_item("output_slot", replicate_stack) then
       inv:add_item("output_slot", replicate_stack)
       energy_consumed = energy_consumed + 10
-      yatm_core.queue_refresh_infotext(pos)
+      yatm.queue_refresh_infotext(pos)
     else
       yatm.devices.set_idle(meta, 1)
       --print("WARN", minetest.pos_to_string(pos), "No room for stack in output", yatm_core.itemstack_inspect(replicate_stack))

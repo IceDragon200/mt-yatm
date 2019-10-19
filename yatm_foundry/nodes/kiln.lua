@@ -9,7 +9,7 @@ function heat_interface:on_heat_changed(pos, dir, old_heat, new_heat)
     node.name = "yatm_foundry:kiln_off"
   end
   minetest.swap_node(pos, node)
-  yatm_core.queue_refresh_infotext(pos)
+  yatm.queue_refresh_infotext(pos)
 end
 
 local function kiln_refresh_infotext(pos)

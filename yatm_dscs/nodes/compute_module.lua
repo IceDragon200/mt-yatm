@@ -5,7 +5,7 @@
   Each compute module will speed up the auto-crafting by parallel processing other requests.
 
 ]]
-local Network = assert(yatm.network)
+local cluster_devices = assert(yatm.cluster.devices)
 local Energy = assert(yatm.energy)
 
 local compute_module_yatm_network = {
@@ -31,7 +31,7 @@ local compute_module_yatm_network = {
 local function refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
   local infotext =
-    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
 
   meta:set_string("infotext", infotext)

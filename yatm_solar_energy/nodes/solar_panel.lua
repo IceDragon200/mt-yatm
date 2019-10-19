@@ -1,8 +1,9 @@
-local Network = assert(yatm.network)
+local cluster_devices = assert(yatm.cluster.devices)
 
 local solar_panel_yatm_network = {
   kind = "energy_producer",
   groups = {
+    device_controller = 3,
     energy_producer = 1,
   },
 
@@ -27,7 +28,7 @@ function solar_panel_yatm_network.energy.produce_energy(pos, node, dtime, ot)
   if light > 5 then
     energy = light * 3
   end
-  yatm_core.queue_refresh_infotext(pos)
+  yatm.queue_refresh_infotext(pos)
   meta:set_int("last_produced_energy", energy)
   return energy
 end
@@ -38,7 +39,7 @@ function solar_panel_refresh_infotext(pos)
   local last_produced_energy = meta:get_int("last_produced_energy")
 
   local infotext =
-    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. last_produced_energy
 
   meta:set_string("infotext", infotext)
@@ -54,10 +55,8 @@ local solar_panel_nodebox = {
 yatm.devices.register_stateful_network_device({
   description = "Solar Panel",
 
-
   groups = {
     cracky = 1,
-    yatm_network_host = 3,
     yatm_energy_device = 1,
   },
 

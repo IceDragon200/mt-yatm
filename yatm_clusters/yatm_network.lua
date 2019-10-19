@@ -414,7 +414,7 @@ function Network.find_hosts(origin_pos, ts, ignore_ts)
       local cur_ts = Network.get_network_ts(meta)
       -- if the device's ts is higher or equal to the locator, it should be ignored
       if ignore_ts or cur_ts < ts then
-        local host_priority = yatm_core.groups.get_item(nodedef, "yatm_network_host")
+        local host_priority = yatm_core.groups.get_item(nodedef, "device_cluster_controller")
         if host_priority then
           debug("network_explorer", "ts", ts, "cur_ts", cur_ts, "pos", v3s(pos), "host.node.name", node.name)
           table.insert(acc, {pos = pos, node = node, nodedef = nodedef})
@@ -533,12 +533,12 @@ local function refresh_network(origin_pos, ts, ignore_ts)
   elseif count > 1 then
     -- Multiple possible hosts have been detected,
     -- the hosts will all become followers of the highest priority host
-    -- (aka. whichever node has the lowest yatm_network_host value is the leader)
+    -- (aka. whichever node has the lowest device_cluster_controller value is the leader)
     -- The process should fail if multiple priority 1 nodes exist, otherwise if the priority is higher, then a random node is selected
     local priority_groups = {}
     local host_network_ids = {}
     for _,host in ipairs(hosts) do
-      local key = yatm_core.groups.get_item(host.nodedef, "yatm_network_host")
+      local key = yatm_core.groups.get_item(host.nodedef, "device_cluster_controller")
       priority_groups[key] = priority_groups[key] or {}
       local group = priority_groups[key]
       table.insert(group, host)
@@ -621,7 +621,7 @@ local function host_initialize(pos, ts)
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef and nodedef.yatm_network then
-    if yatm_core.groups.get_item(nodedef, "yatm_network_host") then
+    if yatm_core.groups.get_item(nodedef, "device_cluster_controller") then
       local meta = minetest.get_meta(pos)
       local network_id = Network.get_meta_network_id(meta)
       if is_valid_network_id(network_id) then

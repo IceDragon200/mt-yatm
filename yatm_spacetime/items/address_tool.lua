@@ -27,7 +27,7 @@ end
 function yatm_spacetime.default_change_spacetime_address(pos, node, new_address)
   local meta = minetest.get_meta(pos)
   local address = SpacetimeMeta.set_address(meta, new_address)
-  assert(yatm_core.queue_refresh_infotext(pos))
+  assert(yatm.queue_refresh_infotext(pos))
   return address
 end
 

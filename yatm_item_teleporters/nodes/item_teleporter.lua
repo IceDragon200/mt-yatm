@@ -6,9 +6,9 @@
   Like all other wireless devices, it has it's own address scheme and registration process.
 
 ]]
+local cluster_devices = assert(yatm.cluster.devices)
 local SpacetimeNetwork = assert(yatm.spacetime.network)
 local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
-local YATM_NetworkMeta = assert(yatm.network)
 local Energy = assert(yatm.energy)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local ItemDevice = assert(yatm.items.ItemDevice)
@@ -22,7 +22,7 @@ local function item_teleporter_refresh_infotext(pos)
   local stack = inv:get_stack("main", 1)
 
   local infotext =
-    "Net.ID: " .. YATM_NetworkMeta.to_infotext(meta) .. "\n" ..
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "S.Address: " .. SpacetimeMeta.to_infotext(meta) .. "\n" ..
     "Item: " .. yatm_core.itemstack_inspect(stack)
@@ -89,7 +89,7 @@ local function teleporter_after_place_node(pos, _placer, itemstack, _pointed_thi
   SpacetimeNetwork:maybe_register_node(pos, node)
 
   yatm.devices.device_after_place_node(pos, placer, itemstack, pointed_thing)
-  assert(yatm_core.queue_refresh_infotext(pos))
+  assert(yatm.queue_refresh_infotext(pos))
 end
 
 local function teleporter_on_construct(pos)
@@ -124,7 +124,7 @@ local function item_teleporter_change_spacetime_address(pos, node, new_address)
     node.name = item_teleporter_yatm_network.states.on
     minetest.swap_node(pos, node)
   end
-  assert(yatm_core.queue_refresh_infotext(pos))
+  assert(yatm.queue_refresh_infotext(pos))
   return new_address
 end
 

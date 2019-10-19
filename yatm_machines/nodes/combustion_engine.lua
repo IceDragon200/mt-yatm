@@ -1,4 +1,4 @@
-local Network = assert(yatm.network)
+local cluster_devices = assert(yatm.cluster.devices)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidUtils = assert(yatm.fluids.Utils)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
@@ -25,6 +25,7 @@ local combustion_engine_nodebox = {
 local combustion_engine_yatm_network = {
   kind = "energy_producer",
   groups = {
+    device_controller = 3,
     energy_producer = 1,
     fluid_consumer = 1,
   },
@@ -45,7 +46,7 @@ local combustion_engine_yatm_network = {
 local fluid_interface = yatm.fluids.FluidInterface.new_simple("tank", 16000)
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  yatm_core.queue_refresh_infotext(pos)
+  yatm.queue_refresh_infotext(pos)
 end
 
 function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, ot)
@@ -85,7 +86,7 @@ function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, 
   end
 
   if need_refresh then
-    yatm_core.queue_refresh_infotext(pos)
+    yatm.queue_refresh_infotext(pos)
   end
 
   return energy_produced
@@ -97,7 +98,7 @@ function combustion_engine_refresh_infotext(pos)
   local tank_fluid_stack = FluidMeta.get_fluid_stack(meta, "tank")
 
   local infotext =
-    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
     "Tank: " .. FluidStack.pretty_format(tank_fluid_stack, fluid_interface.capacity)
 
   meta:set_string("infotext", infotext)
@@ -108,7 +109,6 @@ yatm.devices.register_stateful_network_device({
 
   groups = {
     cracky = 1,
-    yatm_network_host = 3,
     fluid_interface_in = 1,
     yatm_energy_device = 1,
   },

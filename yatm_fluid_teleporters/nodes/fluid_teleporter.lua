@@ -4,26 +4,26 @@ take fluids into their internal inventory, and then teleport them to a connected
 
 Like all other wireless devices, it has it's own address scheme and registration process.
 ]]
+local cluster_devices = assert(yatm.cluster.devices)
 local SpacetimeNetwork = assert(yatm.spacetime.network)
 local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
-local YATM_NetworkMeta = assert(yatm.network)
 local Energy = assert(yatm.energy)
 
 local fluid_interface = FluidInterface.new_simple("tank", 16000)
 
 function fluid_interface:on_fluid_changed(pos, dir, _fluid_stack)
-  yatm_core.queue_refresh_infotext(pos)
+  yatm.queue_refresh_infotext(pos)
 end
 
 local function fluid_teleporter_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
 
   local infotext =
-    "Net.ID: " .. YATM_NetworkMeta.to_infotext(meta) .. "\n" ..
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "S.Address: " .. SpacetimeMeta.to_infotext(meta) .. "\n" ..
     "Tank: " .. FluidMeta.to_infotext(meta, "tank", fluid_interface.capacity)
@@ -78,7 +78,7 @@ function fluid_teleporter_yatm_network.work(pos, node, energy_available, work_ra
       local actual_drained = FluidMeta.drain_fluid(meta, "tank", drained_stack, fluid_interface.capacity, fluid_interface.capacity, true)
       if actual_drained and actual_drained.amount > 0 then
         energy_consumed = energy_consumed + actual_drained.amount / 10
-        yatm_core.queue_refresh_infotext(pos)
+        yatm.queue_refresh_infotext(pos)
       end
     end
   end
@@ -95,7 +95,7 @@ local function fluid_teleporter_after_place_node(pos, _placer, itemstack, _point
   SpacetimeNetwork:maybe_register_node(pos, node)
 
   yatm.devices.device_after_place_node(pos, placer, itemstack, pointed_thing)
-  assert(yatm_core.queue_refresh_infotext(pos))
+  assert(yatm.queue_refresh_infotext(pos))
 end
 
 local function fluid_teleporter_on_destruct(pos)
@@ -121,7 +121,7 @@ local function fluid_teleporter_change_spacetime_address(pos, node, new_address)
     node.name = fluid_teleporter_yatm_network.states.on
     minetest.swap_node(pos, node)
   end
-  assert(yatm_core.queue_refresh_infotext(pos))
+  assert(yatm.queue_refresh_infotext(pos))
   return new_address
 end
 

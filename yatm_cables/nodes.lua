@@ -1,15 +1,35 @@
-local function cable_on_yatm_device_changed(pos, node, _origin, _origin_node)
-end
+local cluster_devices = assert(yatm.cluster.devices)
 
 local function cable_after_place_node(pos, placer, itemstack, pointed_thing)
   local node = minetest.get_node(pos)
-  -- let the system know it needs to refresh the network topography
-  yatm_core.Network.schedule_refresh_network_topography(pos, { kind = "cable_added" })
+  cluster_devices:schedule_add_node(pos, node)
 end
 
 local function cable_after_destruct(pos, old_node)
   -- let the system know it needs to refresh the network topography
-  yatm_core.Network.schedule_refresh_network_topography(pos, { kind = "cable_removed" })
+  cluster_devices:schedule_remove_node(pos, old_node)
+end
+
+local function cable_transition_device_state(pos, node, state)
+  print("yatm_cables", "cable_transition_device_state", minetest.pos_to_string(pos), "node=" .. node.name, "state=" .. state)
+  local nodedef = minetest.registered_nodes[node.name]
+  if nodedef.yatm_network.states then
+    local new_node_name
+    if state == "down" then
+      new_node_name = nodedef.yatm_network.states['off']
+    elseif  state == "up" then
+      new_node_name = nodedef.yatm_network.states['on']
+    elseif state == "conflict" then
+      new_node_name = nodedef.yatm_network.states['conflict']
+    else
+      error("unhandled state=" .. state)
+    end
+    if new_node_name then
+      node = minetest.get_node(pos)
+      node.name = new_node_name
+      minetest.swap_node(pos, node)
+    end
+  end
 end
 
 function yatm_cables.register_cable_state(params, size)
@@ -47,7 +67,6 @@ function yatm_cables.register_cable_state(params, size)
       network_cable = 1, -- this cable can be used for networking
       dense_cable = 1, -- this cable is dense
     },
-    on_network_state_changed = yatm_core.Network.default_on_network_state_changed,
   }
 
   if params.drop == nil then
@@ -71,6 +90,7 @@ function yatm_cables.register_cable_state(params, size)
       groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1})
     end
   end
+
   minetest.register_node(name, {
     description = params.description,
 
@@ -100,9 +120,10 @@ function yatm_cables.register_cable_state(params, size)
 
     after_place_node = cable_after_place_node,
     after_destruct = cable_after_destruct,
+
+    transition_device_state = cable_transition_device_state,
+
     yatm_network = cable_yatm_network,
-    on_yatm_device_changed = cable_on_yatm_device_changed,
-    on_yatm_network_changed = yatm_core.Network.default_handle_network_changed,
 
     sounds = params.sounds,
   })
@@ -136,7 +157,15 @@ yatm_cables.register_cable({
   default_state = "off",
   states =  {"on", "off", "error"},
 
-  groups = { cracky = 1, any_cable = 1, energy_cable = 1, network_cable = 1, dense_cable = 1 },
+  groups = {
+    cracky = 1,
+    any_cable = 1,
+    energy_cable = 1,
+    network_cable = 1,
+    dense_cable = 1,
+    yatm_cluster_device = 1,
+  },
+
   connects_to = {
     "group:any_cable",
     "group:yatm_network_device",
@@ -153,7 +182,15 @@ yatm_cables.register_cable({
   default_state = "off",
   states =  {"on", "off", "error"},
 
-  groups = { cracky = 1, any_cable = 1, energy_cable = 1, network_cable = 1, medium_cable = 1 },
+  groups = {
+    cracky = 1,
+    any_cable = 1,
+    energy_cable = 1,
+    network_cable = 1,
+    medium_cable = 1,
+    yatm_cluster_device = 1,
+  },
+
   connects_to = {
     "group:any_cable",
     "group:yatm_network_device",
@@ -171,7 +208,15 @@ yatm_cables.register_cable({
   default_state = "off",
   states =  {"on", "off", "error"},
 
-  groups = { cracky = 1, any_cable = 1, energy_cable = 1, network_cable = 1, small_cable = 1 },
+  groups = {
+    cracky = 1,
+    any_cable = 1,
+    energy_cable = 1,
+    network_cable = 1,
+    small_cable = 1,
+    yatm_cluster_device = 1,
+  },
+
   connects_to = {
     "group:any_cable",
     "group:yatm_network_device",
@@ -190,7 +235,14 @@ yatm_cables.register_cable({
   states = false,
   sounds = glass_sounds,
 
-  groups = { cracky = 1, any_cable = 1, glass_cable = 1, yatm_cluster_cable = 1  },
+  groups = {
+    cracky = 1,
+    any_cable = 1,
+    glass_cable = 1,
+    yatm_cluster_cable = 1,
+    yatm_cluster_device = 1,
+  },
+
   connects_to = {
     "group:yatm_cluster_cable",
     "group:yatm_network_device",
@@ -206,7 +258,14 @@ yatm_cables.register_cable({
   states = false,
   sounds = glass_sounds,
 
-  groups = { cracky = 1, any_cable = 1, glass_cable = 1, yatm_cluster_cable = 1  },
+  groups = {
+    cracky = 1,
+    any_cable = 1,
+    glass_cable = 1,
+    yatm_cluster_cable = 1,
+    yatm_cluster_device = 1,
+  },
+
   connects_to = {
     "group:yatm_cluster_cable",
     "group:yatm_network_device",
@@ -222,7 +281,14 @@ yatm_cables.register_cable({
   states = false,
   sounds = glass_sounds,
 
-  groups = { cracky = 1, any_cable = 1, glass_cable = 1, yatm_cluster_cable = 1 },
+  groups = {
+    cracky = 1,
+    any_cable = 1,
+    glass_cable = 1,
+    yatm_cluster_cable = 1,
+    yatm_cluster_device = 1,
+  },
+
   connects_to = {
     "group:yatm_cluster_cable",
     "group:yatm_network_device",
@@ -238,7 +304,13 @@ yatm_cables.register_cable({
   texture_basename = "yatm_pipe.red.black.couplings",
   states = false,
 
-  groups = { cracky = 1, any_cable = 1, energy_cable = 1 },
+  groups = {
+    cracky = 1,
+    any_cable = 1,
+    energy_cable = 1,
+    yatm_cluster_device = 1,
+  },
+
   connects_to = {
     "group:energy_cable",
     "group:yatm_energy_device",
@@ -253,7 +325,13 @@ yatm_cables.register_cable({
   texture_basename = "yatm_pipe.yellow.black.couplings",
   states = false,
 
-  groups = { cracky = 1, any_cable = 1, energy_cable = 1 },
+  groups = {
+    cracky = 1,
+    any_cable = 1,
+    energy_cable = 1,
+    yatm_cluster_device = 1,
+  },
+
   connects_to = {
     "group:energy_cable",
     "group:yatm_energy_device",
@@ -269,7 +347,14 @@ yatm_cables.register_cable({
   texture_basename = "yatm_copper_cable_side.uninsulated",
   states = false,
 
-  groups = { cracky = 1, copper_cable = 1, copper_cable_uninsulated = 1, energy_cable = 1 },
+  groups = {
+    cracky = 1,
+    copper_cable = 1,
+    copper_cable_uninsulated = 1,
+    energy_cable = 1,
+    yatm_cluster_device = 1,
+  },
+
   connects_to = {
     "group:energy_cable",
     "group:copper_cable",
@@ -294,7 +379,13 @@ do
     local color_name = color_pair[2]
 
     local colored_group_name = "copper_cable_" .. color_basename
-    local groups = { cracky = 1, copper_cable = 1, [colored_group_name] = 1, energy_cable = 1 }
+    local groups = {
+      cracky = 1,
+      copper_cable = 1,
+      [colored_group_name] = 1,
+      energy_cable = 1,
+      yatm_cluster_device = 1,
+    }
 
     local node_name = "yatm_cables:copper_cable_" .. color_basename
 

@@ -1,5 +1,5 @@
+local cluster_devices = assert(yatm.cluster.devices)
 local Energy = assert(yatm.energy)
-local Network = assert(yatm.network)
 local HeatableDevice = assert(yatm.heating.HeatableDevice)
 
 local heater_yatm_network = {
@@ -34,8 +34,9 @@ function heater_yatm_network.work(pos, node, available_energy, work_rate, dtime,
   -- due to precision issues with floating point numbers,
   -- Just check if the old heat is less than the new one
   if heat < new_heat then
-    yatm_core.queue_refresh_infotext(pos)
+    yatm.queue_refresh_infotext(pos)
   end
+
   -- heaters devour energy like no tomorrow
   return math.floor(100 * dtime)
 end
@@ -47,7 +48,7 @@ local function electric_heater_refresh_infotext(pos)
   local heat = math.floor(meta:get_float("heat"))
 
   local infotext =
-    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "Heat: " .. heat .. " / " .. HEAT_MAX
 

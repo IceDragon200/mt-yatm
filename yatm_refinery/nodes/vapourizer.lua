@@ -1,10 +1,10 @@
+local cluster_devices = assert(yatm.cluster.devices)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidUtils = assert(yatm.fluids.Utils)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local FluidExchange = assert(yatm.fluids.FluidExchange)
-local Network = assert(yatm.network)
 local Energy = assert(yatm.energy)
 local VapourRegistry = assert(yatm.refinery.VapourRegistry)
 
@@ -49,7 +49,7 @@ fluid_interface.capacity = 16000
 fluid_interface.bandwidth = fluid_interface.capacity
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  yatm_core.queue_refresh_infotext(pos)
+  yatm.queue_refresh_infotext(pos)
 end
 
 function vapourizer_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
@@ -108,7 +108,7 @@ function vapourizer_yatm_network.work(pos, node, available_energy, work_rate, dt
   end
 
   if need_refresh then
-    yatm_core.queue_refresh_infotext(pos)
+    yatm.queue_refresh_infotext(pos)
   end
 
   return energy_consumed
@@ -121,7 +121,7 @@ function vapourizer_refresh_infotext(pos)
   local fluid_stack = FluidMeta.get_fluid_stack(meta, FLUID_TANK)
 
   local infotext =
-    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "Vapour Tank: " .. FluidStack.pretty_format(vapour_fluid_stack, fluid_interface.capacity) .. "\n" ..
     "Fluid Tank: " .. FluidStack.pretty_format(fluid_stack, fluid_interface.capacity)

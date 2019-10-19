@@ -1,3 +1,6 @@
+local table_keys = assert(yatm_core.table_keys)
+local table_length = assert(yatm_core.table_length)
+
 minetest.register_chatcommand("yatm.networks", {
   params = "<command> <params>",
   description = "Issue various commands to yatm networks",
@@ -5,7 +8,7 @@ minetest.register_chatcommand("yatm.networks", {
     minetest.log("action", "yatm.networks " .. param)
     local params = string.split(param, ' ')
     if params[1] == "ls" then
-      local network_ids = yatm_core.table_keys(Network.networks)
+      local network_ids = table_keys(Network.networks)
       minetest.chat_send_player(player_name, "Network IDs:" .. table.concat(network_ids, ', '))
     elseif params[1] == "describe" then
       -- describe <network-id>
@@ -14,7 +17,7 @@ minetest.register_chatcommand("yatm.networks", {
       local network = Network.networks[network_id]
       if network then
         minetest.chat_send_player(player_name, network.node_name .. ' ' .. minetest.pos_to_string(network.pos) .. "\n" ..
-                                               yatm_core.table_length(network.members) .. " Members")
+                                               table_length(network.members) .. " Members")
       else
         minetest.chat_send_player(player_name, 'Network not found')
       end
@@ -24,19 +27,20 @@ minetest.register_chatcommand("yatm.networks", {
   end
 })
 
-minetest.register_lbm({
-  name = "yatm_core:cluster_device_lbm",
+minetest.register_on_shutdown(yatm.clusters:method("terminate"))
+minetest.register_globalstep(yatm.clusters:method("update"))
 
-  nodenames = {
-    "group:yatm_cluster_device",
-  },
+yatm.clusters:register_node_event_handler('refresh_infotext', function (_cls, _counter, event, _clusters)
+  local pos = event.pos
+  local node = event.node
 
-  run_at_every_load = true,
+  local nodedef = minetest.registered_nodes[node.name]
 
-  action = function (pos, node)
-    yatm.clusters:schedule_event('cluster', 'on_load', pos, node)
-  end,
-})
-
-minetest.register_on_shutdown(yatm_core.clusters:method("terminate"))
-minetest.register_globalstep(yatm_core.clusters:method("update"))
+  if nodedef then
+    if nodedef.refresh_infotext then
+      local tracei = yatm_core.trace.new(node.name .. " refresh_infotext/2")
+      nodedef.refresh_infotext(pos, node)
+      yatm_core.trace.span_end(tracei)
+    end
+  end
+end)

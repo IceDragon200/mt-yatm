@@ -1,7 +1,18 @@
+local cluster_devices = assert(yatm.cluster.devices)
+
+local function refresh_infotext(pos)
+  local meta = minetest.get_meta(pos)
+
+  local infotext =
+    cluster_devices:get_node_infotext(pos)
+
+  meta:set_string("infotext", infotext)
+end
+
 local network_controller_yatm_network = {
   kind = "controller",
   groups = {
-    controller = 1,
+    device_controller = 1,
   },
   default_state = "off",
   states = {
@@ -13,13 +24,13 @@ local network_controller_yatm_network = {
 }
 
 local groups = {
-  cracky = 1, yatm_network_host = 1,
-              yatm_network_device = 1,
+  cracky = 1, yatm_network_device = 1,
               yatm_energy_device = 1,
 }
 
 yatm.devices.register_stateful_network_device({
   description = "Network Controller",
+
   groups = groups,
 
   drop = network_controller_yatm_network.states.off,
@@ -40,6 +51,7 @@ yatm.devices.register_stateful_network_device({
 
   yatm_network = network_controller_yatm_network,
 
+  refresh_infotext = refresh_infotext,
 }, {
   error = {
     tiles = {

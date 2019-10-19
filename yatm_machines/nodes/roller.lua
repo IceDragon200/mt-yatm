@@ -1,7 +1,7 @@
+local cluster_devices = assert(yatm.cluster.devices)
 local Energy = assert(yatm.energy)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local Groups = assert(yatm_core.groups)
-local Network = assert(yatm.network)
 
 local RollerRegistry = {}
 
@@ -49,7 +49,7 @@ function roller_refresh_infotext(pos)
   local recipe_time_max = meta:get_float("recipe_time_max")
 
   local infotext =
-    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "Time Remaining: " .. yatm_core.format_pretty_time(recipe_time) .. " / " .. yatm_core.format_pretty_time(recipe_time_max)
 
@@ -115,7 +115,7 @@ function roller_yatm_network.work(pos, node, energy_available, work_rate, dtime,
             inv:set_stack("roller_processing", 1, ItemStack(nil))
             meta:set_float("recipe_time", 0)
             meta:set_float("recipe_time_max", 0)
-            yatm_core.queue_refresh_infotext(pos)
+            yatm.queue_refresh_infotext(pos)
           end
         end
       else

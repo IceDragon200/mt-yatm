@@ -459,6 +459,7 @@ function ic:refresh_from_pos(base_pos)
     ready_to_send = {},
     ready_to_receive = {},
   }
+
   for device_type, devices in pairs(found) do
     for member_id, pos in pairs(devices) do
       -- go through the unregistration process, in case the node wasn't already unregistered
@@ -487,7 +488,7 @@ function ic:refresh_from_pos(base_pos)
       network.members[member_id] = true
 
       -- ya know, I'm not too 100% on this actually...
-      yatm_core.queue_refresh_infotext(pos)
+      yatm.queue_refresh_infotext(pos, node)
     end
   end
 

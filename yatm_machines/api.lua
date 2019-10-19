@@ -1,33 +1,54 @@
-local Network = assert(yatm_core.Network)
+local cluster_devices = assert(yatm.cluster.devices)
 
 local devices = {
   ENERGY_BUFFER_KEY = "energy_buffer"
 }
 
 function devices.device_on_construct(pos)
+  local node = minetest.get_node(pos)
+  cluster_devices:schedule_add_node(pos, node)
   --return yatm.network.device_on_destruct(pos)
 end
 
 function devices.device_on_destruct(pos)
-  return yatm.network.device_on_destruct(pos)
+  local node = minetest.get_node(pos)
+  cluster_devices:schedule_remove_node(pos, node)
 end
 
 function devices.device_after_destruct(pos, node)
-  return yatm.network.device_after_destruct(pos, node)
+  --yatm.network.device_after_destruct(pos, node)
 end
 
 function devices.device_after_place_node(pos, placer, item_stack, pointed_thing)
-  return yatm.network.device_after_place_node(pos, placer, item_stack, pointed_thing)
+  --return yatm.network.device_after_place_node(pos, placer, item_stack, pointed_thing)
 end
 
-function devices.default_on_device_changed(pos, node, origin_pos, origin_node)
-  print("devices.default_on_device_changed/4", pos.x, pos.y, pos.z, node.name, "ORIGIN", origin_pos.x, origin_pos.y, origin_pos.z, origin_node.name)
-  yatm.network.schedule_refresh_network_topography(pos, {kind = "device_changed"})
+function devices.device_transition_device_state(pos, node, state)
+  print("yatm_machines", "device_transition_device_state", minetest.pos_to_string(pos), "node=" .. node.name, "state=" .. state)
+  local nodedef = minetest.registered_nodes[node.name]
+  if nodedef.yatm_network.states then
+    local new_node_name
+    if state == "down" then
+      new_node_name = nodedef.yatm_network.states['off']
+    elseif state == "up" then
+      new_node_name = nodedef.yatm_network.states['on']
+    elseif state == "conflict" then
+      new_node_name = nodedef.yatm_network.states['conflict']
+    else
+      error("unhandled state=" .. state)
+    end
+    if new_node_name then
+      node = minetest.get_node(pos)
+      node.name = new_node_name
+      minetest.swap_node(pos, node)
+    end
+  end
+  yatm.queue_refresh_infotext(pos, node)
 end
 
---[[
-@spec devices.device_passive_consume_energy(vector3.t, Node.t, non_neg_integer)
-]]
+--
+-- @spec devices.device_passive_consume_energy(vector3.t, Node.t, non_neg_integer)
+--
 function devices.device_passive_consume_energy(pos, node, amount, dtime, ot)
   local span = yatm_core.trace.span_start(ot, "device_passive_consume_energy")
   local consumed = 0
@@ -51,7 +72,7 @@ function devices.device_passive_consume_energy(pos, node, amount, dtime, ot)
         end
         local meta = minetest.get_meta(pos)
         local stored = yatm.energy.receive_energy(meta, devices.ENERGY_BUFFER_KEY, remaining, charge_bandwidth, capacity, true)
-        Network:queue_refresh_infotext(pos)
+        yatm:queue_refresh_infotext(pos)
         consumed = consumed + stored
       end
     end
@@ -138,39 +159,32 @@ end
 function devices.register_network_device(name, nodedef)
   assert(name, "expected a name")
   assert(nodedef, "expected a nodedef")
-  if not nodedef.on_yatm_device_changed then
-    --print("register_network_device", name, "patching register_network_device")
-    nodedef.on_yatm_device_changed = assert(devices.default_on_device_changed)
+
+  nodedef.groups = nodedef.groups or {}
+  nodedef.groups['yatm_cluster_device'] = 1
+
+  if nodedef.transition_device_state == nil then
+    print("register_network_device", name, "using device_transition_device_state")
+    nodedef.transition_device_state = assert(devices.device_transition_device_state)
   end
 
-  if not nodedef.on_yatm_network_changed then
-    --print("register_network_device", name, "patching on_yatm_network_changed")
-    nodedef.on_yatm_network_changed = assert(yatm.network.default_handle_network_changed)
-  end
-
-  if nodedef.groups and nodedef.groups.yatm_network_host then
-    if not nodedef.on_destruct then
-      --print("register_network_device", name, "patching on_destruct with on_host_destruct")
-      nodedef.on_destruct = assert(yatm.network.on_host_destruct)
-    end
-    if not nodedef.after_place_node then
-      --print("register_network_device", name, "patching after_place_node with default_yatm_notify_neighbours_changed")
-      nodedef.after_place_node = assert(yatm.network.device_after_place_node)
-    end
-  end
-
-  if not nodedef.after_place_node then
-    --print("register_network_device", name, "patching after_place_node with device_after_place_node")
+  if nodedef.after_place_node == nil then
+    print("register_network_device", name, "using device_after_place_node")
     nodedef.after_place_node = assert(devices.device_after_place_node)
   end
 
-  if not nodedef.on_destruct then
-    --print("register_network_device", name, "patching on_destruct with on_host_destruct")
+  if nodedef.on_construct == nil then
+    print("register_network_device", name, "using device_on_construct")
+    nodedef.on_construct = assert(devices.device_on_construct)
+  end
+
+  if nodedef.on_destruct == nil then
+    print("register_network_device", name, "using device_on_destruct")
     nodedef.on_destruct = assert(devices.device_on_destruct)
   end
 
-  if not nodedef.after_destruct then
-    --print("register_network_device", name, "patching after_destruct")
+  if nodedef.after_destruct == nil then
+    print("register_network_device", name, "using device_after_destruct")
     nodedef.after_destruct = assert(devices.device_after_destruct)
   end
 

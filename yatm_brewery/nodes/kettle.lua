@@ -36,7 +36,7 @@ function heat_interface:on_heat_changed(pos, dir, old_heat, new_heat)
     node.name = "yatm_brewery:kettle_off"
   end
   minetest.swap_node(pos, node)
-  yatm_core.queue_refresh_infotext(pos)
+  yatm.queue_refresh_infotext(pos)
   minetest.get_node_timer(pos):start(1.0)
 end
 

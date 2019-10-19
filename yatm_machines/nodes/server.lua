@@ -3,12 +3,13 @@
 --
 local data_network = assert(yatm.data_network)
 local Energy = assert(yatm.energy)
-local Network = assert(yatm.network)
+local cluster_devices = assert(yatm.cluster.devices)
 
 local function server_refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
+
   local infotext =
-    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     data_network:get_infotext(pos)
 

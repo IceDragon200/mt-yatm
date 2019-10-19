@@ -1,5 +1,5 @@
+local cluster_devices = assert(yatm.cluster.devices)
 local Energy = assert(yatm.energy)
-local Network = assert(yatm.network)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
@@ -20,6 +20,7 @@ local function get_electric_molder_formspec(pos)
     "listring[nodemeta:" .. spos .. ";output_slot]" ..
     "listring[current_player;main]" ..
     default.get_hotbar_bg(0,4.85)
+
   return formspec
 end
 
@@ -51,7 +52,7 @@ local TANK_CAPACITY = 8000
 local fluid_interface = FluidInterface.new_simple("molten_tank", TANK_CAPACITY)
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  yatm_core.queue_refresh_infotext(pos)
+  yatm.queue_refresh_infotext(pos)
 end
 
 function fluid_interface:allow_replace(pos, dir, fluid_stack)
@@ -86,7 +87,7 @@ local function electric_molder_refresh_infotext(pos)
   local recipe_time_max = meta:get_float("recipe_time_max")
 
   local infotext =
-    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "Recipe: " .. recipe_name .. "\n" ..
     "Molten Tank: " .. FluidStack.pretty_format(molten_tank_fluid_stack, fluid_interface.capacity) .. "\n" ..
@@ -119,7 +120,7 @@ function electric_molder_yatm_network.work(pos, node, available_energy, work_rat
           local filled_fluid = FluidMeta.fill_fluid(meta, "molding_tank", drained_fluid, TANK_CAPACITY, TANK_CAPACITY, true)
           local drained_fluid = FluidMeta.drain_fluid(meta, "molten_tank", filled_fluid, TANK_CAPACITY, TANK_CAPACITY, true)
           --print("filled fluid in molten tank", minetest.pos_to_string(pos), FluidStack.pretty_format(filled_fluid))
-          yatm_core.queue_refresh_infotext(pos)
+          yatm.queue_refresh_infotext(pos)
         end
       else
         yatm.devices.set_idle(meta, 5)
@@ -148,7 +149,7 @@ function electric_molder_yatm_network.work(pos, node, available_energy, work_rat
           meta:set_string("recipe_name", "")
           meta:set_float("recipe_time", 0)
           meta:set_float("recipe_time_max", 0)
-          yatm_core.queue_refresh_infotext(pos)
+          yatm.queue_refresh_infotext(pos)
         end
       end
     else

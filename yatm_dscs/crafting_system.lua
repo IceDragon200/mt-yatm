@@ -18,14 +18,14 @@ function ic:persist_network_inventory_state(network)
   end)
 end
 
-function ic:update_network(network, dtime, counter, trace_context)
-  --print("Updating Network", network.id)
-  network:reduce_group_members("dscs_inventory_controller", 0, function (pos, node, acc)
+function ic:update(cls, cluster, dtime)
+  --print("Updating Cluster", network.id)
+  cluster:reduce_nodes_of_groups({"dscs_inventory_controller"}, 0, function (node_entry, acc)
     --print(dump(pos), dump(node))
     return true, acc + 1
   end)
 
-  network:reduce_group_members("dscs_compute_module", 0, function (pos, node, acc)
+  cluster:reduce_nodes_of_groups({"dscs_compute_module"}, 0, function (node_entry, acc)
     --print(dump(pos), dump(node))
     return true, acc + 1
   end)

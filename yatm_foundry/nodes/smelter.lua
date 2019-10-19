@@ -28,7 +28,7 @@ function heat_interface:on_heat_changed(pos, dir, old_heat, new_heat)
     node.name = "yatm_foundry:smelter_off"
   end
   minetest.swap_node(pos, node)
-  yatm_core.queue_refresh_infotext(pos)
+  yatm.queue_refresh_infotext(pos)
   minetest.get_node_timer(pos):start(1.0)
 end
 
@@ -36,7 +36,7 @@ local TANK_CAPACITY = 4000
 local fluid_interface = FluidInterface.new_simple("molten_tank", TANK_CAPACITY)
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  yatm_core.queue_refresh_infotext(pos)
+  yatm.queue_refresh_infotext(pos)
 end
 
 function fluid_interface:allow_replace(pos, dir, fluid_stack)
@@ -126,11 +126,11 @@ local function smelter_on_timer(pos, dtime)
             inv:remove_item("processing_slot", processing_item_stack)
             meta:set_float("recipe_time", 0)
             meta:set_float("recipe_time_max", 0)
-            yatm_core.queue_refresh_infotext(pos)
+            yatm.queue_refresh_infotext(pos)
           end
         end
       else
-        yatm_core.queue_refresh_infotext(pos)
+        yatm.queue_refresh_infotext(pos)
       end
     end
   end

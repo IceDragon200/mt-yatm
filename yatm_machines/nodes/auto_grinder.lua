@@ -1,5 +1,5 @@
+local cluster_devices = assert(yatm.cluster.devices)
 local ItemInterface = assert(yatm.items.ItemInterface)
-local YATM_NetworkMeta = assert(yatm.network)
 local Energy = assert(yatm.energy)
 local GrindingRegistry = assert(yatm.grinding.GrindingRegistry)
 
@@ -72,7 +72,7 @@ function auto_grinder_yatm_network.work(pos, node, energy_available, work_rate, 
       inv:add_item("grinder_processing", processing_stack)
       inv:set_stack("grinder_input", 1, rest)
 
-      yatm_core.queue_refresh_infotext(pos)
+      yatm.queue_refresh_infotext(pos)
     else
       -- to idle
       yatm.devices.set_idle(meta, 1)
@@ -83,7 +83,7 @@ function auto_grinder_yatm_network.work(pos, node, energy_available, work_rate, 
     if work_time > 0 then
       meta:set_float("work_time", work_time)
       -- should probably be optional
-      yatm_core.queue_refresh_infotext(pos)
+      yatm.queue_refresh_infotext(pos)
     else
       local input_stack = inv:get_stack("grinder_processing", 1)
       local recipe = GrindingRegistry:get_grinding_recipe(input_stack)
@@ -106,12 +106,12 @@ function auto_grinder_yatm_network.work(pos, node, energy_available, work_rate, 
           meta:set_float("duration", 0)
           meta:set_float("work_time", 0)
 
-          yatm_core.queue_refresh_infotext(pos)
+          yatm.queue_refresh_infotext(pos)
         else
           meta:set_string("error", "output full")
           yatm.devices.set_idle(meta, 1)
 
-          yatm_core.queue_refresh_infotext(pos)
+          yatm.queue_refresh_infotext(pos)
         end
       else
         inv:add_item("grinder_rejected", input_stack)
@@ -122,7 +122,7 @@ function auto_grinder_yatm_network.work(pos, node, energy_available, work_rate, 
         meta:set_float("duration", 0)
         meta:set_float("work_time", 0)
 
-        yatm_core.queue_refresh_infotext(pos)
+        yatm.queue_refresh_infotext(pos)
       end
     end
   end
@@ -138,7 +138,7 @@ local function auto_grinder_refresh_infotext(pos)
   local duration = meta:get_float("duration")
 
   local infotext =
-    "Network ID: " .. YATM_NetworkMeta.to_infotext(meta) .. "\n" ..
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "Recipe: " .. recipe_name .. "\n" ..
     "Time: " .. yatm_core.format_pretty_time(work_time) .. " / " .. yatm_core.format_pretty_time(duration)

@@ -68,7 +68,7 @@ local function solid_fuel_heater_node_timer(pos, elapsed)
     meta:set_float("fuel_time", fuel_time - elapsed)
     meta:set_float("heat", math.min(heat + 10 * elapsed, 1600))
 
-    yatm_core.queue_refresh_infotext(pos)
+    yatm.queue_refresh_infotext(pos)
     return true
   else
     local fuel_list = inv:get_list("fuel_slot")
@@ -84,7 +84,7 @@ local function solid_fuel_heater_node_timer(pos, elapsed)
       meta:set_float("fuel_time_max", fuel.time)
 
       minetest.swap_node(pos, {name = "yatm_foundry:solid_fuel_heater_on"})
-      yatm_core.queue_refresh_infotext(pos)
+      yatm.queue_refresh_infotext(pos)
       return true
     else
       meta:set_float("fuel_time", 0)
@@ -93,11 +93,11 @@ local function solid_fuel_heater_node_timer(pos, elapsed)
       if heat > 0 then
         -- Heat dissipation logic - wow!
         meta:set_float("heat", math.max(heat - 5 * elapsed, 0))
-        yatm_core.queue_refresh_infotext(pos)
+        yatm.queue_refresh_infotext(pos)
         return true
       else
         minetest.swap_node(pos, {name = "yatm_foundry:solid_fuel_heater_off"})
-        yatm_core.queue_refresh_infotext(pos)
+        yatm.queue_refresh_infotext(pos)
         return false
       end
     end

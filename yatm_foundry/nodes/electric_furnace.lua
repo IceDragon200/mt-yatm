@@ -1,5 +1,5 @@
+local cluster_devices = assert(yatm.cluster.devices)
 local Energy = assert(yatm.energy)
-local Network = assert(yatm.network)
 
 local electric_furnace_yatm_network = {
   kind = "machine",

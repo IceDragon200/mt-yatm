@@ -1,6 +1,7 @@
 local coal_generator_yatm_network = {
   kind = "energy_producer",
   groups = {
+    device_controller = 3,
     item_consumer = 1,
     energy_producer = 1,
     has_update = 1, -- the device should be updated every network step
@@ -26,7 +27,6 @@ end
 
 local groups = {
   cracky = 1,
-  yatm_network_host = 3,
   yatm_energy_device = 1,
   item_interface_in = 1,
 }

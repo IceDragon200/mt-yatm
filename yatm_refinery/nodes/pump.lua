@@ -1,8 +1,8 @@
+local cluster_devices = assert(yatm.cluster.devices)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidRegistry = assert(yatm.fluids.FluidRegistry)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
-local Network = assert(yatm.network)
 local Energy = assert(yatm.energy)
 
 local pump_yatm_network = {
@@ -29,7 +29,7 @@ local pump_yatm_network = {
 local fluid_interface = yatm.fluids.FluidInterface.new_simple("tank", 16000)
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  yatm_core.queue_refresh_infotext(pos)
+  yatm.queue_refresh_infotext(pos)
 end
 
 local old_fill = fluid_interface.fill
@@ -47,13 +47,14 @@ local function pump_refresh_infotext(pos)
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
   local meta = minetest.get_meta(pos)
-  local state = nodedef.yatm_network.state
   local fluid_stack = FluidMeta.get_fluid_stack(meta, nodedef.fluid_interface.tank_name)
-  meta:set_string("infotext",
-    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+
+  local infotext =
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "Tank: " .. FluidStack.pretty_format(fluid_stack, fluid_interface.capacity)
-  )
+
+  meta:set_string("infotext", infotext)
 end
 
 function pump_yatm_network.work(pos, node, energy_available, work_rate, dtime, ot)

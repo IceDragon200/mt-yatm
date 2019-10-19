@@ -1,4 +1,4 @@
-local Network = assert(yatm_core.Network)
+local cluster_devices = assert(yatm.cluster.devices)
 local FluidRegistry = assert(yatm.fluids.FluidRegistry)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
@@ -57,7 +57,7 @@ fluid_interface.capacity = 16000
 fluid_interface.bandwidth = fluid_interface.capacity
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  yatm_core.queue_refresh_infotext(pos)
+  yatm.queue_refresh_infotext(pos)
 end
 
 function fluid_interface:allow_fill(pos, dir, fluid_stack)
@@ -156,7 +156,7 @@ function distillation_unit_yatm_network.work(pos, node, available_energy, work_r
   end
 
   if need_refresh then
-    yatm_core.queue_refresh_infotext(pos)
+    yatm.queue_refresh_infotext(pos)
   end
 
   return energy_consumed
@@ -170,7 +170,7 @@ function distillation_unit_refresh_infotext(pos)
   local distilled_fluid_stack = FluidMeta.get_fluid_stack(meta, DISTILLED_TANK)
 
   local infotext =
-    "Network ID: " .. Network.to_infotext(meta) .. "\n" ..
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "I.Steam Tank: " .. FluidStack.pretty_format(input_steam_fluid_stack, fluid_interface.capacity) .. "\n" ..
     "O.Steam Tank: " .. FluidStack.pretty_format(output_steam_fluid_stack, fluid_interface.capacity) .. "\n" ..

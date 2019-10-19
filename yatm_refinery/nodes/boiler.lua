@@ -1,9 +1,9 @@
+local cluster_devices = assert(yatm.cluster.devices)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidUtils = assert(yatm.fluids.Utils)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
-local Network = assert(yatm.network)
 local Energy = assert(yatm.energy)
 
 local boiler_yatm_network = {
@@ -47,25 +47,21 @@ fluid_interface.capacity = 16000
 fluid_interface.bandwidth = fluid_interface.capacity
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  yatm_core.queue_refresh_infotext(pos)
+  yatm.queue_refresh_infotext(pos)
 end
 
 local function boiler_refresh_infotext(pos)
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
-  if nodedef then
-    local meta = minetest.get_meta(pos)
-    local state = nodedef.yatm_network.state
-    local network_id = Network.get_meta_network_id(meta)
-    local steam_fluid_stack = FluidMeta.get_fluid_stack(meta, STEAM_TANK)
-    local water_fluid_stack = FluidMeta.get_fluid_stack(meta, WATER_TANK)
-    meta:set_string("infotext",
-      "Network ID: <" .. Network.format_id(network_id) .. "> " .. state .. "\n" ..
-      "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
-      "Steam Tank: <" .. FluidStack.pretty_format(steam_fluid_stack, fluid_interface.capacity) .. ">\n" ..
-      "Water Tank: <" .. FluidStack.pretty_format(water_fluid_stack, fluid_interface.capacity) .. ">"
-    )
-  end
+  local meta = minetest.get_meta(pos)
+  local steam_fluid_stack = FluidMeta.get_fluid_stack(meta, STEAM_TANK)
+  local water_fluid_stack = FluidMeta.get_fluid_stack(meta, WATER_TANK)
+
+  local infotext =
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    "Steam Tank: <" .. FluidStack.pretty_format(steam_fluid_stack, fluid_interface.capacity) .. ">\n" ..
+    "Water Tank: <" .. FluidStack.pretty_format(water_fluid_stack, fluid_interface.capacity) .. ">"
+
+  meta:set_string("infotext", infotext)
 end
 
 function boiler_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
