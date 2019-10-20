@@ -175,7 +175,7 @@ local function teleporter_change_spacetime_address(pos, node, new_address)
     node.name = nodedef.yatm_network.states.on
     minetest.swap_node(pos, node)
   end
-  assert(yatm.queue_refresh_infotext(pos))
+  yatm.queue_refresh_infotext(pos, node)
   return new_address
 end
 

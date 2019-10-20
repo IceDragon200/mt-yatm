@@ -72,7 +72,7 @@ function devices.device_passive_consume_energy(pos, node, amount, dtime, ot)
         end
         local meta = minetest.get_meta(pos)
         local stored = yatm.energy.receive_energy(meta, devices.ENERGY_BUFFER_KEY, remaining, charge_bandwidth, capacity, true)
-        yatm:queue_refresh_infotext(pos)
+        yatm:queue_refresh_infotext(pos, node)
         consumed = consumed + stored
       end
     end
@@ -118,7 +118,7 @@ function devices.worker_update(pos, node, dtime, ot)
         local consumed = ym.work(pos, node, available_energy, work_rate, dtime, ot)
         if consumed and consumed > 0 then
           yatm.energy.consume_energy(meta, devices.ENERGY_BUFFER_KEY, consumed, bandwidth, capacity, true)
-          Network:queue_refresh_infotext(pos)
+          yatm:queue_refresh_infotext(pos, node)
         end
         --print("devices.worker_update/3", minetest.pos_to_string(pos), dump(node.name), "consumed energy", consumed)
       end

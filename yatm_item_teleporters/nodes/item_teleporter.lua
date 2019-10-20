@@ -89,7 +89,7 @@ local function teleporter_after_place_node(pos, _placer, itemstack, _pointed_thi
   SpacetimeNetwork:maybe_register_node(pos, node)
 
   yatm.devices.device_after_place_node(pos, placer, itemstack, pointed_thing)
-  assert(yatm.queue_refresh_infotext(pos))
+  yatm.queue_refresh_infotext(pos, node)
 end
 
 local function teleporter_on_construct(pos)
@@ -124,7 +124,7 @@ local function item_teleporter_change_spacetime_address(pos, node, new_address)
     node.name = item_teleporter_yatm_network.states.on
     minetest.swap_node(pos, node)
   end
-  assert(yatm.queue_refresh_infotext(pos))
+  yatm.queue_refresh_infotext(pos, node)
   return new_address
 end
 

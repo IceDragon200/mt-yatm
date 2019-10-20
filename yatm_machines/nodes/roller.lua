@@ -115,7 +115,7 @@ function roller_yatm_network.work(pos, node, energy_available, work_rate, dtime,
             inv:set_stack("roller_processing", 1, ItemStack(nil))
             meta:set_float("recipe_time", 0)
             meta:set_float("recipe_time_max", 0)
-            yatm.queue_refresh_infotext(pos)
+            yatm.queue_refresh_infotext(pos, node)
           end
         end
       else

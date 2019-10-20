@@ -34,7 +34,7 @@ function heater_yatm_network.work(pos, node, available_energy, work_rate, dtime,
   -- due to precision issues with floating point numbers,
   -- Just check if the old heat is less than the new one
   if heat < new_heat then
-    yatm.queue_refresh_infotext(pos)
+    yatm.queue_refresh_infotext(pos, node)
   end
 
   -- heaters devour energy like no tomorrow

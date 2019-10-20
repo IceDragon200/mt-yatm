@@ -85,7 +85,7 @@ function fluid_replicator_yatm_network.work(pos, node, energy_available, work_ra
       local target_dir = yatm_core.invert_dir(dir)
       yatm_core.fluid_tanks.fill(target_pos, target_dir, stack.name, stack.amount, true)
       energy_consumed = energy_consumed + 10
-      yatm.queue_refresh_infotext(pos)
+      yatm.queue_refresh_infotext(pos, node)
     end
   end
   return energy_consumed

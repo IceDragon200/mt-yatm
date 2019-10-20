@@ -46,7 +46,8 @@ local combustion_engine_yatm_network = {
 local fluid_interface = yatm.fluids.FluidInterface.new_simple("tank", 16000)
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  yatm.queue_refresh_infotext(pos)
+  local node = minetest.get_node(pos)
+  yatm.queue_refresh_infotext(pos, node)
 end
 
 function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, ot)
@@ -86,7 +87,7 @@ function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, 
   end
 
   if need_refresh then
-    yatm.queue_refresh_infotext(pos)
+    yatm.queue_refresh_infotext(pos, node)
   end
 
   return energy_produced

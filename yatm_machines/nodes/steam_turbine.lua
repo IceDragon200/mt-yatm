@@ -46,7 +46,8 @@ local fluid_interface = FluidInterface.new_directional(get_fluid_tank_name)
 fluid_interface.capacity = capacity
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  yatm.queue_refresh_infotext(pos)
+  local node = minetest.get_node(pos)
+  yatm.queue_refresh_infotext(pos, node)
 end
 
 function steam_turbine_refresh_infotext(pos)
@@ -89,7 +90,7 @@ function steam_turbine_yatm_network.energy.produce_energy(pos, node, dtime, ot)
     end
   end
   if need_refresh then
-    yatm.queue_refresh_infotext(pos)
+    yatm.queue_refresh_infotext(pos, node)
   end
   return energy_produced
 end
@@ -147,7 +148,7 @@ function steam_turbine_yatm_network.update(pos, node, ot)
   end
 
   if need_refresh then
-    yatm.queue_refresh_infotext(pos)
+    yatm.queue_refresh_infotext(pos, node)
   end
 end
 

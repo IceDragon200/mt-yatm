@@ -66,7 +66,7 @@ for cell_type, cell_config in pairs(cell_types) do
       node.name = new_name
       minetest.swap_node(pos, node)
     end
-    yatm.queue_refresh_infotext(pos)
+    yatm.queue_refresh_infotext(pos, node)
   end
 
   function energy_cell_yatm_network.energy.receive_energy(pos, node, amount)

@@ -49,7 +49,8 @@ fluid_interface.capacity = 16000
 fluid_interface.bandwidth = fluid_interface.capacity
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  yatm.queue_refresh_infotext(pos)
+  local node = minetest.get_node(pos)
+  yatm.queue_refresh_infotext(pos, node)
 end
 
 function vapourizer_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
@@ -108,7 +109,7 @@ function vapourizer_yatm_network.work(pos, node, available_energy, work_rate, dt
   end
 
   if need_refresh then
-    yatm.queue_refresh_infotext(pos)
+    yatm.queue_refresh_infotext(pos, node)
   end
 
   return energy_consumed

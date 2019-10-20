@@ -34,7 +34,7 @@ local function teleporter_port_after_place_node(pos, placer, itemstack, pointed_
 
   yatm.devices.device_after_place_node(pos, placer, itemstack, pointed_thing)
 
-  assert(yatm.queue_refresh_infotext(pos))
+  yatm.queue_refresh_infotext(pos, node)
 
   minetest.after(0, mesecon.on_placenode, pos, node)
 end

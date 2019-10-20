@@ -48,7 +48,8 @@ local TANK_CAPACITY = 4000
 local fluid_interface = FluidInterface.new_simple("molten_tank", TANK_CAPACITY)
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  yatm.queue_refresh_infotext(pos)
+  local node = minetest.get_node(pos)
+  yatm.queue_refresh_infotext(pos, node)
 end
 
 function fluid_interface:allow_replace(pos, dir, fluid_stack)
@@ -114,7 +115,7 @@ function electric_smelter_yatm_network.work(pos, node, available_energy, work_ra
           inv:remove_item("processing_slot", processing_item_stack)
           meta:set_float("recipe_time", 0)
           meta:set_float("recipe_time_max", 0)
-          yatm.queue_refresh_infotext(pos)
+          yatm.queue_refresh_infotext(pos, node)
         end
       end
     else

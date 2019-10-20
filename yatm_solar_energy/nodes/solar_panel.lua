@@ -28,7 +28,7 @@ function solar_panel_yatm_network.energy.produce_energy(pos, node, dtime, ot)
   if light > 5 then
     energy = light * 3
   end
-  yatm.queue_refresh_infotext(pos)
+  yatm.queue_refresh_infotext(pos, node)
   meta:set_int("last_produced_energy", energy)
   return energy
 end

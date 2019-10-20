@@ -29,7 +29,8 @@ local pump_yatm_network = {
 local fluid_interface = yatm.fluids.FluidInterface.new_simple("tank", 16000)
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  yatm.queue_refresh_infotext(pos)
+  local node = minetest.get_node(pos)
+  yatm.queue_refresh_infotext(pos, node)
 end
 
 local old_fill = fluid_interface.fill

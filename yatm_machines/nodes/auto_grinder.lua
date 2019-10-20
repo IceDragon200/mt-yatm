@@ -72,7 +72,7 @@ function auto_grinder_yatm_network.work(pos, node, energy_available, work_rate, 
       inv:add_item("grinder_processing", processing_stack)
       inv:set_stack("grinder_input", 1, rest)
 
-      yatm.queue_refresh_infotext(pos)
+      yatm.queue_refresh_infotext(pos, node)
     else
       -- to idle
       yatm.devices.set_idle(meta, 1)
@@ -83,7 +83,7 @@ function auto_grinder_yatm_network.work(pos, node, energy_available, work_rate, 
     if work_time > 0 then
       meta:set_float("work_time", work_time)
       -- should probably be optional
-      yatm.queue_refresh_infotext(pos)
+      yatm.queue_refresh_infotext(pos, node)
     else
       local input_stack = inv:get_stack("grinder_processing", 1)
       local recipe = GrindingRegistry:get_grinding_recipe(input_stack)
@@ -106,12 +106,12 @@ function auto_grinder_yatm_network.work(pos, node, energy_available, work_rate, 
           meta:set_float("duration", 0)
           meta:set_float("work_time", 0)
 
-          yatm.queue_refresh_infotext(pos)
+          yatm.queue_refresh_infotext(pos, node)
         else
           meta:set_string("error", "output full")
           yatm.devices.set_idle(meta, 1)
 
-          yatm.queue_refresh_infotext(pos)
+          yatm.queue_refresh_infotext(pos, node)
         end
       else
         inv:add_item("grinder_rejected", input_stack)
@@ -122,7 +122,7 @@ function auto_grinder_yatm_network.work(pos, node, energy_available, work_rate, 
         meta:set_float("duration", 0)
         meta:set_float("work_time", 0)
 
-        yatm.queue_refresh_infotext(pos)
+        yatm.queue_refresh_infotext(pos, node)
       end
     end
   end

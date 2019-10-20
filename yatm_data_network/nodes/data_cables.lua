@@ -12,7 +12,7 @@ end
 local function data_cable_after_place_node(pos, _placer, _itemstack, _pointed_thing)
   local node = minetest.get_node(pos)
   data_network:register_member(pos, node)
-  yatm.queue_refresh_infotext(pos)
+  yatm.queue_refresh_infotext(pos, node)
 end
 
 local function data_cable_on_destruct(pos)

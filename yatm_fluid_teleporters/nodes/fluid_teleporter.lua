@@ -16,7 +16,8 @@ local Energy = assert(yatm.energy)
 local fluid_interface = FluidInterface.new_simple("tank", 16000)
 
 function fluid_interface:on_fluid_changed(pos, dir, _fluid_stack)
-  yatm.queue_refresh_infotext(pos)
+  local node = minetest.get_node(pos)
+  yatm.queue_refresh_infotext(pos, node)
 end
 
 local function fluid_teleporter_refresh_infotext(pos)
@@ -78,7 +79,7 @@ function fluid_teleporter_yatm_network.work(pos, node, energy_available, work_ra
       local actual_drained = FluidMeta.drain_fluid(meta, "tank", drained_stack, fluid_interface.capacity, fluid_interface.capacity, true)
       if actual_drained and actual_drained.amount > 0 then
         energy_consumed = energy_consumed + actual_drained.amount / 10
-        yatm.queue_refresh_infotext(pos)
+        yatm.queue_refresh_infotext(pos, node)
       end
     end
   end
@@ -121,7 +122,7 @@ local function fluid_teleporter_change_spacetime_address(pos, node, new_address)
     node.name = fluid_teleporter_yatm_network.states.on
     minetest.swap_node(pos, node)
   end
-  assert(yatm.queue_refresh_infotext(pos))
+  yatm.queue_refresh_infotext(pos, node)
   return new_address
 end
 
