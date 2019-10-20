@@ -47,4 +47,4 @@ function EnergyDevices.receive_energy(pos, node, energy_left, dtime, ot)
   return get_energy_interface_function(pos, node, "receive_energy")(pos, node, energy_left, dtime, ot)
 end
 
-yatm_core.EnergyDevices = EnergyDevices
+yatm_cluster_energy.EnergyDevices = EnergyDevices

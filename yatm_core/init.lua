@@ -25,10 +25,7 @@ dofile(yatm_core.modpath .. "/meta_schema.lua")
 dofile(yatm_core.modpath .. "/changeset.lua")
 dofile(yatm_core.modpath .. "/ui.lua")
 dofile(yatm_core.modpath .. "/groups.lua")
--- Node Utilities
-dofile(yatm_core.modpath .. "/energy_devices.lua")
 -- Networks
-dofile(yatm_core.modpath .. "/energy.lua")
 dofile(yatm_core.modpath .. "/measurable.lua") -- similar to energy, but has a name field too
 -- Nodes and Items
 dofile(yatm_core.modpath .. "/nodes.lua")

@@ -88,4 +88,4 @@ function energy.to_infotext(meta, key, capacity)
   end
 end
 
-yatm_core.energy = energy
+yatm_cluster_energy.energy = energy

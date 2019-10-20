@@ -1,7 +1,7 @@
 local Luna = assert(yatm_core.Luna)
-local Energy = assert(yatm_core.energy)
+local Energy = assert(yatm_cluster_energy.energy)
 
-local case = Luna:new("yatm_core-util")
+local case = Luna:new("yatm_cluster_energy.energy")
 
 case:describe("allowed_energy/2", function (t2)
   t2:test("will limit energy by given bandwidth", function (t3)

@@ -7,13 +7,14 @@ local ClusterDevices = yatm_core.Class:extends("ClusterDevices")
 local ic = ClusterDevices.instance_class
 
 local CLUSTER_GROUP = 'yatm_device'
+local LOG_GROUP = 'yatm.cluster.devices'
 
 function ic:initialize()
   --
 end
 
 function ic:terminate()
-  print("cluster.devices", "terminated")
+  print(LOG_GROUP, "terminated")
 end
 
 function ic:register_system(id, update)
@@ -33,7 +34,7 @@ function ic:get_node_infotext(pos)
       else
         state_string = state_string .. " - no available controller"
       end
-      return false, "Cluster: " .. cluster.id .. " (" .. state_string .. ")"
+      return false, "Device Cluster: " .. cluster.id .. " (" .. state_string .. ")"
     else
       return true, acc
     end
@@ -50,30 +51,30 @@ function ic:get_node_device_groups(node)
 end
 
 function ic:schedule_add_node(pos, node)
-  print('cluster.devices', 'schedule_add_node', minetest.pos_to_string(pos), node.name)
+  print(LOG_GROUP, 'schedule_add_node', minetest.pos_to_string(pos), node.name)
   local groups = self:get_node_device_groups(node)
   yatm.clusters:schedule_node_event(CLUSTER_GROUP, 'add_node', pos, node, { groups = groups })
 end
 
 function ic:schedule_load_node(pos, node)
-  print('cluster.devices', 'schedule_load_node', minetest.pos_to_string(pos), node.name)
+  print(LOG_GROUP, 'schedule_load_node', minetest.pos_to_string(pos), node.name)
   local groups = self:get_node_device_groups(node)
   yatm.clusters:schedule_node_event(CLUSTER_GROUP, 'load_node', pos, node, { groups = groups })
 end
 
 function ic:schedule_update_node(pos, node)
-  print('cluster.devices', 'schedule_update_node', minetest.pos_to_string(pos), node.name)
+  print(LOG_GROUP, 'schedule_update_node', minetest.pos_to_string(pos), node.name)
   local groups = self:get_node_device_groups(node)
   yatm.clusters:schedule_node_event(CLUSTER_GROUP, 'update_node', pos, node, { groups = groups })
 end
 
 function ic:schedule_remove_node(pos, node)
-  print('cluster.devices', 'schedule_remove_node', minetest.pos_to_string(pos), node.name)
+  print(LOG_GROUP, 'schedule_remove_node', minetest.pos_to_string(pos), node.name)
   yatm.clusters:schedule_node_event(CLUSTER_GROUP, 'remove_node', pos, node, { })
 end
 
 function ic:handle_node_event(cls, generation_id, event, node_clusters)
-  print('cluster.devices', 'event', event.event_name, generation_id, minetest.pos_to_string(event.pos))
+  print(LOG_GROUP, 'event', event.event_name, generation_id, minetest.pos_to_string(event.pos))
 
   if event.event_name == 'load_node' then
     -- treat loads like adding a node
@@ -92,7 +93,7 @@ function ic:handle_node_event(cls, generation_id, event, node_clusters)
     self:_handle_transition_state(cls, generation_id, event, node_clusters)
 
   else
-    print("cluster.devices", "unhandled event event_name=" .. event.event_name)
+    print(LOG_GROUP, "unhandled event event_name=" .. event.event_name)
   end
 end
 
@@ -350,12 +351,12 @@ function ic:_handle_refresh_controller(cls, generation_id, event, node_clusters)
       end
     end
   else
-    print("cluster.devices", "cluster requested a refresh_controller but it no longer exists cluster_id=" .. event.params.cluster_id)
+    print(LOG_GROUP, "cluster requested a refresh_controller but it no longer exists cluster_id=" .. event.params.cluster_id)
   end
 end
 
 function ic:_handle_transition_state(cls, generation_id, event, node_clusters)
-  print("cluster.devices", "transition_state", generation_id, 'cluster_id=' .. event.params.cluster_id, 'state=' .. event.params.state)
+  print(LOG_GROUP, "transition_state", generation_id, 'cluster_id=' .. event.params.cluster_id, 'state=' .. event.params.state)
   local cluster = cls:get_cluster(event.params.cluster_id)
   if cluster then
     cluster.assigns.state = assert(event.params.state)
@@ -365,17 +366,17 @@ function ic:_handle_transition_state(cls, generation_id, event, node_clusters)
       return true, acc + 1
     end)
   else
-    print("cluster.devices", "cluster requested a transition_state but it no longer exists cluster_id=" .. cluster_id)
+    print(LOG_GROUP, "cluster requested a transition_state but it no longer exists cluster_id=" .. cluster_id)
   end
 end
 
 yatm.cluster.devices = ClusterDevices:new()
 
 yatm.clusters:register_node_event_handler(CLUSTER_GROUP, yatm.cluster.devices:method('handle_node_event'))
-yatm.clusters:observe('terminate', 'yatm_devices/0.0.0', yatm.cluster.devices:method('terminate'))
+yatm.clusters:observe('terminate', 'yatm_cluster_devices:terminate', yatm.cluster.devices:method('terminate'))
 
 minetest.register_lbm({
-  name = "yatm_devices:cluster_device_lbm",
+  name = "yatm_cluster_devices:cluster_device_lbm",
 
   nodenames = {
     "group:yatm_cluster_device",
