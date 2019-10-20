@@ -19,7 +19,8 @@ local function barrel_on_timer(pos, dt)
 end
 
 local function barrel_on_construct(pos)
-  assert(yatm.queue_refresh_infotext(pos))
+  local node = minetest.get_node(pos)
+  yatm.queue_refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
 
   local inv = meta:get_inventory()
