@@ -1,9 +1,23 @@
-local heat_exchanger_yatm_network = {
-  kind = "machine",
+local cluster_reactor = assert(yatm.cluster.reactor)
+
+local function heat_exchanger_refresh_infotext(pos, node)
+  local meta = minetest.get_meta(pos)
+
+  local infotext =
+    cluster_reactor:get_node_infotext(pos)
+
+  meta:set_string("infotext", infotext)
+end
+
+local heat_exchanger_reactor_device = {
+  kind = "heat_exchanger",
+
   groups = {
-    reactor = 1,
     heat_exchanger = 1,
   },
+
+  default_state = "off",
+
   states = {
     conflict = "yatm_reactors:heat_exchanger_error",
     error = "yatm_reactors:heat_exchanger_error",
@@ -12,10 +26,10 @@ local heat_exchanger_yatm_network = {
   }
 }
 
-yatm.devices.register_network_device(heat_exchanger_yatm_network.states.off, {
+yatm_reactors.register_stateful_reactor_node({
   description = "Reactor Heat Exchanger",
   groups = {cracky = 1},
-  drop = heat_exchanger_yatm_network.states.off,
+  drop = heat_exchanger_reactor_device.states.off,
   tiles = {
     "yatm_reactor_casing.plain.png",
     "yatm_reactor_casing.plain.png",
@@ -26,39 +40,29 @@ yatm.devices.register_network_device(heat_exchanger_yatm_network.states.off, {
   },
   paramtype = "light",
   paramtype2 = "facedir",
-  yatm_network = heat_exchanger_yatm_network,
-})
 
-yatm.devices.register_network_device(heat_exchanger_yatm_network.states.error, {
-  description = "Reactor Heat Exchanger",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
-  drop = heat_exchanger_yatm_network.states.off,
-  tiles = {
-    "yatm_reactor_casing.plain.png",
-    "yatm_reactor_casing.plain.png",
-    "yatm_reactor_casing.plain.png",
-    "yatm_reactor_casing.plain.png^[transformFX",
-    "yatm_reactor_casing.plain.png",
-    "yatm_reactor_heat_exchanger_front.error.png"
-  },
-  paramtype = "light",
-  paramtype2 = "facedir",
-  yatm_network = heat_exchanger_yatm_network,
-})
+  reactor_device = heat_exchanger_reactor_device,
 
-yatm.devices.register_network_device(heat_exchanger_yatm_network.states.on, {
-  description = "Reactor Heat Exchanger",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
-  drop = heat_exchanger_yatm_network.states.off,
-  tiles = {
-    "yatm_reactor_casing.plain.png",
-    "yatm_reactor_casing.plain.png",
-    "yatm_reactor_casing.plain.png",
-    "yatm_reactor_casing.plain.png^[transformFX",
-    "yatm_reactor_casing.plain.png",
-    "yatm_reactor_heat_exchanger_front.on.png"
+  refresh_infotext = heat_exchanger_refresh_infotext,
+}, {
+  error = {
+    tiles = {
+      "yatm_reactor_casing.plain.png",
+      "yatm_reactor_casing.plain.png",
+      "yatm_reactor_casing.plain.png",
+      "yatm_reactor_casing.plain.png^[transformFX",
+      "yatm_reactor_casing.plain.png",
+      "yatm_reactor_heat_exchanger_front.error.png"
+    },
   },
-  paramtype = "light",
-  paramtype2 = "facedir",
-  yatm_network = heat_exchanger_yatm_network,
+  on = {
+    tiles = {
+      "yatm_reactor_casing.plain.png",
+      "yatm_reactor_casing.plain.png",
+      "yatm_reactor_casing.plain.png",
+      "yatm_reactor_casing.plain.png^[transformFX",
+      "yatm_reactor_casing.plain.png",
+      "yatm_reactor_heat_exchanger_front.on.png"
+    },
+  },
 })

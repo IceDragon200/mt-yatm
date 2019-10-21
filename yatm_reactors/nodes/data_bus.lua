@@ -1,9 +1,21 @@
+local cluster_reactor = assert(yatm.cluster.reactor)
+
+local function data_bus_refresh_infotext(pos, node)
+  local meta = minetest.get_meta(pos)
+
+  local infotext =
+    cluster_reactor:get_node_infotext(pos)
+
+  meta:set_string("infotext", infotext)
+end
+
 local data_bus_data_interface = {}
 function data_bus_data_interface:receive_pdu(pos, node, port, value)
+  --
 end
 
 for _, variant in ipairs({"hazard", "coolant", "signal"}) do
-  local data_bus_yatm_network = {
+  local data_bus_reactor_device = {
     kind = "machine",
     groups = {
       reactor = 1,
@@ -18,10 +30,10 @@ for _, variant in ipairs({"hazard", "coolant", "signal"}) do
     }
   }
 
-  yatm.devices.register_stateful_network_device({
+  yatm_reactors.register_stateful_reactor_node({
     description = "Reactor Data Bus (" .. variant .. ")",
     groups = {cracky = 1, yatm_data_device = 1},
-    drop = data_bus_yatm_network.states.off,
+    drop = data_bus_reactor_device.states.off,
     tiles = {
       "yatm_reactor_casing.plain.png",
       "yatm_reactor_casing.plain.png",
@@ -33,12 +45,14 @@ for _, variant in ipairs({"hazard", "coolant", "signal"}) do
     paramtype = "light",
     paramtype2 = "facedir",
 
-    yatm_network = data_bus_yatm_network,
+    reactor_device = data_bus_reactor_device,
 
     data_network_device = {
       type = "device",
     },
     data_interface = data_bus_data_interface,
+
+    refresh_infotext = data_bus_refresh_infotext,
   }, {
     error = {
       tiles = {

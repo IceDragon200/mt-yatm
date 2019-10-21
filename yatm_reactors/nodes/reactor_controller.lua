@@ -1,13 +1,23 @@
-local cluster_devices = assert(yatm.cluster.devices)
+local cluster_reactor = assert(yatm.cluster.reactor)
 
-local reactor_controller_yatm_network = {
-  kind = "machine",
+local function reactor_controller_refresh_infotext(pos, node)
+  local meta = minetest.get_meta(pos)
+
+  local infotext =
+    cluster_reactor:get_node_infotext(pos)
+
+  meta:set_string("infotext", infotext)
+end
+
+local reactor_controller_reactor_device = {
+  kind = "controller",
+
   groups = {
-    device_controller = 4,
-    reactor = 1,
-    reactor_controller = 1,
+    controller = 1,
   },
+
   default_state = "off",
+
   states = {
     conflict = "yatm_reactors:reactor_controller_error",
     error = "yatm_reactors:reactor_controller_error",
@@ -16,10 +26,13 @@ local reactor_controller_yatm_network = {
   }
 }
 
-yatm.devices.register_stateful_network_device({
+yatm_reactors.register_stateful_reactor_node({
   description = "Reactor Controller",
+
   groups = {cracky = 1},
-  drop = reactor_controller_yatm_network.states.off,
+
+  drop = reactor_controller_reactor_device.states.off,
+
   tiles = {
     "yatm_reactor_casing.plain.png",
     "yatm_reactor_casing.plain.png",
@@ -28,9 +41,13 @@ yatm.devices.register_stateful_network_device({
     "yatm_reactor_casing.plain.png",
     "yatm_reactor_controller_front.off.png"
   },
+
   paramtype = "light",
   paramtype2 = "facedir",
-  yatm_network = reactor_controller_yatm_network,
+
+  reactor_device = reactor_controller_reactor_device,
+
+  refresh_infotext = reactor_controller_refresh_infotext,
 }, {
   error = {
     tiles = {

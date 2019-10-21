@@ -1,3 +1,14 @@
+local cluster_reactor = assert(yatm.cluster.reactor)
+
+local function export_bus_refresh_infotext(pos, node)
+  local meta = minetest.get_meta(pos)
+
+  local infotext =
+    cluster_reactor:get_node_infotext(pos)
+
+  meta:set_string("infotext", infotext)
+end
+
 local variants = {
   {"hazard", "Hazard"},
   {"coolant", "Coolant"},
@@ -8,12 +19,15 @@ for _, variant_pair in ipairs(variants) do
   local variant_basename = variant_pair[1]
   local variant_name = variant_pair[2]
 
-  local export_bus_yatm_network = {
-    kind = "machine",
+  local export_bus_reactor_device = {
+    kind = "export_bus",
+
     groups = {
-      reactor_part = 1,
-      reactor_export_bus = 1,
+      export_bus = 1,
     },
+
+    default_state = "off",
+
     states = {
       conflict = "yatm_reactors:export_bus_" .. variant_basename .. "_error",
       error = "yatm_reactors:export_bus_" .. variant_basename .. "_error",
@@ -29,12 +43,12 @@ for _, variant_pair in ipairs(variants) do
     groups.mesecon_interface_out = 1
   end
 
-  yatm.devices.register_network_device(export_bus_yatm_network.states.off, {
+  yatm_reactors.register_stateful_reactor_node({
     description = "Reactor Export Bus (" .. variant_name .. ")",
 
     groups = groups,
 
-    drop = export_bus_yatm_network.states.off,
+    drop = export_bus_reactor_device.states.off,
 
     tiles = {
       "yatm_reactor_casing.plain.png",
@@ -48,50 +62,30 @@ for _, variant_pair in ipairs(variants) do
     paramtype = "light",
     paramtype2 = "facedir",
 
-    yatm_network = export_bus_yatm_network,
-  })
+    reactor_device = export_bus_reactor_device,
 
-  yatm.devices.register_network_device(export_bus_yatm_network.states.error, {
-    description = "Reactor Export Bus (" .. variant_name .. ")",
+    refresh_infotext = export_bus_refresh_infotext,
+  }, {
+    error = {
 
-    groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-
-    drop = export_bus_yatm_network.states.off,
-
-    tiles = {
-      "yatm_reactor_casing.plain.png",
-      "yatm_reactor_casing.plain.png",
-      "yatm_reactor_casing.plain.png",
-      "yatm_reactor_casing.plain.png^[transformFX",
-      "yatm_reactor_casing.plain.png",
-      "yatm_reactor_" .. variant_basename .. "_export_bus_front.error.png"
+      tiles = {
+        "yatm_reactor_casing.plain.png",
+        "yatm_reactor_casing.plain.png",
+        "yatm_reactor_casing.plain.png",
+        "yatm_reactor_casing.plain.png^[transformFX",
+        "yatm_reactor_casing.plain.png",
+        "yatm_reactor_" .. variant_basename .. "_export_bus_front.error.png"
+      },
     },
-
-    paramtype = "light",
-    paramtype2 = "facedir",
-
-    yatm_network = export_bus_yatm_network,
-  })
-
-  yatm.devices.register_network_device(export_bus_yatm_network.states.on, {
-    description = "Reactor Export Bus (" .. variant_name .. ")",
-
-    groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-
-    drop = export_bus_yatm_network.states.off,
-
-    tiles = {
-      "yatm_reactor_casing.plain.png",
-      "yatm_reactor_casing.plain.png",
-      "yatm_reactor_casing.plain.png",
-      "yatm_reactor_casing.plain.png^[transformFX",
-      "yatm_reactor_casing.plain.png",
-      "yatm_reactor_" .. variant_basename .. "_export_bus_front.on.png"
-    },
-
-    paramtype = "light",
-    paramtype2 = "facedir",
-
-    yatm_network = export_bus_yatm_network,
+    on = {
+      tiles = {
+        "yatm_reactor_casing.plain.png",
+        "yatm_reactor_casing.plain.png",
+        "yatm_reactor_casing.plain.png",
+        "yatm_reactor_casing.plain.png^[transformFX",
+        "yatm_reactor_casing.plain.png",
+        "yatm_reactor_" .. variant_basename .. "_export_bus_front.on.png"
+      },
+    }
   })
 end

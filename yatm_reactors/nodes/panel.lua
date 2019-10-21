@@ -8,21 +8,24 @@ for variant, variant_texture_name in pairs({
   ["green_black_stripes"] = "gb.stripes",
   ["purple_black_stripes"] = "pb.stripes",
 }) do
-  local panel_yatm_network = {
-    kind = "machine",
+  local panel_reactor_device = {
+    kind = "panel",
+
     groups = {
-      reactor = 1,
-      reactor_panel = 1,
+      panel = 1,
     },
+
+    default_state = "_default",
+
     states = {
       _default = "yatm_reactors:panel_" .. variant
     }
   }
 
-  yatm.devices.register_network_device(panel_yatm_network.states._default, {
+  yatm_reactors.register_reactor_node(panel_reactor_device.states._default, {
     description = "Reactor Panel (" .. variant .. ")",
     groups = {cracky = 1, reactor_panel = 1, reactor_structure = 1},
-    drop = panel_yatm_network.states._default,
+    drop = panel_reactor_device.states._default,
     tiles = {
       "yatm_reactor_panel." .. variant_texture_name .. ".png",
       --"yatm_reactor_layers_border-1-1_16." .. variant_texture_name .. ".png",
@@ -31,10 +34,10 @@ for variant, variant_texture_name in pairs({
     --drawtype = "glasslike_framed",
     paramtype = "light",
     paramtype2 = "facedir",
-    yatm_network = panel_yatm_network,
+    reactor_device = panel_reactor_device,
   })
 
-  local casing_yatm_network = {
+  local casing_reactor_device = {
     kind = "machine",
     groups = {
       reactor = 1,
@@ -45,10 +48,10 @@ for variant, variant_texture_name in pairs({
     }
   }
 
-  yatm.devices.register_network_device(casing_yatm_network.states._default, {
+  yatm_reactors.register_reactor_node(casing_reactor_device.states._default, {
     description = "Reactor Casing (" .. variant .. ")",
     groups = {cracky = 1, reactor_panel = 1, reactor_structure = 1},
-    drop = panel_yatm_network.states._default,
+    drop = casing_reactor_device.states._default,
     tiles = {
       --"yatm_reactor_layers_border-1-1_16." .. variant_texture_name .. ".png",
       --"yatm_reactor_layers_panel.casing.png",
@@ -57,6 +60,6 @@ for variant, variant_texture_name in pairs({
     --drawtype = "glasslike_framed",
     paramtype = "light",
     paramtype2 = "facedir",
-    yatm_network = casing_yatm_network,
+    reactor_device = casing_reactor_device,
   })
 end

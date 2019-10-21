@@ -1,0 +1,19 @@
+local ReactorSystem = yatm_core.Class:extends("ReactorSystem")
+local ic = ReactorSystem.instance_class
+
+function ic:initialize()
+  ic._super.initialize(self)
+end
+
+function ic:update(cls, cluster, dtime)
+  --print("Updating Cluster", network.id)
+  cluster:reduce_nodes_of_groups({"controller"}, 0, function (node_entry, acc)
+    cluster:reduce_nodes_of_groups({"control_rod"}, 0, function (node_entry, acc)
+      --print(dump(pos), dump(node))
+      return true, acc + 1
+    end)
+    return false, acc
+  end)
+end
+
+yatm_reactors.ReactorSystem = ReactorSystem
