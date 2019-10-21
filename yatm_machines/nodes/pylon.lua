@@ -16,9 +16,9 @@ end
 local pylon_yatm_network = {
   kind = "machine",
   groups = {
-    machine = 1,
     has_update = 1, -- the device should be updated every network step
   },
+  default_state = "off",
   states = {
     conflict = "yatm_machines:pylon_error",
     error = "yatm_machines:pylon_error",
