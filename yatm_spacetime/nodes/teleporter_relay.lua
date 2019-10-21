@@ -1,8 +1,23 @@
-local Network = assert(yatm_spacetime.network)
-
 --[[
-Teleporter relays are neutral nodes that are placed adjacent to a teleporter to expand it's teleportation effect range
+
+  Teleporter relays are neutral nodes that are placed adjacent to a teleporter to expand it's teleportation effect range
+
 ]]
+local cluster_devices = assert(yatm.cluster.devices)
+local cluster_energy = assert(yatm.cluster.energy)
+local Energy = assert(yatm.energy)
+
+local function teleporter_relay_refresh_infotext(pos, node)
+  local meta = minetest.get_meta(pos)
+
+  local infotext =
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
+    cluster_energy:get_node_infotext(pos) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
+
+  meta:set_string("infotext", infotext)
+end
+
 local teleporter_node_box = {
   type = "fixed",
   fixed = {
@@ -13,7 +28,6 @@ local teleporter_node_box = {
 local teleporter_relay_yatm_network = {
   kind = "machine",
   groups = {
-    machine = 1,
     teleporter_relay = 1,
     energy_consumer = 1,
   },
@@ -26,7 +40,9 @@ local teleporter_relay_yatm_network = {
     inactive = "yatm_spacetime:teleporter_relay_inactive",
   },
   energy = {
+    capacity = 4000,
     passive_lost = 5,
+    network_charge_bandwidth = 100,
   },
 }
 
@@ -48,6 +64,8 @@ yatm.devices.register_stateful_network_device({
   node_box = teleporter_node_box,
 
   yatm_network = teleporter_relay_yatm_network,
+
+  refresh_infotext = teleporter_relay_refresh_infotext,
 }, {
   error = {
     tiles = {

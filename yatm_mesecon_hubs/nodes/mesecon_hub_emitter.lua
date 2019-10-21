@@ -37,7 +37,7 @@ local function hub_emit_change_event(pos, value)
     -- No hub address, skip emission
     print("WARN: hub does not have an address cannot emit")
   else
-    yatm_mesecon_hubs.Network:emit_value(pos, addr, value)
+    yatm_mesecon_hubs.wireless_network:emit_value(pos, addr, value)
   end
 end
 

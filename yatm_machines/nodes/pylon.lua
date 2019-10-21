@@ -1,3 +1,18 @@
+local cluster_devices = assert(yatm.cluster.devices)
+local cluster_energy = assert(yatm.cluster.energy)
+local Energy = assert(yatm.energy)
+
+local function pylon_refresh_infotext(pos)
+  local meta = minetest.get_meta(pos)
+
+  local infotext =
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
+    cluster_energy:get_node_infotext(pos) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
+
+  meta:set_string("infotext", infotext)
+end
+
 local pylon_yatm_network = {
   kind = "machine",
   groups = {
@@ -37,9 +52,11 @@ local pylon_node_box = {
   }
 }
 
-yatm.devices.register_network_device("yatm_machines:pylon_off", {
+yatm.devices.register_stateful_network_device({
   description = "Pylon",
+
   groups = {cracky = 1},
+
   tiles = {
     "yatm_pylon_top.off.png",
     "yatm_pylon_bottom.off.png",
@@ -48,11 +65,16 @@ yatm.devices.register_network_device("yatm_machines:pylon_off", {
     "yatm_pylon_side.off.png",
     "yatm_pylon_side.off.png",
   },
+
   paramtype = "light",
   paramtype2 = "facedir",
   drawtype = "nodebox",
+
   node_box = pylon_node_box,
-  yatm_network = pylon_yatm_network
+
+  yatm_network = pylon_yatm_network,
+
+  refresh_infotext = pylon_refresh_infotext,
 })
 
 yatm.devices.register_network_device("yatm_machines:pylon_error", {

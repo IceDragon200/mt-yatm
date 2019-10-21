@@ -1,4 +1,5 @@
 local cluster_devices = assert(yatm.cluster.devices)
+local cluster_energy = assert(yatm.cluster.energy)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidRegistry = assert(yatm.fluids.FluidRegistry)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
@@ -52,6 +53,7 @@ local function pump_refresh_infotext(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
+    cluster_energy:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "Tank: " .. FluidStack.pretty_format(fluid_stack, fluid_interface.capacity)
 

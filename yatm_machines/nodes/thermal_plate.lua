@@ -1,3 +1,18 @@
+local cluster_devices = assert(yatm.cluster.devices)
+local cluster_energy = assert(yatm.cluster.energy)
+local Energy = assert(yatm.energy)
+
+local function thermal_plate_refresh_infotext(pos, node)
+  local meta = minetest.get_meta(pos)
+
+  local infotext =
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
+    cluster_energy:get_node_infotext(pos) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
+
+  meta:set_string("infotext", infotext)
+end
+
 local thermal_plate_nodebox = {
   type = "fixed",
   fixed = {
@@ -55,6 +70,8 @@ yatm.devices.register_stateful_network_device({
   after_place_node = thermal_plate_after_place_node,
 
   yatm_network = thermal_plate_heating_yatm_network,
+
+  refresh_infotext = thermal_plate_refresh_infotext,
 }, {
   error = {
     tiles = { "yatm_thermal_plate_side.heating.error.png" },
@@ -109,7 +126,10 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
 
   after_place_node = thermal_plate_after_place_node,
+
   yatm_network = thermal_plate_cooling_yatm_network,
+
+  refresh_infotext = thermal_plate_refresh_infotext,
 }, {
   error = {
     tiles = { "yatm_thermal_plate_side.cooling.error.png" },
@@ -117,26 +137,6 @@ yatm.devices.register_stateful_network_device({
   on = {
     tiles = { thermal_plate_side_on_texture },
   },
-})
-
-yatm.devices.register_network_device(thermal_plate_cooling_yatm_network.states.error, {
-  description = "Thermal Plate (cooling)",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
-  drop = thermal_plate_cooling_yatm_network.states.off,
-  tiles = {
-    --[["yatm_thermal_plate_top.cooling.error.png",
-    "yatm_thermal_plate_top.cooling.error.png",
-    "yatm_thermal_plate_side.cooling.error.png",
-    "yatm_thermal_plate_side.cooling.error.png",
-    "yatm_thermal_plate_side.cooling.error.png",]]
-    "yatm_thermal_plate_side.cooling.error.png",
-  },
-  paramtype = "light",
-  paramtype2 = "facedir",
-  drawtype = "nodebox",
-  node_box = thermal_plate_nodebox,
-  after_place_node = thermal_plate_after_place_node,
-  yatm_network = thermal_plate_cooling_yatm_network,
 })
 
 --[[
@@ -187,9 +187,14 @@ yatm.devices.register_stateful_network_device({
   paramtype = "light",
   paramtype2 = "facedir",
   drawtype = "nodebox",
+
   node_box = thermal_plate_nodebox,
+
   after_place_node = thermal_plate_after_place_node,
+
   yatm_network = thermal_plate_nuclear_yatm_network,
+
+  refresh_infotext = thermal_plate_refresh_infotext,
 }, {
   error = {
     tiles = { "yatm_thermal_plate_side.nuclear.error.png" },

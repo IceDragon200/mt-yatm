@@ -872,8 +872,8 @@ end
 
 function Network:start()
   print("yatm_network", "registering on_block_expired observe in clusters")
-  yatm.clusters:observe('on_block_expired', 'yatm_network/block_unloader', function (block_entry)
-    Network:unload_block(block_entry.id)
+  yatm.clusters:observe('on_block_expired', 'yatm_network/block_unloader', function (block_id)
+    Network:unload_block(block_id)
   end)
 end
 

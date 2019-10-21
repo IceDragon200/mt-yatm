@@ -1,10 +1,26 @@
 --[[
 Freezers solidify liquids, primarily water into ice for transport
 ]]
+local cluster_devices = assert(yatm.cluster.devices)
+local cluster_energy = assert(yatm.cluster.energy)
+local Energy = assert(yatm.energy)
+
+local function freezer_refresh_infotext(pos)
+  local meta = minetest.get_meta(pos)
+
+  local infotext =
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
+    cluster_energy:get_node_infotext(pos) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
+
+  meta:set_string("infotext", infotext)
+end
+
 local freezer_yatm_network = {
   kind = "machine",
   groups = {
     machine_worker = 1,
+    energy_consumer = 1,
   },
   default_state = "off",
   states = {
@@ -25,6 +41,7 @@ function freezer_yatm_network.work(pos, node, available_energy, work_rate, dtime
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef then
   end
+  return 0
 end
 
 local groups = {
@@ -52,6 +69,8 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
 
   yatm_network = freezer_yatm_network,
+
+  refresh_infotext = freezer_refresh_infotext,
 }, {
   error = {
     tiles = {

@@ -56,7 +56,6 @@ local lamp_mesecons = {
     -- Boring lamp stuff
     action_on = function (pos, node)
       local nodedef = minetest.registered_nodes[node.name]
-      print("Lamp on", minetest.pos_to_string(pos), node.name)
       if nodedef and nodedef.yatm then
         local new_state = "on"
         if nodedef.yatm.normal_state == "off" then
@@ -71,7 +70,6 @@ local lamp_mesecons = {
 
     action_off = function (pos, node)
       local nodedef = minetest.registered_nodes[node.name]
-      print("Lamp off", minetest.pos_to_string(pos), node.name)
       if nodedef and nodedef.yatm then
         local new_state = "off"
         if nodedef.yatm.normal_state == "off" then

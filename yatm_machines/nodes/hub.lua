@@ -1,3 +1,18 @@
+local cluster_devices = assert(yatm.cluster.devices)
+local cluster_energy = assert(yatm.cluster.energy)
+local Energy = assert(yatm.energy)
+
+local function hub_refresh_infotext(pos)
+  local meta = minetest.get_meta(pos)
+
+  local infotext =
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
+    cluster_energy:get_node_infotext(pos) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
+
+  meta:set_string("infotext", infotext)
+end
+
 local hub_nodebox = {
   type = "fixed",
   fixed = {
@@ -24,7 +39,10 @@ local hub_bus_yatm_network = {
     on = "yatm_machines:hub_bus_on",
   },
   energy = {
+    capacity = 200,
     passive_lost = 1,
+    network_charge_bandwidth = 10,
+    startup_threshold = 20,
   }
 }
 
@@ -52,6 +70,8 @@ yatm.devices.register_stateful_network_device({
   after_place_node = hub_after_place_node,
 
   yatm_network = hub_bus_yatm_network,
+
+  refresh_infotext = hub_refresh_infotext,
 }, {
   error = {
     tiles = {
@@ -109,8 +129,12 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
   drawtype = "nodebox",
   node_box = hub_nodebox,
+
   after_place_node = hub_after_place_node,
+
   yatm_network = hub_wireless_yatm_network,
+
+  refresh_infotext = hub_refresh_infotext,
 }, {
   error = {
     tiles = {
@@ -176,8 +200,12 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
   drawtype = "nodebox",
   node_box = hub_nodebox,
+
   after_place_node = hub_after_place_node,
+
   yatm_network = hub_elegens_yatm_network,
+
+  refresh_infotext = hub_refresh_infotext,
 }, {
   error = {
     tiles = {

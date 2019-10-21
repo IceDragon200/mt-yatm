@@ -32,8 +32,8 @@ function ic:initialize()
   self.m_members_by_group = {}
   self.m_resolution_id = 0
 
-  yatm.clusters:observe('on_block_expired', 'yatm_data_network/block_unloader', function (block_entry)
-    self:unload_block(block_entry.id)
+  yatm.clusters:observe('on_block_expired', 'yatm_data_network/block_unloader', function (block_id)
+    self:unload_block(block_id)
   end)
 end
 
@@ -124,9 +124,9 @@ function ic:do_unregister_network_member(member)
   return self
 end
 
--- @spec register_member(Vector3.t, Node.t) :: DataNetwork.t
+-- @spec add_node(Vector3.t, Node.t) :: DataNetwork.t
 function ic:add_node(pos, node)
-  print("DataNetwork", "register_member", minetest.pos_to_string(pos), node.name)
+  print("DataNetwork", "add_node", minetest.pos_to_string(pos), node.name)
   local member_id = minetest.hash_node_position(pos)
   local member = self.m_members[member_id]
   if member then
@@ -184,7 +184,7 @@ function ic:upsert_member(pos, node)
   if member then
     return self:update_member(pos, node)
   else
-    return self:register_member(pos, node)
+    return self:add_node(pos, node)
   end
 end
 
@@ -227,7 +227,7 @@ function ic:send_value_to_network(network_id, member_id, local_port, value)
         print("ERR: ", member.node.name, "port out of range", local_port, "expected to be between 1 and " .. port_offset.range)
       end
     else
-      print("WARN: ", member.node.name, "does not have an attached color; cannot send")
+      --print("WARN: ", member.node.name, "does not have an attached color; cannot send")
     end
   end
   return self
@@ -260,7 +260,7 @@ function ic:mark_ready_to_receive_in_network(network_id, member_id, local_port)
         print("ERR: ", member.node.name, "port out of range", local_port, "expected to be between 1 and " .. port_offset.range)
       end
     else
-      print("WARN: ", member.node.name, "does not have an attached color; cannot be readied for receive")
+      --print("WARN: ", member.node.name, "does not have an attached color; cannot be readied for receive")
     end
   end
   return self

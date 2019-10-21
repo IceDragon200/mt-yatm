@@ -1,6 +1,7 @@
 local cluster_devices = assert(yatm.cluster.devices)
+local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
-local Network = assert(yatm.spacetime.network)
+local spacetime_network = assert(yatm.spacetime.network)
 local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
 
 local teleporter_port_node_box = {
@@ -12,10 +13,13 @@ local teleporter_port_node_box = {
 
 local function teleporter_port_refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
+
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
+    cluster_energy:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "S.Address: " .. SpacetimeMeta.to_infotext(meta)
+
   meta:set_string("infotext", infotext)
 end
 
@@ -30,7 +34,7 @@ local function teleporter_port_after_place_node(pos, placer, itemstack, pointed_
 
   assert(SpacetimeMeta.get_address(new_meta) == address)
   local node = minetest.get_node(pos)
-  Network:maybe_register_node(pos, node)
+  spacetime_network:maybe_register_node(pos, node)
 
   yatm.devices.device_after_place_node(pos, placer, itemstack, pointed_thing)
 
@@ -41,7 +45,7 @@ end
 
 local function teleporter_port_on_destruct(pos)
   print("teleporter_port_on_destruct/1")
-  Network:unregister_device(pos)
+  spacetime_network:unregister_device(pos)
   yatm.devices.device_on_destruct(pos)
 end
 
@@ -72,7 +76,10 @@ local teleporter_port_yatm_network = {
     inactive = "yatm_spacetime:teleporter_port_inactive",
   },
   energy = {
+    capacity = 100,
     passive_lost = 5,
+    network_charge_bandwidth = 10,
+    startup_threshold = 20,
   },
 }
 

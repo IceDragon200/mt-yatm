@@ -10,8 +10,8 @@ function ic:initialize(description)
   self.m_members_by_group = {}
   self.m_members_by_block = {}
 
-  yatm.clusters:observe('on_block_expired', 'yatm_spacetime_network/block_unloader', function (block_entry)
-    self:unload_block(block_entry.id)
+  yatm.clusters:observe('on_block_expired', 'yatm_spacetime_network/block_unloader', function (block_id)
+    self:unload_block(block_id)
   end)
 end
 

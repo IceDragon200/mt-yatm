@@ -4,12 +4,14 @@
 
 ]]
 local cluster_devices = assert(yatm.cluster.devices)
+local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
 
 local condenser_yatm_network = {
   kind = "machine",
   groups = {
     machine_worker = 1,
+    energy_consumer = 1,
   },
   default_state = "off",
   states = {
@@ -26,11 +28,12 @@ local condenser_yatm_network = {
   }
 }
 
-function condenser_refresh_infotext(pos)
+local function condenser_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
+    cluster_energy:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
 
   meta:set_string("infotext", infotext)

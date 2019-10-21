@@ -1,4 +1,5 @@
 local cluster_devices = assert(yatm.cluster.devices)
+local cluster_energy = assert(yatm.cluster.energy)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
@@ -57,6 +58,7 @@ local function boiler_refresh_infotext(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
+    cluster_energy:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "Steam Tank: <" .. FluidStack.pretty_format(steam_fluid_stack, fluid_interface.capacity) .. ">\n" ..
     "Water Tank: <" .. FluidStack.pretty_format(water_fluid_stack, fluid_interface.capacity) .. ">"
@@ -165,9 +167,11 @@ yatm.devices.register_stateful_network_device({
 
   paramtype = "light",
   paramtype2 = "facedir",
-  yatm_network = yatm_core.table_merge(boiler_yatm_network, {state = "off"}),
+
+  yatm_network = boiler_yatm_network,
 
   fluid_interface = fluid_interface,
+
   refresh_infotext = boiler_refresh_infotext,
 }, {
   error = {

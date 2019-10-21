@@ -1,4 +1,6 @@
 local cluster_devices = assert(yatm.cluster.devices)
+local cluster_energy = assert(yatm.cluster.energy)
+local Energy = assert(yatm.energy)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
@@ -31,6 +33,7 @@ local STEAM_TANK = "steam_tank"
 local function get_fluid_tank_name(_self, pos, dir)
   local node = minetest.get_node(pos)
   local new_dir = yatm_core.facedir_to_face(node.param2, dir)
+
   if new_dir == yatm_core.D_DOWN then
     return WATER_TANK, capacity
   elseif new_dir == yatm_core.D_EAST or
@@ -58,6 +61,7 @@ function steam_turbine_refresh_infotext(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
+    cluster_energy:get_node_infotext(pos) .. "\n" ..
     "Water Tank: " .. FluidStack.pretty_format(water_tank_fluid_stack, fluid_interface.capacity) .. "\n" ..
     "Steam Tank: " .. FluidStack.pretty_format(steam_tank_fluid_stack, fluid_interface.capacity)
 
