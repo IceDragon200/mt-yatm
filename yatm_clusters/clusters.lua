@@ -315,6 +315,8 @@ local ic = Clusters.instance_class
 function ic:initialize()
   self.m_counter = 0
 
+  self.m_acc_dtime = 0
+
   -- Clusters
   self.m_cluster_id = 0
   -- Clusters (Cluster ID > Cluster)
@@ -614,15 +616,21 @@ function ic:update(dtime)
   --
   self:_resolve_node_events(dtime)
 
-  --
-  -- Run update logic against clusters with systems
-  --
-  self:_update_systems(dtime)
+  self.m_acc_dtime = self.m_acc_dtime + dtime
 
-  --
-  -- Run any other cluster updates
-  --
-  self:_update_clusters(dtime)
+  while self.m_acc_dtime > 0.25 do
+    self.m_acc_dtime = self.m_acc_dtime - 0.25
+
+    --
+    -- Run update logic against clusters with systems
+    --
+    self:_update_systems(0.25)
+
+    --
+    -- Run any other cluster updates
+    --
+    self:_update_clusters(0.25)
+  end
 end
 
 function ic:_update_active_blocks(dtime)
