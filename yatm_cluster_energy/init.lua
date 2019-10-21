@@ -1,4 +1,3 @@
-local yatm_cluster_energy =
 yatm_cluster_energy = rawget(_G, "yatm_cluster_energy") or {}
 yatm_cluster_energy.modpath = minetest.get_modpath(minetest.get_current_modname())
 

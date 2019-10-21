@@ -1,15 +1,17 @@
 --
 -- Servers provide a means to automate certain tasks in a network (i.e. crafting)
 --
+local cluster_devices = assert(yatm.cluster.devices)
+local cluster_energy = assert(yatm.cluster.energy)
 local data_network = assert(yatm.data_network)
 local Energy = assert(yatm.energy)
-local cluster_devices = assert(yatm.cluster.devices)
 
 local function server_refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
+    cluster_energy:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     data_network:get_infotext(pos)
 
@@ -47,7 +49,7 @@ local server_yatm_network = {
   energy = {
     capacity = 16000,
     network_charge_bandwidth = 200,
-    passive_lost = 50,
+    passive_lost = 0,
     startup_threshold = 400,
   }
 }
@@ -58,7 +60,7 @@ function server_yatm_network.work(pos, node, energy_available, work_rate, dtime,
   data_network:mark_ready_to_receive(pos, 3)
   data_network:mark_ready_to_receive(pos, 4)
   data_network:mark_ready_to_receive(pos, 5)
-  return 0
+  return 50
 end
 
 yatm.devices.register_stateful_network_device({

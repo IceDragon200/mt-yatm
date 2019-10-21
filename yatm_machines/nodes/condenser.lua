@@ -9,8 +9,7 @@ local Energy = assert(yatm.energy)
 local condenser_yatm_network = {
   kind = "machine",
   groups = {
-    machine = 1,
-    has_update = 1, -- the device should be updated every network step
+    machine_worker = 1,
   },
   default_state = "off",
   states = {
@@ -18,6 +17,12 @@ local condenser_yatm_network = {
     error = "yatm_machines:condenser_error",
     off = "yatm_machines:condenser_off",
     on = "yatm_machines:condenser_on",
+  },
+  energy = {
+    capacity = 4000,
+    network_charge_bandwidth = 200,
+    passive_lost = 50,
+    startup_threshold = 400,
   }
 }
 
@@ -49,8 +54,8 @@ end
 
 local fluid_interface = yatm.fluids.FluidInterface.new_directional(get_fluid_tank_name)
 
-function condenser_yatm_network.update(pos, node, ot)
-  --
+function condenser_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
+  return 0
 end
 
 local groups = {

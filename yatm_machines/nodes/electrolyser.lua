@@ -1,9 +1,8 @@
 local electrolyser_yatm_network = {
   kind = "machine",
   groups = {
-    machine = 1,
+    machine_worker = 1,
     energy_consumer = 1,
-    has_update = 1, -- the device should be updated every network step
   },
   states = {
     conflict = "yatm_machines:electrolyser_error",
@@ -13,10 +12,11 @@ local electrolyser_yatm_network = {
   }
 }
 
-function electrolyser_yatm_network.update(pos, node)
+function electrolyser_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef then
   end
+  return 0
 end
 
 yatm.devices.register_network_device("yatm_machines:electrolyser_off", {

@@ -52,8 +52,13 @@ end
 
 function ic:schedule_add_node(pos, node)
   print(LOG_GROUP, 'schedule_add_node', minetest.pos_to_string(pos), node.name)
-  local groups = self:get_node_device_groups(node)
-  yatm.clusters:schedule_node_event(CLUSTER_GROUP, 'add_node', pos, node, { groups = groups })
+  local nodedef = minetest.registered_nodes[node.name]
+  if nodedef.groups['yatm_cluster_device'] then
+    local groups = self:get_node_device_groups(node)
+    yatm.clusters:schedule_node_event(CLUSTER_GROUP, 'add_node', pos, node, { groups = groups })
+  else
+    error("node violation: " .. node.name .. " does not belong to yatm_cluster_device group")
+  end
 end
 
 function ic:schedule_load_node(pos, node)

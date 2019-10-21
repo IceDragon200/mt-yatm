@@ -25,7 +25,8 @@ function ic:register_device(groups, pos, address)
   if self.m_members[member_id] then
     error("multiple registrations detected, did you mean to use `update_device/2`?" .. minetest.pos_to_string(pos))
   else
-    local block_id = yatm.clusters:mark_node_block(pos)
+    local node = minetest.get_node(pos)
+    local block_id = yatm.clusters:mark_node_block(pos, node)
 
     self.m_members[member_id] = {
       id = member_id,

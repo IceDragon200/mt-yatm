@@ -6,6 +6,7 @@
 
 ]]
 local cluster_devices = assert(yatm.cluster.devices)
+local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
 
 local compute_module_yatm_network = {
@@ -32,6 +33,7 @@ local function refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
+    cluster_energy:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
 
   meta:set_string("infotext", infotext)

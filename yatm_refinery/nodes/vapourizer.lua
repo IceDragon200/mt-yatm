@@ -13,7 +13,6 @@ local vapourizer_yatm_network = {
   groups = {
     machine_worker = 1, -- Use the machine worker behaviour
     energy_consumer = 1, -- This device consumes energy on the network
-    has_update = 1, -- the device should be updated every network step
   },
   default_state = "off",
   states = {

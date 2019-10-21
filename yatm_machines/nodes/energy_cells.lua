@@ -1,4 +1,5 @@
 local cluster_devices = assert(yatm.cluster.devices)
+local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
 local EnergyDevices = assert(yatm.energy.EnergyDevices)
 
@@ -28,6 +29,7 @@ local function energy_cell_refresh_infotext(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
+    cluster_energy:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, "internal", nodedef.yatm_network.energy.capacity) .. "\n" ..
     "Usable Energy: " .. tostring(usable)
 

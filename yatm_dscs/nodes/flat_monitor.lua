@@ -1,3 +1,20 @@
+--[[
+
+]]
+local cluster_devices = assert(yatm.cluster.devices)
+local cluster_energy = assert(yatm.cluster.energy)
+local Energy = assert(yatm.energy)
+
+local function refresh_infotext(pos, node)
+  local meta = minetest.get_meta(pos)
+  local infotext =
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
+    cluster_energy:get_node_infotext(pos) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
+
+  meta:set_string("infotext", infotext)
+end
+
 local flat_monitor_nodebox = {
   type = "fixed",
   fixed = {
@@ -54,6 +71,8 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
 
   yatm_network = monitor_console_yatm_network,
+
+  refresh_infotext = refresh_infotext,
 }, {
   error = {
     tiles = {
@@ -128,6 +147,8 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
 
   yatm_network = monitor_crafting_yatm_network,
+
+  refresh_infotext = refresh_infotext,
 }, {
   error = {
     tiles = {
@@ -185,11 +206,15 @@ yatm.devices.register_stateful_network_device({
     "yatm_monitor_back.png",
     "yatm_monitor_front.ele.off.png",
   },
-  paramtype = "light",
-  paramtype2 = "facedir",
-  yatm_network = monitor_ele_yatm_network,
   drawtype = "nodebox",
   node_box = flat_monitor_nodebox,
+
+  paramtype = "light",
+  paramtype2 = "facedir",
+
+  yatm_network = monitor_ele_yatm_network,
+
+  refresh_infotext = refresh_infotext,
 }, {
   error = {
     tiles = {
@@ -258,6 +283,8 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
 
   yatm_network = monitor_inventory_yatm_network,
+
+  refresh_infotext = refresh_infotext,
 }, {
   error = {
     tiles = {

@@ -10,6 +10,7 @@ yatm_clusters.modpath = minetest.get_modpath(minetest.get_current_modname())
 dofile(yatm_clusters.modpath .. "/clusters.lua")
 dofile(yatm_clusters.modpath .. "/node_tracing.lua")
 dofile(yatm_clusters.modpath .. "/generic_transport_network.lua")
+dofile(yatm_clusters.modpath .. "/simple_cluster.lua")
 
 dofile(yatm_clusters.modpath .. "/util/infotext.lua")
 

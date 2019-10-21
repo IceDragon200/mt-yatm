@@ -1,13 +1,26 @@
 local cluster_devices = assert(yatm.cluster.devices)
+local cluster_energy = assert(yatm.cluster.energy)
 
 local function cable_after_place_node(pos, placer, itemstack, pointed_thing)
   local node = minetest.get_node(pos)
-  cluster_devices:schedule_add_node(pos, node)
+  local nodedef = minetest.registered_nodes[node.name]
+  if nodedef.groups['yatm_cluster_device'] then
+    cluster_devices:schedule_add_node(pos, node)
+  end
+  if nodedef.groups['yatm_cluster_energy'] then
+    cluster_energy:schedule_add_node(pos, node)
+  end
 end
 
 local function cable_after_destruct(pos, old_node)
   -- let the system know it needs to refresh the network topography
-  cluster_devices:schedule_remove_node(pos, old_node)
+  local nodedef = minetest.registered_nodes[old_node.name]
+  if nodedef.groups['yatm_cluster_device'] then
+    cluster_devices:schedule_remove_node(pos, old_node)
+  end
+  if nodedef.groups['yatm_cluster_energy'] then
+    cluster_energy:schedule_remove_node(pos, old_node)
+  end
 end
 
 local function cable_transition_device_state(pos, node, state)
@@ -60,8 +73,10 @@ function yatm_cables.register_cable_state(params, size)
 
   -- configure the yatm network behaviour
   local cable_yatm_network = {
+    default_state = params.default_state,
     states = states, -- it has the following substates
     kind = "cable", -- this is a cable
+    color = params.cable_color or 'default',
     groups = {
       energy_cable = 1, -- this cable can transport energy
       network_cable = 1, -- this cable can be used for networking
@@ -134,6 +149,7 @@ function yatm_cables.register_cable(params, size)
   if type(params.states) == "table" then
     for _,state in ipairs(params.states) do
       local state_postfix = "." .. state
+
       yatm_cables.register_cable_state(yatm_core.table_merge(params, {
         state_postfix = state_postfix,
         state = state,
@@ -164,6 +180,7 @@ yatm_cables.register_cable({
     network_cable = 1,
     dense_cable = 1,
     yatm_cluster_device = 1,
+    yatm_cluster_energy = 1,
   },
 
   connects_to = {
@@ -189,6 +206,7 @@ yatm_cables.register_cable({
     network_cable = 1,
     medium_cable = 1,
     yatm_cluster_device = 1,
+    yatm_cluster_energy = 1,
   },
 
   connects_to = {
@@ -199,6 +217,7 @@ yatm_cables.register_cable({
 
   postfix = "_15",
 }, 6 * yatm_core.PX16)
+
 yatm_cables.register_cable({
   name = "yatm_cables:small_cable",
   description = "Small Cable",
@@ -215,6 +234,7 @@ yatm_cables.register_cable({
     network_cable = 1,
     small_cable = 1,
     yatm_cluster_device = 1,
+    yatm_cluster_energy = 1,
   },
 
   connects_to = {
@@ -226,7 +246,7 @@ yatm_cables.register_cable({
   postfix = "_15",
 }, 4 * yatm_core.PX16)
 
--- Glass cables are data cables, they do not carry power
+-- Glass cables are device cables, they do not carry power
 local glass_sounds = default.node_sound_glass_defaults()
 yatm_cables.register_cable({
   name = "yatm_cables:pipe_glass", -- TODO: rename to glass_cable
@@ -308,7 +328,7 @@ yatm_cables.register_cable({
     cracky = 1,
     any_cable = 1,
     energy_cable = 1,
-    yatm_cluster_device = 1,
+    yatm_cluster_energy = 1,
   },
 
   connects_to = {
@@ -329,7 +349,7 @@ yatm_cables.register_cable({
     cracky = 1,
     any_cable = 1,
     energy_cable = 1,
-    yatm_cluster_device = 1,
+    yatm_cluster_energy = 1,
   },
 
   connects_to = {
@@ -340,7 +360,9 @@ yatm_cables.register_cable({
   postfix = "_15",
 }, 4 * yatm_core.PX16)
 
-
+--
+-- Copper Cables only carry energy
+--
 yatm_cables.register_cable({
   name = "yatm_cables:copper_cable_uninsulated",
   description = "Copper Cable",
@@ -352,7 +374,7 @@ yatm_cables.register_cable({
     copper_cable = 1,
     copper_cable_uninsulated = 1,
     energy_cable = 1,
-    yatm_cluster_device = 1,
+    yatm_cluster_energy = 1,
   },
 
   connects_to = {
@@ -384,7 +406,7 @@ do
       copper_cable = 1,
       [colored_group_name] = 1,
       energy_cable = 1,
-      yatm_cluster_device = 1,
+      yatm_cluster_energy = 1,
     }
 
     local node_name = "yatm_cables:copper_cable_" .. color_basename
@@ -394,6 +416,8 @@ do
       description = "Copper Cable",
       texture_basename = "yatm_copper_cable_" .. color_basename .. ".on",
       states = false,
+
+      cable_color = color_basename,
 
       groups = groups,
       connects_to = {

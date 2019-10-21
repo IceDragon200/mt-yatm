@@ -1,7 +1,8 @@
 --
 -- A Cluster is single network of nodes
 --
-local is_table_empty = yatm_core.is_table_empty
+local is_table_empty = assert(yatm_core.is_table_empty)
+local table_length = assert(yatm_core.table_length)
 local vector3 = yatm_core.vector3
 
 local hash_pos = minetest.hash_node_position
@@ -24,8 +25,24 @@ function ic:terminate(reason)
   print("Terminating Cluster cluster_id=" .. self.id .. " reason=" .. reason)
 end
 
+function ic:size()
+  return table_length(self.m_nodes)
+end
+
 function ic:is_empty()
   return is_table_empty(self.m_nodes)
+end
+
+function ic:inspect()
+  return dump({
+    id = self.id,
+    groups = self.groups,
+    assigns = self.assigns,
+    nodes = self.m_nodes,
+    block_nodes = self.m_block_nodes,
+    group_nodes = self.m_group_nodes,
+    pinned = self.pinned,
+  })
 end
 
 function ic:merge(other_cluster)
@@ -40,11 +57,21 @@ function ic:merge(other_cluster)
   end
 
   for block_id, block_nodes in pairs(other_cluster.m_block_nodes) do
-    self.m_block_nodes[block_id] = block_nodes
+    if not self.m_block_nodes[block_id] then
+      self.m_block_nodes[block_id] = {}
+    end
+    for node_id,value in pairs(block_nodes) do
+      self.m_block_nodes[block_id][node_id] = value
+    end
   end
 
   for group_id, group_nodes in pairs(other_cluster.m_group_nodes) do
-    self.m_group_nodes[group_id] = group_nodes
+    if not self.m_group_nodes[group_id] then
+      self.m_group_nodes[group_id] = {}
+    end
+    for node_id,value in pairs(group_nodes) do
+      self.m_group_nodes[group_id][node_id] = value
+    end
   end
 
   for key, value in pairs(other_cluster.assigns) do
@@ -60,23 +87,27 @@ function ic:move_nodes_from_cluster(other_cluster, nodes_to_transfer)
     local node_entry = other_cluster.m_nodes[node_id]
     self.m_nodes[node_id] = node_entry
     other_cluster.m_nodes[node_id] = nil
-
-    if node_entry then
-      self:_refresh_node_entry(node_entry)
-    end
+    self:_refresh_node_entry(node_entry)
   end
 end
 
 function ic:_refresh_node_entry(node_entry)
-  for group_name, group_value in pairs(node_entry.groups) do
-    if not self.m_group_nodes[group_name] then
-      self.m_group_nodes[group_name] = {}
+  for group_id, group_value in pairs(node_entry.groups) do
+    if not self.m_group_nodes[group_id] then
+      self.m_group_nodes[group_id] = {}
     end
 
-    self.m_group_nodes[group_name][node_entry.id] = group_value
+    --[[
+    print("clusters.cluster", "cluster_id=" .. self.id,
+                              "node=" .. node_entry.node.name,
+                              "pos=" .. minetest.pos_to_string(node_entry.pos),
+                              "group=" .. group_id,
+                              "adding to group")]]
+
+    self.m_group_nodes[group_id][node_entry.id] = group_value
   end
 
-  local block_id = yatm.clusters:mark_node_block(node_entry.pos)
+  local block_id = yatm.clusters:mark_node_block(node_entry.pos, node_entry.node)
   node_entry.block_id = block_id
 
   if not self.m_block_nodes[block_id] then
@@ -89,6 +120,7 @@ function ic:add_node(pos, node, groups)
   local node_id = hash_pos(pos)
 
   if self.m_nodes[node_id] then
+    print("duplicate not registration", node_id)
     return false, "duplicate node registration"
   else
     self.m_nodes[node_id] = {
@@ -223,7 +255,16 @@ function ic:reduce_nodes(acc, reducer)
   return acc
 end
 
+--
+-- @type reducer :: (node_entry :: NodeEntry, acc :: term) =>
+--                  {continue_reduce :: boolean, acc :: term}
+-- @spec reduce_nodes_of_groups([string], acc :: term, reducer) :: acc
 function ic:reduce_nodes_of_groups(groups, acc, reducer)
+  if type(groups) == "string" then
+    groups = {groups}
+  end
+  assert(type(groups) == "table", "expected groups to be table")
+
   local primary_group = groups[1]
   local groups_count = #groups
   local primary_list = self.m_group_nodes[primary_group]
@@ -306,7 +347,7 @@ end
 
 function ic:schedule_node_event(cluster_group, event_name, pos, node, params)
   assert(pos, "need a position")
-  print("clusters", "schedule_node_event", cluster_group, event_name, minetest.pos_to_string(pos), node.name)
+  --print("clusters", "schedule_node_event", cluster_group, event_name, minetest.pos_to_string(pos), node.name)
   local node_id = minetest.hash_node_position(pos)
   if not self.m_queued_node_events[node_id] then
     self.m_queued_node_events[node_id] = {}
@@ -324,12 +365,13 @@ end
 --
 -- Node Blocks
 --
-function ic:mark_node_block(pos)
+function ic:mark_node_block(pos, node)
   assert(pos, "expected a node position")
+  assert(node, "expected a node")
   local block_pos = vector3.idiv({}, pos, MAP_BLOCK_SIZE3)
   local block_hash = minetest.hash_node_position(block_pos)
 
-  print("clusters", "mark_node_block", minetest.pos_to_string(pos))
+  print("clusters", "mark_node_block", minetest.pos_to_string(pos), dump(node.name))
   -- mark the block as still active
   self.m_active_blocks[block_hash] = {
     id = block_hash,
@@ -427,9 +469,16 @@ function ic:remove_cluster(cluster_id)
   print("clusters", "remove_cluster", cluster_id)
 
   local cluster = self.m_clusters[cluster_id]
+  self:_cleanup_cluster(cluster)
+
+  self.m_clusters[cluster_id] = nil
+  return cluster
+end
+
+function ic:_cleanup_cluster(cluster)
   for group_name, _group_value in pairs(cluster.groups) do
     if self.m_group_clusters[group_name] then
-      self.m_group_clusters[group_name][cluster_id] = nil
+      self.m_group_clusters[group_name][cluster.id] = nil
     end
 
     if is_table_empty(self.m_group_clusters[group_name]) then
@@ -438,22 +487,20 @@ function ic:remove_cluster(cluster_id)
   end
 
   cluster:reduce_nodes(0, function (node_entry, acc)
-    self:_remove_node_from_cluster_groups(cluster_id, node_entry.pos, node_entry.node)
+    self:_remove_node_from_cluster_groups(cluster.id, node_entry.pos, node_entry.node)
     return true, acc + 1
   end)
-
-  self.m_clusters[cluster_id] = nil
-  return cluster
 end
 
-function ic:destroy_cluster(cluster_id)
+function ic:destroy_cluster(cluster_id, reason)
   print("clusters", "destroy_cluster", cluster_id)
 
   local cluster = self:remove_cluster(cluster_id)
   if cluster then
-    cluster:terminate('destroy')
+    cluster:terminate(reason or 'destroy')
     self:_on_cluster_destroyed(cluster)
   end
+
   return cluster
 end
 
@@ -658,13 +705,15 @@ function ic:_update_clusters(dtime)
 
   if contains_empty_clusters then
     local old_clusters = self.m_clusters
-    self.m_clusters = {}
-    for cluster_id, cluster in pairs(old_clusters) do
-      if cluster.pinned or not cluster:is_empty() then
-        self.m_clusters[cluster_id] = cluster
-      else
-        cluster:terminate('empty')
+    local dead_clusters = {}
+    for cluster_id, cluster in pairs(self.m_clusters) do
+      if not cluster.pinned and cluster:is_empty() then
+        dead_clusters[cluster_id] = true
       end
+    end
+
+    for cluster_id, _ in pairs(dead_clusters) do
+      self:destroy_cluster(cluster_id, 'empty')
     end
   end
 end
