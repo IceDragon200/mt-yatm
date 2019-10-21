@@ -64,7 +64,7 @@ local function computer_after_place_node(pos, _placer, _item_stack, _pointed_thi
   meta:set_string("secret", "comp." .. secret)
 
   yatm.computers:create_computer(pos, node, secret, {})
-  data_network:register_member(pos, node)
+  data_network:add_node(pos, node)
   yatm.devices.device_after_place_node(pos, node)
 end
 

@@ -125,7 +125,7 @@ function ic:do_unregister_network_member(member)
 end
 
 -- @spec register_member(Vector3.t, Node.t) :: DataNetwork.t
-function ic:register_member(pos, node)
+function ic:add_node(pos, node)
   print("DataNetwork", "register_member", minetest.pos_to_string(pos), node.name)
   local member_id = minetest.hash_node_position(pos)
   local member = self.m_members[member_id]

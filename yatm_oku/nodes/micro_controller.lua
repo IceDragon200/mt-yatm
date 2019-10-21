@@ -91,7 +91,7 @@ local function micro_controller_after_place_node(pos, _placer, _item_stack, _poi
   -- Initialize secret
   local secret = yatm_core.random_string(8)
   meta:set_string("secret", "mctl." .. secret)
-  data_network:register_member(pos, node)
+  data_network:add_node(pos, node)
 
   yatm.computers:create_computer(pos, node, secret, {
     memory_size = 16 * 4, -- 16 ins * 4 bytes wide

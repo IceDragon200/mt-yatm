@@ -182,7 +182,7 @@ end
 local function fluid_sensor_after_place_node(pos, _placer, _item_stack, _pointed_thin)
   print("fluid_sensor_after_place_node", minetest.pos_to_string(pos))
   local node = minetest.get_node(pos)
-  data_network:register_member(pos, node)
+  data_network:add_node(pos, node)
 end
 
 local function fluid_sensor_on_destruct(pos, old_node)
