@@ -88,6 +88,9 @@ function ic:handle_node_event(cls, generation_id, event, node_clusters)
   elseif event.event_name == 'add_node' then
     self:_handle_add_node(cls, generation_id, event, node_clusters)
 
+  elseif event.event_name == 'update_node' then
+    self:_handle_update_node(cls, generation_id, event, node_clusters)
+
   elseif event.event_name == 'remove_node' then
     self:_handle_remove_node(cls, generation_id, event, node_clusters)
 
@@ -164,6 +167,21 @@ function ic:_handle_add_node(cls, generation_id, event, node_clusters)
   cls:schedule_node_event(CLUSTER_GROUP, 'refresh_controller',
                            event.pos, event.node,
                            { cluster_id = cluster.id, generation_id = generation_id })
+end
+
+function ic:_handle_update_node(cls, generation_id, event, node_clusters)
+  local cluster_id =
+    cls:reduce_node_clusters(event.pos, nil, function (cluster, acc)
+      if cluster.groups[CLUSTER_GROUP] then
+        return false, cluster.id
+      else
+        return true, acc
+      end
+    end)
+
+  if cluster_id then
+    cls:update_node_in_cluster(cluster_id, event.pos, event.node, event.params.groups)
+  end
 end
 
 function ic:_handle_remove_node(cls, generation_id, event, node_clusters)
