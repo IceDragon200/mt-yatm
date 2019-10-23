@@ -25,7 +25,7 @@ yatm_core.DIR6 = {
   yatm_core.D_SOUTH,
   yatm_core.D_WEST,
   yatm_core.D_DOWN,
-  yatm_core.D_Up,
+  yatm_core.D_UP,
 }
 
 -- Vectors, repsenting the directions
