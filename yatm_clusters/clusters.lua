@@ -145,6 +145,15 @@ function ic:get_node(pos)
   return self.m_nodes[node_id]
 end
 
+function ic:get_node_group(pos, group_name)
+  local entry = self:get_node(pos)
+
+  if entry then
+    return entry.groups[group_name] or 0
+  end
+  return 0
+end
+
 function ic:update_node(pos, node, groups)
   local node_id = hash_pos(pos)
   local old_node_entry = self.m_nodes[node_id]
@@ -301,6 +310,19 @@ function ic:reduce_nodes_of_groups(groups, acc, reducer)
     end
   end
   return acc
+end
+
+function ic:get_nodes_of_group(group_name)
+  local member_list = self.m_group_nodes[group_name]
+  local result = {}
+  if member_list then
+    local i = 0
+    for node_id,_ in pairs(member_list) do
+      i = i + 1
+      result[i] = self.m_nodes[node_id]
+    end
+  end
+  return result
 end
 
 --
@@ -541,6 +563,11 @@ function ic:_add_node_id_to_cluster_groups(node_id, cluster_id)
   self.m_node_clusters[node_id][cluster_id] = true
 end
 
+function ic:update_node_in_cluster(cluster_id, pos, node, groups)
+  local cluster = self.m_clusters[cluster_id]
+  cluster:update_node(pos, node, groups)
+end
+
 function ic:remove_node_from_cluster(cluster_id, pos, node)
   local cluster = self.m_clusters[cluster_id]
   cluster:remove_node(pos, node)
@@ -561,6 +588,25 @@ function ic:_remove_node_id_from_cluster_groups(cluster_id, node_id)
       self.m_node_clusters[node_id] = nil
     end
   end
+end
+
+function ic:get_cluster_by_pos_and_group(pos, group_name)
+  local node_id = minetest.hash_node_position(pos)
+
+  local cluster_ids = self.m_node_clusters[node_id]
+  if cluster_ids then
+    for cluster_id, _ in pairs(cluster_ids) do
+      local cluster = self:get_cluster(cluster_id)
+
+      if cluster then
+        if cluster.groups[group_name] then
+          return cluster
+        end
+      end
+    end
+  end
+
+  return nil
 end
 
 function ic:reduce_node_clusters(pos, acc, reducer)
@@ -675,9 +721,9 @@ function ic:_resolve_node_events(dtime)
         local handler = self.m_node_event_handlers[event.cluster_group]
 
         if handler then
-          local clusters = self.m_group_clusters[event.cluster_group]
+          local cluster_ids = self.m_group_clusters[event.cluster_group]
 
-          handler(self, self.m_counter, event, clusters)
+          handler(self, self.m_counter, event, cluster_ids)
         end
       end
     end
