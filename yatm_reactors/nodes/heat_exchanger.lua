@@ -14,6 +14,7 @@ local heat_exchanger_reactor_device = {
 
   groups = {
     heat_exchanger = 1,
+    device = 1,
   },
 
   default_state = "off",

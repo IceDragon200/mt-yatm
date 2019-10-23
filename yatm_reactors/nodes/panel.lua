@@ -1,3 +1,14 @@
+local cluster_reactor = assert(yatm.cluster.reactor)
+
+local function panel_refresh_infotext(pos, node)
+  local meta = minetest.get_meta(pos)
+
+  local infotext =
+    cluster_reactor:get_node_infotext(pos)
+
+  meta:set_string("infotext", infotext)
+end
+
 for variant, variant_texture_name in pairs({
   ["plain"] = "plain",
   ["red_black_stripes"] = "rb.stripes",
@@ -13,6 +24,7 @@ for variant, variant_texture_name in pairs({
 
     groups = {
       panel = 1,
+      structure = 1,
     },
 
     default_state = "_default",
@@ -32,17 +44,24 @@ for variant, variant_texture_name in pairs({
       --"yatm_reactor_layers_panel.plain.png",
     },
     --drawtype = "glasslike_framed",
+
     paramtype = "light",
     paramtype2 = "facedir",
+
     reactor_device = panel_reactor_device,
+    refresh_infotext = panel_refresh_infotext,
   })
 
   local casing_reactor_device = {
-    kind = "machine",
+    kind = "casing",
+
     groups = {
-      reactor = 1,
-      reactor_panel = 1,
+      casing = 1,
+      structure = 1,
     },
+
+    default_state = "_default",
+
     states = {
       _default = "yatm_reactors:casing_" .. variant
     }
@@ -58,8 +77,12 @@ for variant, variant_texture_name in pairs({
       "yatm_reactor_casing." .. variant_texture_name .. ".png",
     },
     --drawtype = "glasslike_framed",
+
     paramtype = "light",
     paramtype2 = "facedir",
+
     reactor_device = casing_reactor_device,
+
+    refresh_infotext = panel_refresh_infotext,
   })
 end

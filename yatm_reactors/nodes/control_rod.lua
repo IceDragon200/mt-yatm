@@ -15,6 +15,7 @@ local control_rod_open_reactor_device = {
   groups = {
     control_rod_casing = 1,
     control_rod_open = 1,
+    device = 1,
   },
 
   default_state = "off",
@@ -56,6 +57,8 @@ for _, variant in ipairs({"uranium", "plutonium", "radium"}) do
 
     groups = {
       control_rod = 1,
+      ["control_rod_" .. variant] = 1,
+      device = 1,
     },
 
     default_state = "off",

@@ -8,10 +8,15 @@ end
 function ic:update(cls, cluster, dtime)
   --print("Updating Cluster", network.id)
   cluster:reduce_nodes_of_groups({"controller"}, 0, function (node_entry, acc)
-    cluster:reduce_nodes_of_groups({"control_rod"}, 0, function (node_entry, acc)
-      --print(dump(pos), dump(node))
-      return true, acc + 1
-    end)
+    local node = minetest.get_node(node_entry.pos)
+    local nodedef = minetest.registered_nodes[node.name]
+
+    if nodedef.reactor_device.state == "on" then
+      cluster:reduce_nodes_of_groups({"control_rod"}, 0, function (node_entry, acc)
+        --print(dump(pos), dump(node))
+        return true, acc + 1
+      end)
+    end
     return false, acc
   end)
 end

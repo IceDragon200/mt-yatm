@@ -1,10 +1,12 @@
 local cluster_reactor = assert(yatm.cluster.reactor)
+local data_network = assert(yatm.data_network)
 
 local function data_bus_refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
 
   local infotext =
-    cluster_reactor:get_node_infotext(pos)
+    cluster_reactor:get_node_infotext(pos) .. "\n" ..
+    data_network:get_infotext(pos)
 
   meta:set_string("infotext", infotext)
 end
@@ -18,8 +20,9 @@ for _, variant in ipairs({"hazard", "coolant", "signal"}) do
   local data_bus_reactor_device = {
     kind = "machine",
     groups = {
-      reactor = 1,
-      reactor_data_bus = 1,
+      data_bus = 1,
+      device = 1,
+      ["data_bus_" .. variant] = 1,
     },
     default_state = "off",
     states = {

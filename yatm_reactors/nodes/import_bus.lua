@@ -24,6 +24,7 @@ for _, variant_pair in ipairs(variants) do
 
     groups = {
       import_bus = 1,
+      device = 1,
     },
 
     default_state = "off",

@@ -9,6 +9,56 @@ local function reactor_controller_refresh_infotext(pos, node)
   meta:set_string("infotext", infotext)
 end
 
+local function get_reactor_controller_formspec(pos, node)
+  local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+
+  local formspec =
+    "size[8,9]"
+
+  if node.name == "yatm_reactors:reactor_controller_on" then
+    formspec = formspec .. "button[1,1;4,2;stop;Stop]"
+  else
+    formspec = formspec .. "button[1,1;4,2;start;Start]"
+  end
+
+  formspec =
+    formspec ..
+    "list[current_player;main;0,4.85;8,1;]" ..
+    "list[current_player;main;0,6.08;8,3;8]" ..
+    default.get_hotbar_bg(0,4.85)
+
+  return formspec
+end
+
+local function reactor_controller_on_receive_fields(player, formname, fields, assigns)
+  local node = minetest.get_node(assigns.pos)
+  --local nodedef = minetest.registered_nodes[node.name]
+
+  if fields["start"] then
+    --node.name = nodedef.reactor_device.states.on
+    cluster_reactor:schedule_start_reactor(assigns.pos, node)
+  elseif fields["stop"] then
+    --node.name = nodedef.reactor_device.states.off
+    cluster_reactor:schedule_stop_reactor(assigns.pos, node)
+  end
+
+  --minetest.swap_node(assigns.pos, node)
+
+  return true
+end
+
+local function reactor_controller_on_rightclick(pos, node, clicker)
+  local formspec_name = "yatm_reactors:reactor_controller:" .. minetest.pos_to_string(pos)
+  yatm_core.bind_on_player_receive_fields(formspec_name,
+                                          { pos = pos, node = node },
+                                          reactor_controller_on_receive_fields)
+  minetest.show_formspec(
+    clicker:get_player_name(),
+    formspec_name,
+    get_reactor_controller_formspec(pos, node)
+  )
+end
+
 local reactor_controller_reactor_device = {
   kind = "controller",
 
@@ -48,6 +98,8 @@ yatm_reactors.register_stateful_reactor_node({
   reactor_device = reactor_controller_reactor_device,
 
   refresh_infotext = reactor_controller_refresh_infotext,
+
+  on_rightclick = reactor_controller_on_rightclick,
 }, {
   error = {
     tiles = {
