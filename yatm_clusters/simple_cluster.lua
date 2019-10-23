@@ -70,18 +70,21 @@ function ic:schedule_remove_node(pos, node)
   yatm.clusters:schedule_node_event(self.m_cluster_group, 'remove_node', pos, node, { })
 end
 
-function ic:handle_node_event(cls, generation_id, event, node_clusters)
+function ic:handle_node_event(cls, generation_id, event, cluster_ids)
   print(self.m_log_group, 'event', event.event_name, generation_id, minetest.pos_to_string(event.pos))
 
   if event.event_name == 'load_node' then
     -- treat loads like adding a node
-    self:_handle_add_node(cls, generation_id, event, node_clusters)
+    self:_handle_add_node(cls, generation_id, event, cluster_ids)
 
   elseif event.event_name == 'add_node' then
-    self:_handle_add_node(cls, generation_id, event, node_clusters)
+    self:_handle_add_node(cls, generation_id, event, cluster_ids)
+
+  elseif event.event_name == 'update_node' then
+    self:_handle_update_node(cls, generation_id, event, cluster_ids)
 
   elseif event.event_name == 'remove_node' then
-    self:_handle_remove_node(cls, generation_id, event, node_clusters)
+    self:_handle_remove_node(cls, generation_id, event, cluster_ids)
 
   else
     print(self.m_log_group, "unhandled event event_name=" .. event.event_name)
@@ -105,17 +108,17 @@ function ic:is_compatible_colors(a, b)
   end
 end
 
-function ic:find_compatible_neighbours(cls, origin, node, node_clusters)
+function ic:find_compatible_neighbours(cls, origin, node, cluster_ids)
   -- pull up all neighbouring nodes from the given clusters
   local neighbours = {}
 
   local color = self:get_node_color(node)
 
-  if node_clusters and not is_table_empty(node_clusters) then
+  if cluster_ids and not is_table_empty(cluster_ids) then
     for dir6, vec3 in pairs(DIR6_TO_VEC3) do
       local npos = vector.add(origin, vec3)
 
-      for cluster_id, _ in pairs(node_clusters) do
+      for cluster_id, _ in pairs(cluster_ids) do
         local cluster = cls:get_cluster(cluster_id)
         if cluster then
           local node_entry = cluster:get_node(npos)
@@ -139,8 +142,8 @@ function ic:find_compatible_neighbours(cls, origin, node, node_clusters)
   return neighbours
 end
 
-function ic:_handle_add_node(cls, generation_id, event, node_clusters)
-  local neighbours = self:find_compatible_neighbours(cls, event.pos, event.node, node_clusters)
+function ic:_handle_add_node(cls, generation_id, event, given_cluster_ids)
+  local neighbours = self:find_compatible_neighbours(cls, event.pos, event.node, given_cluster_ids)
 
   local cluster
   if is_table_empty(neighbours) then
@@ -164,9 +167,25 @@ function ic:_handle_add_node(cls, generation_id, event, node_clusters)
     end
   end
 
+  yatm.queue_refresh_infotext(event.pos, event.node)
+
   cls:add_node_to_cluster(cluster.id, event.pos, event.node, event.params.groups)
 
   cluster.assigns.generation_id = generation_id
+end
+
+function ic:_handle_update_node(cls, generation_id, event, given_cluster_ids)
+  local cluster
+  for cluster_id, _ in pairs(given_cluster_ids) do
+    local ncluster = cls:get_cluster(cluster_id)
+    if ncluster and ncluster.groups[self.m_cluster_group] then
+      cluster = ncluster
+    end
+  end
+
+  if cluster then
+    cls:update_node_in_cluster(cluster.id, event.pos, event.node, event.params.groups)
+  end
 end
 
 function ic:mark_accessible_dirs(pos, node, accessible_dirs)
@@ -262,7 +281,7 @@ function ic:scan_for_branches(origin, node)
   return branches
 end
 
-function ic:_handle_remove_node(cls, generation_id, event, node_clusters)
+function ic:_handle_remove_node(cls, generation_id, event, _cluster_ids)
   -- TODO:
   local cluster_id =
     cls:reduce_node_clusters(event.pos, nil, function (cluster, acc)
