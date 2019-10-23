@@ -52,6 +52,14 @@ function devices.device_transition_device_state(pos, node, state)
       node = minetest.get_node(pos)
       node.name = new_node_name
       minetest.swap_node(pos, node)
+
+      if nodedef.groups['yatm_cluster_device'] then
+        cluster_devices:schedule_update_node(pos, node)
+      end
+
+      if nodedef.groups['yatm_cluster_energy'] then
+        cluster_energy:schedule_update_node(pos, node)
+      end
     end
   end
   yatm.queue_refresh_infotext(pos, node)
