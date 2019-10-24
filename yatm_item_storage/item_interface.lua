@@ -41,6 +41,7 @@ local function default_insert_item(self, pos, dir, item_stack, commit)
       local new_list, remaining = InventoryList.merge_stack(list, item_stack)
       if commit then
         inv:set_list(self.inventory_name, new_list)
+        self:on_insert_item(pos, dir, item_stack)
       end
       return remaining
     else
@@ -48,6 +49,14 @@ local function default_insert_item(self, pos, dir, item_stack, commit)
     end
   end
   return nil, "insert not allowed"
+end
+
+local function default_on_insert_item(self, pos, dir, item_stack)
+  -- nothing
+end
+
+local function default_on_extract_item(self, pos, dir, item_stack_or_count)
+  -- nothing
 end
 
 local function default_extract_item(self, pos, dir, item_stack_or_count, commit)
@@ -59,6 +68,7 @@ local function default_extract_item(self, pos, dir, item_stack_or_count, commit)
       local new_list, extracted = InventoryList.extract_stack(list, item_stack_or_count)
       if commit then
         inv:set_list(self.inventory_name, new_list)
+        self:on_extract_item(pos, dir, item_stack_or_count)
       end
       return extracted
     else
@@ -138,6 +148,9 @@ function ItemInterface.new()
     allow_replace_item = default_allow_replace_item,
     allow_insert_item = default_allow_insert_item,
     allow_extract_item = default_allow_extract_item,
+
+    on_insert_item = default_on_insert_item,
+    on_extract_item = default_on_extract_item,
   }
 
   return item_interface
