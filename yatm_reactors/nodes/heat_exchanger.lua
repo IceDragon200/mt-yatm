@@ -33,6 +33,7 @@ yatm_reactors.register_stateful_reactor_node({
   description = "Reactor Heat Exchanger",
   groups = {
     cracky = 1,
+    heater_device = 1,
     yatm_cluster_thermal = 1
   },
 
