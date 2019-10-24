@@ -1,4 +1,5 @@
 local cluster_devices = assert(yatm.cluster.devices)
+local cluster_energy = assert(yatm.cluster.energy)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidUtils = assert(yatm.fluids.Utils)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
@@ -56,6 +57,7 @@ function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, 
   local energy_produced = 0
   local meta = minetest.get_meta(pos)
   local fluid_stack = FluidMeta.get_fluid_stack(meta, "tank")
+
   if fluid_stack and fluid_stack.amount > 0 then
     local fluid = FluidRegistry.get_fluid(fluid_stack.name)
     if fluid then
@@ -86,6 +88,8 @@ function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, 
     end
   end
 
+  meta:set_int("last_energy_produced", energy_produced)
+
   if need_refresh then
     yatm.queue_refresh_infotext(pos, node)
   end
@@ -100,7 +104,9 @@ function combustion_engine_refresh_infotext(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
-    "Tank: " .. FluidStack.pretty_format(tank_fluid_stack, fluid_interface.capacity)
+    cluster_energy:get_node_infotext(pos) .. "\n" ..
+    "Tank: " .. FluidStack.pretty_format(tank_fluid_stack, fluid_interface.capacity) .. "\n" ..
+    "Last Energy Produced: " .. meta:get_int("last_energy_produced")
 
   meta:set_string("infotext", infotext)
 end
