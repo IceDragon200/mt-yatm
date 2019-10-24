@@ -17,7 +17,7 @@ local groups = {
   cracky = 1,
   item_interface_in = 1,
   item_interface_out = 1,
-  heated_device = 1,
+  heatable_device = 1,
   heat_interface_in = 1,
 }
 

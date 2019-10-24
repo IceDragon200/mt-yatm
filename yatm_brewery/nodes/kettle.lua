@@ -139,7 +139,7 @@ local groups = {
   fluid_interface_out = 1,
   -- Heat Interface groups
   heat_interface_in = 1,
-  heated_device = 1,
+  heatable_device = 1,
 }
 
 local kettle_node_box = {

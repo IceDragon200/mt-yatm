@@ -1,5 +1,31 @@
 local cluster_devices = assert(yatm.cluster.devices)
+local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
+
+local function get_electric_furnace_formspec(pos)
+  local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+  local formspec =
+    "size[8,9]" ..
+    "list[current_player;main;0,4.85;8,1;]" ..
+    "list[current_player;main;0,6.08;8,3;8]" ..
+    default.get_hotbar_bg(0,4.85)
+
+  return formspec
+end
+
+local function electric_furnace_refresh_infotext(pos)
+  local meta = minetest.get_meta(pos)
+
+  -- We only really care about the integral heat, it's only a float because of the dtime.
+  local heat = math.floor(meta:get_float("heat"))
+
+  local infotext =
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
+    cluster_energy:get_node_infotext(pos) .. "\n" ..
+    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
+
+  meta:set_string("infotext", infotext)
+end
 
 local electric_furnace_yatm_network = {
   kind = "machine",
@@ -57,6 +83,8 @@ yatm.devices.register_stateful_network_device({
 
   yatm_network = electric_furnace_yatm_network,
 
+  refresh_infotext = electric_furnace_refresh_infotext,
+
   on_construct = function (pos)
     yatm.devices.device_on_construct(pos)
     local meta = minetest.get_meta(pos)
@@ -69,7 +97,7 @@ yatm.devices.register_stateful_network_device({
     minetest.show_formspec(
       clicker:get_player_name(),
       "yatm_foundry:electric_furnace",
-      get_electric_smelter_formspec(pos)
+      get_electric_furnace_formspec(pos)
     )
   end,
 }, {

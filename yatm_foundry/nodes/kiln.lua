@@ -15,11 +15,12 @@ end
 
 local function kiln_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
-  local heat = meta:get_float("heat")
+  local heat = math.floor(meta:get_float("heat"))
 
-  meta:set_string("infotext",
+  local infotext =
     "Heat: " .. heat .. " / " .. heat_interface.heat_capacity
-  )
+
+  meta:set_string("infotext", infotext)
 end
 
 local groups = {

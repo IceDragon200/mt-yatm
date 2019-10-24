@@ -1,4 +1,6 @@
 local cluster_devices = assert(yatm.cluster.devices)
+local cluster_energy = assert(yatm.cluster.energy)
+local cluster_thermal = assert(yatm.cluster.thermal)
 local Energy = assert(yatm.energy)
 local HeatableDevice = assert(yatm.heating.HeatableDevice)
 
@@ -49,6 +51,8 @@ local function electric_heater_refresh_infotext(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
+    cluster_energy:get_node_infotext(pos) .. "\n" ..
+    cluster_thermal:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "Heat: " .. heat .. " / " .. HEAT_MAX
 
