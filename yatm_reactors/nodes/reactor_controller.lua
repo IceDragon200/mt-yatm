@@ -73,6 +73,7 @@ local reactor_controller_reactor_device = {
     error = "yatm_reactors:reactor_controller_error",
     off = "yatm_reactors:reactor_controller_off",
     on = "yatm_reactors:reactor_controller_on",
+    idle = "yatm_reactors:reactor_controller_idle",
   }
 }
 
@@ -119,6 +120,16 @@ yatm_reactors.register_stateful_reactor_node({
       "yatm_reactor_casing.plain.png^[transformFX",
       "yatm_reactor_casing.plain.png",
       "yatm_reactor_controller_front.on.png"
+    },
+  },
+  idle = {
+    tiles = {
+      "yatm_reactor_casing.plain.png",
+      "yatm_reactor_casing.plain.png",
+      "yatm_reactor_casing.plain.png",
+      "yatm_reactor_casing.plain.png^[transformFX",
+      "yatm_reactor_casing.plain.png",
+      "yatm_reactor_controller_front.idle.png"
     },
   }
 })

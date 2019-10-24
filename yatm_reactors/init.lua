@@ -7,3 +7,7 @@ dofile(yatm_reactors.modpath .. "/hooks.lua")
 dofile(yatm_reactors.modpath .. "/api.lua")
 
 dofile(yatm_reactors.modpath .. "/nodes.lua")
+
+dofile(yatm_reactors.modpath .. "/migrations.lua")
+
+--dofile(yatm_reactors.modpath .. "/tests.lua")

@@ -1,10 +1,12 @@
 local cluster_reactor = assert(yatm.cluster.reactor)
+local cluster_thermal = assert(yatm.cluster.thermal)
 
 local function heat_exchanger_refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
 
   local infotext =
-    cluster_reactor:get_node_infotext(pos)
+    cluster_reactor:get_node_infotext(pos) .. "\n" ..
+    cluster_thermal:get_node_infotext(pos)
 
   meta:set_string("infotext", infotext)
 end
@@ -29,8 +31,13 @@ local heat_exchanger_reactor_device = {
 
 yatm_reactors.register_stateful_reactor_node({
   description = "Reactor Heat Exchanger",
-  groups = {cracky = 1},
+  groups = {
+    cracky = 1,
+    yatm_cluster_thermal = 1
+  },
+
   drop = heat_exchanger_reactor_device.states.off,
+
   tiles = {
     "yatm_reactor_casing.plain.png",
     "yatm_reactor_casing.plain.png",

@@ -13,29 +13,29 @@ local control_rod_open_reactor_device = {
   kind = "control_rod",
 
   groups = {
-    control_rod_casing = 1,
-    control_rod_open = 1,
+    control_rod = 1,
     device = 1,
   },
 
   default_state = "off",
 
   states = {
-    conflict = "yatm_reactors:control_rod_open",
-    error = "yatm_reactors:control_rod_open",
-    off = "yatm_reactors:control_rod_open",
-    on = "yatm_reactors:control_rod_open",
+    conflict = "yatm_reactors:control_rod_case_error",
+    error = "yatm_reactors:control_rod_case_error",
+    off = "yatm_reactors:control_rod_case_off",
+    on = "yatm_reactors:control_rod_case_on",
+    idle = "yatm_reactors:control_rod_case_idle",
   }
 }
 
-yatm_reactors.register_reactor_node("yatm_reactors:control_rod_open", {
-  description = "Control Rod (Unoccupied)",
+yatm_reactors.register_stateful_reactor_node({
+  description = "Control Rod",
   groups = {cracky = 1},
 
   drop = control_rod_open_reactor_device.states.off,
 
   tiles = {
-    "yatm_reactor_control_rod.open.png",
+    "yatm_reactor_control_rod_top.off.png",
     "yatm_reactor_casing.plain.png",
     "yatm_reactor_casing.plain.png",
     "yatm_reactor_casing.plain.png^[transformFX",
@@ -49,75 +49,37 @@ yatm_reactors.register_reactor_node("yatm_reactors:control_rod_open", {
   reactor_device = control_rod_open_reactor_device,
 
   refresh_infotext = control_rod_refresh_infotext,
-})
-
-local function update_control_rod(pos, node, state, dtime)
-end
-
-for _, variant in ipairs({"uranium", "plutonium", "radium"}) do
-  local control_rod_reactor_device = {
-    kind = "machine",
-
-    groups = {
-      control_rod = 1,
-      ["control_rod_" .. variant] = 1,
-      device = 1,
-    },
-
-    default_state = "off",
-
-    states = {
-      conflict = "yatm_reactors:control_rod_close_" .. variant .. "_error",
-      error = "yatm_reactors:control_rod_close_" .. variant .. "_error",
-      off = "yatm_reactors:control_rod_close_" .. variant .. "_off",
-      on = "yatm_reactors:control_rod_close_" .. variant .. "_on",
-    }
-  }
-
-  control_rod_reactor_device.update_control_rod = update_control_rod
-
-  yatm_reactors.register_stateful_reactor_node({
-    description = "Reactor Control Rod (" .. variant .. ")",
-
-    groups = {cracky = 1},
-
-    drop = control_rod_reactor_device.states.off,
-
+}, {
+  error = {
     tiles = {
-      "yatm_reactor_control_rod.close." .. variant .. ".png",
+      "yatm_reactor_control_rod_top.error.png",
       "yatm_reactor_casing.plain.png",
       "yatm_reactor_casing.plain.png",
       "yatm_reactor_casing.plain.png^[transformFX",
       "yatm_reactor_casing.plain.png",
       "yatm_reactor_casing.plain.png",
     },
+  },
 
-    paramtype = "light",
-    paramtype2 = "facedir",
-
-    reactor_device = control_rod_reactor_device,
-
-    refresh_infotext = control_rod_refresh_infotext,
-  }, {
-    error = {
-      tiles = {
-        "yatm_reactor_control_rod.close." .. variant .. ".png",
-        "yatm_reactor_casing.plain.png",
-        "yatm_reactor_casing.plain.png",
-        "yatm_reactor_casing.plain.png^[transformFX",
-        "yatm_reactor_casing.plain.png",
-        "yatm_reactor_casing.plain.png",
-      },
+  on = {
+    tiles = {
+      "yatm_reactor_control_rod_top.on.png",
+      "yatm_reactor_casing.plain.png",
+      "yatm_reactor_casing.plain.png",
+      "yatm_reactor_casing.plain.png^[transformFX",
+      "yatm_reactor_casing.plain.png",
+      "yatm_reactor_casing.plain.png",
     },
-    on = {
-      tiles = {
-        "yatm_reactor_control_rod.close." .. variant .. ".png",
-        "yatm_reactor_casing.plain.png",
-        "yatm_reactor_casing.plain.png",
-        "yatm_reactor_casing.plain.png^[transformFX",
-        "yatm_reactor_casing.plain.png",
-        "yatm_reactor_casing.plain.png",
-      },
+  },
+
+  idle = {
+    tiles = {
+      "yatm_reactor_control_rod_top.idle.png",
+      "yatm_reactor_casing.plain.png",
+      "yatm_reactor_casing.plain.png",
+      "yatm_reactor_casing.plain.png^[transformFX",
+      "yatm_reactor_casing.plain.png",
+      "yatm_reactor_casing.plain.png",
     },
-  })
-end
+  }
+})

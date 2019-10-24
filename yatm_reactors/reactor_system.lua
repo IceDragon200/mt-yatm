@@ -5,11 +5,11 @@ function ic:initialize()
   ic._super.initialize(self)
 end
 
-local function update_control_rod(node_entry, context)
+local function update_fuel_rod(node_entry, context)
   local node = minetest.get_node(node_entry.pos)
   local nodedef = minetest.registered_nodes[node.name]
 
-  nodedef.reactor_device.update_control_rod(node_entry.pos, node, context, context.dtime)
+  nodedef.reactor_device.update_fuel_rod(node_entry.pos, node, context, context.dtime)
   return true, context
 end
 
@@ -19,13 +19,15 @@ function ic:update(cls, cluster, dtime)
     local node = minetest.get_node(node_entry.pos)
     local nodedef = minetest.registered_nodes[node.name]
 
-    if nodedef.reactor_device.state == "on" then
-      context = {
-        dtime = dtime,
-        heat = 0,
-        energy = 0,
-      }
-      cluster:reduce_nodes_of_groups({"control_rod"}, context, update_control_rod)
+    if nodedef.reactor_device then
+      if nodedef.reactor_device.state == "on" then
+        local context = {
+          dtime = dtime,
+          heat = 0,
+          energy = 0,
+        }
+        cluster:reduce_nodes_of_groups({"fuel_rod"}, context, update_fuel_rod)
+      end
     end
     return false, acc
   end)
