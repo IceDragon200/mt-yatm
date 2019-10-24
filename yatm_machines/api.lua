@@ -129,7 +129,7 @@ function devices.worker_update(pos, node, dtime, ot)
 
     meta:set_float("idle_time", idle_time)
 
-    if idle_time == 0 then
+    if idle_time <= 0 then
       local capacity = assert(ym.energy.capacity)
       local bandwidth = ym.work_energy_bandwidth or capacity
       local work_rate = 1.0
@@ -147,6 +147,8 @@ function devices.worker_update(pos, node, dtime, ot)
         yatm.queue_refresh_infotext(pos, node)
       end
       --print("devices.worker_update/3", minetest.pos_to_string(pos), dump(node.name), "consumed energy", consumed)
+    else
+      yatm.queue_refresh_infotext(pos, node)
     end
   end
 
