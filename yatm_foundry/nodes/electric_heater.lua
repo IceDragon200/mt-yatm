@@ -59,10 +59,16 @@ local function electric_heater_refresh_infotext(pos)
   meta:set_string("infotext", infotext)
 end
 
+local groups = {
+  cracky = 1,
+  heater_device = 1,
+  yatm_energy_device = 1
+}
+
 yatm.devices.register_stateful_network_device({
   description = "Electric Heater",
 
-  groups = { cracky = 1, heater_device = 1 },
+  groups = groups,
 
   drop = heater_yatm_network.states.off,
 
