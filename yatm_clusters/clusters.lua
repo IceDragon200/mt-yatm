@@ -199,10 +199,10 @@ function ic:remove_node(pos, node, reason)
     for group_name,group_value in pairs(node_entry.groups) do
       if self.m_group_nodes[group_name] then
         self.m_group_nodes[group_name][node_id] = nil
-      end
 
-      if is_table_empty(self.m_group_nodes[group_name]) then
-        self.m_group_nodes[group_name] = nil
+        if is_table_empty(self.m_group_nodes[group_name]) then
+          self.m_group_nodes[group_name] = nil
+        end
       end
     end
 
@@ -373,9 +373,11 @@ function ic:schedule_node_event(cluster_group, event_name, pos, node, params)
   assert(pos, "need a position")
   --print("clusters", "schedule_node_event", cluster_group, event_name, minetest.pos_to_string(pos), node.name)
   local node_id = minetest.hash_node_position(pos)
+
   if not self.m_queued_node_events[node_id] then
     self.m_queued_node_events[node_id] = {}
   end
+
   table.insert(self.m_queued_node_events[node_id],
                 {
                   cluster_group = cluster_group,
