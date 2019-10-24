@@ -51,6 +51,9 @@ yatm_reactors.register_reactor_node("yatm_reactors:control_rod_open", {
   refresh_infotext = control_rod_refresh_infotext,
 })
 
+local function update_control_rod(pos, node, state, dtime)
+end
+
 for _, variant in ipairs({"uranium", "plutonium", "radium"}) do
   local control_rod_reactor_device = {
     kind = "machine",
@@ -70,6 +73,8 @@ for _, variant in ipairs({"uranium", "plutonium", "radium"}) do
       on = "yatm_reactors:control_rod_close_" .. variant .. "_on",
     }
   }
+
+  control_rod_reactor_device.update_control_rod = update_control_rod
 
   yatm_reactors.register_stateful_reactor_node({
     description = "Reactor Control Rod (" .. variant .. ")",

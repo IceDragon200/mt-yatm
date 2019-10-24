@@ -20,6 +20,8 @@ function yatm_reactors.register_reactor_node(name, nodedef)
   assert(name, "expected a name")
   assert(nodedef, "expected a nodedef")
 
+  assert(nodedef.reactor_device, "expected a reactor_device definition")
+
   nodedef.groups = nodedef.groups or {}
   nodedef.groups['yatm_cluster_reactor'] = 1
 
@@ -33,6 +35,10 @@ function yatm_reactors.register_reactor_node(name, nodedef)
 
   if nodedef.transition_reactor_state == nil then
     nodedef.transition_reactor_state = yatm_reactors.default_transition_reactor_state
+  end
+
+  if nodedef.reactor_device.groups['control_rod'] then
+    assert(nodedef.reactor_device.update_control_rod, "expected a control rod to define a update_control_rod function")
   end
 
   return minetest.register_node(name, nodedef)

@@ -5,6 +5,14 @@ function ic:initialize()
   ic._super.initialize(self)
 end
 
+local function update_control_rod(node_entry, context)
+  local node = minetest.get_node(node_entry.pos)
+  local nodedef = minetest.registered_nodes[node.name]
+
+  nodedef.reactor_device.update_control_rod(node_entry.pos, node, context, context.dtime)
+  return true, context
+end
+
 function ic:update(cls, cluster, dtime)
   --print("Updating Cluster", network.id)
   cluster:reduce_nodes_of_groups({"controller"}, 0, function (node_entry, acc)
@@ -12,10 +20,12 @@ function ic:update(cls, cluster, dtime)
     local nodedef = minetest.registered_nodes[node.name]
 
     if nodedef.reactor_device.state == "on" then
-      cluster:reduce_nodes_of_groups({"control_rod"}, 0, function (node_entry, acc)
-        --print(dump(pos), dump(node))
-        return true, acc + 1
-      end)
+      context = {
+        dtime = dtime,
+        heat = 0,
+        energy = 0,
+      }
+      cluster:reduce_nodes_of_groups({"control_rod"}, context, update_control_rod)
     end
     return false, acc
   end)
