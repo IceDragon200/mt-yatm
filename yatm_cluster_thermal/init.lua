@@ -6,4 +6,6 @@ dofile(yatm_cluster_thermal.modpath .. "/thermal_cluster.lua")
 dofile(yatm_cluster_thermal.modpath .. "/api.lua")
 dofile(yatm_cluster_thermal.modpath .. "/hooks.lua")
 
+dofile(yatm_cluster_thermal.modpath .. "/nodes.lua")
+
 dofile(yatm_cluster_thermal.modpath .. "/tests.lua")
