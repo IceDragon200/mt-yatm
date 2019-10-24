@@ -71,23 +71,34 @@ function FluidRegistry.register_fluid_tank(modname, fluid_name, nodedef)
 
   local fluid_tank_def = {
     description = "Fluid Tank (" .. (fluiddef.description or fluid_name) .. ")",
+
     groups = groups,
+
     drop = "yatm_fluids:fluid_tank",
+
     tiles = fluid_tank_tiles,
+
     special_tiles = {
       get_fluid_tile(fluiddef),
     },
+
     drawtype = "glasslike_framed",
+
     paramtype = "light",
     paramtype2 = "glasslikeliquidlevel",
+
     is_ground_content = false,
     sunlight_propogates = true,
+
     light_source = nodedef.light_source,
+
     sounds = default.node_sound_glass_defaults(),
+
     after_place_node = function (pos, _placer, _itemstack, _pointed_thing)
       yatm.fluids.FluidTanks.replace_fluid(pos, yatm_core.D_NONE,
         yatm.fluids.FluidStack.new(fluiddef.name, tank_fluid_interface.capacity), true)
     end,
+
     fluid_interface = tank_fluid_interface,
     connects_to = {"group:fluid_tank"},
   }

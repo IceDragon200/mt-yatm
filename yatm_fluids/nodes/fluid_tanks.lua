@@ -15,18 +15,24 @@ minetest.register_node("yatm_fluids:fluid_tank", {
     fluid_interface_out = 1,
   },
   tiles = fluid_tank_tiles,
+
   special_tiles = {
   },
+
   drawtype = "glasslike_framed",
   paramtype = "light",
   paramtype2 = "glasslikeliquidlevel",
+
   is_ground_content = false,
   sunlight_propogates = true,
   sounds = default.node_sound_glass_defaults(),
+
   after_place_node = function (pos)
     FluidTanks.replace_fluid(pos, yatm_core.D_NONE, FluidStack.new_empty(), true)
   end,
+
   fluid_interface = assert(yatm_fluids.fluid_tank_fluid_interface),
+
   connects_to = {"group:fluid_tank"},
 })
 
@@ -40,6 +46,7 @@ minetest.register_abm({
   action = function (pos, node)
     local fluid_stack = FluidTanks.drain_fluid(pos, yatm_core.V3_DOWN,
       FluidStack.new_wildcard(yatm_fluids.fluid_tank_fluid_interface.bandwidth), false)
+
     if fluid_stack and fluid_stack.amount > 0 then
       local below_pos = vector.add(pos, yatm_core.V3_DOWN)
       local filled_stack = FluidTanks.fill_fluid(below_pos, yatm_core.D_UP, fluid_stack, true)

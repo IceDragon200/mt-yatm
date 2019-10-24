@@ -71,7 +71,6 @@ yatm_core.vector3.mul = yatm_core.vector3.multiply
 yatm_core.vector3.div = yatm_core.vector3.divide
 yatm_core.vector3.idiv = yatm_core.vector3.idivide
 
-
 yatm_core.vector4 = {}
 
 function yatm_core.vector4.new(x, y, z, w)
