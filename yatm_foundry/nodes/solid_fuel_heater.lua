@@ -124,6 +124,10 @@ end
 
 local solid_fuel_heater_item_interface = ItemInterface.new_simple("fuel_slot")
 
+function solid_fuel_heater_item_interface:on_insert_item(pos, dir, item_stack)
+  minetest.get_node_timer(pos):start(1.0)
+end
+
 function solid_fuel_heater_item_interface:allow_insert_item(pos, dir, item_stack)
   if is_item_solid_fuel(item_stack) then
     return true
