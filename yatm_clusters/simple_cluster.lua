@@ -1,7 +1,7 @@
-local is_table_empty = yatm_core.is_table_empty
-local table_keys = yatm_core.table_keys
-local table_length = yatm_core.table_length
-local DIR6_TO_VEC3 = yatm_core.DIR6_TO_VEC3
+local is_table_empty = assert(yatm_core.is_table_empty)
+local table_keys = assert(yatm_core.table_keys)
+local table_length = assert(yatm_core.table_length)
+local DIR6_TO_VEC3 = assert(yatm_core.DIR6_TO_VEC3)
 
 local SimpleCluster = yatm_core.Class:extends("SimpleCluster")
 local ic = SimpleCluster.instance_class
@@ -93,11 +93,10 @@ end
 
 function ic:get_node_color(node)
   local nodedef = minetest.registered_nodes[node.name]
-  if nodedef.yatm_network then
+  if nodedef and nodedef.yatm_network then
     return nodedef.yatm_network.color or 'default'
-  else
-    return nil
   end
+  return nil
 end
 
 function ic:is_compatible_colors(a, b)
@@ -145,6 +144,8 @@ end
 function ic:_handle_add_node(cls, generation_id, event, given_cluster_ids)
   local neighbours = self:find_compatible_neighbours(cls, event.pos, event.node, given_cluster_ids)
 
+  local needs_full_refresh = false
+
   local cluster
   if is_table_empty(neighbours) then
     -- need a new cluster for this node
@@ -164,14 +165,22 @@ function ic:_handle_add_node(cls, generation_id, event, given_cluster_ids)
     else
       -- merge the clusters and then join
       cluster = cls:merge_clusters(cluster_ids)
+      needs_full_refresh = true
     end
   end
 
-  yatm.queue_refresh_infotext(event.pos, event.node)
-
   cls:add_node_to_cluster(cluster.id, event.pos, event.node, event.params.groups)
 
+  yatm.queue_refresh_infotext(event.pos, event.node)
+
   cluster.assigns.generation_id = generation_id
+
+  if needs_full_refresh then
+    cluster:reduce_nodes(0, function (node_entry, acc)
+      yatm.queue_refresh_infotext(node_entry.pos, node_entry.node)
+      return true, acc + 1
+    end)
+  end
 end
 
 function ic:_handle_update_node(cls, generation_id, event, given_cluster_ids)
