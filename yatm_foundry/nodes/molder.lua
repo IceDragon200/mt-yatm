@@ -30,15 +30,19 @@ local function get_molder_formspec(pos)
 end
 
 local heat_interface = HeatInterface.new_simple("heat", 400)
+
 function heat_interface:on_heat_changed(pos, dir, old_heat, new_heat)
   local node = minetest.get_node(pos)
+
   if math.floor(new_heat) > 0 then
     node.name = "yatm_foundry:molder_on"
   else
     node.name = "yatm_foundry:molder_off"
   end
+
   minetest.swap_node(pos, node)
   yatm.queue_refresh_infotext(pos, node)
+
   minetest.get_node_timer(pos):start(1.0)
 end
 
