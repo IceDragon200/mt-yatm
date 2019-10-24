@@ -1,4 +1,5 @@
 local cluster_devices = assert(yatm.cluster.devices)
+local cluster_energy = assert(yatm.cluster.energy)
 local FluidRegistry = assert(yatm.fluids.FluidRegistry)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
@@ -82,11 +83,13 @@ function distillation_unit_yatm_network.work(pos, node, available_energy, work_r
   local need_refresh = false
   local meta = minetest.get_meta(pos)
   local fluid_stack = FluidMeta.get_fluid_stack(meta, INPUT_STEAM_TANK)
+
   if fluid_stack and fluid_stack.amount > 0 then
     -- limit the stack to only 100 units of fluid
     fluid_stack.amount = math.min(fluid_stack.amount, 100)
     local fluid_name = fluid_stack.name
     local recipe = DistillationRegistry:get_distillation_recipe(fluid_name)
+
     if recipe then
       local input_vapour_ratio = recipe.ratios[1]
       local distill_ratio = recipe.ratios[2]
@@ -118,7 +121,7 @@ function distillation_unit_yatm_network.work(pos, node, available_energy, work_r
         end
       end
     else
-      yatm.devices.set_idle(meta, 5)
+      yatm.devices.set_idle(meta, 3)
     end
   end
 
@@ -172,6 +175,7 @@ function distillation_unit_refresh_infotext(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
+    cluster_energy:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "I.Steam Tank: " .. FluidStack.pretty_format(input_steam_fluid_stack, fluid_interface.capacity) .. "\n" ..
     "O.Steam Tank: " .. FluidStack.pretty_format(output_steam_fluid_stack, fluid_interface.capacity) .. "\n" ..
