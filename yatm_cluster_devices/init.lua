@@ -389,7 +389,7 @@ function ic:_handle_transition_state(cls, generation_id, event, node_clusters)
       return true, acc + 1
     end)
   else
-    print(LOG_GROUP, "cluster requested a transition_state but it no longer exists cluster_id=" .. cluster_id)
+    print(LOG_GROUP, "cluster requested a transition_state but it no longer exists cluster_id=" .. event.params.cluster_id)
   end
 end
 
