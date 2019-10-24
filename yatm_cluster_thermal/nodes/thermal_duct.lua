@@ -51,4 +51,23 @@ minetest.register_node("yatm_cluster_thermal:thermal_duct", {
   after_destruct = function (pos, node)
     cluster_thermal:schedule_remove_node(pos, node)
   end,
+
+  transfer_heat = function (pos, node)
+    local meta = minetest.get_meta(pos)
+    local available_heat = meta:get_float("heat")
+    if available_heat > 0 then
+      for d6_code, d6_vec3 in pairs(yatm_core.DIR6_TO_VEC3) do
+        local npos = vector.add(pos, d6_vec3)
+
+        local nnode = minetest.get_node(npos)
+
+        if minetest.get_item_group(nnode, "thermal_duct") > 0 then
+          -- attempt to equalize the heat between ducts
+          local nmeta = minetest.get_meta(npos)
+        elseif minetest.get_item_group(nnode, "heatable_device") > 0 then
+          -- perform normal heat transfer
+        end
+      end
+    end
+  end
 })
