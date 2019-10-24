@@ -32,12 +32,12 @@ minetest.register_globalstep(yatm.clusters:method("update"))
 
 yatm.clusters:register_node_event_handler('refresh_infotext', function (_cls, _counter, event, _clusters)
   local pos = event.pos
-  local node = event.node
+  local node = minetest.get_node_or_nil(pos)
 
-  local nodedef = minetest.registered_nodes[node.name]
+  if node then
+    local nodedef = minetest.registered_nodes[node.name]
 
-  if nodedef then
-    if nodedef.refresh_infotext then
+    if nodedef and nodedef.refresh_infotext then
       local tracei = yatm_core.trace.new(node.name .. " refresh_infotext/2")
       nodedef.refresh_infotext(pos, node)
       yatm_core.trace.span_end(tracei)
