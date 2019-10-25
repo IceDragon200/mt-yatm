@@ -6,10 +6,12 @@ function ic:initialize()
 end
 
 local function update_fuel_rod(node_entry, context)
-  local node = minetest.get_node(node_entry.pos)
-  local nodedef = minetest.registered_nodes[node.name]
+  local node = minetest.get_node_or_nil(node_entry.pos)
+  if node then
+    local nodedef = minetest.registered_nodes[node.name]
 
-  nodedef.reactor_device.update_fuel_rod(node_entry.pos, node, context, context.dtime)
+    nodedef.reactor_device.update_fuel_rod(node_entry.pos, node, context, context.dtime)
+  end
   return true, context
 end
 

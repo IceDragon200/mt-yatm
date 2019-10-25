@@ -116,15 +116,19 @@ function ic:update(cls, cluster, dtime)
 
   local span = trace.span_start(ot, "has_update")
   cluster:reduce_nodes_of_groups("has_update", 0, function (node_entry, acc)
-    local node = minetest.get_node(node_entry.pos)
-    local nodedef = minetest.registered_nodes[node.name]
+    local pos = node_entry.pos
+    local node = minetest.get_node_or_nil(pos)
 
-    if nodedef.yatm_network and nodedef.yatm_network.update then
-      local tc = trace.span_start(span, node.name)
-      nodedef.yatm_network.update(node_entry.pos, node, dtime, tc)
-      trace.span_end(tc)
-    else
-      debug("network_device_update", "INVALID UPDATABLE DEVICE", pos.x, pos.y, pos.z, node.name)
+    if node then
+      local nodedef = minetest.registered_nodes[node.name]
+
+      if nodedef.yatm_network and nodedef.yatm_network.update then
+        local tc = trace.span_start(span, node.name)
+        nodedef.yatm_network.update(pos, node, dtime, tc)
+        trace.span_end(tc)
+      else
+        print("energy_system", "INVALID UPDATABLE DEVICE", pos.x, pos.y, pos.z, node.name)
+      end
     end
 
     return true, acc + 1
