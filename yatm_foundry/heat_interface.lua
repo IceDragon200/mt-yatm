@@ -25,6 +25,7 @@ function default_simple_receive_heat(self, pos, dir, heat_amount, commit)
 end
 
 function default_on_heat_changed(self, pos, dir, old_heat, new_heat)
+  --
 end
 
 function HeatInterface.new_simple(field_name, heat_capacity)

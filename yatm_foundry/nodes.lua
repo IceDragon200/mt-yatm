@@ -1,4 +1,6 @@
 dofile(yatm_foundry.modpath .. "/nodes/concrete.lua")
+dofile(yatm_foundry.modpath .. "/nodes/concrete_wall.lua")
+dofile(yatm_foundry.modpath .. "/nodes/retaining_wall.lua")
 dofile(yatm_foundry.modpath .. "/nodes/carbon_steel_block.lua")
 
 dofile(yatm_foundry.modpath .. "/nodes/electric_heater.lua")

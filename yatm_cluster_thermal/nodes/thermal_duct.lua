@@ -1,4 +1,5 @@
 local cluster_thermal = assert(yatm.cluster.thermal)
+local table_length = assert(yatm_core.table_length)
 
 -- A very thick duct
 local size = 12 / 16 / 2
@@ -55,19 +56,42 @@ minetest.register_node("yatm_cluster_thermal:thermal_duct", {
   transfer_heat = function (pos, node)
     local meta = minetest.get_meta(pos)
     local available_heat = meta:get_float("heat")
-    if available_heat > 0 then
+    -- Capture all the ducts
+    local ducts = {}
+    -- Other devices
+    local other_devices = {}
+
+    if available_heat <= 0 then
       for d6_code, d6_vec3 in pairs(yatm_core.DIR6_TO_VEC3) do
         local npos = vector.add(pos, d6_vec3)
-
         local nnode = minetest.get_node(npos)
 
         if minetest.get_item_group(nnode, "thermal_duct") > 0 then
           -- attempt to equalize the heat between ducts
           local nmeta = minetest.get_meta(npos)
+          local nheat = nmeta:get_float("heat")
+
+          if nheat < available_heat then
+            -- Only use ducts that have less heat than the one asking.
+            ducts[d6_code] = {
+              pos = npos,
+              node = nnode,
+              meta = nmeta
+            }
+          end
         elseif minetest.get_item_group(nnode, "heatable_device") > 0 then
           -- perform normal heat transfer
+          other_devices[d6_code] = {
+            pos = npos,
+            node = nnode,
+          }
         end
       end
+
+      local duct_count = table_length(ducts)
+      local other_device_count = table_length(other_devices)
+
+
     end
   end
 })
