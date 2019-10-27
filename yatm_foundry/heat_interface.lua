@@ -18,7 +18,8 @@ function default_simple_receive_heat(self, pos, dir, heat_amount, commit)
       self:on_heat_changed(pos, dir, current_heat, new_heat)
     end
 
-    return new_heat - current_heat, nil
+    -- due to some rounding errors
+    return math.min(new_heat - current_heat, heat_amount), nil
   else
     return 0, "receive heat not allowed"
   end
