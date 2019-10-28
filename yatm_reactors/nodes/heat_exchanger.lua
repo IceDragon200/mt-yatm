@@ -11,6 +11,10 @@ local function heat_exchanger_refresh_infotext(pos, node)
   meta:set_string("infotext", infotext)
 end
 
+local function heat_exchanger_transfer_heat(pos, node)
+  --
+end
+
 local heat_exchanger_reactor_device = {
   kind = "heat_exchanger",
 
@@ -53,6 +57,8 @@ yatm_reactors.register_stateful_reactor_node({
   reactor_device = heat_exchanger_reactor_device,
 
   refresh_infotext = heat_exchanger_refresh_infotext,
+
+  transfer_heat = heat_exchanger_transfer_heat,
 }, {
   error = {
     tiles = {
