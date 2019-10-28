@@ -29,6 +29,14 @@ local function mesecon_button_rules_get(node)
   return result
 end
 
+local mesecon_button_nodebox = {
+  type = "fixed",
+  fixed = {
+    {-0.5, -0.5, -0.5, 0.5, (3 / 16) - 0.5, 0.5}, -- Base
+    yatm_core.Cuboid:new(  3,  3,  3, 10,  1, 10):fast_node_box(), -- Button
+  }
+}
+
 for _,color in pairs(colors) do
   local color_basename = color[1]
   local color_name = color[2]
@@ -71,13 +79,7 @@ for _,color in pairs(colors) do
       "yatm_mesecon_button_" .. color_basename .. "_side.off.png",
     },
     drawtype = "nodebox",
-    node_box = {
-      type = "fixed",
-      fixed = {
-        {-0.5, -0.5, -0.5, 0.5, (3 / 16) - 0.5, 0.5}, -- Base
-        {(2 / 16) - 0.5, (3 / 16) - 0.5, (2 / 16) - 0.5, (14 / 16) - 0.5, (4 / 16) - 0.5, (14 / 16) - 0.5}, -- Button
-      }
-    },
+    node_box = mesecon_button_nodebox,
 
     mesecons = {
       receptor = {
