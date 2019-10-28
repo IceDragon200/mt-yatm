@@ -30,6 +30,7 @@ function ic:initialize()
   self.m_networks = {}
   self.m_members = {}
   self.m_members_by_group = {}
+  self.m_block_members = {}
   self.m_resolution_id = 0
 
   yatm.clusters:observe('on_block_expired', 'yatm_data_network/block_unloader', function (block_id)
@@ -152,7 +153,14 @@ function ic:add_node(pos, node)
     port_values = {}
   }
 
+  local block_id = yatm.clusters:mark_node_block(member.pos, member.node)
+  if not self.m_block_members[block_id] then
+    self.m_block_members[block_id] = {}
+  end
+  self.m_block_members[block_id][member_id] = true
+  member.block_id = block_id
   self.m_members[member_id] = member
+
   self:do_register_member_groups(member)
   self:queue_refresh(pos)
   return self
@@ -171,6 +179,7 @@ function ic:update_member(pos, node)
     local dnd = assert(nodedef.data_network_device)
     member.groups = dnd.groups or {}
     self:do_register_member_groups(member)
+    yatm.clusters:mark_node_block(member.pos, member.node)
   else
     error("no such member " .. minetest.pos_to_string(pos))
   end
@@ -198,6 +207,15 @@ function ic:unregister_member(pos, node)
     if member.network_id then
       self:do_unregister_network_member(member)
     end
+    if member.block_id then
+      if self.m_block_members[member.block_id] then
+        self.m_block_members[member.block_id][member_id] = nil
+
+        if is_table_empty(self.m_block_members[member.block_id]) then
+          self.m_block_members[member.block_id] = nil
+        end
+      end
+    end
     self.m_members[member_id] = nil
     self:queue_refresh(pos)
   end
@@ -205,6 +223,19 @@ function ic:unregister_member(pos, node)
 end
 
 function ic:unload_block(block_id)
+  local member_ids = self.m_block_members[block_id]
+
+  if member_ids then
+    self.m_block_members[block_id] = nil
+
+    for member_id,_ in pairs(member_ids) do
+      local member = self.m_members[member_id]
+
+      if member then
+        self:unregister_member(member.pos, member.node)
+      end
+    end
+  end
 end
 
 function ic:remove_network(network_id)
@@ -469,12 +500,15 @@ function ic:refresh_from_pos(base_pos)
       local nodedef = minetest.registered_nodes[node.name]
       local dnd = assert(nodedef.data_network_device)
 
+      local block_id = yatm.clusters:mark_node_block(pos, node)
+
       -- Now to re-register it without the register_member function
       -- Since that includes the side effect of causing yet another refresh...
       --
       -- members are indexed by their member_id (i.e the hash)
       self.m_members[member_id] = {
         id = member_id,
+        block_id = block_id,
         pos = pos,
         node = node,
         type = dnd.type,
@@ -485,10 +519,12 @@ function ic:refresh_from_pos(base_pos)
         port_values = {},
       }
 
-      network.members[member_id] = true
+      if not self.m_block_members[block_id] then
+        self.m_block_members[block_id] = {}
+      end
+      self.m_block_members[block_id][member_id] = true
 
-      -- ya know, I'm not too 100% on this actually...
-      yatm.queue_refresh_infotext(pos, node)
+      network.members[member_id] = true
     end
   end
 
@@ -518,6 +554,8 @@ function ic:refresh_from_pos(base_pos)
           end
         end
       end
+
+      yatm.queue_refresh_infotext(member.pos, member.node)
     end
   end
 end
