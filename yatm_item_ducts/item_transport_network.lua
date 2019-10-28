@@ -16,6 +16,14 @@ local ItemDevice = assert(yatm_item_storage.ItemDevice)
 local ItemTransportNetwork = GenericTransportNetwork:extends()
 local m = assert(ItemTransportNetwork.instance_class)
 
+function m:initialize(options)
+  m._super.initialize(self, options)
+
+  yatm.clusters:observe('on_block_expired', 'item_transport_network/block_unloader', function (block_id)
+    self:unload_block(block_id)
+  end)
+end
+
 function m:update_extractor_duct(extractor_hash, extractor, items_available)
   for vdir,v3 in pairs(DIR6_TO_VEC3) do
     local new_pos = vector.add(extractor.pos, v3)

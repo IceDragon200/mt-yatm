@@ -1,4 +1,4 @@
-local FluidTransportNetwork = assert(yatm.fluids.FluidTransportNetwork)
+local fluid_transport_cluster = assert(yatm.fluids.fluid_transport_cluster)
 
 local colors = {
   {"white", "White"}
@@ -13,7 +13,7 @@ colors = yatm_core.list_concat({{"default", "Default"}}, colors)
 
 local function pipe_after_place_node(pos, _placer, _itemstack, _pointed_thing)
   local node = minetest.get_node(pos)
-  FluidTransportNetwork:register_member(pos, node)
+  fluid_transport_cluster:register_member(pos, node)
 end
 
 local function pipe_on_destruct(pos)
@@ -22,7 +22,7 @@ end
 
 local function pipe_after_destruct(pos, _old_node)
   print("transporter_fluid_pipe_after_destruct", minetest.pos_to_string(pos))
-  FluidTransportNetwork:unregister_member(pos)
+  fluid_transport_cluster:unregister_member(pos)
 end
 
 local fsize = (6 / 16.0) / 2

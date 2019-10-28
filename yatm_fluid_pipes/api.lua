@@ -1,1 +1,1 @@
-yatm.fluids.FluidTransportNetwork = yatm_fluid_pipes.FluidTransportNetwork
+yatm.fluids.fluid_transport_cluster = yatm_fluid_pipes.fluid_transport_cluster

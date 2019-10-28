@@ -35,6 +35,14 @@ function inspect_node(pos, dir)
   end
 end
 
+function m:initialize(options)
+  m._super.initialize(self, options)
+
+  yatm.clusters:observe('on_block_expired', 'fluid_transport_network/block_unloader', function (block_id)
+    self:unload_block(block_id)
+  end)
+end
+
 function m:update_extractor_duct(extractor_hash, extractor, fluids_available)
   local wildcard_stack = FluidStack.new_wildcard(extractor.interface.bandwidth or 1000)
   for vdir,v3 in pairs(DIR6_TO_VEC3) do
@@ -132,7 +140,7 @@ function m:update_network(network, counter, delta)
   end
 end
 
-yatm_fluid_pipes.FluidTransportNetwork = FluidTransportNetwork:new({
+yatm_fluid_pipes.fluid_transport_cluster = FluidTransportNetwork:new({
   description = "Fluid Transport Network",
   abbr = "ftn",
   node_interface_name = "fluid_transport_device",
@@ -140,7 +148,7 @@ yatm_fluid_pipes.FluidTransportNetwork = FluidTransportNetwork:new({
 
 do
   minetest.register_globalstep(function (delta)
-    yatm_fluid_pipes.FluidTransportNetwork:update(delta)
+    yatm_fluid_pipes.fluid_transport_cluster:update(delta)
   end)
 
   minetest.register_lbm({
@@ -150,7 +158,7 @@ do
     },
     run_at_every_load = true,
     action = function (pos, node)
-      yatm_fluid_pipes.FluidTransportNetwork:register_member(pos, node)
+      yatm_fluid_pipes.fluid_transport_cluster:register_member(pos, node)
     end
   })
 end
