@@ -44,7 +44,7 @@ function m:initialize(options)
 end
 
 function m:update_extractor_duct(extractor_hash, extractor, fluids_available)
-  local wildcard_stack = FluidStack.new_wildcard(extractor.interface.bandwidth or 1000)
+  local wildcard_stack = FluidStack.new_wildcard(assert(extractor.interface.bandwidth))
   for vdir,v3 in pairs(DIR6_TO_VEC3) do
     if wildcard_stack.amount <= 0 then
       break
@@ -83,7 +83,7 @@ function m:update_inserter_duct(inserter_hash, inserter, fluids_available)
       local new_entries = {}
       for fin_node_hash,entry in pairs(entries) do
         local stack = entry.stack
-        local filling_stack = FluidStack.set_amount(stack, math.min(stack.amount, inserter.interface.bandwidth or 1000))
+        local filling_stack = FluidStack.set_amount(stack, math.min(stack.amount, assert(inserter.interface.bandwidth)))
         local used_stack, reason = FluidTanks.fill_fluid(target_pos, filling_dir, filling_stack, true)
         if used_stack and used_stack.amount > 0 then
           --print("Inserter", inspect_node(inserter.pos, vdir), "filled", inspect_node(target_pos, filling_dir), "with", FluidStack.to_string(stack), "from", inspect_node(entry.pos, entry.dir))

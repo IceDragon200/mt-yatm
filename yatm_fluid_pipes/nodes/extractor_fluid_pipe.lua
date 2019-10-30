@@ -62,7 +62,7 @@ minetest.register_node("yatm_fluid_pipes:extractor_fluid_pipe", {
   fluid_transport_device = {
     type = "extractor",
     subtype = "duct",
-    bandwidth = 1000,
+    bandwidth = 6000,
   },
 
   on_destruct = pipe_on_destruct,
