@@ -82,6 +82,8 @@ function distillation_unit_yatm_network.work(pos, node, available_energy, work_r
   local energy_consumed = 0
   local need_refresh = false
   local meta = minetest.get_meta(pos)
+  meta:set_int("work_counter", (meta:get_int("work_counter") or 0) + 1)
+
   local fluid_stack = FluidMeta.get_fluid_stack(meta, INPUT_STEAM_TANK)
 
   if fluid_stack and fluid_stack.amount > 0 then
@@ -117,10 +119,16 @@ function distillation_unit_yatm_network.work(pos, node, available_energy, work_r
 
           energy_consumed = energy_consumed + math.max(used_amount / 100, 1)
 
+          meta:set_string("error_text", nil)
+          need_refresh = true
+        else
+          meta:set_string("error_text", "distilled output mismatch")
           need_refresh = true
         end
+      else
+        meta:set_string("error_text", "no output or distilled fluid")
+        need_refresh = true
       end
-      meta:set_string("error_text", nil)
     else
       meta:set_string("error_text", "no recipe")
       need_refresh = true
@@ -177,9 +185,10 @@ function distillation_unit_refresh_infotext(pos)
   local distilled_fluid_stack = FluidMeta.get_fluid_stack(meta, DISTILLED_TANK)
 
   local error_text = meta:get_string("error_text")
+  local work_counter = meta:get_int("work_counter")
 
   local infotext =
-    cluster_devices:get_node_infotext(pos)
+    cluster_devices:get_node_infotext(pos) .. " [" .. work_counter .. "]"
 
   if error_text then
     infotext = infotext .. " (" .. error_text .. ")"
