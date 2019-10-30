@@ -20,4 +20,18 @@ function groups.put_item(object, key, value)
   return object
 end
 
+function groups.has_group(object, name, optional_rank)
+  if object.groups then
+    local value = object.groups[name]
+    if value then
+      if optional_rank then
+        return value >= optional_rank
+      else
+        return value > 0
+      end
+    end
+  end
+  return false
+end
+
 yatm_core.groups = groups

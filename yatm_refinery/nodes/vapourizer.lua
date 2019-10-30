@@ -54,24 +54,28 @@ function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
   yatm.queue_refresh_infotext(pos, node)
 end
 
+local auto_transfer = false
+
 function vapourizer_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
   local energy_consumed = 0
   local need_refresh = false
   local meta = minetest.get_meta(pos)
 
-  -- Fluid transfer from input
-  local input_tank_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_DOWN)
-  local input_tank_pos = vector.add(pos, yatm_core.DIR6_TO_VEC3[input_tank_dir])
+  if auto_transfer then
+    -- Fluid transfer from input
+    local input_tank_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_DOWN)
+    local input_tank_pos = vector.add(pos, yatm_core.DIR6_TO_VEC3[input_tank_dir])
 
-  local fs = FluidExchange.transfer_from_tank_to_meta(
-    input_tank_pos, yatm_core.invert_dir(input_tank_dir),
-    FluidStack.new_wildcard(1000),
-    meta, { tank_name = FLUID_TANK, capacity = fluid_interface.capacity, bandwidth = fluid_interface.bandwidth },
-    true
-  )
+    local fs = FluidExchange.transfer_from_tank_to_meta(
+      input_tank_pos, yatm_core.invert_dir(input_tank_dir),
+      FluidStack.new_wildcard(1000),
+      meta, { tank_name = FLUID_TANK, capacity = fluid_interface.capacity, bandwidth = fluid_interface.bandwidth },
+      true
+    )
 
-  if fs and fs.amount > 0 then
-    need_refresh = true
+    if fs and fs.amount > 0 then
+      need_refresh = true
+    end
   end
 
   -- Conversion
@@ -98,19 +102,34 @@ function vapourizer_yatm_network.work(pos, node, available_energy, work_rate, dt
     end
   end
 
-  -- Fluid transfer to output
-  local output_tank_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
-  local output_tank_pos = vector.add(pos, yatm_core.DIR6_TO_VEC3[output_tank_dir])
+  if auto_transfer then
+    -- Fluid transfer to output - and only to fluid_tanks
+    local output_tank_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
+    local output_tank_pos = vector.add(pos, yatm_core.DIR6_TO_VEC3[output_tank_dir])
 
-  local fs = FluidExchange.transfer_from_meta_to_tank(
-    meta, { tank_name = VAPOUR_TANK, capacity = fluid_interface.capacity, bandwidth = fluid_interface.capacity },
-    FluidStack.new_wildcard(100),
-    output_tank_pos, yatm_core.invert_dir(output_tank_dir),
-    true
-  )
+    local output_tank_node = minetest.get_node_or_nil(output_tank_pos)
 
-  if fs and fs.amount > 0 then
-    need_refresh = true
+    if output_tank_node then
+      local output_tank_nodedef = minetest.registered_nodes[output_tank_node.name]
+
+      if yatm_core.groups.has_group(output_tank_nodedef, 'fluid_tank') then
+        local fs = FluidExchange.transfer_from_meta_to_tank(
+          meta,
+          {
+            tank_name = VAPOUR_TANK,
+            capacity = fluid_interface.capacity,
+            bandwidth = fluid_interface.capacity
+          },
+          FluidStack.new_wildcard(100),
+          output_tank_pos, yatm_core.invert_dir(output_tank_dir),
+          true
+        )
+
+        if fs and fs.amount > 0 then
+          need_refresh = true
+        end
+      end
+    end
   end
 
   if need_refresh then
