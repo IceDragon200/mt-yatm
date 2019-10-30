@@ -50,6 +50,8 @@ local drive_case_yatm_network = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_dscs:drive_case",
+
   description = "Drive Case",
 
   groups = {

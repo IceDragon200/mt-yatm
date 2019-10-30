@@ -227,6 +227,8 @@ end
 -- Default Frame Motor
 --
 minetest.register_node("yatm_frames:frame_motor_default_off", {
+  basename = "yatm_frames:frame_motor_default",
+
   description = "Frame Motor",
 
   groups = {
@@ -251,6 +253,8 @@ minetest.register_node("yatm_frames:frame_motor_default_off", {
 
 
 minetest.register_node("yatm_frames:frame_motor_default_on", {
+  basename = "yatm_frames:frame_motor_default",
+
   description = "Frame Motor",
 
   groups = {
@@ -303,6 +307,8 @@ if mesecon then
   }
 
   minetest.register_node("yatm_frames:frame_motor_mesecon_off", {
+    basename = "yatm_frames:frame_motor_mesecon",
+
     description = "Mesecon Frame Motor",
 
     groups = {
@@ -329,6 +335,8 @@ if mesecon then
 
 
   minetest.register_node("yatm_frames:frame_motor_mesecon_on", {
+    basename = "yatm_frames:frame_motor_mesecon",
+
     description = "Mesecon Frame Motor",
 
     groups = {
@@ -389,6 +397,8 @@ if yatm_data_network then
   end
 
   minetest.register_node("yatm_frames:frame_motor_data_off", {
+    basename = "yatm_frames:frame_motor_data",
+
     description = "Data Frame Motor",
 
     groups = {
@@ -421,6 +431,8 @@ if yatm_data_network then
   })
 
   minetest.register_node("yatm_frames:frame_motor_data_on", {
+    basename = "yatm_frames:frame_motor_data",
+
     description = "Data Frame Motor",
 
     groups = {

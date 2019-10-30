@@ -54,6 +54,8 @@ local thermal_plate_side_on_texture = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_machines:thermal_plate_heating",
+
   description = "Thermal Plate (heating)",
 
   groups = {cracky = 1},
@@ -110,6 +112,8 @@ local thermal_plate_side_on_texture = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_machines:thermal_plate_cooling",
+
   description = "Thermal Plate (cooling)",
 
   groups = {cracky = 1},
@@ -175,6 +179,8 @@ local thermal_plate_side_on_texture = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_machines:thermal_plate_nuclear",
+
   description = "Thermal Plate (nuclear)",
 
   groups = {cracky = 1, nuclear_plate = 1},

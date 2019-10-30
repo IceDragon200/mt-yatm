@@ -36,13 +36,20 @@ end
 
 function devices.device_transition_device_state(pos, node, state)
   print("yatm_machines", "device_transition_device_state", minetest.pos_to_string(pos), "node=" .. node.name, "state=" .. state)
+
   local nodedef = minetest.registered_nodes[node.name]
+
   if nodedef.yatm_network.states then
     local new_node_name
+
     if state == "down" then
       new_node_name = nodedef.yatm_network.states['off']
     elseif state == "up" then
-      new_node_name = nodedef.yatm_network.states['on']
+      if nodedef.state == "idle" then
+        new_node_name = nodedef.yatm_network.states['idle']
+      else
+        new_node_name = nodedef.yatm_network.states['on']
+      end
     elseif state == "conflict" then
       new_node_name = nodedef.yatm_network.states['conflict']
     else

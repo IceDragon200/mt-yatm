@@ -139,6 +139,8 @@ local connects_to = {
 }
 
 minetest.register_node("yatm_oku:oku_micro_controller", {
+  basename = "yatm_oku:oku_micro_controller",
+
   description = "OKU Micro Controller",
 
   groups = groups,

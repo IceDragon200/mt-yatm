@@ -35,6 +35,8 @@ for variant, variant_texture_name in pairs({
   }
 
   yatm_reactors.register_reactor_node(panel_reactor_device.states._default, {
+    basename = "yatm_reactors:reactor_panel",
+
     description = "Reactor Panel (" .. variant .. ")",
     groups = {cracky = 1, reactor_panel = 1, reactor_structure = 1},
     drop = panel_reactor_device.states._default,
@@ -68,6 +70,8 @@ for variant, variant_texture_name in pairs({
   }
 
   yatm_reactors.register_reactor_node(casing_reactor_device.states._default, {
+    basename = "yatm_reactors:reactor_casing",
+
     description = "Reactor Casing (" .. variant .. ")",
     groups = {cracky = 1, reactor_panel = 1, reactor_structure = 1},
     drop = casing_reactor_device.states._default,

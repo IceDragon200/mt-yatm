@@ -39,6 +39,8 @@ for _,pair in ipairs(colors) do
     Full Blocks
     ]]
     minetest.register_node("yatm_foundry:concrete_" .. variant_basename .. "_" .. color_basename, {
+      basename = "yatm_foundry:concrete",
+
       description = "Concrete - " .. variant_name .. " (" .. color_name .. ")",
       tiles = {"yatm_concrete_" .. variant_basename .. "_" .. color_basename .. "_side.png"},
       groups = {cracky = 1, concrete = 1},
@@ -54,6 +56,7 @@ for _,pair in ipairs(colors) do
     Plates
     ]]
     minetest.register_node("yatm_foundry:concrete_plate_" .. variant_basename .. "_" .. color_basename, {
+      basename = "yatm_foundry:concrete_plate",
       description = "Concrete Plate - " .. variant_name .. " (" .. color_name .. ")",
       tiles = {"yatm_concrete_" .. variant_basename .. "_" .. color_basename .. "_side.png"},
       groups = {cracky = 1, concrete = 1, concrete_plate = 1},
@@ -82,6 +85,7 @@ for _,pair in ipairs(colors) do
       )
     else
       minetest.register_node("yatm_foundry:concrete_slab_" .. variant_basename .. "_" .. color_basename, {
+        basename = "yatm_foundry:concrete_slab",
         description = "Concrete Slab - " .. variant_name .. " (" .. color_name .. ")",
         tiles = {"yatm_concrete_" .. variant_basename .. "_" .. color_basename .. "_side.png"},
         groups = {cracky = 1, concrete = 1},

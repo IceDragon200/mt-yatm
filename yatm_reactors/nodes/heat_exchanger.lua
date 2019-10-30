@@ -34,6 +34,8 @@ local heat_exchanger_reactor_device = {
 }
 
 yatm_reactors.register_stateful_reactor_node({
+  basename = "yatm_reactors:heat_exchanger",
+
   description = "Reactor Heat Exchanger",
   groups = {
     cracky = 1,

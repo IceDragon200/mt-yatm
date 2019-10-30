@@ -211,7 +211,7 @@ function ic:unregister_member(pos, node)
       if self.m_block_members[member.block_id] then
         self.m_block_members[member.block_id][member_id] = nil
 
-        if is_table_empty(self.m_block_members[member.block_id]) then
+        if yatm_core.is_table_empty(self.m_block_members[member.block_id]) then
           self.m_block_members[member.block_id] = nil
         end
       end

@@ -120,56 +120,57 @@ yatm_core.FD_AXIS_Xm = 16
 yatm_core.FD_AXIS_Zp = 4
 yatm_core.FD_AXIS_Zm = 8
 
-local fm = function(n, e, s, w, d, u)
+local fm = function(u, n, s, e, w, d)
   return {
+    [yatm_core.D_UP] = u,
     [yatm_core.D_NORTH] = n,
-    [yatm_core.D_EAST] = e,
     [yatm_core.D_SOUTH] = s,
+    [yatm_core.D_EAST] = e,
     [yatm_core.D_WEST] = w,
     [yatm_core.D_DOWN] = d,
-    [yatm_core.D_UP] = u,
   }
 end
 
-local N = yatm_core.D_NORTH
-local E = yatm_core.D_EAST
-local S = yatm_core.D_SOUTH
-local W = yatm_core.D_WEST
-local D = yatm_core.D_DOWN
-local U = yatm_core.D_UP
+local U = yatm_core.D_UP    -- Y+
+local N = yatm_core.D_NORTH -- Z+
+local S = yatm_core.D_SOUTH -- Z-
+local E = yatm_core.D_EAST  -- X+
+local W = yatm_core.D_WEST  -- X-
+local D = yatm_core.D_DOWN  -- Y-
 
 -- Never again, f*** this seriously.
+-- Updated 2019-10-30, changed it a bit
 yatm_core.FACEDIR_TO_NEW_FACEDIR = {
   -- Yp
-  [0] = fm(N, E, S, W, D, U),
-  [1] = fm(W, N, E, S, D, U),
-  [2] = fm(S, W, N, E, D, U),
-  [3] = fm(E, S, W, N, D, U),
+  [0]  = fm(U, N, S, E, W, D),
+  [1]  = fm(U, W, E, N, S, D),
+  [2]  = fm(U, S, N, W, E, D),
+  [3]  = fm(U, E, W, S, N, D),
   -- Zp
-  [4] = fm(U, E, D, W, N, S),
-  [5] = fm(U, N, D, S, W, E),
-  [6] = fm(U, W, D, E, S, N),
-  [7] = fm(U, S, D, N, E, W),
+  [4]  = fm(S, U, D, E, W, N),
+  [5]  = fm(E, U, D, N, S, W),
+  [6]  = fm(N, U, D, W, E, S),
+  [7]  = fm(W, U, D, S, N, E),
   -- Zm
-  [8]= fm(D, E, U, W, S, N),
-  [9]= fm(D, N, U, S, E, W),
-  [10] = fm(D, W, U, E, N, S),
-  [11] = fm(D, S, U, N, W, E),
+  [8]  = fm(N, D, U, E, W, S),
+  [9]  = fm(W, D, U, N, S, E),
+  [10] = fm(S, D, U, W, E, N),
+  [11] = fm(E, D, U, S, N, W),
   -- Xp
-  [12] = fm(N, U, S, D, E, W),
-  [13] = fm(W, U, E, D, N, S),
-  [14] = fm(S, U, N, D, W, E),
-  [15] = fm(E, U, W, D, S, N),
+  [12] = fm(W, N, S, U, D, E),
+  [13] = fm(S, E, W, U, D, N),
+  [14] = fm(E, S, N, U, D, W),
+  [15] = fm(N, W, E, U, D, S),
   -- Xm
-  [16] = fm(N, D, S, U, W, E),
-  [17] = fm(W, D, E, U, S, N),
-  [18] = fm(S, D, N, U, E, W),
-  [19] = fm(E, D, W, U, N, S),
+  [16] = fm(E, N, S, D, U, W),
+  [17] = fm(N, W, E, D, U, S),
+  [18] = fm(W, S, N, D, U, E),
+  [19] = fm(S, E, W, D, U, N),
   -- Ym
-  [20] = fm(N, W, S, E, U, D),
-  [21] = fm(W, S, E, N, U, D),
-  [22] = fm(S, E, N, W, U, D),
-  [23] = fm(E, N, W, S, U, D),
+  [20] = fm(D, N, S, W, E, U),
+  [21] = fm(D, W, E, S, N, U),
+  [22] = fm(D, S, N, E, W, U),
+  [23] = fm(D, E, W, N, S, U),
 }
 
 yatm_core.FACEDIR_TO_FACES = {}

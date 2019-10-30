@@ -120,7 +120,10 @@ function distillation_unit_yatm_network.work(pos, node, available_energy, work_r
           need_refresh = true
         end
       end
+      meta:set_string("error_text", nil)
     else
+      meta:set_string("error_text", "no recipe")
+      need_refresh = true
       yatm.devices.set_idle(meta, 3)
     end
   end
@@ -173,10 +176,18 @@ function distillation_unit_refresh_infotext(pos)
   local input_steam_fluid_stack = FluidMeta.get_fluid_stack(meta, INPUT_STEAM_TANK)
   local distilled_fluid_stack = FluidMeta.get_fluid_stack(meta, DISTILLED_TANK)
 
+  local error_text = meta:get_string("error_text")
+
   local infotext =
-    cluster_devices:get_node_infotext(pos) .. "\n" ..
-    cluster_energy:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    cluster_devices:get_node_infotext(pos)
+
+  if error_text then
+    infotext = infotext .. " (" .. error_text .. ")"
+  end
+
+  infotext =
+    infotext .. "\n" ..
+    cluster_energy:get_node_infotext(pos) .. "(" .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. " E)" .. "\n" ..
     "I.Steam Tank: " .. FluidStack.pretty_format(input_steam_fluid_stack, fluid_interface.capacity) .. "\n" ..
     "O.Steam Tank: " .. FluidStack.pretty_format(output_steam_fluid_stack, fluid_interface.capacity) .. "\n" ..
     "Distilled Tank: " .. FluidStack.pretty_format(distilled_fluid_stack, fluid_interface.capacity)
@@ -185,6 +196,8 @@ function distillation_unit_refresh_infotext(pos)
 end
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_refinery:distillation_unit",
+
   description = "Distillation Unit",
 
   drop = distillation_unit_yatm_network.states.off,

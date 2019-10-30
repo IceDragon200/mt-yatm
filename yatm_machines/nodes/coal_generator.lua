@@ -47,6 +47,8 @@ local groups = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_machines:coal_generator",
+
   description = "Coal Generator",
   groups = groups,
 

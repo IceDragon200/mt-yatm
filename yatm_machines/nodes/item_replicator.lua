@@ -89,6 +89,8 @@ local groups = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_machines:item_replicator",
+
   description = "Item Replicator",
 
   drop = item_replicator_yatm_network.states.off,

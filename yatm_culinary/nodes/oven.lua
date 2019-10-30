@@ -146,6 +146,8 @@ local function oven_refresh_infotext(pos)
 end
 
 minetest.register_node("yatm_culinary:oven_off", {
+  basename = "yatm_culinary:oven",
+
   description = "Oven",
 
   groups = {
@@ -183,6 +185,8 @@ minetest.register_node("yatm_culinary:oven_off", {
 })
 
 minetest.register_node("yatm_culinary:oven_on", {
+  basename = "yatm_culinary:oven",
+
   description = "Oven",
 
   groups = {

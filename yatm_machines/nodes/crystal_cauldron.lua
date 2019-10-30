@@ -43,6 +43,8 @@ local crysytal_cauldron_node_box = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_machines:crystal_cauldron",
+
   description = "Crystal Cauldron",
 
   groups =  {

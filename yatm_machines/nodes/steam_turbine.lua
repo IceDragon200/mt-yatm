@@ -167,6 +167,8 @@ local groups = {
 local table_merge = assert(yatm_core.table_merge)
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_machines:steam_turbine",
+
   description = "Steam Turbine",
 
   groups = groups,

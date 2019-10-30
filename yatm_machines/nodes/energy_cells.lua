@@ -104,6 +104,8 @@ for cell_type, cell_config in pairs(cell_types) do
       groups.not_in_creative_inventory = 1
     end
     yatm.devices.register_network_device(energy_cell_yatm_network.basename .. "_" .. stage, {
+      basename = energy_cell_yatm_network.basename,
+
       description = "Energy Cell ("..cell_type..")",
       drop = energy_cell_yatm_network.basename .. "_0",
       groups = groups,
@@ -164,6 +166,7 @@ for cell_type, cell_config in pairs(cell_types) do
 
   yatm.devices.register_network_device(creative_energy_cell_yatm_network.basename, {
     description = "Energy Cell ("..cell_type..") [Creative]",
+
     groups = {
       cracky = 1,
       yatm_energy_device = 1,

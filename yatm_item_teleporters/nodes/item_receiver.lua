@@ -106,6 +106,8 @@ local function item_receiver_refresh_infotext(pos)
 end
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_item_teleporters:item_receiver",
+
   description = "Item Receiver",
 
   drop = item_receiver_yatm_network.states.off,

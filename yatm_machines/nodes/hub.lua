@@ -47,6 +47,8 @@ local hub_bus_yatm_network = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_machines:hub_bus",
+
   description = "Hub (bus)",
 
   groups = {cracky = 1},
@@ -114,9 +116,12 @@ local hub_wireless_yatm_network = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_machines:hub_wireless",
+
   description = "Hub (wireless)",
   groups = {cracky = 1},
   drop = hub_wireless_yatm_network.states.off,
+
   tiles = {
     "yatm_hub_top.wireless.off.png",
     "yatm_hub_bottom.png",
@@ -185,6 +190,8 @@ local hub_elegens_yatm_network = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_machines:hub_ele",
+
   description = "Hub (ele)",
   groups = {cracky = 1},
   drop = hub_elegens_yatm_network.states.off,

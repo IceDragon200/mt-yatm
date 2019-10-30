@@ -143,6 +143,8 @@ local groups = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_item_teleporters:item_teleporter",
+
   description = "Item Teleporter",
   drop = item_teleporter_yatm_network.states.off,
 

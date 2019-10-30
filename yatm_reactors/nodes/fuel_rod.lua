@@ -30,7 +30,9 @@ local fuel_rod_open_reactor_device = {
 
 yatm_reactors.register_reactor_node("yatm_reactors:fuel_rod_case_open", {
   description = "Fuel Rod Case (Unoccupied)",
-  groups = {cracky = 1},
+  groups = {
+    cracky = 1
+  },
 
   drop = fuel_rod_open_reactor_device.states.off,
 
@@ -77,6 +79,8 @@ for _, variant in ipairs({"uranium", "plutonium", "radium"}) do
   fuel_rod_reactor_device.update_fuel_rod = update_fuel_rod
 
   yatm_reactors.register_stateful_reactor_node({
+    basename = "yatm_reactors:fuel_rod_case_" .. variant,
+
     description = "Reactor Fuel Rod (" .. variant .. ")",
 
     groups = {cracky = 1},

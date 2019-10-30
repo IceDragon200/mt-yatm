@@ -18,6 +18,8 @@ local shoji_lamp_node_box = {
 local lamp_sounds = default.node_sound_leaves_defaults()
 
 minetest.register_node("yatm_papercraft:shoji_lamp_off", {
+  basename = "yatm_papercraft:shoji_lamp",
+
   description = "Shoji Lamp [OFF]",
 
   groups = {
@@ -46,6 +48,8 @@ minetest.register_node("yatm_papercraft:shoji_lamp_off", {
 })
 
 minetest.register_node("yatm_papercraft:shoji_lamp_on", {
+  basename = "yatm_papercraft:shoji_lamp",
+
   description = "Shoji Lamp [ON]",
 
   groups = {

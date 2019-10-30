@@ -22,6 +22,8 @@ for variant, variant_texture_name in pairs({
   ["orange_black_stripes"] = "ob.stripes",
 }) do
   minetest.register_node("yatm_reactors:glass_" .. variant, {
+    basename = "yatm_reactors:glass",
+
     description = "Decor Reactor Glass (" .. variant .. ")",
     note = "Safe to use for decor",
     groups = {
@@ -59,6 +61,8 @@ for variant, variant_texture_name in pairs({
   }
 
   yatm_reactors.register_reactor_node(glass_reactor_device.states._default, {
+    basename = "yatm_reactors:reactor_glass",
+
     description = "Reactor Glass (" .. variant .. ")",
     groups = {
       cracky = 3,

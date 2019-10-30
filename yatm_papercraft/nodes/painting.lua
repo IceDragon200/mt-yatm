@@ -17,6 +17,8 @@ local painting_after_place_node = yatm_core.facedir_wallmount_after_place_node
 
 local function register_painting(name, cols, rows, def)
   local nodedef = yatm_core.table_merge({
+    basename = name,
+
     groups = yatm_core.table_merge(def.groups or {}, {
       snappy = 3,
       painting = 1,

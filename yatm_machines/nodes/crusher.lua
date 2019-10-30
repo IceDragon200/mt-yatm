@@ -27,6 +27,8 @@ function crusher_yatm_network.work(pos, node, available_energy, work_rate, dtime
 end
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_machines:crusher",
+
   description = "Crusher",
 
   groups = {

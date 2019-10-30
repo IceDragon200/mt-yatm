@@ -53,6 +53,8 @@ local solar_panel_nodebox = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_solar_energy:solar_panel",
+
   description = "Solar Panel",
 
   groups = {

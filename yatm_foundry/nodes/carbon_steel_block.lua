@@ -1,5 +1,8 @@
 minetest.register_node("yatm_foundry:carbon_steel_block", {
+  basename = "yatm_foundry:carbon_steel_block",
+
   description = "Carbon Steel Block",
+
   groups = {cracky = 1},
 
   tiles = {

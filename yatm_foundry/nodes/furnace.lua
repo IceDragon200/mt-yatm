@@ -30,8 +30,12 @@ local groups = {
 }
 
 minetest.register_node("yatm_foundry:furnace_off", {
+  basename = "yatm_foundry:furnace",
+
   description = "Furnace",
+
   groups = groups,
+
   tiles = {
     "yatm_furnace_top.off.png",
     "yatm_furnace_bottom.off.png",
@@ -50,8 +54,12 @@ minetest.register_node("yatm_foundry:furnace_off", {
 })
 
 minetest.register_node("yatm_foundry:furnace_on", {
+  basename = "yatm_foundry:furnace",
+
   description = "Furnace",
+
   groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
+
   tiles = {
     "yatm_furnace_top.on.png",
     "yatm_furnace_bottom.on.png",

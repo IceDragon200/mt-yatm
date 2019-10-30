@@ -65,6 +65,8 @@ local function hub_action_pdu(pos, node, pdu)
 end
 
 minetest.register_node("yatm_mesecon_hubs:mesecon_hub_receiver_off", {
+  basename = "yatm_mesecon_hubs:mesecon_hub_receiver",
+
   description = "Mesecon Receiver Hub",
   groups = {
     cracky = 1,
@@ -103,6 +105,8 @@ minetest.register_node("yatm_mesecon_hubs:mesecon_hub_receiver_off", {
 })
 
 minetest.register_node("yatm_mesecon_hubs:mesecon_hub_receiver_on", {
+  basename = "yatm_mesecon_hubs:mesecon_hub_receiver",
+
   description = "Mesecon Receiver Hub",
   groups = {
     cracky = 1,

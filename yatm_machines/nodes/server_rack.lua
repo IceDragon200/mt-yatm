@@ -24,6 +24,8 @@ local server_rack_yatm_network = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_machines:server_rack",
+
   description = "Server Rack",
 
   groups = {cracky = 1},

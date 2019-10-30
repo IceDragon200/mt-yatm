@@ -112,6 +112,8 @@ function combustion_engine_refresh_infotext(pos)
 end
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_machines:combustion_engine",
+
   description = "Combustion Engine",
 
   groups = {

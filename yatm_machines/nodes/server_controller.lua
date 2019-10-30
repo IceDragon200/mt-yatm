@@ -64,6 +64,8 @@ function server_controller_yatm_network.work(pos, node, energy_available, work_r
 end
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_machines:server_controller",
+
   description = "Server Controller",
 
   groups = {

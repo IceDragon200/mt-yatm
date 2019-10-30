@@ -161,6 +161,8 @@ local kettle_node_box = {
 }
 
 minetest.register_node("yatm_brewery:kettle_off", {
+  basename = "yatm_brewery:kettle",
+
   description = "Kettle",
 
   groups = groups,
@@ -188,6 +190,8 @@ minetest.register_node("yatm_brewery:kettle_off", {
 })
 
 minetest.register_node("yatm_brewery:kettle_on", {
+  basename = "yatm_brewery:kettle",
+
   description = "Kettle",
 
   groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),

@@ -1,4 +1,5 @@
 local cluster_devices = assert(yatm.cluster.devices)
+local cluster_energy = assert(yatm.cluster.energy)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
@@ -20,6 +21,7 @@ local vapourizer_yatm_network = {
     error = "yatm_refinery:vapourizer_error",
     off = "yatm_refinery:vapourizer_off",
     on = "yatm_refinery:vapourizer_on",
+    idle = "yatm_refinery:vapourizer_idle",
   },
   energy = {
     passive_lost = 0,
@@ -89,6 +91,10 @@ function vapourizer_yatm_network.work(pos, node, available_energy, work_rate, dt
           energy_consumed = energy_consumed + math.max(math.floor(drained_stack.amount / 100), 1)
         end
       end
+      meta:set_string("error_text", nil)
+    else
+      meta:set_string("error_text", "no recipe")
+      need_refresh = true
     end
   end
 
@@ -122,7 +128,7 @@ function vapourizer_refresh_infotext(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    cluster_energy:get_node_infotext(pos) .. " (" .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. " E)" .. "\n" ..
     "Vapour Tank: " .. FluidStack.pretty_format(vapour_fluid_stack, fluid_interface.capacity) .. "\n" ..
     "Fluid Tank: " .. FluidStack.pretty_format(fluid_stack, fluid_interface.capacity)
 
@@ -130,6 +136,8 @@ function vapourizer_refresh_infotext(pos)
 end
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_refinery:vapourizer",
+
   description = "Vapourizer",
 
   groups = {
@@ -167,6 +175,16 @@ yatm.devices.register_stateful_network_device({
       "yatm_vapourizer_side.error.png",
       "yatm_vapourizer_side.error.png",
       "yatm_vapourizer_side.error.png"
+    },
+  },
+  idle = {
+    tiles = {
+      "yatm_vapourizer_top.idle.png",
+      "yatm_vapourizer_bottom.idle.png",
+      "yatm_vapourizer_side.idle.png",
+      "yatm_vapourizer_side.idle.png",
+      "yatm_vapourizer_side.idle.png",
+      "yatm_vapourizer_side.idle.png"
     },
   },
   on = {

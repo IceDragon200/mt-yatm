@@ -20,6 +20,8 @@ function item_interface:allow_insert_item(pos, dir, item_stack)
 end
 
 minetest.register_node("yatm_armoury:ammo_can", {
+  basename = "yatm_armoury:ammo_can",
+
   description = "Ammo Can",
 
   groups = {

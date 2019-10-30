@@ -63,6 +63,8 @@ for _,pair in ipairs(colors) do
   local color_name = pair[2]
 
   minetest.register_node("yatm_foundry:concrete_retaining_wall_" .. color_basename, {
+    basename = "yatm_foundry:retaining_wall",
+
     description = "Concrete Retaining Wall (" .. color_name .. ")",
 
     groups = {
@@ -93,6 +95,8 @@ for _,pair in ipairs(colors) do
   })
 
   minetest.register_node("yatm_foundry:concrete_retaining_wall_corner_" .. color_basename, {
+    basename = "yatm_foundry:retaining_wall_corner",
+
     description = "Concrete Retaining Wall Corner (" .. color_name .. ")",
 
     groups = {

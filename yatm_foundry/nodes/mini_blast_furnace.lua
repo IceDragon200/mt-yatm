@@ -22,6 +22,8 @@ local groups = {
 }
 
 minetest.register_node("yatm_foundry:mini_blast_furnace_off", {
+  basename = "yatm_foundry:mini_blast_furnace",
+
   description = "Mini Blast Furnace",
   groups = groups,
   tiles = {
@@ -40,7 +42,10 @@ minetest.register_node("yatm_foundry:mini_blast_furnace_off", {
 })
 
 minetest.register_node("yatm_foundry:mini_blast_furnace_on", {
+  basename = "yatm_foundry:mini_blast_furnace",
+
   description = "Mini Blast Furnace",
+
   groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
   tiles = {
     "yatm_mini_blast_furnace_top.on.png",

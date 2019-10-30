@@ -64,6 +64,8 @@ local groups = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_foundry:electric_kiln",
+
   description = "Electric Kiln",
 
   groups = groups,

@@ -116,6 +116,8 @@ function pump_yatm_network.work(pos, node, energy_available, work_rate, dtime, o
 end
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_refinery:pump",
+
   description = "Pump",
 
   groups = {

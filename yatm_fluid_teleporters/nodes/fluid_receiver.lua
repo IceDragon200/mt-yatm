@@ -99,6 +99,8 @@ local function teleporter_refresh_infotext(pos)
 end
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_fluid_teleporters:fluid_receiver",
+
   description = "Fluid Receiver",
   drop = fluid_receiver_yatm_network.states.off,
 

@@ -145,6 +145,8 @@ function boiler_yatm_network.work(pos, node, available_energy, work_rate, dtime,
 end
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_refinery:boiler",
+
   description = "Boiler",
 
   groups = {

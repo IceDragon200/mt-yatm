@@ -85,7 +85,7 @@ function yatm_cables.register_cable_state(params, size)
   }
 
   if params.drop == nil then
-    params.drop = params.default_state
+    params.drop = cable_yatm_network.states[cable_yatm_network.default_state]
   end
 
   local connects_to = {}

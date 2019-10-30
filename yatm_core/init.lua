@@ -6,6 +6,7 @@ yatm_core.modpath = minetest.get_modpath(minetest.get_current_modname())
 
 -- This is yatm's shared namespace, use the apis from this instead of the module's name when possible
 yatm = rawget(_G, "yatm") or {}
+yatm.config = yatm.config or {}
 
 local insec = minetest.request_insecure_environment()
 if insec then
@@ -13,6 +14,8 @@ if insec then
   yatm.bit = insec.require("bit")
   yatm.ffi = insec.require("ffi")
 end
+
+dofile(yatm_core.modpath .. "/config.lua")
 
 -- Classes, yadda, yadda, OOP is evil, yeah I get it, just use OOP sparingly.
 dofile(yatm_core.modpath .. "/class.lua")

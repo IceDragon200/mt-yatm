@@ -51,6 +51,8 @@ local function stonecutters_table_on_destruct(pos)
 end
 
 minetest.register_node("yatm_foundry:stonecutters_table_wood", {
+  basename = "yatm_foundry:stonecutters_table",
+
   description = "Stone Cutter's Table (Wood)",
   groups = { stonecutters_table = 1, cracky = 1 },
   tiles = {

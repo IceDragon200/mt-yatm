@@ -60,6 +60,8 @@ for _,pair in ipairs(colors) do
   local color_name = pair[2]
 
   minetest.register_node("yatm_brewery:fluid_barrel_wood_" .. color_basename, {
+    basename = "yatm_brewery:fluid_barrel_wood",
+
     description = "Fluid Barrel (Wood / " .. color_name .. ")",
     groups = { fluid_barrel = 1, wood_fluid_barrel = 1, cracky = 2, fluid_interface_in = 1, fluid_interface_out = 1 },
     sounds = default.node_sound_wood_defaults(),
@@ -88,6 +90,8 @@ for _,pair in ipairs(colors) do
   })
 
   minetest.register_node("yatm_brewery:fluid_barrel_metal_" .. color_basename, {
+    basename = "yatm_brewery:fluid_barrel_metal",
+
     description = "Fluid Barrel (Metal / " .. color_name .. ")",
     groups = { fluid_barrel = 1, metal_fluid_barrel = 1, cracky = 1, fluid_interface_in = 1, fluid_interface_out = 1 },
     sounds = default.node_sound_metal_defaults(),

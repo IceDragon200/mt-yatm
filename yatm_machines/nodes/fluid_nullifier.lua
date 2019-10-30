@@ -26,14 +26,18 @@ end
 
 minetest.register_node("yatm_machines:fluid_nullifier", {
   description = "Fluid Nullifier",
+
   groups = {
     cracky = 1,
     fluid_interface_in = 1,
   },
+
   tiles = {
     "yatm_fluid_nullifier_side.on.png",
   },
+
   paramtype = "light",
   paramtype2 = "facedir",
+
   fluid_interface = fluid_interface,
 })

@@ -44,6 +44,8 @@ for _, variant_pair in ipairs(variants) do
   end
 
   yatm_reactors.register_stateful_reactor_node({
+    basename = "yatm_reactors:reactor_export_bus",
+
     description = "Reactor Export Bus (" .. variant_name .. ")",
 
     groups = groups,

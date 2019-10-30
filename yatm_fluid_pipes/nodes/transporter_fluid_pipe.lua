@@ -53,6 +53,8 @@ for _,color_pair in ipairs(colors) do
   end
 
   minetest.register_node(node_name, {
+    basename = "yatm_fluid_pipes:transporter_fluid_pipe",
+
     description = "Transporter Fluid Pipe (" .. color_name .. ")",
 
     groups = groups,

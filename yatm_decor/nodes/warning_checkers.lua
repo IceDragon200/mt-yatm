@@ -14,6 +14,8 @@ local plate_nodebox = {
 for _,color in ipairs(colors) do
   for _,size in ipairs(sizes) do
     minetest.register_node("yatm_decor:warning_checkers_" .. size .. "_" .. color, {
+      basename = "yatm_decor:warning_checkers",
+
       description = "Warning Checkers " .. size .. " (" .. color .. ")",
       groups = {cracky = 1},
       tiles = {
@@ -25,6 +27,8 @@ for _,color in ipairs(colors) do
     })
 
     minetest.register_node("yatm_decor:warning_checkers_slab_" .. size .. "_" .. color, {
+      basename = "yatm_decor:warning_checkers_slab",
+
       description = "Warning Checkers " .. size .. " (" .. color .. ")",
       groups = {cracky = 1},
       tiles = {
@@ -39,6 +43,8 @@ for _,color in ipairs(colors) do
     })
 
     minetest.register_node("yatm_decor:warning_checkers_plate_" .. size .. "_" .. color, {
+      basename = "yatm_decor:warning_checkers_plate",
+
       description = "Warning Checkers " .. size .. " (" .. color .. ")",
       groups = {cracky = 1},
       tiles = {

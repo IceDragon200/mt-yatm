@@ -137,6 +137,8 @@ local item_interface = ItemInterface.new_directional(function (self, pos, dir)
 end)
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_machines:roller",
+
   description = "Roller",
   groups = {
     cracky = 1,

@@ -153,6 +153,8 @@ local node_box = {
 }
 
 minetest.register_node("yatm_foundry:solid_fuel_heater_off", {
+  basename = "yatm_foundry:solid_fuel_heater",
+
   description = "Solid Fuel Heater",
   groups = groups,
   tiles = {
@@ -185,6 +187,8 @@ minetest.register_node("yatm_foundry:solid_fuel_heater_off", {
 })
 
 minetest.register_node("yatm_foundry:solid_fuel_heater_on", {
+  basename = "yatm_foundry:solid_fuel_heater",
+
   description = "Solid Fuel Heater",
 
   groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),

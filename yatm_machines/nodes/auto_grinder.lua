@@ -174,6 +174,8 @@ local groups = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_machines:auto_grinder",
+
   description = "Auto Grinder",
 
   groups = groups,

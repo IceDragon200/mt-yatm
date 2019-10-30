@@ -69,9 +69,14 @@ local groups = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_machines:condenser",
+
   description = "Condenser",
+
   groups = groups,
+
   drop = condenser_yatm_network.states.off,
+
   tiles = {
     "yatm_condenser_top.off.png",
     "yatm_condenser_bottom.off.png",
@@ -80,6 +85,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_condenser_back.off.png",
     "yatm_condenser_front.off.png"
   },
+
   paramtype = "light",
   paramtype2 = "facedir",
 

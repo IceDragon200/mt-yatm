@@ -20,6 +20,8 @@ local pie_node_box = {
 }
 
 minetest.register_node("yatm_culinary:pie_8", {
+  basename = "yatm_culinary:pie",
+
   description = "Pie",
 
   groups = {
@@ -55,6 +57,8 @@ for i = 1,7 do
   }
 
   minetest.register_node("yatm_culinary:pie_" .. i, {
+    basename = "yatm_culinary:pie",
+
     description = "Pie",
 
     groups = {

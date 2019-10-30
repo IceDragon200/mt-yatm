@@ -42,6 +42,8 @@ local function hub_emit_change_event(pos, value)
 end
 
 minetest.register_node("yatm_mesecon_hubs:mesecon_hub_emitter_off", {
+  basename = "yatm_mesecon_hubs:mesecon_hub_emitter",
+
   description = "Mesecon Emitter Hub",
   groups = {cracky = 1, addressable_hub_device = 1},
   drop = "yatm_mesecon_hubs:mesecon_hub_emitter_off",
@@ -77,6 +79,8 @@ minetest.register_node("yatm_mesecon_hubs:mesecon_hub_emitter_off", {
 })
 
 minetest.register_node("yatm_mesecon_hubs:mesecon_hub_emitter_on", {
+  basename = "yatm_mesecon_hubs:mesecon_hub_emitter",
+
   description = "Mesecon Emitter Hub",
   groups = {cracky = 1, addressable_hub_device = 1, not_in_creative_inventory = 1},
   drop = "yatm_mesecon_hubs:mesecon_hub_emitter_off",

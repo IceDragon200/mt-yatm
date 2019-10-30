@@ -51,6 +51,8 @@ local groups = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_dscs:flat_monitor_console",
+
   description = "Flat Monitor (console)",
   groups = groups,
 
@@ -126,6 +128,8 @@ local monitor_crafting_yatm_network = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_dscs:flat_monitor_crafting",
+
   description = "Flat Monitor (crafting)",
 
   groups = groups,
@@ -195,6 +199,8 @@ local monitor_ele_yatm_network = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_dscs:flat_monitor_ele",
+
   description = "Flat Monitor (ele)",
   groups = groups,
   drop = monitor_ele_yatm_network.states.off,
@@ -261,6 +267,8 @@ local monitor_inventory_yatm_network = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_dscs:flat_monitor_inventory",
+
   description = "Flat Monitor (inventory)",
 
   groups = groups,

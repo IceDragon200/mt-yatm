@@ -24,6 +24,8 @@ local groups = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_machines:void_chest",
+
   description = "Void Chest",
 
   groups = groups,

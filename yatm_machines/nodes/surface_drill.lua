@@ -89,6 +89,8 @@ function surface_drill_yatm_network.work(pos, node, energy_available, work_rate,
 end
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_machines:surface_drill",
+
   description = "Surface Drill",
 
   groups = {cracky = 1, surface_drill = 1},

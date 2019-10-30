@@ -134,6 +134,8 @@ local groups = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_foundry:electric_smelter",
+
   description = "Electric Smelter",
 
   groups = groups,

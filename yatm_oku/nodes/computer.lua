@@ -119,6 +119,8 @@ local groups = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_oku:computer",
+
   description = "Computer",
   groups = groups,
   drop = computer_yatm_network.states.off,

@@ -34,6 +34,8 @@ for _, variant in ipairs({"hazard", "coolant", "signal"}) do
   }
 
   yatm_reactors.register_stateful_reactor_node({
+    basename = "yatm_reactors:reactor_data_bus_" .. variant,
+
     description = "Reactor Data Bus (" .. variant .. ")",
     groups = {cracky = 1, yatm_data_device = 1},
     drop = data_bus_reactor_device.states.off,

@@ -12,6 +12,8 @@ local function hub_after_place_node(pos, placer, item_stack, pointed_thing)
 end
 
 minetest.register_node("yatm_mesecon_hubs:mesecon_hub_ele_off", {
+  basename = "yatm_mesecon_hubs:mesecon_hub_ele",
+
   description = "Mesecon Ele Hub",
   groups = {cracky = 1},
   drop = "yatm_mesecon_hubs:mesecon_hub_ele_off",
@@ -43,6 +45,8 @@ minetest.register_node("yatm_mesecon_hubs:mesecon_hub_ele_off", {
 })
 
 minetest.register_node("yatm_mesecon_hubs:mesecon_hub_ele_on", {
+  basename = "yatm_mesecon_hubs:mesecon_hub_ele",
+
   description = "Mesecon Ele Hub",
   groups = {cracky = 1, not_in_creative_inventory = 1},
   drop = "yatm_mesecon_hubs:mesecon_hub_ele_off",

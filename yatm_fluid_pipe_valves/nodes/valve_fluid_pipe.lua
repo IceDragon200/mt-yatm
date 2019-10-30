@@ -69,6 +69,8 @@ for _,color_pair in ipairs(colors) do
   end
 
   minetest.register_node(node_name .. "_off", {
+    basename = node_name,
+
     description = "Valve Fluid Pipe (" .. color_name .. ")",
 
     drop = node_name .. "_off",
@@ -113,6 +115,8 @@ for _,color_pair in ipairs(colors) do
   })
 
   minetest.register_node(node_name .. "_on", {
+    basename = node_name,
+
     description = "Valve Fluid Pipe (" .. color_name .. ")",
 
     drop = node_name .. "_off",

@@ -44,6 +44,8 @@ local monitor_console_yatm_network = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_dscs:monitor_console",
+
   description = "Monitor (console)",
 
   groups = yatm_core.table_merge(groups, {}),
@@ -126,6 +128,8 @@ local monitor_crafting_yatm_network = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_dscs:monitor_crafting",
+
   description = "Monitor (crafting)",
 
   groups = yatm_core.table_merge(groups, {}),
@@ -197,6 +201,8 @@ local monitor_ele_yatm_network = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_dscs:monitor_ele",
+
   description = "Monitor (ele)",
 
   groups = yatm_core.table_merge(groups, {}),
@@ -269,6 +275,8 @@ local monitor_inventory_yatm_network = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_dscs:monitor_ele",
+
   description = "Monitor (inventory)",
 
   groups = yatm_core.table_merge(groups, {}),

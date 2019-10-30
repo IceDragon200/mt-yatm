@@ -45,6 +45,8 @@ for _, variant_pair in ipairs(variants) do
   end
 
   yatm_reactors.register_stateful_reactor_node({
+    basename = "yatm_reactors:import_bus",
+
     description = "Reactor Import Bus (" .. variant_name .. ")",
     groups = groups,
     drop = import_bus_reactor_device.states.off,

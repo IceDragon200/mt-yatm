@@ -219,6 +219,8 @@ for _,pair in ipairs(colors) do
 
   local mailbox_basename = "yatm_mail:mailbox_wood_" .. basename
   minetest.register_node(mailbox_basename, {
+    basename = "yatm_mail:mailbox",
+
     description = "Wood Mailbox (" .. name .. ")",
     groups = groups,
     sounds = default.node_sound_wood_defaults(),
@@ -254,7 +256,10 @@ for _,pair in ipairs(colors) do
 
   local mailbox_basename = "yatm_mail:mailbox_metal_" .. basename
   minetest.register_node(mailbox_basename, {
+    basename = "yatm_mail:mailbox",
+
     description = "Metal Mailbox (" .. name .. ")",
+
     groups = { mailbox = 1, cracky = 1, lockable_object = 1 },
     sounds = default.node_sound_metal_defaults(),
     is_ground_content = false,

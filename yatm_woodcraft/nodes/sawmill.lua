@@ -2,6 +2,8 @@ local function sawmill_on_construct ()
 end
 
 minetest.register_node("yatm_woodcraft:sawmill", {
+  basename = "yatm_woodcraft:sawmill",
+
   description = "Sawmill",
 
   groups = {

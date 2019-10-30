@@ -231,6 +231,8 @@ local function locksmiths_table_on_metadata_inventory_take(pos, listname, index,
 end
 
 minetest.register_node("yatm_mail:locksmiths_table_wood", {
+  basename = "yatm_mail:locksmiths_table",
+
   description = "Wood Locksmiths Table",
   groups = { locksmiths_table = 1, cracky = 1 },
   tiles = {

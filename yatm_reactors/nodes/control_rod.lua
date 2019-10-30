@@ -29,6 +29,8 @@ local control_rod_open_reactor_device = {
 }
 
 yatm_reactors.register_stateful_reactor_node({
+  basename = "yatm_reactors:control_rod_case",
+
   description = "Control Rod",
   groups = {cracky = 1},
 

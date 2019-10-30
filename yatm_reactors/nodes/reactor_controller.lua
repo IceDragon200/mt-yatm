@@ -78,6 +78,8 @@ local reactor_controller_reactor_device = {
 }
 
 yatm_reactors.register_stateful_reactor_node({
+  basename = "yatm_reactors:reactor_controller",
+
   description = "Reactor Controller",
 
   groups = {cracky = 1},

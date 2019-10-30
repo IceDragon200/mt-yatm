@@ -51,6 +51,8 @@ function energy_bus_yatm_network.energy.produce_energy(pos, node, dtime, ot)
 end
 
 yatm_reactors.register_stateful_reactor_node({
+  basename = "yatm_reactors:reactor_energy_bus",
+
   description = "Reactor Energy Bus",
   groups = {
     cracky = 1,

@@ -142,7 +142,10 @@ local groups = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_fluid_teleporters:fluid_teleporter",
+
   description = "Fluid Teleporter",
+
   drop = fluid_teleporter_yatm_network.states.off,
 
   groups = groups,

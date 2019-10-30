@@ -111,6 +111,8 @@ for _,default_state in ipairs(states) do
     -- Regular large lamps
     local lamp_basename = "yatm_decor:lamp_" .. basename .. basename_postfix
     minetest.register_node(lamp_basename .. "_off", {
+      basename = "yatm_decor:lamp",
+
       description = name .. " Lamp [OFF] " .. postfix,
       groups = lamp_groups_off,
       is_ground_content = false,
@@ -133,6 +135,8 @@ for _,default_state in ipairs(states) do
     })
 
     minetest.register_node(lamp_basename .. "_on", {
+      basename = "yatm_decor:lamp",
+
       description = name .. " Lamp [ON] " .. postfix,
       groups = lamp_groups_on,
       is_ground_content = false,
@@ -159,6 +163,8 @@ for _,default_state in ipairs(states) do
     -- The really flat lamps
     lamp_basename = "yatm_decor:flat_lamp_" .. basename .. basename_postfix
     minetest.register_node(lamp_basename .. "_off", {
+      basename = "yatm_decor:flat_lamp",
+
       description = name .. " Flat Lamp [OFF] " .. postfix,
       groups = lamp_groups_off,
       is_ground_content = false,
@@ -181,6 +187,8 @@ for _,default_state in ipairs(states) do
     })
 
     minetest.register_node(lamp_basename .. "_on", {
+      basename = "yatm_decor:flat_lamp",
+
       description = name .. " Flat Lamp [ON] " .. postfix,
       groups = lamp_groups_on,
       is_ground_content = false,
@@ -209,6 +217,8 @@ for _,default_state in ipairs(states) do
     ]]
     lamp_basename = "yatm_decor:small_lamp_" .. basename .. basename_postfix
     minetest.register_node(lamp_basename .. "_off", {
+      basename = "yatm_decor:small_lamp",
+
       description = name .. " Small Lamp [OFF] " .. postfix,
       groups = lamp_groups_off,
       is_ground_content = false,
@@ -231,6 +241,8 @@ for _,default_state in ipairs(states) do
     })
 
     minetest.register_node(lamp_basename .. "_on", {
+      basename = "yatm_decor:small_lamp",
+
       description = name .. " Small Lamp [ON] " .. postfix,
       groups = lamp_groups_on,
       is_ground_content = false,

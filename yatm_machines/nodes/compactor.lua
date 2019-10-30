@@ -35,10 +35,14 @@ local groups = {
   item_interface_out = 1,
 }
 
-yatm.devices.register_network_device(compactor_yatm_network.states.off, {
+yatm.devices.register_stateful_network_device({
+  basename = "yatm_machines:compactor",
+
   description = "Compactor",
   groups = groups,
+
   drop = compactor_yatm_network.states.off,
+
   tiles = {
     "yatm_compactor_top.off.png",
     "yatm_compactor_bottom.png",
@@ -47,67 +51,57 @@ yatm.devices.register_network_device(compactor_yatm_network.states.off, {
     "yatm_compactor_back.off.png",
     "yatm_compactor_front.off.png",
   },
+
   paramtype = "light",
   paramtype2 = "facedir",
+
   yatm_network = yatm_core.table_merge(compactor_yatm_network, {state = "off"}),
-})
-
-yatm.devices.register_network_device(compactor_yatm_network.states.error, {
-  description = "Compactor",
-  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-  drop = compactor_yatm_network.states.off,
-  tiles = {
-    "yatm_compactor_top.error.png",
-    "yatm_compactor_bottom.png",
-    "yatm_compactor_side.error.png",
-    "yatm_compactor_side.error.png^[transformFX",
-    "yatm_compactor_back.error.png",
-    "yatm_compactor_front.error.png",
-  },
-  paramtype = "light",
-  paramtype2 = "facedir",
-  yatm_network = yatm_core.table_merge(compactor_yatm_network, {state = "error"}),
-})
-
-yatm.devices.register_network_device(compactor_yatm_network.states.on, {
-  description = "Compactor",
-  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-  drop = compactor_yatm_network.states.off,
-  tiles = {
-    "yatm_compactor_top.on.png",
-    "yatm_compactor_bottom.png",
-    --"yatm_compactor_side.on.png",
-    --"yatm_compactor_side.on.png",
-    {
-      name = "yatm_compactor_side.on.png",
-      animation = {
-        type = "vertical_frames",
-        aspect_w = 16,
-        aspect_h = 16,
-        length = 4.0
-      },
+}, {
+  error = {
+    tiles = {
+      "yatm_compactor_top.error.png",
+      "yatm_compactor_bottom.png",
+      "yatm_compactor_side.error.png",
+      "yatm_compactor_side.error.png^[transformFX",
+      "yatm_compactor_back.error.png",
+      "yatm_compactor_front.error.png",
     },
-    {
-      name = "yatm_compactor_side.on.png^[transformFX",
-      animation = {
-        type = "vertical_frames",
-        aspect_w = 16,
-        aspect_h = 16,
-        length = 4.0
-      },
-    },
-    "yatm_compactor_back.on.png",
-    {
-      name = "yatm_compactor_front.on.png",
-      animation = {
-        type = "vertical_frames",
-        aspect_w = 16,
-        aspect_h = 16,
-        length = 1.0
-      },
-    }
   },
-  paramtype = "light",
-  paramtype2 = "facedir",
-  yatm_network = yatm_core.table_merge(compactor_yatm_network, {state = "on"}),
+
+  on = {
+    tiles = {
+      "yatm_compactor_top.on.png",
+      "yatm_compactor_bottom.png",
+      --"yatm_compactor_side.on.png",
+      --"yatm_compactor_side.on.png",
+      {
+        name = "yatm_compactor_side.on.png",
+        animation = {
+          type = "vertical_frames",
+          aspect_w = 16,
+          aspect_h = 16,
+          length = 4.0
+        },
+      },
+      {
+        name = "yatm_compactor_side.on.png^[transformFX",
+        animation = {
+          type = "vertical_frames",
+          aspect_w = 16,
+          aspect_h = 16,
+          length = 4.0
+        },
+      },
+      "yatm_compactor_back.on.png",
+      {
+        name = "yatm_compactor_front.on.png",
+        animation = {
+          type = "vertical_frames",
+          aspect_w = 16,
+          aspect_h = 16,
+          length = 1.0
+        },
+      }
+    },
+  }
 })

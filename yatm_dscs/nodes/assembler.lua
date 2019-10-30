@@ -85,6 +85,8 @@ function assembler_data_interface.receive_pdu(pos, node, port, value)
 end
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_dscs:assembler",
+
   description = "Item Assembler",
 
   groups = groups,

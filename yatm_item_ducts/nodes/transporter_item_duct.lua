@@ -45,6 +45,8 @@ for _,color_pair in ipairs(colors) do
   end
 
   minetest.register_node(node_name, {
+    basename = "yatm_item_ducts:transporter_item_duct",
+
     description = "Transporter Item Duct (" .. color_name .. ")",
 
     groups = groups,

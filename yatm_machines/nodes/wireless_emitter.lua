@@ -1,6 +1,10 @@
 minetest.register_node("yatm_machines:wireless_emitter", {
+  basename = "yatm_machines:wireless_emitter",
+
   description = "Wireless Emitter",
+
   groups = {cracky = 1},
+
   tiles = {
     "yatm_wireless_emitter_top.on.png",
     "yatm_wireless_emitter_bottom.png",

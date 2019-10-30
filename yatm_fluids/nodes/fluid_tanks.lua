@@ -7,7 +7,10 @@ local fluid_tank_tiles = {
 }
 
 minetest.register_node("yatm_fluids:fluid_tank", {
+  basename = "yatm_fluids:fluid_tank",
+
   description = "Fluid Tank",
+
   groups = {
     cracky = 1,
     fluid_tank = 1,

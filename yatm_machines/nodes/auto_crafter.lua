@@ -34,6 +34,8 @@ local groups = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_machines:auto_crafter",
+
   description = "Auto Crafter",
   groups = groups,
 

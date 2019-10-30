@@ -53,6 +53,8 @@ local pylon_node_box = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_machines:pylon",
+
   description = "Pylon",
 
   groups = {cracky = 1},

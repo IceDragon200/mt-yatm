@@ -120,6 +120,8 @@ for material_basename, def in pairs(shelf_materials) do
     local half_shelf_name = "yatm_item_shelves:" .. material_basename .. "_" .. x .. "_half_shelf"
 
     yatm.shelves.register_shelf(full_shelf_name, {
+      basename = "yatm_item_shelves:full_shelf",
+
       description = def.name .. " " .. x .. " Shelf",
 
       tiles = {
@@ -138,6 +140,8 @@ for material_basename, def in pairs(shelf_materials) do
     })
 
     yatm.shelves.register_shelf(half_shelf_name, {
+      basename = "yatm_item_shelves:half_shelf",
+
       description = def.name .. " " .. x .. " Half Shelf",
 
       tiles = {

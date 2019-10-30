@@ -47,6 +47,8 @@ local teleporter_relay_yatm_network = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_spacetime:teleporter_relay",
+
   description = "Teleporter Relay",
   groups = {cracky = 1, spacetime_device = 1, teleporter_relay = 1},
   drop = teleporter_relay_yatm_network.states.off,
