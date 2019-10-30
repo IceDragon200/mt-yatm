@@ -49,6 +49,14 @@ local fluid_interface = FluidInterface.new_directional(get_fluid_tank_name)
 fluid_interface.capacity = 16000
 fluid_interface.bandwidth = fluid_interface.capacity
 
+function fluid_interface:allow_fill(pos, dir, fluid_stack)
+  local tank_name = get_fluid_tank_name(self, pos, dir)
+  if tank_name == FLUID_TANK then
+    return true
+  end
+  return false
+end
+
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
   local node = minetest.get_node(pos)
   yatm.queue_refresh_infotext(pos, node)
