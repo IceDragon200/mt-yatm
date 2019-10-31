@@ -199,6 +199,11 @@ end
 
 -- @spec unregister_member(Vector3.t, Node.t | nil) :: DataNetwork.t
 function ic:unregister_member(pos, node)
+  print("unregister_member/2 is deprecated please use remove_node/2 instead")
+  return self:remove_node(pos, node)
+end
+
+function ic:remove_node(pos, node)
   print("DataNetwork", "unregister_member", minetest.pos_to_string(pos))
   local member_id = minetest.hash_node_position(pos)
   local member = self.m_members[member_id]
@@ -232,7 +237,7 @@ function ic:unload_block(block_id)
       local member = self.m_members[member_id]
 
       if member then
-        self:unregister_member(member.pos, member.node)
+        self:remove_node(member.pos, member.node)
       end
     end
   end
