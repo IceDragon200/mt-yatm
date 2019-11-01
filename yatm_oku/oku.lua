@@ -35,6 +35,7 @@ struct yatm_oku_registers32 {
 ]]
 
 dofile(yatm_oku.modpath .. "/lib/oku/isa/riscv.lua")
+dofile(yatm_oku.modpath .. "/lib/oku/isa/mos_6502.lua")
 
 local OKU = yatm_oku.OKU
 local ic = OKU.instance_class

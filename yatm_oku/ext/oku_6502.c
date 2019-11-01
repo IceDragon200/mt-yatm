@@ -1,5 +1,8 @@
 /*
 
+// Copied most of the implementation from this, with a few adjustments
+http://oric.free.fr/microtan/microtan_java.html
+
 https://www.masswerk.at/6502/6502_instruction_set.html
 
 // Copied here for reference
@@ -958,6 +961,24 @@ static void exec_tya(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 //
 // Step
 //
+extern int oku_6502_sizeof_chip()
+{
+  return sizeof(struct oku_6502_chip);
+}
+
+extern void oku_6502_init(struct oku_6502_chip* chip)
+{
+  chip->pc = 0;
+  chip->sp = 0xFF;
+  chip->acc = 0;
+  chip->x = 0;
+  chip->y = 0;
+  chip->sr = 0;
+  chip->_padding = 0;
+  chip->cycles = 0;
+  chip->operand = 0;
+}
+
 extern int oku_6502_step(struct oku_6502_chip* chip, int32_t mem_size, char* mem)
 {
   int status = INVALID_CODE;

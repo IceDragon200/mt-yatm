@@ -73,7 +73,7 @@ local function computer_on_destruct(pos)
 end
 
 local function computer_after_destruct(pos, old_node)
-  data_network:unregister_member(pos, old_node)
+  data_network:remove_node(pos, old_node)
   yatm.devices.device_after_destruct(pos, old_node)
 end
 
