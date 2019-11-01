@@ -1,3 +1,10 @@
+--[[
+
+  DSCS Drive Case - or Drive Rack, if you'd like
+
+  Actually that gives me an idea, a drive rack!
+
+]]
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
