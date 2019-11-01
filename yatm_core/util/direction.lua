@@ -46,6 +46,13 @@ yatm_core.DIR6_TO_VEC3 = {
   [yatm_core.D_UP] = yatm_core.V3_UP,
 }
 
+yatm_core.DIR4_TO_VEC3 = {
+  [yatm_core.D_NORTH] = yatm_core.V3_NORTH,
+  [yatm_core.D_EAST] = yatm_core.V3_EAST,
+  [yatm_core.D_SOUTH] = yatm_core.V3_SOUTH,
+  [yatm_core.D_WEST] = yatm_core.V3_WEST,
+}
+
 -- Clockwise and Anti-Clockwise tables
 yatm_core.DIR4_CW_ROTATION = {
   [yatm_core.D_NORTH] = yatm_core.D_EAST,
@@ -94,6 +101,7 @@ yatm_core.DIR_TO_STRING = {
 
 -- And the inversions
 yatm_core.INVERTED_DIR6 = {
+  [yatm_core.D_NONE] = yatm_core.D_NONE,
   [yatm_core.D_SOUTH] = yatm_core.D_NORTH,
   [yatm_core.D_WEST] = yatm_core.D_EAST,
   [yatm_core.D_NORTH] = yatm_core.D_SOUTH,
@@ -234,12 +242,12 @@ function yatm_core.rotate_facedir_face_180(facedir)
 end
 
 function yatm_core.invert_dir_to_vec3(dir)
-  assert(dir)
+  assert(type(dir) == "number", "expected a number")
   return yatm_core.INVERTED_DIR6_TO_VEC3[dir]
 end
 
 function yatm_core.invert_dir(dir)
-  assert(dir)
+  assert(type(dir) == "number", "expected a number")
   return yatm_core.INVERTED_DIR6[dir]
 end
 

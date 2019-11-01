@@ -262,3 +262,4 @@ case:display_stats()
 case:maybe_error()
 
 dofile(yatm_core.modpath .. "/tests/util/bin_buf_test.lua")
+dofile(yatm_core.modpath .. "/tests/util/direction_test.lua")
