@@ -163,5 +163,15 @@ yatm.devices.register_stateful_network_device({
       "yatm_combustion_engine_back.error.png",
       "yatm_combustion_engine_front.error.png",
     },
+  },
+  idle = {
+    tiles = {
+      "yatm_combustion_engine_top.idle.png",
+      "yatm_combustion_engine_bottom.idle.png",
+      "yatm_combustion_engine_side.idle.png",
+      "yatm_combustion_engine_side.idle.png",
+      "yatm_combustion_engine_back.idle.png",
+      "yatm_combustion_engine_front.idle.png",
+    },
   }
 })
