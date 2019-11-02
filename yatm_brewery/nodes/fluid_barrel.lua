@@ -25,6 +25,7 @@ local function barrel_on_construct(pos)
 end
 
 local function barrel_on_destruct(pos)
+  --
 end
 
 local function barrel_refresh_infotext(pos)
@@ -81,6 +82,8 @@ for _,pair in ipairs(colors) do
 
     dye_color = color_basename,
 
+    stack_max = 1,
+
     on_construct = barrel_on_construct,
     on_destruct = barrel_on_destruct,
 
@@ -110,6 +113,8 @@ for _,pair in ipairs(colors) do
     node_box = barrel_nodebox,
 
     dye_color = color_basename,
+
+    stack_max = 1,
 
     on_construct = barrel_on_construct,
     on_destruct = barrel_on_destruct,
