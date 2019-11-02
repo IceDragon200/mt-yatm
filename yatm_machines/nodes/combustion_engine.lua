@@ -129,10 +129,8 @@ function combustion_engine_refresh_infotext(pos)
 end
 
 function combustion_engine_transition_device_state(pos, _node, state)
-  node = minetest.get_node(pos)
-
+  local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
-
   local meta = minetest.get_meta(pos)
 
   local tank_fluid_stack = FluidMeta.get_fluid_stack(meta, "tank")
