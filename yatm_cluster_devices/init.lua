@@ -61,6 +61,12 @@ function ic:schedule_add_node(pos, node)
   end
 end
 
+function ic:schedule_transition_node(pos, node, new_state)
+  print(LOG_GROUP, 'schedule_transition_node', minetest.pos_to_string(pos), node.name)
+  local groups = self:get_node_device_groups(node)
+  yatm.clusters:schedule_node_event(CLUSTER_GROUP, 'transition_node', pos, node, { state = new_state })
+end
+
 function ic:schedule_load_node(pos, node)
   print(LOG_GROUP, 'schedule_load_node', minetest.pos_to_string(pos), node.name)
   local groups = self:get_node_device_groups(node)
@@ -93,6 +99,9 @@ function ic:handle_node_event(cls, generation_id, event, node_clusters)
 
   elseif event.event_name == 'remove_node' then
     self:_handle_remove_node(cls, generation_id, event, node_clusters)
+
+  elseif event.event_name == 'transition_node' then
+    self:_handle_transition_node(cls, generation_id, event, node_clusters)
 
   elseif event.event_name == 'refresh_controller' then
     self:_handle_refresh_controller(cls, generation_id, event, node_clusters)
@@ -299,6 +308,12 @@ function ic:_handle_remove_node(cls, generation_id, event, node_clusters)
                                { cluster_id = cluster.id, generation_id = generation_id })
     end
   end
+end
+
+function ic:_handle_transition_node(cls, generation_id, event, node_clusters)
+  local node = minetest.get_node(event.pos)
+  local nodedef = minetest.registered_nodes[node.name]
+  nodedef.transition_device_state(event.pos, node, event.params.state)
 end
 
 local function transition_cluster_state(cls, cluster, generation_id, event, state)
