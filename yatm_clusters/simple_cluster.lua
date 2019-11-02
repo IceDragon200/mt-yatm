@@ -10,11 +10,19 @@ function ic:initialize(options)
   assert(type(options) == "table", "expected options to be a table")
   self.m_cluster_group = assert(options.cluster_group)
   self.m_node_group = assert(options.node_group)
+
+  self.m_enable_logs = false
   self.m_log_group = assert(options.log_group)
 end
 
+function ic:log(...)
+  if self.m_enable_logs then
+    print(self.m_log_group, ...)
+  end
+end
+
 function ic:terminate()
-  print(self.m_log_group, "terminated")
+  self:log("terminated")
 end
 
 function ic:register_system(id, update)
@@ -43,7 +51,7 @@ function ic:get_node_groups(node)
 end
 
 function ic:schedule_add_node(pos, node)
-  print(self.m_log_group, 'schedule_add_node', minetest.pos_to_string(pos), node.name)
+  self:log('schedule_add_node', minetest.pos_to_string(pos), node.name)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef.groups[self.m_node_group] then
     local groups = self:get_node_groups(node)
@@ -54,24 +62,24 @@ function ic:schedule_add_node(pos, node)
 end
 
 function ic:schedule_load_node(pos, node)
-  print(self.m_log_group, 'schedule_load_node', minetest.pos_to_string(pos), node.name)
+  self:log('schedule_load_node', minetest.pos_to_string(pos), node.name)
   local groups = self:get_node_groups(node)
   yatm.clusters:schedule_node_event(self.m_cluster_group, 'load_node', pos, node, { groups = groups })
 end
 
 function ic:schedule_update_node(pos, node)
-  print(self.m_log_group, 'schedule_update_node', minetest.pos_to_string(pos), node.name)
+  self:log('schedule_update_node', minetest.pos_to_string(pos), node.name)
   local groups = self:get_node_groups(node)
   yatm.clusters:schedule_node_event(self.m_cluster_group, 'update_node', pos, node, { groups = groups })
 end
 
 function ic:schedule_remove_node(pos, node)
-  print(self.m_log_group, 'schedule_remove_node', minetest.pos_to_string(pos), node.name)
+  self:log('schedule_remove_node', minetest.pos_to_string(pos), node.name)
   yatm.clusters:schedule_node_event(self.m_cluster_group, 'remove_node', pos, node, { })
 end
 
 function ic:handle_node_event(cls, generation_id, event, cluster_ids)
-  print(self.m_log_group, 'event', event.event_name, generation_id, minetest.pos_to_string(event.pos))
+  self:log('event', event.event_name, generation_id, minetest.pos_to_string(event.pos))
 
   if event.event_name == 'load_node' then
     -- treat loads like adding a node
@@ -87,7 +95,7 @@ function ic:handle_node_event(cls, generation_id, event, cluster_ids)
     self:_handle_remove_node(cls, generation_id, event, cluster_ids)
 
   else
-    print(self.m_log_group, "unhandled event event_name=" .. event.event_name)
+    self:log("unhandled event event_name=" .. event.event_name)
   end
 end
 
