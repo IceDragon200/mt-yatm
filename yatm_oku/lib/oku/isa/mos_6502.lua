@@ -1,7 +1,18 @@
 local bit = assert(yatm_oku.bit)
 local ffi = assert(yatm_oku.ffi)
 
-local oku_6502 = ffi.load(yatm_oku.modpath .. "/ext/oku_6502.so")
+local has_oku_6502 = false
+pcall(function ()
+  local oku_6502 = ffi.load(yatm_oku.modpath .. "/ext/oku_6502.so")
+  has_oku_6502 = true
+end)
+
+if not has_oku_6502 then
+  print("oku_6502 shared object is not available, skipping implementation")
+  print("\n\nWARN: 6502 based CPUs will not be available.\n\n")
+  return
+end
+
 local code_table = {
   [-1] = SEGFAULT_CODE,
   [0] = OK_CODE,
