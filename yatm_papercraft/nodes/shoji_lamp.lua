@@ -73,7 +73,7 @@ minetest.register_node("yatm_papercraft:shoji_lamp_on", {
 
   paramtype = "light",
   paramtype2 = "facedir",
-  sunlight_propagates = true,
+  sunlight_propagates = false,
   light_source = default.LIGHT_MAX,
 
   drawtype = "nodebox",

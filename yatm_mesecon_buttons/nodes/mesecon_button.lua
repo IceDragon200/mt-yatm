@@ -64,7 +64,7 @@ for _,color in pairs(colors) do
 
     dye_color = color_basename,
 
-    sunlight_propagates = true,
+    sunlight_propagates = false,
     is_ground_content = false,
 
     sounds = default.node_sound_metal_defaults(),
@@ -112,7 +112,7 @@ for _,color in pairs(colors) do
 
     dye_color = color_basename,
 
-    sunlight_propagates = true,
+    sunlight_propagates = false,
     is_ground_content = false,
 
     sounds = default.node_sound_metal_defaults(),
