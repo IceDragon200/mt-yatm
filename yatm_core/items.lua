@@ -18,7 +18,7 @@ minetest.register_craftitem("yatm_core:ic", {
 
 minetest.register_craftitem("yatm_core:spool", {
   description = "Spool",
-  inventory_image = "yatm_materials_spool.png",
+  inventory_image = "yatm_materials_spool.blank.png",
 
   groups = {
     spool_spindle = 1,
