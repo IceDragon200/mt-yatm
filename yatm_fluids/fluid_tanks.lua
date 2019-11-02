@@ -4,6 +4,7 @@
 local FluidStack = assert(yatm_fluids.FluidStack)
 
 local FluidTanks = {
+  version = "1.2.0"
 }
 
 function FluidTanks.has_fluid_interface(pos, dir)
@@ -16,7 +17,21 @@ function FluidTanks.has_fluid_interface(pos, dir)
   return nil, "no nodedef, or fluid_interface"
 end
 
+--@since "1.2.0"
+function FluidTanks.get_fluid_interface(pos)
+  local node = minetest.get_node(pos)
+  local nodedef = minetest.registered_nodes[node.name]
+
+  if nodedef and nodedef.fluid_interface then
+    return nodedef.fluid_interface
+  end
+  return nil, "no fluid interface"
+end
+
 function FluidTanks.get_capacity(pos, dir)
+  if type(dir) ~= "number" then
+    error("expected a number got:" .. type(dir))
+  end
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef and nodedef.fluid_interface and nodedef.fluid_interface.get_capacity then
@@ -26,6 +41,9 @@ function FluidTanks.get_capacity(pos, dir)
 end
 
 function FluidTanks.get_fluid(pos, dir)
+  if type(dir) ~= "number" then
+    error("expected a number got:" .. type(dir))
+  end
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef and nodedef.fluid_interface and nodedef.fluid_interface.get then
@@ -35,6 +53,9 @@ function FluidTanks.get_fluid(pos, dir)
 end
 
 function FluidTanks.replace_fluid(pos, dir, fluid_stack, commit)
+  if type(dir) ~= "number" then
+    error("expected a number got:" .. type(dir))
+  end
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef and nodedef.groups.fluid_interface_in then
@@ -46,6 +67,9 @@ function FluidTanks.replace_fluid(pos, dir, fluid_stack, commit)
 end
 
 function FluidTanks.drain_fluid(pos, dir, fluid_stack, commit)
+  if type(dir) ~= "number" then
+    error("expected a number got:" .. type(dir))
+  end
   if fluid_stack.amount <= 0 then
     return nil
   end
@@ -60,6 +84,10 @@ function FluidTanks.drain_fluid(pos, dir, fluid_stack, commit)
 end
 
 function FluidTanks.fill_fluid(pos, dir, fluid_stack, commit)
+  if type(dir) ~= "number" then
+    error("expected a number got:" .. type(dir))
+  end
+
   if fluid_stack.amount <= 0 then
     return nil, "fluid stack was empty"
   end
@@ -76,6 +104,10 @@ function FluidTanks.fill_fluid(pos, dir, fluid_stack, commit)
 end
 
 function FluidTanks.trigger_on_fluid_changed(pos, dir, fluid_stack)
+  if type(dir) ~= "number" then
+    error("expected a number got:" .. type(dir))
+  end
+
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef and nodedef.fluid_interface and nodedef.fluid_interface.on_fluid_changed then

@@ -2,6 +2,7 @@
 Simple utility module for dealing with stacks of fluids
 ]]
 local FluidRegistry = assert(yatm_fluids.FluidRegistry)
+local FluidUtils = assert(yatm_fluids.Utils)
 local FluidStack = {}
 
 function FluidStack.new(name, amount)
@@ -22,6 +23,34 @@ end
 
 function FluidStack.copy(fluid_stack)
   return { name = fluid_stack.name, amount = fluid_stack.amount }
+end
+
+function FluidStack.same_fluid(a, b)
+  if a and b then
+    return FluidUtils.matches(a.name, b.name)
+  end
+
+  return false
+end
+
+function FluidStack.same_fluid_or_replacable_by(base, replacement)
+  if not base then
+    return replacement ~= nil
+  end
+end
+
+function FluidStack.equals(a, b)
+  if a == b then
+    return true
+  end
+
+  if a and b then
+    if FluidUtils.matches(a.name, b.name) then
+      return a.amount == b.amount
+    end
+  end
+
+  return false
 end
 
 function FluidStack.get_fluid(fluid_stack)
@@ -114,9 +143,15 @@ end
 function FluidStack.presence(fluid_stack)
   if fluid_stack and fluid_stack.amount > 0 then
     return fluid_stack
-  else
-    return nil
   end
+  return nil
+end
+
+function FluidStack.is_empty(fluid_stack)
+  if fluid_stack and fluid_stack.amount > 0 then
+    return false
+  end
+  return true
 end
 
 yatm_fluids.FluidStack = FluidStack
