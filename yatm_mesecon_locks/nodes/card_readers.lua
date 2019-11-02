@@ -70,7 +70,7 @@ yatm.register_stateful_node("yatm_mesecon_locks:mesecon_card_reader", {
     mesecon_needs_receiver = 1,
   },
 
-  sunlight_propagates = true,
+  sunlight_propagates = false,
   is_ground_content = false,
 
   sounds = default.node_sound_metal_defaults(),
@@ -196,7 +196,7 @@ if yatm_data_network then
       yatm_data_device = 1,
     },
 
-    sunlight_propagates = true,
+    sunlight_propagates = false,
     is_ground_content = false,
 
     sounds = default.node_sound_metal_defaults(),

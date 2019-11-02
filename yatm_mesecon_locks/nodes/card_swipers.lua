@@ -17,7 +17,7 @@ minetest.register_node("yatm_mesecon_locks:mesecon_card_swiper_off", {
     mesecon_needs_receiver = 1,
   },
 
-  sunlight_propagates = true,
+  sunlight_propagates = false,
   is_ground_content = false,
 
   sounds = default.node_sound_metal_defaults(),
@@ -69,7 +69,7 @@ minetest.register_node("yatm_mesecon_locks:mesecon_card_swiper_on", {
     not_in_creative_inventory = 1,
   },
 
-  sunlight_propagates = true,
+  sunlight_propagates = false,
   is_ground_content = false,
 
   sounds = default.node_sound_metal_defaults(),
@@ -143,7 +143,7 @@ if yatm_data_network then
       yatm_data_device = 1,
     },
 
-    sunlight_propagates = true,
+    sunlight_propagates = false,
     is_ground_content = false,
 
     sounds = default.node_sound_metal_defaults(),
@@ -181,7 +181,7 @@ if yatm_data_network then
       not_in_creative_inventory = 1,
     },
 
-    sunlight_propagates = true,
+    sunlight_propagates = false,
     is_ground_content = false,
 
     sounds = default.node_sound_metal_defaults(),
