@@ -37,6 +37,7 @@ local combustion_engine_yatm_network = {
     error = "yatm_machines:combustion_engine_error",
     off = "yatm_machines:combustion_engine_off",
     on = "yatm_machines:combustion_engine_on",
+    idle = "yatm_machines:combustion_engine_idle",
   },
 
   energy = {
@@ -58,6 +59,9 @@ function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, 
   local meta = minetest.get_meta(pos)
   local fluid_stack = FluidMeta.get_fluid_stack(meta, "tank")
 
+  local nodedef = minetest.registered_nodes[node.name]
+
+  local new_state
   if fluid_stack and fluid_stack.amount > 0 then
     local fluid = FluidRegistry.get_fluid(fluid_stack.name)
     if fluid then
@@ -69,6 +73,7 @@ function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, 
         if consumed_stack and consumed_stack.amount > 0 then
           energy_produced = energy_produced + consumed_stack.amount * 5
           need_refresh = should_commit
+          new_state = 'on'
         end
       elseif fluid.groups.heavy_oil then
         -- Heavy oil doesn't produce much energy, but it lasts a bit longer
@@ -76,6 +81,7 @@ function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, 
         if consumed_stack and consumed_stack.amount > 0 then
           energy_produced = energy_produced + consumed_stack.amount * 10
           need_refresh = should_commit
+          new_state = 'on'
         end
       elseif fluid.groups.light_oil then
         -- Light oil produces more energy at the saem fluid cost
@@ -83,9 +89,20 @@ function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, 
         if consumed_stack and consumed_stack.amount > 0 then
           energy_produced = energy_produced + consumed_stack.amount  * 15
           need_refresh = should_commit
+          new_state = 'on'
         end
+      else
+        new_state = 'idle'
       end
+    else
+      new_state = 'idle'
     end
+  else
+    new_state = 'idle'
+  end
+
+  if nodedef.state ~= new_state then
+    cluster_devices:schedule_transition_node(pos, node, new_state)
   end
 
   meta:set_int("last_energy_produced", energy_produced)
@@ -109,6 +126,43 @@ function combustion_engine_refresh_infotext(pos)
     "Last Energy Produced: " .. meta:get_int("last_energy_produced")
 
   meta:set_string("infotext", infotext)
+end
+
+function combustion_engine_transition_device_state(pos, _node, state)
+  node = minetest.get_node(pos)
+
+  local nodedef = minetest.registered_nodes[node.name]
+
+  local meta = minetest.get_meta(pos)
+
+  local tank_fluid_stack = FluidMeta.get_fluid_stack(meta, "tank")
+
+  local new_node_name = node.name
+
+  if state == "conflict" then
+    new_node_name = nodedef.yatm_network.states["conflict"]
+  elseif state == "error" then
+    new_node_name = nodedef.yatm_network.states["error"]
+  elseif state == "idle" then
+    new_node_name = nodedef.yatm_network.states["idle"]
+  elseif state == "up" or state == "on" then
+    if tank_fluid_stack and tank_fluid_stack.amount > 0 then
+      new_node_name = nodedef.yatm_network.states["on"]
+    else
+      new_node_name = nodedef.yatm_network.states["idle"]
+    end
+  elseif state == "down" or state == "off" then
+    -- this shouldn't actually happen...
+    new_node_name = nodedef.yatm_network.states["off"]
+  end
+
+  if node.name ~= new_node_name then
+    node.name = new_node_name
+    minetest.swap_node(pos, node)
+
+    cluster_devices:schedule_update_node(pos, node)
+    cluster_energy:schedule_update_node(pos, node)
+  end
 end
 
 yatm.devices.register_stateful_network_device({
@@ -143,6 +197,8 @@ yatm.devices.register_stateful_network_device({
   fluid_interface = fluid_interface,
 
   refresh_infotext = combustion_engine_refresh_infotext,
+
+  transition_device_state = combustion_engine_transition_device_state,
 }, {
   on = {
     tiles = {

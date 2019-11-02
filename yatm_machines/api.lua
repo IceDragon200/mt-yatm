@@ -68,8 +68,9 @@ function devices.device_transition_device_state(pos, node, state)
         cluster_energy:schedule_update_node(pos, node)
       end
     end
+
+    yatm.queue_refresh_infotext(pos, node)
   end
-  yatm.queue_refresh_infotext(pos, node)
 end
 
 --
