@@ -101,7 +101,7 @@ function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, 
     new_state = 'idle'
   end
 
-  if nodedef.state ~= new_state then
+  if nodedef.yatm_network.state ~= new_state then
     cluster_devices:schedule_transition_node(pos, node, new_state)
   end
 

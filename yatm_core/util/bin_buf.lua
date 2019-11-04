@@ -1,6 +1,11 @@
 --
 -- Binary Buffer - same interface as StringBuf but using an FFI allocated uchar array
 --
+if not yatm.ffi then
+  yatm.error("yatm_core.BinaryBuffer is unavailable as it requires LuaJIT's FFI module")
+  return
+end
+
 local ffi = assert(yatm.ffi)
 local BinaryBuffer = yatm_core.Class:extends('BinaryBuffer')
 local ic = BinaryBuffer.instance_class

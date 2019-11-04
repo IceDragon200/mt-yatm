@@ -1,8 +1,16 @@
 local Luna = assert(yatm_core.Luna)
+if not yatm_oku.OKU then
+  yatm.warn("Cannot test memory, OKU is not available\n")
+  return
+end
 
+local m = yatm_oku.OKU.Memory
+
+if not m then
+  yatm.warn("Memory module is not available cannot test\n")
+  return
+end
 local case = Luna:new("yatm_oku.OKU.Memory")
-
-local m = assert(yatm_oku.OKU.Memory)
 
 case:describe("r_i8", function (t2)
   t2:test("can address bytes at location", function (t3)

@@ -16,24 +16,26 @@ if insec then
 end
 
 if not yatm_oku.ffi then
-  error("yatm_oku requires LuaJIT's FFI, please add yatm_oku to your trusted mods list if you use LuaJIT, or disable yatm_oku otherwise.")
+  yatm.error("yatm_oku requires LuaJIT's FFI, please add yatm_oku to your trusted mods list if you use LuaJIT, or disable yatm_oku otherwise.")
 end
 if not yatm_oku.bit then
-  error("yatm_oku requires LuaJIT's bitmodule, please add yatm_oku to your trusted mods list if you use LuaJIT, or disable yatm_oku otherwise.")
+  yatm.error("yatm_oku requires LuaJIT's bitmodule, please add yatm_oku to your trusted mods list if you use LuaJIT, or disable yatm_oku otherwise.")
 end
 
-dofile(yatm_oku.modpath .. "/oku.lua")
-dofile(yatm_oku.modpath .. "/lib/elf.lua")
-dofile(yatm_oku.modpath .. "/computers.lua")
+if yatm_oku.ffi and yatm_oku.bit then
+  dofile(yatm_oku.modpath .. "/oku.lua")
+  dofile(yatm_oku.modpath .. "/lib/elf.lua")
+  dofile(yatm_oku.modpath .. "/computers.lua")
 
-dofile(yatm_oku.modpath .. "/api.lua")
+  dofile(yatm_oku.modpath .. "/api.lua")
 
-dofile(yatm_oku.modpath .. "/nodes.lua")
-dofile(yatm_oku.modpath .. "/items.lua")
+  dofile(yatm_oku.modpath .. "/nodes.lua")
+  dofile(yatm_oku.modpath .. "/items.lua")
 
-dofile(yatm_oku.modpath .. "/hooks.lua")
+  dofile(yatm_oku.modpath .. "/hooks.lua")
 
-dofile(yatm_oku.modpath .. "/tests.lua")
+  dofile(yatm_oku.modpath .. "/tests.lua")
+end
 
 yatm_oku.ffi = nil
 yatm_oku.bit = nil

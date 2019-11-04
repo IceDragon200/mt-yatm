@@ -1,9 +1,19 @@
-local Memory = yatm_core.Class:extends()
-local m = assert(Memory.instance_class)
-
 -- yatm_oku will remove ffi from it's global object before finishing init,
 -- therefore we need to keep a reference here instead
-local ffi = assert(yatm_oku.ffi)
+local ffi = yatm_oku.ffi
+
+if not ffi then
+  yatm.error("cannot create memory module, need ffi")
+  return
+end
+
+if not yatm_core.ByteBuf then
+  yatm.error("cannot serialize memory, need yatm_core.ByteBuf")
+  return
+end
+
+local Memory = yatm_core.Class:extends()
+local m = assert(Memory.instance_class)
 
 ffi.cdef[[
 union yatm_oku_aligned_memory_cell32 {

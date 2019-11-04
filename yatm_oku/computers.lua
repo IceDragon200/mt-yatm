@@ -1,7 +1,21 @@
 --
 --
 --
-local OKU = assert(yatm_oku.OKU)
+local OKU = yatm_oku.OKU
+if not OKU then
+  yatm.error("Cannot create computer service, OKU not available!?")
+  return
+end
+
+local BinSchema = yatm_core.BinSchema
+
+if not BinSchema then
+  yatm.error("computers service not available, yatm_core.BinSchema is unavailable")
+  return
+end
+
+-- Pick a buffer module, prefer binary or string, as it's faster
+local Buffer = yatm_core.BinaryBuffer or yatm_core.StringBuf
 
 local Computers = yatm_core.Class:extends()
 local ic = assert(Computers.instance_class)
@@ -12,7 +26,7 @@ local ic = assert(Computers.instance_class)
 -- Doesn't help that the format is variable depending on the size and type.
 --
 local ComputerStateHeaderSchema =
-  yatm_core.BinSchema:new("ComputerStateHeader", {
+  BinSchema:new("ComputerStateHeader", {
     {"magic", yatm_core.binary_types.Bytes:new(4)},
     --
     {"version", "i32"},
@@ -57,7 +71,7 @@ function ic:load_computer_state(pos)
   local file = io.open(filename, "r")
   if file then
     local ot = yatm_core.trace.span_start(trace, 'read-binary')
-    local stream = yatm_core.StringBuf:new(file:read('*all'), 'r')
+    local stream = Buffer:new(file:read('*all'), 'r')
     file:close()
     yatm_core.trace.span_end(ot)
 
@@ -109,7 +123,7 @@ function ic:save_computer_state(state, parent_trace)
   else
     ot = yatm_core.trace.new('save_computer_state/' .. minetest.pos_to_string(state.pos))
   end
-  local stream = yatm_core.BinaryBuffer:new('', 'w')
+  local stream = Buffer:new('', 'w')
 
   local bytes_written = 0
   local bw, err =

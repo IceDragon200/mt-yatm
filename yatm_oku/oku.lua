@@ -3,14 +3,19 @@
 --   x0-x31
 --   pc
 --
-local ByteBuf = assert(yatm_core.ByteBuf)
+local ByteBuf = yatm_core.ByteBuf
+
+if not ByteBuf then
+  yatm.error("yatm_core.ByteBuf is not available, cannot create OKU state")
+  return
+end
 
 yatm_oku.OKU = yatm_core.Class:extends()
 yatm_oku.OKU.isa = {}
 
 dofile(yatm_oku.modpath .. "/lib/oku/memory.lua")
 
-local ffi = assert(yatm_oku.ffi)
+local ffi = assert(yatm_oku.ffi, "oku needs ffi")
 
 ffi.cdef[[
 union yatm_oku_register32 {

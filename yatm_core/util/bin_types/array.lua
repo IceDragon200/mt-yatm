@@ -1,5 +1,5 @@
 local ByteBuf = assert(yatm_core.ByteBuf)
-local ScalarTypes = yatm_core.binary_types.Scalars
+local ScalarTypes = assert(yatm_core.binary_types.Scalars)
 
 local Array = yatm_core.Class:extends("Array")
 local ic = Array.instance_class

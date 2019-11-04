@@ -1,4 +1,10 @@
-local BinaryBuffer = assert(yatm_core.BinaryBuffer)
+local BinaryBuffer = yatm_core.BinaryBuffer
+
+if not BinaryBuffer then
+  print "BinaryBuffer is not available skipping tests"
+  return
+end
+
 local Luna = assert(yatm_core.Luna)
 
 local case = Luna:new("yatm_core-util/bin_buf")

@@ -19,5 +19,9 @@ dofile(yatm_core.modpath .. "/util/string_buf.lua")
 dofile(yatm_core.modpath .. "/util/bin_buf.lua")
 -- Binary Serializer
 dofile(yatm_core.modpath .. "/util/byte_buf.lua")
-dofile(yatm_core.modpath .. "/util/bin_schema.lua")
-dofile(yatm_core.modpath .. "/util/bin_types.lua")
+if yatm_core.ByteBuf then
+  dofile(yatm_core.modpath .. "/util/bin_schema.lua")
+  dofile(yatm_core.modpath .. "/util/bin_types.lua")
+else
+  yatm.warn("yatm_core.ByteBuf is unavailable, skipping all binary related modules")
+end

@@ -1,7 +1,18 @@
-local ByteBuf = assert(yatm_core.ByteBuf)
+local ByteBuf = yatm_core.ByteBuf
+
+if not ByteBuf then
+  yatm.error("ELF module not available, because yatm_core.ByteBuf is not available")
+  return
+end
+
 local Enum = assert(yatm_core.binary_types.Enum)
-local BitFlags = assert(yatm_core.binary_types.BitFlags)
+local BitFlags = yatm_core.binary_types.BitFlags
 local BinSchema = assert(yatm_core.BinSchema)
+
+if not BitFlags then
+  yatm.error("ELF module not available, because yatm_core.binary_types.BitFlags is not available")
+  return
+end
 
 local ELF = {}
 local ELF32 = {}

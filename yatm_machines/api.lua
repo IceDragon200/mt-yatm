@@ -35,7 +35,7 @@ function devices.device_after_place_node(pos, placer, item_stack, pointed_thing)
 end
 
 function devices.device_transition_device_state(pos, node, state)
-  print("yatm_machines", "device_transition_device_state", minetest.pos_to_string(pos), "node=" .. node.name, "state=" .. state)
+  --print("yatm_machines", "device_transition_device_state", minetest.pos_to_string(pos), "node=" .. node.name, "state=" .. state)
 
   local nodedef = minetest.registered_nodes[node.name]
 
@@ -211,27 +211,27 @@ function devices.register_network_device(name, nodedef)
   nodedef.groups['yatm_cluster_device'] = 1
 
   if nodedef.transition_device_state == nil then
-    print("register_network_device", name, "using device_transition_device_state")
+    --print("register_network_device", name, "using device_transition_device_state")
     nodedef.transition_device_state = assert(devices.device_transition_device_state)
   end
 
   if nodedef.after_place_node == nil then
-    print("register_network_device", name, "using device_after_place_node")
+    --print("register_network_device", name, "using device_after_place_node")
     nodedef.after_place_node = assert(devices.device_after_place_node)
   end
 
   if nodedef.on_construct == nil then
-    print("register_network_device", name, "using device_on_construct")
+    --print("register_network_device", name, "using device_on_construct")
     nodedef.on_construct = assert(devices.device_on_construct)
   end
 
   if nodedef.on_destruct == nil then
-    print("register_network_device", name, "using device_on_destruct")
+    --print("register_network_device", name, "using device_on_destruct")
     nodedef.on_destruct = assert(devices.device_on_destruct)
   end
 
   if nodedef.after_destruct == nil then
-    print("register_network_device", name, "using device_after_destruct")
+    --print("register_network_device", name, "using device_after_destruct")
     nodedef.after_destruct = assert(devices.device_after_destruct)
   end
 

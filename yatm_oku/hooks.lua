@@ -1,6 +1,11 @@
 --
 -- All minetest hooks
 --
+if not yatm.computers then
+  yatm.warn("yatm.computers is unavailable, cannot set hooks")
+  return
+end
+
 minetest.register_on_mods_loaded(yatm.computers:method("setup"))
 minetest.register_globalstep(yatm.computers:method("update"))
 minetest.register_on_shutdown(yatm.computers:method("terminate"))

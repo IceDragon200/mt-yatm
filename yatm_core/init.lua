@@ -8,14 +8,17 @@ yatm_core.modpath = minetest.get_modpath(minetest.get_current_modname())
 yatm = rawget(_G, "yatm") or {}
 yatm.config = yatm.config or {}
 
+dofile(yatm_core.modpath .. "/config.lua")
+dofile(yatm_core.modpath .. "/errors.lua")
+
 local insec = minetest.request_insecure_environment()
 if insec then
   yatm.io = assert(insec.io, "no IO available on the insecure environment!")
   yatm.bit = insec.require("bit")
   yatm.ffi = insec.require("ffi")
+else
+  yatm.warn("yatm_core requested an insecure environment but received nil, several modules will be disabled due to this.")
 end
-
-dofile(yatm_core.modpath .. "/config.lua")
 
 -- Classes, yadda, yadda, OOP is evil, yeah I get it, just use OOP sparingly.
 dofile(yatm_core.modpath .. "/class.lua")

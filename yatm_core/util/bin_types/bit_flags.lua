@@ -1,5 +1,4 @@
 local bit = assert(yatm.bit)
-
 local ByteBuf = assert(yatm_core.ByteBuf)
 local BitFlags = yatm_core.Class:extends()
 local ic = BitFlags.instance_class
