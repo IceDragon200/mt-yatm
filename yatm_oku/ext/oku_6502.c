@@ -3,7 +3,11 @@
 // Copied most of the implementation from this, with a few adjustments
 http://oric.free.fr/microtan/microtan_java.html
 
+// Reference for instruction set
 https://www.masswerk.at/6502/6502_instruction_set.html
+
+// Reference for startup sequence and other things
+https://www.pagetable.com/?p=410
 
 // Copied here for reference
 
@@ -38,11 +42,16 @@ Page transitions may occur and add an extra cycle to the exucution.
 */
 #include <stdint.h>
 
+#define VERSION_MAJOR 0
+#define VERSION_MINOR 1
+#define VERSION_TEENY 0
+
 #define OK_CODE 0
 #define INVALID_CODE 1
 #define SEGFAULT_CODE -1
 #define HALT_CODE 4
 #define HANG_CODE 5
+#define STARTUP_CODE 7
 
 // Bitwise helpers
 #define BIT0 0x1
@@ -72,17 +81,33 @@ Page transitions may occur and add an extra cycle to the exucution.
 #define WBIT6(base, value) (((base) & (0xFF ^ BIT6)) | (((value) & 0x1) << 6))
 #define WBIT7(base, value) (((base) & (0xFF ^ BIT7)) | (((value) & 0x1) << 7))
 
+// The CPU is in it's reset sequence, the upper nibble of the state is what 'stage' the reset sequence is in
+#define CPU_STATE_RESET 1
+// The CPU is in it's normal running state
+#define CPU_STATE_RUN 2
+// The CPU is in a hang state, any step will immediately return a HANG_CODE
+#define CPU_STATE_HANG 3
+
+#define NMI_VECTOR_PTR 0xFFFA
+#define RESET_VECTOR_PTR 0xFFFC
+#define IRQ_VECTOR_PTR 0xFFFE
+#define BREAK_VECTOR_PTR 0xFFFE
+
 struct oku_6502_chip
 {
-  // 64 bit block
+  uint16_t ab;        // Address Bus
   uint16_t pc;        // Program Counter
   uint8_t sp;         // Stack Pointer
+  uint8_t ir;         // Instruction Register
   int8_t acc;         // Accumulator
   int8_t x;           // X
   int8_t y;           // Y
   int8_t sr;          // Status Register [NV-BDIZC]
-  int8_t _padding;
+  // Ends the 6502 Registers
 
+  // 0000 (state param) 0000 (state code)
+  int8_t cpu_state; // Not apart of the 6502,
+                    // this is here to define different states the CPU is in for the step function
   uint32_t cycles; // Cycles never go backwards do they?
   int32_t operand; // Any data we need to store for a bit
 };
@@ -958,40 +983,38 @@ static void exec_tya(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
   set_zero_flag(chip, (int32_t)chip->acc);
 }
 
-//
-// Step
-//
-extern int oku_6502_sizeof_chip()
+// Yes, this extension does not provide allocation of the chip or memory
+// It only says what size the pointer needs to be in case you want to throw a
+// void pointer at it.
+extern int oku_6502_chip_size()
 {
   return sizeof(struct oku_6502_chip);
 }
 
-extern void oku_6502_init(struct oku_6502_chip* chip)
+//
+// Initializer, pass a chip pointer and this will initialize it
+//
+extern void oku_6502_chip_init(struct oku_6502_chip* chip)
 {
-  chip->pc = 0;
-  chip->sp = 0xFF;
+  chip->pc = 0; // TODO: this shouldn't start in the zeropage from what I remember
+  chip->sp = 0xFF; // starts right
   chip->acc = 0;
   chip->x = 0;
   chip->y = 0;
   chip->sr = 0;
-  chip->_padding = 0;
+  chip->_padding = 0; // why? I dunno, because...
   chip->cycles = 0;
   chip->operand = 0;
 }
 
-extern int oku_6502_step(struct oku_6502_chip* chip, int32_t mem_size, char* mem)
+//
+// Execute
+//
+extern int oku_6502_chip_exec(struct oku_6502_chip* chip, int32_t mem_size, char* mem)
 {
   int status = INVALID_CODE;
 
-  uint8_t opcode = (uint8_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, &status);
-  if (status != OK_CODE)
-  {
-    return status;
-  }
-
-  status = INVALID_CODE;
-
-  switch (opcode)
+  switch (chip->ir)
   {
     case 0x00: // BRK impl
       opr_implied_i8(chip, mem_size, mem, &status);
@@ -1982,4 +2005,159 @@ extern int oku_6502_step(struct oku_6502_chip* chip, int32_t mem_size, char* mem
       return HANG_CODE;
   }
   return status;
+}
+
+extern int oku_6502_chip_fetch(struct oku_6502_chip* chip, int32_t mem_size, char* mem)
+{
+  int status = INVALID_CODE;
+
+  uint8_t opcode = (uint8_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, &status);
+  if (status != OK_CODE)
+  {
+    return status;
+  }
+
+  chip->ir = opcode;
+  return oku_6502_chip_exec(chip, mem_size, mem);
+}
+
+extern int oku_6502_chip_fex(struct oku_6502_chip* chip, int32_t mem_size, char* mem)
+{
+  int status;
+  status = oku_6502_chip_fetch(chip, mem_size, mem);
+  if (status != OK_CODE)
+  {
+    return status;
+  }
+
+  status = oku_6502_chip_exec(chip, mem_size, mem);
+  return status;
+}
+
+//
+// Startup stepping logic
+//
+#define NEXT_STAGE(value) (((((value) >> 4) & 0xF) + 1) << 4) | ((value) & 0xF);
+
+extern int oku_6502_chip_startup(struct oku_6502_chip* chip, int32_t mem_size, char* mem)
+{
+  int status = 0;
+  int8_t startup_stage = (chip->state >> 4) & 0xF;
+
+  // NMI_VECTOR_PTR
+  // RESET_VECTOR_PTR
+  // IRQ_VECTOR_PTR
+  // BREAK_VECTOR_PTR
+
+  switch (startup_stage)
+  {
+    // Reset Sequence
+    // References: https://www.youtube.com/watch?v=LnzuMJLZRdU
+    //             https://www.youtube.com/watch?v=yl8vPW5hydQ
+    // Not totally sure what's happening inside the chip though, page tables sorta knows.
+    case 0:
+      chip->ab = chip->pc;
+      oku_6502_chip_read_mem_i8(chip, chip->ab, mem_size, mem, &status);
+      chip->a = 0xAA;
+      chip->ir = 0x00;
+      chip->sr = 0x02;
+      chip->state = NEXT_STAGE(chip->state);
+      return STARTUP_CODE;
+
+    case 1:
+      chip->ab = chip->pc;
+      oku_6502_chip_read_mem_i8(chip, chip->ab, mem_size, mem, &status);
+      chip->a = 0xAA;
+      chip->ir = 0x00;
+      chip->sr = 0x02;
+      chip->state = NEXT_STAGE(chip->state);
+      return STARTUP_CODE;
+
+    case 2:
+      chip->ab = chip->pc;
+      oku_6502_chip_read_mem_i8(chip, chip->ab, mem_size, mem, &status);
+      chip->pc = 0x00FF;
+      chip->a = 0xAA;
+      chip->ir = 0x00;
+      chip->sr = 0x02;
+      chip->state = NEXT_STAGE(chip->state);
+      return STARTUP_CODE;
+
+    case 3:
+      chip->ab = 0xFFFF;
+      oku_6502_chip_read_mem_i8(chip, chip->ab, mem_size, mem, &status);
+      chip->a = 0xAA;
+      chip->ir = 0x00;
+      chip->sr = 0x02;
+      chip->state = NEXT_STAGE(chip->state);
+      return STARTUP_CODE;
+
+    case 4:
+      chip->ab = 0x01F7;
+      oku_6502_chip_read_mem_i8(chip, chip->ab, mem_size, mem, &status);
+      chip->pc = 0x00FF;
+      chip->a = 0xAA;
+      chip->ir = 0x00;
+      chip->sr = 0x02;
+      chip->state = NEXT_STAGE(chip->state);
+      return STARTUP_CODE;
+
+    case 5:
+      chip->ab = 0x01F6;
+      oku_6502_chip_read_mem_i8(chip, chip->ab, mem_size, mem, &status);
+      chip->pc = 0x00FF;
+      chip->a = 0xAA;
+      chip->ir = 0x00;
+      chip->sr = 0x02;
+      chip->state = NEXT_STAGE(chip->state);
+      return STARTUP_CODE;
+
+    case 6:
+      chip->ab = 0x01F5;
+      oku_6502_chip_read_mem_i8(chip, chip->ab, mem_size, mem, &status);
+      chip->pc = 0x00FF;
+      chip->a = 0xAA;
+      chip->ir = 0x00;
+      chip->sr = 0x02;
+      chip->state = NEXT_STAGE(chip->state);
+      return STARTUP_CODE;
+
+    // PC initialize
+    case 7:
+      chip->ab = 0xFFFC;
+      chip->pc = (uint16_t)oku_6502_chip_read_mem_i8(chip, chip->ab, mem_size, mem, &status);
+      chip->state = NEXT_STAGE(chip->state);
+      return STARTUP_CODE;
+
+    case 8:
+      chip->ab = 0xFFFD;
+      chip->pc |= ((uint16_t)oku_6502_chip_read_mem_i8(chip, chip->ab, mem_size, mem, &status)) << 8;
+      chip->state = CPU_STATE_RUN;
+      return OK_CODE;
+
+    default:
+      chip->state = CPU_STATE_HANG;
+      return HANG_CODE;
+  }
+}
+
+//
+// Step
+//
+extern int oku_6502_chip_step(struct oku_6502_chip* chip, int32_t mem_size, char* mem)
+{
+  switch (chip->state & 0xF)
+  {
+    case CPU_STATE_RESET:
+      return oku_6502_chip_startup(chip, mem_size, mem);
+
+    case CPU_STATE_RUN:
+      return oku_6502_chip_fex(chip, mem_size, mem);
+
+    case CPU_STATE_HANG:
+      return HANG_CODE;
+
+    default:
+      return INVALID_CODE
+  }
 }
