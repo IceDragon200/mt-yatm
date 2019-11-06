@@ -1,12 +1,12 @@
 function yatm.warn(message)
-  print("\n\tWARN: " .. message .. "\n")
+  minetest.log("warning", message)
 end
 
 function yatm.error(message)
   if yatm.config.fail_loud then
     error("ERROR: " .. message)
   else
-    print("\n\tERROR: " .. message .. "\n")
+    minetest.log("error", message)
   end
 end
 
