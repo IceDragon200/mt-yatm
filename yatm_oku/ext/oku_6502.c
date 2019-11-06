@@ -42,6 +42,8 @@ Page transitions may occur and add an extra cycle to the exucution.
 */
 #include <stdint.h>
 
+#include "include/bit8.h"
+
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 1
 #define VERSION_TEENY 0
@@ -52,34 +54,6 @@ Page transitions may occur and add an extra cycle to the exucution.
 #define HALT_CODE 4
 #define HANG_CODE 5
 #define STARTUP_CODE 7
-
-// Bitwise helpers
-#define BIT0 0x1
-#define BIT1 0x2
-#define BIT2 0x4
-#define BIT3 0x8
-#define BIT4 0x10
-#define BIT5 0x20
-#define BIT6 0x40
-#define BIT7 0x80
-
-#define RBIT0(value) ((value) & 0x1)
-#define RBIT1(value) (((value) >> 1) & 0x1)
-#define RBIT2(value) (((value) >> 2) & 0x1)
-#define RBIT3(value) (((value) >> 3) & 0x1)
-#define RBIT4(value) (((value) >> 4) & 0x1)
-#define RBIT5(value) (((value) >> 5) & 0x1)
-#define RBIT6(value) (((value) >> 6) & 0x1)
-#define RBIT7(value) (((value) >> 7) & 0x1)
-
-#define WBIT0(base, value) (((base) & (0xFF ^ BIT0)) | ((value) & 0x1))
-#define WBIT1(base, value) (((base) & (0xFF ^ BIT1)) | (((value) & 0x1) << 1))
-#define WBIT2(base, value) (((base) & (0xFF ^ BIT2)) | (((value) & 0x1) << 2))
-#define WBIT3(base, value) (((base) & (0xFF ^ BIT3)) | (((value) & 0x1) << 3))
-#define WBIT4(base, value) (((base) & (0xFF ^ BIT4)) | (((value) & 0x1) << 4))
-#define WBIT5(base, value) (((base) & (0xFF ^ BIT5)) | (((value) & 0x1) << 5))
-#define WBIT6(base, value) (((base) & (0xFF ^ BIT6)) | (((value) & 0x1) << 6))
-#define WBIT7(base, value) (((base) & (0xFF ^ BIT7)) | (((value) & 0x1) << 7))
 
 // The CPU is in it's reset sequence, the upper nibble of the state is what 'stage' the reset sequence is in
 #define CPU_STATE_RESET 1
@@ -99,15 +73,16 @@ struct oku_6502_chip
   uint16_t pc;        // Program Counter
   uint8_t sp;         // Stack Pointer
   uint8_t ir;         // Instruction Register
-  int8_t acc;         // Accumulator
+  int8_t a;         // Accumulator
   int8_t x;           // X
   int8_t y;           // Y
   int8_t sr;          // Status Register [NV-BDIZC]
   // Ends the 6502 Registers
 
   // 0000 (state param) 0000 (state code)
-  int8_t cpu_state; // Not apart of the 6502,
-                    // this is here to define different states the CPU is in for the step function
+  int8_t state; // Not apart of the 6502,
+                // this is here to define different states the CPU is in for the step function
+
   uint32_t cycles; // Cycles never go backwards do they?
   int32_t operand; // Any data we need to store for a bit
 };
@@ -422,13 +397,13 @@ static inline void set_zero_flag(struct oku_6502_chip* chip, int32_t value)
 //
 static void exec_adc(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int16_t op1 = (int16_t)chip->acc;
+  int16_t op1 = (int16_t)chip->a;
   int16_t op2 = (int16_t)oku_6502_chip_read_mem_i8(chip, chip->operand, mem_size, mem, status);
   int16_t value = op1 + op2 + CARRY_FLAG(chip->sr);
   if (DECIMAL_MODE_FLAG(chip->sr) == 0)
   {
-    chip->acc = value & 0xFF;
-    chip->sr = SET_OVERFLOW_FLAG(chip->sr, ((op1 ^ chip->acc) & ~(op1 ^ op2) & 0x80) >> 7);
+    chip->a = value & 0xFF;
+    chip->sr = SET_OVERFLOW_FLAG(chip->sr, ((op1 ^ chip->a) & ~(op1 ^ op2) & 0x80) >> 7);
 
     set_carry_flag(chip, (int32_t)value);
     set_negative_flag(chip, (int32_t)value);
@@ -443,27 +418,27 @@ static void exec_adc(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
     chip->sr = SET_ZERO_FLAG(chip->sr, (value & 0xFF) == 0 ? 1 : 0);
 
     tmp = (op1 & 0x0F) + (op2 & 0x0F) + CARRY_FLAG(chip->sr);
-    chip->acc = tmp < 0x0A ? tmp : tmp + 6;
+    chip->a = tmp < 0x0A ? tmp : tmp + 6;
 
     tmp = (op1 & 0xF0) + (op2 & 0xF0) + (tmp & 0xF0);
 
     chip->sr = SET_NEGATIVE_FLAG(chip->sr, tmp < 0 ? 1 : 0);
     chip->sr = SET_OVERFLOW_FLAG(chip->sr, ((op1 ^ tmp) & ~(op1 ^ op2) & 0x80) >> 7);
 
-    tmp = (chip->acc & 0x0F) | (tmp < 0xA0 ? tmp : tmp + 0x60);
+    tmp = (chip->a & 0x0F) | (tmp < 0xA0 ? tmp : tmp + 0x60);
 
     chip->sr = SET_CARRY_FLAG(chip->sr, tmp > 0x100 ? 1 : 0);
 
-    chip->acc = tmp & 0xFF;
+    chip->a = tmp & 0xFF;
   }
 }
 
 static void exec_and(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  chip->acc &= oku_6502_chip_read_mem_i8(chip, chip->operand, mem_size, mem, status);
+  chip->a &= oku_6502_chip_read_mem_i8(chip, chip->operand, mem_size, mem, status);
 
-  set_negative_flag(chip, (int32_t)chip->acc);
-  set_zero_flag(chip, (int32_t)chip->acc);
+  set_negative_flag(chip, (int32_t)chip->a);
+  set_zero_flag(chip, (int32_t)chip->a);
 }
 
 static void exec_asl(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
@@ -483,7 +458,7 @@ static void exec_asl(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 
 static void exec_asl_a(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int16_t tmp = (int16_t)chip->acc << 1;
+  int16_t tmp = (int16_t)chip->a << 1;
   tmp &= 0xFF;
 
   set_carry_flag(chip, tmp);
@@ -534,7 +509,7 @@ static void exec_bit(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 
   chip->sr = SET_OVERFLOW_FLAG(chip->sr, (tmp & 0x40) != 0 ? 1 : 0);
   set_negative_flag(chip, tmp);
-  chip->sr = SET_ZERO_FLAG(chip->sr, (tmp & chip->acc) == 0);
+  chip->sr = SET_ZERO_FLAG(chip->sr, (tmp & chip->a) == 0);
 }
 
 static void exec_bmi(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
@@ -611,7 +586,7 @@ static void exec_clv(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 
 static void exec_cmp(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int16_t tmp = (int16_t)chip->acc - (int16_t)oku_6502_chip_read_mem_i8(chip, chip->operand, mem_size, mem, status);
+  int16_t tmp = (int16_t)chip->a - (int16_t)oku_6502_chip_read_mem_i8(chip, chip->operand, mem_size, mem, status);
 
   set_borrow_flag(chip, (int32_t)tmp);
   set_negative_flag(chip,(int32_t)tmp);
@@ -665,10 +640,10 @@ static void exec_dey(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 
 static void exec_eor(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  chip->acc ^= oku_6502_chip_read_mem_i8(chip, chip->operand, mem_size, mem, status);
+  chip->a ^= oku_6502_chip_read_mem_i8(chip, chip->operand, mem_size, mem, status);
 
-  set_negative_flag(chip,(int32_t)chip->acc);
-  set_zero_flag(chip, (int32_t)chip->acc);
+  set_negative_flag(chip,(int32_t)chip->a);
+  set_zero_flag(chip, (int32_t)chip->a);
 }
 
 static void exec_inc(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
@@ -719,10 +694,10 @@ static void exec_lda(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 {
   int8_t value = oku_6502_chip_read_mem_i8(chip, chip->operand, mem_size, mem, status);
 
-  chip->acc = value;
+  chip->a = value;
 
-  set_negative_flag(chip,(int32_t)chip->acc);
-  set_zero_flag(chip, (int32_t)chip->acc);
+  set_negative_flag(chip,(int32_t)chip->a);
+  set_zero_flag(chip, (int32_t)chip->a);
 }
 
 static void exec_ldx(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
@@ -762,11 +737,11 @@ static void exec_lsr(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 
 static void exec_lsr_a(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  chip->sr = SET_CARRY_FLAG(chip->sr, chip->acc & 1);
-  chip->acc >>= 1;
+  chip->sr = SET_CARRY_FLAG(chip->sr, chip->a & 1);
+  chip->a >>= 1;
 
-  set_negative_flag(chip,(int32_t)chip->acc);
-  set_zero_flag(chip, (int32_t)chip->acc);
+  set_negative_flag(chip,(int32_t)chip->a);
+  set_zero_flag(chip, (int32_t)chip->a);
 }
 
 static void exec_nop(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
@@ -776,15 +751,15 @@ static void exec_nop(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 
 static void exec_ora(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  chip->acc |= oku_6502_chip_read_mem_i8(chip, chip->operand, mem_size, mem, status);
+  chip->a |= oku_6502_chip_read_mem_i8(chip, chip->operand, mem_size, mem, status);
 
-  set_negative_flag(chip,(int32_t)chip->acc);
-  set_zero_flag(chip, (int32_t)chip->acc);
+  set_negative_flag(chip,(int32_t)chip->a);
+  set_zero_flag(chip, (int32_t)chip->a);
 }
 
 static void exec_pha(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  oku_6502_push_stack(chip, chip->acc, mem_size, mem, status);
+  oku_6502_push_stack(chip, chip->a, mem_size, mem, status);
 }
 
 static void exec_php(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
@@ -795,10 +770,10 @@ static void exec_php(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 static void exec_pla(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
   oku_6502_read_stack(chip, mem_size, mem, status);
-  chip->acc = oku_6502_pop_stack(chip, mem_size, mem, status);
+  chip->a = oku_6502_pop_stack(chip, mem_size, mem, status);
 
-  set_negative_flag(chip,(int32_t)chip->acc);
-  set_zero_flag(chip, (int32_t)chip->acc);
+  set_negative_flag(chip,(int32_t)chip->a);
+  set_zero_flag(chip, (int32_t)chip->a);
 }
 
 static void exec_plp(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
@@ -823,13 +798,13 @@ static void exec_rol(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 
 static void exec_rol_a(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int16_t tmp = ((int16_t)chip->acc << 1) | (CARRY_FLAG(chip->sr));
+  int16_t tmp = ((int16_t)chip->a << 1) | (CARRY_FLAG(chip->sr));
 
-  chip->acc = tmp & 0xFF;
+  chip->a = tmp & 0xFF;
 
   set_carry_flag(chip, tmp);
-  set_negative_flag(chip, (int32_t)chip->acc);
-  set_zero_flag(chip, (int32_t)chip->acc);
+  set_negative_flag(chip, (int32_t)chip->a);
+  set_zero_flag(chip, (int32_t)chip->a);
 }
 
 static void exec_ror(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
@@ -848,13 +823,13 @@ static void exec_ror(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 
 static void exec_ror_a(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int16_t tmp = (int16_t)chip->acc | (CARRY_FLAG(chip->sr) == 0 ? 0 : 0x100);
-  chip->sr = SET_CARRY_FLAG(chip->sr, chip->acc & 1);
+  int16_t tmp = (int16_t)chip->a | (CARRY_FLAG(chip->sr) == 0 ? 0 : 0x100);
+  chip->sr = SET_CARRY_FLAG(chip->sr, chip->a & 1);
 
-  chip->acc = tmp >> 1;
+  chip->a = tmp >> 1;
 
-  set_negative_flag(chip, (int32_t)chip->acc);
-  set_zero_flag(chip, (int32_t)chip->acc);
+  set_negative_flag(chip, (int32_t)chip->a);
+  set_zero_flag(chip, (int32_t)chip->a);
 }
 
 static void exec_rti(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
@@ -873,14 +848,14 @@ static void exec_rts(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 
 static void exec_sbc(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int16_t op1 = (int16_t)chip->acc;
+  int16_t op1 = (int16_t)chip->a;
   int16_t op2 = (int16_t)oku_6502_chip_read_mem_i8(chip, chip->operand, mem_size, mem, status);
   int16_t value = op1 - op2 - ((CARRY_FLAG(chip->sr) ^ 1) & 0x1);
 
   if (DECIMAL_MODE_FLAG(chip->sr) == 0)
   {
-    chip->acc = value & 0xFF;
-    chip->sr = SET_OVERFLOW_FLAG(chip->sr, (((op1 ^ op2) & (op1 ^ chip->acc) & 0x80) >> 7));
+    chip->a = value & 0xFF;
+    chip->sr = SET_OVERFLOW_FLAG(chip->sr, (((op1 ^ op2) & (op1 ^ chip->a) & 0x80) >> 7));
 
     set_borrow_flag(chip, value);
     set_negative_flag(chip, (int32_t)value);
@@ -894,11 +869,11 @@ static void exec_sbc(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
     int16_t tmp;
     tmp = (op1 & 0x0F) - (op2 & 0x0F) - (CARRY_FLAG(chip->sr) ^ 1);
 
-    chip->acc = (tmp & 0x10) == 0 ? tmp : tmp - 6;
+    chip->a = (tmp & 0x10) == 0 ? tmp : tmp - 6;
 
-    tmp = (op1 & 0xF0) - (op2 & 0xF0) - (chip->acc & 0x10);
+    tmp = (op1 & 0xF0) - (op2 & 0xF0) - (chip->a & 0x10);
 
-    chip->acc = (chip->acc & 0x0F) | ((tmp & 0x100) == 0 ? tmp : tmp - 0x60);
+    chip->a = (chip->a & 0x0F) | ((tmp & 0x100) == 0 ? tmp : tmp - 0x60);
 
     tmp = op1 - op2 - (CARRY_FLAG(chip->sr) ^ 1);
 
@@ -925,7 +900,7 @@ static void exec_sei(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 
 static void exec_sta(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  oku_6502_chip_write_mem_i8(chip, chip->operand, chip->acc, mem_size, mem, status);
+  oku_6502_chip_write_mem_i8(chip, chip->operand, chip->a, mem_size, mem, status);
 }
 
 static void exec_stx(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
@@ -940,7 +915,7 @@ static void exec_sty(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 
 static void exec_tax(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  chip->x = chip->acc;
+  chip->x = chip->a;
 
   set_negative_flag(chip, (int32_t)chip->x);
   set_zero_flag(chip, (int32_t)chip->x);
@@ -948,7 +923,7 @@ static void exec_tax(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 
 static void exec_tay(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  chip->x = chip->acc;
+  chip->x = chip->a;
 
   set_negative_flag(chip, (int32_t)chip->x);
   set_zero_flag(chip, (int32_t)chip->x);
@@ -964,10 +939,10 @@ static void exec_tsx(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 
 static void exec_txa(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  chip->acc = chip->x;
+  chip->a = chip->x;
 
-  set_negative_flag(chip, (int32_t)chip->acc);
-  set_zero_flag(chip, (int32_t)chip->acc);
+  set_negative_flag(chip, (int32_t)chip->a);
+  set_zero_flag(chip, (int32_t)chip->a);
 }
 
 static void exec_txs(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
@@ -977,10 +952,10 @@ static void exec_txs(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 
 static void exec_tya(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  chip->acc = chip->y;
+  chip->a = chip->y;
 
-  set_negative_flag(chip, (int32_t)chip->acc);
-  set_zero_flag(chip, (int32_t)chip->acc);
+  set_negative_flag(chip, (int32_t)chip->a);
+  set_zero_flag(chip, (int32_t)chip->a);
 }
 
 // Yes, this extension does not provide allocation of the chip or memory
@@ -998,11 +973,11 @@ extern void oku_6502_chip_init(struct oku_6502_chip* chip)
 {
   chip->pc = 0; // TODO: this shouldn't start in the zeropage from what I remember
   chip->sp = 0xFF; // starts right
-  chip->acc = 0;
+  chip->a = 0;
   chip->x = 0;
   chip->y = 0;
   chip->sr = 0;
-  chip->_padding = 0; // why? I dunno, because...
+  chip->state = CPU_STATE_RESET;
   chip->cycles = 0;
   chip->operand = 0;
 }
@@ -2158,6 +2133,6 @@ extern int oku_6502_chip_step(struct oku_6502_chip* chip, int32_t mem_size, char
       return HANG_CODE;
 
     default:
-      return INVALID_CODE
+      return INVALID_CODE;
   }
 }
