@@ -46,6 +46,42 @@ reg("yatm_woodcraft:aspen_wood_to_core_and_bark",
     },
     0.25)
 
+-- Core to Planks
+reg("yatm_woodcraft:oak_core_to_planks",
+    ItemStack("yatm_woodcraft:oak_wood_core"),
+    {
+      ItemStack("default:wood 6"),
+    },
+    0.25)
+
+reg("yatm_woodcraft:jungle_core_to_planks",
+    ItemStack("yatm_woodcraft:jungle_wood_core"),
+    {
+      ItemStack("default:junglewood 6"),
+    },
+    0.25)
+
+reg("yatm_woodcraft:pine_core_to_planks",
+    ItemStack("yatm_woodcraft:pine_wood_core"),
+    {
+      ItemStack("default:pine_wood 6"),
+    },
+    0.25)
+
+reg("yatm_woodcraft:acacia_core_to_planks",
+    ItemStack("yatm_woodcraft:acacia_wood_core"),
+    {
+      ItemStack("default:acacia_wood 6"),
+    },
+    0.25)
+
+reg("yatm_woodcraft:aspen_core_to_planks",
+    ItemStack("yatm_woodcraft:aspen_wood_core"),
+    {
+      ItemStack("default:aspen_wood 6"),
+    },
+    0.25)
+
 -- Planks to Slabs
 if stairs then
   reg("yatm_woodcraft:oak_planks_to_slabs",
@@ -89,35 +125,35 @@ end
 -- Panels or Plates are 2px tall, so `slab > panel` should produce 4 panels.
 if stairs then
   reg("yatm_woodcraft:oak_slabs_to_panels",
-      ItemStack("default:slab_wood"),
+      ItemStack("stairs:slab_wood"),
       {
         ItemStack("yatm_woodcraft:oak_wood_panel 4"),
       },
       0.25)
 
   reg("yatm_woodcraft:jungle_slabs_to_panels",
-      ItemStack("default:slab_junglewood"),
+      ItemStack("stairs:slab_junglewood"),
       {
         ItemStack("yatm_woodcraft:jungle_wood_panel 4"),
       },
       0.25)
 
   reg("yatm_woodcraft:pine_slabs_to_panels",
-      ItemStack("default:slab_pine_wood"),
+      ItemStack("stairs:slab_pine_wood"),
       {
         ItemStack("yatm_woodcraft:pine_wood_panel 4"),
       },
       0.25)
 
   reg("yatm_woodcraft:acacia_slabs_to_panels",
-      ItemStack("default:slab_acacia_wood"),
+      ItemStack("stairs:slab_acacia_wood"),
       {
         ItemStack("yatm_woodcraft:acacia_wood_panel 4"),
       },
       0.25)
 
   reg("yatm_woodcraft:aspen_slabs_to_panels",
-      ItemStack("default:slab_aspen_wood"),
+      ItemStack("stairs:slab_aspen_wood"),
       {
         ItemStack("yatm_woodcraft:aspen_wood_panel 4"),
       },
@@ -129,35 +165,35 @@ if not stairs then
   yatm.info("Falling back to plank to panel recipes")
 
   reg("yatm_woodcraft:oak_planks_to_panels",
-      ItemStack("default:slab_wood"),
+      ItemStack("default:wood"),
       {
         ItemStack("yatm_woodcraft:oak_wood_panel 8"),
       },
       0.25)
 
   reg("yatm_woodcraft:jungle_planks_to_panels",
-      ItemStack("default:slab_junglewood"),
+      ItemStack("default:junglewood"),
       {
         ItemStack("yatm_woodcraft:jungle_wood_panel 8"),
       },
       0.25)
 
   reg("yatm_woodcraft:pine_planks_to_panels",
-      ItemStack("default:slab_pine_wood"),
+      ItemStack("default:pine_wood"),
       {
         ItemStack("yatm_woodcraft:pine_wood_panel 8"),
       },
       0.25)
 
   reg("yatm_woodcraft:acacia_planks_to_panels",
-      ItemStack("default:slab_acacia_wood"),
+      ItemStack("default:acacia_wood"),
       {
         ItemStack("yatm_woodcraft:acacia_wood_panel 8"),
       },
       0.25)
 
   reg("yatm_woodcraft:aspen_planks_to_panels",
-      ItemStack("default:slab_aspen_wood"),
+      ItemStack("default:aspen_wood"),
       {
         ItemStack("yatm_woodcraft:aspen_wood_panel 8"),
       },
