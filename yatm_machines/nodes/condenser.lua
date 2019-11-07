@@ -3,6 +3,9 @@
   Condensers turn gases into liquids, primarily steam back into water.
 
 ]]
+local FluidStack = assert(yatm.fluids.FluidStack)
+local FluidMeta = assert(yatm.fluids.FluidMeta)
+local FluidInterface = assert(yatm.fluids.FluidInterface)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
@@ -40,6 +43,7 @@ local function condenser_refresh_infotext(pos)
 end
 
 local capacity = 16000
+
 local function get_fluid_tank_name(_self, pos, dir)
   local node = minetest.get_node(pos)
   local new_dir = yatm_core.facedir_to_face(node.param2, dir)
@@ -55,9 +59,12 @@ local function get_fluid_tank_name(_self, pos, dir)
   return nil, nil
 end
 
-local fluid_interface = yatm.fluids.FluidInterface.new_directional(get_fluid_tank_name)
+local fluid_interface = FluidInterface.new_directional(get_fluid_tank_name)
 
 function condenser_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
+  local meta = minetest.get_meta(pos)
+
+  local steam_fluid_stack = FluidMeta.get_fluid_stack(meta, "steam_tank")
   return 0
 end
 

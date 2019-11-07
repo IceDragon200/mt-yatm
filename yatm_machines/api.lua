@@ -335,3 +335,6 @@ yatm.grinding.grinding_registry = yatm_machines.GrindingRegistry:new()
 
 yatm.freezing = yatm.freezing or {}
 yatm.freezing.freezing_registry = yatm_machines.FreezingRegistry:new()
+
+yatm.condensing = yatm.condensing or {}
+yatm.condensing.condensing_registry = yatm_machines.CondensingRegistry:new()
