@@ -1,3 +1,4 @@
+local FluidStack = assert(yatm.fluids.FluidStack)
 local vapour_registry = assert(yatm.refinery.vapour_registry)
 local distillation_registry = assert(yatm.refinery.distillation_registry)
 local condensing_registry = assert(yatm.condensing.condensing_registry)
