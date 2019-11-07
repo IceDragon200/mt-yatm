@@ -330,6 +330,8 @@ end
 
 yatm.devices = devices
 
-yatm.grinding = {
-  GrindingRegistry = assert(yatm_machines.GrindingRegistry),
-}
+yatm.grinding = yatm.grinding or {}
+yatm.grinding.grinding_registry = yatm_machines.GrindingRegistry:new()
+
+yatm.freezing = yatm.freezing or {}
+yatm.freezing.freezing_registry = yatm_machines.FreezingRegistry:new()

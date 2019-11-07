@@ -1,7 +1,7 @@
 local cluster_devices = assert(yatm.cluster.devices)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local Energy = assert(yatm.energy)
-local GrindingRegistry = assert(yatm.grinding.GrindingRegistry)
+local grinding_registry = assert(yatm.grinding.grinding_registry)
 
 local function get_auto_grinder_formspec(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
@@ -62,7 +62,7 @@ function auto_grinder_yatm_network.work(pos, node, energy_available, work_rate, 
   if yatm_core.is_blank(meta:get_string("active_recipe")) then
     -- check for recipe
     local input_stack = inv:get_stack("grinder_input", 1)
-    local recipe = GrindingRegistry:get_grinding_recipe(input_stack)
+    local recipe = grinding_registry:find_grinding_recipe(input_stack)
 
     if recipe then
       meta:set_string("active_recipe", recipe.name)
@@ -86,7 +86,7 @@ function auto_grinder_yatm_network.work(pos, node, energy_available, work_rate, 
       yatm.queue_refresh_infotext(pos, node)
     else
       local input_stack = inv:get_stack("grinder_processing", 1)
-      local recipe = GrindingRegistry:get_grinding_recipe(input_stack)
+      local recipe = grinding_registry:find_grinding_recipe(input_stack)
       if recipe then
         local room_for_all = true
         for _,item_stack in ipairs(recipe.result_item_stacks) do
