@@ -1,3 +1,7 @@
+function yatm.info(message)
+  minetest.log("info", message)
+end
+
 function yatm.warn(message)
   minetest.log("warning", message)
 end

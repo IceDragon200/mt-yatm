@@ -13,7 +13,11 @@ dofile(yatm_core.modpath .. "/errors.lua")
 
 local insec = minetest.request_insecure_environment()
 if insec then
-  yatm.io = assert(insec.io, "no IO available on the insecure environment!")
+  if yatm.config.dump_nodes then
+    -- Only the TOML dump needs the io
+    yatm.io = assert(insec.io, "no IO available on the insecure environment!")
+  end
+
   yatm.bit = insec.require("bit")
   yatm.ffi = insec.require("ffi")
 else
