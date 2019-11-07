@@ -140,6 +140,13 @@ function FluidStack.merge(a, ...)
   return result
 end
 
+function FluidStack.normalize(stack)
+  return {
+    name = FluidRegistry.normalize_fluid_name(stack.name),
+    amount = stack.amount
+  }
+end
+
 function FluidStack.presence(fluid_stack)
   if fluid_stack and fluid_stack.amount > 0 then
     return fluid_stack
