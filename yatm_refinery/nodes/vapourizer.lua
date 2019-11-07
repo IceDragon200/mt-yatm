@@ -7,7 +7,7 @@ local FluidUtils = assert(yatm.fluids.Utils)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local FluidExchange = assert(yatm.fluids.FluidExchange)
 local Energy = assert(yatm.energy)
-local VapourRegistry = assert(yatm.refinery.VapourRegistry)
+local vapour_registry = assert(yatm.refinery.vapour_registry)
 
 local vapourizer_yatm_network = {
   kind = "machine",
@@ -90,7 +90,7 @@ function vapourizer_yatm_network.work(pos, node, available_energy, work_rate, dt
   local fluid_stack = FluidMeta.get_fluid_stack(meta, FLUID_TANK)
   if fluid_stack and fluid_stack.amount > 0 then
     local fluid_name = fluid_stack.name
-    local recipe = VapourRegistry:get_recipe_for_fluid(fluid_name)
+    local recipe = vapour_registry:find_recipe_for_fluid(fluid_name)
     if recipe then
       local vapour_stack = FluidStack.new(recipe.vapour_name, math.min(fluid_stack.amount, 100))
       fluid_stack.amount = vapour_stack.amount

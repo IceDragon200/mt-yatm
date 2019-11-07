@@ -7,7 +7,7 @@ local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidUtils = assert(yatm.fluids.Utils)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local Energy = assert(yatm.energy)
-local DistillationRegistry = assert(yatm.refinery.DistillationRegistry)
+local distillation_registry = assert(yatm.refinery.distillation_registry)
 local FluidExchange = assert(yatm.fluids.FluidExchange)
 
 local distillation_unit_yatm_network = {
@@ -90,7 +90,7 @@ function distillation_unit_yatm_network.work(pos, node, available_energy, work_r
     -- limit the stack to only 100 units of fluid
     fluid_stack.amount = math.min(fluid_stack.amount, 100)
     local fluid_name = fluid_stack.name
-    local recipe = DistillationRegistry:get_distillation_recipe(fluid_name)
+    local recipe = distillation_registry:find_distillation_recipe(fluid_name)
 
     if recipe then
       local input_vapour_ratio = recipe.ratios[1]

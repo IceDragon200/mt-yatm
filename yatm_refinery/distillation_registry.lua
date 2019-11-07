@@ -1,13 +1,15 @@
 --[[
-The Distillation registry, as its name implies is used to register distillation recipes.
 
-Distillation recipes have 2 outputs: a vapour and a distilled fluid
+  The Distillation registry, as its name implies is used to register distillation recipes.
+
+  Distillation recipes have 2 outputs: a vapour and a distilled fluid
+
 ]]
-local DistillationRegistry = yatm_core.Class:extends()
+local DistillationRegistry = yatm_core.Class:extends("DistillationRegistry")
+local ic = DistillationRegistry.instance_class
 
-local m = DistillationRegistry.instance_class
-
-function m:initialize()
+function ic:initialize()
+  ic._super.initialize(self)
   self.m_vapour_to_recipe = {}
 end
 
@@ -19,7 +21,7 @@ DistillationRegistry:register_distillation(
   { input_ratio :: integer, distilled_ratio :: integer, vapour_ratio :: integer }
 )
 ]]
-function m:register_distillation(vapour_name, distilled_fluid_name, output_vapour_name, ratios)
+function ic:register_distillation_recipe(vapour_name, distilled_fluid_name, output_vapour_name, ratios)
   local recipe = {
     ratios = ratios,
     distilled_fluid_name = distilled_fluid_name,
@@ -29,8 +31,8 @@ function m:register_distillation(vapour_name, distilled_fluid_name, output_vapou
   return self
 end
 
-function m:get_distillation_recipe(vapour_name)
+function ic:find_distillation_recipe(vapour_name)
   return self.m_vapour_to_recipe[vapour_name]
 end
 
-yatm_refinery.DistillationRegistry = DistillationRegistry:new()
+yatm_refinery.DistillationRegistry = DistillationRegistry
