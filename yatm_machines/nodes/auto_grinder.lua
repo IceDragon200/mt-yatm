@@ -89,13 +89,13 @@ function auto_grinder_yatm_network.work(pos, node, energy_available, work_rate, 
       local recipe = grinding_registry:find_grinding_recipe(input_stack)
       if recipe then
         local room_for_all = true
-        for _,item_stack in ipairs(recipe.result_item_stacks) do
+        for _,item_stack in ipairs(recipe.output_item_stacks) do
           room_for_all = room_for_all and
                          inv:room_for_item("grinder_output", item_stack)
         end
 
         if room_for_all then
-          for _,item_stack in ipairs(recipe.result_item_stacks) do
+          for _,item_stack in ipairs(recipe.output_item_stacks) do
             inv:add_item("grinder_output", item_stack)
           end
 
