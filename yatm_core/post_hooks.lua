@@ -15,6 +15,7 @@ if yatm.config.dump_nodes then
         yatm_core.TOML.write(file, {
           [name] = {
             basename = def.basename or name,
+            base_description = def.base_description,
             description = def.description,
             groups = def.groups,
             tiles = def.tiles,

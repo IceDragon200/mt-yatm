@@ -61,6 +61,8 @@ local function reader_on_dig(pos, node, digger)
 end
 
 yatm.register_stateful_node("yatm_mesecon_locks:mesecon_card_reader", {
+  basename = "yatm_mesecon_locks:mesecon_card_reader",
+
   description = "Card Reader (Mesecons)",
 
   drop = "yatm_mesecon_locks:mesecon_card_reader_off",
@@ -187,6 +189,8 @@ if yatm_data_network then
   end
 
   yatm.register_stateful_node("yatm_mesecon_locks:data_card_reader", {
+    basename = "yatm_mesecon_locks:data_card_reader",
+
     description = "Card Reader (DATA)",
 
     drop = "yatm_mesecon_locks:data_card_reader_off",

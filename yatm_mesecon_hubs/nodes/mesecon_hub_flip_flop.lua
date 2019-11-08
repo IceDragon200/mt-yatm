@@ -59,6 +59,7 @@ end
 
 minetest.register_node("yatm_mesecon_hubs:mesecon_hub_flip_flop_left", {
   basename = "yatm_mesecon_hubs:mesecon_hub_flip_flop",
+  base_description = "Mesecon Flip Flop",
 
   description = "Mesecon Flip Flop (Left)",
   groups = {
@@ -101,6 +102,7 @@ minetest.register_node("yatm_mesecon_hubs:mesecon_hub_flip_flop_left", {
 
 minetest.register_node("yatm_mesecon_hubs:mesecon_hub_flip_flop_right", {
   basename = "yatm_mesecon_hubs:mesecon_hub_flip_flop",
+  base_description = "Mesecon Flip Flop",
 
   description = "Mesecon Flip Flop (Right)",
   groups = {

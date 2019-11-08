@@ -94,6 +94,7 @@ for _,pair in ipairs(colors) do
   local node_name = "yatm_brewery:aging_barrel_wood_" .. color_basename
   minetest.register_node(node_name, {
     basename = "yatm_brewery:aging_barrel_wood",
+    base_description = "Aging Barrel (Wood)",
 
     description = "Aging Barrel (Wood / " .. color_name .. ")",
 

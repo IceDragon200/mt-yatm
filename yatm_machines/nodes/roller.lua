@@ -1,29 +1,10 @@
+--
+-- The Roller, or Metal Former, takes various metals or plates and forms them into other shapes.
+--
 local cluster_devices = assert(yatm.cluster.devices)
 local Energy = assert(yatm.energy)
 local ItemInterface = assert(yatm.items.ItemInterface)
-local Groups = assert(yatm_core.groups)
-
-local RollerRegistry = {}
-
-function RollerRegistry:get_roller_recipe(item_stack)
-  local itemdef = item_stack:get_definition()
-  if Groups.get_item(itemdef, "ingot") then
-    -- ingot recipe
-    if item_stack:get_count() >= 2 then
-      local result = ItemStack({
-        name = "yatm_core:plate_" .. assert(itemdef.material_name),
-        count = 1,
-      })
-      assert(result:is_known())
-      return {
-        required_count = 2,
-        duration = 0.25, -- 1/4 second to form a plate
-        result = result,
-      }
-    end
-  end
-  return nil
-end
+local rolling_registry = assert(yatm.rolling.rolling_registry)
 
 local function get_roller_formspec(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
@@ -205,7 +186,6 @@ yatm.devices.register_stateful_network_device({
     },
   },
   on = {
-
     tiles = {
       "yatm_roller_top.on.png",
       "yatm_roller_bottom.png",

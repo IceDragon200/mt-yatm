@@ -18,6 +18,7 @@ for _,color in ipairs(colors) do
     else
       minetest.register_node("yatm_decor:warning_stripes_" .. size .. "_" .. color, {
         basename = "yatm_decor:warning_stripes",
+        base_description = "Warning Stripes",
 
         description = "Warning Stripes " .. size .. " (" .. color .. ")",
 
@@ -33,9 +34,9 @@ for _,color in ipairs(colors) do
         place_param2 = 0,
       })
 
-
       minetest.register_node("yatm_decor:warning_stripes_slab_" .. size .. "_" .. color, {
         basename = "yatm_decor:warning_stripes_slab",
+        base_description = "Warning Stripes Slab",
 
         description = "Warning Stripes Slab " .. size .. " (" .. color .. ")",
 
@@ -56,8 +57,9 @@ for _,color in ipairs(colors) do
 
       minetest.register_node("yatm_decor:warning_stripes_plate_" .. size .. "_" .. color, {
         basename = "yatm_decor:warning_stripes_plate",
+        base_description = "Warning Stripes Panel",
 
-        description = "Warning Stripes Plate " .. size .. " (" .. color .. ")",
+        description = "Warning Stripes Panel " .. size .. " (" .. color .. ")",
 
         groups = {cracky = 1},
 

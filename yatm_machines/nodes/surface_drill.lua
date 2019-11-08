@@ -152,9 +152,14 @@ local surface_drill_ext_yatm_network = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_machines:surface_drill_ext",
+
   description = "Surface Drill Extension",
+
   groups = {cracky = 1, surface_drill_ext = 1},
+
   drop = surface_drill_ext_yatm_network.states.off,
+
   tiles = {
     "yatm_surface_drill_top.off.png",
     "yatm_surface_drill_bottom.png",
@@ -163,6 +168,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_surface_drill_side.ext.off.png",
     "yatm_surface_drill_side.ext.off.png"
   },
+
   paramtype = "light",
   paramtype2 = "facedir",
   yatm_network = surface_drill_ext_yatm_network,

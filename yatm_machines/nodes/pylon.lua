@@ -77,73 +77,58 @@ yatm.devices.register_stateful_network_device({
   yatm_network = pylon_yatm_network,
 
   refresh_infotext = pylon_refresh_infotext,
-})
-
-yatm.devices.register_network_device("yatm_machines:pylon_error", {
-  description = "Pylon",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
-  tiles = {
-    {
-      name = "yatm_pylon_top.error.png",
-      animation = {
-        type = "vertical_frames",
-        aspect_w = 16,
-        aspect_h = 16,
-        length = 1
+}, {
+  error = {
+    tiles = {
+      {
+        name = "yatm_pylon_top.error.png",
+        animation = {
+          type = "vertical_frames",
+          aspect_w = 16,
+          aspect_h = 16,
+          length = 1
+        },
       },
-    },
-    {
-      name = "yatm_pylon_bottom.error.png",
-      animation = {
-        type = "vertical_frames",
-        aspect_w = 16,
-        aspect_h = 16,
-        length = 1
+      {
+        name = "yatm_pylon_bottom.error.png",
+        animation = {
+          type = "vertical_frames",
+          aspect_w = 16,
+          aspect_h = 16,
+          length = 1
+        },
       },
+      "yatm_pylon_side.error.png",
+      "yatm_pylon_side.error.png",
+      "yatm_pylon_side.error.png",
+      "yatm_pylon_side.error.png",
     },
-    "yatm_pylon_side.error.png",
-    "yatm_pylon_side.error.png",
-    "yatm_pylon_side.error.png",
-    "yatm_pylon_side.error.png",
   },
-  paramtype = "light",
-  paramtype2 = "facedir",
-  drawtype = "nodebox",
-  node_box = pylon_node_box,
-  yatm_network = pylon_yatm_network
-})
 
-yatm.devices.register_network_device("yatm_machines:pylon_on", {
-  description = "Pylon",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
-  tiles = {
-    {
-      name = "yatm_pylon_top.on.png",
-      animation = {
-        type = "vertical_frames",
-        aspect_w = 16,
-        aspect_h = 16,
-        length = 1
+  on = {
+    tiles = {
+      {
+        name = "yatm_pylon_top.on.png",
+        animation = {
+          type = "vertical_frames",
+          aspect_w = 16,
+          aspect_h = 16,
+          length = 1
+        },
       },
-    },
-    {
-      name = "yatm_pylon_bottom.on.png",
-      animation = {
-        type = "vertical_frames",
-        aspect_w = 16,
-        aspect_h = 16,
-        length = 1
+      {
+        name = "yatm_pylon_bottom.on.png",
+        animation = {
+          type = "vertical_frames",
+          aspect_w = 16,
+          aspect_h = 16,
+          length = 1
+        },
       },
+      pylon_side_animation,
+      pylon_side_animation,
+      pylon_side_animation,
+      pylon_side_animation,
     },
-    pylon_side_animation,
-    pylon_side_animation,
-    pylon_side_animation,
-    pylon_side_animation,
-  },
-  paramtype = "light",
-  paramtype2 = "facedir",
-  drawtype = "nodebox",
-  node_box = pylon_node_box,
-  yatm_network = pylon_yatm_network
+  }
 })
-

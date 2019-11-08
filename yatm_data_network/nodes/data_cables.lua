@@ -80,6 +80,7 @@ for _,color_pair in ipairs(colors) do
 
   minetest.register_node(node_name, {
     basename = "yatm_data_network:data_cable",
+    base_description = "Data Cable",
 
     description = "Data Cable (" .. color_name .. ")",
 
@@ -137,6 +138,7 @@ for _,color_pair in ipairs(colors) do
 
   minetest.register_node(node_name, {
     basename = "yatm_data_network:data_cable_bus",
+    base_description = "Data Bus",
 
     description = "Data Bus (" .. color_name .. ")",
 

@@ -107,6 +107,9 @@ function yatm_cables.register_cable_state(params, size)
   end
 
   minetest.register_node(name, {
+    basename = params.basename,
+    base_description = params.base_description or params.description,
+
     description = params.description,
 
     groups = groups,
@@ -166,6 +169,8 @@ end
 
 -- General cables carry both data and power
 yatm_cables.register_cable({
+  basename = "yatm_cables:dense_cable",
+
   name = "yatm_cables:dense_cable",
   description = "Dense Cable",
   texture_basename = "yatm_dense_cable",
@@ -193,6 +198,8 @@ yatm_cables.register_cable({
 }, 8 * yatm_core.PX16)
 
 yatm_cables.register_cable({
+  basename = "yatm_cables:medium_cable",
+
   name = "yatm_cables:medium_cable",
   description = "Medium Cable",
   texture_basename = "yatm_medium_cable",
@@ -219,6 +226,8 @@ yatm_cables.register_cable({
 }, 6 * yatm_core.PX16)
 
 yatm_cables.register_cable({
+  basename = "yatm_cables:small_cable",
+
   name = "yatm_cables:small_cable",
   description = "Small Cable",
   --texture_basename = "yatm_small_cable_",
@@ -249,6 +258,8 @@ yatm_cables.register_cable({
 -- Glass cables are device cables, they do not carry power
 local glass_sounds = default.node_sound_glass_defaults()
 yatm_cables.register_cable({
+  basename = "yatm_cables:pipe_glass",
+
   name = "yatm_cables:pipe_glass", -- TODO: rename to glass_cable
   description = "Glass Cable",
   texture_basename = "yatm_pipe.glass",
@@ -272,6 +283,8 @@ yatm_cables.register_cable({
 }, 4 * yatm_core.PX16)
 
 yatm_cables.register_cable({
+  basename = "yatm_cables:pipe_glass_rb",
+
   name = "yatm_cables:pipe_glass_rb",
   description = "Glass Cable (Red/Black)",
   texture_basename = "yatm_pipe.glass.red.black.couplings",
@@ -295,6 +308,8 @@ yatm_cables.register_cable({
 }, 4 * yatm_core.PX16)
 
 yatm_cables.register_cable({
+  basename = "yatm_cables:pipe_glass_yb",
+
   name = "yatm_cables:pipe_glass_yb",
   description = "Glass Cable (Yellow/Black)",
   texture_basename = "yatm_pipe.glass.yellow.black.couplings",
@@ -319,6 +334,8 @@ yatm_cables.register_cable({
 
 -- Standard pipe cables only carry energy
 yatm_cables.register_cable({
+  basename = "yatm_cables:pipe_rb",
+
   name = "yatm_cables:pipe_rb",
   description = "Pipe (Red/Black)",
   texture_basename = "yatm_pipe.red.black.couplings",
@@ -340,6 +357,8 @@ yatm_cables.register_cable({
 }, 4 * yatm_core.PX16)
 
 yatm_cables.register_cable({
+  basename = "yatm_cables:pipe_yb",
+
   name = "yatm_cables:pipe_yb",
   description = "Pipe (Yellow/Black)",
   texture_basename = "yatm_pipe.yellow.black.couplings",
@@ -364,8 +383,10 @@ yatm_cables.register_cable({
 -- Copper Cables only carry energy
 --
 yatm_cables.register_cable({
+  basename = "yatm_cables:copper_cable_uninsulated",
+
   name = "yatm_cables:copper_cable_uninsulated",
-  description = "Copper Cable",
+  description = "Copper Cable (Uninsulated)",
   texture_basename = "yatm_copper_cable_side.uninsulated",
   states = false,
 
@@ -412,8 +433,11 @@ do
     local node_name = "yatm_cables:copper_cable_" .. color_basename
 
     yatm_cables.register_cable({
+      basename = "yatm_cables:copper_cable",
+      base_description = "Copper Cable",
+
       name = node_name,
-      description = "Copper Cable",
+      description = "Copper Cable (" .. color_name .. ")",
       texture_basename = "yatm_copper_cable_" .. color_basename .. ".on",
       states = false,
 

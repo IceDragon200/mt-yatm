@@ -8,6 +8,8 @@ local swiper_node_box = {
 }
 
 minetest.register_node("yatm_mesecon_locks:mesecon_card_swiper_off", {
+  basename = "yatm_mesecon_locks:mesecon_card_swiper",
+
   description = "Card Swiper (Mesecons)",
 
   drop = "yatm_mesecon_locks:mesecon_card_swiper_off",
@@ -59,6 +61,8 @@ minetest.register_node("yatm_mesecon_locks:mesecon_card_swiper_off", {
 })
 
 minetest.register_node("yatm_mesecon_locks:mesecon_card_swiper_on", {
+  basename = "yatm_mesecon_locks:mesecon_card_swiper",
+
   description = "Card Swiper (Mesecons)",
 
   drop = "yatm_mesecon_locks:mesecon_card_swiper_off",
@@ -134,6 +138,8 @@ if yatm_data_network then
   end
 
   minetest.register_node("yatm_mesecon_locks:data_card_swiper_off", {
+    basename = "yatm_mesecon_locks:data_card_swiper",
+
     description = "Card Swiper (DATA)",
 
     drop = "yatm_mesecon_locks:data_card_swiper_off",
@@ -171,6 +177,8 @@ if yatm_data_network then
   })
 
   minetest.register_node("yatm_mesecon_locks:data_card_swiper_on", {
+    basename = "yatm_mesecon_locks:data_card_swiper",
+
     description = "Card Swiper (DATA)",
 
     drop = "yatm_mesecon_locks:data_card_swiper_off",

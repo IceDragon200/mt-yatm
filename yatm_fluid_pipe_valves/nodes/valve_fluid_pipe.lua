@@ -39,6 +39,7 @@ local valve_nodebox = {
   connect_right  = {-size, -size, -size, 0.5,   size, size}, -- x+
 }
 
+local basename = "yatm_fluid_pipe_valves:valve_fluid_pipe"
 for _,color_pair in ipairs(colors) do
   local color_basename = color_pair[1]
   local color_name = color_pair[2]
@@ -51,7 +52,7 @@ for _,color_pair in ipairs(colors) do
     [colored_group_name] = 1,
   }
 
-  local node_name = "yatm_fluid_pipe_valves:valve_fluid_pipe_" .. color_basename
+  local node_name = basename .. "_" .. color_basename
   local connects_to = {
     "group:extractor_fluid_device",
     "group:inserter_fluid_device",
@@ -69,7 +70,8 @@ for _,color_pair in ipairs(colors) do
   end
 
   minetest.register_node(node_name .. "_off", {
-    basename = node_name,
+    basename = basename,
+    base_description = "Valve Fluid Pipe",
 
     description = "Valve Fluid Pipe (" .. color_name .. ")",
 
@@ -115,7 +117,8 @@ for _,color_pair in ipairs(colors) do
   })
 
   minetest.register_node(node_name .. "_on", {
-    basename = node_name,
+    basename = basename,
+    base_description = "Valve Fluid Pipe",
 
     description = "Valve Fluid Pipe (" .. color_name .. ")",
 

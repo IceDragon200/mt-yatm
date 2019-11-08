@@ -28,6 +28,7 @@ dofile(yatm_machines.modpath .. "/compacting_registry.lua")
 dofile(yatm_machines.modpath .. "/condensing_registry.lua")
 dofile(yatm_machines.modpath .. "/freezing_registry.lua")
 dofile(yatm_machines.modpath .. "/grinding_registry.lua")
+dofile(yatm_machines.modpath .. "/rolling_registry.lua")
 
 dofile(yatm_machines.modpath .. "/api.lua")
 dofile(yatm_machines.modpath .. "/nodes.lua")

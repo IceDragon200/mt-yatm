@@ -46,6 +46,8 @@ local groups = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_dscs:inventory_controller",
+
   description = "Inventory Controller",
 
   groups = groups,

@@ -341,3 +341,6 @@ yatm.condensing.condensing_registry = yatm_machines.CondensingRegistry:new()
 
 yatm.compacting = yatm.compacting or {}
 yatm.compacting.compacting_registry = yatm_machines.CompactingRegistry:new()
+
+yatm.rolling = yatm.rolling or {}
+yatm.rolling.rolling_registry = yatm_machines.RollingRegistry:new()

@@ -15,6 +15,7 @@ for _,color in ipairs(colors) do
   for _,size in ipairs(sizes) do
     minetest.register_node("yatm_decor:warning_checkers_" .. size .. "_" .. color, {
       basename = "yatm_decor:warning_checkers",
+      base_description = "Warning Checkers",
 
       description = "Warning Checkers " .. size .. " (" .. color .. ")",
       groups = {cracky = 1},
@@ -28,8 +29,9 @@ for _,color in ipairs(colors) do
 
     minetest.register_node("yatm_decor:warning_checkers_slab_" .. size .. "_" .. color, {
       basename = "yatm_decor:warning_checkers_slab",
+      base_description = "Warning Checkers Slab",
 
-      description = "Warning Checkers " .. size .. " (" .. color .. ")",
+      description = "Warning Checkers Slab " .. size .. " (" .. color .. ")",
       groups = {cracky = 1},
       tiles = {
         "yatm_warning_checkers_" .. size .. "_" .. color .. "_15.png",
@@ -44,8 +46,9 @@ for _,color in ipairs(colors) do
 
     minetest.register_node("yatm_decor:warning_checkers_plate_" .. size .. "_" .. color, {
       basename = "yatm_decor:warning_checkers_plate",
+      base_description = "Warning Checkers Panel",
 
-      description = "Warning Checkers " .. size .. " (" .. color .. ")",
+      description = "Warning Checkers Panel " .. size .. " (" .. color .. ")",
       groups = {cracky = 1},
       tiles = {
         "yatm_warning_checkers_" .. size .. "_" .. color .. "_15.png",
