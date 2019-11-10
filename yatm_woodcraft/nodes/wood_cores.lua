@@ -24,6 +24,7 @@ local wood_types = {
 for wood_basename, wood_config in pairs(wood_types) do
   minetest.register_node("yatm_woodcraft:" .. wood_basename .. "_core", {
     basename = "yatm_woodcraft:wood_core",
+    base_description = "Tree Core",
 
     description = wood_config.name .. " Core",
 
