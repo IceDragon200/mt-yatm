@@ -30,6 +30,9 @@ for _,material_pair in ipairs(materials) do
   local material_name = material_pair[2]
 
   minetest.register_craftitem("yatm_core:spool_" .. material_basename, {
+    basename = "yatm_core:spool_wire",
+    base_description = "Wire Spool",
+
     description = material_name .. " Spool",
     inventory_image = "yatm_materials_spool." .. material_basename .. ".png",
 
@@ -42,6 +45,9 @@ for _,material_pair in ipairs(materials) do
   })
 
   minetest.register_craftitem("yatm_core:transformer_" .. material_basename, {
+    basename = "yatm_core:transformer",
+    base_description = "Transformer",
+
     description = material_name .. " Transformer",
     inventory_image = "yatm_materials_transformer." .. material_basename .. ".png",
 
@@ -67,6 +73,9 @@ for _,material_pair in ipairs(materials) do
   local material_name = material_pair[2]
 
   minetest.register_craftitem("yatm_core:hammer_" .. material_basename, {
+    basename = "yatm_core:hammer",
+    base_description = "Hammer",
+
     description = material_name .. " Hammer",
     inventory_image = "yatm_hammer." .. material_basename .. ".png",
 
@@ -79,6 +88,9 @@ for _,material_pair in ipairs(materials) do
   })
 
   minetest.register_craftitem("yatm_core:battery_" .. material_basename, {
+    basename = "yatm_core:battery",
+    base_description = "Battery",
+
     description = material_name .. " Battery",
     inventory_image = "yatm_materials_battery." .. material_basename .. ".png",
 
@@ -91,6 +103,9 @@ for _,material_pair in ipairs(materials) do
   })
 
   minetest.register_craftitem("yatm_core:capacitor_" .. material_basename, {
+    basename = "yatm_core:capacitor",
+    base_description = "Capacitor",
+
     description = material_name .. " Capacitor",
     inventory_image = "yatm_materials_capacitor." .. material_basename .. ".png",
 
@@ -103,6 +118,9 @@ for _,material_pair in ipairs(materials) do
   })
 
   minetest.register_craftitem("yatm_core:gear_" .. material_basename, {
+    basename = "yatm_core:gear",
+    base_description = "Metal Gear",
+
     description = material_name .. " Gear",
     inventory_image = "yatm_materials_gear." .. material_basename .. ".png",
 
@@ -115,6 +133,9 @@ for _,material_pair in ipairs(materials) do
   })
 
   minetest.register_craftitem("yatm_core:plate_" .. material_basename, {
+    basename = "yatm_core:plate",
+    base_description = "Metal Plate",
+
     description = material_name .. " Plate",
     inventory_image = "yatm_materials_plate." .. material_basename .. ".png",
 
@@ -127,6 +148,9 @@ for _,material_pair in ipairs(materials) do
   })
 
   minetest.register_craftitem("yatm_core:vacuum_tube_" .. material_basename, {
+    basename = "yatm_core:vacuum_tube",
+    base_description = "Vacuum Tube",
+
     description = material_name .. " Vacuum Tube",
     inventory_image = "yatm_materials_vacuum_tube." .. material_basename .. ".png",
 
@@ -139,6 +163,9 @@ for _,material_pair in ipairs(materials) do
   })
 
   minetest.register_craftitem("yatm_core:dust_" .. material_basename, {
+    basename = "yatm_core:dust",
+    base_description = "Metal Dust",
+
     description = material_name .. " Dust",
     inventory_image = "yatm_materials_dust." .. material_basename .. ".png",
 
@@ -151,6 +178,9 @@ for _,material_pair in ipairs(materials) do
   })
 
   minetest.register_craftitem("yatm_core:ingot_" .. material_basename, {
+    basename = "yatm_core:ingot",
+    base_description = "Metal Ingot",
+
     description = material_name .. " Ingot",
     inventory_image = "yatm_materials_ingot." .. material_basename .. ".png",
     groups = {
@@ -166,6 +196,9 @@ end
 Elemental Crystals
 ]]
 minetest.register_craftitem("yatm_core:crystal_carbon_steel", {
+  basename = "yatm_core:crystal",
+  base_description = "Crystal",
+
   description = "Carbon Steel Crystal",
   inventory_image = "yatm_element_crystal.carbon_steel.png",
 
@@ -178,6 +211,9 @@ minetest.register_craftitem("yatm_core:crystal_carbon_steel", {
 })
 
 minetest.register_craftitem("yatm_core:crystal_common", {
+  basename = "yatm_core:crystal",
+  base_description = "Crystal",
+
   description = "Common Crystal",
   inventory_image = "yatm_element_crystal.common.png",
 
@@ -188,6 +224,9 @@ minetest.register_craftitem("yatm_core:crystal_common", {
 })
 
 minetest.register_craftitem("yatm_core:crystal_aqua", {
+  basename = "yatm_core:crystal",
+  base_description = "Crystal",
+
   description = "Aqua Crystal",
   inventory_image = "yatm_element_crystal.aqua.png",
 
@@ -198,6 +237,9 @@ minetest.register_craftitem("yatm_core:crystal_aqua", {
 })
 
 minetest.register_craftitem("yatm_core:crystal_ignis", {
+  basename = "yatm_core:crystal",
+  base_description = "Crystal",
+
   description = "Ignis Crystal",
   inventory_image = "yatm_element_crystal.ignis.png",
 
@@ -208,6 +250,9 @@ minetest.register_craftitem("yatm_core:crystal_ignis", {
 })
 
 minetest.register_craftitem("yatm_core:crystal_lux", {
+  basename = "yatm_core:crystal",
+  base_description = "Crystal",
+
   description = "Lux Crystal",
   inventory_image = "yatm_element_crystal.lux.png",
 
@@ -218,6 +263,9 @@ minetest.register_craftitem("yatm_core:crystal_lux", {
 })
 
 minetest.register_craftitem("yatm_core:crystal_terra", {
+  basename = "yatm_core:crystal",
+  base_description = "Crystal",
+
   description = "Terra Crystal",
   inventory_image = "yatm_element_crystal.terra.png",
 
@@ -228,6 +276,9 @@ minetest.register_craftitem("yatm_core:crystal_terra", {
 })
 
 minetest.register_craftitem("yatm_core:crystal_umbra", {
+  basename = "yatm_core:crystal",
+  base_description = "Crystal",
+
   description = "Umbra Crystal",
   inventory_image = "yatm_element_crystal.umbra.png",
 
@@ -238,6 +289,9 @@ minetest.register_craftitem("yatm_core:crystal_umbra", {
 })
 
 minetest.register_craftitem("yatm_core:crystal_ventus", {
+  basename = "yatm_core:crystal",
+  base_description = "Crystal",
+
   description = "Ventus Crystal",
   inventory_image = "yatm_element_crystal.ventus.png",
 

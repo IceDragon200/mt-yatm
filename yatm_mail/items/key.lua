@@ -29,6 +29,9 @@ for _,material_pair in ipairs(materials) do
     }
 
     minetest.register_craftitem(key_states.blank, {
+      basename = "yatm_mail:key_blank",
+      base_description = "Blank Key",
+
       description = material_name .. " Blank Key (" .. color_name .. ")",
       groups = {
         lockable_key = 1,
@@ -40,6 +43,9 @@ for _,material_pair in ipairs(materials) do
     })
 
     minetest.register_craftitem(key_states.toothed, {
+      basename = "yatm_mail:key_toothed",
+      base_description = "Key",
+
       description = material_name .. " Key (" .. color_name .. ")",
       groups = {
         lockable_key = 1,
@@ -54,6 +60,9 @@ for _,material_pair in ipairs(materials) do
 
     -- These are broken keys
     minetest.register_craftitem(key_states.toothless, {
+      basename = "yatm_mail:key_toothless",
+      base_description = "Toothless Key",
+
       description = material_name .. " Toothless Key (" .. color_name .. ")",
       groups = {
         lockable_key = 1,

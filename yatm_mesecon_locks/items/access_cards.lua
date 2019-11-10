@@ -12,6 +12,9 @@ for _,color in pairs(colors) do
   local color_name = color[2]
 
   minetest.register_craftitem("yatm_mesecon_locks:access_card_" .. color_basename, {
+    basename = "yatm_mesecon_locks:access_card",
+    base_description = "Access Card",
+
     description = "Access Card (" .. color_name .. ")",
 
     groups = {
