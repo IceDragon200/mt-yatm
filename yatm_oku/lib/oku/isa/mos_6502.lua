@@ -13,24 +13,29 @@ if not oku_6502 then
 end
 
 local code_table = {
-  [-1] = SEGFAULT_CODE,
   [0] = OK_CODE,
   [1] = INVALID_CODE,
   [4] = HALT_CODE,
   [5] = HANG_CODE,
+  [127] = SEGFAULT_CODE,
 }
 
 ffi.cdef([[
 struct oku_6502_chip
 {
-  // 64 bit block
+  uint16_t ab;        // Address Bus
   uint16_t pc;        // Program Counter
   uint8_t sp;         // Stack Pointer
-  int8_t acc;         // Accumulator
+  uint8_t ir;         // Instruction Register
+  int8_t a;           // Accumulator
   int8_t x;           // X
   int8_t y;           // Y
   int8_t sr;          // Status Register [NV-BDIZC]
-  int8_t _padding;
+  // Ends the 6502 Registers
+
+  // 0000 (state param) 0000 (state code)
+  int8_t state; // Not apart of the 6502,
+                // this is here to define different states the CPU is in for the step function
 
   uint32_t cycles; // Cycles never go backwards do they?
   int32_t operand; // Any data we need to store for a bit
