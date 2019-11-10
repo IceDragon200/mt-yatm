@@ -1,0 +1,3 @@
+--
+-- Below are all the recipes for each firearm.
+--

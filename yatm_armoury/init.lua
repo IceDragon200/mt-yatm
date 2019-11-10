@@ -10,3 +10,5 @@ dofile(yatm_armoury.modpath .. "/api.lua")
 
 dofile(yatm_armoury.modpath .. "/nodes.lua")
 dofile(yatm_armoury.modpath .. "/items.lua")
+
+dofile(yatm_armoury.modpath .. "/recipes.lua")
