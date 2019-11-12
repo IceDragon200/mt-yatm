@@ -1,0 +1,5 @@
+dofile(yatm_rails.modpath .. "/entities/battery_cart.lua")
+dofile(yatm_rails.modpath .. "/entities/item_cart.lua")
+dofile(yatm_rails.modpath .. "/entities/fluid_cart.lua")
+dofile(yatm_rails.modpath .. "/entities/solid_fuel_locomotive.lua")
+dofile(yatm_rails.modpath .. "/entities/electric_locomotive.lua")

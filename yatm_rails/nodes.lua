@@ -1,0 +1,6 @@
+dofile(yatm_rails.modpath .. "/nodes/sensor_rails.lua")
+dofile(yatm_rails.modpath .. "/nodes/data_rails.lua")
+dofile(yatm_rails.modpath .. "/nodes/docking_station.lua")
+dofile(yatm_rails.modpath .. "/nodes/battery_cart_loader.lua")
+dofile(yatm_rails.modpath .. "/nodes/fluid_cart_loader.lua")
+dofile(yatm_rails.modpath .. "/nodes/item_cart_loader.lua")
