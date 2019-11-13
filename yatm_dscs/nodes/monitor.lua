@@ -1,6 +1,6 @@
---[[
-
-]]
+--
+-- Various DSCS Monitors
+--
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
