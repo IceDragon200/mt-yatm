@@ -38,7 +38,7 @@
 
 -- 9x19mm - Semi-Automatic
 yatm.register_stateful_tool("yatm_armoury:firearm_hg9mm_semi", {
-  description = "AMS Sallos HG 19S",
+  description = "AMS Sallos HG 19S\nStandard issued Handgun",
 
   groups = {
     firearm = 1,
@@ -61,7 +61,7 @@ yatm.register_stateful_tool("yatm_armoury:firearm_hg9mm_semi", {
 
 -- 9x19mm - Automatic
 yatm.register_stateful_tool("yatm_armoury:firearm_smg9mm_auto", {
-  description = "AMS Paimon SMG 19A",
+  description = "AMS Paimon SMG 19A\nVersitile SMG",
 
   groups = {
     firearm = 1,
@@ -87,7 +87,7 @@ yatm.register_stateful_tool("yatm_armoury:firearm_smg9mm_auto", {
 
 -- 9x19mm - Automatic [Belt Feed]
 yatm.register_stateful_tool("yatm_armoury:firearm_mg9mm_auto", {
-  description = "AMS Ronove MG 19A",
+  description = "AMS Ronove MG 19A\n9mm Machine Gun",
 
   groups = {
     firearm = 1,

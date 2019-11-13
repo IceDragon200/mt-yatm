@@ -1,6 +1,6 @@
 minetest.register_craftitem("yatm_armoury:grenade_lemonade", {
-  description = "Lemon Grenade",
-  lore = "Jokingly called the Lemonade.",
+  description = "Lemon-nade\nCaution: Handle with care",
+  lore = "Not for juice.",
 
   groups = {
     grenade = 1,
