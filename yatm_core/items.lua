@@ -161,6 +161,21 @@ for _,material_pair in ipairs(materials) do
 
     material_name = material_basename,
   })
+end
+
+materials = {
+  {"copper", "Copper"},
+  {"bronze", "Bronze"},
+  {"gold", "Gold"},
+  {"iron", "Iron"},
+  {"tin", "Tin"},
+  {"silver", "Silver"},
+  {"carbon_steel", "Carbon Steel"},
+}
+
+for _,material_pair in ipairs(materials) do
+  local material_basename = material_pair[1]
+  local material_name = material_pair[2]
 
   minetest.register_craftitem("yatm_core:dust_" .. material_basename, {
     basename = "yatm_core:dust",
