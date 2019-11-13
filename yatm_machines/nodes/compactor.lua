@@ -166,6 +166,16 @@ local function compactor_on_rightclick(pos, node, clicker, item_stack, pointed_t
   )
 end
 
+local compactor_item_interface =
+  ItemInterface.new_directional(function (self, pos, dir)
+    local node = minetest.get_node(pos)
+    local new_dir = yatm_core.facedir_to_face(node.param2, dir)
+    if new_dir == yatm_core.D_UP or new_dir == yatm_core.D_DOWN then
+      return "output_items"
+    end
+    return "input_items"
+  end)
+
 local groups = {
   cracky = 1,
   yatm_energy_device = 1,
@@ -197,6 +207,8 @@ yatm.devices.register_stateful_network_device({
   on_rightclick = compactor_on_rightclick,
 
   yatm_network = compactor_yatm_network,
+
+  item_interface = compactor_item_interface,
 
   refresh_infotext = compactor_refresh_infotext,
 }, {
