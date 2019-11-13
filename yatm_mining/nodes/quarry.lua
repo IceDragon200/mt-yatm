@@ -33,6 +33,7 @@ local quarry_yatm_network = {
     error = "yatm_mining:quarry_error",
     on = "yatm_mining:quarry_on",
     off = "yatm_mining:quarry_off",
+    idle = "yatm_mining:quarry_idle",
   },
 
   energy = {
@@ -76,32 +77,33 @@ function quarry_yatm_network.work(pos, node, available_energy, work_rate, dtime,
   local cursor_relative_pos = vector.add(vector.add(new_nv, new_ev), new_dv)
   cursor_relative_pos = vector.add(cursor_relative_pos, north_dir) -- the cursor is always 1 step ahead of the quarry
   local cursor_pos = vector.add(pos, cursor_relative_pos)
-  --
-  --print("Removing " .. minetest.pos_to_string(cursor_pos))
-  --minetest.remove_node(cursor_pos)
+
+  -- TODO: respect permissions
+  print("Removing " .. minetest.pos_to_string(cursor_pos))
+  minetest.remove_node(cursor_pos)
   -- TODO: store removed node, or determine if it can be stored
 
   -- Finally move the cursor to the next location
   cx = cx + delta_x
 
-  if cx > 8 then
-    cx = 8 -- clamp
-    delta_x = -delta_x -- reverse delta
+  if cx > 7 then
+    cx = 7 -- clamp
+    delta_x = -1 -- reverse delta
     cz = cz + delta_z
   elseif cx < -8 then
-    cx = 0
-    delta_x = -delta_x
+    cx = -8
+    delta_x = 1
     cz = cz + delta_z
   end
 
   if cz > 16 then
     cz = 16
-    delta_z = -delta_z
+    delta_z = -1
     delta_x = -delta_x
     cy = cy + 1
   elseif cz < 0 then
     cz = 0
-    delta_z = -delta_z
+    delta_z = 1
     delta_x = -delta_x
     cy = cy + 1
   end
@@ -204,6 +206,16 @@ yatm.devices.register_stateful_network_device({
       "yatm_quarry_side.on.png^[transformFX",
       "yatm_quarry_back.on.png",
       "yatm_quarry_front.on.png",
+    },
+  },
+  idle = {
+    tiles = {
+      "yatm_quarry_top.idle.png",
+      "yatm_quarry_bottom.png",
+      "yatm_quarry_side.idle.png",
+      "yatm_quarry_side.idle.png^[transformFX",
+      "yatm_quarry_back.idle.png",
+      "yatm_quarry_front.idle.png",
     },
   },
 })
