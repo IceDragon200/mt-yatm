@@ -1,3 +1,4 @@
+dofile(yatm_woodcraft.modpath .. "/nodes/crafting_table.lua")
 dofile(yatm_woodcraft.modpath .. "/nodes/dust_bin.lua")
 dofile(yatm_woodcraft.modpath .. "/nodes/sawmill.lua")
 dofile(yatm_woodcraft.modpath .. "/nodes/sawdust_block.lua")
