@@ -99,7 +99,7 @@ function compactor_yatm_network.work(pos, node, energy_available, work_rate, dti
       local time = meta:get_float("time")
       local used_time = math.min(time, remaining_dtime)
 
-      energy_to_use = math.min(energy_available - energy_used, used_time * 400)
+      local energy_to_use = math.min(energy_available - energy_used, used_time * 400)
       used_time = energy_to_use / 400
       energy_used = energy_used + energy_to_use
 
