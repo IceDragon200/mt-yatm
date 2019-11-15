@@ -125,6 +125,8 @@ end
 minetest.register_node("yatm_mining:quarry_wall", {
   description = "Quarry Wall",
 
+  drop = quarry_yatm_network.states.off,
+
   groups = {
     snappy = 1,
   },
