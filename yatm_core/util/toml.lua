@@ -6,7 +6,7 @@ local function format_prefix(prefix)
     if string.match(value, "^[%w_]+$") then
       table.insert(result, value)
     else
-      table.insert(result, "\"" .. value .. "\"")
+      table.insert(result, "\"" .. string.gsub(value, "\n", "\\n") .. "\"")
     end
   end
   return table.concat(result, ".")
@@ -25,7 +25,7 @@ function TOML.encode_iodata(object, prefix, result)
     if t == "table" then
       other_objects[key] = value
     elseif t == "string" then
-      table.insert(result, key .. " = \"" .. value .. "\"")
+      table.insert(result, key .. " = \"" .. string.gsub(value, "\n", "\\n") .. "\"")
     elseif t == "number" then
       table.insert(result, key .. " = " .. value)
     elseif t == "boolean" then
