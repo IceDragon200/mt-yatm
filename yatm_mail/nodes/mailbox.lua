@@ -125,6 +125,19 @@ end
 local function mailbox_on_destruct(pos)
 end
 
+local function mailbox_on_dig(pos, node, digger)
+  local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
+
+  if inv:is_empty("access_key") and
+     inv:is_empty("dropoff") and
+     inv:is_empty("inbox") then
+    return minetest.node_dig(pos, node, digger)
+  end
+
+  return false
+end
+
 local function mailbox_allow_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
   return 0
 end
@@ -241,6 +254,7 @@ for _,pair in ipairs(colors) do
 
     on_construct = mailbox_on_construct,
     on_destruct = mailbox_on_destruct,
+    on_dig = mailbox_on_dig,
 
     after_place_node = mailbox_after_place_node,
 
@@ -280,6 +294,7 @@ for _,pair in ipairs(colors) do
 
     on_construct = mailbox_on_construct,
     on_destruct = mailbox_on_destruct,
+    on_dig = mailbox_on_dig,
 
     after_place_node = mailbox_after_place_node,
 

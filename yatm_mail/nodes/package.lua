@@ -12,7 +12,7 @@ function get_package_formspec(pos)
     "label[0,0;Package]" ..
     "list[nodemeta:" .. spos .. ";main;0,0.5;3,3;]" ..
     "field[4,1;4,1;addressed_from;From;" .. meta:get_string("addressed_from") .. "]" ..
-    "field[4,1;4,1;addressed_to;To;" .. meta:get_string("addressed_to") .. "]" ..
+    "field[4,3;4,1;addressed_to;To;" .. meta:get_string("addressed_to") .. "]" ..
     "list[current_player;main;0,4.85;8,1;]" ..
     "list[current_player;main;0,6.08;8,3;8]" ..
     "listring[nodemeta:" .. spos .. ";main]" ..
@@ -111,14 +111,22 @@ minetest.register_node("yatm_mail:package", {
     cracky = 1,
   },
 
+  stack_max = 1,
+
   tiles = {
     "yatm_package_plain_top.png",
     "yatm_package_plain_bottom.png",
     "yatm_package_plain_side.png",
-    "yatm_package_plain_side.png^[transformFX",
-    "yatm_package_plain_side.png^[transformFX",
+    "yatm_package_plain_side.png",
+    "yatm_package_plain_side.png",
     "yatm_package_plain_side.png",
   },
+
+  paramtype = "light",
+  paramtype2 = "facedir",
+
+  drawtype = "nodebox",
+  node_box = package_nodebox,
 
   on_construct = package_on_construct,
   after_place_node = package_after_place_node,
@@ -147,14 +155,22 @@ for _,color_pair in ipairs(colors) do
       cracky = 1,
     },
 
+    stack_max = 1,
+
     tiles = {
       "yatm_package_" .. color_basename .. "_top.ribbon.png",
       "yatm_package_" .. color_basename .. "_bottom.ribbon.png",
       "yatm_package_" .. color_basename .. "_side.ribbon.png",
-      "yatm_package_" .. color_basename .. "_side.ribbon.png^[transformFX",
-      "yatm_package_" .. color_basename .. "_side.ribbon.png^[transformFX",
+      "yatm_package_" .. color_basename .. "_side.ribbon.png",
+      "yatm_package_" .. color_basename .. "_side.ribbon.png",
       "yatm_package_" .. color_basename .. "_side.ribbon.png",
     },
+
+    paramtype = "light",
+    paramtype2 = "facedir",
+
+    drawtype = "nodebox",
+    node_box = package_nodebox,
 
     on_construct = package_on_construct,
     after_place_node = package_after_place_node,
