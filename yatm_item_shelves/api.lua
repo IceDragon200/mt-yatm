@@ -84,11 +84,17 @@ function yatm.shelves.shelf_on_destruct(pos)
 end
 
 function yatm.shelves.shelf_after_destruct(pos, old_node)
+  --
 end
 
 function yatm.shelves.shelf_on_dig(pos, node, digger)
-  yatm.shelves.clear_entities(pos)
-  --return true
+  local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
+  if inv:is_empty("main") then
+    yatm.shelves.clear_entities(pos)
+    return minetest.node_dig(pos, node, digger)
+  end
+  return false
 end
 
 function yatm.shelves.shelf_on_blast(pos, intensity)
@@ -210,7 +216,7 @@ function yatm.shelves.register_shelf(name, def)
     on_construct = yatm.shelves.shelf_on_construct,
     on_destruct = yatm.shelves.shelf_on_destruct,
     after_destruct = yatm.shelves.shelf_after_destruct,
-    --on_dig = yatm.shelves.shelf_on_dig,
+    on_dig = yatm.shelves.shelf_on_dig,
     on_blast = yatm.shelves.shelf_on_blast,
 
     on_metadata_inventory_move = yatm.shelves.shelf_on_metadata_inventory_move,
