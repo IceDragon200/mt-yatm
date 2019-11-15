@@ -105,10 +105,12 @@ end
 
 -- Plain package
 minetest.register_node("yatm_mail:package", {
+  basename = "yatm_mail:package",
   description = "Package",
 
   groups = {
     cracky = 1,
+    package = 1,
   },
 
   stack_max = 1,
@@ -149,10 +151,13 @@ for _,color_pair in ipairs(colors) do
   color_name = color_pair[2]
 
   minetest.register_node("yatm_mail:package_with_ribbon_" .. color_basename, {
+    basename = "yatm_mail:package_with_ribbon",
     description = "Package (" .. color_name .. " Ribbon)",
 
     groups = {
       cracky = 1,
+      package = 1,
+      package_with_ribbon = 1,
     },
 
     stack_max = 1,
