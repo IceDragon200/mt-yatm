@@ -1,3 +1,4 @@
+local aging_registry = assert(yatm.brewing.aging_registry)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
@@ -53,7 +54,9 @@ end
 
 local BARREL_CAPACITY = 4000 -- 4 buckets
 local BARREL_DRAIN_BANDWIDTH = BARREL_CAPACITY
+
 local barrel_fluid_interface = FluidInterface.new_simple("tank", BARREL_CAPACITY)
+
 function barrel_fluid_interface:on_fluid_changed(pos, dir, stack)
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]

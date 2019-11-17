@@ -1,4 +1,4 @@
-yatm.brew = {
-  aging_registry = yatm_brewery.aging_registry,
-  brewing_registry = yatm_brewery.brewing_registry,
+yatm.brewing = {
+  aging_registry = yatm_brewery.AgingRegistry:new(),
+  brewing_registry = yatm_brewery.BrewingRegistry:new(),
 }

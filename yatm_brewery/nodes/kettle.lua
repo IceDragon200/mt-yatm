@@ -1,7 +1,7 @@
+local brewing_registry = assert(yatm.brewing.brewing_registry)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
 local HeatInterface = assert(yatm.heating.HeatInterface)
-local brewing_registry = assert(yatm.brew.brewing_registry)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local FluidExchange = assert(yatm.fluids.FluidExchange)
 
@@ -160,23 +160,15 @@ local kettle_node_box = {
   },
 }
 
-minetest.register_node("yatm_brewery:kettle_off", {
-  basename = "yatm_brewery:kettle",
-
+yatm.register_stateful_node("yatm_brewery:kettle", {
   description = "Kettle",
+
+  drop = "yatm_brewery:kettle_off",
 
   groups = groups,
 
   drawtype = "nodebox",
   node_box = kettle_node_box,
-  tiles = {
-    "yatm_kettle_top.png",
-    "yatm_kettle_bottom.png",
-    "yatm_kettle_side.png",
-    "yatm_kettle_side.png",
-    "yatm_kettle_side.png",
-    "yatm_kettle_side.png",
-  },
 
   paramtype = "light",
   paramtype2 = "facedir",
@@ -187,34 +179,28 @@ minetest.register_node("yatm_brewery:kettle_off", {
   fluid_interface = fluid_interface,
   item_interface = item_interface,
   heat_interface = heat_interface,
-})
-
-minetest.register_node("yatm_brewery:kettle_on", {
-  basename = "yatm_brewery:kettle",
-
-  description = "Kettle",
-
-  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-  drop = "yatm_brewery:kettle_off",
-
-  drawtype = "nodebox",
-  node_box = kettle_node_box,
-  tiles = {
-    "yatm_kettle_top.png",
-    "yatm_kettle_bottom.png",
-    "yatm_kettle_side.png",
-    "yatm_kettle_side.png",
-    "yatm_kettle_side.png",
-    "yatm_kettle_side.png",
+}, {
+  off = {
+    tiles = {
+      "yatm_kettle_top.png",
+      "yatm_kettle_bottom.png",
+      "yatm_kettle_side.png",
+      "yatm_kettle_side.png",
+      "yatm_kettle_side.png",
+      "yatm_kettle_side.png",
+    },
   },
 
-  paramtype = "light",
-  paramtype2 = "facedir",
+  on = {
+    groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
 
-  on_construct = kettle_on_construct,
-  on_timer = kettle_on_timer,
-
-  fluid_interface = fluid_interface,
-  item_interface = item_interface,
-  heat_interface = heat_interface,
+    tiles = {
+      "yatm_kettle_top.png",
+      "yatm_kettle_bottom.png",
+      "yatm_kettle_side.png",
+      "yatm_kettle_side.png",
+      "yatm_kettle_side.png",
+      "yatm_kettle_side.png",
+    },
+  },
 })

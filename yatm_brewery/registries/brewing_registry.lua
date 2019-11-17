@@ -90,4 +90,4 @@ function ic:get_brewing_recipe(input)
   return nil
 end
 
-yatm_brewery.brewing_registry = BrewingRegistry:new()
+yatm_brewery.BrewingRegistry = BrewingRegistry
