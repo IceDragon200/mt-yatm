@@ -84,7 +84,7 @@ local function get_nearby_entity_item(self)
   return nil
 end
 
-local function drone_hq_pickup_item(self, prty)
+local function hq_pickup_item(self, prty)
   local func = function(self)
     if mobkit.is_queue_empty_low(self) and self.isonground then
       local item_entity = get_nearby_entity_item(self)
@@ -103,9 +103,61 @@ local function drone_hq_pickup_item(self, prty)
             return true
           end
         else
+          mobkit.remember(self, "need_dropoff", true)
           return true
         end
       else
+        return true
+      end
+    end
+  end
+  mobkit.queue_high(self,func,prty)
+end
+
+local function hq_find_dropoff_station(self, prty, search_radius)
+  local func = function(self)
+    if mobkit.is_queue_empty_low(self) and self.isonground then
+      local pos = mobkit.get_stand_pos(self)
+
+      local closest_dropoff = mobkit.recall(self, "closest_dropoff")
+
+      if closest_dropoff then
+        local node = minetest.get_node(closest_dropoff)
+
+        if not yatm_core.groups.item_has_group(node.name, "scavenger_dropoff_station") then
+          closest_dropoff = nil
+        end
+      end
+
+      if not closest_dropoff then
+        local pos1 = vector.subtract(pos, search_radius)
+        local pos2 = vector.add(pos, search_radius)
+        local nodes = minetest.find_nodes_in_area(pos1, pos2, "group:scavenger_dropoff_station")
+
+        for _, node_pos in ipairs(nodes) do
+          if closest_dropoff then
+            if vector.distance(closest_dropoff, pos) > vector.distance(node_pos, pos) then
+              closest_dropoff = node_pos
+            end
+          else
+            closest_dropoff = node_pos
+          end
+        end
+      end
+
+      if closest_dropoff then
+        mobkit.remember(self, "closest_dropoff", closest_dropoff)
+        local dist = vector.distance(closest_dropoff, pos)
+        if dist < 0.5 then
+          -- try dropping off items
+          mobkit.forget(self, "need_dropoff")
+          mobkit.remember(self, "dropping_off", true)
+          return true
+        else
+          mobkit.goto_next_waypoint(self, closest_dropoff)
+        end
+      else
+        mobkit.forget(self, "closest_dropoff")
         return true
       end
     end
@@ -168,10 +220,13 @@ end
 
 local function drone_logic(self)
   if not mobkit.recall(self, "charging") then
-    self:consume_energy(20 * self.dtime) -- loses energy
+    -- It not charging, lose energy like normal
+    self:consume_energy(20 * self.dtime)
   end
+
   if mobkit.timer(self, 1) then
     if mobkit.recall(self, "charging") then
+      -- Do charging stuff, by picking the closest docking station
       local closest_dock = mobkit.recall(self, "closest_dock")
       if closest_dock then
         local node = minetest.get_node(closest_dock)
@@ -179,6 +234,8 @@ local function drone_logic(self)
         if yatm_core.groups.item_has_group(node.name, "scavenger_docking_station") then
           local nodedef = minetest.registered_nodes[node.name]
           nodedef.yatm_network.charge_drone(closest_dock, node, self)
+          self:change_state("charging")
+          self:change_action_text("Charging")
 
           if mobkit.recall(self, "available_energy") >= 6000 then
             mobkit.forget(self, "charging")
@@ -197,19 +254,81 @@ local function drone_logic(self)
       local available_energy = mobkit.recall(self, "available_energy") or 0
       if available_energy > 0 then
         if available_energy > 1000 then
-          local item_entity = get_nearby_entity_item(self)
-          if item_entity then
+          if mobkit.recall(self, "dropping_off") then
+            self:change_state("dropoff")
+            -- found a dropoff station, need to dropoff items now.
             mobkit.clear_queue_high(self)
-            drone_hq_pickup_item(self, 20)
+
             mobkit.forget(self, "idle_time")
-            self:change_action_text("picking up an item")
-          else
+
+            local inv = self:get_inventory()
+
+            if inv:is_empty("main") then
+              mobkit.forget(self, "dropping_off")
+            else
+              local closest_dropoff = mobkit.recall(self, "closest_dropoff")
+              if closest_dropoff then
+                local node = minetest.get_node(closest_dropoff)
+
+                if yatm_core.groups.item_has_group(node.name, "scavenger_dropoff_station") then
+                  local main_list = inv:get_list("main")
+
+                  local new_list = {}
+                  for i, item in ipairs(main_list) do
+                    if item:is_empty() then
+                      new_list[i] = item
+                    else
+                      local remaining = yatm.items.ItemDevice.insert_item(closest_dropoff, yatm_core.D_NONE, item, true)
+                      if remaining then
+                        new_list[i] = remaining
+                      else
+                        new_list[i] = item
+                      end
+                    end
+                  end
+
+                  inv:set_list("main", new_list)
+                else
+                  mobkit.forget(self, "closest_dropoff")
+                  mobkit.forget(self, "dropping_off")
+                end
+              else
+                mobkit.forget(self, "closest_dropoff")
+                mobkit.forget(self, "dropping_off")
+              end
+            end
+          elseif mobkit.recall(self, "need_dropoff") then
+            -- Need to find a dropoff station
             mobkit.clear_queue_high(self)
-            mobkit.hq_roam(self, 10)
-            local idle_time = mobkit.recall(self, "idle_time") or 0
-            idle_time = idle_time + self.dtime
-            mobkit.remember(self, "idle_time", idle_time)
-            self:change_action_text("idling")
+            local search_radius = 32
+            hq_find_dropoff_station(self, 20, search_radius)
+            self:change_action_text("dropping off items")
+            self:change_state("dropoff")
+          else
+            local item_entity = get_nearby_entity_item(self)
+            if item_entity then
+              mobkit.clear_queue_high(self)
+              hq_pickup_item(self, 20)
+              mobkit.forget(self, "idle_time")
+              self:change_action_text("picking up an item")
+              self:change_state("on")
+            else
+              mobkit.clear_queue_high(self)
+              mobkit.hq_roam(self, 10)
+              local idle_time = mobkit.recall(self, "idle_time") or 0
+              idle_time = idle_time + 1
+              mobkit.remember(self, "idle_time", idle_time)
+              self:change_action_text("Idling " .. math.floor(idle_time))
+              self:change_state("idle")
+              if idle_time >= 15 then
+                -- if idling for more than 15 seconds, and the inventory isn't empty.
+                local inv = self:get_inventory()
+
+                if not inv:is_empty("main") then
+                  mobkit.remember(self, "need_dropoff", true)
+                end
+              end
+            end
           end
         else
           -- find a docking station ASAP
@@ -218,26 +337,14 @@ local function drone_logic(self)
           hq_find_docking_station(self, 50, search_radius)
           self:change_action_text("docking")
           mobkit.forget(self, "idle_time")
-        end
-
-        if self.state ~= "on" then
-          self.state = "on"
-
-          self.object:set_properties({
-            textures = {"yatm_scavenger_drone.on.png"}
-          })
+          self:change_state("on")
         end
       else
         mobkit.forget(self, "action")
-        if self.state ~= "off" then
-          self.state = "off"
-
-          self.object:set_properties({
-            textures = {"yatm_scavenger_drone.off.png"}
-          })
-        end
+        self:change_state("off")
 
         local search_radius = 0.5 -- can't move, so it needs to look at any immediate nodes
+        mobkit.clear_queue_high(self)
         hq_find_docking_station(self, 50, search_radius)
       end
     end
@@ -290,6 +397,16 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
   timeout = 0,
 
   get_inventory = get_inventory,
+
+  change_state = function (self, new_state)
+    if self.state ~= new_state then
+      self.state = new_state
+
+      self.object:set_properties({
+        textures = {"yatm_scavenger_drone." .. new_state .. ".png"}
+      })
+    end
+  end,
 
   set_owner_name = function (self, name)
     mobkit.remember(self, "owner_name", name)
