@@ -3,7 +3,7 @@ minetest.register_tool("yatm_drones:scavenger_drone_case", {
   inventory_image = "yatm_scavenger_drone_case.png",
   stack_max       = 1,
 
-  on_use = function(itemstack, clicker, pointed_thing)
+  on_place = function(itemstack, clicker, pointed_thing)
     if pointed_thing.above ~= nil then
       local drone = minetest.add_entity(pointed_thing.above, "yatm_drones:scavenger_drone")
       drone:get_luaentity():set_owner_name(clicker:get_player_name())
