@@ -16,7 +16,8 @@ end
 local pylon_yatm_network = {
   kind = "machine",
   groups = {
-    has_update = 1, -- the device should be updated every network step
+    machine_worker = 1,
+    energy_consumer = 1,
   },
   default_state = "off",
   states = {
@@ -24,13 +25,18 @@ local pylon_yatm_network = {
     error = "yatm_machines:pylon_error",
     off = "yatm_machines:pylon_off",
     on = "yatm_machines:pylon_on",
+  },
+  energy = {
+    capacity = 6000,
+    network_charge_bandwidth = 200,
+    passive_lost = 10,
+    startup_threshold = 1000,
   }
 }
 
-function pylon_yatm_network.update(pos, node)
-  local nodedef = minetest.registered_nodes[node.name]
-  if nodedef then
-  end
+function pylon_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
+
+  return 0
 end
 
 local pylon_side_animation = {
