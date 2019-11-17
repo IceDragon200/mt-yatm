@@ -13,13 +13,17 @@ local function bait_box_on_construct(pos)
   local inv = meta:get_inventory()
 
   -- Some bait
+  -- Like a honey drop
   inv:set_size("bait_slot", 1)
 
   -- And then some bees!
   inv:set_size("bees_slot", 16)
+
+  minetest.get_node_timer(pos):start(1.0)
 end
 
 local function bait_box_on_timer(pos, elapsed)
+  return true
 end
 
 local node_box = {
