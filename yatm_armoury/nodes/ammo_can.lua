@@ -108,10 +108,11 @@ minetest.register_node("yatm_armoury:ammo_can", {
   end,
 
   on_rightclick = function (pos, node, clicker)
-    minetest.after(0.1, minetest.show_formspec,
+    minetest.show_formspec(
       clicker:get_player_name(),
       "yatm_armoury:ammo_can",
-      get_ammo_can_formspec(pos))
+      get_ammo_can_formspec(pos)
+    )
   end,
 
   allow_metadata_inventory_move = function (pos, from_list, from_index, to_list, to_index, count, player)
