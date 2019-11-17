@@ -121,11 +121,17 @@ local function hq_find_dropoff_station(self, prty, search_radius)
 
       local closest_dropoff = mobkit.recall(self, "closest_dropoff")
 
-      if closest_dropoff then
-        local node = minetest.get_node(closest_dropoff)
+      local closest_dropoff_timeout = (mobkit.recall(self, "closest_dropoff_timeout") or 0) - self.dtime
 
-        if not yatm_core.groups.item_has_group(node.name, "scavenger_dropoff_station") then
+      if closest_dropoff then
+        if closest_dropoff_timeout <= 0 then
           closest_dropoff = nil
+        else
+          local node = minetest.get_node(closest_dropoff)
+
+          if not yatm_core.groups.item_has_group(node.name, "scavenger_dropoff_station") then
+            closest_dropoff = nil
+          end
         end
       end
 
@@ -143,10 +149,15 @@ local function hq_find_dropoff_station(self, prty, search_radius)
             closest_dropoff = node_pos
           end
         end
+
+        if closest_dropoff then
+          closest_dropoff_timeout = 15
+        end
       end
 
       if closest_dropoff then
         mobkit.remember(self, "closest_dropoff", closest_dropoff)
+        mobkit.remember(self, "closest_dropoff_timeout", closest_dropoff_timeout)
         local dist = vector.distance(closest_dropoff, pos)
         if dist < 0.5 then
           -- try dropping off items
@@ -158,6 +169,7 @@ local function hq_find_dropoff_station(self, prty, search_radius)
         end
       else
         mobkit.forget(self, "closest_dropoff")
+        mobkit.forget(self, "closest_dropoff_timeout")
         return true
       end
     end
