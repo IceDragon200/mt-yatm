@@ -65,13 +65,12 @@ function InventorySerializer.deserialize_item_stack(source_stack)
   end
 
   meta:from_table(new_meta)
-  print(dump(source_stack), item_stack:to_string())
   return item_stack
 end
 
 function InventorySerializer.deserialize(dumped, target_list)
-  assert(dumped)
-  assert(target_list)
+  assert(dumped, "expected dumped inventory list")
+  assert(target_list, "expected a target inventory list")
   for i = 1,dumped.size do
     local stack = dumped.data[i]
     local item_stack = target_list[i] or ItemStack({
