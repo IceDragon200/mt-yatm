@@ -47,6 +47,7 @@ for _,variant_pair in ipairs(variants) do
     local color_name = color_pair[2]
 
     minetest.register_craftitem("yatm_bees:bee_" .. variant_basename .. "_" .. color_basename, {
+      basename = "yatm_bees:bee_" .. variant_basename,
       description = variant_name .. " Bee (" .. color_name .. ")",
 
       groups = {

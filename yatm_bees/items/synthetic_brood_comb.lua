@@ -7,7 +7,7 @@ minetest.register_craftitem("yatm_bees:synthetic_brood_comb_empty", {
     empty_synthetic_brood_comb = 1,
   },
 
-  inventory_image = "yatm_synthetic_brood_comb_empty.png",
+  inventory_image = "yatm_honey_combs_synthetic_brood_empty.png",
 })
 
 minetest.register_craftitem("yatm_bees:synthetic_brood_comb_full", {
@@ -18,5 +18,5 @@ minetest.register_craftitem("yatm_bees:synthetic_brood_comb_full", {
     synthetic_brood_comb = 1,
   },
 
-  inventory_image = "yatm_synthetic_brood_comb_full.png",
+  inventory_image = "yatm_honey_combs_synthetic_brood_full.png",
 })
