@@ -1,4 +1,7 @@
 minetest.register_craftitem("yatm_bees:synthetic_comb_empty", {
+  basename = "yatm_bees:synthetic_comb",
+  base_description = "Synthetic Comb",
+
   description = "Empty Synthetic Comb",
 
   groups = {
@@ -11,6 +14,9 @@ minetest.register_craftitem("yatm_bees:synthetic_comb_empty", {
 })
 
 minetest.register_craftitem("yatm_bees:synthetic_comb_full", {
+  basename = "yatm_bees:synthetic_comb",
+  base_description = "Synthetic Comb",
+
   description = "Full Synthetic Comb",
 
   groups = {
