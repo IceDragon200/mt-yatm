@@ -69,6 +69,13 @@ for _,pair in ipairs(colors) do
       "yatm_concrete_wall_" .. color_basename .. "_front.png",
     },
 
+    collision_box = {
+      type = "fixed",
+      fixed = {
+        yatm_core.Cuboid:new(0, 0, 6, 16, 16, 4):fast_node_box()
+      },
+    },
+
     is_ground_content = false,
 
     sounds = default.node_sound_stone_defaults(),
