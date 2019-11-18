@@ -57,19 +57,33 @@ function devices.device_transition_device_state(pos, node, state)
     end
     if new_node_name then
       node = minetest.get_node(pos)
-      node.name = new_node_name
-      minetest.swap_node(pos, node)
 
-      if nodedef.groups['yatm_cluster_device'] then
-        cluster_devices:schedule_update_node(pos, node)
-      end
+      if node.name ~= new_node_name then
+        node.name = new_node_name
+        minetest.swap_node(pos, node)
 
-      if nodedef.groups['yatm_cluster_energy'] then
-        cluster_energy:schedule_update_node(pos, node)
+        if nodedef.groups['yatm_cluster_device'] then
+          cluster_devices:schedule_update_node(pos, node)
+        end
+
+        if nodedef.groups['yatm_cluster_energy'] then
+          cluster_energy:schedule_update_node(pos, node)
+        end
       end
     end
 
     yatm.queue_refresh_infotext(pos, node)
+  end
+end
+
+function devices.get_energy_capacity(pos, node)
+  local nodedef = minetest.registered_nodes[node.name]
+  local en = nodedef.yatm_network.energy
+
+  if type(en.capacity) == "number" then
+    return en.capacity
+  else
+    return en.capacity(pos, node)
   end
 end
 
@@ -80,8 +94,8 @@ function devices.device_passive_consume_energy(pos, node, total_available, dtime
   local span = yatm_core.trace.span_start(ot, "device_passive_consume_energy")
   local consumed = 0
   local nodedef = minetest.registered_nodes[node.name]
-  local ym = nodedef.yatm_network
-  local energy = assert(ym.energy)
+  local energy = nodedef.yatm_network.energy
+  local capacity = devices.get_energy_capacity(pos, node)
 
   -- Passive lost affects how much energy is available
   -- Passive lost will not affect the node's current buffer only the consumable amount
@@ -95,8 +109,6 @@ function devices.device_passive_consume_energy(pos, node, total_available, dtime
     local charge_bandwidth = energy.network_charge_bandwidth
 
     if charge_bandwidth and charge_bandwidth > 0 then
-      local capacity = assert(energy.capacity, "expected node=" .. node.name .. " to have a energy.capacity")
-
       local meta = minetest.get_meta(pos)
       local stored = yatm.energy.receive_energy(meta, devices.ENERGY_BUFFER_KEY, remaining, charge_bandwidth, capacity, true)
 
@@ -138,7 +150,7 @@ function devices.worker_update(pos, node, dtime, ot)
     meta:set_float("idle_time", idle_time)
 
     if idle_time <= 0 then
-      local capacity = assert(ym.energy.capacity)
+      local capacity = devices.get_energy_capacity(pos, node)
       local bandwidth = ym.work_energy_bandwidth or capacity
       local work_rate = 1.0
 

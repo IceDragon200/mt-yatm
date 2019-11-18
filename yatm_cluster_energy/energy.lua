@@ -77,15 +77,20 @@ function energy.consume_energy(meta, key, amount, bandwidth, capacity, commit)
   return consumed_amount
 end
 
-function energy.to_infotext(meta, key, capacity)
-  assert(meta, "expected a meta")
-  assert(key, "expected a key")
-  local amount = energy.get_energy(meta, key)
+function energy.format_string(amount, capacity)
   if capacity then
     return tostring(amount) .. " / " .. capacity .. ""
   else
     return tostring(amount)
   end
+end
+
+function energy.to_infotext(meta, key, capacity)
+  assert(meta, "expected a meta")
+  assert(key, "expected a key")
+  local amount = energy.get_energy(meta, key)
+
+  return energy.format_string(amount, capacity)
 end
 
 yatm_cluster_energy.energy = energy

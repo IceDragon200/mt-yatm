@@ -87,21 +87,6 @@ for _,material_pair in ipairs(materials) do
     material_name = material_basename,
   })
 
-  minetest.register_craftitem("yatm_core:battery_" .. material_basename, {
-    basename = "yatm_core:battery",
-    base_description = "Battery",
-
-    description = material_name .. " Battery",
-    inventory_image = "yatm_materials_battery." .. material_basename .. ".png",
-
-    groups = {
-      battery = 1,
-      ["battery_" .. material_basename] = 1,
-    },
-
-    material_name = material_basename,
-  })
-
   minetest.register_craftitem("yatm_core:capacitor_" .. material_basename, {
     basename = "yatm_core:capacitor",
     base_description = "Capacitor",

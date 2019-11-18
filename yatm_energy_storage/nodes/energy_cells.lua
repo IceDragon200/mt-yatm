@@ -36,9 +36,18 @@ local function energy_cell_refresh_infotext(pos)
   meta:set_string("infotext", infotext)
 end
 
+local function num_round(value)
+  local d = value - math.floor(value)
+  if d > 0.5 then
+    return math.ceil(value)
+  else
+    return math.floor(value)
+  end
+end
+
 for cell_type, cell_config in pairs(cell_types) do
   local energy_cell_yatm_network = {
-    basename = "yatm_machines:energy_cell_" .. cell_type,
+    basename = "yatm_energy_storage:energy_cell_" .. cell_type,
     kind = "energy_storage",
     cell_config = cell_config,
     groups = {
@@ -55,13 +64,13 @@ for cell_type, cell_config in pairs(cell_types) do
 
     energy = {
       capacity = cell_config.capacity,
-    }
+    },
   }
 
   local function on_energy_changed(pos, node)
     local meta = minetest.get_meta(pos)
     local current_energy = Energy.get_energy(meta, "internal")
-    local stage = math.min(math.floor(8 * current_energy / cell_config.capacity), 7);
+    local stage = math.min(num_round(7 * current_energy / cell_config.capacity), 7);
 
     local new_name = energy_cell_yatm_network.basename .. "_" .. stage
     if node.name ~= new_name then
@@ -133,7 +142,7 @@ for cell_type, cell_config in pairs(cell_types) do
   end
 
   local creative_energy_cell_yatm_network = {
-    basename = "yatm_machines:energy_cell_" .. cell_type .. "_creative",
+    basename = "yatm_energy_storage:energy_cell_" .. cell_type .. "_creative",
     kind = "energy_storage",
     cell_config = cell_config,
     groups = {
