@@ -4,7 +4,7 @@ local itemstack_split = assert(yatm_core.itemstack_split)
 local itemstack_maybe_merge = assert(yatm_core.itemstack_maybe_merge)
 local InventoryList = {}
 
-function InventoryList.first_stack(list)
+function InventoryList.first_present_stack(list)
   assert(list, "expected an inventory list")
   for _,item_stack in ipairs(list) do
     if not itemstack_is_blank(item_stack) then

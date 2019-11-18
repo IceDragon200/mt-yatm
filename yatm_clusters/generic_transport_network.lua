@@ -62,6 +62,15 @@ function m:check_network_member(member, network)
   end
 end
 
+function m:get_network(network_id)
+  return self.m_networks[network_id]
+end
+
+function m:get_member(pos)
+  local id = minetest.hash_node_position(pos)
+  return self.m_members[id]
+end
+
 function m:register_member(pos, node)
   assert(pos, "expected a position")
   assert(node, "expected a node")
@@ -223,9 +232,11 @@ function m:get_members_by_type(device_type)
 end
 
 --[[
-Checks if colors match, if any color is nil, then it will match
-If any color is default, then it will match
-Otherwise both colors must be the same
+
+  Checks if colors match, if any color is nil, then it will match
+  If any color is default, then it will match
+  Otherwise both colors must be the same
+
 ]]
 local function matches_color(a, b)
   if a == nil or b == nil then

@@ -28,7 +28,7 @@ function get_super_cardboard_box_formspec(pos)
   return formspec
 end
 
-local item_interface = ItemInterface.new_simple("main")
+local cardboard_box_item_interface = ItemInterface.new_simple("main")
 
 local function cardboard_box_after_place_node(pos, placer, item_stack, pointed_thing)
   local new_meta = minetest.get_meta(pos)
@@ -99,7 +99,7 @@ minetest.register_node("yatm_item_storage:cardboard_box", {
   paramtype = "light",
   paramtype2 = "facedir",
 
-  item_interface = item_interface,
+  item_interface = cardboard_box_item_interface,
 
   on_construct = function (pos)
     local meta = minetest.get_meta(pos)
@@ -149,7 +149,7 @@ minetest.register_node("yatm_item_storage:super_cardboard_box", {
   paramtype = "light",
   paramtype2 = "facedir",
 
-  item_interface = item_interface,
+  item_interface = cardboard_box_item_interface,
 
   on_construct = function (pos)
     local meta = minetest.get_meta(pos)

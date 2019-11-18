@@ -20,7 +20,7 @@ local function default_get_item(self, pos, dir)
   local inv = meta:get_inventory()
   local list = inv:get_list(self.inventory_name)
   if list then
-    return InventoryList.first_stack(list)
+    return InventoryList.first_present_stack(list)
   else
     print("ERROR", minetest.pos_to_string(pos), "inventory does not exist", self.inventory_name)
     return nil, "inventory not found"
@@ -91,7 +91,7 @@ local function directional_get_item(self, pos, dir)
     local inv = meta:get_inventory()
     local list = inv:get_list(inventory_name)
     if list then
-      return InventoryList.first_stack(list)
+      return InventoryList.first_present_stack(list)
     else
       print("ERROR", minetest.pos_to_string(pos), "inventory does not exist", inventory_name)
       return nil, "inventory not found"
