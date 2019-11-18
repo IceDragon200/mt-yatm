@@ -132,25 +132,14 @@ local battery_bank_yatm_network = {
   },
 }
 
+local invbat = assert(yatm.energy.inventory_batteries)
+
 local function refresh_battery_bank_capacity(pos)
   local meta = minetest.get_meta(pos)
   local node = minetest.get_node(pos)
 
   local inv = meta:get_inventory()
-  local size = inv:get_size("batteries")
-
-  local capacity = 0
-
-  for i = 1,size do
-    local stack = inv:get_stack("batteries", i)
-
-    if not stack:is_empty() then
-      local en = stack:get_definition().energy
-      if en then
-        capacity = capacity + en.get_capacity(stack)
-      end
-    end
-  end
+  local capacity = invbat.calc_capacity(inv, "batteries")
 
   meta:set_int("energy_capacity", capacity)
 
@@ -172,34 +161,14 @@ function battery_bank_yatm_network.energy.receive_energy(pos, node, energy_left,
 
   if mode == "io" or mode == "i" then
     local inv = meta:get_inventory()
-    local left = energy_left
 
-    local new_energy = 0
-
-    local size = inv:get_size("batteries")
-    for i = 1,size do
-      local stack = inv:get_stack("batteries", i)
-      if not stack:is_empty() then
-        local en = stack:get_definition().energy
-        if en then
-          if left > 0 then
-            local used = en.receive_energy(stack, left)
-            left = left - used
-
-            inv:set_stack("batteries", i, stack)
-          end
-
-          new_energy = new_energy + en.get_stored_energy(stack)
-        end
-      end
-    end
-
+    local new_energy, used = invbat.receive_energy(inv, "batteries", energy_left)
     print("new_energy", new_energy)
     meta:set_int("energy", new_energy)
 
     yatm.queue_refresh_infotext(pos, node)
 
-    return energy_left - left
+    return used
   end
   return 0
 end
@@ -222,24 +191,7 @@ function battery_bank_yatm_network.energy.use_stored_energy(pos, node, energy_to
   if mode == "io" or mode == "o" then
     local inv = meta:get_inventory()
 
-    local left = energy_to_use
-    local new_energy = 0
-
-    local size = inv:get_size("batteries")
-    for i = 1,size do
-      local stack = inv:get_stack("batteries", i)
-      local en = stack:get_definition().energy
-      if en then
-        if left > 0 then
-          local consumed = en.consume_energy(stack, left)
-          left = left - used
-
-          inv:set_stack("batteries", i, stack)
-        end
-
-        new_energy = new_energy + en.get_stored_energy(stack)
-      end
-    end
+    local new_energy, used = invbat.consume_energy(inv, "batteries", energy_to_use)
 
     print("new_energy", new_energy)
 
@@ -247,7 +199,7 @@ function battery_bank_yatm_network.energy.use_stored_energy(pos, node, energy_to
 
     yatm.queue_refresh_infotext(pos, node)
 
-    return energy_to_use - left
+    return used
   end
   return 0
 end

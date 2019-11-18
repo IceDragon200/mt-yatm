@@ -19,7 +19,7 @@ local material_capacity = {
 
 local function battery_refresh_wear(item_stack)
   local meta = item_stack:get_meta()
-  local energy = meta:get_int("energy")
+  local energy = meta:get_float("energy")
   local capacity = item_stack:get_definition().energy.capacity
   -- Always force the wear gauge to be visible
   item_stack:set_wear(1 + 0xFFFD - math.floor(energy * 0xFFFD / capacity))
@@ -31,16 +31,16 @@ end
 
 local function battery_get_stored_energy(item_stack)
   local meta = item_stack:get_meta()
-  return meta:get_int("energy")
+  return meta:get_float("energy")
 end
 
 local function battery_consume_energy(item_stack, amount)
   local meta = item_stack:get_meta()
-  local energy = meta:get_int("energy")
+  local energy = meta:get_float("energy")
   local capacity = battery_get_capacity(item_stack)
 
   local new_energy, used = EnergyUtil.calc_consumed_energy(energy, amount, capacity, capacity)
-  meta:set_int("energy", new_energy)
+  meta:set_float("energy", new_energy)
   item_stack:get_definition().refresh_wear(item_stack)
 
   print("new_energy_level, after consume", new_energy)
@@ -50,11 +50,11 @@ end
 
 local function battery_receive_energy(item_stack, amount)
   local meta = item_stack:get_meta()
-  local energy = meta:get_int("energy")
+  local energy = meta:get_float("energy")
   local capacity = battery_get_capacity(item_stack)
 
   local new_energy, used = EnergyUtil.calc_received_energy(energy, amount, capacity, capacity)
-  meta:set_int("energy", new_energy)
+  meta:set_float("energy", new_energy)
   item_stack:get_definition().refresh_wear(item_stack)
 
   print("new_energy_level, after receive", new_energy)

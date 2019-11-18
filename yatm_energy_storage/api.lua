@@ -1,0 +1,1 @@
+yatm.energy.inventory_batteries = yatm_energy_storage.inventory_batteries
