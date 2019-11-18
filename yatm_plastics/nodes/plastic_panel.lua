@@ -4,6 +4,10 @@
 minetest.register_node("yatm_plastics:plastic_panel_plain_block", {
   description = "Plain Plastic Panel Block",
 
+  groups = {
+    cracky = 1,
+  },
+
   tiles = {
     "yatm_plastic_panel_plain.off.png",
   },
@@ -12,15 +16,13 @@ minetest.register_node("yatm_plastics:plastic_panel_plain_block", {
   paramtype2 = "facedir",
 })
 
-yatm_core.register_stateful_node("yatm_plastics:plastic_panel_plain_block", {
+yatm.register_stateful_node("yatm_plastics:plastic_panel_plain_block", {
   basename = "yatm_plastics:plastic_panel_plain_block",
   base_description = "Plain Plastic Panel Block",
 
   groups = {
     cracky = 1,
   },
-
-  drawtype = "glasslike",
 
   paramtype = "light",
   paramtype2 = "facedir",
@@ -45,6 +47,10 @@ yatm_core.register_stateful_node("yatm_plastics:plastic_panel_plain_block", {
 minetest.register_node("yatm_plastics:plastic_panel_notched_block", {
   description = "Notched Plastic Panel Block",
 
+  groups = {
+    cracky = 1,
+  },
+
   tiles = {
     "yatm_plastic_panel_notched.off.png",
   },
@@ -53,15 +59,13 @@ minetest.register_node("yatm_plastics:plastic_panel_notched_block", {
   paramtype2 = "facedir",
 })
 
-yatm_core.register_stateful_node("yatm_plastics:plastic_panel_notched_block", {
+yatm.register_stateful_node("yatm_plastics:plastic_panel_notched_block", {
   basename = "yatm_plastics:plastic_panel_notched_block",
   base_description = "Notched Plastic Panel Block",
 
   groups = {
     cracky = 1,
   },
-
-  drawtype = "glasslike",
 
   paramtype = "light",
   paramtype2 = "facedir",
@@ -102,7 +106,7 @@ minetest.register_node("yatm_plastics:plastic_panel_hollow_block", {
   paramtype2 = "facedir",
 })
 
-yatm_core.register_stateful_node("yatm_plastics:plastic_panel_hollow_block", {
+yatm.register_stateful_node("yatm_plastics:plastic_panel_hollow_block", {
   basename = "yatm_plastics:plastic_panel_hollow_block",
   base_description = "Hollow Plastic Panel Block",
 
@@ -129,5 +133,56 @@ yatm_core.register_stateful_node("yatm_plastics:plastic_panel_hollow_block", {
     description = "Hollow Plastic Panel Block (Radiating Lights)",
 
     tiles = {"yatm_plastic_panel_hollow.radiating.png"}
+  },
+})
+
+
+yatm.register_stateful_node("yatm_plastics:plastic_panel_checker_block", {
+  basename = "yatm_plastics:plastic_panel_plain_block",
+  base_description = "Checker Plastic Panel Block",
+
+  groups = {
+    cracky = 1,
+  },
+
+  drawtype = "glasslike_framed",
+
+  paramtype = "light",
+  paramtype2 = "facedir",
+}, {
+  off = {
+    description = "Checker Plastic Panel Block",
+
+    tiles = {
+      "yatm_plastic_panel_border.off.png",
+      "yatm_plastic_panel_checker.png",
+    },
+  },
+
+  cooling = {
+    description = "Checker Plastic Panel Block (Cooling Lights)",
+
+    tiles = {
+      "yatm_plastic_panel_border.cooling.png",
+      "yatm_plastic_panel_checker.png",
+    },
+  },
+
+  heating = {
+    description = "Checker Plastic Panel Block (Heating Lights)",
+
+    tiles = {
+      "yatm_plastic_panel_border.heating.png",
+      "yatm_plastic_panel_checker.png",
+    },
+  },
+
+  radiating = {
+    description = "Checker Plastic Panel Block (Radiating Lights)",
+
+    tiles = {
+      "yatm_plastic_panel_border.radiating.png",
+      "yatm_plastic_panel_checker.png",
+    },
   },
 })
