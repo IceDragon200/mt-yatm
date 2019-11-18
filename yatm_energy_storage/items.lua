@@ -43,8 +43,6 @@ local function battery_consume_energy(item_stack, amount)
   meta:set_float("energy", new_energy)
   item_stack:get_definition().refresh_wear(item_stack)
 
-  print("new_energy_level, after consume", new_energy)
-
   return used
 end
 
@@ -57,7 +55,6 @@ local function battery_receive_energy(item_stack, amount)
   meta:set_float("energy", new_energy)
   item_stack:get_definition().refresh_wear(item_stack)
 
-  print("new_energy_level, after receive", new_energy)
   return used
 end
 
