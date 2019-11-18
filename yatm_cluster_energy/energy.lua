@@ -79,9 +79,9 @@ end
 
 function energy.format_string(amount, capacity)
   if capacity then
-    return tostring(amount) .. " / " .. capacity .. ""
+    return tostring(math.floor(amount)) .. " / " .. capacity .. ""
   else
-    return tostring(amount)
+    return tostring(math.floor(amount))
   end
 end
 
