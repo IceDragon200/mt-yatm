@@ -1,12 +1,14 @@
 --[[
-This Network handles Item Transport, devices can still handle their own item handling.
 
-Only item ducts should register on this network.
+  This Network handles Item Transport, devices can still handle their own item handling.
 
-The 3 main components of an item transport are:
-* Inserters - these will insert items from the network and place them into their adjacent devices
-* Extractors - these will extract items from adjacent devices for consumption by the network
-* Transporters - these only act as a pathway for the network and only matter when tracing the path
+  Only item ducts should register on this network.
+
+  The 3 main components of an item transport are:
+  * Inserters - these will insert items from the network and place them into their adjacent devices
+  * Extractors - these will extract items from adjacent devices for consumption by the network
+  * Transporters - these only act as a pathway for the network and only matter when tracing the path
+
 ]]
 local GenericTransportNetwork = assert(yatm.transport.GenericTransportNetwork)
 local DIR6_TO_VEC3 = assert(yatm_core.DIR6_TO_VEC3)
@@ -65,24 +67,26 @@ function m:update_inserter_duct(inserter_hash, inserter, items_available)
       local new_entries = {}
 
       for entry_hash,entry in pairs(entries) do
-        local stack = ItemStack(entry.stack)
-        assert(stack:set_count(1))
+        local stack = entry.stack:peek_item(1)
 
         local remaining, err = ItemDevice.insert_item(target_pos, insert_dir, stack, true)
-        if err then
-          --print("ITN: insert error", err, minetest.pos_to_string(target_pos), yatm_core.inspect_axis(insert_dir))
-          new_entries[entry_hash] = entry
-        else
-          if remaining:is_empty() then
-            local extracted = ItemDevice.extract_item(entry.pos, entry.dir, stack, true)
-            --print("ITN: inserted item", minetest.pos_to_string(target_pos), yatm_core.inspect_axis(insert_dir), yatm_core.itemstack_inspect(stack))
-            --print("ITN: remaining item", minetest.pos_to_string(target_pos), yatm_core.inspect_axis(insert_dir), yatm_core.itemstack_inspect(remaining))
+        if ItemDevice.room_for_item(target_pos, insert_dir, stack) then
+          if err then
+            --print("ITN: insert error", err, minetest.pos_to_string(target_pos), yatm_core.inspect_axis(insert_dir))
+            new_entries[entry_hash] = entry
+          else
+            if remaining:is_empty() then
+              local extracted, err = ItemDevice.extract_item(entry.pos, entry.dir, stack, true)
+              --print("ITN: inserted item", minetest.pos_to_string(target_pos), yatm_core.inspect_axis(insert_dir), yatm_core.itemstack_inspect(stack))
+              --print("ITN: remaining item", minetest.pos_to_string(target_pos), yatm_core.inspect_axis(insert_dir), yatm_core.itemstack_inspect(remaining))
 
-            local new_stack = ItemStack(entry.stack)
-            new_stack:take_item(extracted:get_count())
-            if not new_stack:is_empty() then
-              entry.stack = new_stack
-              new_entries[entry_hash] = entry
+              local new_stack = ItemStack(entry.stack)
+              new_stack:take_item(extracted:get_count())
+
+              if not new_stack:is_empty() then
+                entry.stack = new_stack
+                new_entries[entry_hash] = entry
+              end
             end
           end
         end

@@ -1,5 +1,7 @@
 local InventoryList = assert(yatm_core.InventoryList)
-local ItemInterface = {}
+local ItemInterface = {
+  version = "1.1.0"
+}
 
 local function default_allow_replace_item(self, pos, dir, item_stack)
   return false
@@ -32,20 +34,24 @@ local function default_replace_item(self, pos, dir, item_stack, commit)
   return nil, "not implemented"
 end
 
+local function default_room_for_item(self, pos, dir, item_stack)
+  local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
+  return inv:room_for_item(self.inventory_name, item_stack)
+end
+
 local function default_insert_item(self, pos, dir, item_stack, commit)
   if self:allow_insert_item(pos, dir, item_stack) then
     local meta = minetest.get_meta(pos)
     local inv = meta:get_inventory()
-    local list = inv:get_list(self.inventory_name)
-    if list then
-      local new_list, remaining = InventoryList.merge_stack(list, item_stack)
-      if commit then
-        inv:set_list(self.inventory_name, new_list)
-        self:on_insert_item(pos, dir, item_stack)
-      end
+    if commit then
+      local remaining = inv:add_item(self.inventory_name, item_stack)
+      self:on_insert_item(pos, dir, item_stack)
       return remaining
     else
-      return nil, "internal list invalid"
+      local list = inv:get_list(self.inventory_name)
+      local _new_list, remaining = InventoryList.merge_stack(list, item_stack)
+      return remaining
     end
   end
   return nil, "insert not allowed"
@@ -101,21 +107,30 @@ local function directional_replace_item(self, pos, dir, item_stack, commit)
   return nil, "not implemented"
 end
 
+local function directional_room_for_item(self, pos, dir, item_stack)
+  local inventory_name = self:dir_to_inventory_name(pos, dir)
+  if inventory_name then
+    local meta = minetest.get_meta(pos)
+    local inv = meta:get_inventory()
+    return inv:room_for_item(inventory_name, item_stack)
+  end
+  return nil, "no inventory"
+end
+
 local function directional_insert_item(self, pos, dir, item_stack, commit)
   if self:allow_insert_item(pos, dir, item_stack) then
     local inventory_name = self:dir_to_inventory_name(pos, dir)
     if inventory_name then
       local meta = minetest.get_meta(pos)
       local inv = meta:get_inventory()
-      local list = inv:get_list(inventory_name)
-      if list then
-        local new_list, remaining = InventoryList.merge_stack(list, item_stack)
-        if commit then
-          inv:set_list(inventory_name, new_list)
-        end
+      if commit then
+        local remaining = inv:add_item(inventory_name, item_stack)
+        self:on_insert_item(pos, dir, item_stack)
         return remaining
       else
-        return nil, "no list " .. inventory_name
+        local list = inv:get_list(inventory_name)
+        local _new_list, remaining = InventoryList.merge_stack(list, item_stack)
+        return remaining
       end
     else
       return nil, "no inventory"
@@ -134,6 +149,7 @@ local function directional_extract_item(self, pos, dir, item_stack_or_count, com
       local new_list, extracted = InventoryList.extract_stack(list, item_stack_or_count)
       if commit then
         inv:set_list(inventory_name, new_list)
+        self:on_extract_item(pos, dir, item_stack_or_count)
       end
       return extracted
     else
@@ -158,9 +174,12 @@ end
 
 function ItemInterface.new_simple(inventory_name)
   local item_interface = ItemInterface.new()
+
   item_interface.inventory_name = inventory_name
+
   item_interface.get_item = default_get_item
   item_interface.replace_item = default_replace_item
+  item_interface.room_for_item = default_room_for_item
   item_interface.insert_item = default_insert_item
   item_interface.extract_item = default_extract_item
 
@@ -169,9 +188,12 @@ end
 
 function ItemInterface.new_directional(dir_to_inventory_name)
   local item_interface = ItemInterface.new()
+
   item_interface.dir_to_inventory_name = dir_to_inventory_name
+
   item_interface.get_item = directional_get_item
   item_interface.replace_item = directional_replace_item
+  item_interface.room_for_item = directional_room_for_item
   item_interface.insert_item = directional_insert_item
   item_interface.extract_item = directional_extract_item
 

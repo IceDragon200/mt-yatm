@@ -17,6 +17,24 @@ function ItemDevice.get_item(pos, dir)
   return nil, "undefined node"
 end
 
+function ItemDevice.room_for_item(pos, dir, item_stack)
+  local node = minetest.get_node(pos)
+  local nodedef = minetest.registered_nodes[node.name]
+  if nodedef then
+    if nodedef.item_interface then
+      if nodedef.item_interface.room_for_item then
+        --print("ItemDevice.room_for_item/3", minetest.pos_to_string(pos), yatm_core.inspect_axis(dir), yatm_core.itemstack_inspect(item_stack))
+        return nodedef.item_interface:room_for_item(pos, dir, item_stack)
+      else
+        return nil, "no insert_item/3"
+      end
+    else
+      return nil, "no item_interface"
+    end
+  end
+  return nil, "undefined node"
+end
+
 function ItemDevice.insert_item(pos, dir, item_stack, commit)
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
