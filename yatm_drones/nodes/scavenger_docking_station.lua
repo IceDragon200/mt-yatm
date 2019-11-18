@@ -30,7 +30,7 @@ function docking_station_yatm_network.charge_drone(pos, node, drone)
   -- TODO: charge drone
 
   local amount = yatm.energy.consume_energy(meta, yatm.devices.ENERGY_BUFFER_KEY, 500, 500, 16000, false)
-  local amount_used = drone:receive_energy(amount)
+  local amount_used = drone.energy.receive_energy(drone, amount)
 
   if amount_used <= amount then
     yatm.energy.consume_energy(meta, yatm.devices.ENERGY_BUFFER_KEY, amount_used, 500, 16000, true)

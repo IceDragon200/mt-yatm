@@ -1,3 +1,6 @@
+local Energy = assert(yatm.energy)
+local invbat = assert(yatm.energy.inventory_batteries)
+
 local g_inventory_id = 0
 local view_range = (minetest.get_mapgen_setting('active_object_send_range_blocks') or 3) * 3
 
@@ -34,7 +37,7 @@ local function create_inventory(self)
 
   inv:set_size("main", 4*4)
   inv:set_size("upgrades", 4)
-  inv:set_size("batteries", 2) -- backup batteries that is
+  inv:set_size("batteries", 2)
 
   self.inventory_name = "yatm_drones:drone_inventory_" .. g_inventory_id
   return inv
@@ -177,7 +180,7 @@ local function hq_find_dropoff_station(self, prty, search_radius)
   mobkit.queue_high(self,func,prty)
 end
 
-local function hq_find_docking_station(self, prty, search_radius)
+local function hq_find_docking_station(self, prty, search_radius, can_move)
   local func = function(self)
     if mobkit.is_queue_empty_low(self) and self.isonground then
       local pos = mobkit.get_stand_pos(self)
@@ -216,7 +219,11 @@ local function hq_find_docking_station(self, prty, search_radius)
           mobkit.remember(self, "charging", true)
           return true
         else
-          mobkit.goto_next_waypoint(self, closest_dock)
+          if can_move then
+            mobkit.goto_next_waypoint(self, closest_dock)
+          else
+            return true
+          end
         end
       else
         mobkit.forget(self, "closest_dock")
@@ -233,7 +240,7 @@ end
 local function drone_logic(self)
   if not mobkit.recall(self, "charging") then
     -- It not charging, lose energy like normal
-    self:consume_energy(20 * self.dtime)
+    self.energy.consume_energy(self, 20 * self.dtime)
   end
 
   if mobkit.timer(self, 1) then
@@ -346,7 +353,7 @@ local function drone_logic(self)
           -- find a docking station ASAP
           mobkit.clear_queue_high(self)
           local search_radius = 32
-          hq_find_docking_station(self, 50, search_radius)
+          hq_find_docking_station(self, 50, search_radius, true)
           self:change_action_text("docking")
           mobkit.forget(self, "idle_time")
           self:change_state("on")
@@ -357,7 +364,7 @@ local function drone_logic(self)
 
         local search_radius = 0.5 -- can't move, so it needs to look at any immediate nodes
         mobkit.clear_queue_high(self)
-        hq_find_docking_station(self, 50, search_radius)
+        hq_find_docking_station(self, 50, search_radius, false)
       end
     end
   end
@@ -426,9 +433,11 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
 
   refresh_infotext = function (self)
     local available_energy = mobkit.recall(self, "available_energy") or 0
+    local capacity = self.energy.get_capacity(self)
+
     local infotext =
       "Owner: " .. (mobkit.recall(self, "owner_name") or "N/A") .. "\n" ..
-      "Energy: " .. math.floor(available_energy) .. "\n" ..
+      "Energy: " .. Energy.format_string(available_energy, capacity) .. "\n" ..
       (mobkit.recall(self, "action") or "")
 
     self.object:set_properties({
@@ -443,27 +452,28 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
     end
   end,
 
-  receive_energy = function (self, amount)
-    local available_energy = mobkit.recall(self, "available_energy") or 0
+  energy = {
+    get_capacity = function (self)
+      local inv = self:get_inventory()
+      return invbat.calc_capacity(inv, "batteries")
+    end,
 
-    local new_energy = math.min(available_energy + amount, 6000)
-    mobkit.remember(self, "available_energy", new_energy)
+    receive_energy = function (self, amount)
+      local inv = self:get_inventory()
+      local new_energy, used = invbat.receive_energy(inv, "batteries", amount)
+      mobkit.remember(self, "available_energy", new_energy)
+      self:refresh_infotext()
+      return used
+    end,
 
-    self:refresh_infotext()
-
-    return new_energy - available_energy
-  end,
-
-  consume_energy = function (self, amount)
-    local available_energy = mobkit.recall(self, "available_energy") or 0
-
-    local new_energy = math.max(available_energy - amount, 0)
-    mobkit.remember(self, "available_energy", new_energy)
-
-    self:refresh_infotext()
-
-    return available_energy - new_energy
-  end,
+    consume_energy = function (self, amount)
+      local inv = self:get_inventory()
+      local new_energy, used = invbat.consume_energy(inv, "batteries", amount)
+      mobkit.remember(self, "available_energy", new_energy)
+      self:refresh_infotext()
+      return used
+    end,
+  },
 
   on_step = assert(mobkit.stepfunc),
 
