@@ -53,6 +53,8 @@ yatm.devices.register_stateful_network_device({
 
   description = "Scavenger Docking Station",
 
+  drop = docking_station_yatm_network.states.off,
+
   groups = {
     cracky = 1,
     -- So scavengers know what to look for when docking
@@ -165,6 +167,8 @@ yatm.devices.register_stateful_network_device({
   basename = "yatm_drones:scavenger_dropoff_station",
 
   description = "Scavenger Dropoff Station",
+
+  drop = dropoff_station_yatm_network.states.off,
 
   groups = {
     cracky = 1,
