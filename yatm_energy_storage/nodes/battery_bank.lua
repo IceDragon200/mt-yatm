@@ -140,7 +140,9 @@ local function refresh_battery_bank_capacity(pos)
 
   local inv = meta:get_inventory()
   local capacity = invbat.calc_capacity(inv, "batteries")
+  local energy = invbat.calc_stored_energy(inv, "batteries")
 
+  meta:set_int("energy", energy)
   meta:set_int("energy_capacity", capacity)
 
   yatm.queue_refresh_infotext(pos, node)
@@ -157,13 +159,10 @@ function battery_bank_yatm_network.energy.receive_energy(pos, node, energy_left,
   local meta = minetest.get_meta(pos)
   local mode = meta:get_string("mode")
 
-  print("receive_energy", minetest.pos_to_string(pos), node.name, energy_left, dtime, ot, mode)
-
   if mode == "io" or mode == "i" then
     local inv = meta:get_inventory()
 
     local new_energy, used = invbat.receive_energy(inv, "batteries", energy_left)
-    print("new_energy", new_energy)
     meta:set_int("energy", new_energy)
 
     yatm.queue_refresh_infotext(pos, node)
@@ -186,14 +185,10 @@ function battery_bank_yatm_network.energy.use_stored_energy(pos, node, energy_to
   local meta = minetest.get_meta(pos)
   local mode = meta:get_string("mode")
 
-  print("use_stored_energy", minetest.pos_to_string(pos), node.name, energy_to_use, mode)
-
   if mode == "io" or mode == "o" then
     local inv = meta:get_inventory()
 
     local new_energy, used = invbat.consume_energy(inv, "batteries", energy_to_use)
-
-    print("new_energy", new_energy)
 
     meta:set_int("energy", new_energy)
 

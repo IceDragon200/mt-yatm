@@ -22,6 +22,25 @@ function invbat.calc_capacity(inv, list_name)
   return capacity
 end
 
+function invbat.calc_stored_energy(inv, list_name)
+  local size = inv:get_size(list_name)
+
+  local stored = 0
+
+  for i = 1,size do
+    local stack = inv:get_stack(list_name, i)
+
+    if not stack:is_empty() then
+      local en = stack:get_definition().energy
+      if en then
+        stored = stored + en.get_stored_energy(stack)
+      end
+    end
+  end
+
+  return stored
+end
+
 function invbat.receive_energy(inv, list_name, amount)
   local left = amount
   local new_energy = 0
@@ -51,9 +70,9 @@ function invbat.consume_energy(inv, list_name, amount)
   local left = amount
   local new_energy = 0
 
-  local size = inv:get_size("batteries")
+  local size = inv:get_size(list_name)
   for i = 1,size do
-    local stack = inv:get_stack("batteries", i)
+    local stack = inv:get_stack(list_name, i)
     local en = stack:get_definition().energy
     if en then
       if left > 0 then
