@@ -15,7 +15,18 @@ local function create_inventory(self)
       end,
 
       allow_put = function(inv, listname, index, stack, player)
-        return stack:get_count()
+        local item = stack:get_definition()
+        if listname == "upgrades" then
+          if yatm_core.groups.has_group(item, "drone_upgrade") then
+            return 1
+          end
+        elseif listname == "batteries" then
+          if yatm_core.groups.has_group(item, "battery") then
+            return 1
+          end
+        elseif listname == "main" then
+          return stack:get_count()
+        end
       end,
 
       allow_take = function(inv, listname, index, stack, player)
@@ -27,7 +38,10 @@ local function create_inventory(self)
       end,
 
       on_put = function(inv, listname, index, stack, player)
-        --
+        if listname == "upgrades" then
+          print("Upgrade placed ", stack:get_name())
+          self:refresh_upgrades()
+        end
       end,
 
       on_take = function(inv, listname, index, stack, player)
@@ -98,7 +112,9 @@ local function hq_pickup_item(self, prty)
         if inv:room_for_item("main", item_stack) then
           local pos = mobkit.get_stand_pos(self)
           local tpos = mobkit.get_stand_pos(item_entity)
-          if vector.distance(pos,tpos) > 1 then
+          local vacuum_range = self.vacuum_range
+
+          if vector.distance(pos,tpos) > vacuum_range then
             mobkit.goto_next_waypoint(self, tpos)
           else
             inv:add_item("main", item_stack)
@@ -256,7 +272,7 @@ local function drone_logic(self)
           self:change_state("charging")
           self:change_action_text("Charging")
 
-          if mobkit.recall(self, "available_energy") >= 6000 then
+          if mobkit.recall(self, "available_energy") >= self.energy.get_capacity(self) then
             mobkit.forget(self, "charging")
           end
         else
@@ -381,11 +397,11 @@ local function get_scavenger_drone_formspec(self)
     "list[detached:" .. self.inventory_name .. ";batteries;4,2.5;2,1;]" ..
     "list[current_player;main;0,4.85;8,1;]" ..
     "list[current_player;main;0,6.08;8,3;8]" ..
-    "listring[nodemeta:" .. self.inventory_name .. ";main]" ..
+    "listring[detached:" .. self.inventory_name .. ";main]" ..
     "listring[current_player;main]" ..
-    "listring[nodemeta:" .. self.inventory_name .. ";upgrades]" ..
+    "listring[detached:" .. self.inventory_name .. ";upgrades]" ..
     "listring[current_player;main]" ..
-    "listring[nodemeta:" .. self.inventory_name .. ";batteries]" ..
+    "listring[detached:" .. self.inventory_name .. ";batteries]" ..
     "listring[current_player;main]" ..
     default.get_hotbar_bg(2,4.85)
 
@@ -410,6 +426,7 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
   max_hp = 1,
   max_speed = 5,
   jump_height = 0.25, -- it really shouldn't be jumping
+  vacuum_range = 1.0,
   view_range = view_range,
   static_save = true,
 
@@ -450,6 +467,38 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
       mobkit.remember(self, "action", text)
       self:refresh_infotext()
     end
+  end,
+
+  refresh_upgrades = function (self)
+    local max_speed = 5
+    local jump_height = 0.25
+    local vacuum_range = 1.0
+
+    local inv = self:get_inventory()
+
+    local size = inv:get_size("upgrades")
+
+    for i = 1,size do
+      local stack = inv:get_stack("upgrades", i)
+
+      if not stack:is_empty() then
+        local item = stack:get_definition()
+
+        if yatm_core.groups.has_group(item, "speed_upgrade") then
+          max_speed = max_speed + 1
+        elseif yatm_core.groups.has_group(item, "jump_upgrade") then
+          jump_height = jump_height + 0.5
+        elseif yatm_core.groups.has_group(item, "vacuum_upgrade") then
+          vacuum_range = vacuum_range + 2.0
+        end
+      end
+    end
+
+    self.object:set_properties({
+      max_speed = max_speed,
+      jump_height = jump_height,
+      vacuum_range = vacuum_range,
+    })
   end,
 
   energy = {

@@ -16,3 +16,33 @@ minetest.register_tool("yatm_drones:scavenger_drone_case", {
     return nil
   end,
 })
+
+minetest.register_craftitem("yatm_drones:drone_upgrade_speed", {
+  description = "Drone Upgrade - Speed\nAdds 1 to max speed",
+  inventory_image = "yatm_drone_upgrade_speed.png",
+
+  groups = {
+    drone_upgrade = 1,
+    speed_upgrade = 1,
+  },
+})
+
+minetest.register_craftitem("yatm_drones:drone_upgrade_jump", {
+  description = "Drone Upgrade - Jump\nAdds 0.5 to Jump",
+  inventory_image = "yatm_drone_upgrade_jump.png",
+
+  groups = {
+    drone_upgrade = 1,
+    jump_upgrade = 1,
+  },
+})
+
+minetest.register_craftitem("yatm_drones:drone_upgrade_vacuum", {
+  description = "Drone Upgrade - Vacuum",
+  inventory_image = "yatm_drone_upgrade_vacuum.png",
+
+  groups = {
+    drone_upgrade = 1,
+    vacuum_upgrade = 1,
+  },
+})
