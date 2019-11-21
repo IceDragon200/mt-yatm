@@ -84,6 +84,7 @@ function auto_grinder_yatm_network.work(pos, node, energy_available, work_rate, 
       meta:set_float("work_time", work_time)
       -- should probably be optional
       yatm.queue_refresh_infotext(pos, node)
+      consumed = consumed + 10
     else
       local input_stack = inv:get_stack("grinder_processing", 1)
       local recipe = grinding_registry:find_grinding_recipe(input_stack)
