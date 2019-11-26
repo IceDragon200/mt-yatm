@@ -538,6 +538,8 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
 
     -- blow up the inventory
     self.memory["inventory"] = nil
+
+    self:refresh_upgrades()
   end,
 
   get_staticdata = function (self)
