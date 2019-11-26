@@ -212,7 +212,7 @@ end
 
 local function battery_bank_on_rightclick(pos, node, clicker)
   local formspec_name = "yatm_energy_storage:battery_bank:" .. minetest.pos_to_string(pos)
-  yatm_core.bind_on_player_receive_fields(formspec_name,
+  yatm_core.bind_on_player_receive_fields(clicker, formspec_name,
                                           { pos = pos, node = node },
                                           battery_bank_on_receive_fields)
 

@@ -161,29 +161,5 @@ for material_basename, def in pairs(shelf_materials) do
       drawtype = "nodebox",
       node_box = half_shelf_nodeboxes[x],
     })
-
-    minetest.register_lbm({
-      name = "yatm_item_shelves:migrate_legacy_shelves_" .. material_basename .. "_" .. x2d .. "_full_shelf",
-      nodenames = {
-        "yatm_item_shelves:" .. material_basename .. "_" .. x2d .. "_full_shelf",
-      },
-      run_at_every_load = false,
-      action = function (pos, node)
-        node.name = full_shelf_name
-        minetest.swap_node(pos, node)
-      end,
-    })
-
-    minetest.register_lbm({
-      name = "yatm_item_shelves:migrate_legacy_shelves_" .. material_basename .. "_" .. x2d .. "_half_shelf",
-      nodenames = {
-        "yatm_item_shelves:" .. material_basename .. "_" .. x2d .. "_half_shelf",
-      },
-      run_at_every_load = false,
-      action = function (pos, node)
-        node.name = half_shelf_name
-        minetest.swap_node(pos, node)
-      end,
-    })
   end
 end
