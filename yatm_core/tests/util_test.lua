@@ -263,3 +263,4 @@ case:maybe_error()
 
 dofile(yatm_core.modpath .. "/tests/util/bin_buf_test.lua")
 dofile(yatm_core.modpath .. "/tests/util/direction_test.lua")
+dofile(yatm_core.modpath .. "/tests/util/string_test.lua")

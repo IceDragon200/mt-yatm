@@ -99,6 +99,16 @@ yatm_core.DIR_TO_STRING = {
   [yatm_core.D_UP] = "UP",
 }
 
+yatm_core.DIR_TO_STRING1 = {
+  [yatm_core.D_NONE] = "0",
+  [yatm_core.D_NORTH] = "N",
+  [yatm_core.D_EAST] = "E",
+  [yatm_core.D_SOUTH] = "S",
+  [yatm_core.D_WEST] = "W",
+  [yatm_core.D_DOWN] = "D",
+  [yatm_core.D_UP] = "U",
+}
+
 -- And the inversions
 yatm_core.INVERTED_DIR6 = {
   [yatm_core.D_NONE] = yatm_core.D_NONE,
@@ -191,12 +201,29 @@ for facedir, map in pairs(yatm_core.FACEDIR_TO_NEW_FACEDIR) do
   end
 end
 
---[[
-Args:
-* `facedir` :: integer - the facedir
+function yatm_core.dir_to_string(dir)
+  return yatm_core.DIR_TO_STRING[dir]
+end
 
-Returns:
-* `table` :: a table containing each new face mapped using yatm_core.D_*
+--[[
+
+  Code is a short 1 byte string that represents the direction.
+
+  I.e the first initial of the string, it just so happens that NONE is 0 instead of N (which is used for NORTH)
+
+]]
+function yatm_core.dir_to_code(dir)
+  return yatm_core.DIR_TO_STRING1[dir]
+end
+
+--[[
+
+  Args:
+  * `facedir` :: integer - the facedir
+
+  Returns:
+  * `table` :: a table containing each new face mapped using yatm_core.D_*
+
 ]]
 function yatm_core.facedir_to_faces(facedir)
   return yatm_core.FACEDIR_TO_FACES[facedir % 32]
