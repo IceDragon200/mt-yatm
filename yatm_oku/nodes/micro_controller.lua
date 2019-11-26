@@ -109,12 +109,16 @@ end
 
 local micro_controller_data_interface = {}
 
+function micro_controller_data_interface.on_load(pos, node)
+  --
+end
+
 function micro_controller_data_interface.update(pos, node, dt)
   --
   --print("Executing micro controller", dt, minetest.pos_to_string(pos), node.name)
 end
 
-function micro_controller_data_interface.receive_pdu(pos, node, port, value)
+function micro_controller_data_interface.receive_pdu(pos, node, dir, port, value)
 end
 
 local groups = {
@@ -174,7 +178,7 @@ minetest.register_node("yatm_oku:oku_micro_controller", {
 
   on_rightclick = function (pos, node, clicker)
     local formspec_name = "yatm_oku:oku_micro_controller:" .. minetest.pos_to_string(pos)
-    yatm_core.bind_on_player_receive_fields(formspec_name,
+    yatm_core.bind_on_player_receive_fields(clicker, formspec_name,
                                             { pos = pos, node = node },
                                             micro_controller_on_receive_fields)
     minetest.show_formspec(

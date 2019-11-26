@@ -11,11 +11,6 @@ local function data_bus_refresh_infotext(pos, node)
   meta:set_string("infotext", infotext)
 end
 
-local data_bus_data_interface = {}
-function data_bus_data_interface:receive_pdu(pos, node, port, value)
-  --
-end
-
 for _, variant in ipairs({"hazard", "coolant", "signal"}) do
   local data_bus_reactor_device = {
     kind = "machine",
@@ -55,7 +50,14 @@ for _, variant in ipairs({"hazard", "coolant", "signal"}) do
     data_network_device = {
       type = "device",
     },
-    data_interface = data_bus_data_interface,
+    data_interface = {
+      on_load = function (pos, node)
+      end,
+
+      receive_pdu = function (pos, node, dir, port, value)
+        --
+      end,
+    },
 
     refresh_infotext = data_bus_refresh_infotext,
   }, {

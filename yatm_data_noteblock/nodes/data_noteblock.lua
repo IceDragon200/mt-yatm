@@ -1,7 +1,8 @@
 local data_network = assert(yatm.data_network)
 
-minetest.register_node("yatm_data_logic:data_pulser", {
-  description = "Data Pulser",
+-- Just like a mesecon noteblock, except triggered by data events
+minetest.register_node("yatm_data_logic:data_noteblock", {
+  description = "Data Note Block",
 
   groups = {
     cracky = 1,
@@ -16,17 +17,22 @@ minetest.register_node("yatm_data_logic:data_pulser", {
   node_box = {
     type = "fixed",
     fixed = {
-      yatm_core.Cuboid:new(0, 0, 0, 16, 4, 16):fast_node_box(),
+      yatm_core.Cuboid:new(0, 0, 0, 16, 5, 16):fast_node_box(),
+      yatm_core.Cuboid:new(2, 5, 2, 12,10, 12):fast_node_box(),
+      yatm_core.Cuboid:new( 0,14, 0, 16, 2, 2):fast_node_box(),
+      yatm_core.Cuboid:new( 0,14,14, 16, 2, 2):fast_node_box(),
+      yatm_core.Cuboid:new( 0,14, 0,  2, 2, 16):fast_node_box(),
+      yatm_core.Cuboid:new(14,14, 0,  2, 2, 16):fast_node_box(),
     },
   },
 
   tiles = {
-    "yatm_data_pulser_top.png",
-    "yatm_data_pulser_bottom.png",
-    "yatm_data_pulser_side.png",
-    "yatm_data_pulser_side.png",
-    "yatm_data_pulser_side.png",
-    "yatm_data_pulser_side.png",
+    "yatm_data_noteblock_top.png",
+    "yatm_data_noteblock_bottom.png",
+    "yatm_data_noteblock_side.png",
+    "yatm_data_noteblock_side.png",
+    "yatm_data_noteblock_side.png",
+    "yatm_data_noteblock_side.png",
   },
 
   data_network_device = {
@@ -37,7 +43,8 @@ minetest.register_node("yatm_data_logic:data_pulser", {
       -- toggles don't need to bind listeners of any sorts
     end,
 
-    receive_pdu = function (pos, node, dir, port, value)
+    receive_pdu = function (pos, node, dir, local_port, value)
+      print("receive_pdu", minetest.pos_to_string(pos), node.name, dir, local_port, dump(value))
     end,
 
     get_programmer_formspec = function (self, pos, clicker, pointed_thing, assigns)
@@ -47,7 +54,7 @@ minetest.register_node("yatm_data_logic:data_pulser", {
       local formspec =
         "size[8,9]" ..
         "label[0,0;Port Configuration]" ..
-        yatm_data_logic.get_io_port_formspec(pos, meta, "o")
+        yatm_data_logic.get_io_port_formspec(pos, meta, "i")
 
       return formspec
     end,
@@ -65,7 +72,7 @@ minetest.register_node("yatm_data_logic:data_pulser", {
         end
       end
 
-      local inputs_changed = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "o")
+      local inputs_changed = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "i")
 
       if yatm_core.is_table_empty(inputs_changed) then
         yatm_data_logic.unmark_all_receive(assigns.pos)

@@ -93,7 +93,7 @@ end
 
 local function package_on_rightclick(pos, node, clicker)
   local formspec_name = "yatm_mail:package_formspec:" .. minetest.pos_to_string(pos)
-  yatm_core.bind_on_player_receive_fields(formspec_name,
+  yatm_core.bind_on_player_receive_fields(clicker, formspec_name,
                                           { pos = pos, node = node },
                                           package_on_receive_fields)
   minetest.show_formspec(

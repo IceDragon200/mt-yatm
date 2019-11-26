@@ -38,7 +38,52 @@ minetest.register_node("yatm_data_logic:data_buffer", {
     type = "device",
   },
   data_interface = {
-    receive_pdu = function (pos, node, port, value)
+    on_load = function (pos, node)
+      yatm_data_logic.mark_all_inputs_for_active_receive(pos)
+    end,
+
+    receive_pdu = function (pos, node, dir, port, value)
+      --
+    end,
+
+    get_programmer_formspec = function (self, pos, clicker, pointed_thing, assigns)
+      --
+      local meta = minetest.get_meta(pos)
+
+      local formspec =
+        "size[8,9]" ..
+        "label[0,0;Port Configuration]" ..
+        yatm_data_logic.get_io_port_formspec(pos, meta)
+
+      return formspec
+    end,
+
+    receive_programmer_fields = function (self, player, form_name, fields, assigns)
+      local meta = minetest.get_meta(assigns.pos)
+
+      local needs_refresh = false
+
+      if fields["tab"] then
+        local tab = tonumber(fields["tab"])
+        if tab ~= assigns.tab then
+          assigns.tab = tab
+          needs_refresh = true
+        end
+      end
+
+      local inputs_changed = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta)
+
+      if yatm_core.is_table_empty(inputs_changed) then
+        yatm_data_logic.unmark_all_receive(assigns.pos)
+        yatm_data_logic.mark_all_inputs_for_active_receive(assigns.pos)
+      end
+
+      if needs_refresh then
+        local formspec = self:get_programmer_formspec(assigns.pos, player, nil, assigns)
+        return true, formspec
+      else
+        return true
+      end
     end,
   },
 

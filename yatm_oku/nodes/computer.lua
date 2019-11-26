@@ -78,7 +78,12 @@ local function computer_after_destruct(pos, old_node)
 end
 
 local computer_data_interface = {}
-function computer_data_interface.receive_pdu(pos, node, port, value)
+
+function computer_data_interface.on_load(pos, node)
+  --
+end
+
+function computer_data_interface.receive_pdu(pos, node, dir, port, value)
   --
 end
 
@@ -151,7 +156,7 @@ yatm.devices.register_stateful_network_device({
 
   on_rightclick = function (pos, node, clicker)
     local formspec_name = "yatm_oku:computer:" .. minetest.pos_to_string(pos)
-    yatm_core.bind_on_player_receive_fields(formspec_name,
+    yatm_core.bind_on_player_receive_fields(clicker, formspec_name,
                                             { pos = pos, node = node },
                                             computer_on_receive_fields)
     minetest.show_formspec(

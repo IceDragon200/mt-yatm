@@ -899,7 +899,7 @@ static void exec_tya(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 
 // Yes, this extension does not provide allocation of the chip or memory
 // It only says what size the pointer needs to be in case you want to throw a
-// void pointer at it.
+// block of memory at it.
 extern int oku_6502_chip_size()
 {
   return sizeof(struct oku_6502_chip);
@@ -911,7 +911,7 @@ extern int oku_6502_chip_size()
 extern void oku_6502_chip_init(struct oku_6502_chip* chip)
 {
   chip->pc = 0; // TODO: this shouldn't start in the zeropage from what I remember
-  chip->sp = 0xFF; // starts right
+  chip->sp = 0x1FF;
   chip->a = 0;
   chip->x = 0;
   chip->y = 0;

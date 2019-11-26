@@ -62,7 +62,11 @@ for _,color_pair in ipairs(colors) do
   local color_name = color_pair[2]
 
   local colored_group_name = "data_cable_" .. color_basename
-  local groups = { cracky = 1, data_cable = 1, [colored_group_name] = 1 }
+  local groups = {
+    cracky = 1,
+    data_cable = 1,
+    [colored_group_name] = 1
+  }
 
   local node_name = "yatm_data_network:data_cable_" .. color_basename
   local connects_to = {}
@@ -121,7 +125,11 @@ for _,color_pair in ipairs(colors) do
   })
 
   local colored_group_name = "data_cable_bus_" .. color_basename
-  local groups = { cracky = 1, data_cable_bus = 1, [colored_group_name] = 1 }
+  local groups = {
+    cracky = 1,
+    data_cable_bus = 1,
+    [colored_group_name] = 1
+  }
 
   local node_name = "yatm_data_network:data_cable_bus_" .. color_basename
   local connects_to = {
@@ -168,7 +176,7 @@ for _,color_pair in ipairs(colors) do
 
     data_network_device = {
       color = color_basename,
-      type = "bus",
+      type = "bus"
     },
 
     after_place_node = data_cable_after_place_node,

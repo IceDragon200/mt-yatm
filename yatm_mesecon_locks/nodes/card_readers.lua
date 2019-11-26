@@ -164,12 +164,6 @@ yatm.register_stateful_node("yatm_mesecon_locks:mesecon_card_reader", {
 if yatm_data_network then
   local data_network = assert(yatm.data_network)
 
-  local data_interface = {}
-
-  function data_interface.receive_pdu(pos, node, port, value)
-    --
-  end
-
   local function card_reader_refresh_infotext(pos, node)
     local meta = minetest.get_meta(pos)
     local infotext =
@@ -214,7 +208,16 @@ if yatm_data_network then
     data_network_device = {
       type = "device",
     },
-    data_interface = data_interface,
+
+    data_interface = {
+      on_load = function (pos, node)
+        --
+      end,
+
+      receive_pdu = function (pos, node, dir, port, value)
+        --
+      end,
+    },
 
     refresh_infotext = card_reader_refresh_infotext,
 

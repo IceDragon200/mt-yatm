@@ -55,11 +55,11 @@ local server_yatm_network = {
 }
 
 function server_yatm_network.work(pos, node, energy_available, work_rate, dtime, ot)
-  data_network:mark_ready_to_receive(pos, 1)
-  data_network:mark_ready_to_receive(pos, 2)
-  data_network:mark_ready_to_receive(pos, 3)
-  data_network:mark_ready_to_receive(pos, 4)
-  data_network:mark_ready_to_receive(pos, 5)
+  --data_network:mark_ready_to_receive(pos, 1)
+  --data_network:mark_ready_to_receive(pos, 2)
+  --data_network:mark_ready_to_receive(pos, 3)
+  --data_network:mark_ready_to_receive(pos, 4)
+  --data_network:mark_ready_to_receive(pos, 5)
   return 50
 end
 
@@ -108,8 +108,12 @@ yatm.devices.register_stateful_network_device({
     type = "device",
   },
   data_interface = {
-    receive_pdu = function (pos, node, port, value)
-      print("received a pdu", minetest.pos_to_string(pos), node.name, port, value)
+    on_load = function (pos, node)
+      --
+    end,
+
+    receive_pdu = function (pos, node, dir, port, value)
+      print("received a pdu", minetest.pos_to_string(pos), node.name, dir, port, value)
     end,
   },
   refresh_infotext = server_refresh_infotext,

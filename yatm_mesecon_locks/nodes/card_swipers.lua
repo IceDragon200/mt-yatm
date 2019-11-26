@@ -114,12 +114,6 @@ minetest.register_node("yatm_mesecon_locks:mesecon_card_swiper_on", {
 if yatm_data_network then
   local data_network = assert(yatm.data_network)
 
-  local data_interface = {}
-
-  function data_interface.receive_pdu(pos, node, port, value)
-    --
-  end
-
   local function card_swiper_refresh_infotext(pos, node)
     local meta = minetest.get_meta(pos)
     local infotext =
@@ -137,7 +131,7 @@ if yatm_data_network then
     data_network:remove_node(pos, node)
   end
 
-  minetest.register_node("yatm_mesecon_locks:data_card_swiper_off", {
+  yatm.register_stateful_node("yatm_mesecon_locks:data_card_swiper", {
     basename = "yatm_mesecon_locks:data_card_swiper",
 
     description = "Card Swiper (DATA)",
@@ -157,62 +151,50 @@ if yatm_data_network then
     paramtype = "light",
     paramtype2 = "facedir",
 
-    tiles = {
-      "yatm_card_reader_swiper.top.png",
-      "yatm_card_reader_swiper.bottom.png",
-      "yatm_card_reader_swiper.side.png^[transformFX",
-      "yatm_card_reader_swiper.side.png",
-      "yatm_card_reader_data.back.off.png",
-      "yatm_card_reader_swiper.data.front.off.png",
-    },
     drawtype = "nodebox",
     node_box = swiper_node_box,
 
     data_network_device = {
       type = "device",
     },
-    data_interface = data_interface,
+    data_interface = {
+      on_load = function (pos, node)
+        --
+      end,
+
+      receive_pdu = function (pos, node, dir, port, value)
+        --
+      end,
+    },
 
     refresh_infotext = card_swiper_refresh_infotext,
-  })
-
-  minetest.register_node("yatm_mesecon_locks:data_card_swiper_on", {
-    basename = "yatm_mesecon_locks:data_card_swiper",
-
-    description = "Card Swiper (DATA)",
-
-    drop = "yatm_mesecon_locks:data_card_swiper_off",
-
-    groups = {
-      cracky = 1,
-      yatm_data_device = 1,
-      not_in_creative_inventory = 1,
+  }, {
+    off = {
+      tiles = {
+        "yatm_card_reader_swiper.top.png",
+        "yatm_card_reader_swiper.bottom.png",
+        "yatm_card_reader_swiper.side.png^[transformFX",
+        "yatm_card_reader_swiper.side.png",
+        "yatm_card_reader_data.back.off.png",
+        "yatm_card_reader_swiper.data.front.off.png",
+      },
     },
 
-    sunlight_propagates = false,
-    is_ground_content = false,
+    on = {
+      groups = {
+        cracky = 1,
+        yatm_data_device = 1,
+        not_in_creative_inventory = 1,
+      },
 
-    sounds = default.node_sound_metal_defaults(),
-
-    paramtype = "light",
-    paramtype2 = "facedir",
-
-    tiles = {
-      "yatm_card_reader_swiper.top.png",
-      "yatm_card_reader_swiper.bottom.png",
-      "yatm_card_reader_swiper.side.png^[transformFX",
-      "yatm_card_reader_swiper.side.png",
-      "yatm_card_reader_data.back.on.png",
-      "yatm_card_reader_swiper.data.front.on.png",
-    },
-    drawtype = "nodebox",
-    node_box = swiper_node_box,
-
-    data_network_device = {
-      type = "device",
-    },
-    data_interface = data_interface,
-
-    refresh_infotext = card_swiper_refresh_infotext,
+      tiles = {
+        "yatm_card_reader_swiper.top.png",
+        "yatm_card_reader_swiper.bottom.png",
+        "yatm_card_reader_swiper.side.png^[transformFX",
+        "yatm_card_reader_swiper.side.png",
+        "yatm_card_reader_data.back.on.png",
+        "yatm_card_reader_swiper.data.front.on.png",
+      },
+    }
   })
 end

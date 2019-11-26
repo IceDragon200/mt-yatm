@@ -49,7 +49,7 @@ end
 
 local function reactor_controller_on_rightclick(pos, node, clicker)
   local formspec_name = "yatm_reactors:reactor_controller:" .. minetest.pos_to_string(pos)
-  yatm_core.bind_on_player_receive_fields(formspec_name,
+  yatm_core.bind_on_player_receive_fields(clicker, formspec_name,
                                           { pos = pos, node = node },
                                           reactor_controller_on_receive_fields)
   minetest.show_formspec(

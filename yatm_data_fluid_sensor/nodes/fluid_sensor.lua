@@ -165,7 +165,10 @@ function fluid_sensor_data_interface.update(pos, node, dt)
   end
 end
 
-function fluid_sensor_data_interface.receive_pdu(pos, node, port, value)
+function fluid_sensor_data_interface.on_load(pos, node)
+end
+
+function fluid_sensor_data_interface.receive_pdu(pos, node, dir, port, value)
 end
 
 local function fluid_sensor_on_construct(pos)
@@ -248,7 +251,7 @@ minetest.register_node("yatm_data_fluid_sensor:fluid_sensor", {
 
   on_rightclick = function (pos, node, clicker)
     local formspec_name = "yatm_data_fluid_sensor:fluid_sensor:" .. minetest.pos_to_string(pos)
-    yatm_core.bind_on_player_receive_fields(formspec_name,
+    yatm_core.bind_on_player_receive_fields(clicker, formspec_name,
                                             { pos = pos, node = node },
                                             fluid_sensor_on_receive_fields)
     minetest.show_formspec(

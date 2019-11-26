@@ -382,7 +382,11 @@ if yatm_data_network then
   }
 
   local frame_motor_data_interface = {}
-  function frame_motor_data_interface.receive_pdu(pos, node, port, value)
+
+  function frame_motor_data_interface.on_load(pos, node)
+  end
+
+  function frame_motor_data_interface.receive_pdu(pos, node, dir, port, value)
     --
   end
 

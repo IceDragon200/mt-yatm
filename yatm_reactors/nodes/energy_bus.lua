@@ -12,11 +12,6 @@ local function energy_bus_refresh_infotext(pos, node)
   meta:set_string("infotext", infotext)
 end
 
-local energy_bus_data_interface = {}
-function energy_bus_data_interface:receive_pdu(pos, node, port, value)
-  --
-end
-
 local energy_bus_reactor_device = {
   kind = "energy_bus",
   groups = {
@@ -77,7 +72,15 @@ yatm_reactors.register_stateful_reactor_node({
   data_network_device = {
     type = "device",
   },
-  data_interface = energy_bus_data_interface,
+
+  data_interface = {
+    on_load = function (pos, node)
+    end,
+
+    receive_pdu = function (pos, node, dir, port, value)
+      --
+    end,
+  },
 
   refresh_infotext = energy_bus_refresh_infotext,
 }, {
