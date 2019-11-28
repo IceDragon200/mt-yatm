@@ -30,19 +30,19 @@ function yatm_data_logic.emit_output_data(pos, data_name)
       local local_port = meta:get_int("output_" .. dir)
 
       if local_port and local_port > 0 then
-        print("emit_output_data", minetest.pos_to_string(pos),
+        --[[print("emit_output_data", minetest.pos_to_string(pos),
                                   data_name,
                                   local_port,
                                   dump(dl),
-                                  dump(sub_network_ids))
+                                  dump(sub_network_ids))]]
 
         data_network:send_value(pos, dir, local_port, dl)
       else
-        print("port not set", minetest.pos_to_string(pos), data_name, dir)
+        --print("port not set", minetest.pos_to_string(pos), data_name, dir)
       end
     end
   else
-    print("no data", minetest.pos_to_string(pos), data_name, dump(dl))
+    --print("no data", minetest.pos_to_string(pos), data_name, dump(dl))
   end
 end
 

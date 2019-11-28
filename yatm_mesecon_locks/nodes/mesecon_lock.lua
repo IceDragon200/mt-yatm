@@ -31,7 +31,7 @@ local function mesecon_lock_preserve_metadata(pos, oldnode, old_meta_table, drop
 
   local old_meta = yatm_core.FakeMetaRef:new(old_meta_table)
   local new_meta = stack:get_meta()
-  yatm_mail.copy_lockable_object_key(old_meta, new_meta)
+  yatm_security.copy_lockable_object_key(old_meta, new_meta)
   new_meta:set_string(old_meta:get_string("description"))
 end
 
@@ -41,7 +41,7 @@ local function mesecon_lock_after_place_node(pos, placer, itemstack, pointed_thi
   local new_meta = minetest.get_meta(pos)
   local old_meta = itemstack:get_meta()
 
-  yatm_mail.copy_lockable_object_key(assert(old_meta), new_meta)
+  yatm_security.copy_lockable_object_key(assert(old_meta), new_meta)
   new_meta:set_string(old_meta:get_string("description"))
 end
 
@@ -105,7 +105,7 @@ for _,color in pairs(colors) do
 
     on_rotate = mesecon.buttonlike_onrotate,
     on_rightclick = function (pos, node, clicker, item_stack, pointed_thing)
-      if yatm_mail.is_stack_a_key_for_locked_node(item_stack, pos) then
+      if yatm_security.is_stack_a_key_for_locked_node(item_stack, pos) then
         minetest.sound_play("mesecons_button_push", {pos=pos})
         minetest.swap_node(pos, { name = on_name, param2 = node.param2 })
         mesecon.receptor_on(pos, mesecon_lock_rules_get(node))
@@ -157,7 +157,7 @@ for _,color in pairs(colors) do
 
     on_rotate = mesecon.buttonlike_onrotate,
     on_rightclick = function (pos, node, clicker, item_stack, pointed_thing)
-      if yatm_mail.is_stack_a_key_for_locked_node(item_stack, pos) then
+      if yatm_security.is_stack_a_key_for_locked_node(item_stack, pos) then
         minetest.sound_play("mesecons_button_pop", {pos=pos})
         minetest.swap_node(pos, { name = off_name, param2 = node.param2 })
         mesecon.receptor_off(pos, mesecon_lock_rules_get(node))

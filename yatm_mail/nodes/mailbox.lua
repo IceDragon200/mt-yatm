@@ -97,7 +97,7 @@ end
 local function is_mailbox_open(pos)
   local meta = minetest.get_meta(pos)
 
-  local pubkey = yatm_mail.get_lockable_object_key(meta)
+  local pubkey = yatm_security.get_lockable_object_key(meta)
   if yatm_core.is_blank(pubkey) then
     -- if the mailbox has no pubkey then it's open by default
     return true
@@ -105,7 +105,7 @@ local function is_mailbox_open(pos)
     local inv = meta:get_inventory()
 
     local key_stack = inv:get_stack("access_key", 1)
-    local is_open = yatm_mail.is_stack_a_key_for_locked_node(key_stack, pos)
+    local is_open = yatm_security.is_stack_a_key_for_locked_node(key_stack, pos)
     print("mailbox is open?", minetest.pos_to_string(pos), is_open)
     return is_open
   end
@@ -144,7 +144,7 @@ end
 
 local function mailbox_allow_metadata_inventory_put(pos, listname, index, stack, player)
   if listname == "access_key" then
-    if yatm_mail.is_stack_lockable_toothed_key(stack) then
+    if yatm_security.is_stack_lockable_toothed_key(stack) then
       return 1
     end
   else
@@ -203,7 +203,7 @@ local function mailbox_preserve_metadata(pos, oldnode, old_meta_table, drops)
 
   local old_meta = yatm_core.FakeMetaRef:new(old_meta_table)
   local new_meta = stack:get_meta()
-  yatm_mail.copy_lockable_object_key(old_meta, new_meta)
+  yatm_security.copy_lockable_object_key(old_meta, new_meta)
   new_meta:set_string(old_meta:get_string("description"))
   new_meta:set_string(old_meta:get_string("box_title"))
 end
@@ -212,7 +212,7 @@ local function mailbox_after_place_node(pos, _placer, itemstack, _pointed_thing)
   local new_meta = minetest.get_meta(pos)
   local old_meta = itemstack:get_meta()
 
-  yatm_mail.copy_lockable_object_key(assert(old_meta), new_meta)
+  yatm_security.copy_lockable_object_key(assert(old_meta), new_meta)
   new_meta:set_string(old_meta:get_string("description"))
   new_meta:set_string(old_meta:get_string("box_title"))
   mailbox_configure_formspec(pos, new_meta)

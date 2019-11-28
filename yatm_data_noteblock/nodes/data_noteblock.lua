@@ -172,6 +172,8 @@ minetest.register_node("yatm_data_noteblock:data_noteblock", {
   },
 
   on_construct = function (pos)
+    local meta = minetest.get_meta(pos)
+    meta:set_int("damper", 0)
     local node = minetest.get_node(pos)
     data_network:add_node(pos, node)
   end,
@@ -190,19 +192,36 @@ minetest.register_node("yatm_data_noteblock:data_noteblock", {
 
     receive_pdu = function (pos, node, dir, local_port, value)
       print("receive_pdu", minetest.pos_to_string(pos), node.name, dir, local_port, dump(value))
+      local meta = minetest.get_meta(pos)
       local payload = yatm_core.string_hex_unescape(value)
       local key = string.byte(payload, 1)
-      noteblock_play_audio(pos, key, 127)
+      key = key + meta:get_int("offset")
+      local damper = meta:get_int("damper")
+      noteblock_play_audio(pos, key, math.max(0, 127 - damper))
     end,
 
     get_programmer_formspec = function (self, pos, clicker, pointed_thing, assigns)
       --
       local meta = minetest.get_meta(pos)
+      assigns.tab = assigns.tab or 1
 
       local formspec =
         "size[8,9]" ..
-        "label[0,0;Port Configuration]" ..
-        yatm_data_logic.get_io_port_formspec(pos, meta, "i")
+        "tabheader[0,0;tab;Ports,Data;" .. assigns.tab .. "]"
+
+      if assigns.tab == 1 then
+        formspec =
+          formspec ..
+          "label[0,0;Port Configuration]" ..
+          yatm_data_logic.get_io_port_formspec(pos, meta, "i")
+
+      elseif assigns.tab == 2 then
+        formspec =
+          formspec ..
+          "label[0,0;Data Configuration]" ..
+          "field[0.5,1;8,1;offset;Note Offset;" .. meta:get_int("offset") .. "]" ..
+          "field[0.5,2;8,1;damper;Damper;" .. meta:get_int("damper") .. "]"
+      end
 
       return formspec
     end,
@@ -222,9 +241,19 @@ minetest.register_node("yatm_data_noteblock:data_noteblock", {
 
       local inputs_changed = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "i")
 
-      if yatm_core.is_table_empty(inputs_changed) then
+      if not yatm_core.is_table_empty(inputs_changed) then
         yatm_data_logic.unmark_all_receive(assigns.pos)
         yatm_data_logic.mark_all_inputs_for_active_receive(assigns.pos)
+      end
+
+      if fields["offset"] then
+        local offset = math.floor(tonumber(fields["offset"]))
+        meta:set_int("offset", offset)
+      end
+
+      if fields["damper"] then
+        local damper = math.floor(tonumber(fields["damper"]))
+        meta:set_int("damper", damper)
       end
 
       if needs_refresh then
