@@ -1,7 +1,143 @@
 local data_network = assert(yatm.data_network)
 
+-- This is for no other purpose but reference
+local ROOT_NOTE = "F" -- all samples start from F and end on E
+
+local INS = {
+  -- Melodic
+  bass = {
+    type = "melodic",
+    start = "F3",
+    stop = "E6",
+    samples = {}, -- will be populated later
+  },
+  flute = {
+    type = "melodic",
+    start = "F3",
+    stop = "E6",
+    samples = {}, -- will be populated later
+  },
+  guitar = {
+    type = "melodic",
+    start = "F3",
+    stop = "E6",
+    samples = {}, -- will be populated later
+  },
+  melodicdrum = {
+    type = "melodic",
+    start = "F3",
+    stop = "E6",
+    samples = {}, -- will be populated later
+  },
+  piano = {
+    type = "melodic",
+    start = "F3",
+    stop = "E6",
+    samples = {}, -- will be populated later
+  },
+  pulse25p = {
+    type = "melodic",
+    start = "F3",
+    stop = "E6",
+    samples = {}, -- will be populated later
+  },
+
+  -- Percussive
+  hihatclosed = {
+    type = "percussive",
+    start = "F3",
+    stop = "F3",
+    samples = {}, -- will be populated later
+  },
+  kickdrum = {
+    type = "percussive",
+    start = "F3",
+    stop = "F3",
+    samples = {}, -- will be populated later
+  },
+  rimshot = {
+    type = "percussive",
+    start = "F3",
+    stop = "F3",
+    samples = {}, -- will be populated later
+  },
+  snaredrum = {
+    type = "percussive",
+    start = "F3",
+    stop = "F3",
+    samples = {}, -- will be populated later
+  }
+}
+
+for key, entry in pairs(INS) do
+  if entry.type == "percussive" then
+    entry.samples[1] = "yatm_noteblock_" .. key --.. ".ogg"
+  elseif entry.type == "melodic" then
+    for i = 1,36 do
+      entry.samples[i] = "yatm_noteblock_" .. key .. "_n" .. i --.. ".ogg"
+    end
+  end
+  entry.count = #entry.samples
+end
+
+local function play_instrument(pos, name, key, velo)
+  minetest.log("action", "playing instrument sound name=" .. name .. " key=" .. key .. " velocity=" .. velo)
+  velo = velo or 127
+  local ins = INS[name]
+  local filename = ins.samples[1 + (key - 1) % ins.count]
+
+  minetest.sound_play({ name = filename, pitch = 1.0 }, {
+    pos = pos,
+    gain = velo / 127,
+    max_hear_distance = 64,
+  })
+end
+
+local function noteblock_play_audio(pos, key, velo)
+  local tone_node_pos = vector.add(pos, yatm_core.V3_DOWN)
+  local tone_node = minetest.get_node(tone_node_pos)
+
+  print("noteblock_play_audio", minetest.pos_to_string(tone_node_pos), tone_node.name, dump(yatm_core.groups.get_item_groups(tone_node.name)))
+
+  if yatm_core.groups.item_has_group(tone_node.name, "wood") then
+    play_instrument(pos, "bass", key, velo)
+
+  elseif yatm_core.groups.item_has_group(tone_node.name, "sand") or
+         yatm_core.groups.item_has_group(tone_node.name, "gravel") then
+    play_instrument(pos, "snaredrum", key, velo)
+
+  elseif tone_node.name == "default:glass" or
+         yatm_core.groups.item_has_group(tone_node.name, "glass") then
+    play_instrument(pos, "hihatclosed", key, velo)
+
+  elseif yatm_core.groups.item_has_group(tone_node.name, "wool") then
+    play_instrument(pos, "guitar", key, velo)
+
+  elseif tone_node.name == "default:clay" or
+         yatm_core.groups.item_has_group(tone_node.name, "clay") then
+    play_instrument(pos, "flute", key, velo)
+
+  elseif yatm_core.groups.item_has_group(tone_node.name, "carbon_steel") then
+    play_instrument(pos, "melodicdrum", key, velo)
+
+  elseif tone_node.name == "default:stone" or
+         tone_node.name == "default:cobble" or
+         tone_node.name == "default:desert_stone" or
+         tone_node.name == "default:desert_cobble" or
+         yatm_core.groups.item_has_group(tone_node.name, "stone") then
+    play_instrument(pos, "kickdrum", key, velo)
+
+  elseif tone_node.name == "default:diamondblock" or
+         yatm_core.groups.item_has_group(tone_node.name, "quartz") then
+    play_instrument(pos, "pulse25p", key, velo)
+
+  else
+    play_instrument(pos, "piano", key, velo)
+  end
+end
+
 -- Just like a mesecon noteblock, except triggered by data events
-minetest.register_node("yatm_data_logic:data_noteblock", {
+minetest.register_node("yatm_data_noteblock:data_noteblock", {
   description = "Data Note Block",
 
   groups = {
@@ -35,16 +171,28 @@ minetest.register_node("yatm_data_logic:data_noteblock", {
     "yatm_data_noteblock_side.png",
   },
 
+  on_construct = function (pos)
+    local node = minetest.get_node(pos)
+    data_network:add_node(pos, node)
+  end,
+
+  after_destruct = function (pos, node)
+    data_network:remove_node(pos, node)
+  end,
+
   data_network_device = {
     type = "device",
   },
   data_interface = {
     on_load = function (pos, node)
-      -- toggles don't need to bind listeners of any sorts
+      yatm_data_logic.mark_all_inputs_for_active_receive(pos)
     end,
 
     receive_pdu = function (pos, node, dir, local_port, value)
       print("receive_pdu", minetest.pos_to_string(pos), node.name, dir, local_port, dump(value))
+      local payload = yatm_core.string_hex_unescape(value)
+      local key = string.byte(payload, 1)
+      noteblock_play_audio(pos, key, 127)
     end,
 
     get_programmer_formspec = function (self, pos, clicker, pointed_thing, assigns)

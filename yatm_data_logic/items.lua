@@ -28,6 +28,8 @@ minetest.register_tool("yatm_data_logic:data_programmer", {
                                                   end)
 
           minetest.show_formspec(user:get_player_name(), formspec_name, formspec)
+        else
+          minetest.chat_send_player(user:get_player_name(), "This node cannot be programmed")
         end
         -- TODO: determine data configuration and display programming interface
         minetest.log("action", user:get_player_name() .. " readies to program " .. node.name)

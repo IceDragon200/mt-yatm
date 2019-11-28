@@ -100,6 +100,8 @@ yatm.register_stateful_node("yatm_data_logic:data_momentary_button", {
 
       yatm_data_logic.emit_output_data(pos, "release")
     end
+
+    return false
   end,
 
   refresh_infotext = function (pos)

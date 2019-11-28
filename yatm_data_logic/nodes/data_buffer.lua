@@ -32,6 +32,13 @@ minetest.register_node("yatm_data_logic:data_buffer", {
     local meta = minetest.get_meta(pos)
 
     meta:set_string("buffer", "")
+
+    local node = minetest.get_node(pos)
+    data_network:add_node(pos, node)
+  end,
+
+  after_destruct = function (pos, node)
+    data_network:remove_node(pos, node)
   end,
 
   data_network_device = {

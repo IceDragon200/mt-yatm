@@ -42,6 +42,7 @@ function yatm_data_logic.emit_output_data(pos, data_name)
 end
 
 function yatm_data_logic.get_io_port_formspec(pos, meta, mode)
+  mode = mode or "io"
   local sub_network_ids = data_network:get_sub_network_ids(pos)
   local attached_colors = data_network:get_attached_colors(pos)
 

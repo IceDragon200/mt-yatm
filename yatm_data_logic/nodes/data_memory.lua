@@ -29,6 +29,15 @@ minetest.register_node("yatm_data_logic:data_memory", {
     "yatm_data_memory_side.png",
   },
 
+  on_construct = function (pos)
+    local node = minetest.get_node(pos)
+    data_network:add_node(pos, node)
+  end,
+
+  after_destruct = function (pos, node)
+    data_network:remove_node(pos, node)
+  end,
+
   data_network_device = {
     type = "device",
   },
