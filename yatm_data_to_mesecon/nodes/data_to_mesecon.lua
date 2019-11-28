@@ -28,6 +28,7 @@ yatm.register_stateful_node("yatm_data_to_mesecon:data_to_mesecon", {
     type = "fixed",
     fixed = {
       yatm_core.Cuboid:new(0, 0, 0, 16, 4, 16):fast_node_box(),
+      yatm_core.Cuboid:new(3, 4, 3, 10, 2, 10):fast_node_box(),
     },
   },
 
