@@ -27,7 +27,7 @@ yatm_security.lockable_key_schema = lockable_key_schema:compile(LOCKABLE_BASENAM
 -- Determines if the given item is a lock, locks are just boring single use items for the locksmith table.
 function yatm_security.item_is_lock(item)
   if item then
-    return item.groups.lockable_lock or 0 > 0
+    return yatm_core.groups.has_group(item, "lockable_lock")
   else
     -- it was null, it's not a lock then.
     return false
@@ -36,7 +36,7 @@ end
 
 function yatm_security.item_is_key(item)
   if item then
-    return (item.groups.lockable_key or 0) > 0
+    return yatm_core.groups.has_group(item, "lockable_key")
   else
     return false
   end
@@ -44,7 +44,7 @@ end
 
 function yatm_security.item_is_blank_key(item)
   if item then
-    return (item.groups.blank_key or 0) > 0
+    return yatm_core.groups.has_group(item, "blank_key")
   else
     return false
   end
@@ -52,7 +52,7 @@ end
 
 function yatm_security.item_is_toothed_key(item)
   if item then
-    return (item.groups.toothed_key or 0) > 0
+    return yatm_core.groups.has_group(item, "toothed_key")
   else
     return false
   end
@@ -60,7 +60,7 @@ end
 
 function yatm_security.item_is_lockable_object(item)
   if item then
-    return (item.groups.lockable_object or 0) > 0
+    return yatm_core.groups.has_group(item, "lockable_object")
   else
     return false
   end
@@ -68,8 +68,7 @@ end
 
 function yatm_security.is_stack_lockable_lock(stack)
   if stack then
-    local item = minetest.registered_items[stack:get_name()]
-    return yatm_security.item_is_lock(item)
+    return yatm_security.item_is_lock(stack:get_definition())
   else
     return false
   end
@@ -77,8 +76,7 @@ end
 
 function yatm_security.is_stack_lockable_blank_key(stack)
   if stack then
-    local item = minetest.registered_items[stack:get_name()]
-    return yatm_security.item_is_blank_key(item)
+    return yatm_security.item_is_blank_key(stack:get_definition())
   else
     return false
   end
@@ -86,8 +84,7 @@ end
 
 function yatm_security.is_stack_lockable_toothed_key(stack)
   if stack then
-    local item = minetest.registered_items[stack:get_name()]
-    return yatm_security.item_is_toothed_key(item)
+    return yatm_security.item_is_toothed_key(stack:get_definition())
   else
     return false
   end
@@ -95,8 +92,7 @@ end
 
 function yatm_security.is_stack_lockable_object(stack)
   if stack then
-    local item = minetest.registered_items[stack:get_name()]
-    return yatm_security.item_is_lockable_object(item)
+    return yatm_security.item_is_lockable_object(stack:get_definition())
   else
     return false
   end

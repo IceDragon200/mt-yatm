@@ -24,15 +24,27 @@ for _,color in pairs(colors) do
     basename = "yatm_security:access_card",
     base_description = "Access Card",
 
-    description = "Access Card (" .. color_name .. ")",
+    description = "Access Card [" .. color_name .. "]",
 
     groups = {
       access_card = 1,
+      table_programmable = 1,
     },
 
     inventory_image = "yatm_access_cards_" .. color_basename .. "_common.png",
     dye_color = color_basename,
 
     stack_max = 1,
+
+    on_programmed = function (stack, data)
+      local meta = stack:get_meta()
+      meta:set_string("secret", data)
+
+      local lock_id = string.sub(data, 1, 6)
+      meta:set_string("lock_id", lock_id)
+      local description = stack:get_definition().description .. " [Programmed] (" .. lock_id .. ")"
+      meta:set_string("description", description)
+      return stack
+    end,
   })
 end

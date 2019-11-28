@@ -19,29 +19,62 @@ local function get_formspec(pos, assigns)
   local formspec =
     "size[12,10]" ..
     "label[0,0;Programmer's Table]" ..
-    "field[0,1;8,1;prog_data;Program Data;" .. minetest.formspec_escape(meta:get_string("prog_data")) .. "]" ..
+    "button[0.5,1;2.5,1;random;Random]" ..
+    "field[3.5,1;5,1;prog_data;Program Data;" .. minetest.formspec_escape(meta:get_string("prog_data")) .. "]" ..
+    "button[9,1;3,1;commit;Commit]" ..
     "list[nodemeta:" .. spos .. ";input_items;0,2;4,4;]" ..
     "list[nodemeta:" .. spos .. ";processing_items;4,2;4,4;]" ..
     "list[nodemeta:" .. spos .. ";output_items;8,2;4,4;]" ..
-    "list[current_player;main;2,4.85;8,1;]" ..
-    "list[current_player;main;2,6.08;8,3;8]" ..
+    "list[current_player;main;2,5.85;8,1;]" ..
+    "list[current_player;main;2,7.08;8,3;8]" ..
     "listring[nodemeta:" .. spos .. ";input_items]" ..
     "listring[current_player;main]" ..
     "listring[nodemeta:" .. spos .. ";output_items]" ..
     "listring[current_player;main]" ..
-    default.get_hotbar_bg(2,4.85)
+    default.get_hotbar_bg(2,5.85)
 
   return formspec
 end
 
 local function handle_receive_fields(player, formname, fields, assigns)
   local meta = minetest.get_meta(assigns.pos)
+  local needs_refresh = false
 
   if fields["prog_data"] then
     meta:set_string("prog_data", fields["prog_data"])
   end
 
-  return true
+  if fields["random"] then
+    meta:set_string("prog_data", yatm_core.random_string(16))
+    needs_refresh = true
+  end
+
+  if fields["commit"] then
+    local inv = meta:get_inventory()
+
+    if inv:is_empty("processing_items") then
+      local input_items = inv:get_list("input_items")
+      local count = 0
+      for _, item in ipairs(input_items) do
+        if not item:is_empty() then
+          count = count + 1
+        end
+      end
+
+      meta:set_float("processing_time", 3)
+      meta:set_int("processing_count", count)
+      meta:set_string("processing_prog_data", meta:get_string("prog_data"))
+
+      inv:set_list("processing_items", input_items)
+      inv:set_list("input_items", {})
+    end
+  end
+
+  if needs_refresh then
+    return true, get_formspec(assigns.pos, assigns)
+  else
+    return true
+  end
 end
 
 yatm.devices.register_stateful_network_device({
@@ -91,6 +124,46 @@ yatm.devices.register_stateful_network_device({
     },
 
     work = function (pos, node, available_energy, work_rate, dtime, ot)
+      local meta = minetest.get_meta(pos)
+      local inv = meta:get_inventory()
+
+      local processing_count = meta:get_int("processing_count")
+
+      if not inv:is_empty("processing_items") then
+        local org_proc_time = meta:get_float("processing_time")
+        local proc_time = org_proc_time
+        if proc_time > 0 then
+          proc_time = math.max(proc_time - dtime, 0)
+          meta:set_float("processing_time", proc_time)
+        end
+
+        if proc_time <= 0 then
+          if inv:is_empty("output_items") then
+            local output_items = {}
+            local prog_data = meta:get_string("processing_prog_data")
+            for i, item in pairs(inv:get_list("processing_items")) do
+              if item:is_empty() then
+                output_items[i] = item
+              else
+                local itemdef = item:get_definition()
+                if itemdef.on_programmed then
+                  output_items[i] = itemdef.on_programmed(item, prog_data)
+                else
+                  minetest.log("warn", item:get_name() .. " does not support on_programmed callback")
+                  output_items[i] = item
+                end
+              end
+            end
+
+            inv:set_list("output_items", output_items)
+            inv:set_list("processing_items", {})
+          end
+        end
+
+        -- 100 units per item per second
+        return 100 * processing_count * (org_proc_time - proc_time)
+      end
+
       return 0
     end,
   },
@@ -112,6 +185,8 @@ yatm.devices.register_stateful_network_device({
   on_construct = function (pos)
     local node = minetest.get_node(pos)
     local meta = minetest.get_meta(pos)
+
+    meta:set_string("prog_data", yatm_core.random_string(16))
 
     local inv = meta:get_inventory()
 
@@ -168,6 +243,43 @@ yatm.devices.register_stateful_network_device({
       formspec_name,
       get_formspec(pos, assigns)
     )
+  end,
+
+  allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
+    if from_list == "processing_items" or to_list == "processing_items" then
+      return 0
+    end
+
+    if from_list == "output_items" then
+      if to_list ~= "output_items" then
+        return count
+      end
+    end
+
+    if to_list == "input_items" then
+      return 1
+    elseif to_list == "output_items" then
+      return 0
+    end
+    return 0
+  end,
+
+  allow_metadata_inventory_put = function(pos, listname, index, stack, player)
+    if listname == "input_items" then
+      if yatm_core.groups.item_has_group(stack:get_name(), "table_programmable") then
+        return 1
+      end
+    end
+    return 0
+  end,
+
+  allow_metadata_inventory_take = function(pos, listname, index, stack, player)
+    if listname == "output_items" then
+      return stack:get_count()
+    elseif listname == "input_items" then
+      return stack:get_count()
+    end
+    return 0
   end,
 }, {
   error = {
