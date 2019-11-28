@@ -73,16 +73,24 @@ function yatm_data_logic.get_io_port_formspec(pos, meta, mode)
 
   for _, dir in ipairs(yatm_core.DIR6) do
     if sub_network_ids[dir] then
+      local sub_network_id = sub_network_ids[dir]
+
       if mode == "io" or mode == "i" then
         inputs =
           inputs ..
-          "field[0.25," .. i .. ";" .. col_width .. ",1;input_" .. dir .. ";" .. yatm_core.dir_to_string(dir) .. ";" .. meta:get_int("input_" .. dir) .. "]"
+          "field[0.25," .. i ..
+                 ";" .. col_width .. ",1;input_" .. dir ..
+                 ";" .. yatm_core.dir_to_string(dir) .. " - " .. sub_network_id ..
+                 ";" .. meta:get_int("input_" .. dir) .. "]"
       end
 
       if mode == "io" or mode == "o" then
         outputs =
           outputs ..
-          "field[" .. (output_x + 0.25) ..  "," .. i .. ";" .. col_width .. ",1;output_" .. dir .. ";" .. yatm_core.dir_to_string(dir) .. ";" .. meta:get_int("output_" .. dir) .. "]"
+          "field[" .. (output_x + 0.25) ..  "," .. i ..
+                 ";" .. col_width .. ",1;output_" .. dir ..
+                 ";" .. yatm_core.dir_to_string(dir) .. " - " .. sub_network_id ..
+                 ";" .. meta:get_int("output_" .. dir) .. "]"
       end
 
       i = i + 1
