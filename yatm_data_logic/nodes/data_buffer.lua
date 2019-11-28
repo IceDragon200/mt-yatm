@@ -5,6 +5,7 @@ minetest.register_node("yatm_data_logic:data_buffer", {
 
   groups = {
     cracky = 1,
+    data_programmable = 1,
     yatm_data_device = 1,
   },
 
@@ -31,7 +32,7 @@ minetest.register_node("yatm_data_logic:data_buffer", {
   on_construct = function (pos)
     local meta = minetest.get_meta(pos)
 
-    meta:set_string("buffer", "")
+    meta:set_string("data_buffered_value", "")
 
     local node = minetest.get_node(pos)
     data_network:add_node(pos, node)
@@ -50,7 +51,9 @@ minetest.register_node("yatm_data_logic:data_buffer", {
     end,
 
     receive_pdu = function (pos, node, dir, port, value)
-      --
+      local meta = minetest.get_meta(pos)
+      yatm_data_logic.emit_output_data(pos, "buffered_value")
+      meta:set_string("data_buffered_value", value)
     end,
 
     get_programmer_formspec = function (self, pos, clicker, pointed_thing, assigns)
@@ -60,7 +63,7 @@ minetest.register_node("yatm_data_logic:data_buffer", {
       local formspec =
         "size[8,9]" ..
         "label[0,0;Port Configuration]" ..
-        yatm_data_logic.get_io_port_formspec(pos, meta)
+        yatm_data_logic.get_io_port_formspec(pos, meta, "io")
 
       return formspec
     end,
@@ -78,7 +81,7 @@ minetest.register_node("yatm_data_logic:data_buffer", {
         end
       end
 
-      local inputs_changed = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta)
+      local inputs_changed = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "io")
 
       if yatm_core.is_table_empty(inputs_changed) then
         yatm_data_logic.unmark_all_receive(assigns.pos)

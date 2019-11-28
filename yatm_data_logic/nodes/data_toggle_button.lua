@@ -12,14 +12,6 @@ yatm.register_stateful_node("yatm_data_logic:data_toggle_button", {
   paramtype = "light",
   paramtype2 = "facedir",
 
-  drawtype = "nodebox",
-  node_box = {
-    type = "fixed",
-    fixed = {
-      yatm_core.Cuboid:new(0, 0, 0, 16, 4, 16):fast_node_box(),
-    },
-  },
-
   data_network_device = {
     type = "device",
   },
@@ -114,13 +106,22 @@ yatm.register_stateful_node("yatm_data_logic:data_toggle_button", {
   end,
 }, {
   left = {
+    drawtype = "nodebox",
+    node_box = {
+      type = "fixed",
+      fixed = {
+        yatm_core.Cuboid:new(0, 0, 0, 16, 4, 16):fast_node_box(),
+        yatm_core.Cuboid:new(2, 4, 3,  6, 2, 10):fast_node_box(),
+      },
+    },
+
     tiles = {
       "yatm_data_toggle_button_top.left.png",
       "yatm_data_toggle_button_bottom.png",
       "yatm_data_toggle_button_side.png",
       "yatm_data_toggle_button_side.png",
-      "yatm_data_toggle_button_side.png",
-      "yatm_data_toggle_button_side.png",
+      "yatm_data_toggle_button_front.left.png^[transformFX",
+      "yatm_data_toggle_button_front.left.png",
     },
 
     on_rightclick = function (pos, node, clicker)
@@ -132,13 +133,22 @@ yatm.register_stateful_node("yatm_data_logic:data_toggle_button", {
   },
 
   right = {
+    drawtype = "nodebox",
+    node_box = {
+      type = "fixed",
+      fixed = {
+        yatm_core.Cuboid:new(0, 0, 0, 16, 4, 16):fast_node_box(),
+        yatm_core.Cuboid:new(8, 4, 3,  6, 2, 10):fast_node_box(),
+      },
+    },
+
     tiles = {
       "yatm_data_toggle_button_top.right.png",
       "yatm_data_toggle_button_bottom.png",
       "yatm_data_toggle_button_side.png",
       "yatm_data_toggle_button_side.png",
-      "yatm_data_toggle_button_side.png",
-      "yatm_data_toggle_button_side.png",
+      "yatm_data_toggle_button_front.right.png^[transformFX",
+      "yatm_data_toggle_button_front.right.png",
     },
 
     on_rightclick = function (pos, node, clicker)
