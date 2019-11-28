@@ -4,6 +4,14 @@ function groups.get(object)
   return object.groups or {}
 end
 
+function groups.get_item_groups(name)
+  local item = minetest.registered_items[name]
+  if item then
+    return item.groups or {}
+  end
+  return {}
+end
+
 function groups.patch_get(object)
   if not object.groups then
     object.groups = {}
