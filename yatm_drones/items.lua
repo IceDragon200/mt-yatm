@@ -7,7 +7,6 @@ minetest.register_tool("yatm_drones:scavenger_drone_case", {
     if pointed_thing.above ~= nil then
       local drone = minetest.add_entity(pointed_thing.above, "yatm_drones:scavenger_drone")
       drone:get_luaentity():set_owner_name(clicker:get_player_name())
-      drone:get_luaentity():receive_energy(500)
 
       itemstack:take_item()
       return itemstack

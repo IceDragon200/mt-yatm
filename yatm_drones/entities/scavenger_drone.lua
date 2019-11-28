@@ -27,6 +27,7 @@ local function create_inventory(self)
         elseif listname == "main" then
           return stack:get_count()
         end
+        return 0
       end,
 
       allow_take = function(inv, listname, index, stack, player)
