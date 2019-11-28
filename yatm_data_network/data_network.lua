@@ -628,7 +628,8 @@ function ic:update_network(network, dt)
       if member then
         local nodedef = minetest.registered_nodes[member.node.name]
         if nodedef.data_interface then
-          nodedef.data_interface.update(member.pos, member.node, dt)
+          local node = minetest.get_node(member.pos)
+          nodedef.data_interface.update(member.pos, node, dt)
         else
           print("WARN: Node cannot be subject to updatable group without a data_interface",
                 minetest.pos_to_string(member.pos), member.node.name)
@@ -826,11 +827,25 @@ function ic:refresh_from_pos(base_pos)
         end
       end
 
-      yatm.queue_refresh_infotext(member.pos, member.node)
     end
 
     --
     self:_build_sub_networks(network)
+
+    for member_id, _ in pairs(network.members) do
+      local member = self.m_members[member_id]
+      local node = minetest.get_node(member.pos)
+      local nodedef = minetest.registered_nodes[node.name]
+
+      if nodedef then
+        if nodedef.data_interface then
+          -- a temporary and lazy fix to get some nodes loading corecctly
+          nodedef.data_interface.on_load(member.pos, node)
+        end
+      end
+
+      yatm.queue_refresh_infotext(member.pos, member.node)
+    end
   end
 end
 

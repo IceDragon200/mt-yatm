@@ -30,6 +30,7 @@ for wood_basename, wood_config in pairs(wood_types) do
 
     groups = {
       choppy = 1,
+      wood = 1,
     },
 
     tiles = {
