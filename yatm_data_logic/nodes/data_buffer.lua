@@ -71,16 +71,6 @@ minetest.register_node("yatm_data_logic:data_buffer", {
     receive_programmer_fields = function (self, player, form_name, fields, assigns)
       local meta = minetest.get_meta(assigns.pos)
 
-      local needs_refresh = false
-
-      if fields["tab"] then
-        local tab = tonumber(fields["tab"])
-        if tab ~= assigns.tab then
-          assigns.tab = tab
-          needs_refresh = true
-        end
-      end
-
       local inputs_changed = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "io")
 
       if not yatm_core.is_table_empty(inputs_changed) then
@@ -88,12 +78,7 @@ minetest.register_node("yatm_data_logic:data_buffer", {
         yatm_data_logic.mark_all_inputs_for_active_receive(assigns.pos)
       end
 
-      if needs_refresh then
-        local formspec = self:get_programmer_formspec(assigns.pos, player, nil, assigns)
-        return true, formspec
-      else
-        return true
-      end
+      return true
     end,
   },
 
