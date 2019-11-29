@@ -59,6 +59,12 @@ local function assert_itemstack_meta(itemstack)
   end
 end
 
+function yatm_core.get_itemstack_item_description(itemstack)
+  local itemdef = itemstack:get_definition()
+
+  return itemdef.description or itemstack:get_name()
+end
+
 function yatm_core.get_itemstack_description(itemstack)
   assert_itemstack_meta(itemstack)
   local desc = itemstack:get_meta():get_string("description")
