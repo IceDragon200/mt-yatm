@@ -32,7 +32,7 @@ for _,material_pair in ipairs(materials) do
       basename = "yatm_security:key_blank",
       base_description = "Blank Key",
 
-      description = material_name .. " Blank Key (" .. color_name .. ")",
+      description = material_name .. " Blank Key [" .. color_name .. "]",
       groups = {
         lockable_key = 1,
         blank_key = 1,
@@ -46,7 +46,7 @@ for _,material_pair in ipairs(materials) do
       basename = "yatm_security:key_toothed",
       base_description = "Key",
 
-      description = material_name .. " Key (" .. color_name .. ")",
+      description = material_name .. " Key [" .. color_name .. "]",
       groups = {
         lockable_key = 1,
         toothed_key = 1,
@@ -63,7 +63,7 @@ for _,material_pair in ipairs(materials) do
       basename = "yatm_security:key_toothless",
       base_description = "Toothless Key",
 
-      description = material_name .. " Toothless Key (" .. color_name .. ")",
+      description = material_name .. " Toothless Key [" .. color_name .. "]",
       groups = {
         lockable_key = 1,
         toothless_key = 1,

@@ -45,7 +45,7 @@ local function handle_receive_fields(player, formname, fields, assigns)
   end
 
   if fields["random"] then
-    meta:set_string("prog_data", yatm_core.random_string(16))
+    meta:set_string("prog_data", yatm_security.gen_prvkey())
     needs_refresh = true
   end
 

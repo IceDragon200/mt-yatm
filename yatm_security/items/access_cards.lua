@@ -38,7 +38,7 @@ for _,color in pairs(colors) do
 
     on_programmed = function (stack, data)
       local meta = stack:get_meta()
-      meta:set_string("secret", data)
+      yatm_security.set_access_card_prvkey(meta, data)
 
       local lock_id = string.sub(data, 1, 6)
       meta:set_string("lock_id", lock_id)

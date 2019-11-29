@@ -56,7 +56,8 @@ for _,color in pairs(colors) do
     on_programmed = function (stack, data)
       local new_stack = ItemStack({ name = stack:get_definition().programmed_chip, count = 1 })
       local meta = new_stack:get_meta()
-      meta:set_string("secret", data)
+      yatm_security.set_access_chip_pubkey(meta, data)
+
       local lock_id = string.sub(data, 1, 6)
       meta:set_string("lock_id", lock_id)
       meta:set_string("description", new_stack:get_definition().description .. " (" .. lock_id .. ")")

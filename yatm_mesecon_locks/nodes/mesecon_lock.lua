@@ -31,7 +31,7 @@ local function mesecon_lock_preserve_metadata(pos, oldnode, old_meta_table, drop
 
   local old_meta = yatm_core.FakeMetaRef:new(old_meta_table)
   local new_meta = stack:get_meta()
-  yatm_security.copy_lockable_object_key(old_meta, new_meta)
+  yatm_security.copy_lockable_object_pubkey(old_meta, new_meta)
   new_meta:set_string(old_meta:get_string("description"))
 end
 
@@ -41,7 +41,7 @@ local function mesecon_lock_after_place_node(pos, placer, itemstack, pointed_thi
   local new_meta = minetest.get_meta(pos)
   local old_meta = itemstack:get_meta()
 
-  yatm_security.copy_lockable_object_key(assert(old_meta), new_meta)
+  yatm_security.copy_lockable_object_pubkey(assert(old_meta), new_meta)
   new_meta:set_string(old_meta:get_string("description"))
 end
 
