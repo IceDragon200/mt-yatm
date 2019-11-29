@@ -137,6 +137,31 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_reader", {
     receive_pdu = function (pos, node, dir, port, value)
       --
     end,
+
+    get_programmer_formspec = function (self, pos, clicker, pointed_thing, assigns)
+      --
+      local meta = minetest.get_meta(pos)
+
+      local formspec =
+        "size[8,9]" ..
+        "label[0,0;Port Configuration]" ..
+        yatm_data_logic.get_io_port_formspec(pos, meta, "io")
+
+      return formspec
+    end,
+
+    receive_programmer_fields = function (self, player, form_name, fields, assigns)
+      local meta = minetest.get_meta(assigns.pos)
+
+      local inputs_changed = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "io")
+
+      if not yatm_core.is_table_empty(inputs_changed) then
+        yatm_data_logic.unmark_all_receive(assigns.pos)
+        yatm_data_logic.mark_all_inputs_for_active_receive(assigns.pos)
+      end
+
+      return true
+    end,
   },
 
   refresh_infotext = card_reader_refresh_infotext,
@@ -163,16 +188,16 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_reader", {
 
     on_access_card_inserted = function (pos, node, access_card)
       if yatm_security.is_chipped_node(pos) then
-        if yatm_security.is_stack_an_access_card_for_chipped_node(itemstack, pos) then
+        if yatm_security.is_stack_an_access_card_for_chipped_node(access_card, pos) then
           node.name = "yatm_data_card_readers:data_card_reader_on"
-          local prvkey = yatm_security.get_access_card_stack_prvkey(itemstack)
+          local prvkey = yatm_security.get_access_card_stack_prvkey(access_card)
           yatm_data_logic.emit_output_data_value(pos, prvkey)
         else
           node.name = "yatm_data_card_readers:data_card_reader_error"
         end
       else
         -- if the swiper isn't chipped, ANY access card should work
-        local prvkey = yatm_security.get_access_card_stack_prvkey(itemstack)
+        local prvkey = yatm_security.get_access_card_stack_prvkey(access_card)
         if yatm_core.is_blank(prvkey) then
           node.name = "yatm_data_card_readers:data_card_reader_error"
         else

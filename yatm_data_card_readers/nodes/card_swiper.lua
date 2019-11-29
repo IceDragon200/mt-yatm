@@ -88,6 +88,26 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_swiper", {
     receive_pdu = function (pos, node, dir, port, value)
       --
     end,
+
+    get_programmer_formspec = function (self, pos, clicker, pointed_thing, assigns)
+      --
+      local meta = minetest.get_meta(pos)
+
+      local formspec =
+        "size[8,9]" ..
+        "label[0,0;Port Configuration]" ..
+        yatm_data_logic.get_io_port_formspec(pos, meta, "o")
+
+      return formspec
+    end,
+
+    receive_programmer_fields = function (self, player, form_name, fields, assigns)
+      local meta = minetest.get_meta(assigns.pos)
+
+      yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "o")
+
+      return true
+    end,
   },
 
   refresh_infotext = card_swiper_refresh_infotext,
