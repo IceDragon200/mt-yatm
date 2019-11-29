@@ -162,7 +162,24 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_reader", {
     },
 
     on_access_card_inserted = function (pos, node, access_card)
-      node.name = "yatm_data_card_readers:data_card_reader_on"
+      if yatm_security.is_chipped_node(pos) then
+        if yatm_security.is_stack_an_access_card_for_chipped_node(itemstack, pos) then
+          node.name = "yatm_data_card_readers:data_card_reader_on"
+          local prvkey = yatm_security.get_access_card_stack_prvkey(itemstack)
+          yatm_data_logic.emit_output_data_value(pos, prvkey)
+        else
+          node.name = "yatm_data_card_readers:data_card_reader_error"
+        end
+      else
+        -- if the swiper isn't chipped, ANY access card should work
+        local prvkey = yatm_security.get_access_card_stack_prvkey(itemstack)
+        if yatm_core.is_blank(prvkey) then
+          node.name = "yatm_data_card_readers:data_card_reader_error"
+        else
+          node.name = "yatm_data_card_readers:data_card_reader_on"
+          yatm_data_logic.emit_output_data_value(pos, prvkey)
+        end
+      end
       minetest.swap_node(pos, node)
     end,
   },

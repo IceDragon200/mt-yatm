@@ -79,10 +79,30 @@ yatm.register_stateful_node("yatm_mesecon_card_readers:mesecon_card_swiper", {
       local item = itemstack:get_definition()
 
       if yatm_core.groups.has_group(item, 'access_card') then
-        node.name = "yatm_mesecon_card_readers:mesecon_card_swiper_on"
+        if yatm_security.is_chipped_node(pos) then
+          local valid = false
+          if yatm_security.is_stack_an_access_card_for_chipped_node(itemstack, pos) then
+            node.name = "yatm_mesecon_card_readers:mesecon_card_swiper_on"
+            valid = true
+          else
+            node.name = "yatm_mesecon_card_readers:mesecon_card_swiper_error"
+          end
+        else
+          -- if the swiper isn't chipped, ANY access card should work
+          local prvkey = yatm_security.get_access_card_stack_prvkey(itemstack)
+          if yatm_core.is_blank(prvkey) then
+            -- unless it doesn't have a prvkey in which case this is an error
+            node.name = "yatm_mesecon_card_readers:mesecon_card_swiper_error"
+          else
+            node.name = "yatm_mesecon_card_readers:mesecon_card_swiper_on"
+            valid = true
+          end
+        end
         minetest.swap_node(pos, node)
         minetest.get_node_timer(pos):start(1.0)
-        mesecon.receptor_on(pos, mesecon.rules.buttonlike_get(node))
+        if valid then
+          mesecon.receptor_on(pos, mesecon.rules.buttonlike_get(node))
+        end
       end
     end,
   },
@@ -105,6 +125,37 @@ yatm.register_stateful_node("yatm_mesecon_card_readers:mesecon_card_swiper", {
     mesecon = {
       receptor = {
         state = mesecon.state.on,
+        rules = mesecon.rules.buttonlike_get,
+      }
+    },
+
+    on_timer = function (pos, elapsed)
+      local node = minetest.get_node(pos)
+      node.name = "yatm_mesecon_card_readers:mesecon_card_swiper_off"
+      minetest.swap_node(pos, node)
+      mesecon.receptor_off(pos, mesecon.rules.buttonlike_get(node))
+      return false
+    end,
+  },
+  error = {
+    groups = {
+      cracky = 1,
+      mesecon_needs_receiver = 1,
+      not_in_creative_inventory = 1,
+    },
+
+    tiles = {
+      "yatm_card_reader_swiper.top.png",
+      "yatm_card_reader_swiper.bottom.png",
+      "yatm_card_reader_swiper.side.png^[transformFX",
+      "yatm_card_reader_swiper.side.png",
+      "yatm_card_reader_common.back.error.png",
+      "yatm_card_reader_swiper.front.error.png",
+    },
+
+    mesecon = {
+      receptor = {
+        state = mesecon.state.off,
         rules = mesecon.rules.buttonlike_get,
       }
     },

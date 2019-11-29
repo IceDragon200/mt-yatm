@@ -101,6 +101,58 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_swiper", {
       "yatm_card_reader_data.back.off.png",
       "yatm_card_reader_swiper.data.front.off.png",
     },
+
+    on_rightclick = function (pos, node, _clicker, itemstack)
+      local item = itemstack:get_definition()
+
+      if yatm_core.groups.has_group(item, 'access_card') then
+        if yatm_security.is_chipped_node(pos) then
+          if yatm_security.is_stack_an_access_card_for_chipped_node(itemstack, pos) then
+            node.name = "yatm_data_card_readers:data_card_swiper_on"
+            local prvkey = yatm_security.get_access_card_stack_prvkey(itemstack)
+            yatm_data_logic.emit_output_data_value(pos, prvkey)
+          else
+            node.name = "yatm_data_card_readers:data_card_swiper_error"
+          end
+        else
+          -- if the swiper isn't chipped, ANY access card should work
+          local prvkey = yatm_security.get_access_card_stack_prvkey(itemstack)
+          if yatm_core.is_blank(prvkey) then
+            -- unless it doesn't have a prvkey in which case this is an error
+            node.name = "yatm_data_card_readers:data_card_swiper_error"
+          else
+            node.name = "yatm_data_card_readers:data_card_swiper_on"
+            yatm_data_logic.emit_output_data_value(pos, prvkey)
+          end
+        end
+        minetest.swap_node(pos, node)
+        minetest.get_node_timer(pos):start(1.0)
+      end
+    end,
+  },
+
+  error = {
+    groups = {
+      cracky = 1,
+      yatm_data_device = 1,
+      not_in_creative_inventory = 1,
+    },
+
+    tiles = {
+      "yatm_card_reader_swiper.top.png",
+      "yatm_card_reader_swiper.bottom.png",
+      "yatm_card_reader_swiper.side.png^[transformFX",
+      "yatm_card_reader_swiper.side.png",
+      "yatm_card_reader_data.back.error.png",
+      "yatm_card_reader_swiper.data.front.error.png",
+    },
+
+    on_timer = function (pos, elapsed)
+      local node = minetest.get_node(pos)
+      node.name = "yatm_data_card_readers:data_card_swiper_off"
+      minetest.swap_node(pos, node)
+      return false
+    end,
   },
 
   on = {
@@ -118,5 +170,12 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_swiper", {
       "yatm_card_reader_data.back.on.png",
       "yatm_card_reader_swiper.data.front.on.png",
     },
+
+    on_timer = function (pos, elapsed)
+      local node = minetest.get_node(pos)
+      node.name = "yatm_data_card_readers:data_card_swiper_off"
+      minetest.swap_node(pos, node)
+      return false
+    end,
   }
 })

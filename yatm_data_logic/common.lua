@@ -19,12 +19,11 @@ function yatm_data_logic.mark_all_inputs_for_active_receive(pos)
   end
 end
 
-function yatm_data_logic.emit_output_data(pos, data_name)
+function yatm_data_logic.emit_output_data_value(pos, dl)
   local meta = minetest.get_meta(pos)
 
   local sub_network_ids = data_network:get_sub_network_ids(pos)
 
-  local dl = meta:get_string("data_" .. data_name)
   if dl and #dl > 0 then
     for _, dir in ipairs(yatm_core.DIR6) do
       local local_port = meta:get_int("output_" .. dir)
@@ -44,6 +43,12 @@ function yatm_data_logic.emit_output_data(pos, data_name)
   else
     --print("no data", minetest.pos_to_string(pos), data_name, dump(dl))
   end
+end
+
+function yatm_data_logic.emit_output_data(pos, data_name)
+  local meta = minetest.get_meta(pos)
+  local dl = meta:get_string("data_" .. data_name)
+  yatm_data_logic.emit_output_data_value(pos, dl)
 end
 
 function yatm_data_logic.get_io_port_formspec(pos, meta, mode)
