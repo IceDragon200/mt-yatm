@@ -46,11 +46,11 @@ minetest.register_node("yatm_data_logic:data_buffer", {
     type = "device",
   },
   data_interface = {
-    on_load = function (pos, node)
+    on_load = function (self, pos, node)
       yatm_data_logic.mark_all_inputs_for_active_receive(pos)
     end,
 
-    receive_pdu = function (pos, node, dir, port, value)
+    receive_pdu = function (self, pos, node, dir, port, value)
       local meta = minetest.get_meta(pos)
       yatm_data_logic.emit_output_data(pos, "buffered_value")
       meta:set_string("data_buffered_value", value)

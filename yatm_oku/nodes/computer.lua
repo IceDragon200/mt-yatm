@@ -79,11 +79,11 @@ end
 
 local computer_data_interface = {}
 
-function computer_data_interface.on_load(pos, node)
+function computer_data_interface.on_load(self, pos, node)
   --
 end
 
-function computer_data_interface.receive_pdu(pos, node, dir, port, value)
+function computer_data_interface.receive_pdu(self, pos, node, dir, port, value)
   --
 end
 

@@ -65,6 +65,7 @@ end
 local function card_reader_refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
   local infotext =
+    meta:get_string("description") .. "\n" ..
     data_network:get_infotext(pos)
 
   meta:set_string("infotext", infotext)
@@ -130,11 +131,11 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_reader", {
   },
 
   data_interface = {
-    on_load = function (pos, node)
+    on_load = function (self, pos, node)
       --
     end,
 
-    receive_pdu = function (pos, node, dir, port, value)
+    receive_pdu = function (self, pos, node, dir, port, value)
       --
     end,
 

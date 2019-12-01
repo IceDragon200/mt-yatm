@@ -17,6 +17,7 @@ minetest.register_node("yatm_data_logic:data_memory", {
     type = "fixed",
     fixed = {
       yatm_core.Cuboid:new(0, 0, 0, 16, 4, 16):fast_node_box(),
+      yatm_core.Cuboid:new(3, 4, 3, 10, 1, 10):fast_node_box(),
     },
   },
 
@@ -42,11 +43,12 @@ minetest.register_node("yatm_data_logic:data_memory", {
     type = "device",
   },
   data_interface = {
-    on_load = function (pos, node)
+    on_load = function (self, pos, node)
       yatm_data_logic.mark_all_inputs_for_active_receive(pos)
     end,
 
-    receive_pdu = function (pos, node, dir, port, value)
+    receive_pdu = function (self, pos, node, dir, port, value)
+      --
     end,
 
     get_programmer_formspec = function (self, pos, clicker, pointed_thing, assigns)

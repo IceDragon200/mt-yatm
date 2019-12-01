@@ -108,11 +108,11 @@ yatm.devices.register_stateful_network_device({
     type = "device",
   },
   data_interface = {
-    on_load = function (pos, node)
+    on_load = function (self, pos, node)
       --
     end,
 
-    receive_pdu = function (pos, node, dir, port, value)
+    receive_pdu = function (self, pos, node, dir, port, value)
       print("received a pdu", minetest.pos_to_string(pos), node.name, dir, port, value)
     end,
   },

@@ -53,7 +53,7 @@ minetest.register_node("yatm_data_logic:data_pulser", {
     },
   },
   data_interface = {
-    update = function (pos, node, dtime)
+    update = function (self, pos, node, dtime)
       local meta = minetest.get_meta(pos)
 
       local time = meta:get_float("time")
@@ -78,11 +78,11 @@ minetest.register_node("yatm_data_logic:data_pulser", {
       meta:set_float("time", time)
     end,
 
-    on_load = function (pos, node)
+    on_load = function (self, pos, node)
       -- toggles don't need to bind listeners of any sorts
     end,
 
-    receive_pdu = function (pos, node, dir, port, value)
+    receive_pdu = function (self, pos, node, dir, port, value)
     end,
 
     get_programmer_formspec = function (self, pos, clicker, pointed_thing, assigns)

@@ -81,7 +81,7 @@ for key, entry in pairs(INS) do
 end
 
 local function play_instrument(pos, name, key, velo)
-  minetest.log("action", "playing instrument sound name=" .. name .. " key=" .. key .. " velocity=" .. velo)
+  --minetest.log("action", "playing instrument sound name=" .. name .. " key=" .. key .. " velocity=" .. velo)
   velo = velo or 127
   local ins = INS[name]
   local filename = ins.samples[1 + (key - 1) % ins.count]
@@ -97,7 +97,7 @@ local function noteblock_play_audio(pos, key, velo)
   local tone_node_pos = vector.add(pos, yatm_core.V3_DOWN)
   local tone_node = minetest.get_node(tone_node_pos)
 
-  print("noteblock_play_audio", minetest.pos_to_string(tone_node_pos), tone_node.name, dump(yatm_core.groups.get_item_groups(tone_node.name)))
+  --print("noteblock_play_audio", minetest.pos_to_string(tone_node_pos), tone_node.name, dump(yatm_core.groups.get_item_groups(tone_node.name)))
 
   if yatm_core.groups.item_has_group(tone_node.name, "wood") then
     play_instrument(pos, "bass", key, velo)
@@ -186,12 +186,12 @@ minetest.register_node("yatm_data_noteblock:data_noteblock", {
     type = "device",
   },
   data_interface = {
-    on_load = function (pos, node)
+    on_load = function (self, pos, node)
       yatm_data_logic.mark_all_inputs_for_active_receive(pos)
     end,
 
-    receive_pdu = function (pos, node, dir, local_port, value)
-      print("receive_pdu", minetest.pos_to_string(pos), node.name, dir, local_port, dump(value))
+    receive_pdu = function (self, pos, node, dir, local_port, value)
+      --print("receive_pdu", minetest.pos_to_string(pos), node.name, dir, local_port, dump(value))
       local meta = minetest.get_meta(pos)
       local payload = yatm_core.string_hex_unescape(value)
       local key = string.byte(payload, 1)

@@ -3,6 +3,8 @@ local data_network = assert(yatm.data_network)
 yatm.register_stateful_node("yatm_data_logic:data_momentary_button", {
   description = "Data Momentary Button",
 
+  drop = "yatm_data_logic:data_momentary_button_off",
+
   groups = {
     cracky = 1,
     data_programmable = 1,
@@ -18,11 +20,11 @@ yatm.register_stateful_node("yatm_data_logic:data_momentary_button", {
     type = "device",
   },
   data_interface = {
-    on_load = function (pos, node)
+    on_load = function (self, pos, node)
       -- toggles don't need to bind listeners of any sorts
     end,
 
-    receive_pdu = function (pos, node, dir, port, value)
+    receive_pdu = function (self, pos, node, dir, port, value)
       --
     end,
 
@@ -150,6 +152,13 @@ yatm.register_stateful_node("yatm_data_logic:data_momentary_button", {
   },
 
   on = {
+    groups = {
+      cracky = 1,
+      data_programmable = 1,
+      yatm_data_device = 1,
+      not_in_creative_inventory = 1,
+    },
+
     node_box = {
       type = "fixed",
       fixed = {

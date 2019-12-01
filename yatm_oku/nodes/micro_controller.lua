@@ -109,16 +109,16 @@ end
 
 local micro_controller_data_interface = {}
 
-function micro_controller_data_interface.on_load(pos, node)
+function micro_controller_data_interface.on_load(self, pos, node)
   --
 end
 
-function micro_controller_data_interface.update(pos, node, dt)
+function micro_controller_data_interface.update(self, pos, node, dt)
   --
   --print("Executing micro controller", dt, minetest.pos_to_string(pos), node.name)
 end
 
-function micro_controller_data_interface.receive_pdu(pos, node, dir, port, value)
+function micro_controller_data_interface.receive_pdu(self, pos, node, dir, port, value)
 end
 
 local groups = {

@@ -12,11 +12,11 @@ local function parse_shelf_item_static_data(static_data)
   if yatm_core.is_blank(static_data) then
     return nil
   end
-  local data = yatm_core.string_split(static_data, "data:")
+  local data = string.split(static_data, "data:")
   if yatm_core.is_blank(data[2]) then
     return nil
   end
-  local attrs = yatm_core.string_split(data[2], "|")
+  local attrs = string.split(data[2], "|")
   if #attrs == 3 then
     local shelf_pos = attrs[1]
     local scale = tonumber(attrs[2])
@@ -248,7 +248,7 @@ minetest.register_entity("yatm_item_shelves:shelf_item", {
     self.scale = data.scale
     self.item_name = data.item_name
 
-    local pos_and_index = yatm_core.string_split(data.shelf_pos, ",")
+    local pos_and_index = string.split(data.shelf_pos, ",")
 
     local x = tonumber(pos_and_index[1])
     local y = tonumber(pos_and_index[2])

@@ -87,7 +87,7 @@ local fluid_sensor_data_network_device = {
 
 local fluid_sensor_data_interface = {}
 
-function fluid_sensor_data_interface.update(pos, node, dt)
+function fluid_sensor_data_interface:update(pos, node, dt)
   --
   -- TODO: Allow configuring a sampling interval for the sensor
   --print("FluidSensor", "data update", minetest.pos_to_string(pos), node.name)
@@ -165,10 +165,10 @@ function fluid_sensor_data_interface.update(pos, node, dt)
   end
 end
 
-function fluid_sensor_data_interface.on_load(pos, node)
+function fluid_sensor_data_interface:on_load(pos, node)
 end
 
-function fluid_sensor_data_interface.receive_pdu(pos, node, dir, port, value)
+function fluid_sensor_data_interface:receive_pdu(pos, node, dir, port, value)
 end
 
 local function fluid_sensor_on_construct(pos)

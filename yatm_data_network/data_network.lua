@@ -26,6 +26,7 @@ DataNetwork.COLOR_RANGE = {
 }
 
 function ic:initialize()
+  self.m_counter = 0
   self.m_queued_refreshes = {}
   self.m_networks = {}
   self.m_sub_networks = {}
@@ -37,6 +38,10 @@ function ic:initialize()
   yatm.clusters:observe('on_block_expired', 'yatm_data_network/block_unloader', function (block_id)
     self:unload_block(block_id)
   end)
+end
+
+function ic:log(...)
+  print("yatm.data_network", self.m_counter, ...)
 end
 
 function ic:get_port_offset_for_color(color)
@@ -98,7 +103,7 @@ end
 -- Call this from a node to emit a value unto it's network on a specified port
 -- You can emit on any port, doesn't mean anyone will receive your value.
 function ic:send_value(pos, dir, local_port, value)
-  print("data_network", "send_value", minetest.pos_to_string(pos), dir, local_port, dump(value))
+  self:log("send_value", minetest.pos_to_string(pos), dir, local_port, dump(value))
   local member_id = minetest.hash_node_position(pos)
   local member = self.m_members[member_id]
   if member and member.network_id then
@@ -216,7 +221,7 @@ end
 
 -- @spec add_node(Vector3.t, Node.t) :: DataNetwork.t
 function ic:add_node(pos, node)
-  print("data_network", "add_node", minetest.pos_to_string(pos), node.name)
+  self:log("add_node", minetest.pos_to_string(pos), node.name)
   local member_id = minetest.hash_node_position(pos)
   local member = self.m_members[member_id]
   if member then
@@ -259,7 +264,7 @@ end
 
 -- @spec update_member(Vector3.t, Node.t) :: DataNetwork.t
 function ic:update_member(pos, node)
-  print("data_network", "update_member", minetest.pos_to_string(pos), node.name)
+  self:log("update_member", minetest.pos_to_string(pos), node.name)
   local member_id = minetest.hash_node_position(pos)
   local member = self.m_members[member_id]
   if member then
@@ -278,7 +283,7 @@ function ic:update_member(pos, node)
 end
 
 function ic:upsert_member(pos, node)
-  print("data_network", "upsert_member", minetest.pos_to_string(pos), node.name)
+  self:log("upsert_member", minetest.pos_to_string(pos), node.name)
   local member_id = minetest.hash_node_position(pos)
   local member = self.m_members[member_id]
   if member then
@@ -290,7 +295,7 @@ end
 
 -- @spec unregister_member(Vector3.t, Node.t | nil) :: DataNetwork.t
 function ic:unregister_member(pos, node)
-  print("unregister_member/2 is deprecated please use remove_node/2 instead")
+  self:log("unregister_member/2", "is deprecated please use remove_node/2 instead")
   return self:remove_node(pos, node)
 end
 
@@ -320,7 +325,7 @@ function ic:_send_value_to_network(network_id, member_id, dir, local_port, value
           yatm_core.table_bury(network.ready_to_send, {sub_network_id, global_port, member_id, dir}, value)
         end
       else
-        print("ERR: ", member.node.name, "port out of range", local_port, "expected to be between 1 and " .. port_offset.range)
+        self:log(member.node.name, "port out of range", local_port, "expected to be between 1 and " .. port_offset.range)
       end
     else
       --print("WARN: ", member.node.name, "does not have an attached color; cannot send")
@@ -379,7 +384,7 @@ function ic:_unmark_ready_to_receive_in_network(network_id, member_id, dir, loca
             yatm_core.table_bury(network.ready_to_receive, {sub_network_id, global_port, member_id, dir}, state)
           end
         else
-          print("ERR: ", member.node.name, "port out of range", local_port, "expected to be between 1 and " .. port_offset.range)
+          self:log(member.node.name, "port out of range", local_port, "expected to be between 1 and " .. port_offset.range)
         end
       else
         --print("WARN: ", member.node.name, "does not have an attached color; cannot be readied for receive")
@@ -405,7 +410,7 @@ function ic:_mark_ready_to_receive_in_network(network_id, member_id, dir, local_
           yatm_core.table_bury(network.ready_to_receive, {sub_network_id, global_port, member_id, dir}, state)
         end
       else
-        print("ERR: ", member.node.name, "port out of range", local_port, "expected to be between 1 and " .. port_offset.range)
+        self:log(member.node.name, "port out of range", local_port, "expected to be between 1 and " .. port_offset.range)
       end
     else
       --print("WARN: ", member.node.name, "does not have an attached color; cannot be readied for receive")
@@ -423,7 +428,7 @@ function ic:generate_network_id()
 end
 
 function ic:_queue_refresh(base_pos, reason)
-  print("queue_refresh", minetest.pos_to_string(base_pos), reason)
+  self:log("queue_refresh", minetest.pos_to_string(base_pos), reason)
   local hash = minetest.hash_node_position(base_pos)
   self.m_queued_refreshes[hash] = {
     pos = base_pos,
@@ -451,7 +456,7 @@ end
 
 function ic:do_register_member_groups(member)
   for group, _priority in pairs(member.groups) do
-    print("data_network", "do_register_member_groups", "registering to group", member.id, group)
+    self:log("do_register_member_groups", "registering to group", member.id, group)
     self.m_members_by_group[group] = self.m_members_by_group[group] or {}
     self.m_members_by_group[group][member.id] = true
 
@@ -495,7 +500,7 @@ function ic:do_unregister_member_from_networks(member)
 end
 
 function ic:_internal_remove_node(pos, node)
-  print("data_network", "unregister_member", minetest.pos_to_string(pos))
+  self:log("unregister_member", minetest.pos_to_string(pos))
   local member_id = minetest.hash_node_position(pos)
   local entry = self.m_members[member_id]
   if entry then
@@ -540,8 +545,7 @@ function ic:remove_network(network_id)
   return self
 end
 
-function ic:update_network(network, dt)
-  -- Need both senders and receivers
+function ic:handle_network_dispatch(network, dt)
   if not yatm_core.is_table_empty(network.ready_to_send) and
      not yatm_core.is_table_empty(network.ready_to_receive) then
 
@@ -592,13 +596,13 @@ function ic:update_network(network, dt)
 
                         if nodedef.data_interface then
                           local local_port = self:net_port_to_local_port(port, receiver.attached_colors[receiver_dir])
-                          nodedef.data_interface.receive_pdu(receiver.pos,
+                          nodedef.data_interface:receive_pdu(receiver.pos,
                                                              receiver_node,
                                                              receiver_dir,
                                                              local_port,
                                                              value)
                         else
-                          print("WARN: ", receiver_node.name, "does not have a data interface")
+                          self:log("WARN: `" ..  receiver_node.name .. "` does not have a data interface")
                         end
                       end
                     end
@@ -619,6 +623,13 @@ function ic:update_network(network, dt)
       end
     end
   end
+end
+
+function ic:update_network(network, dt)
+  --self:log("update_network", network.id, dt)
+
+  -- Need both senders and receivers
+  self:handle_network_dispatch(network, dt)
 
   local updatable = network.members_by_group["updatable"]
   if updatable then
@@ -629,13 +640,13 @@ function ic:update_network(network, dt)
         local nodedef = minetest.registered_nodes[member.node.name]
         if nodedef.data_interface then
           local node = minetest.get_node(member.pos)
-          nodedef.data_interface.update(member.pos, node, dt)
+          nodedef.data_interface:update(member.pos, node, dt)
         else
-          print("WARN: Node cannot be subject to updatable group without a data_interface",
+          self:log("WARN: Node cannot be subject to updatable group without a data_interface",
                 minetest.pos_to_string(member.pos), member.node.name)
         end
       else
-        print("WARN: Network contains invalid member", member_id)
+        self:log("WARN: Network contains invalid member", member_id)
         needs_fix = true
       end
     end
@@ -800,7 +811,7 @@ function ic:refresh_from_pos(base_pos)
   end
 
   if not yatm_core.is_table_empty(network.members) then
-    print("data_network", "new data network", network.id)
+    self:log("new data network", network.id)
     self.m_networks[network.id] = network
 
     for member_id, _ in pairs(network.members) do
@@ -840,7 +851,7 @@ function ic:refresh_from_pos(base_pos)
       if nodedef then
         if nodedef.data_interface then
           -- a temporary and lazy fix to get some nodes loading corecctly
-          nodedef.data_interface.on_load(member.pos, node)
+          nodedef.data_interface:on_load(member.pos, node)
         end
       end
 
@@ -913,7 +924,7 @@ function ic:_build_sub_network(network, origin_pos)
     devices = {}
   }
 
-  print("data_network", "new sub network", "network_id=" .. network.id, "sub_network_id=" .. sub_network_id)
+  self:log("new sub network", "network_id=" .. network.id, "sub_network_id=" .. sub_network_id)
 
   local sub_network = network.sub_networks[sub_network_id]
 
@@ -941,16 +952,17 @@ function ic:_build_sub_network(network, origin_pos)
 end
 
 function ic:update(dt)
+  self.m_counter = self.m_counter + 1
   if not yatm_core.is_table_empty(self.m_queued_refreshes) then
     self.m_resolution_id = self.m_resolution_id + 1
-    print("data_network", "starting queued refreshes", "resolution_id=" .. self.m_resolution_id)
+    self:log("starting queued refreshes", "resolution_id=" .. self.m_resolution_id)
 
     local old_queued_refreshes = self.m_queued_refreshes
     self.m_queued_refreshes = {}
 
     for hash, event in pairs(old_queued_refreshes) do
       if not event.cancelled then
-        --print("data_network", "refreshing from position", minetest.pos_to_string(event.pos))
+        --self:log("refreshing from position", minetest.pos_to_string(event.pos))
         self:refresh_from_pos(event.pos)
       end
     end
@@ -963,13 +975,13 @@ end
 
 function ic:terminate()
   --
-  print("yatm.data_network", "terminating")
+  self:log("terminating")
   -- release everything
   self.m_queued_refreshes = {}
   self.m_networks = {}
   self.m_members = {}
   self.m_members_by_group = {}
-  print("yatm.data_network", "terminated")
+  self:log("terminated")
 end
 
 local data_network = DataNetwork:new()

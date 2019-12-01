@@ -12,7 +12,8 @@ local function mesecon_rules(node)
 end
 
 yatm.register_stateful_node("yatm_data_to_mesecon:data_to_mesecon", {
-  description = "Data To Mesecon",
+  --description = "Data To Mesecon",
+  description = "Data Switcher",
 
   groups = {
     cracky = 1,
@@ -52,11 +53,11 @@ yatm.register_stateful_node("yatm_data_to_mesecon:data_to_mesecon", {
     type = "device",
   },
   data_interface = {
-    on_load = function (pos, node)
+    on_load = function (self, pos, node)
       yatm_data_logic.mark_all_inputs_for_active_receive(pos)
     end,
 
-    receive_pdu = function (pos, node, dir, port, value)
+    receive_pdu = function (self, pos, node, dir, port, value)
       if node.name == "yatm_data_to_mesecon:data_to_mesecon_off" then
         node.name = "yatm_data_to_mesecon:data_to_mesecon_on"
         minetest.swap_node(pos, node)

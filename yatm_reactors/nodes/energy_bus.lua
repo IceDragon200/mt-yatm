@@ -74,10 +74,10 @@ yatm_reactors.register_stateful_reactor_node({
   },
 
   data_interface = {
-    on_load = function (pos, node)
+    on_load = function (self, pos, node)
     end,
 
-    receive_pdu = function (pos, node, dir, port, value)
+    receive_pdu = function (self, pos, node, dir, port, value)
       --
     end,
   },

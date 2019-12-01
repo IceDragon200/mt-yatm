@@ -81,10 +81,10 @@ local groups = {
 
 local assembler_data_interface = {}
 
-function assembler_data_interface.on_load(pos, node)
+function assembler_data_interface.on_load(self, pos, node)
 end
 
-function assembler_data_interface.receive_pdu(pos, node, dir, port, value)
+function assembler_data_interface.receive_pdu(self, pos, node, dir, port, value)
   --
 end
 

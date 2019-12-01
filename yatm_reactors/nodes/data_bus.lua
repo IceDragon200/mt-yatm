@@ -51,10 +51,10 @@ for _, variant in ipairs({"hazard", "coolant", "signal"}) do
       type = "device",
     },
     data_interface = {
-      on_load = function (pos, node)
+      on_load = function (self, pos, node)
       end,
 
-      receive_pdu = function (pos, node, dir, port, value)
+      receive_pdu = function (self, pos, node, dir, port, value)
         --
       end,
     },
