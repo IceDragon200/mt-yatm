@@ -109,6 +109,11 @@ yatm_core.DIR_TO_STRING1 = {
   [yatm_core.D_UP] = "U",
 }
 
+yatm_core.STRING1_TO_DIR = {}
+for dir, str in pairs(yatm_core.DIR_TO_STRING1) do
+  yatm_core.STRING1_TO_DIR[str] = dir
+end
+
 -- And the inversions
 yatm_core.INVERTED_DIR6 = {
   [yatm_core.D_NONE] = yatm_core.D_NONE,
