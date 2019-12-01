@@ -58,16 +58,23 @@ yatm.register_stateful_node("yatm_data_to_mesecon:data_to_mesecon", {
     end,
 
     receive_pdu = function (self, pos, node, dir, port, value)
+      local meta = minetest.get_meta(pos)
+      local new_value = yatm_core.string_hex_unescape(value)
+
       if node.name == "yatm_data_to_mesecon:data_to_mesecon_off" then
-        node.name = "yatm_data_to_mesecon:data_to_mesecon_on"
-        minetest.swap_node(pos, node)
-        yatm_data_logic.emit_output_data(pos, "on")
-        mesecon.receptor_on(pos, mesecon_rules(node))
+        if yatm_core.string_hex_unescape(meta:get_string("data_on")) == new_value then
+          node.name = "yatm_data_to_mesecon:data_to_mesecon_on"
+          minetest.swap_node(pos, node)
+          yatm_data_logic.emit_output_data(pos, "on")
+          mesecon.receptor_on(pos, mesecon_rules(node))
+        end
       elseif node.name == "yatm_data_to_mesecon:data_to_mesecon_on" then
-        node.name = "yatm_data_to_mesecon:data_to_mesecon_off"
-        minetest.swap_node(pos, node)
-        yatm_data_logic.emit_output_data(pos, "off")
-        mesecon.receptor_off(pos, mesecon_rules(node))
+        if yatm_core.string_hex_unescape(meta:get_string("data_off")) == new_value then
+          node.name = "yatm_data_to_mesecon:data_to_mesecon_off"
+          minetest.swap_node(pos, node)
+          yatm_data_logic.emit_output_data(pos, "off")
+          mesecon.receptor_off(pos, mesecon_rules(node))
+        end
       end
     end,
 
