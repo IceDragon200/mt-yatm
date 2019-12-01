@@ -13,6 +13,7 @@ local data_interface = {
 
   receive_pdu = function (self, pos, node, dir, port, value)
     local meta = minetest.get_meta(pos)
+
     local sub_network_ids = data_network:get_sub_network_ids(pos)
     local input_port = meta:get_int("input_" .. dir)
     if input_port > 0 then
@@ -30,7 +31,17 @@ local data_interface = {
         end
       end
 
-      self:operate(pos, node, result, meta:get_string("operands"))
+      local ops = meta:get_string("operands")
+      local operands = {}
+      for i = 1,#ops do
+        operands[i] = string.sub(ops, i, i)
+      end
+
+      local new_value = self:operate(pos, node, result, operands)
+
+      meta:set_string("last_value", new_value)
+
+      yatm.queue_refresh_infotext(pos, node)
     end
   end,
 
@@ -60,7 +71,7 @@ local data_interface = {
         formspec ..
         "label[0,0;Data Configuration]" ..
         "label[0,1;Operands]" ..
-        "field[0.25,2;4,4;operands;Operands;" .. minetest.formspec_escape(meta:get_string("operands")) .. "]"
+        "field[0.25,2;8,1;operands;Operands;" .. minetest.formspec_escape(meta:get_string("operands")) .. "]"
     end
 
     return formspec
@@ -108,7 +119,11 @@ local data_interface = {
         end
       end
 
-      meta:set_string("operands", table.concat(operands))
+      result = table.concat(result)
+      meta:set_string("operands", result)
+      if result ~= operands then
+        needs_refresh = true
+      end
     end
 
     if needs_refresh then
@@ -179,6 +194,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   refresh_infotext = function (pos)
     local meta = minetest.get_meta(pos)
     local infotext =
+      "Last Output: " .. meta:get_string("last_value") .. "\n" ..
       data_network:get_infotext(pos)
 
     meta:set_string("infotext", infotext)
@@ -207,7 +223,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
           if #value > 0 then
             local result = string_hex_escape(value)
             yatm_data_logic.emit_output_data_value(pos, result)
-            break
+            return result
           end
         end
       end,
@@ -231,9 +247,9 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         local accumulator = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
         local carry = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
-        for i = 1,math.min(#value, 16) do
+        for i = 1,16 do
           for dir, value in pairs(values) do
-            local byte = string.byte(value, i)
+            local byte = string.byte(value, i) or 0
 
             accumulator[i] = accumulator[i] + byte + carry[i]
             carry[i] = 0
@@ -251,6 +267,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         local value = table.concat(result)
         value = yatm_core.string_hex_escape(value)
         yatm_data_logic.emit_output_data_value(pos, value)
+
+        return value
       end,
     }),
   },
@@ -273,9 +291,9 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         local accumulator = {}
 
         for _, dir_code in ipairs(operands) do
-          for i = 1,math.min(#value, 16) do
-            local value = values[yatm_core.STRING1_TO_DIR[dir_code]]
-            local byte = string.byte(value, i)
+          local value = values[yatm_core.STRING1_TO_DIR[dir_code]]
+          for i = 1,16 do
+            local byte = string.byte(value, i) or 0
 
             if accumulator[i] then
               accumulator[i] = accumulator[i] - byte
@@ -295,6 +313,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         local value = table.concat(result)
         value = yatm_core.string_hex_escape(value)
         yatm_data_logic.emit_output_data_value(pos, value)
+
+        return value
       end,
     }),
   },
@@ -316,9 +336,9 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         local accumulator = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
         local carry = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
-        for i = 1,math.min(#value, 16) do
+        for i = 1,16 do
           for dir, value in pairs(values) do
-            local byte = string.byte(value, i)
+            local byte = string.byte(value, i) or 0
 
             accumulator[i] = accumulator[i] * byte + carry[i]
             carry[i] = 0
@@ -336,6 +356,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         local value = table.concat(result)
         value = yatm_core.string_hex_escape(value)
         yatm_data_logic.emit_output_data_value(pos, value)
+
+        return value
       end,
     }),
   },
@@ -357,9 +379,9 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         local accumulator = {}
 
         for _, dir_code in ipairs(operands) do
-          for i = 1,math.min(#value, 16) do
+          for i = 1,16 do
             local value = values[yatm_core.STRING1_TO_DIR[dir_code]]
-            local byte = string.byte(value, i)
+            local byte = string.byte(value, i) or 0
 
             if accumulator[i] then
               if byte == 0 then
@@ -388,8 +410,9 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         local value = table.concat(result)
         value = yatm_core.string_hex_escape(value)
         yatm_data_logic.emit_output_data_value(pos, value)
-      end,
 
+        return value
+      end,
     }),
   },
 
@@ -421,6 +444,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
 
         value = yatm_core.string_hex_escape(accumulator)
         yatm_data_logic.emit_output_data_value(pos, value)
+
+        return value
       end,
     }),
   },
@@ -453,6 +478,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
 
         value = yatm_core.string_hex_escape(accumulator)
         yatm_data_logic.emit_output_data_value(pos, value)
+
+        return value
       end,
     }),
   },
@@ -476,7 +503,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         local identity = {}
 
         for dir, value in pairs(values) do
-          for i = 1,math.min(#value, 16) do
+          for i = 1,16 do
             identity[i] = identity[i] or string.sub(value, i, i)
           end
         end
@@ -487,9 +514,12 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
 
         local value = table.concat(identity)
         yatm_data_logic.emit_output_data_value(pos, value)
+
+        return value
       end,
     }),
   },
+
   add_vector = {
     description = "Data Arithmetic [Addition Vector]\nAdds all input data",
 
@@ -506,9 +536,9 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       operate = function (self, pos, node, values, operands)
         local accumulator = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
-        for i = 1,math.min(#value, 16) do
+        for i = 1,16 do
           for dir, value in pairs(values) do
-            local byte = string.byte(value, i)
+            local byte = string.byte(value, i) or 0
 
             accumulator[i] = (accumulator[i] + byte) % 256
           end
@@ -521,9 +551,12 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         local value = table.concat(result)
         value = yatm_core.string_hex_escape(value)
         yatm_data_logic.emit_output_data_value(pos, value)
+
+        return value
       end,
     }),
   },
+
   subtract_vector = {
     description = "Data Arithmetic [Subtract Vector]\nSubtracts input data",
 
@@ -540,9 +573,9 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       operate = function (self, pos, node, values, operands)
         local accumulator = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
-        for i = 1,math.min(#value, 16) do
+        for i = 1,16 do
           for dir, value in pairs(values) do
-            local byte = string.byte(value, i)
+            local byte = string.byte(value, i) or 0
 
             accumulator[i] = (accumulator[i] - byte) % 256
           end
@@ -555,6 +588,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         local value = table.concat(result)
         value = yatm_core.string_hex_escape(value)
         yatm_data_logic.emit_output_data_value(pos, value)
+
+        return value
       end,
     }),
   },
@@ -575,9 +610,9 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       operate = function (self, pos, node, values, operands)
         local accumulator = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
-        for i = 1,math.min(#value, 16) do
+        for i = 1,16 do
           for dir, value in pairs(values) do
-            local byte = string.byte(value, i)
+            local byte = string.byte(value, i) or 0
 
             accumulator[i] = (accumulator[i] * byte) % 256
           end
@@ -590,6 +625,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         local value = table.concat(result)
         value = yatm_core.string_hex_escape(value)
         yatm_data_logic.emit_output_data_value(pos, value)
+
+        return value
       end,
     }),
   },
@@ -610,9 +647,9 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       operate = function (self, pos, node, values, operands)
         local accumulator = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
-        for i = 1,math.min(#value, 16) do
+        for i = 1,16 do
           for dir, value in pairs(values) do
-            local byte = string.byte(value, i)
+            local byte = string.byte(value, i) or 0
 
             if byte == 0 then
               accumulator[i] = 255 -- simulate some infinite condition without crashing
@@ -629,6 +666,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         local value = table.concat(result)
         value = yatm_core.string_hex_escape(value)
         yatm_data_logic.emit_output_data_value(pos, value)
+
+        return value
       end,
     }),
   },
@@ -649,9 +688,9 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       operate = function (self, pos, node, values, operands)
         local accumulator = {}
 
-        for i = 1,math.min(#value, 16) do
+        for i = 1,16 do
           for dir, value in pairs(values) do
-            local byte = string.byte(value, i)
+            local byte = string.byte(value, i) or 0
 
             if accumulator[i] then
               if byte > accumulator[i] then
@@ -670,6 +709,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         local value = table.concat(result)
         value = yatm_core.string_hex_escape(value)
         yatm_data_logic.emit_output_data_value(pos, value)
+
+        return value
       end,
     }),
   },
@@ -690,9 +731,9 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       operate = function (self, pos, node, values, operands)
         local accumulator = {}
 
-        for i = 1,math.min(#value, 16) do
+        for i = 1,16 do
           for dir, value in pairs(values) do
-            local byte = string.byte(value, i)
+            local byte = string.byte(value, i) or 0
 
             if accumulator[i] then
               if byte < accumulator[i] then
@@ -711,6 +752,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         local value = table.concat(result)
         value = yatm_core.string_hex_escape(value)
         yatm_data_logic.emit_output_data_value(pos, value)
+
+        return value
       end,
     }),
   },

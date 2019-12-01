@@ -48,9 +48,9 @@ yatm.register_stateful_node("yatm_data_logic:data_toggle_button", {
           formspec ..
           "label[0,0;Data Configuration]" ..
           "label[0,1;Left (0)]" ..
-          "field[0.25,2;4,4;data_left;Data;" .. minetest.formspec_escape(meta:get_string("data_left")) .. "]" ..
+          "field[0.25,2;4,1;data_left;Data;" .. minetest.formspec_escape(meta:get_string("data_left")) .. "]" ..
           "label[4,1;Right (1)]" ..
-          "field[4.25,2;4,4;data_right;Data;" .. minetest.formspec_escape(meta:get_string("data_right")) .. "]"
+          "field[4.25,2;4,1;data_right;Data;" .. minetest.formspec_escape(meta:get_string("data_right")) .. "]"
       end
 
       return formspec

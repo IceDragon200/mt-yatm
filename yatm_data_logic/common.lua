@@ -9,6 +9,7 @@ end
 -- Marks all input ports as active, that is to ALWAYS receive data
 --
 function yatm_data_logic.mark_all_inputs_for_active_receive(pos, options)
+  assert(pos, "requires a position")
   options = options or {}
   local meta = minetest.get_meta(pos)
 

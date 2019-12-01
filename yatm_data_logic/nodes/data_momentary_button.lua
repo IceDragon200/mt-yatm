@@ -52,9 +52,9 @@ yatm.register_stateful_node("yatm_data_logic:data_momentary_button", {
           formspec ..
           "label[0,0;Data Configuration]" ..
           "label[0,1;On Trigger]" ..
-          "field[0.25,2;4,4;data_trigger;Data;" .. minetest.formspec_escape(meta:get_string("data_trigger")) .. "]" ..
+          "field[0.25,2;4,1;data_trigger;Data;" .. minetest.formspec_escape(meta:get_string("data_trigger")) .. "]" ..
           "label[4,1;On Release]" ..
-          "field[4.25,2;4,4;data_release;Data;" .. minetest.formspec_escape(meta:get_string("data_release")) .. "]"
+          "field[4.25,2;4,1;data_release;Data;" .. minetest.formspec_escape(meta:get_string("data_release")) .. "]"
       end
 
       return formspec
