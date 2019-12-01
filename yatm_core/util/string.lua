@@ -39,6 +39,74 @@ local function byte_to_hex(byte)
   return "\\x" .. HEX_TABLE[hinibble] .. HEX_TABLE[lonibble]
 end
 
+function yatm_core.string_bin_encode(str)
+  local result = {}
+  local bytes = {string.byte(str, 1, -1)}
+
+  local j = 1
+
+  for i, byte in ipairs(bytes) do
+    local b0 = byte % 2
+    local b1 = math.floor(byte / 2) % 2
+    local b2 = math.floor(byte / 4) % 2
+    local b3 = math.floor(byte / 8) % 2
+    local b4 = math.floor(byte / 16) % 2
+    local b5 = math.floor(byte / 32) % 2
+    local b6 = math.floor(byte / 64) % 2
+    local b7 = math.floor(byte / 128) % 2
+
+    result[j] = b7
+    result[j + 1] = b6
+    result[j + 2] = b5
+    result[j + 3] = b4
+    result[j + 4] = b3
+    result[j + 5] = b2
+    result[j + 6] = b1
+    result[j + 7] = b0
+    j = j + 8
+  end
+
+  return table.concat(result)
+end
+
+function yatm_core.string_dec_encode(str)
+  local result = {}
+  local bytes = {string.byte(str, 1, -1)}
+
+  local j = 1
+
+  for i, byte in ipairs(bytes) do
+    local h = math.floor(byte / 100) % 10
+    local t = math.floor(byte / 10) % 10
+    local o = byte % 10
+
+    result[j] = h
+    result[j + 1] = t
+    result[j + 2] = o
+
+    j = j + 3
+  end
+
+  return table.concat(result)
+end
+
+function yatm_core.string_hex_encode(str)
+  local result = {}
+  local bytes = {string.byte(str, 1, -1)}
+
+  local j = 1
+
+  for i, byte in ipairs(bytes) do
+    local hinibble = math.floor(byte / 16)
+    local lonibble = byte % 16
+    result[j] = HEX_TABLE[hinibble]
+    result[j + 1] = HEX_TABLE[lonibble]
+    j = j + 2
+  end
+
+  return table.concat(result)
+end
+
 function yatm_core.string_hex_escape(str, mode)
   mode = mode or "non-ascii"
 
@@ -47,7 +115,8 @@ function yatm_core.string_hex_escape(str, mode)
 
   for i, byte in ipairs(bytes) do
     if mode == "non-ascii" then
-      if byte >= 33 and byte < 127 then
+      -- 92 /
+      if byte >= 32 and byte < 127 and byte ~= 92 then
         result[i] = string.char(byte)
       else
         result[i] = byte_to_hex(byte)
@@ -93,6 +162,9 @@ function yatm_core.string_hex_unescape(str)
       elseif bytes[i + 1] == 92 then
         result[j] = "\\"
         i = i + 1
+      else
+        result[j] = bytes[i + 1]
+        i = i + 1
       end
     else
       result[j] = string.char(byte)
@@ -100,8 +172,6 @@ function yatm_core.string_hex_unescape(str)
     end
     j = j + 1
   end
-
-  print(dump(result))
 
   return table.concat(result)
 end
@@ -158,7 +228,8 @@ end
 -- Modified for this
 function yatm_core.string_split_iter(str, pat)
   pat = pat or '%s+'
-  local st, g = 1, str:gmatch("()("..pat..")")
+  local st, g = 1, str:gmatch("()(" .. pat .. ")")
+
   local function getter(segs, seps, sep, cap1, ...)
     st = sep and seps + #sep
     return str:sub(segs, (seps or 0) - 1), cap1 or sep, ...
@@ -173,14 +244,22 @@ end
 
 -- @spec split(String.t, String.t) :: {String.t}
 function yatm_core.string_split(str, pattern)
-  local result = {}
-  local iter = yatm_core.string_split_iter(str, pattern)
-  local item = iter()
-  local i = 0
-  while item do
-    i = i + 1
-    result[i] = item
-    item = iter()
+  if not pattern or pattern == "" then
+    local result = {}
+    for i = 1,#str do
+      result[i] = string.sub(str, i, i)
+    end
+    return result
+  else
+    local result = {}
+    local iter = yatm_core.string_split_iter(str, pattern)
+    local item = iter()
+    local i = 0
+    while item do
+      i = i + 1
+      result[i] = item
+      item = iter()
+    end
+    return result
   end
-  return result
 end
