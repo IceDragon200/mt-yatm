@@ -1,6 +1,6 @@
---[[
-Provides some utility functions for dealing with energy in YATM
-]]
+--
+-- Provides some utility functions for dealing with energy in YATM
+--
 local energy = {}
 
 energy.schema = yatm_core.MetaSchema:new("energy", "", {
@@ -32,14 +32,17 @@ function energy.calc_consumed_energy(stored_energy, amount, bandwidth, _capacity
 end
 
 function energy.get_energy(meta, key)
+  assert(meta, "expected a metaref")
   return energy.schema:get_field(meta, key, "energy")
 end
 
 function energy.get_energy_throughput(meta, key, bandwidth)
+  assert(meta, "expected a metaref")
   return math.min(energy.get_energy(meta, key), bandwidth)
 end
 
 function energy.set_energy(meta, key, energy)
+  assert(meta, "expected a metaref")
   energy.schema:set_field(meta, key, "energy", math.max(energy, 0))
 end
 
