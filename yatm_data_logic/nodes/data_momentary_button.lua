@@ -174,5 +174,8 @@ yatm.register_stateful_node("yatm_data_logic:data_momentary_button", {
       "yatm_data_momentary_button_side.on.png",
       "yatm_data_momentary_button_side.on.png",
     },
+
+    on_rightclick = function (pos, node, clicker, itemstack, pointed_thing)
+    end,
   },
 })
