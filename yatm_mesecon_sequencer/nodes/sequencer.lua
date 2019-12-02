@@ -15,6 +15,14 @@ local INTERVALS = {
   [4] = 1/16,
 }
 
+local INTERVALS_NAME = {
+  [0] = "1/1",
+  [1] = "1/2",
+  [2] = "1/4",
+  [3] = "1/8",
+  [4] = "1/16",
+}
+
 local DIR_TO_CODE = {
   [yatm_core.D_NORTH] = "n",
   [yatm_core.D_SOUTH] = "s",
@@ -87,7 +95,10 @@ for interval,duration in pairs(INTERVALS) do
     end
 
     minetest.register_node(name, {
-      description = "Sequencer",
+      basename = "yatm_mesecon_sequencer:sequencer",
+      base_description = "Sequencer",
+
+      description = "Sequencer [" .. DIR_TO_CODE[dir] .. "] [" .. INTERVALS_NAME[interval] .. "s]",
 
       groups = groups,
 

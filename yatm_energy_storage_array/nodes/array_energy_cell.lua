@@ -23,7 +23,7 @@ end
 local node_name = "yatm_energy_storage_array:array_energy_cell_creative"
 
 minetest.register_node(node_name, yatm.devices.patch_device_nodedef(node_name, {
-  description = "Array Energy Cell (Creative)",
+  description = "Array Energy Cell [Creative]",
 
   groups = {
     cracky = 1,
@@ -185,9 +185,13 @@ yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_na
   end,
 }), {
   stage0 = {
+    description = "Array Energy Cell [Stage 0]",
+
     tiles = {"yatm_array_energy_cell_side.0.png"}
   },
   stage1 = {
+    description = "Array Energy Cell [Stage 1]",
+
     groups = {
       cracky = 1,
       yatm_cluster_device = 1,
@@ -196,6 +200,8 @@ yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_na
     tiles = {"yatm_array_energy_cell_side.1.png"}
   },
   stage2 = {
+    description = "Array Energy Cell [Stage 2]",
+
     groups = {
       cracky = 1,
       yatm_cluster_device = 1,
@@ -204,6 +210,8 @@ yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_na
     tiles = {"yatm_array_energy_cell_side.2.png"}
   },
   stage3 = {
+    description = "Array Energy Cell [Stage 3]",
+
     groups = {
       cracky = 1,
       yatm_cluster_device = 1,
@@ -212,6 +220,8 @@ yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_na
     tiles = {"yatm_array_energy_cell_side.3.png"}
   },
   stage4 = {
+    description = "Array Energy Cell [Stage 4]",
+
     groups = {
       cracky = 1,
       yatm_cluster_device = 1,
@@ -220,6 +230,8 @@ yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_na
     tiles = {"yatm_array_energy_cell_side.4.png"}
   },
   stage5 = {
+    description = "Array Energy Cell [Stage 5]",
+
     groups = {
       cracky = 1,
       yatm_cluster_device = 1,
@@ -228,6 +240,8 @@ yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_na
     tiles = {"yatm_array_energy_cell_side.5.png"}
   },
   stage6 = {
+    description = "Array Energy Cell [Stage 6]",
+
     groups = {
       cracky = 1,
       yatm_cluster_device = 1,
@@ -236,6 +250,8 @@ yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_na
     tiles = {"yatm_array_energy_cell_side.6.png"}
   },
   stage7 = {
+    description = "Array Energy Cell [Stage 7]",
+
     groups = {
       cracky = 1,
       yatm_cluster_device = 1,

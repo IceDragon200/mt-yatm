@@ -8,10 +8,10 @@ local variants = {
 
 for variant_basename, variant_name in pairs(variants) do
   minetest.register_node("yatm_papercraft:shoji_panel_block" .. variant_basename, {
-    basename = "yatm_papercraft:shoji_panel",
-    base_description = "Shoji Panel",
+    basename = "yatm_papercraft:shoji_panel_block",
+    base_description = "Shoji Panel Block",
 
-    description = "Shoji Panel " .. variant_name,
+    description = "Shoji Panel Block " .. variant_name,
 
     groups = {
       cracky = 1,

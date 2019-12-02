@@ -178,6 +178,8 @@ local yatm_network = {
 }
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_energy_storage_array:array_energy_controller",
+
   description = "Array Energy Cell Controller",
 
   drop = yatm_network.states.off,
