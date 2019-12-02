@@ -21,24 +21,36 @@ function ic:register_system(id, update)
   yatm.clusters:register_system(CLUSTER_GROUP, id, update)
 end
 
-function ic:get_node_infotext(pos)
+function ic:get_node_cluster(pos)
   local node_id = minetest.hash_node_position(pos)
 
-  return yatm.clusters:reduce_node_clusters(pos, '', function (cluster, acc)
+  return yatm.clusters:reduce_node_clusters(pos, nil, function (cluster, acc)
     if cluster.groups[CLUSTER_GROUP] then
-      local state_string = cluster.assigns.state or 'unknown'
-      if cluster.assigns.controller_id then
-        if cluster.assigns.controller_id == node_id then
-          state_string = state_string .. " - is host"
-        end
-      else
-        state_string = state_string .. " - no available controller"
-      end
-      return false, "Device Cluster: " .. cluster.id .. " (" .. state_string .. ")"
+      return false, cluster
     else
       return true, acc
     end
   end)
+end
+
+function ic:get_node_infotext(pos)
+  local node_id = minetest.hash_node_position(pos)
+
+  local cluster = self:get_node_cluster(pos)
+
+  if cluster then
+    local state_string = cluster.assigns.state or 'unknown'
+    if cluster.assigns.controller_id then
+      if cluster.assigns.controller_id == node_id then
+        state_string = state_string .. " - is host"
+      end
+    else
+      state_string = state_string .. " - no available controller"
+    end
+    return "Device Cluster: " .. cluster.id .. " (" .. state_string .. ")"
+  end
+
+  return ''
 end
 
 function ic:get_node_device_groups(node)
