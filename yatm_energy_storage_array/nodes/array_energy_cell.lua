@@ -6,7 +6,23 @@ local cluster_devices = assert(yatm.cluster.devices)
 -- Out of the box, they do not support any of the energy interfaces.
 -- Instead their energy interfaces are private and only the controller can use them.
 --
-minetest.register_node("yatm_energy_storage_array:array_energy_cell_creative", {
+
+local CAPACITY = 20 * 60 * 60 * 24 * 7 * 4
+local BANDWIDTH = 4096
+local ENERGY_KEY = "primary"
+
+local function num_round(value)
+  local d = value - math.floor(value)
+  if d > 0.5 then
+    return math.ceil(value)
+  else
+    return math.floor(value)
+  end
+end
+
+local node_name = "yatm_energy_storage_array:array_energy_cell_creative"
+
+minetest.register_node(node_name, yatm.devices.patch_device_nodedef(node_name, {
   description = "Array Energy Cell (Creative)",
 
   groups = {
@@ -25,6 +41,30 @@ minetest.register_node("yatm_energy_storage_array:array_energy_cell_creative", {
     groups = {
       array_energy_cell = 1,
     },
+
+    array_energy = {
+      capacity = function (pos, node)
+        return CAPACITY
+      end,
+
+      get_stored_energy = function (pos, node)
+        local meta = minetest.get_meta(pos)
+
+        return CAPACITY
+      end,
+
+      receive_energy = function (pos, node, energy_left, dtime, ot)
+        return 0
+      end,
+
+      get_usable_stored_energy = function (pos, node)
+        return BANDWIDTH
+      end,
+
+      use_stored_energy = function (pos, node, energy_to_use)
+        return math.min(energy_to_use, BANDWIDTH)
+      end,
+    }
   },
 
   on_construct = function (pos)
@@ -37,18 +77,21 @@ minetest.register_node("yatm_energy_storage_array:array_energy_cell_creative", {
   end,
 
   transition_device_state = function (pos, node, state)
-    -- ignore it
+    yatm.queue_refresh_infotext(pos, node)
   end,
 
   refresh_infotext = function (pos)
     local meta = minetest.get_meta(pos)
-    local infotext = "Creative Array Energy Cell"
+    local infotext =
+      "Creative Array Energy Cell\n" ..
+      cluster_devices:get_node_infotext(pos) .. " [" .. CAPACITY .. "]/" .. BANDWIDTH
 
     meta:set_string("infotext", infotext)
   end,
-})
+}))
 
-yatm.register_stateful_node("yatm_energy_storage_array:array_energy_cell", {
+local node_name = "yatm_energy_storage_array:array_energy_cell"
+yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_name, {
   description = "Array Energy Cell",
 
   groups = {
@@ -60,14 +103,52 @@ yatm.register_stateful_node("yatm_energy_storage_array:array_energy_cell", {
   paramtype2 = "facedir",
 
   yatm_network = {
-    type = "array_energy_cell",
+    kind = "array_energy_cell",
 
     groups = {
       array_energy_cell = 1,
     },
+
+    array_energy = {
+      capacity = function (pos, node)
+        return CAPACITY
+      end,
+
+      get_stored_energy = function (pos, node)
+        local meta = minetest.get_meta(pos)
+
+        return yatm.energy.get_energy(meta, ENERGY_KEY)
+      end,
+
+      receive_energy = function (pos, node, energy_left, dtime, ot)
+        local meta = minetest.get_meta(pos)
+        local received_energy = yatm.energy.receive_energy(meta, ENERGY_KEY, energy_left, BANDWIDTH, CAPACITY, true)
+        if received_energy > 0 then
+          yatm.queue_refresh_infotext(pos, node)
+        end
+        return received_energy
+      end,
+
+      get_usable_stored_energy = function (pos, node)
+        local meta = minetest.get_meta(pos)
+        return math.min(BANDWIDTH, yatm.energy.get_energy(meta, ENERGY_KEY))
+      end,
+
+      use_stored_energy = function (pos, node, energy_to_use)
+        local meta = minetest.get_meta(pos)
+        local consumed_energy = yatm.energy.consume_energy(meta, ENERGY_KEY, energy_left, BANDWIDTH, CAPACITY, true)
+        if consumed_energy > 0 then
+          yatm.queue_refresh_infotext(pos, node)
+        end
+        return consumed_energy
+      end,
+    }
   },
 
   on_construct = function (pos)
+    local meta = minetest.get_meta(pos)
+    yatm.energy.get_energy(meta, ENERGY_KEY, 0)
+
     local node = minetest.get_node(pos)
     cluster_devices:schedule_add_node(pos, node)
   end,
@@ -77,16 +158,30 @@ yatm.register_stateful_node("yatm_energy_storage_array:array_energy_cell", {
   end,
 
   transition_device_state = function (pos, node, state)
-    -- ignore it
+    yatm.queue_refresh_infotext(pos, node)
   end,
 
   refresh_infotext = function (pos)
     local meta = minetest.get_meta(pos)
-    local infotext = "Array Energy Cell"
+    local node = minetest.get_node(pos)
 
+    local en = yatm.energy.get_energy(meta, ENERGY_KEY)
+
+    local infotext =
+      "Array Energy Cell\n" ..
+      cluster_devices:get_node_infotext(pos) .. "\n" ..
+      "Energy: [" .. en .. "/" .. CAPACITY  .. "]/" .. BANDWIDTH
+
+    local stage = num_round(7 * en / CAPACITY)
+
+    local new_name = "yatm_energy_storage_array:array_energy_cell_stage" .. stage
+    if node.name ~= new_name then
+      node.name = new_name
+      minetest.swap_node(pos, node)
+    end
     meta:set_string("infotext", infotext)
   end,
-}, {
+}), {
   stage0 = {
     tiles = {"yatm_array_energy_cell_side.0.png"}
   },
