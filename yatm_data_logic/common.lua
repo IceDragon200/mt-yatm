@@ -289,7 +289,7 @@ function yatm_data_logic.get_io_port_formspec(pos, meta, mode, options)
 end
 
 local function set_vector(meta, basename, dir, value, vector, changed)
-  local items = string.split(value, ",")
+  local items = yatm_core.string_split(value, ",")
 
   for i = 1,vector do
     local base_value = meta:get_int(basename .. "_" .. dir .. "_" .. i)

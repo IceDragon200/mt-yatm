@@ -6,7 +6,7 @@ minetest.register_chatcommand("yatm.networks", {
   description = "Issue various commands to yatm networks",
   func = function (player_name, param)
     minetest.log("action", "yatm.networks " .. param)
-    local params = string.split(param, ' ')
+    local params = yatm_core.string_split(param, ' ')
     if params[1] == "ls" then
       local network_ids = table_keys(Network.networks)
       minetest.chat_send_player(player_name, "Network IDs:" .. table.concat(network_ids, ', '))
