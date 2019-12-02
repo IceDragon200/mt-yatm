@@ -10,9 +10,9 @@ local data_interface = {
   end,
 
   receive_pdu = function (self, pos, node, dir, port, value)
-    print(minetest.pos_to_string(pos), node.name,
-          yatm_core.DIR_TO_STRING[dir], port,
-          dump(value))
+    --print(minetest.pos_to_string(pos), node.name,
+    --      yatm_core.DIR_TO_STRING[dir], port,
+    --      dump(value))
 
     local meta = minetest.get_meta(pos)
     local sub_network_ids = data_network:get_sub_network_ids(pos)
@@ -35,9 +35,9 @@ local data_interface = {
           local left = yatm_core.string_hex_unescape(meta:get_string("input_value_" .. left_dir))
           local right = yatm_core.string_hex_unescape(meta:get_string("input_value_" .. right_dir))
 
-          print(minetest.pos_to_string(pos), node.name,
-                yatm_core.DIR_TO_STRING1[left_dir], dump(left),
-                yatm_core.DIR_TO_STRING1[right_dir], dump(right))
+          --print(minetest.pos_to_string(pos), node.name,
+          --      yatm_core.DIR_TO_STRING1[left_dir], dump(left),
+          --      yatm_core.DIR_TO_STRING1[right_dir], dump(right))
 
           local name
           if self:operate(pos, node, left, right) then
@@ -53,10 +53,10 @@ local data_interface = {
             yatm.queue_refresh_infotext(pos, node)
           end
         else
-          print(minetest.pos_to_string(pos), node.name, "no valid directions")
+          --print(minetest.pos_to_string(pos), node.name, "no valid directions")
         end
       else
-        print(minetest.pos_to_string(pos), node.name, "operands are invalid")
+        --print(minetest.pos_to_string(pos), node.name, "operands are invalid")
       end
     end
   end,
