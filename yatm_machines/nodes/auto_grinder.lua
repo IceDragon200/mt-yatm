@@ -7,6 +7,7 @@ local function get_auto_grinder_formspec(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
     "size[8,9]" ..
+    yatm.bg.machine ..
     "list[nodemeta:" .. spos .. ";grinder_input;0,0.3;1,1;]" ..
     "list[nodemeta:" .. spos .. ";grinder_processing;2,0.3;1,1;]" ..
     "list[nodemeta:" .. spos .. ";grinder_output;4,0.3;2,2;]" ..

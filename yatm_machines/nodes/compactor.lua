@@ -8,6 +8,7 @@ local function get_compactor_formspec(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
     "size[8,9]" ..
+    yatm.bg.machine ..
     "label[0,0;Compactor]" ..
     "list[nodemeta:" .. spos .. ";input_items;0,0.3;1,1;]" ..
     "list[nodemeta:" .. spos .. ";processing_items;2,0.3;1,1;]" ..

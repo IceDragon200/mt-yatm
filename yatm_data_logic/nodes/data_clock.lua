@@ -81,6 +81,7 @@ minetest.register_node("yatm_data_logic:data_clock", {
 
       local formspec =
         "size[8,9]" ..
+        yatm.bg.module ..
         "label[0,0;Port Configuration]" ..
         yatm_data_logic.get_io_port_formspec(pos, meta, "o")
 

@@ -39,8 +39,16 @@ local function get_shelf_formspec(pos)
   local rows = nodedef.shelf_configuration.layers * nodedef.shelf_configuration.rows
   local cols = nodedef.shelf_configuration.cols
 
+  local bg
+  if nodedef.material_basename == "wood" then
+    bg = yatm.bg.wood
+  else
+    bg = yatm.bg.default
+  end
+
   local formspec =
     "size[8,9]" ..
+    bg ..
     "list[nodemeta:" .. spos .. ";main;0.25,0.25;" .. cols .. "," .. rows .. ";]" ..
     "list[current_player;main;0,4.85;8,1;]" ..
     "list[current_player;main;0,6.08;8,3;8]" ..

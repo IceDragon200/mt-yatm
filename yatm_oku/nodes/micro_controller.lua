@@ -16,7 +16,8 @@ local function get_micro_controller_formspec(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local meta = minetest.get_meta(pos)
   local formspec =
-    "size[8,9]"
+    "size[8,9]" ..
+    yatm.bg.computer
 
   for i = 0,15 do
     local x = 0.25 + math.floor(i % 4)

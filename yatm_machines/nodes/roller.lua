@@ -10,6 +10,7 @@ local function get_roller_formspec(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
     "size[8,9]" ..
+    yatm.bg.machine ..
     "list[nodemeta:" .. spos .. ";roller_input;0,0.3;1,1;]" ..
     "list[nodemeta:" .. spos .. ";roller_processing;1.5,0.3;1,1;]" ..
     "list[nodemeta:" .. spos .. ";roller_output;3,0.3;1,1;]" ..

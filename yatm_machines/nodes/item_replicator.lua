@@ -29,6 +29,7 @@ local function get_item_replicator_formspec(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
     "size[8,9]" ..
+    yatm.bg.machine ..
     "list[nodemeta:" .. spos .. ";input_slot;0,0.3;1,1;]" ..
     "list[nodemeta:" .. spos .. ";output_slot;2,0.3;1,1;]" ..
     "list[current_player;main;0,4.85;8,1;]" ..

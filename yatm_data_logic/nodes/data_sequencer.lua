@@ -106,6 +106,7 @@ minetest.register_node("yatm_data_logic:data_sequencer", {
 
       local formspec =
         "size[8,10]" ..
+        yatm.bg.module ..
         "tabheader[0,0;tab;Ports,Data;" .. assigns.tab .. "]"
 
       if assigns.tab == 1 then

@@ -85,6 +85,7 @@ yatm.register_stateful_node("yatm_data_to_mesecon:data_to_mesecon", {
       assigns.tab = assigns.tab or 1
       local formspec =
         "size[8,9]" ..
+        yatm.bg.module ..
         "tabheader[0,0;tab;Ports,Data;" .. assigns.tab .. "]"
 
       if assigns.tab == 1 then

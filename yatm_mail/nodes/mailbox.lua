@@ -25,9 +25,19 @@ local mailbox_nodebox  = {
 local function mailbox_get_formspec(pos, is_unlocked)
   local meta = minetest.get_meta(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+  local node = minetest.get_node(pos)
+  local nodedef = minetest.registered_nodes[node.name]
+
+  local bg
+  if nodedef.material_basename == "wood" then
+    bg = yatm.bg.wood
+  elseif nodedef.material_basename == "metal" then
+    bg = yatm.bg.default
+  end
 
   local formspec =
     "size[8,9]" ..
+    bg ..
     "label[0,0;Mailbox]"
 
   if yatm_security.is_lockable_node(pos) then
@@ -253,6 +263,8 @@ for _,pair in ipairs(colors) do
 
     description = "Wood Mailbox [" .. name .. "]",
 
+    material_basename = "metal",
+
     groups = {
       mailbox = 1,
       cracky = 1,
@@ -300,6 +312,8 @@ for _,pair in ipairs(colors) do
     base_description = "Metal Mailbox",
 
     description = "Metal Mailbox [" .. name .. "]",
+
+    material_basename = "metal",
 
     groups = {
       mailbox = 1,

@@ -20,6 +20,7 @@ local function get_solid_fuel_heater_formspec(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
     "size[8,9]" ..
+    yatm.bg.machine_heated ..
     "list[nodemeta:" .. spos .. ";fuel_slot;0,0.3;1,1;]" ..
     "list[current_player;main;0,4.85;8,1;]" ..
     "list[current_player;main;0,6.08;8,3;8]" ..

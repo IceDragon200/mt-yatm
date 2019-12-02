@@ -210,6 +210,7 @@ local function get_freezer_formspec(pos)
 
   local formspec =
     "size[8,9]" ..
+    yatm.bg.machine_cooled ..
     "label[0,0;Freezer]" ..
     "list[nodemeta:" .. spos .. ";input_items;1,1;3,3;]" ..
     "list[nodemeta:" .. spos .. ";output_items;5,1;3,3;]" ..

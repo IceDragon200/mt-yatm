@@ -17,21 +17,26 @@ local function get_formspec(pos, assigns)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
   local formspec =
-    "size[12,10]" ..
+    "size[12,11]" ..
+    yatm.bg.machine ..
     "label[0,0;Programmer's Table]" ..
-    "button[0.5,1;2.5,1;random;Random]" ..
-    "field[3.5,1;5,1;prog_data;Program Data;" .. minetest.formspec_escape(meta:get_string("prog_data")) .. "]" ..
-    "button[9,1;3,1;commit;Commit]" ..
+    "button[0,0.5;3,1;random;Random]" ..
+    "field[3.5,0.75;5.5,1;prog_data;Program Data;" .. minetest.formspec_escape(meta:get_string("prog_data")) .. "]" ..
+    "button[9,0.5;3,1;commit;Commit]" ..
+    "label[0,1.25;Input Items]" ..
     "list[nodemeta:" .. spos .. ";input_items;0,2;4,4;]" ..
+    "box[3.875,1.875;4.125,4.125;#45d5d8]" ..
+    "label[4,1.25;Processing Items]" ..
     "list[nodemeta:" .. spos .. ";processing_items;4,2;4,4;]" ..
+    "label[8,1.25;Output Items]" ..
     "list[nodemeta:" .. spos .. ";output_items;8,2;4,4;]" ..
-    "list[current_player;main;2,5.85;8,1;]" ..
-    "list[current_player;main;2,7.08;8,3;8]" ..
+    "list[current_player;main;2,6.85;8,1;]" ..
+    "list[current_player;main;2,8.08;8,3;8]" ..
     "listring[nodemeta:" .. spos .. ";input_items]" ..
     "listring[current_player;main]" ..
     "listring[nodemeta:" .. spos .. ";output_items]" ..
     "listring[current_player;main]" ..
-    default.get_hotbar_bg(2,5.85)
+    default.get_hotbar_bg(2,6.85)
 
   return formspec
 end

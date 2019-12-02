@@ -123,6 +123,8 @@ for material_basename, def in pairs(shelf_materials) do
       basename = "yatm_item_shelves:" .. material_basename .. "_full_shelf",
       base_description = def.name .. " Full Shelf",
 
+      material_basename = material_basename,
+
       description = def.name .. " " .. x .. " Shelf",
 
       tiles = {
@@ -144,6 +146,8 @@ for material_basename, def in pairs(shelf_materials) do
       basename = "yatm_item_shelves:" .. material_basename .. "_half_shelf",
 
       base_description = def.name .. " Half Shelf",
+
+      material_basename = material_basename,
 
       description = def.name .. " " .. x .. " Half Shelf",
 

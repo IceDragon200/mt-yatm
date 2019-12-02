@@ -107,6 +107,7 @@ yatm.register_stateful_node("yatm_data_display:ascii_display", {
 
       local formspec =
         "size[8,9]" ..
+        yatm.bg.display ..
         "label[0,0;Port Configuration]" ..
         yatm_data_logic.get_io_port_formspec(pos, meta, "i")
 

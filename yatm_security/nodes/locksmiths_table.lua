@@ -16,6 +16,7 @@ local function locksmiths_table_get_formspec(pos, assigns)
 
   local formspec =
     "size[8,9]" ..
+    yatm.bg.wood ..
     "label[0,0;Locksmith's Table]" ..
     "tabheader[0,0;tab;Lock Installation,Chip Installation,Key Duplication;" .. assigns.tab .. "]"
 

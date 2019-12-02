@@ -138,7 +138,7 @@ yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_na
 
       use_stored_energy = function (pos, node, energy_to_use)
         local meta = minetest.get_meta(pos)
-        local consumed_energy = yatm.energy.consume_energy(meta, ENERGY_KEY, energy_left, BANDWIDTH, CAPACITY, true)
+        local consumed_energy = yatm.energy.consume_energy(meta, ENERGY_KEY, energy_to_use, BANDWIDTH, CAPACITY, true)
         if consumed_energy > 0 then
           yatm.queue_refresh_infotext(pos, node)
         end

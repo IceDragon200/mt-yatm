@@ -9,6 +9,7 @@ function get_package_formspec(pos)
 
   local formspec =
     "size[8,9]" ..
+    yatm.bg.wood ..
     "label[0,0;Package]" ..
     "list[nodemeta:" .. spos .. ";main;0,0.5;3,3;]" ..
     "field[4,1;4,1;addressed_from;From;" .. meta:get_string("addressed_from") .. "]" ..

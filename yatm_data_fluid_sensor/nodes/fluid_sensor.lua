@@ -14,6 +14,7 @@ local function get_fluid_sensor_formspec(pos)
   local meta = minetest.get_meta(pos)
   local formspec =
     "size[8,9]" ..
+    yatm.bg.data ..
     "field[0.5,0.5;4,1;capacity_port;Capacity Port;" .. meta:get_int("capacity_port") .. "]" ..
     "field[4.5,0.5;4,1;amount_port;Amount Port;" .. meta:get_int("amount_port") .. "]" ..
     "field[0.5,1.5;4,1;remaining_capacity_port;Remaining Capacity Port;" .. meta:get_int("remaining_capacity_port") .. "]" ..

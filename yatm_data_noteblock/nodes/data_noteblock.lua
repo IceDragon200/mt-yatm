@@ -207,6 +207,7 @@ minetest.register_node("yatm_data_noteblock:data_noteblock", {
 
       local formspec =
         "size[8,9]" ..
+        yatm.bg.module ..
         "tabheader[0,0;tab;Ports,Data;" .. assigns.tab .. "]"
 
       if assigns.tab == 1 then
