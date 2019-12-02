@@ -128,8 +128,59 @@ local function array_use_stored_energy(pos, energy_to_use)
   return 0
 end
 
+local yatm_network = {
+  kind = "array_energy_controller",
+
+  groups = {
+    array_energy_controller = 1,
+    device_controller = 2,
+    energy_storage = 1,
+    energy_receiver = 1,
+  },
+
+  default_state = "off",
+  states = {
+    error = "yatm_energy_storage_array:array_energy_controller_error",
+    conflict = "yatm_energy_storage_array:array_energy_controller_error",
+    off = "yatm_energy_storage_array:array_energy_controller_off",
+    on = "yatm_energy_storage_array:array_energy_controller_on",
+  },
+
+  energy = {
+    capacity = function (pos, node)
+      return calc_array_capacity(pos)
+    end,
+
+    get_stored_energy = function (pos, node)
+      return array_get_stored_energy(pos)
+    end,
+
+    receive_energy = function (pos, node, energy_left, dtime, ot)
+      local received_energy = array_receive_energy(pos, energy_left, dtime, ot)
+      if received_energy > 0 then
+        queue_refresh_infotext_for_controllers(pos)
+      end
+      return received_energy
+    end,
+
+    get_usable_stored_energy = function (pos, node)
+      return array_get_usable_stored_energy(pos)
+    end,
+
+    use_stored_energy = function (pos, node, energy_to_use)
+      local consumed_energy = array_use_stored_energy(pos, energy_to_use)
+      if consumed_energy > 0 then
+        queue_refresh_infotext_for_controllers(pos)
+      end
+      return consumed_energy
+    end,
+  },
+}
+
 yatm.devices.register_stateful_network_device({
   description = "Array Energy Cell Controller",
+
+  drop = yatm_network.states.off,
 
   groups = {
     cracky = 1,
@@ -142,54 +193,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_array_energy_controller_side.off.png",
   },
 
-  yatm_network = {
-    kind = "array_energy_controller",
-
-    groups = {
-      array_energy_controller = 1,
-      device_controller = 2,
-      energy_storage = 1,
-      energy_receiver = 1,
-    },
-
-    default_state = "off",
-    states = {
-      error = "yatm_energy_storage_array:array_energy_controller_error",
-      conflict = "yatm_energy_storage_array:array_energy_controller_error",
-      off = "yatm_energy_storage_array:array_energy_controller_off",
-      on = "yatm_energy_storage_array:array_energy_controller_on",
-    },
-
-    energy = {
-      capacity = function (pos, node)
-        return calc_array_capacity(pos)
-      end,
-
-      get_stored_energy = function (pos, node)
-        return array_get_stored_energy(pos)
-      end,
-
-      receive_energy = function (pos, node, energy_left, dtime, ot)
-        local received_energy = array_receive_energy(pos, energy_left, dtime, ot)
-        if received_energy > 0 then
-          queue_refresh_infotext_for_controllers(pos)
-        end
-        return received_energy
-      end,
-
-      get_usable_stored_energy = function (pos, node)
-        return array_get_usable_stored_energy(pos)
-      end,
-
-      use_stored_energy = function (pos, node, energy_to_use)
-        local consumed_energy = array_use_stored_energy(pos, energy_to_use)
-        if consumed_energy > 0 then
-          queue_refresh_infotext_for_controllers(pos)
-        end
-        return consumed_energy
-      end,
-    },
-  },
+  yatm_network = yatm_network,
 
   refresh_infotext = function (pos)
     local meta = minetest.get_meta(pos)
