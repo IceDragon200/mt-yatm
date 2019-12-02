@@ -215,8 +215,8 @@ function devices.default_on_network_state_changed(pos, node, state)
   network_default_on_network_state_changed(pos, node, new_state)
 end
 
-function devices.register_network_device(name, nodedef)
-  assert(name, "expected a name")
+function devices.patch_device_nodedef(name, nodedef)
+  assert(name, "expected a node name")
   assert(nodedef, "expected a nodedef")
 
   nodedef.groups = nodedef.groups or {}
@@ -303,6 +303,14 @@ function devices.register_network_device(name, nodedef)
       end
     end
   end
+
+  return nodedef
+end
+
+function devices.register_network_device(name, nodedef)
+  assert(name, "expected a name")
+
+  devices.patch_device_nodedef(name, nodedef)
 
   return minetest.register_node(name, nodedef)
 end
