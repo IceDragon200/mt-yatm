@@ -1,4 +1,5 @@
 local cluster_devices = assert(yatm.cluster.devices)
+local cluster_energy = assert(yatm.cluster.energy)
 
 local solar_panel_yatm_network = {
   kind = "energy_producer",
@@ -40,7 +41,7 @@ function solar_panel_refresh_infotext(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. last_produced_energy
+    cluster_energy:get_node_infotext(pos) .. "[+ " .. last_produced_energy .. "]"
 
   meta:set_string("infotext", infotext)
 end
