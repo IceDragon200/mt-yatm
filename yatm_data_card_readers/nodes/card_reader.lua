@@ -113,6 +113,7 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_reader", {
     cracky = 1,
     chippable_object = 1,
     yatm_data_device = 1,
+    data_programmable = 1,
   },
 
   sunlight_propagates = false,
@@ -145,6 +146,7 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_reader", {
 
       local formspec =
         "size[8,9]" ..
+        yatm.bg.data ..
         "label[0,0;Port Configuration]" ..
         yatm_data_logic.get_io_port_formspec(pos, meta, "io")
 
