@@ -6,26 +6,27 @@ local iio = yatm.io
 local function dump_nodes()
   -- Export yatm specific nodes for documentation purposes
   print("Exporting Nodes")
-  local file = iio.open("yatm_exported_nodes.toml", "w")
+  local file = iio.open("yatm_exported_nodes.mljson", "w")
   local i = 0
 
   for name, def in pairs(minetest.registered_nodes) do
     if yatm_core.string_starts_with(name, "yatm_") then
       i = i + 1
-      yatm_core.TOML.write(file, {
-        [name] = {
-          basename = def.basename or name,
-          base_description = def.base_description,
-          description = def.description,
-          groups = def.groups,
-          tiles = def.tiles,
-          special_tiles = def.special_tiles,
-          drawtype = def.drawtype,
-          node_box = def.node_box,
-          paramtype = def.paramtype,
-          paramtype2 = def.paramtype2,
-        }
-      })
+
+      file:write(minetest.write_json({
+        name = name,
+        basename = def.basename or name,
+        base_description = def.base_description,
+        description = def.description,
+        groups = def.groups,
+        tiles = def.tiles,
+        special_tiles = def.special_tiles,
+        drawtype = def.drawtype,
+        node_box = def.node_box,
+        paramtype = def.paramtype,
+        paramtype2 = def.paramtype2,
+      }))
+      file:write("\n")
     end
   end
   iio.close(file)
@@ -35,21 +36,21 @@ end
 local function dump_craftitems()
   -- Export yatm specific nodes for documentation purposes
   print("Exporting Craftitems")
-  local file = iio.open("yatm_exported_craftitems.toml", "w")
+  local file = iio.open("yatm_exported_craftitems.mljson", "w")
   local i = 0
 
   for name, def in pairs(minetest.registered_craftitems) do
     if yatm_core.string_starts_with(name, "yatm_") then
       i = i + 1
-      yatm_core.TOML.write(file, {
-        [name] = {
-          basename = def.basename or name,
-          base_description = def.base_description,
-          description = def.description,
-          groups = def.groups,
-          inventory_image = def.inventory_image,
-        }
-      })
+      file:write(minetest.write_json({
+        name = name,
+        basename = def.basename or name,
+        base_description = def.base_description,
+        description = def.description,
+        groups = def.groups,
+        inventory_image = def.inventory_image,
+      }))
+      file:write("\n")
     end
   end
   iio.close(file)
@@ -59,21 +60,21 @@ end
 local function dump_tools()
   -- Export yatm specific nodes for documentation purposes
   print("Exporting Tools")
-  local file = iio.open("yatm_exported_tools.toml", "w")
+  local file = iio.open("yatm_exported_tools.mljson", "w")
   local i = 0
 
   for name, def in pairs(minetest.registered_tools) do
     if yatm_core.string_starts_with(name, "yatm_") then
       i = i + 1
-      yatm_core.TOML.write(file, {
-        [name] = {
-          basename = def.basename or name,
-          base_description = def.base_description,
-          description = def.description,
-          groups = def.groups,
-          inventory_image = def.inventory_image,
-        }
-      })
+      file:write(minetest.write_json({
+        name = name,
+        basename = def.basename or name,
+        base_description = def.base_description,
+        description = def.description,
+        groups = def.groups,
+        inventory_image = def.inventory_image,
+      }))
+      file:write("\n")
     end
   end
   iio.close(file)
