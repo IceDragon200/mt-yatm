@@ -175,14 +175,14 @@ function m:set_field(meta, basename, key, value)
 end
 
 function m:set(meta, basename, params)
-  assert(meta, "expected a meta")
+  assert(meta, "expected a metaref")
   for key,value in pairs(params) do
     self:set_field(meta, basename, key, value)
   end
 end
 
 function m:get_field(meta, basename, key)
-  assert(meta, "expected a meta")
+  assert(meta, "expected a metaref")
   if self.schema[key] then
     local entry = self.schema[key]
     local field_name = (self.prefix or "") .. basename .. "_" .. key
