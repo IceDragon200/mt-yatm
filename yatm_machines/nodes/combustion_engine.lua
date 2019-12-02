@@ -229,3 +229,109 @@ yatm.devices.register_stateful_network_device({
     },
   }
 })
+
+
+--
+-- Creative Engine
+--
+local creative_engine_yatm_network = {
+  kind = "energy_producer",
+  groups = {
+    device_controller = 3,
+    energy_producer = 1,
+  },
+
+  default_state = "off",
+  states = {
+    conflict = "yatm_machines:creative_engine_error",
+    error = "yatm_machines:creative_engine_error",
+    off = "yatm_machines:creative_engine_off",
+    on = "yatm_machines:creative_engine_on",
+    idle = "yatm_machines:creative_engine_idle",
+  },
+
+  energy = {
+    capacity = 16000,
+  }
+}
+
+function creative_engine_yatm_network.energy.produce_energy(pos, node, dtime, ot)
+  local meta = minetest.get_meta(pos)
+  local energy_produced = 4096 * dtime
+  meta:set_int("last_energy_produced", energy_produced)
+  yatm.queue_refresh_infotext(pos)
+  return energy_produced
+end
+
+function creative_engine_refresh_infotext(pos)
+  local meta = minetest.get_meta(pos)
+
+  local infotext =
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
+    cluster_energy:get_node_infotext(pos) .. "\n" ..
+    "Last Energy Produced: " .. meta:get_int("last_energy_produced")
+
+  meta:set_string("infotext", infotext)
+end
+
+yatm.devices.register_stateful_network_device({
+  basename = "yatm_machines:creative_engine",
+
+  description = "Creative Engine",
+
+  groups = {
+    cracky = 1,
+    yatm_energy_device = 1,
+  },
+
+  drop = creative_engine_yatm_network.states.off,
+
+  tiles = {
+    "yatm_creative_engine_top.off.png",
+    "yatm_creative_engine_bottom.off.png",
+    "yatm_creative_engine_side.off.png",
+    "yatm_creative_engine_side.off.png",
+    "yatm_creative_engine_back.off.png",
+    "yatm_creative_engine_front.off.png",
+  },
+  drawtype = "nodebox",
+  node_box = combustion_engine_nodebox,
+
+  paramtype = "light",
+  paramtype2 = "facedir",
+
+  yatm_network = creative_engine_yatm_network,
+
+  refresh_infotext = creative_engine_refresh_infotext,
+}, {
+  on = {
+    tiles = {
+      "yatm_creative_engine_top.on.png",
+      "yatm_creative_engine_bottom.on.png",
+      "yatm_creative_engine_side.on.png",
+      "yatm_creative_engine_side.on.png",
+      "yatm_creative_engine_back.on.png",
+      "yatm_creative_engine_front.on.png",
+    },
+  },
+  error = {
+    tiles = {
+      "yatm_creative_engine_top.error.png",
+      "yatm_creative_engine_bottom.error.png",
+      "yatm_creative_engine_side.error.png",
+      "yatm_creative_engine_side.error.png",
+      "yatm_creative_engine_back.error.png",
+      "yatm_creative_engine_front.error.png",
+    },
+  },
+  idle = {
+    tiles = {
+      "yatm_creative_engine_top.idle.png",
+      "yatm_creative_engine_bottom.idle.png",
+      "yatm_creative_engine_side.idle.png",
+      "yatm_creative_engine_side.idle.png",
+      "yatm_creative_engine_back.idle.png",
+      "yatm_creative_engine_front.idle.png",
+    },
+  }
+})
