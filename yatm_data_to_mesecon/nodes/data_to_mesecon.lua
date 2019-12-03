@@ -65,14 +65,12 @@ yatm.register_stateful_node("yatm_data_to_mesecon:data_to_mesecon", {
         if yatm_core.string_hex_unescape(meta:get_string("data_on")) == new_value then
           node.name = "yatm_data_to_mesecon:data_to_mesecon_on"
           minetest.swap_node(pos, node)
-          yatm_data_logic.emit_output_data(pos, "on")
           mesecon.receptor_on(pos, mesecon_rules(node))
         end
       elseif node.name == "yatm_data_to_mesecon:data_to_mesecon_on" then
         if yatm_core.string_hex_unescape(meta:get_string("data_off")) == new_value then
           node.name = "yatm_data_to_mesecon:data_to_mesecon_off"
           minetest.swap_node(pos, node)
-          yatm_data_logic.emit_output_data(pos, "off")
           mesecon.receptor_off(pos, mesecon_rules(node))
         end
       end
@@ -103,10 +101,11 @@ yatm.register_stateful_node("yatm_data_to_mesecon:data_to_mesecon", {
         formspec =
           formspec ..
           "label[0,0;Data Configuration]" ..
+          "label[4,1;On (Data to trigger ON state)]" ..
+          "field[4.25,2;4,4;data_on;Data;" .. minetest.formspec_escape(meta:get_string("data_on")) .. "]" ..
           "label[0,1;Off (Data to trigger OFF state)]" ..
           "field[0.25,2;4,4;data_off;Data;" .. minetest.formspec_escape(meta:get_string("data_off")) .. "]" ..
-          "label[4,1;On (Date to trigger ON state)]" ..
-          "field[4.25,2;4,4;data_on;Data;" .. minetest.formspec_escape(meta:get_string("data_on")) .. "]"
+          ""
       end
 
       return formspec
