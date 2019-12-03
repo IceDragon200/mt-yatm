@@ -402,10 +402,26 @@ if yatm_data_logic then
     },
     data_interface = {
       on_load = function (self, pos, node)
-        --
+        yatm_data_logic.mark_all_inputs_for_active_receive(pos)
       end,
 
       receive_pdu = function (self, pos, node, dir, port, value)
+        local meta = minetest.get_meta(pos)
+        local new_value = yatm_core.string_hex_unescape(value)
+
+        if node.name == "yatm_frames:frame_motor_data_off" then
+          if yatm_core.string_hex_unescape(meta:get_string("data_on")) == new_value then
+            node.name = "yatm_frames:frame_motor_data_on"
+            minetest.swap_node(pos, node)
+            motor_move_frame(pos, node)
+            minetest.get_node_timer(pos):start(0.25)
+          end
+        elseif node.name == "yatm_frames:frame_motor_data_on" then
+          local timer = minetest.get_node_timer(pos)
+          if not timer:is_started() then
+            timer:start(0.25)
+          end
+        end
       end,
 
       get_programmer_formspec = function (self, pos, clicker, pointed_thing, assigns)
@@ -423,7 +439,7 @@ if yatm_data_logic then
             formspec ..
             "label[0,0;Port Configuration]"
 
-          local io_formspec = yatm_data_logic.get_io_port_formspec(pos, meta, "i")
+          local io_formspec = yatm_data_logic.get_io_port_formspec(pos, meta, "io")
 
           formspec =
             formspec ..
@@ -434,7 +450,11 @@ if yatm_data_logic then
             formspec ..
             "label[0,0;Data Configuration]" ..
             "label[0,1;Data Trigger]" ..
-            "field[0.25,2;7.5,4;data_trigger;Data;" .. minetest.formspec_escape(meta:get_string("data_trigger")) .. "]"
+            "label[4,1;On (Data to trigger ON state)]" ..
+            "field[4.25,2;4,4;data_on;Data;" .. minetest.formspec_escape(meta:get_string("data_on")) .. "]" ..
+            "label[0,1;Off (Data when the motor returns to it's off state)]" ..
+            "field[0.25,2;4,4;data_off;Data;" .. minetest.formspec_escape(meta:get_string("data_off")) .. "]" ..
+            ""
         end
 
         return formspec
@@ -453,15 +473,19 @@ if yatm_data_logic then
           end
         end
 
-        local inputs_changed = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "i")
+        local inputs_changed = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "io")
 
         if not yatm_core.is_table_empty(inputs_changed) then
           yatm_data_logic.unmark_all_receive(assigns.pos)
           yatm_data_logic.mark_all_inputs_for_active_receive(assigns.pos)
         end
 
-        if fields["data_trigger"] then
-          meta:set_string("data_trigger", fields["data_trigger"])
+        if fields["data_off"] then
+          meta:set_string("data_off", fields["data_off"])
+        end
+
+        if fields["data_on"] then
+          meta:set_string("data_on", fields["data_on"])
         end
 
         if needs_refresh then
@@ -512,6 +536,14 @@ if yatm_data_logic then
         "yatm_frame_motor_side_data.png",
         "yatm_frame_motor_side_data.png",
       },
+
+      on_timer = function (pos, elapsed)
+        local node = minetest.get_node(pos)
+        node.name = "yatm_frames:frame_motor_data_off"
+        minetest.swap_node(pos, node)
+        yatm_data_logic.emit_output_data(pos, "off")
+        return false
+      end,
     },
   })
 end
