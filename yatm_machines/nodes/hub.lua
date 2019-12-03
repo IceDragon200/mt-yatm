@@ -111,7 +111,10 @@ local hub_wireless_yatm_network = {
     on = "yatm_machines:hub_wireless_on",
   },
   energy = {
+    capacity = 200,
     passive_lost = 1,
+    network_charge_bandwidth = 10,
+    startup_threshold = 20,
   },
 }
 
@@ -185,7 +188,10 @@ local hub_elegens_yatm_network = {
     on = "yatm_machines:hub_elegens_on",
   },
   energy = {
+    capacity = 200,
     passive_lost = 1,
+    network_charge_bandwidth = 10,
+    startup_threshold = 20,
   },
 }
 

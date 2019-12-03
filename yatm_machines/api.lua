@@ -82,8 +82,10 @@ function devices.get_energy_capacity(pos, node)
 
   if type(en.capacity) == "number" then
     return en.capacity
-  else
+  elseif type(en.capacity) == "function" then
     return en.capacity(pos, node)
+  else
+    return 0
   end
 end
 
