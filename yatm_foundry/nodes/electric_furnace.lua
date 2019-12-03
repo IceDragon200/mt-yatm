@@ -6,6 +6,7 @@ local function get_electric_furnace_formspec(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
     "size[8,9]" ..
+    yatm.bg.machine_heated ..
     "list[current_player;main;0,4.85;8,1;]" ..
     "list[current_player;main;0,6.08;8,3;8]" ..
     default.get_hotbar_bg(0,4.85)

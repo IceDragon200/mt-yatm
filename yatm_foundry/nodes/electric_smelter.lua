@@ -10,6 +10,7 @@ local function get_electric_smelter_formspec(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
     "size[8,9]" ..
+    yatm.bg.machine_heated ..
     "list[nodemeta:" .. spos .. ";input_slot;0,0.3;1,1;]" ..
     "list[nodemeta:" .. spos .. ";processing_slot;2,0.3;1,1;]" ..
     "list[current_player;main;0,4.85;8,1;]" ..

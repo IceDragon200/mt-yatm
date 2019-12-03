@@ -29,6 +29,7 @@ local function get_battery_bank_formspec(pos)
   local mode = meta:get_string("mode")
   local formspec =
     "size[8,9]" ..
+    yatm.bg.machine ..
     "label[0,0;Battery Bank]" ..
     "list[nodemeta:" .. spos .. ";batteries;0,0.5;4,4;]" ..
     "list[current_player;main;0,4.85;8,1;]" ..

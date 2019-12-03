@@ -13,6 +13,7 @@ local function get_drive_case_formspec(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
     "size[8,9]" ..
+    yatm.bg.machine ..
     "list[nodemeta:" .. spos .. ";drive_bay;0,0.3;2,4;]" ..
     "list[current_player;main;0,4.85;8,1;]" ..
     "list[current_player;main;0,6.08;8,3;8]" ..

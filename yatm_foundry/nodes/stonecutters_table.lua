@@ -9,20 +9,13 @@ local table_nodebox = {
   }
 }
 
-local stonecutters_table_form = yatm_core.UI.Form:new()
-stonecutters_table_form:set_size(8, 8.5)
-stonecutters_table_form:new_label(0, 0, "Stonecutters's Table")
-stonecutters_table_form:new_list("current_player", "main", 0, 4.25, 8, 1, "")
-stonecutters_table_form:new_list("current_player", "main", 0, 5.5, 8, 3, 8)
-stonecutters_table_form:new_list_ring("current_player", "main")
-
 local function stonecutters_table_get_formspec()
   local formspec =
-    default.gui_bg ..
-    default.gui_bg_img ..
-    default.gui_slots ..
-    stonecutters_table_form:to_formspec() ..
+    "size[8,9]" ..
+    yatm.bg.machine ..
+    "label[0,0;Stonecutters' Table]" ..
     default.get_hotbar_bg(0, 4.25)
+
   return formspec
 end
 

@@ -366,7 +366,7 @@ end
 --
 -- Data Frame Motor
 --
-if yatm_data_network then
+if yatm_data_logic then
   local data_network = assert(yatm.data_network)
 
   local function refresh_infotext(pos, node)
@@ -375,19 +375,6 @@ if yatm_data_network then
       data_network:get_infotext(pos)
 
     meta:set_string("infotext", infotext)
-  end
-
-  local frame_motor_data_network_device = {
-    type = "device",
-  }
-
-  local frame_motor_data_interface = {}
-
-  function frame_motor_data_interface.on_load(self, pos, node)
-  end
-
-  function frame_motor_data_interface.receive_pdu(self, pos, node, dir, port, value)
-    --
   end
 
   local function frame_motor_on_construct(pos)
@@ -400,72 +387,131 @@ if yatm_data_network then
     data_network:unregister_member(pos, node)
   end
 
-  minetest.register_node("yatm_frames:frame_motor_data_off", {
+  yatm.register_stateful_node("yatm_frames:frame_motor_data", {
     basename = "yatm_frames:frame_motor_data",
 
     description = "Data Frame Motor",
-
-    groups = {
-      cracky = 1,
-      frame_motor = 1,
-      yatm_data_device = 1,
-    },
-
-    tiles = {
-      "yatm_frame_motor_top.off.png",
-      "yatm_frame_motor_bottom.png",
-      "yatm_frame_motor_side_data.png",
-      "yatm_frame_motor_side_data.png",
-      "yatm_frame_motor_side_data.png",
-      "yatm_frame_motor_side_data.png",
-    },
 
     paramtype = "light",
     paramtype2 = "facedir",
 
     refresh_infotext = refresh_infotext,
 
-    data_network_device = frame_motor_data_network_device,
-    data_interface = frame_motor_data_interface,
+    data_network_device = {
+      type = "device",
+    },
+    data_interface = {
+      on_load = function (self, pos, node)
+        --
+      end,
+
+      receive_pdu = function (self, pos, node, dir, port, value)
+      end,
+
+      get_programmer_formspec = function (self, pos, clicker, pointed_thing, assigns)
+        --
+        local meta = minetest.get_meta(pos)
+
+        assigns.tab = assigns.tab or 1
+        local formspec =
+          "size[8,9]" ..
+          yatm.bg.module ..
+          "tabheader[0,0;tab;Ports,Data;" .. assigns.tab .. "]"
+
+        if assigns.tab == 1 then
+          formspec =
+            formspec ..
+            "label[0,0;Port Configuration]"
+
+          local io_formspec = yatm_data_logic.get_io_port_formspec(pos, meta, "i")
+
+          formspec =
+            formspec ..
+            io_formspec
+
+        elseif assigns.tab == 2 then
+          formspec =
+            formspec ..
+            "label[0,0;Data Configuration]" ..
+            "label[0,1;Data Trigger]" ..
+            "field[0.25,2;7.5,4;data_trigger;Data;" .. minetest.formspec_escape(meta:get_string("data_trigger")) .. "]"
+        end
+
+        return formspec
+      end,
+
+      receive_programmer_fields = function (self, player, form_name, fields, assigns)
+        local meta = minetest.get_meta(assigns.pos)
+
+        local needs_refresh = false
+
+        if fields["tab"] then
+          local tab = tonumber(fields["tab"])
+          if tab ~= assigns.tab then
+            assigns.tab = tab
+            needs_refresh = true
+          end
+        end
+
+        local inputs_changed = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "i")
+
+        if not yatm_core.is_table_empty(inputs_changed) then
+          yatm_data_logic.unmark_all_receive(assigns.pos)
+          yatm_data_logic.mark_all_inputs_for_active_receive(assigns.pos)
+        end
+
+        if fields["data_trigger"] then
+          meta:set_string("data_trigger", fields["data_trigger"])
+        end
+
+        if needs_refresh then
+          local formspec = self:get_programmer_formspec(assigns.pos, player, nil, assigns)
+          return true, formspec
+        else
+          return true
+        end
+      end,
+    },
 
     on_construct = frame_motor_on_construct,
     after_destruct = frame_motor_after_destruct,
 
     is_ground_content = false,
-  })
+  }, {
+    off = {
+      groups = {
+        cracky = 1,
+        frame_motor = 1,
+        yatm_data_device = 1,
+        data_programmable = 1,
+      },
 
-  minetest.register_node("yatm_frames:frame_motor_data_on", {
-    basename = "yatm_frames:frame_motor_data",
-
-    description = "Data Frame Motor",
-
-    groups = {
-      cracky = 1,
-      frame_motor = 1,
-      yatm_data_device = 1,
-      not_in_creative_inventory = 1,
+      tiles = {
+        "yatm_frame_motor_top.off.png",
+        "yatm_frame_motor_bottom.png",
+        "yatm_frame_motor_side_data.png",
+        "yatm_frame_motor_side_data.png",
+        "yatm_frame_motor_side_data.png",
+        "yatm_frame_motor_side_data.png",
+      },
     },
+    on = {
+      groups = {
+        cracky = 1,
+        frame_motor = 1,
+        yatm_data_device = 1,
+        data_programmable = 1,
+        not_in_creative_inventory = 1,
+      },
 
-    tiles = {
-      "yatm_frame_motor_top.on.png",
-      "yatm_frame_motor_bottom.png",
-      "yatm_frame_motor_side_data.png",
-      "yatm_frame_motor_side_data.png",
-      "yatm_frame_motor_side_data.png",
-      "yatm_frame_motor_side_data.png",
+      tiles = {
+        "yatm_frame_motor_top.on.png",
+        "yatm_frame_motor_bottom.png",
+        "yatm_frame_motor_side_data.png",
+        "yatm_frame_motor_side_data.png",
+        "yatm_frame_motor_side_data.png",
+        "yatm_frame_motor_side_data.png",
+      },
     },
-
-    paramtype = "light",
-    paramtype2 = "facedir",
-
-    refresh_infotext = refresh_infotext,
-
-    data_network_device = frame_motor_data_network_device,
-    data_interface = frame_motor_data_interface,
-
-    on_construct = frame_motor_on_construct,
-    after_destruct = frame_motor_after_destruct,
-
-    is_ground_content = false,
   })
 end

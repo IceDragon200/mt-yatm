@@ -42,8 +42,7 @@ local function docking_station_refresh_infotext(pos, node)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
-    cluster_energy:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
+    cluster_energy:get_node_infotext(pos) .. "[" .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "]"
 
   meta:set_string("infotext", infotext)
 end

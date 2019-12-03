@@ -170,7 +170,8 @@ end
 --
 -- @spec delete_computer_state(Vector) :: boolean
 function ic:delete_computer_state(pos)
-  local filename = pos_to_filename(pos)
+  local basename = pos_to_basename(pos)
+  local filename = yatm_core.path_join(self.m_root_dir, basename)
 
   local file = io.open(filename, "r")
   if file then

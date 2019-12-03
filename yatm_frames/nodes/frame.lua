@@ -46,7 +46,7 @@ minetest.register_node("yatm_frames:frame_sticky_one", {
     motor_frame_sticky_one = 1,
   },
 
-  drawtype = "normal",
+  drawtype = "nodebox",
   tiles = {
     "yatm_frame_side.png",
     "yatm_frame_side.png",
@@ -54,6 +54,12 @@ minetest.register_node("yatm_frames:frame_sticky_one", {
     "yatm_frame_side.png",
     "yatm_frame_side.png",
     "yatm_frame_side_sticky.png",
+  },
+
+  node_box = {
+    fixed = {
+      yatm_core.Cuboid:new(0, 0, 0, 16, 16, 16):fast_node_box(),
+    },
   },
 
   paramtype = "light",

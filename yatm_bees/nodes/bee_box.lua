@@ -19,13 +19,24 @@ end
 
 local function get_bee_box_formspec(pos)
   local meta = minetest.get_meta(pos)
+  local node = minetest.get_node(pos)
+  local nodedef = minetest.registered_nodes[node.name]
+
   local inv = meta:get_inventory()
 
   local frames = inv:get_list("frame_slots")
 
+  local bg
+  if nodedef.material_basename == "wood" then
+    bg = yatm.bg.wood
+  else
+    bg = yatm.bg.default
+  end
+
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
     "size[10,9]" ..
+    bg ..
     "list[nodemeta:" .. spos .. ";queen_slot;0,1.3;1,1;]" ..
     "list[nodemeta:" .. spos .. ";princess_slots;1,0.3;1,3;]" ..
     "list[nodemeta:" .. spos .. ";worker_slots;2,0.3;2,4;]" ..
@@ -213,6 +224,10 @@ end
 
 
 minetest.register_node("yatm_bees:bee_box_wood", {
+  basename = "yatm_bees:bee_box",
+
+  material_basename = "wood",
+
   description = "Bee Box (Wood)",
 
   groups = yatm_core.table_merge(groups, { choppy = 1 }),
@@ -247,6 +262,10 @@ minetest.register_node("yatm_bees:bee_box_wood", {
 })
 
 minetest.register_node("yatm_bees:bee_box_metal", {
+  basename = "yatm_bees:bee_box",
+
+  material_basename = "metal",
+
   description = "Bee Box (Metal)",
 
   groups = yatm_core.table_merge(groups, { cracky = 1 }),

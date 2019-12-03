@@ -212,8 +212,8 @@ local function get_freezer_formspec(pos)
     "size[8,9]" ..
     yatm.bg.machine_cooled ..
     "label[0,0;Freezer]" ..
-    "list[nodemeta:" .. spos .. ";input_items;1,1;3,3;]" ..
-    "list[nodemeta:" .. spos .. ";output_items;5,1;3,3;]" ..
+    "list[nodemeta:" .. spos .. ";input_items;0.5,1;3,3;]" ..
+    "list[nodemeta:" .. spos .. ";output_items;4.5,1;3,3;]" ..
     "list[current_player;main;0,4.85;8,1;]" ..
     "list[current_player;main;0,6.08;8,3;8]" ..
     "listring[nodemeta:" .. spos .. ";input_items]" ..
@@ -241,6 +241,8 @@ end
 
 local groups = {
   cracky = 1,
+  yatm_energy_device = 1,
+  yatm_network_device = 1,
   fluid_interface_in = 1,
   item_interface_in = 1,
   item_interface_out = 1,

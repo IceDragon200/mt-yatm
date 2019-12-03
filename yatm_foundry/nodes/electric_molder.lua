@@ -10,6 +10,7 @@ local function get_electric_molder_formspec(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
     "size[8,9]" ..
+    yatm.bg.machine_heated ..
     "list[nodemeta:" .. spos .. ";mold_slot;0,0.3;1,1;]" ..
     "list[nodemeta:" .. spos .. ";molding_slot;2,0.3;1,1;]" ..
     "list[nodemeta:" .. spos .. ";output_slot;4,0.3;1,1;]" ..

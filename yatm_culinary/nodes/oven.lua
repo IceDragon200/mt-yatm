@@ -3,6 +3,7 @@ local function get_oven_formspec(pos)
 
   local formspec =
     "size[8,9]" ..
+    yatm.bg.machine_heated ..
     "list[nodemeta:" .. spos .. ";fuel_slot;3,2.5.3;1,1;]" ..
     "list[nodemeta:" .. spos .. ";input_slot;1,1;1,1;]" ..
     "list[nodemeta:" .. spos .. ";processing_slot;3,1;1,1;]" ..
