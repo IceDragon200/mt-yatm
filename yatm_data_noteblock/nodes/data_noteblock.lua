@@ -220,8 +220,8 @@ minetest.register_node("yatm_data_noteblock:data_noteblock", {
         formspec =
           formspec ..
           "label[0,0;Data Configuration]" ..
-          "field[0.5,1;8,1;offset;Note Offset;" .. meta:get_int("offset") .. "]" ..
-          "field[0.5,2;8,1;damper;Damper;" .. meta:get_int("damper") .. "]"
+          "field[0.25,1;8,1;offset;Note Offset;" .. meta:get_int("offset") .. "]" ..
+          "field[0.25,2;8,1;damper;Damper;" .. meta:get_int("damper") .. "]"
       end
 
       return formspec
