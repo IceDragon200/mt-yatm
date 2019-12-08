@@ -88,8 +88,35 @@ yatm.devices.register_stateful_network_device({
 
   yatm_network = heater_yatm_network,
 
+  on_construct = function (pos, node)
+    yatm.devices.device_on_construct(pos)
+    cluster_thermal:schedule_add_node(pos, node)
+  end,
+
   refresh_infotext = electric_heater_refresh_infotext,
-  transfer_heat = assert(yatm.heating.default_transfer_heat),
+
+  thermal_interface = {
+    groups = {
+      heater = 1,
+      thermal_producer = 1,
+      updatable = 1,
+    },
+
+    get_heat = function (self, pos, node)
+      local meta = minetest.get_meta(pos)
+      return meta:get_float("heat")
+    end,
+
+    update = function (self, pos, node, dtime)
+      -- because devices don't 'work' when their offline, the thermal system will handle the heat dissipation
+      if node.name ~= "yatm_foundry:electric_heater_on" then
+        local meta = minetest.get_meta(pos)
+        local heat = meta:get_float("heat")
+        heat = math.max(heat - 5 * dtime, 0)
+        meta:set_float("heat", heat)
+      end
+    end,
+  },
 }, {
   error = {
     tiles = {

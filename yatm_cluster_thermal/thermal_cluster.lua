@@ -28,8 +28,8 @@ end
 
 function ic:get_node_groups(node)
   local nodedef = minetest.registered_nodes[node.name]
-  if nodedef and nodedef.thermal_device then
-    return nodedef.thermal_device.groups or {}
+  if nodedef and nodedef.thermal_interface then
+    return nodedef.thermal_interface.groups or {}
   else
     return {}
   end

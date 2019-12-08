@@ -11,9 +11,6 @@ If you're looking for wood processing, check yatm_woodcraft.
 yatm_foundry = rawget(_G, "yatm_foundry") or {}
 yatm_foundry.modpath = minetest.get_modpath(minetest.get_current_modname())
 
-dofile(yatm_foundry.modpath .. "/heat_interface.lua")
-dofile(yatm_foundry.modpath .. "/heatable_device.lua")
-
 dofile(yatm_foundry.modpath .. "/kiln_registry.lua")
 dofile(yatm_foundry.modpath .. "/blasting_registry.lua")
 dofile(yatm_foundry.modpath .. "/smelting_registry.lua")
@@ -26,8 +23,6 @@ dofile(yatm_foundry.modpath .. "/items.lua")
 dofile(yatm_foundry.modpath .. "/fluids.lua")
 
 dofile(yatm_foundry.modpath .. "/recipes.lua")
-
-dofile(yatm_foundry.modpath .. "/abms.lua")
 
 dofile(yatm_foundry.modpath .. "/migrations.lua")
 

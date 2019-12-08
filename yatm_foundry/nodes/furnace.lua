@@ -29,50 +29,63 @@ local groups = {
   heatable_device = 1,
 }
 
-minetest.register_node("yatm_foundry:furnace_off", {
+yatm.register_stateful_node("yatm_foundry:furnace", {
   basename = "yatm_foundry:furnace",
 
   description = "Furnace",
 
   groups = groups,
 
-  tiles = {
-    "yatm_furnace_top.off.png",
-    "yatm_furnace_bottom.off.png",
-    "yatm_furnace_side.off.png",
-    "yatm_furnace_side.off.png^[transformFX",
-    "yatm_furnace_back.off.png",
-    "yatm_furnace_front.off.png"
-  },
   paramtype = "light",
   paramtype2 = "facedir",
 
   sounds = default.node_sound_stone_defaults(),
 
+  on_construct = function (pos)
+    local node = minetest.get_node(pos)
+    cluster_thermal:schedule_add_node(pos, node)
+  end,
+
+  after_destruct = function (pos, node)
+    cluster_thermal:schedule_remove_node(pos, node)
+  end,
+
   refresh_infotext = furnace_refresh_infotext,
-  heat_interface = heat_interface,
-})
+  thermal_interface = {
+    groups = {
+      heater = 1,
+      thermal_user = 1,
+    },
 
-minetest.register_node("yatm_foundry:furnace_on", {
-  basename = "yatm_foundry:furnace",
-
-  description = "Furnace",
-
-  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-
-  tiles = {
-    "yatm_furnace_top.on.png",
-    "yatm_furnace_bottom.on.png",
-    "yatm_furnace_side.on.png",
-    "yatm_furnace_side.on.png^[transformFX",
-    "yatm_furnace_back.on.png",
-    "yatm_furnace_front.on.png"
+    update_heat = function (self, pos, node, heat, dtime)
+      local meta = minetest.get_meta(pos)
+      local available_heat = meta:get_float("heat")
+      meta:set_float("heat", yatm_core.number_lerp(available_heat, heat, dtime))
+      yatm.queue_refresh_infotext(pos, node)
+    end,
   },
-  paramtype = "light",
-  paramtype2 = "facedir",
+}, {
+  off = {
+    tiles = {
+      "yatm_furnace_top.off.png",
+      "yatm_furnace_bottom.off.png",
+      "yatm_furnace_side.off.png",
+      "yatm_furnace_side.off.png^[transformFX",
+      "yatm_furnace_back.off.png",
+      "yatm_furnace_front.off.png"
+    },
 
-  sounds = default.node_sound_stone_defaults(),
+  },
+  on = {
+    groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
 
-  refresh_infotext = furnace_refresh_infotext,
-  heat_interface = heat_interface,
+    tiles = {
+      "yatm_furnace_top.on.png",
+      "yatm_furnace_bottom.on.png",
+      "yatm_furnace_side.on.png",
+      "yatm_furnace_side.on.png^[transformFX",
+      "yatm_furnace_back.on.png",
+      "yatm_furnace_front.on.png"
+    },
+  }
 })

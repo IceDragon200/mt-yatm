@@ -1,4 +1,5 @@
 local ItemInterface = assert(yatm.items.ItemInterface)
+local cluster_thermal = assert(yatm.clusters.thermal)
 
 local function is_item_solid_fuel(item_stack)
   if not item_stack or item_stack:get_count() == 0 then
@@ -31,10 +32,15 @@ local function get_solid_fuel_heater_formspec(pos)
 end
 
 local function solid_fuel_heater_on_construct(pos)
-  yatm.devices.device_on_construct(pos)
   local meta = minetest.get_meta(pos)
   local inv = meta:get_inventory()
   inv:set_size("fuel_slot", 1)
+
+  cluster_thermal:schedule_add_node(pos, minetest.get_node(pos))
+end
+
+local function solid_fuel_heater_after_destruct(pos, old_node)
+  cluster_thermal:schedule_remove_node(pos, old_node)
 end
 
 local function solid_fuel_heater_on_rightclick(pos, node, clicker)
@@ -68,7 +74,7 @@ local function solid_fuel_heater_node_timer(pos, elapsed)
 
   if fuel_time > 0 then
     meta:set_float("fuel_time", fuel_time - elapsed)
-    meta:set_float("heat", math.min(heat + 10 * elapsed, 1600))
+    meta:set_float("heat", math.min(heat + 10 * elapsed, 3600))
 
     yatm.queue_refresh_infotext(pos, node)
     return true
@@ -118,7 +124,7 @@ local function solid_fuel_heater_refresh_infotext(pos)
 
   meta:set_string("infotext",
     -- TODO: pull the max heat from configuration
-    "Heat: " .. heat .. " / 1600" .. "\n" ..
+    "Heat: " .. heat .. " / 3600" .. "\n" ..
     "Fuel Time: " .. yatm_core.format_pretty_time(fuel_time) .. " / " .. yatm_core.format_pretty_time(fuel_time_max)
   )
 end
@@ -153,19 +159,12 @@ local node_box = {
   }
 }
 
-minetest.register_node("yatm_foundry:solid_fuel_heater_off", {
+yatm.register_stateful_node("yatm_foundry:solid_fuel_heater", {
   basename = "yatm_foundry:solid_fuel_heater",
 
   description = "Solid Fuel Heater",
   groups = groups,
-  tiles = {
-    "yatm_solid_fuel_heater_top.off.png",
-    "yatm_solid_fuel_heater_bottom.off.png",
-    "yatm_solid_fuel_heater_side.off.png",
-    "yatm_solid_fuel_heater_side.off.png^[transformFX",
-    "yatm_solid_fuel_heater_side.off.png",
-    "yatm_solid_fuel_heater_side.off.png"
-  },
+
   drawtype = "nodebox",
   node_box = node_box,
 
@@ -177,6 +176,7 @@ minetest.register_node("yatm_foundry:solid_fuel_heater_off", {
   item_interface = solid_fuel_heater_item_interface,
 
   on_construct = solid_fuel_heater_on_construct,
+  after_destruct = solid_fuel_heater_after_destruct,
   on_rightclick = solid_fuel_heater_on_rightclick,
   on_timer = solid_fuel_heater_node_timer,
 
@@ -184,43 +184,40 @@ minetest.register_node("yatm_foundry:solid_fuel_heater_off", {
   on_metadata_inventory_put = solid_fuel_heater_on_metadata_inventory_put,
 
   refresh_infotext = solid_fuel_heater_refresh_infotext,
-  transfer_heat = assert(yatm.heating.default_transfer_heat),
-})
 
-minetest.register_node("yatm_foundry:solid_fuel_heater_on", {
-  basename = "yatm_foundry:solid_fuel_heater",
+  thermal_interface = {
+    groups = {
+      heater = 1,
+      thermal_producer = 1,
+    },
 
-  description = "Solid Fuel Heater",
-
-  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-
-  tiles = {
-    "yatm_solid_fuel_heater_top.on.png",
-    "yatm_solid_fuel_heater_bottom.on.png",
-    "yatm_solid_fuel_heater_side.on.png",
-    "yatm_solid_fuel_heater_side.on.png^[transformFX",
-    "yatm_solid_fuel_heater_side.on.png",
-    "yatm_solid_fuel_heater_side.on.png"
+    get_heat = function (self, pos, node)
+      local meta = minetest.get_meta(pos)
+      return meta:get_float("heat")
+    end,
   },
-  drawtype = "nodebox",
-  node_box = node_box,
+}, {
+  off = {
+    tiles = {
+      "yatm_solid_fuel_heater_top.off.png",
+      "yatm_solid_fuel_heater_bottom.off.png",
+      "yatm_solid_fuel_heater_side.off.png",
+      "yatm_solid_fuel_heater_side.off.png^[transformFX",
+      "yatm_solid_fuel_heater_side.off.png",
+      "yatm_solid_fuel_heater_side.off.png"
+    },
+  },
 
-  paramtype = "light",
-  paramtype2 = "facedir",
+  on = {
+    groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
 
-  light_source = 7,
-
-  sounds = default.node_sound_stone_defaults(),
-
-  item_interface = solid_fuel_heater_item_interface,
-
-  on_construct = solid_fuel_heater_on_construct,
-  on_rightclick = solid_fuel_heater_on_rightclick,
-  on_timer = solid_fuel_heater_node_timer,
-
-  allow_metadata_inventory_put = solid_fuel_heater_allow_metadata_inventory_put,
-  on_metadata_inventory_put = solid_fuel_heater_on_metadata_inventory_put,
-
-  refresh_infotext = solid_fuel_heater_refresh_infotext,
-  transfer_heat = assert(yatm.heating.default_transfer_heat),
+    tiles = {
+      "yatm_solid_fuel_heater_top.on.png",
+      "yatm_solid_fuel_heater_bottom.on.png",
+      "yatm_solid_fuel_heater_side.on.png",
+      "yatm_solid_fuel_heater_side.on.png^[transformFX",
+      "yatm_solid_fuel_heater_side.on.png",
+      "yatm_solid_fuel_heater_side.on.png"
+    },
+  },
 })

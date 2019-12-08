@@ -4,7 +4,7 @@ local table_length = assert(yatm_core.table_length)
 -- A very thick duct
 local size = 12 / 16 / 2
 
-minetest.register_node("yatm_cluster_thermal:thermal_duct", {
+yatm.register_stateful_node("yatm_cluster_thermal:thermal_duct", {
   description = "Thermal Duct",
 
   groups = {
@@ -17,12 +17,6 @@ minetest.register_node("yatm_cluster_thermal:thermal_duct", {
 
   tiles = {
     "yatm_thermal_duct_side.heating.png"
-  },
-
-  thermal_device = {
-    groups = {
-      duct = 1,
-    },
   },
 
   connects_to = {
@@ -53,45 +47,58 @@ minetest.register_node("yatm_cluster_thermal:thermal_duct", {
     cluster_thermal:schedule_remove_node(pos, node)
   end,
 
-  transfer_heat = function (pos, node)
+  thermal_interface = {
+    groups = {
+      duct = 1,
+      thermal_producer = 1, -- not actually, but it works like one
+    },
+
+    get_heat = function (self, pos, node)
+      local meta = minetest.get_meta(pos)
+      return meta:get_float("heat")
+    end,
+
+    update_heat = function (self, pos, node, heat, dtime)
+      local meta = minetest.get_meta(pos)
+      local available_heat = meta:get_float("heat")
+      meta:set_float("heat", yatm_core.number_lerp(available_heat, heat, dtime))
+      yatm.queue_refresh_infotext(pos, node)
+    end,
+  },
+
+  refresh_infotext = function (pos, node)
     local meta = minetest.get_meta(pos)
     local available_heat = meta:get_float("heat")
-    -- Capture all the ducts
-    local ducts = {}
-    -- Other devices
-    local other_devices = {}
 
-    if available_heat <= 0 then
-      for d6_code, d6_vec3 in pairs(yatm_core.DIR6_TO_VEC3) do
-        local npos = vector.add(pos, d6_vec3)
-        local nnode = minetest.get_node(npos)
-
-        if minetest.get_item_group(nnode, "thermal_duct") > 0 then
-          -- attempt to equalize the heat between ducts
-          local nmeta = minetest.get_meta(npos)
-          local nheat = nmeta:get_float("heat")
-
-          if nheat < available_heat then
-            -- Only use ducts that have less heat than the one asking.
-            ducts[d6_code] = {
-              pos = npos,
-              node = nnode,
-              meta = nmeta
-            }
-          end
-        elseif minetest.get_item_group(nnode, "heatable_device") > 0 then
-          -- perform normal heat transfer
-          other_devices[d6_code] = {
-            pos = npos,
-            node = nnode,
-          }
-        end
-      end
-
-      local duct_count = table_length(ducts)
-      local other_device_count = table_length(other_devices)
-
-
+    local new_name
+    if new_heat > 0 then
+      new_name = "yatm_cluster_thermal:thermal_duct_heating"
+    elseif new_heat < 0 then
+      new_name = "yatm_cluster_thermal:thermal_duct_cooling"
+    else
+      new_name = "yatm_cluster_thermal:thermal_duct_off"
     end
-  end
+
+    if node.name ~= new_name then
+      minetest.swap_node(pos, node)
+    end
+  end,
+}, {
+  off = {
+    tiles = {
+      "yatm_thermal_duct_side.off.png"
+    },
+  },
+
+  heating = {
+    tiles = {
+      "yatm_thermal_duct_side.heating.png"
+    },
+  },
+
+  cooling = {
+    tiles = {
+      "yatm_thermal_duct_side.cooling.png"
+    },
+  },
 })
