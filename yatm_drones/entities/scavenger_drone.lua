@@ -390,6 +390,7 @@ end
 local function get_scavenger_drone_formspec(self)
   local formspec =
     "size[8,9]" ..
+    yatm.bg.machine ..
     "label[0,0;Inventory]" ..
     "list[detached:" .. self.inventory_name .. ";main;0,0.5;4,4;]" ..
     "label[4,0;Upgrades]" ..
