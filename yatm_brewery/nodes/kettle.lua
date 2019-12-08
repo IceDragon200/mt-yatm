@@ -1,7 +1,7 @@
+local cluster_thermal = assert(yatm.cluster.thermal)
 local brewing_registry = assert(yatm.brewing.brewing_registry)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
-local HeatInterface = assert(yatm.heating.HeatInterface)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local FluidExchange = assert(yatm.fluids.FluidExchange)
 
@@ -25,20 +25,6 @@ local item_interface = ItemInterface.new_directional(function (self, pos, dir)
     return "output_item"
   end
 end)
-
-local heat_interface = HeatInterface.new_simple("heat", 400)
-
-function heat_interface:on_heat_changed(pos, dir, old_heat, new_heat)
-  local node = minetest.get_node(pos)
-  if math.floor(new_heat) > 0 then
-    node.name = "yatm_brewery:kettle_on"
-  else
-    node.name = "yatm_brewery:kettle_off"
-  end
-  minetest.swap_node(pos, node)
-  yatm.queue_refresh_infotext(pos)
-  minetest.get_node_timer(pos):start(1.0)
-end
 
 local function kettle_on_construct(pos)
   local meta = minetest.get_meta(pos)
@@ -178,7 +164,36 @@ yatm.register_stateful_node("yatm_brewery:kettle", {
 
   fluid_interface = fluid_interface,
   item_interface = item_interface,
-  heat_interface = heat_interface,
+  thermal_interface = {
+    groups = {
+      heater = 1,
+      thermal_user = 1,
+    },
+
+    update_heat = function (self, pos, node, heat, dtime)
+      local meta = minetest.get_meta(pos)
+      local available_heat = meta:get_float("heat")
+      local new_heat = yatm_core.number_lerp(available_heat, heat, dtime)
+      meta:set_float("heat", new_heat)
+
+      if new_heat ~= available_heat then
+        local new_name
+        if math.floor(new_heat) > 0 then
+          new_name = "yatm_brewery:kettle_on"
+        else
+          new_name = "yatm_brewery:kettle_off"
+        end
+        if new_name ~= node.name then
+          node.name = new_name
+          minetest.swap_node(pos, node)
+        end
+
+        yatm_core.maybe_start_node_timer(pos, 1.0)
+
+        yatm.queue_refresh_infotext(pos, node)
+      end
+    end,
+  },
 }, {
   off = {
     tiles = {

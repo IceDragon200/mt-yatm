@@ -1,4 +1,4 @@
-local HeatInterface = assert(yatm.heating.HeatInterface)
+local cluster_thermal = assert(yatm.cluster.thermal)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
@@ -18,19 +18,6 @@ local function get_smelter_formspec(pos)
     "listring[current_player;main]" ..
     default.get_hotbar_bg(0,4.85)
   return formspec
-end
-
-local heat_interface = HeatInterface.new_simple("heat", 400)
-function heat_interface:on_heat_changed(pos, dir, old_heat, new_heat)
-  local node = minetest.get_node(pos)
-  if math.floor(new_heat) > 0 then
-    node.name = "yatm_foundry:smelter_on"
-  else
-    node.name = "yatm_foundry:smelter_off"
-  end
-  minetest.swap_node(pos, node)
-  yatm.queue_refresh_infotext(pos, node)
-  minetest.get_node_timer(pos):start(1.0)
 end
 
 local TANK_CAPACITY = 4000
@@ -65,17 +52,11 @@ local function smelter_refresh_infotext(pos)
   local recipe_time_max = meta:get_float("recipe_time_max")
 
   meta:set_string("infotext",
-    "Heat: " .. heat .. " / " .. heat_interface.heat_capacity .. "\n" ..
+    cluster_thermal:get_node_infotext(pos) .. "\n" ..
+    "Heat: " .. heat .. "\n" ..
     "Molten Tank: " .. FluidStack.pretty_format(molten_tank_fluid_stack, fluid_interface.capacity) .. "\n" ..
     "Time Remaining: " .. yatm_core.format_pretty_time(recipe_time) .. " / " .. yatm_core.format_pretty_time(recipe_time_max)
   )
-end
-
-local function smelter_on_construct(pos)
-  local meta = minetest.get_meta(pos)
-  local inv = meta:get_inventory()
-  inv:set_size("input_slot", 1)
-  inv:set_size("processing_slot", 1)
 end
 
 local function smelter_on_rightclick(pos, node, clicker)
@@ -146,66 +127,92 @@ local groups = {
   item_interface_out = 1,
   fluid_interface_out = 1,
   heatable_device = 1,
+  yatm_cluster_thermal = 1,
 }
 
-minetest.register_node("yatm_foundry:smelter_off", {
+yatm.register_stateful_node("yatm_foundry:smelter", {
   basename = "yatm_foundry:smelter",
 
   description = "Smelter",
   groups = groups,
-  tiles = {
-    "yatm_smelter_top.off.png",
-    "yatm_smelter_bottom.off.png",
-    "yatm_smelter_side.off.png",
-    "yatm_smelter_side.off.png^[transformFX",
-    "yatm_smelter_side.off.png",
-    "yatm_smelter_side.off.png"
-  },
-  paramtype = "light",
-  paramtype2 = "facedir",
-
-  sounds = default.node_sound_stone_defaults(),
-
-  refresh_infotext = smelter_refresh_infotext,
-  heat_interface = heat_interface,
-  item_interface = item_interface,
-  fluid_interface = fluid_interface,
-
-  on_construct = smelter_on_construct,
-  on_rightclick = smelter_on_rightclick,
-  on_timer = smelter_on_timer,
-})
-
-minetest.register_node("yatm_foundry:smelter_on", {
-  basename = "yatm_foundry:smelter",
-
-  description = "Smelter",
-
-  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-
   drop = "yatm_foundry:smelter_off",
 
-  tiles = {
-    "yatm_smelter_top.on.png",
-    "yatm_smelter_bottom.on.png",
-    "yatm_smelter_side.on.png",
-    "yatm_smelter_side.on.png^[transformFX",
-    "yatm_smelter_side.on.png",
-    "yatm_smelter_side.on.png"
-  },
   paramtype = "light",
   paramtype2 = "facedir",
-
-  light_source = 7,
 
   sounds = default.node_sound_stone_defaults(),
 
   refresh_infotext = smelter_refresh_infotext,
-  heat_interface = heat_interface,
   item_interface = item_interface,
   fluid_interface = fluid_interface,
 
-  on_construct = smelter_on_construct,
+  on_construct = function (pos)
+    local node = minetest.get_node(pos)
+    local meta = minetest.get_meta(pos)
+    local inv = meta:get_inventory()
+    inv:set_size("input_slot", 1)
+    inv:set_size("processing_slot", 1)
+    cluster_thermal:schedule_add_node(pos, node)
+  end,
+
+  after_destruct = function (pos, node)
+    cluster_thermal:schedule_remove_node(pos, node)
+  end,
+
   on_rightclick = smelter_on_rightclick,
   on_timer = smelter_on_timer,
+
+  thermal_interface = {
+    groups = {
+      heater = 1,
+      thermal_user = 1,
+    },
+
+    update_heat = function (self, pos, node, heat, dtime)
+      local meta = minetest.get_meta(pos)
+      local available_heat = meta:get_float("heat")
+      local new_heat = yatm_core.number_lerp(available_heat, heat, dtime)
+      meta:set_float("heat", new_heat)
+
+      if new_heat ~= available_heat then
+        local new_name
+        if math.floor(new_heat) > 0 then
+          new_name = "yatm_foundry:smelter_on"
+        else
+          new_name = "yatm_foundry:smelter_off"
+        end
+        if new_name ~= node.name then
+          node.name = new_name
+          minetest.swap_node(pos, node)
+        end
+
+        yatm_core.maybe_start_node_timer(pos, 1.0)
+        yatm.queue_refresh_infotext(pos, node)
+      end
+    end,
+  },
+}, {
+  off = {
+    tiles = {
+      "yatm_smelter_top.off.png",
+      "yatm_smelter_bottom.off.png",
+      "yatm_smelter_side.off.png",
+      "yatm_smelter_side.off.png^[transformFX",
+      "yatm_smelter_side.off.png",
+      "yatm_smelter_side.off.png"
+    },
+  },
+
+  on = {
+    groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
+
+    tiles = {
+      "yatm_smelter_top.on.png",
+      "yatm_smelter_bottom.on.png",
+      "yatm_smelter_side.on.png",
+      "yatm_smelter_side.on.png^[transformFX",
+      "yatm_smelter_side.on.png",
+      "yatm_smelter_side.on.png"
+    },
+  },
 })

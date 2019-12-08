@@ -5,7 +5,7 @@ Reason? Balance, otherwise you could just abuse the poor thing for all your mold
 
 That or just make it god awful slow at it's job.
 ]]
-local HeatInterface = assert(yatm.heating.HeatInterface)
+local cluster_thermal = assert(yatm.cluster.thermal)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
@@ -28,23 +28,6 @@ local function get_molder_formspec(pos)
     "listring[current_player;main]" ..
     default.get_hotbar_bg(0,4.85)
   return formspec
-end
-
-local heat_interface = HeatInterface.new_simple("heat", 400)
-
-function heat_interface:on_heat_changed(pos, dir, old_heat, new_heat)
-  local node = minetest.get_node(pos)
-
-  if math.floor(new_heat) > 0 then
-    node.name = "yatm_foundry:molder_on"
-  else
-    node.name = "yatm_foundry:molder_off"
-  end
-
-  minetest.swap_node(pos, node)
-  yatm.queue_refresh_infotext(pos, node)
-
-  minetest.get_node_timer(pos):start(1.0)
 end
 
 local TANK_CAPACITY = 8000
@@ -88,7 +71,8 @@ local function molder_refresh_infotext(pos)
   local recipe_time_max = meta:get_float("recipe_time_max")
 
   local infotext =
-    "Heat: " .. heat .. " / " .. heat_interface.heat_capacity .. "\n" ..
+    cluster_thermal:get_node_infotext(pos) .. "\n" ..
+    "Heat: " .. heat .. "\n" ..
     "Recipe: " .. recipe_name .. "\n" ..
     "Molten Tank: " .. FluidStack.pretty_format(molten_tank_fluid_stack, fluid_interface.capacity) .. "\n" ..
     "Molding Tank: " .. FluidStack.pretty_format(molding_tank_fluid_stack, fluid_interface.capacity) .. "\n" ..
@@ -97,17 +81,8 @@ local function molder_refresh_infotext(pos)
   meta:set_string("infotext", infotext)
 end
 
-local function molder_on_construct(pos)
-  yatm.devices.device_on_construct(pos)
-  local meta = minetest.get_meta(pos)
-  local inv = meta:get_inventory()
-  inv:set_size("mold_slot", 1)
-  inv:set_size("molding_slot", 1)
-  inv:set_size("output_slot", 1)
-end
-
 local function molder_on_rightclick(pos, node, clicker)
-  minetest.get_node_timer(pos):start(1.0)
+  yatm_core.maybe_start_node_timer(pos, 1.0)
   minetest.show_formspec(
     clicker:get_player_name(),
     "yatm_foundry:molder",
@@ -191,6 +166,7 @@ local groups = {
   item_interface_out = 1,
   heatable_device = 1,
   heat_interface_in = 1,
+  yatm_cluster_thermal = 1,
 }
 
 local node_box = {
@@ -206,57 +182,14 @@ local node_box = {
   },
 }
 
-minetest.register_node("yatm_foundry:molder_off", {
+yatm.register_stateful_node("yatm_foundry:molder", {
   basename = "yatm_foundry:molder",
 
   description = "Molder",
   groups = groups,
 
-  tiles = {
-    "yatm_molder_top.off.png",
-    "yatm_molder_bottom.off.png",
-    "yatm_molder_side.off.png",
-    "yatm_molder_side.off.png^[transformFX",
-    "yatm_molder_side.off.png",
-    "yatm_molder_side.off.png"
-  },
-
-  drawtype = "nodebox",
-  node_box = node_box,
-
-  paramtype = "light",
-  paramtype2 = "facedir",
-
-  sounds = default.node_sound_stone_defaults(),
-
-  fluid_interface = fluid_interface,
-  item_interface = item_interface,
-  heat_interface = heat_interface,
-
-  refresh_infotext = molder_refresh_infotext,
-
-  on_construct = molder_on_construct,
-  on_rightclick = molder_on_rightclick,
-  on_timer = molder_on_timer,
-})
-
-minetest.register_node("yatm_foundry:molder_on", {
-  basename = "yatm_foundry:molder",
-  description = "Molder",
-
-  groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
-
   drop = "yatm_foundry:molder_off",
 
-  tiles = {
-    "yatm_molder_top.on.png",
-    "yatm_molder_bottom.on.png",
-    "yatm_molder_side.on.png",
-    "yatm_molder_side.on.png^[transformFX",
-    "yatm_molder_side.on.png",
-    "yatm_molder_side.on.png"
-  },
-
   drawtype = "nodebox",
   node_box = node_box,
 
@@ -267,11 +200,78 @@ minetest.register_node("yatm_foundry:molder_on", {
 
   fluid_interface = fluid_interface,
   item_interface = item_interface,
-  heat_interface = heat_interface,
 
   refresh_infotext = molder_refresh_infotext,
 
-  on_construct = molder_on_construct,
+  on_construct = function (pos)
+    local node = minetest.get_node(pos)
+    local meta = minetest.get_meta(pos)
+    local inv = meta:get_inventory()
+    inv:set_size("mold_slot", 1)
+    inv:set_size("molding_slot", 1)
+    inv:set_size("output_slot", 1)
+    cluster_thermal:schedule_add_node(pos, node)
+  end,
+
+  after_destruct = function (pos, node)
+    cluster_thermal:schedule_remove_node(pos, node)
+  end,
+
   on_rightclick = molder_on_rightclick,
   on_timer = molder_on_timer,
+
+  thermal_interface = {
+    groups = {
+      heater = 1,
+      thermal_user = 1,
+    },
+
+    update_heat = function (self, pos, node, heat, dtime)
+      local meta = minetest.get_meta(pos)
+      local available_heat = meta:get_float("heat")
+      local new_heat = yatm_core.number_lerp(available_heat, heat, dtime)
+      meta:set_float("heat", new_heat)
+
+      if new_heat ~= available_heat then
+        local new_name
+        if math.floor(new_heat) > 0 then
+          new_name = "yatm_foundry:molder_on"
+        else
+          new_name = "yatm_foundry:molder_off"
+        end
+        if new_name ~= node.name then
+          node.name = new_name
+          minetest.swap_node(pos, node)
+        end
+
+        yatm_core.maybe_start_node_timer(pos, 1.0)
+
+        yatm.queue_refresh_infotext(pos, node)
+      end
+    end,
+  },
+}, {
+  off = {
+    tiles = {
+      "yatm_molder_top.off.png",
+      "yatm_molder_bottom.off.png",
+      "yatm_molder_side.off.png",
+      "yatm_molder_side.off.png^[transformFX",
+      "yatm_molder_side.off.png",
+      "yatm_molder_side.off.png"
+    },
+  },
+
+  on = {
+    groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
+
+    tiles = {
+      "yatm_molder_top.on.png",
+      "yatm_molder_bottom.on.png",
+      "yatm_molder_side.on.png",
+      "yatm_molder_side.on.png^[transformFX",
+      "yatm_molder_side.on.png",
+      "yatm_molder_side.on.png"
+    },
+  }
 })

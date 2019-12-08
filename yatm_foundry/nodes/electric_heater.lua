@@ -2,7 +2,6 @@ local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local cluster_thermal = assert(yatm.cluster.thermal)
 local Energy = assert(yatm.energy)
-local HeatableDevice = assert(yatm.heating.HeatableDevice)
 
 local heater_yatm_network = {
   kind = "machine",

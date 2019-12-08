@@ -29,10 +29,9 @@ end
 function ic:get_node_groups(node)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef and nodedef.thermal_interface then
-    return nodedef.thermal_interface.groups or {}
-  else
-    return {}
+    return assert(nodedef.thermal_interface.groups)
   end
+  return {}
 end
 
 yatm_cluster_thermal.ThermalCluster = ThermalCluster

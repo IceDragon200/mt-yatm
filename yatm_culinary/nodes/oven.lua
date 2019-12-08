@@ -1,3 +1,5 @@
+
+
 local function get_oven_formspec(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
@@ -38,6 +40,12 @@ local function on_construct(pos)
   inv:set_size("input_slot", 1)
   inv:set_size("processing_slot", 1)
   inv:set_size("output_slot", 1)
+
+  cluster_thermal:schedule_add_node(pos, node)
+end
+
+local function after_destruct(pos, node)
+  cluster_thermal:schedule_remove_node(pos, node)
 end
 
 local function allow_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
@@ -53,15 +61,15 @@ local function allow_metadata_inventory_take(pos, listname, index, stack, player
 end
 
 local function on_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
-  minetest.get_node_timer(pos):start(1.0)
+  yatm_core.maybe_start_node_timer(pos, 1.0)
 end
 
 local function on_metadata_inventory_put(pos, listname, index, stack, player)
-  minetest.get_node_timer(pos):start(1.0)
+  yatm_core.maybe_start_node_timer(pos, 1.0)
 end
 
 local function on_metadata_inventory_take(pos, listname, index, stack, player)
-  minetest.get_node_timer(pos):start(1.0)
+  yatm_core.maybe_start_node_timer(pos, 1.0)
 end
 
 local function on_timer(pos, elapsed)
@@ -146,7 +154,7 @@ local function oven_refresh_infotext(pos)
   )
 end
 
-minetest.register_node("yatm_culinary:oven_off", {
+yatm.register_stateful_node("yatm_culinary:oven", {
   basename = "yatm_culinary:oven",
 
   description = "Oven",
@@ -154,21 +162,14 @@ minetest.register_node("yatm_culinary:oven_off", {
   groups = {
     cracky = 1,
     heatable_device = 1,
-  },
-
-  tiles = {
-    "yatm_oven_top.png",
-    "yatm_oven_bottom.png",
-    "yatm_oven_side.png",
-    "yatm_oven_side.png",
-    "yatm_oven_back.off.png",
-    "yatm_oven_front.off.png"
+    yatm_cluster_thermal = 1,
   },
 
   paramtype = "light",
   paramtype2 = "facedir",
 
   on_construct = on_construct,
+  after_destruct = after_destruct,
 
   allow_metadata_inventory_move = allow_metadata_inventory_move,
   allow_metadata_inventory_put = allow_metadata_inventory_put,
@@ -183,44 +184,63 @@ minetest.register_node("yatm_culinary:oven_off", {
   on_rightclick = oven_on_rightclick,
 
   refresh_infotext = oven_refresh_infotext,
-})
 
-minetest.register_node("yatm_culinary:oven_on", {
-  basename = "yatm_culinary:oven",
+  thermal_interface = {
+    groups = {
+      heater = 1,
+      thermal_user = 1,
+    },
 
-  description = "Oven",
+    update_heat = function (self, pos, node, heat, dtime)
+      local meta = minetest.get_meta(pos)
+      local available_heat = meta:get_float("heat")
+      local new_heat = yatm_core.number_lerp(available_heat, heat, dtime)
+      meta:set_float("heat", new_heat)
 
-  groups = {
-    cracky = 1,
-    not_in_creative_inventory = 1,
-    heatable_device = 1,
+      if new_heat ~= available_heat then
+        local new_name
+        if math.floor(new_heat) > 0 then
+          new_name = "yatm_culinary:oven_on"
+        else
+          new_name = "yatm_culinary:oven_off"
+        end
+        if new_name ~= node.name then
+          node.name = new_name
+          minetest.swap_node(pos, node)
+        end
+
+        yatm_core.maybe_start_node_timer(pos, 1.0)
+        yatm.queue_refresh_infotext(pos, node)
+      end
+    end,
+  },
+}, {
+  off = {
+    tiles = {
+      "yatm_oven_top.png",
+      "yatm_oven_bottom.png",
+      "yatm_oven_side.png",
+      "yatm_oven_side.png",
+      "yatm_oven_back.off.png",
+      "yatm_oven_front.off.png"
+    },
   },
 
-  tiles = {
-    "yatm_oven_top.png",
-    "yatm_oven_bottom.png",
-    "yatm_oven_side.png",
-    "yatm_oven_side.png",
-    "yatm_oven_back.on.png",
-    "yatm_oven_front.on.png"
+  on = {
+    groups = {
+      cracky = 1,
+      not_in_creative_inventory = 1,
+      heatable_device = 1,
+      yatm_cluster_thermal = 1,
+    },
+
+    tiles = {
+      "yatm_oven_top.png",
+      "yatm_oven_bottom.png",
+      "yatm_oven_side.png",
+      "yatm_oven_side.png",
+      "yatm_oven_back.on.png",
+      "yatm_oven_front.on.png"
+    },
   },
-
-  paramtype = "light",
-  paramtype2 = "facedir",
-
-  on_construct = on_construct,
-
-  allow_metadata_inventory_move = allow_metadata_inventory_move,
-  allow_metadata_inventory_put = allow_metadata_inventory_put,
-  allow_metadata_inventory_take = allow_metadata_inventory_take,
-
-  on_metadata_inventory_move = on_metadata_inventory_move,
-  on_metadata_inventory_put = on_metadata_inventory_put,
-  on_metadata_inventory_take = on_metadata_inventory_take,
-
-  on_timer = on_timer,
-
-  on_rightclick = oven_on_rightclick,
-
-  refresh_infotext = oven_refresh_infotext,
 })

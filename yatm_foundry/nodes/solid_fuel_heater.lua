@@ -1,5 +1,5 @@
+local cluster_thermal = assert(yatm.cluster.thermal)
 local ItemInterface = assert(yatm.items.ItemInterface)
-local cluster_thermal = assert(yatm.clusters.thermal)
 
 local function is_item_solid_fuel(item_stack)
   if not item_stack or item_stack:get_count() == 0 then
@@ -60,7 +60,7 @@ local function solid_fuel_heater_allow_metadata_inventory_put(pos, listname, ind
 end
 
 local function solid_fuel_heater_on_metadata_inventory_put(pos, listname, index, item_stack, player)
-  minetest.get_node_timer(pos):start(1.0)
+  yatm_core.maybe_start_node_timer(pos, 1.0)
 end
 
 local function solid_fuel_heater_node_timer(pos, elapsed)
@@ -123,6 +123,7 @@ local function solid_fuel_heater_refresh_infotext(pos)
   local heat = math.floor(meta:get_float("heat"))
 
   meta:set_string("infotext",
+    cluster_thermal:get_node_infotext(pos) .. "\n" ..
     -- TODO: pull the max heat from configuration
     "Heat: " .. heat .. " / 3600" .. "\n" ..
     "Fuel Time: " .. yatm_core.format_pretty_time(fuel_time) .. " / " .. yatm_core.format_pretty_time(fuel_time_max)
@@ -132,7 +133,7 @@ end
 local solid_fuel_heater_item_interface = ItemInterface.new_simple("fuel_slot")
 
 function solid_fuel_heater_item_interface:on_insert_item(pos, dir, item_stack)
-  minetest.get_node_timer(pos):start(1.0)
+  yatm_core.maybe_start_node_timer(pos, 1.0)
 end
 
 function solid_fuel_heater_item_interface:allow_insert_item(pos, dir, item_stack)
@@ -149,6 +150,7 @@ local groups = {
   item_interface_in = 1,
   item_interface_out = 1,
   heater_device = 1,
+  yatm_cluster_thermal = 1,
 }
 
 local node_box = {

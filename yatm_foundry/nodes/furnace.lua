@@ -1,24 +1,12 @@
-local HeatInterface = assert(yatm.heating.HeatInterface)
-
-local heat_interface = HeatInterface.new_simple("heat", 400)
-function heat_interface:on_heat_changed(pos, dir, old_heat, new_heat)
-  local node = minetest.get_node(pos)
-  if math.floor(new_heat) > 0 then
-    node.name = "yatm_foundry:furnace_on"
-  else
-    node.name = "yatm_foundry:furnace_off"
-  end
-  minetest.swap_node(pos, node)
-  yatm.queue_refresh_infotext(pos, node)
-  minetest.get_node_timer(pos):start(1.0)
-end
+local cluster_thermal = assert(yatm.cluster.thermal)
 
 local function furnace_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
   local heat = meta:get_float("heat")
 
   meta:set_string("infotext",
-    "Heat: " .. heat .. " / " .. heat_interface.heat_capacity
+    cluster_thermal:get_node_infotext(pos) .. "\n" ..
+    "Heat: " .. math.floor(heat)
   )
 end
 
@@ -27,6 +15,7 @@ local groups = {
   item_interface_in = 1,
   item_interface_out = 1,
   heatable_device = 1,
+  yatm_cluster_thermal = 1,
 }
 
 yatm.register_stateful_node("yatm_foundry:furnace", {
@@ -50,6 +39,10 @@ yatm.register_stateful_node("yatm_foundry:furnace", {
     cluster_thermal:schedule_remove_node(pos, node)
   end,
 
+  on_timer = function (pos, elapsed)
+    return true
+  end,
+
   refresh_infotext = furnace_refresh_infotext,
   thermal_interface = {
     groups = {
@@ -60,8 +53,24 @@ yatm.register_stateful_node("yatm_foundry:furnace", {
     update_heat = function (self, pos, node, heat, dtime)
       local meta = minetest.get_meta(pos)
       local available_heat = meta:get_float("heat")
-      meta:set_float("heat", yatm_core.number_lerp(available_heat, heat, dtime))
-      yatm.queue_refresh_infotext(pos, node)
+      local new_heat = yatm_core.number_lerp(available_heat, heat, dtime)
+      meta:set_float("heat", new_heat)
+
+      if new_heat ~= available_heat then
+        local new_name
+        if math.floor(new_heat) > 0 then
+          new_name = "yatm_foundry:furnace_on"
+        else
+          new_name = "yatm_foundry:furnace_off"
+        end
+        if new_name ~= node.name then
+          node.name = new_name
+          minetest.swap_node(pos, node)
+        end
+
+        yatm_core.maybe_start_node_timer(pos, 1.0)
+        yatm.queue_refresh_infotext(pos, node)
+      end
     end,
   },
 }, {
