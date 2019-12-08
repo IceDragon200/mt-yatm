@@ -1,4 +1,5 @@
 dofile(yatm_core.modpath .. "/util/value.lua")
+dofile(yatm_core.modpath .. "/util/number.lua")
 dofile(yatm_core.modpath .. "/util/vector.lua")
 dofile(yatm_core.modpath .. "/util/direction.lua")
 dofile(yatm_core.modpath .. "/util/table.lua")
