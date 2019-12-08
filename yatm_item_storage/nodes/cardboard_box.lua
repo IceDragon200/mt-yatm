@@ -4,6 +4,7 @@ function get_cardboard_box_formspec(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
     "size[8,9]" ..
+    yatm.bg.cardboard ..
     "label[0,0;Cardboard Box]" ..
     "list[nodemeta:" .. spos .. ";main;2,0.5;4,4;]" ..
     "list[current_player;main;0,4.85;8,1;]" ..
@@ -18,6 +19,7 @@ function get_super_cardboard_box_formspec(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
     "size[16,9]" ..
+    yatm.bg.cardboard ..
     "label[0,0;SUPER Cardboard Box]" ..
     "list[nodemeta:" .. spos .. ";main;0,0.5;16,4;]" ..
     "list[current_player;main;0,4.85;8,1;]" ..
