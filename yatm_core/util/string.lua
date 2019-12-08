@@ -151,7 +151,7 @@ function yatm_core.string_hex_unescape(str)
           local lo = HEXB_TO_DEC[lonibble]
           result[j] = string.char(hi * 16 + lo)
         else
-          -- something isn't write, skip over this
+          -- something isn't right, skip over this
           result[j] = string.char(byte)
           result[j + 1] = "x"
           result[j + 2] = string.char(hinibble)
@@ -226,18 +226,24 @@ end
 
 -- https://stackoverflow.com/a/1647577
 -- Modified for this
-function yatm_core.string_split_iter(str, pat)
-  pat = pat or '%s+'
-  local st, g = 1, str:gmatch("()(" .. pat .. ")")
+local function string_split_iter(str, pat)
+  if string.find(str, pat) then
+    local st = 1
+    local g = string.gmatch(str, "()(" .. pat .. ")")
 
-  local function getter(segs, seps, sep, cap1, ...)
-    st = sep and seps + #sep
-    return str:sub(segs, (seps or 0) - 1), cap1 or sep, ...
-  end
+    local function getter(segs, seps, sep, cap1, ...)
+      st = sep and seps + #sep
+      return string.sub(str, segs, (seps or 0) - 1), cap1 or sep, ...
+    end
 
-  return function()
-    if st then
-      return getter(st, g())
+    return function()
+      if st then
+        return getter(st, g())
+      end
+    end
+  else
+    return function ()
+      return str
     end
   end
 end
@@ -252,7 +258,7 @@ function yatm_core.string_split(str, pattern)
     return result
   else
     local result = {}
-    local iter = yatm_core.string_split_iter(str, pattern)
+    local iter = string_split_iter(str, pattern)
     local item = iter()
     local i = 0
     while item do

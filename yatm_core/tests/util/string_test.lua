@@ -51,10 +51,18 @@ case:describe("string_split", function (t2)
   t2:test("can split a string", function (t3)
     -- split by each character, default behaviour
     t3:assert_table_eq({"a", "b", "c", "d", "e"}, m.string_split("abcde"))
+    t3:assert_table_eq({"H", "e", "l", "l", "o"}, m.string_split("Hello"))
+
     -- split by a char
     t3:assert_table_eq({"a", "b", "c", "d", "e"}, m.string_split("a,b,c,d,e", ","))
+    t3:assert_table_eq({"Hello", "dying", "world", "of", "ice"}, m.string_split("Hello,dying,world,of,ice", ","))
+
+    -- split by a word
+    t3:assert_table_eq({"a", "b", "c", "d", "e"}, m.string_split("a_splitter_b_splitter_c_splitter_d_splitter_e", "_splitter_"))
+
     -- split by a char that doesn't exist
     --t3:assert_table_eq({"a|b|c|d|e"}, m.string_split("a|b|c|d|e", "."))
+
     -- split by a word that doesn't exist
     --t3:assert_table_eq({"a", "b", "c", "d", "e"}, m.string_split("a..b..c..d..e", ".."))
   end)
