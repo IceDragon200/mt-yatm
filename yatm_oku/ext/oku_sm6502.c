@@ -3,11 +3,11 @@
   Implementation of the MOS 6502 using the OKU SM8 stack machine.
 
   This implementation allows interrupts between opcode calls, which allows
-  changing memory and data  sections to fit execution needs.
+  changing memory and data sections to fit execution needs.
 
   Let's say you want something to react to a change in memory at a specific location:
   Say a data channel, you can set the memory flag to interrupt, and anytime that location
-  is to be read or written to, the executio stops and allows control over the state.
+  is to be read or written to, the execution stops and allows control over the state.
 
   But if you don't want an interruptable implementation the good old oku_6502 is available.
 
@@ -61,10 +61,10 @@ extern void oku_sm6502_state_step(struct oku_sm6502_state* state)
   switch (chip->state & 0xF)
   {
     case CPU_STATE_RESET:
-      return oku_6502_chip_startup(chip, mem_size, mem);
+      return oku_sm6502_chip_startup(chip, mem_size, mem);
 
     case CPU_STATE_RUN:
-      return oku_6502_chip_fex(chip, mem_size, mem);
+      return oku_sm6502_chip_fex(chip, mem_size, mem);
 
     case CPU_STATE_HANG:
       return HANG_CODE;
