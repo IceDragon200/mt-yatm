@@ -57,6 +57,7 @@ yatm.bg.module = yatm.bg.base .. bg .. "yatm_gui_formbg_module.data.png;" .. aut
 yatm.bg.other = yatm.bg.base .. bg .. "yatm_gui_formbg_other.png;" .. auto_clip .. "]"
 yatm.bg.wood = yatm.bg.base .. bg .. "yatm_gui_formbg_wood.png;" .. auto_clip .. "]"
 yatm.bg.cardboard = yatm.bg.base .. bg .. "yatm_gui_formbg_cardboard.png;" .. auto_clip .. "]"
+yatm.bg.dscs = yatm.bg.base .. bg .. "yatm_gui_formbg_dscs.png;" .. auto_clip .. "]"
 
 local bg9  = "background9[0,0;1,1;"
 
@@ -74,3 +75,4 @@ yatm.bg9.module = yatm.bg.base .. bg9 .. "yatm_gui_formbg_module.data.9s.png;" .
 yatm.bg9.other = yatm.bg.base .. bg9 .. "yatm_gui_formbg_other.9s.png;" .. auto_clip .. ";32]"
 yatm.bg9.wood = yatm.bg.base .. bg9 .. "yatm_gui_formbg_wood.9s.png;" .. auto_clip .. ";32]"
 yatm.bg9.cardboard = yatm.bg.base .. bg9 .. "yatm_gui_formbg_cardboard.9s.png;" .. auto_clip .. ";32]"
+yatm.bg9.dscs = yatm.bg.base .. bg9 .. "yatm_gui_formbg_dscs.9s.png;" .. auto_clip .. ";32]"

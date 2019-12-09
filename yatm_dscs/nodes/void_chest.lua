@@ -7,7 +7,7 @@ local function get_void_chest_formspec(pos, user, pointed_thing, assigns)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
     "size[9,9]" ..
-    yatm.bg.machine ..
+    yatm.bg.dscs ..
     "label[0,0;Void Chest]" ..
     "list[nodemeta:" .. spos .. ";drive_slot;0,0.5;1,1;]"
 
