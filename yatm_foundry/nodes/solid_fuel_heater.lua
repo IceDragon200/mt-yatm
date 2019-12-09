@@ -8,11 +8,12 @@ local function is_item_solid_fuel(item_stack)
   local ingredient_stack = ItemStack(item_stack)
   ingredient_stack:set_count(1)
 
-  local recipe, decremented_input = minetest.get_craft_result({
-    method = "fuel",
-    width = 1,
-    items = { ingredient_stack }
-  })
+  local recipe, decremented_input =
+    minetest.get_craft_result({
+      method = "fuel",
+      width = 1,
+      items = { ingredient_stack }
+    })
 
   return recipe.time > 0
 end

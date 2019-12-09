@@ -172,13 +172,10 @@ yatm.register_stateful_node("yatm_brewery:kettle", {
 
     update_heat = function (self, pos, node, heat, dtime)
       local meta = minetest.get_meta(pos)
-      local available_heat = meta:get_float("heat")
-      local new_heat = yatm_core.number_lerp(available_heat, heat, dtime)
-      meta:set_float("heat", new_heat)
 
-      if new_heat ~= available_heat then
+      if yatm.thermal.update_heat(meta, "heat", heat, 10, dtime) then
         local new_name
-        if math.floor(new_heat) > 0 then
+        if math.floor(heat) > 0 then
           new_name = "yatm_brewery:kettle_on"
         else
           new_name = "yatm_brewery:kettle_off"

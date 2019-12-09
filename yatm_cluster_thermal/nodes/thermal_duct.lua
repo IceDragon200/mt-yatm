@@ -60,9 +60,7 @@ yatm.register_stateful_node("yatm_cluster_thermal:thermal_duct", {
 
     update_heat = function (self, pos, node, heat, dtime)
       local meta = minetest.get_meta(pos)
-      local available_heat = meta:get_float("heat")
-      local new_heat = yatm_core.number_lerp(available_heat, heat, dtime)
-      meta:set_float("heat", new_heat)
+      yatm.thermal.update_heat(meta, "heat", heat, 10, dtime)
       yatm.queue_refresh_infotext(pos, node)
     end,
   },
@@ -78,9 +76,9 @@ yatm.register_stateful_node("yatm_cluster_thermal:thermal_duct", {
     meta:set_string("infotext", infotext)
 
     local new_name
-    if available_heat > 0 then
+    if math.floor(available_heat) > 0 then
       new_name = "yatm_cluster_thermal:thermal_duct_heating"
-    elseif available_heat < 0 then
+    elseif math.floor(available_heat) < 0 then
       new_name = "yatm_cluster_thermal:thermal_duct_cooling"
     else
       new_name = "yatm_cluster_thermal:thermal_duct_off"
