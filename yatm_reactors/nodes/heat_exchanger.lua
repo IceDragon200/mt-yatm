@@ -60,7 +60,16 @@ yatm_reactors.register_stateful_reactor_node({
 
   refresh_infotext = heat_exchanger_refresh_infotext,
 
-  transfer_heat = heat_exchanger_transfer_heat,
+  thermal_interface = {
+    groups = {
+      heat_exchanger = 1,
+    },
+
+    get_heat = function (self, pos, node)
+      local meta = minetest.get_meta(pos)
+      return meta:get_float("heat")
+    end,
+  }
 }, {
   error = {
     tiles = {
