@@ -1,3 +1,13 @@
+local function get_void_chests_formspec(pos, user, pointed_thing, assigns)
+  local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+  local formspec =
+    "size[8,9]" ..
+    yatm.bg.machine ..
+    "label[0,0;Void Chest]"
+
+  return formspec
+end
+
 local void_chest_yatm_network = {
   kind = "machine",
   groups = {
@@ -5,10 +15,10 @@ local void_chest_yatm_network = {
   },
   default_state = "off",
   states = {
-    conflict = "yatm_machines:void_chest_error",
-    error = "yatm_machines:void_chest_error",
-    off = "yatm_machines:void_chest_off",
-    on = "yatm_machines:void_chest_on",
+    conflict = "yatm_dscs:void_chest_error",
+    error = "yatm_dscs:void_chest_error",
+    off = "yatm_dscs:void_chest_off",
+    on = "yatm_dscs:void_chest_on",
   },
   energy = {
     passive_lost = 1,
@@ -23,8 +33,11 @@ local groups = {
   yatm_network_device = 1,
 }
 
+local function receive_fields(pos)
+end
+
 yatm.devices.register_stateful_network_device({
-  basename = "yatm_machines:void_chest",
+  basename = "yatm_dscs:void_chest",
 
   description = "Void Chest",
 
@@ -44,7 +57,32 @@ yatm.devices.register_stateful_network_device({
   paramtype = "light",
   paramtype2 = "facedir",
 
+  on_construct = function (pos)
+    local node = minetest.get_node(pos)
+
+    yatm.devices.device_on_construct(pos)
+    local meta = minetest.get_meta(pos)
+
+    local inv = meta:get_inventory()
+    inv:set_size("drive_slot", 1)
+  end,
+
   yatm_network = void_chest_yatm_network,
+  on_rightclick = function (pos, node, user)
+    local assigns = { pos = pos, node = node }
+    local formspec = get_void_chest_formspec(pos, user, pointed_thing, assigns)
+    local formspec_name = "yatm_dscs:void_chest:" .. minetest.pos_to_string(pos)
+
+    yatm_core.bind_on_player_receive_fields(user, formspec_name,
+                                            assigns,
+                                            receive_fields)
+
+    minetest.show_formspec(
+      user:get_player_name(),
+      formspec_name,
+      formspec
+    )
+  end,
 }, {
   error = {
     tiles = {

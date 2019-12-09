@@ -6,10 +6,10 @@ local void_crate_yatm_network = {
   },
   default_state = "off",
   states = {
-    conflict = "yatm_machines:void_crate_error",
-    error = "yatm_machines:void_crate_error",
-    off = "yatm_machines:void_crate_off",
-    on = "yatm_machines:void_crate_on",
+    conflict = "yatm_dscs:void_crate_error",
+    error = "yatm_dscs:void_crate_error",
+    off = "yatm_dscs:void_crate_off",
+    on = "yatm_dscs:void_crate_on",
   },
   energy = {
     passive_lost = 1,
@@ -18,12 +18,14 @@ local void_crate_yatm_network = {
 
 local groups = {
   cracky = 1,
+  fluid_interface_out = 1,
+  fluid_interface_in = 1,
   yatm_energy_device = 1,
   yatm_network_device = 1,
 }
 
 yatm.devices.register_stateful_network_device({
-  basename = "yatm_machines:void_crate",
+  basename = "yatm_dscs:void_crate",
 
   description = "Void Crate",
 
@@ -43,7 +45,19 @@ yatm.devices.register_stateful_network_device({
   paramtype = "light",
   paramtype2 = "facedir",
 
+  on_construct = function (pos)
+    local node = minetest.get_node(pos)
+
+    yatm.devices.device_on_construct(pos)
+    local meta = minetest.get_meta(pos)
+
+    local inv = meta:get_inventory()
+    inv:set_size("drive_slot", 1)
+  end,
+
   yatm_network = void_crate_yatm_network,
+  on_rightclick = function (pos, node, clicker)
+  end,
 }, {
   error = {
     tiles = {
@@ -55,6 +69,7 @@ yatm.devices.register_stateful_network_device({
       "yatm_void_crate_front.error.png",
     },
   },
+
   on = {
     tiles = {
       "yatm_void_crate_top.on.png",
