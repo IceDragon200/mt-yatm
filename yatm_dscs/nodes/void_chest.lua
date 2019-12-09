@@ -1,9 +1,25 @@
-local function get_void_chests_formspec(pos, user, pointed_thing, assigns)
+--
+-- Void chests can view the contents of an item drive.
+-- And only an item drive.
+--
+local function get_void_chest_formspec(pos, user, pointed_thing, assigns)
+  local meta = minetest.get_meta(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
-    "size[8,9]" ..
+    "size[9,9]" ..
     yatm.bg.machine ..
-    "label[0,0;Void Chest]"
+    "label[0,0;Void Chest]" ..
+    "list[nodemeta:" .. spos .. ";drive_slot;0,0.5;1,1;]"
+
+  local inv = meta:get_inventory()
+  local stack = inv:get_stack("drive_slot", 1)
+
+  if not stack:is_empty() then
+    -- TODO: check if drive is an item drive
+    formspec =
+      formspec ..
+      "list[nodemeta:" .. spos .. ";drive_contents;1,0.5;8,4;]"
+  end
 
   return formspec
 end
@@ -39,7 +55,7 @@ end
 yatm.devices.register_stateful_network_device({
   basename = "yatm_dscs:void_chest",
 
-  description = "Void Chest",
+  description = "Void Chest\nInstall a Item Drive to access it's contents.",
 
   groups = groups,
 
@@ -68,6 +84,7 @@ yatm.devices.register_stateful_network_device({
   end,
 
   yatm_network = void_chest_yatm_network,
+
   on_rightclick = function (pos, node, user)
     local assigns = { pos = pos, node = node }
     local formspec = get_void_chest_formspec(pos, user, pointed_thing, assigns)
