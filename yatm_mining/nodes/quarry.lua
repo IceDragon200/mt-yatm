@@ -125,8 +125,6 @@ end
 minetest.register_node("yatm_mining:quarry_wall", {
   description = "Quarry Wall",
 
-  drop = quarry_yatm_network.states.off,
-
   groups = {
     snappy = 1,
   },
@@ -166,6 +164,7 @@ yatm.devices.register_stateful_network_device({
   basename = "yatm_mining:quarry",
 
   description = "Quarry",
+  drop = quarry_yatm_network.states.off,
 
   groups = {
     cracky = 1,
