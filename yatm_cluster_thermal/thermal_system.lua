@@ -33,7 +33,7 @@ function ic:update(cls, cluster, dtime)
         local neighbour_nodedef = minetest.registered_nodes[neighbour_node.name]
 
         if not neighbour_nodedef.thermal_interface then
-          error("expected a thermal_interface node=" .. node.name)
+          error("expected a thermal_interface node=" .. neighbour_node.name)
         end
 
         if neighbour_nodedef.thermal_interface.update_heat then
