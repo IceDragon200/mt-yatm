@@ -1,4 +1,4 @@
-
+local cluster_thermal = assert(yatm.cluster.thermal)
 
 local function get_oven_formspec(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
@@ -32,6 +32,7 @@ local function oven_on_rightclick(pos, node, clicker)
 end
 
 local function on_construct(pos)
+  local node = minetest.get_node(pos)
   local meta = minetest.get_meta(pos)
 
   local inv = meta:get_inventory()
