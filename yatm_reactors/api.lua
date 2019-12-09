@@ -29,7 +29,8 @@ end
 
 function yatm_reactors.default_transition_reactor_state(pos, node, state)
   local nodedef = minetest.registered_nodes[node.name]
-  node.name = nodedef.reactor_device.states[state] or nodedef.reactor_device.states[nodedef.reactor_device.default_state]
+  node.name = nodedef.reactor_device.states[state] or
+              nodedef.reactor_device.states[nodedef.reactor_device.default_state]
   minetest.swap_node(pos, node)
 
   cluster_reactor:schedule_update_node(pos, node)

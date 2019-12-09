@@ -14,14 +14,14 @@ function ic:initialize(cluster_group)
   })
 end
 
-function ic:schedule_start_reactor(pos, node)
+function ic:schedule_start_reactor(pos, node, player_name)
   print(self.m_log_group, 'schedule_start_reactor', minetest.pos_to_string(pos), node.name)
-  yatm.clusters:schedule_node_event(self.m_cluster_group, 'start_reactor', pos, node, { })
+  yatm.clusters:schedule_node_event(self.m_cluster_group, 'start_reactor', pos, node, { player_name = player_name })
 end
 
-function ic:schedule_stop_reactor(pos, node)
+function ic:schedule_stop_reactor(pos, node, player_name)
   print(self.m_log_group, 'schedule_stop_reactor', minetest.pos_to_string(pos), node.name)
-  yatm.clusters:schedule_node_event(self.m_cluster_group, 'stop_reactor', pos, node, { })
+  yatm.clusters:schedule_node_event(self.m_cluster_group, 'stop_reactor', pos, node, { player_name = player_name })
 end
 
 function ic:schedule_remove_node(pos, node)
@@ -428,13 +428,17 @@ function ic:_handle_start_reactor(cls, generation_id, event, cluster_ids)
       -- Need to determine structural integrity now
       local valid, err = self:verify_reactor_structure(cls, generation_id, event, cluster)
       if valid then
+        minetest.chat_send_player(event.params.player_name, "Reactor started")
         self:transition_cluster_state(cls, cluster, generation_id, event, 'on')
       else
         print("Reactor is invalid reason=" .. err)
+        minetest.chat_send_player(event.params.player_name, "Reactor has failed to start reason=" .. err)
         self:transition_cluster_state(cls, cluster, generation_id, event, 'error')
       end
     elseif controller_count > 1 then
       -- Too many reactor controllers, go into a conflict state
+      print("Reactor has too many controllers")
+      minetest.chat_send_player(event.params.player_name, "Too many controllers in reactor cluster")
       self:transition_cluster_state(cls, cluster, generation_id, event, 'conflict')
     end
   end
@@ -463,11 +467,13 @@ function ic:_handle_transition_state(cls, generation_id, event, cluster_ids)
   if cluster then
     cluster.assigns.state = assert(event.params.state)
     cluster:reduce_nodes(0, function (node_entry, acc)
-      local nodedef = minetest.registered_nodes[node_entry.node.name]
-      if not nodedef.transition_reactor_state then
-        error(node_entry.node.name .. " does not define a transition_reactor_state/3")
+      local node = minetest.get_node(node_entry.pos)
+      local nodedef = minetest.registered_nodes[node.name]
+      if nodedef.transition_reactor_state then
+        nodedef.transition_reactor_state(node_entry.pos, node, cluster.assigns.state)
+      else
+        print(node_entry.node.name .. " does not define a transition_reactor_state/3")
       end
-      nodedef.transition_reactor_state(node_entry.pos, node_entry.node, cluster.assigns.state)
       return true, acc + 1
     end)
   else

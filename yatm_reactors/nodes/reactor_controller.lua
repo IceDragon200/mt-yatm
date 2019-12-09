@@ -13,7 +13,8 @@ local function get_reactor_controller_formspec(pos, node)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
   local formspec =
-    "size[8,9]"
+    "size[8,9]" ..
+    yatm.bg.machine_radioactive
 
   if node.name == "yatm_reactors:reactor_controller_on" then
     formspec = formspec .. "button[1,1;4,2;stop;Stop]"
@@ -36,10 +37,10 @@ local function reactor_controller_on_receive_fields(player, formname, fields, as
 
   if fields["start"] then
     --node.name = nodedef.reactor_device.states.on
-    cluster_reactor:schedule_start_reactor(assigns.pos, node)
+    cluster_reactor:schedule_start_reactor(assigns.pos, node, player:get_player_name())
   elseif fields["stop"] then
     --node.name = nodedef.reactor_device.states.off
-    cluster_reactor:schedule_stop_reactor(assigns.pos, node)
+    cluster_reactor:schedule_stop_reactor(assigns.pos, node, player:get_player_name())
   end
 
   --minetest.swap_node(assigns.pos, node)
