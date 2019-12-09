@@ -1,3 +1,6 @@
+--
+-- Void crates can view the contents of a fluid drive, and only a fluid drive.
+--
 local void_crate_yatm_network = {
   kind = "machine",
   groups = {
@@ -27,7 +30,7 @@ local groups = {
 yatm.devices.register_stateful_network_device({
   basename = "yatm_dscs:void_crate",
 
-  description = "Void Crate",
+  description = "Void Crate\nInstall a fluid drive to access it's contents.",
 
   groups = groups,
 
