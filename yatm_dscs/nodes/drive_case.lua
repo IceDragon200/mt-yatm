@@ -9,11 +9,15 @@ local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
 
+local function get_formspec_name(pos)
+  return "yatm_dscs:drive_case:" .. minetest.pos_to_string(pos)
+end
+
 local function get_drive_case_formspec(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
     "size[8,9]" ..
-    yatm.bg.machine ..
+    yatm.bg.dscs ..
     "list[nodemeta:" .. spos .. ";drive_bay;0,0.3;2,4;]" ..
     "list[current_player;main;0,4.85;8,1;]" ..
     "list[current_player;main;0,6.08;8,3;8]" ..
@@ -21,6 +25,14 @@ local function get_drive_case_formspec(pos)
     "listring[current_player;main]" ..
     default.get_hotbar_bg(0,4.85)
   return formspec
+end
+
+local function refresh_formspec(pos, player)
+  minetest.after(0, function ()
+    yatm_core.refresh_player_formspec(player, get_formspec_name(pos), function (ply, assigns)
+      return get_void_chest_formspec(assigns.pos, ply, assigns)
+    end)
+  end)
 end
 
 local function refresh_infotext(pos, node)
@@ -56,6 +68,99 @@ local drive_case_yatm_network = {
     passive_lost = 10,
   },
 }
+
+local function allow_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
+  if from_list == "drive_bay" and to_list == "drive_bay" then
+    return count
+  end
+  return 0
+end
+
+local function allow_metadata_inventory_put(pos, listname, index, stack, player)
+  if listname == "drive_bay" then
+    if yatm.dscs.is_item_stack_inventory_drive(stack) then
+      return 1
+    end
+  end
+  return 0
+end
+
+local function persist_drive_contents(pos, index)
+  local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
+
+  local drive_stack = inv:get_stack("drive_bay", index)
+  if not drive_stack:is_empty() then
+    local list = inv:get_list("drive_contents_" .. index)
+    drive_stack = yatm.dscs.persist_inventory_list_to_drive(drive_stack, list)
+    inv:set_stack("drive_bay", index, drive_stack)
+  end
+end
+
+local function on_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
+  print("Moving stack from " .. from_list .. " to " .. to_list)
+
+  if from_list == "drive_bay" or to_list == "drive_bay" then
+    local meta = minetest.get_meta(pos)
+    local inv = meta:get_inventory()
+
+    local from_stack = inv:get_stack("drive_bay", from_index)
+    local to_stack = inv:get_stack("drive_bay", to_index)
+
+    if yatm.dscs.is_item_stack_item_drive(from_stack) and
+       yatm.dscs.is_item_stack_item_drive(to_stack) then
+      -- if both drives are inventory drives, swap around their drive contents
+
+      local from_list = inv:get_list("drive_contents_" .. from_index)
+      local to_list = inv:get_list("drive_contents_" .. to_index)
+
+      inv:set_list("drive_contents_" .. to_index, from_list)
+      inv:set_list("drive_contents_" .. from_index, to_list)
+    else
+      if yatm.dscs.is_item_stack_item_drive(from_stack) then
+      end
+
+      if yatm.dscs.is_item_stack_item_drive(to_stack) then
+      end
+    end
+
+    persist_drive_contents(pos, from_index)
+    persist_drive_contents(pos, to_index)
+  end
+end
+
+local function on_metadata_inventory_put(pos, listname, index, stack, player)
+  if listname == "drive_bay" then
+    if yatm.dscs.is_item_stack_item_drive(stack) then
+      local meta = minetest.get_meta(pos)
+      local inv = meta:get_inventory()
+
+      local list, capacity = yatm.dscs.load_inventory_list_from_drive(stack)
+
+      inv:set_size("drive_contents_" .. index, capacity)
+      inv:set_list("drive_contents_" .. index, list)
+
+      refresh_formspec(pos, player)
+
+      minetest.log("action", player:get_player_name() .. " installed a drive")
+    end
+  end
+end
+
+local function on_metadata_inventory_take(pos, listname, index, stack, player)
+  if listname == "drive_bay" then
+    if yatm.dscs.is_item_stack_item_drive(stack) then
+      local meta = minetest.get_meta(pos)
+      local inv = meta:get_inventory()
+
+      inv:set_size("drive_contents_" .. index, 0)
+
+      refresh_formspec(pos, player)
+
+      minetest.log("action", player:get_player_name() .. " removed a drive")
+    end
+  end
+end
 
 yatm.devices.register_stateful_network_device({
   basename = "yatm_dscs:drive_case",
@@ -93,13 +198,27 @@ yatm.devices.register_stateful_network_device({
     inv:set_size("drive_bay", 8)
   end,
 
-  on_rightclick = function (pos, node, clicker)
+  on_rightclick = function (pos, node, user, item_stack, pointed_thing)
+    local assigns = { pos = pos, node = node }
+    local formspec = get_void_chest_formspec(pos, user, assigns)
+    local formspec_name = get_formspec_name(pos)
+
+    yatm_core.bind_on_player_receive_fields(user, formspec_name,
+                                            assigns,
+                                            receive_fields)
+
     minetest.show_formspec(
-      clicker:get_player_name(),
-      "yatm_dscs:drive_case",
-      get_drive_case_formspec(pos)
+      user:get_player_name(),
+      formspec_name,
+      formspec
     )
   end,
+
+  allow_metadata_inventory_move = allow_metadata_inventory_move,
+  allow_metadata_inventory_put = allow_metadata_inventory_put,
+  on_metadata_inventory_move = on_metadata_inventory_move,
+  on_metadata_inventory_put = on_metadata_inventory_put,
+  on_metadata_inventory_take = on_metadata_inventory_take,
 }, {
   on = {
     tiles = {
