@@ -118,9 +118,15 @@ local function on_metadata_inventory_move(pos, from_list, from_index, to_list, t
       inv:set_list("drive_contents_" .. from_index, to_list)
     else
       if yatm.dscs.is_item_stack_item_drive(from_stack) then
+        local to_list = inv:get_list("drive_contents_" .. to_index)
+        inv:set_list("drive_contents_" .. from_index, to_list)
+        inv:set_size("drive_contents_" .. to_index, 0)
       end
 
       if yatm.dscs.is_item_stack_item_drive(to_stack) then
+        local from_list = inv:get_list("drive_contents_" .. from_index)
+        inv:set_list("drive_contents_" .. to_index, from_list)
+        inv:set_size("drive_contents_" .. from_index, 0)
       end
     end
 
