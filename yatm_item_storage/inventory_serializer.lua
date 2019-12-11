@@ -68,7 +68,10 @@ function InventorySerializer.deserialize_item_stack(source_stack)
   return item_stack
 end
 
-function InventorySerializer.deserialize(dumped, target_list)
+--
+--
+--
+function InventorySerializer.deserialize_list(dumped, target_list)
   assert(dumped, "expected dumped inventory list")
   assert(target_list, "expected a target inventory list")
   for i = 1,dumped.size do

@@ -72,7 +72,7 @@ case:describe(".deserialize/1", function (t2)
     }
 
     local dumped = InventorySerializer.serialize(list)
-    local new_list = InventorySerializer.deserialize(dumped, {})
+    local new_list = InventorySerializer.deserialize_list(dumped, {})
 
     t3:assert(new_list[1])
     t3:assert(new_list[2])

@@ -42,7 +42,7 @@ local function cardboard_box_after_place_node(pos, placer, item_stack, pointed_t
   if not yatm_core.is_blank(old_inv_list) then
     local dumped = minetest.deserialize(old_inv_list)
     local list = new_inv:get_list("main")
-    list = yatm_item_storage.InventorySerializer.deserialize(dumped, list)
+    list = yatm_item_storage.InventorySerializer.deserialize_list(dumped, list)
     new_inv:set_list("main", list)
   end
 end

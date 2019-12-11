@@ -27,6 +27,17 @@ function yatm_core.unbind_on_player_receive_fields(player_name, name)
   end
 end
 
+function yatm_core.refresh_player_formspec(player, formname, formspec_builder)
+  local key = player:get_player_name()
+  if bindings[key] then
+    if bindings[key][formname] then
+      local entry = bindings[key][formname]
+      local formspec = formspec_builder(player, entry.assigns)
+      minetest.show_formspec(key, formname, formspec)
+    end
+  end
+end
+
 minetest.register_on_player_receive_fields(function (player, formname, fields)
   local key = player:get_player_name()
   local player_bindings = bindings[key]
@@ -46,7 +57,6 @@ minetest.register_on_player_receive_fields(function (player, formname, fields)
     yatm_core.unbind_on_player_receive_fields(key, formname)
   else
     if status and new_formspec then
-      print("New Formspec", new_formspec)
       minetest.show_formspec(key, formname, new_formspec)
     end
     return status
