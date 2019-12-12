@@ -2,6 +2,10 @@
 -- Void chests can view the contents of an item drive.
 -- And only an item drive.
 --
+local Energy = assert(yatm.energy)
+local cluster_devices = assert(yatm.cluster.devices)
+local cluster_energy = assert(yatm.cluster.energy)
+
 local function get_formspec_name(pos)
   return "yatm_dscs:void_chest:" .. minetest.pos_to_string(pos)
 end
@@ -77,6 +81,7 @@ end
 local void_chest_yatm_network = {
   kind = "machine",
   groups = {
+    dscs_device = 1,
     energy_consumer = 1,
   },
   default_state = "off",
@@ -87,7 +92,10 @@ local void_chest_yatm_network = {
     on = "yatm_dscs:void_chest_on",
   },
   energy = {
+    capacity = 4000,
     passive_lost = 1,
+    network_charge_bandwidth = 400,
+    startup_threshold = 100,
   },
 }
 
@@ -265,6 +273,16 @@ yatm.devices.register_stateful_network_device({
       formspec_name,
       formspec
     )
+  end,
+
+  refresh_infotext = function (pos)
+    local meta = minetest.get_meta(pos)
+
+    local infotext =
+      cluster_devices:get_node_infotext(pos) .. "\n" ..
+      cluster_energy:get_node_infotext(pos) .. " [" .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "]\n"
+
+    meta:set_string("infotext", infotext)
   end,
 }, {
   error = {
