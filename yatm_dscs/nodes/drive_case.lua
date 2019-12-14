@@ -30,7 +30,7 @@ end
 local function refresh_formspec(pos, player)
   minetest.after(0, function ()
     yatm_core.refresh_player_formspec(player, get_formspec_name(pos), function (ply, assigns)
-      return get_void_chest_formspec(assigns.pos, ply, assigns)
+      return get_drive_case_formspec(assigns.pos, ply, assigns)
     end)
   end)
 end
@@ -168,6 +168,14 @@ local function on_metadata_inventory_take(pos, listname, index, stack, player)
   end
 end
 
+local function receive_fields(player, formname, fields, assigns)
+  local meta = minetest.get_meta(assigns.pos)
+  local inv = meta:get_inventory()
+  local needs_refresh = false
+
+  return true
+end
+
 yatm.devices.register_stateful_network_device({
   basename = "yatm_dscs:drive_case",
 
@@ -206,7 +214,7 @@ yatm.devices.register_stateful_network_device({
 
   on_rightclick = function (pos, node, user, item_stack, pointed_thing)
     local assigns = { pos = pos, node = node }
-    local formspec = get_void_chest_formspec(pos, user, assigns)
+    local formspec = get_drive_case_formspec(pos, user, assigns)
     local formspec_name = get_formspec_name(pos)
 
     yatm_core.bind_on_player_receive_fields(user, formspec_name,
@@ -225,6 +233,17 @@ yatm.devices.register_stateful_network_device({
   on_metadata_inventory_move = on_metadata_inventory_move,
   on_metadata_inventory_put = on_metadata_inventory_put,
   on_metadata_inventory_take = on_metadata_inventory_take,
+
+  on_dig = function (pos, node, digger)
+    local meta = minetest.get_meta(pos)
+    local inv = meta:get_inventory()
+
+    if inv:is_empty("drive_bay") then
+      return minetest.node_dig(pos, node, digger)
+    end
+
+    return false
+  end,
 }, {
   on = {
     tiles = {
