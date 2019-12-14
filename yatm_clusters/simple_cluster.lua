@@ -29,6 +29,18 @@ function ic:register_system(id, update)
   yatm.clusters:register_system(self.m_cluster_group, id, update)
 end
 
+function ic:get_node_cluster(pos)
+  local node_id = minetest.hash_node_position(pos)
+
+  return yatm.clusters:reduce_node_clusters(pos, nil, function (cluster, acc)
+    if cluster.groups[self.m_cluster_group] then
+      return false, cluster
+    else
+      return true, acc
+    end
+  end)
+end
+
 function ic:get_node_infotext(pos)
   local node_id = minetest.hash_node_position(pos)
 
@@ -59,6 +71,12 @@ function ic:schedule_add_node(pos, node)
   else
     error("node violation: " .. node.name .. " does not belong to " .. self.m_node_group .. " group")
   end
+end
+
+function ic:schedule_transition_node(pos, node, new_state)
+  self:log('schedule_transition_node', minetest.pos_to_string(pos), node.name)
+  local groups = self:get_node_groups(node)
+  yatm.clusters:schedule_node_event(CLUSTER_GROUP, 'transition_node', pos, node, { state = new_state })
 end
 
 function ic:schedule_load_node(pos, node)
@@ -93,6 +111,9 @@ function ic:handle_node_event(cls, generation_id, event, cluster_ids)
 
   elseif event.event_name == 'remove_node' then
     self:_handle_remove_node(cls, generation_id, event, cluster_ids)
+
+  elseif event.event_name == 'transition_node' then
+    self:_handle_transition_node(cls, generation_id, event, node_clusters)
 
   else
     self:log("unhandled event event_name=" .. event.event_name)
@@ -189,6 +210,8 @@ function ic:_handle_add_node(cls, generation_id, event, given_cluster_ids)
       return true, acc + 1
     end)
   end
+
+  return cluster
 end
 
 function ic:_handle_update_node(cls, generation_id, event, given_cluster_ids)
@@ -197,6 +220,7 @@ function ic:_handle_update_node(cls, generation_id, event, given_cluster_ids)
     local ncluster = cls:get_cluster(cluster_id)
     if ncluster and ncluster.groups[self.m_cluster_group] then
       cluster = ncluster
+      break
     end
   end
 
@@ -353,8 +377,19 @@ function ic:_handle_remove_node(cls, generation_id, event, _cluster_ids)
         cls:add_node_to_cluster(cluster.id, pos, node, self:get_node_groups(node))
         yatm.queue_refresh_infotext(pos, node)
       end
+
+      self:on_cluster_branch_changed(cls, generation_id, event, cluster)
     end
   end
+end
+
+function ic:on_cluster_branch_changed(cls, generation_id, event, cluster)
+end
+
+function ic:_handle_transition_node(cls, generation_id, event, node_clusters)
+  local node = minetest.get_node(event.pos)
+  local nodedef = minetest.registered_nodes[node.name]
+  nodedef.transition_device_state(event.pos, node, event.params.state)
 end
 
 yatm_clusters.SimpleCluster = SimpleCluster
