@@ -1,5 +1,17 @@
 yatm.dscs = yatm.dscs or {}
 
+function yatm.dscs.get_drive_capacity(item_stack)
+  return item_stack:get_definition().drive_capacity
+end
+
+--
+-- Only Ele and Fluid drives
+-- This denotes the stack size of each cell.
+--
+function yatm.dscs.get_drive_stack_size(item_stack)
+  return item_stack:get_definition().drive_stack_size
+end
+
 function yatm.dscs.set_drive_label(item_stack, drive_label)
   local meta = item_stack:get_meta()
   meta:set_string("drive_label", drive_label)
@@ -8,6 +20,24 @@ function yatm.dscs.set_drive_label(item_stack, drive_label)
   else
     meta:set_string("description", "")
   end
+end
+
+function yatm.dscs.load_fluid_inventory_from_drive(fluid_inventory_name, item_stack)
+  local inv = yatm.fluids.fluid_inventories:create_fluid_inventory(fluid_inventory_name)
+  local meta = item_stack:get_meta()
+
+  local capacity = yatm.dscs.get_drive_capacity(item_stack)
+  local stack_size = yatm.dscs.get_drive_stack_size(item_stack)
+
+  local blob = meta:get_string("fluid_drive_contents")
+
+  if blob and #blob > 0 then
+    inv:deserialize(blob)
+  end
+
+  -- reset the size afterwards
+  inv:set_size("main", capacity)
+  inv:set_max_stack_size("main", stack_size)
 end
 
 function yatm.dscs.persist_inventory_list_to_drive(item_stack, list)

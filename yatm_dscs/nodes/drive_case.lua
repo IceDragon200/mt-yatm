@@ -135,16 +135,30 @@ local function on_metadata_inventory_move(pos, from_list, from_index, to_list, t
   end
 end
 
+local function get_fluid_inventory_name(pos, index)
+  return "yatm_dscs:drive_case_fluid_drive_contents_" .. index .. "_" .. yatm_core.vector3.to_string(pos, "_")
+end
+
 local function on_metadata_inventory_put(pos, listname, index, stack, player)
   if listname == "drive_bay" then
+    local meta = minetest.get_meta(pos)
+
     if yatm.dscs.is_item_stack_item_drive(stack) then
-      local meta = minetest.get_meta(pos)
       local inv = meta:get_inventory()
 
       local list, capacity = yatm.dscs.load_inventory_list_from_drive(stack)
 
       inv:set_size("drive_contents_" .. index, capacity)
       inv:set_list("drive_contents_" .. index, list)
+
+      refresh_formspec(pos, player)
+
+      minetest.log("action", player:get_player_name() .. " installed a drive")
+    elseif yatm.dscs.is_item_stack_fluid_drive(stack) then
+      --
+      local fluid_inventory_name = get_fluid_inventory_name(pos, index)
+      local fluid_inventory = yatm.dscs.load_fluid_inventory_from_drive(fluid_inventory_name, stack)
+      meta:set_string("fluid_drive_contents_" .. index, fluid_inventory:serialize())
 
       refresh_formspec(pos, player)
 
@@ -164,6 +178,13 @@ local function on_metadata_inventory_take(pos, listname, index, stack, player)
       refresh_formspec(pos, player)
 
       minetest.log("action", player:get_player_name() .. " removed a drive")
+    elseif yatm.dscs.is_item_stack_fluid_drive(stack) then
+      local fluid_inventory_name = get_fluid_inventory_name(pos, index)
+      yatm.fluids.fluid_inventories:destroy_fluid_inventory(fluid_inventory_name)
+
+      refresh_formspec(pos, player)
+
+      minetest.log("action", player:get_player_name() .. " removed a drive")
     end
   end
 end
@@ -172,6 +193,8 @@ local function receive_fields(player, formname, fields, assigns)
   local meta = minetest.get_meta(assigns.pos)
   local inv = meta:get_inventory()
   local needs_refresh = false
+
+  -- TODO: do stuff
 
   return true
 end
