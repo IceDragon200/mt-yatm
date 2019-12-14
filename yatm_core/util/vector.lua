@@ -9,8 +9,9 @@ function yatm_core.vector3.new(x, y, z)
   return { x = x, y = y, z = z }
 end
 
-function yatm_core.vector3.to_string(v1)
-  return v1.x .. "," .. v1.y .. "," .. v1.z
+function yatm_core.vector3.to_string(v1, seperator)
+  seperator = seperator or ","
+  return v1.x .. seperator .. v1.y .. seperator .. v1.z
 end
 
 function yatm_core.vector3.floor(dest, v1)
