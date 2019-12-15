@@ -9,6 +9,8 @@ local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
 
+local DRIVE_BAY_SIZE = 8
+
 local function get_formspec_name(pos)
   return "yatm_dscs:drive_case:" .. minetest.pos_to_string(pos)
 end
@@ -153,7 +155,7 @@ local function on_metadata_inventory_put(pos, listname, index, stack, player)
 
       refresh_formspec(pos, player)
 
-      minetest.log("action", player:get_player_name() .. " installed a drive")
+      minetest.log("action", player:get_player_name() .. " installed an item drive")
     elseif yatm.dscs.is_item_stack_fluid_drive(stack) then
       --
       local fluid_inventory_name = get_fluid_inventory_name(pos, index)
@@ -162,7 +164,7 @@ local function on_metadata_inventory_put(pos, listname, index, stack, player)
 
       refresh_formspec(pos, player)
 
-      minetest.log("action", player:get_player_name() .. " installed a drive")
+      minetest.log("action", player:get_player_name() .. " installed a fluid drive")
     end
   end
 end
@@ -199,6 +201,41 @@ local function receive_fields(player, formname, fields, assigns)
   return true
 end
 
+function drive_case_yatm_network.on_load(pos, node)
+  -- reload fluid inventories
+  local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
+
+  for i = 1,DRIVE_BAY_SIZE do
+    local stack = inv:get_stack("drive_bay", i)
+    if yatm.dscs.is_item_stack_fluid_drive(stack) then
+      local fluid_inventory_name = get_fluid_inventory_name(pos, i)
+      local fluid_inventory = yatm.dscs.load_fluid_inventory_from_drive(fluid_inventory_name, stack)
+      meta:set_string("fluid_drive_contents_" .. i, fluid_inventory:serialize())
+    end
+  end
+end
+
+function drive_case_yatm_network.on_unload(pos, node)
+  -- unload fluid inventories
+  local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
+
+  for i = 1,DRIVE_BAY_SIZE do
+    local fluid_inventory_name = get_fluid_inventory_name(pos, i)
+
+    local stack = inv:get_stack("drive_bay", i)
+    if yatm.dscs.is_item_stack_fluid_drive(stack) then
+      local fluid_inventory = yatm.fluid.fluid_inventories:get_fluid_inventory(fluid_inventory_name)
+      if fluid_inventory then
+        meta:set_string("fluid_drive_contents_" .. i, fluid_inventory:serialize())
+      end
+    end
+
+    yatm.fluids.fluid_inventories:destroy_fluid_inventory(fluid_inventory_name)
+  end
+end
+
 yatm.devices.register_stateful_network_device({
   basename = "yatm_dscs:drive_case",
 
@@ -232,7 +269,7 @@ yatm.devices.register_stateful_network_device({
     yatm.devices.device_on_construct(pos)
     local meta = minetest.get_meta(pos)
     local inv = meta:get_inventory()
-    inv:set_size("drive_bay", 8)
+    inv:set_size("drive_bay", DRIVE_BAY_SIZE)
   end,
 
   on_rightclick = function (pos, node, user, item_stack, pointed_thing)

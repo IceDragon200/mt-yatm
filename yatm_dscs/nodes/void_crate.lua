@@ -77,6 +77,17 @@ yatm.devices.register_stateful_network_device({
     inv:set_size("drive_slot", 1)
   end,
 
+  on_dig = function (pos, node, digger)
+    local meta = minetest.get_meta(pos)
+    local inv = meta:get_inventory()
+
+    if inv:is_empty("drive_slot") then
+      return minetest.node_dig(pos, node, digger)
+    end
+
+    return false
+  end,
+
   yatm_network = void_crate_yatm_network,
   on_rightclick = function (pos, node, clicker)
   end,

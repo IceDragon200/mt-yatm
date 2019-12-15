@@ -38,6 +38,8 @@ function yatm.dscs.load_fluid_inventory_from_drive(fluid_inventory_name, item_st
   -- reset the size afterwards
   inv:set_size("main", capacity)
   inv:set_max_stack_size("main", stack_size)
+
+  return inv
 end
 
 function yatm.dscs.persist_inventory_list_to_drive(item_stack, list)

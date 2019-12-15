@@ -257,6 +257,17 @@ yatm.devices.register_stateful_network_device({
   on_metadata_inventory_put = on_metadata_inventory_put,
   on_metadata_inventory_take = on_metadata_inventory_take,
 
+  on_dig = function (pos, node, digger)
+    local meta = minetest.get_meta(pos)
+    local inv = meta:get_inventory()
+
+    if inv:is_empty("drive_slot") then
+      return minetest.node_dig(pos, node, digger)
+    end
+
+    return false
+  end,
+
   yatm_network = void_chest_yatm_network,
 
   on_rightclick = function (pos, node, user, item_stack, pointed_thing)

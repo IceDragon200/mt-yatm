@@ -1,3 +1,6 @@
+--
+--
+--
 minetest.register_craftitem("yatm_dscs:fluid_drive_t1", {
   description = "Fluid Drive [32 Cells]",
 
@@ -7,6 +10,8 @@ minetest.register_craftitem("yatm_dscs:fluid_drive_t1", {
 
   drive_capacity = 512,
   drive_stack_size = 4000,
+
+  stack_max = 1,
 })
 
 minetest.register_craftitem("yatm_dscs:fluid_drive_t2", {
@@ -18,6 +23,8 @@ minetest.register_craftitem("yatm_dscs:fluid_drive_t2", {
 
   drive_capacity = 512,
   drive_stack_size = 8000,
+
+  stack_max = 1,
 })
 
 minetest.register_craftitem("yatm_dscs:fluid_drive_t3", {
@@ -29,4 +36,6 @@ minetest.register_craftitem("yatm_dscs:fluid_drive_t3", {
 
   drive_capacity = 512,
   drive_stack_size = 16000,
+
+  stack_max = 1,
 })
