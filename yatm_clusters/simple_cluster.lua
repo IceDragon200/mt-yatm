@@ -101,7 +101,7 @@ function ic:handle_node_event(cls, generation_id, event, cluster_ids)
 
   if event.event_name == 'load_node' then
     -- treat loads like adding a node
-    self:_handle_add_node(cls, generation_id, event, cluster_ids)
+    self:_handle_load_node(cls, generation_id, event, cluster_ids)
 
   elseif event.event_name == 'add_node' then
     self:_handle_add_node(cls, generation_id, event, cluster_ids)
@@ -170,6 +170,10 @@ function ic:find_compatible_neighbours(cls, origin, node, cluster_ids)
   return neighbours
 end
 
+function ic:_handle_load_node(cls, generation_id, event, given_cluster_ids)
+  return self:_handle_add_node(cls, generation_id, event, given_cluster_ids)
+end
+
 function ic:_handle_add_node(cls, generation_id, event, given_cluster_ids)
   local neighbours = self:find_compatible_neighbours(cls, event.pos, event.node, given_cluster_ids)
 
@@ -227,6 +231,7 @@ function ic:_handle_update_node(cls, generation_id, event, given_cluster_ids)
   if cluster then
     cls:update_node_in_cluster(cluster.id, event.pos, event.node, event.params.groups)
   end
+  return cluster
 end
 
 function ic:mark_accessible_dirs(pos, node, accessible_dirs)

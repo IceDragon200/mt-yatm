@@ -264,6 +264,21 @@ function ic:reduce_nodes(acc, reducer)
   return acc
 end
 
+function ic:reduce_nodes_in_block(block_id, acc, reducer)
+  local continue_reduce = true
+  local node_ids = self.m_block_nodes[block_id]
+  if node_ids then
+    for _, node_id in pairs(node_ids) do
+      local node_entry = self.m_nodes[node_id]
+      continue_reduce, acc = reducer(node_entry, acc)
+      if not continue_reduce then
+        break
+      end
+    end
+  end
+  return acc
+end
+
 --
 -- @type reducer :: (node_entry :: NodeEntry, acc :: term) =>
 --                  {continue_reduce :: boolean, acc :: term}
@@ -466,7 +481,7 @@ function ic:get_cluster(cluster_id)
   return self.m_clusters[cluster_id]
 end
 
-function ic:update_cluster(cluster_id, groups)
+function ic:update_cluster_groups(cluster_id, groups)
   local cluster = self.m_clusters[cluster_id]
   local old_groups = cluster.groups
   cluster.groups = groups
@@ -528,6 +543,22 @@ function ic:destroy_cluster(cluster_id, reason)
   end
 
   return cluster
+end
+
+function ic:reduce_clusters_of_group(group_name, acc, callback)
+  local cluster_ids = self.m_group_clusters[group_name]
+  if cluster_ids then
+    for cluster_id, _ in pairs(cluster_ids) do
+      local cluster = self.m_clusters[cluster_id]
+      if cluster then
+        local should_continue, acc = callback(cluster, acc)
+        if not should_continue then
+          break
+        end
+      end
+    end
+  end
+  return acc
 end
 
 function ic:_on_cluster_destroyed(cluster)
@@ -701,6 +732,10 @@ function ic:_update_active_blocks(dtime)
     for block_hash,entry in pairs(old_blocks) do
       if entry.expired then
         print("clusters", "block expired", entry.id, minetest.pos_to_string(entry.pos))
+        -- block expiration hooks
+        self:_send_to_observers("pre_block_expired", entry)
+
+        -- Expire the block
         self:_on_block_expired(entry.id)
       else
         self.m_active_blocks[block_hash] = entry
@@ -712,6 +747,7 @@ end
 function ic:register_node_event_handler(cluster_group, handler)
   print("clusters", "registering node_event_handler cluster_group=" .. cluster_group)
   self.m_node_event_handlers[cluster_group] = handler
+  return self
 end
 
 function ic:_resolve_node_events(dtime)

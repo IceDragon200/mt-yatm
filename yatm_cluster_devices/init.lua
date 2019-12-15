@@ -55,11 +55,26 @@ function ic:handle_node_event(cls, generation_id, event, node_clusters)
   end
 end
 
+function ic:_handle_load_node(cls, generation_id, event, node_clusters)
+  local cluster = self._super._handle_load_node(self, cls, generation_id, event, node_clusters)
+  if cluster then
+    local node = minetest.get_node(event.pos)
+    local nodedef = minetest.registered_nodes[node.name]
+    if nodedef then
+      if nodedef.yatm_network and nodedef.yatm_network.on_load then
+        nodedef.yatm_network.on_load(event.pos, node)
+      end
+    end
+  end
+  return cluster
+end
+
 function ic:_handle_add_node(cls, generation_id, event, node_clusters)
   local cluster = self._super._handle_add_node(self, cls, generation_id, event, node_clusters)
   cls:schedule_node_event(self.m_cluster_group, 'refresh_controller',
                            event.pos, event.node,
                            { cluster_id = cluster.id, generation_id = generation_id })
+  return cluster
 end
 
 function ic:on_cluster_branch_changed(cls, generation_id, event, cluster)
@@ -162,9 +177,29 @@ end
 
 local CLUSTER_GROUP = 'yatm_device'
 
+--
+-- Called before a block is expired and removed from the clusters
+function ic:on_pre_block_expired(block)
+  yatm.clusters:reduce_clusters_of_group(CLUSTER_GROUP, 0, function (cluster, acc)
+    cluster:reduce_nodes_in_block(block.id, 0, function (node_entry, acc2)
+      local pos = node_entry.pos
+      local node = node_entry.node -- this is the only time the old node entry has to be used
+
+      local nodedef = registered_nodes[node.name]
+      if nodedef and nodedef.yatm_network then
+        if nodedef.yatm_network.on_unload then
+          nodedef.yatm_network.on_unload(pos, node)
+        end
+      end
+    end)
+    return true, acc + 1
+  end)
+end
+
 yatm.cluster.devices = DeviceCluster:new(CLUSTER_GROUP)
 
 yatm.clusters:register_node_event_handler(CLUSTER_GROUP, yatm.cluster.devices:method('handle_node_event'))
+yatm.clusters:observe('pre_block_expired', 'yatm_cluster_devices:pre_block_expired', yatm.cluster.devices:method('on_pre_block_expired'))
 yatm.clusters:observe('terminate', 'yatm_cluster_devices:terminate', yatm.cluster.devices:method('terminate'))
 
 minetest.register_lbm({
