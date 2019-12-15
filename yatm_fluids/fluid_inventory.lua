@@ -170,20 +170,15 @@ end
 
 --
 --
--- :create_fluid_inventory(string, integer, integer)
+-- :create_fluid_inventory(string)
 --   Name is a `mod_name:inventory_name` string that identifies the inventory
---   size is how many slots are available in the inventory
---   max_stack_size - is how much fluid can be stored in any one cell
---                  unlike items that have a stack_size, fluids do not enforce a limit.
---                  A max capacity of `0` will uncap the limit
-function ic:create_fluid_inventory(name, size, max_stack_size)
+function ic:create_fluid_inventory(name)
   assert(name, "expected a name")
-  assert(size, "expected a size")
-  assert(max_stack_size, "expected a max capacity")
   if self.m_inventories[name] then
     error("fluid inventory `" .. name .. "` already exists")
   end
-  self.m_inventories[name] = FluidInventory:new(name, size, max_stack_size)
+  print("Creating Fluid Inventory name=" .. name)
+  self.m_inventories[name] = FluidInventory:new(name)
   return self.m_inventories[name]
 end
 
@@ -192,6 +187,7 @@ function ic:get_fluid_inventory(name)
 end
 
 function ic:destroy_fluid_inventory(name)
+  print("Destroyed Fluid Inventory name=" .. name)
   self.m_inventories[name] = nil
   return self
 end
