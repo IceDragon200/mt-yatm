@@ -26,7 +26,7 @@ minetest.register_tool("yatm_codex:codex", {
     if codex_entry then
       --
     else
-      minetest.chat_send_player(user, "No CODEX entry available")
+      minetest.chat_send_player(user:get_player_name(), "No CODEX entry available")
     end
   end,
 })
