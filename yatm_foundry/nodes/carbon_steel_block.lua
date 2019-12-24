@@ -62,3 +62,49 @@ minetest.register_node("yatm_foundry:carbon_steel_plain_panel_block", {
 
   sounds = default.node_sound_metal_defaults(),
 })
+
+if stairs then
+  stairs.register_stair_and_slab(
+    "yatm_foundry_carbon_steel_block",
+    "yatm_foundry:carbon_steel_block",
+    {cracky = 1, concrete = 1},
+    {"yatm_carbon_steel_block_side.png"},
+    "Carbon Steel Stair",
+    "Carbon Steel Slab",
+    default.node_sound_metal_defaults(),
+    false
+  )
+
+  stairs.register_stair_and_slab(
+    "yatm_foundry_carbon_steel_smooth_block",
+    "yatm_foundry:carbon_steel_smooth_block",
+    {cracky = 1, concrete = 1},
+    {"yatm_carbon_steel_block_smooth.side.png"},
+    "Carbon Steel Smooth Stair",
+    "Carbon Steel Smooth Slab",
+    default.node_sound_metal_defaults(),
+    false
+  )
+
+  stairs.register_stair_and_slab(
+    "yatm_foundry_carbon_steel_base_panel_block",
+    "yatm_foundry:carbon_steel_base_panel_block",
+    {cracky = 1, concrete = 1},
+    {"yatm_carbon_steel_block_base_panel.png"},
+    "Carbon Steel Base Panel Stair",
+    "Carbon Steel Base Panel Slab",
+    default.node_sound_metal_defaults(),
+    false
+  )
+
+  stairs.register_stair_and_slab(
+    "yatm_foundry_carbon_steel_plain_panel_block",
+    "yatm_foundry:carbon_steel_plain_panel_block",
+    {cracky = 1, concrete = 1},
+    {"yatm_carbon_steel_block_plain_panel.png"},
+    "Carbon Steel Plain Panel Stair",
+    "Carbon Steel Plain Panel Slab",
+    default.node_sound_metal_defaults(),
+    false
+  )
+end
