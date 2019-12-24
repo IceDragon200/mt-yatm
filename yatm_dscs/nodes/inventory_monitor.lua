@@ -5,6 +5,13 @@ local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
 
+local groups = {
+  cracky = 1,
+  monitor = 1,
+  yatm_energy_device = 1,
+  yatm_network_device = 1,
+}
+
 local function get_formspec_name(pos)
   return "yatm_dscs:drive_case:" .. minetest.pos_to_string(pos)
 end
@@ -85,7 +92,7 @@ yatm.devices.register_stateful_network_device({
 
   description = "Monitor (inventory)",
 
-  groups = yatm_core.table_merge(groups, {}),
+  groups = groups,
 
   drop = monitor_inventory_yatm_network.states.off,
 
@@ -179,7 +186,7 @@ yatm.devices.register_stateful_network_device({
   },
 
   drawtype = "nodebox",
-  node_box = flat_flat_monitor_nodebox,
+  node_box = flat_monitor_nodebox,
 
   paramtype = "light",
   paramtype2 = "facedir",
