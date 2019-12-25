@@ -13,7 +13,20 @@ function ic:initialize(x, y, z, w, h, d)
   self.d = d
 end
 
+function ic:position()
+  return yatm_core.vector3.new(self.x, self.y, self.z)
+end
+
+function ic:dimensions()
+  return yatm_core.vector3.new(self.w, self.h, self.d)
+end
+
 function ic:scale(x, y, z)
+  if type(x) == "table" then
+    z = x.z
+    y = x.y
+    x = x.x
+  end
   y = y or x
   z = z or y
   self.x = self.x * x
@@ -26,6 +39,11 @@ function ic:scale(x, y, z)
 end
 
 function ic:translate(x, y, z)
+  if type(x) == "table" then
+    z = x.z
+    y = x.y
+    x = x.x
+  end
   self.x = self.x + x
   self.y = self.y + y
   self.z = self.z + z
