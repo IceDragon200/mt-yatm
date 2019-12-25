@@ -140,6 +140,8 @@ end
 minetest.register_node("yatm_data_noteblock:data_noteblock", {
   description = "Data Note Block",
 
+  codex_entry_id = "yatm_data_noteblock:data_noteblock",
+
   groups = {
     cracky = 1,
     data_programmable = 1,
