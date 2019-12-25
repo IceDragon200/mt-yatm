@@ -3,6 +3,68 @@ function yatm_core.vector_to_string(vec)
   return vec.x .. "," .. vec.y .. "," .. vec.z
 end
 
+yatm_core.vector2 = {}
+
+function yatm_core.vector2.new(x, y)
+  return { x = x, y = y }
+end
+
+function yatm_core.vector2.to_string(v1, seperator)
+  seperator = seperator or ","
+  return v1.x .. seperator .. v1.y
+end
+
+function yatm_core.vector2.floor(dest, v1)
+  dest.x = math.floor(v1.x)
+  dest.y = math.floor(v1.y)
+  return dest
+end
+
+function yatm_core.vector2.round(dest, v1)
+  dest.x = math.floor(v1.x + 0.5)
+  dest.y = math.floor(v1.y + 0.5)
+  return dest
+end
+
+function yatm_core.vector2.dot(v1, v2)
+  return v1.x * v2.x + v1.y * v2.y
+end
+
+function yatm_core.vector2.add(dest, v1, v2)
+  dest.x = v1.x + v2.x
+  dest.y = v1.y + v2.y
+  return dest
+end
+
+function yatm_core.vector2.subtract(dest, v1, v2)
+  dest.x = v1.x + v2.x
+  dest.y = v1.y + v2.y
+  return dest
+end
+
+function yatm_core.vector2.multiply(dest, v1, v2)
+  dest.x = v1.x * v2.x
+  dest.y = v1.y * v2.y
+  return dest
+end
+
+function yatm_core.vector2.divide(dest, v1, v2)
+  dest.x = v1.x / v2.x
+  dest.y = v1.y / v2.y
+  return dest
+end
+
+function yatm_core.vector2.idivide(dest, v1, v2)
+  dest.x = math.floor(v1.x / v2.x)
+  dest.y = math.floor(v1.y / v2.y)
+  return dest
+end
+
+yatm_core.vector2.sub = yatm_core.vector2.subtract
+yatm_core.vector2.mul = yatm_core.vector2.multiply
+yatm_core.vector2.div = yatm_core.vector2.divide
+yatm_core.vector2.idiv = yatm_core.vector2.idivide
+
 yatm_core.vector3 = {}
 
 function yatm_core.vector3.new(x, y, z)
