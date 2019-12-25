@@ -5,6 +5,8 @@
 ]]
 yatm.Luna = assert(yatm_core.Luna)
 
+yatm.Cuboid = yatm_core.Cuboid
+
 function yatm.register_stateful_node(basename, base, states)
   for name, changes in pairs(states) do
     local nodedef = yatm_core.table_merge(base, changes)
@@ -33,11 +35,9 @@ yatm.bg = {}
 yatm.bg9 = {}
 
 yatm.bg.base =
-  [[
-  no_prepend[]
-  bgcolor[#080808BB;true]
-  listcolors[#00000069;#5A5A5A;#141318;#30434C;#FFF]
-  ]]
+  "no_prepend[]" ..
+  "bgcolor[#080808BB;true]" ..
+  "listcolors[#00000069;#5A5A5A;#141318;#30434C;#FFF]"
 
 local auto_clip = "true"
 
