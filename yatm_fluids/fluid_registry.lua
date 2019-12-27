@@ -88,7 +88,7 @@ function FluidRegistry.register_fluid_tank(modname, fluid_name, nodedef)
     paramtype2 = "glasslikeliquidlevel",
 
     is_ground_content = false,
-    sunlight_propogates = true,
+    sunlight_propagates = true,
 
     light_source = nodedef.light_source,
 

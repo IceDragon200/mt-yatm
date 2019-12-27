@@ -33,7 +33,7 @@ minetest.register_node("yatm_fluids:fluid_tank", {
   paramtype2 = "glasslikeliquidlevel",
 
   is_ground_content = false,
-  sunlight_propogates = true,
+  sunlight_propagates = true,
   sounds = default.node_sound_glass_defaults(),
 
   refresh_infotext = yatm_fluids.fluid_tank_refresh_infotext,
@@ -97,7 +97,7 @@ minetest.register_node("yatm_fluids:steel_fluid_tank", {
   place_param2 = 0,
 
   is_ground_content = false,
-  sunlight_propogates = true,
+  sunlight_propagates = true,
   sounds = default.node_sound_metal_defaults(),
 
   refresh_infotext = steel_fluid_tank_refresh_infotext,
