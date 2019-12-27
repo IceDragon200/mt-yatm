@@ -21,6 +21,16 @@ minetest.register_node("yatm_armoury_icbm:icbm_silo", {
       {-0.5, -0.5, -0.5, 0.5, 0.5, 0.5},
     },
   },
+
+  on_construct = function (pos)
+    local meta = minetest.get_meta(pos)
+    local inv = meta:get_inventory()
+
+    inv:set_size("warhead_slot", 1)
+    inv:set_size("shell_slot", 1)
+
+    minetest.add_entity(vector.add(pos, yatm_core.V3_UP), "yatm_armoury_icbm:icbm")
+  end,
 })
 
 local node_box = {
@@ -60,7 +70,7 @@ minetest.register_node("yatm_armoury_icbm:icbm_guiding_ring", {
   node_box = node_box,
 
   is_ground_content = false,
-  sunlight_propogates = true,
+  sunlight_propagates = true,
 })
 
 minetest.register_node("yatm_armoury_icbm:icbm_guiding_ring_warning_strips", {
@@ -83,5 +93,5 @@ minetest.register_node("yatm_armoury_icbm:icbm_guiding_ring_warning_strips", {
   node_box = node_box,
 
   is_ground_content = false,
-  sunlight_propogates = true,
+  sunlight_propagates = true,
 })

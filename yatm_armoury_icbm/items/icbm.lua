@@ -26,6 +26,11 @@ minetest.register_craftitem("yatm_armoury_icbm:icbm_incendiary_warhead", {
   description = "ICBM Incendiary Warhead"
 })
 
+-- Explosive, deals explosive damage
+minetest.register_craftitem("yatm_armoury_icbm:icbm_explosive_warhead", {
+  description = "ICBM Explosive Warhead"
+})
+
 -- High-Explosive, deals explosive damage
 minetest.register_craftitem("yatm_armoury_icbm:icbm_he_warhead", {
   description = "ICBM HE Warhead"
