@@ -180,12 +180,68 @@ local function get_formspec(pos, user, assigns)
   return formspec
 end
 
+function receive_fields(user, form_name, fields, assigns)
+  if fields["arm"] then
+    -- create an ICBM
+  elseif fields["disarm"] then
+    -- remove armed ICBM
+  end
+  return true
+end
+
 local function refresh_formspec(pos, player)
   minetest.after(0, function ()
     yatm_core.refresh_player_formspec(player, get_formspec_name(pos), function (ply, assigns)
       return get_drive_case_formspec(assigns.pos, ply, assigns)
     end)
   end)
+end
+
+local groups = {
+  cracky = 1,
+  data_interface_in = 1,
+  data_interface_out = 1,
+}
+
+-- Optional fluid interface
+local fluid_interface
+if yatm_fluids then
+  groups.fluid_interface_in = 1
+
+  local FluidInterface = assert(yatm.fluids.FluidInterface)
+
+  fluid_interface =
+    FluidInterface.new_simple("tank", 4000)
+
+  -- TODO: add hooks to refresh timer
+end
+
+-- Optional item interface
+local item_interface
+if yatm_item_storage then
+  groups.item_interface_in = 1
+
+  local ItemInterface = assert(yatm.items.ItemInterface)
+
+  item_interface =
+    ItemInterface.new_directional(function (self, pos, dir)
+      local node = minetest.get_node(pos)
+      local new_dir = yatm_core.facedir_to_face(node.param2, dir)
+
+      if new_dir == yatm_core.D_DOWN then
+        -- load shells from the bottom
+        return "shell_slot"
+      elseif new_dir == yatm_core.D_UP then
+        -- Can't load anything from the top
+        return nil, "cannot interact with top of node"
+      else
+        -- load warheads from anywhere else
+        -- this allows you to use the other directions for cables or fluids
+        return "warhead_slot"
+      end
+    end)
+
+  -- TODO: add hooks to refresh timer
 end
 
 local function refresh_infotext(pos, node)
@@ -195,19 +251,55 @@ local function refresh_infotext(pos, node)
   local offset_z = meta:get_int("offset_z")
 
   local infotext =
-    "Offset: " .. yatm.vector3.to_string(yatm.vector3.new(offset_x, offset_y, offset_z))
+    "ICBM Silo\n" ..
+    "Offset: " .. yatm.vector3.to_string(yatm.vector3.new(offset_x, offset_y, offset_z)) .. "\n"
+
+  if fluid_interface then
+    -- has fluid interface
+    infotext =
+      infotext ..
+      "Tank: " .. yatm.fluids.FluidMeta.to_infotext(meta, "tank", fluid_interface.capacity) .. "\n"
+  end
+
+  if item_interface then
+    -- has item interface
+    -- nothing to do currently
+  end
 
   meta:set_string("infotext", infotext)
+end
+
+function allow_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
+  if to_list == "warhead_slot" then
+    -- FIXME: ensure that origin item is a warhead
+  elseif to_list == "shell_slot" then
+    -- FIXME: ensure that origin item is a shell
+  elseif to_list == "capsule_inv" then
+    return 1
+  else
+    return 0
+  end
+end
+
+function allow_metadata_inventory_put(pos, listname, index, stack, player)
+end
+
+function allow_metadata_inventory_take(pos, listname, index, stack, player)
+end
+
+function on_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
+end
+
+function on_metadata_inventory_put(pos, listname, index, stack, player)
+end
+
+function on_metadata_inventory_take(pos, listname, index, stack, player)
 end
 
 minetest.register_node("yatm_armoury_icbm:icbm_silo", {
   description = "ICBM Silo",
 
-  groups = {
-    cracky = 1,
-    data_interface_in = 1,
-    data_interface_out = 1,
-  },
+  groups = groups,
 
   tiles = {
     "yatm_icbm_silo_top.png",
@@ -250,7 +342,10 @@ minetest.register_node("yatm_armoury_icbm:icbm_silo", {
   },
   data_interface = data_interface,
 
-  on_rightclick = function (pos, node, clicker, item_stack, pointed_thing)
+  item_interface = item_interface,
+  fluid_interface = fluid_interface,
+
+  on_rightclick = function (pos, node, user, item_stack, pointed_thing)
     local assigns = { pos = pos, node = node }
     local formspec = get_formspec(pos, user, assigns)
     local formspec_name = get_formspec_name(pos)
