@@ -9,6 +9,10 @@ function yatm_core.vector2.new(x, y)
   return { x = x, y = y }
 end
 
+function yatm_core.vector2.zero()
+  return yatm_core.vector2.new(0, 0)
+end
+
 function yatm_core.vector2.to_string(v1, seperator)
   seperator = seperator or ","
   return v1.x .. seperator .. v1.y
@@ -69,6 +73,10 @@ yatm_core.vector3 = {}
 
 function yatm_core.vector3.new(x, y, z)
   return { x = x, y = y, z = z }
+end
+
+function yatm_core.vector3.zero()
+  return yatm_core.vector3.new(0, 0, 0)
 end
 
 function yatm_core.vector3.to_string(v1, seperator)
@@ -138,6 +146,10 @@ yatm_core.vector4 = {}
 
 function yatm_core.vector4.new(x, y, z, w)
   return { x = x, y = y, z = z, w = w }
+end
+
+function yatm_core.vector4.zero()
+  return yatm_core.vector4.new(0, 0, 0)
 end
 
 function yatm_core.vector4.to_string(v1)
