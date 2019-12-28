@@ -3,7 +3,7 @@ local function get_codex_entry_formspec(user, assigns)
     "size[8,9]" ..
     yatm.formspec_bg_for_player(user:get_player_name(), "codex")
 
-  local page = assigns.codex_entry.pages[assigns.page_id]
+  local page = assert(assigns.codex_entry.pages[assigns.page_id])
 
   if page.heading_item then
     formspec =
@@ -27,14 +27,16 @@ local function get_codex_entry_formspec(user, assigns)
 
   local y = 0.5
 
-  for i, line in ipairs(page.lines) do
-    formspec =
-      formspec ..
-      -- 0.125 vertical spacing is a bit too compact
-      -- 0.2 the sweet spot
-      -- 0.25 vertical spacing has adequate spacing, but can only fit 16 lines
-      -- But in all honestly it's like the inventory based sizing doesn't even apply to hypertext...
-      "hypertext[0.125," .. y + (i - 1) * 0.2 .. ";8,1;line" .. i .. ";" .. minetest.formspec_escape(line) .. "]"
+  if page.lines then
+    for i, line in ipairs(page.lines) do
+      formspec =
+        formspec ..
+        -- 0.125 vertical spacing is a bit too compact
+        -- 0.2 the sweet spot
+        -- 0.25 vertical spacing has adequate spacing, but can only fit 16 lines
+        -- But in all honestly it's like the inventory based sizing doesn't even apply to hypertext...
+        "hypertext[0.125," .. y + (i - 1) * 0.2 .. ";8,1;line" .. i .. ";" .. minetest.formspec_escape(line) .. "]"
+    end
   end
 
   if assigns.page_count > 1 then
@@ -83,22 +85,26 @@ local function on_use_codex(itemstack, user, pointed_thing)
   -- when pointing at something, pull up the associated codex entry for that item
   local pos = pointed_thing.under
 
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
+  if pos then
+    local node = minetest.get_node(pos)
+    local nodedef = minetest.registered_nodes[node.name]
 
-  print(node.name)
+    print(node.name)
 
-  local codex_entry
-  local codex_entry_id
-  if nodedef then
-    codex_entry_id = nodedef.codex_entry_id
-    if codex_entry_id then
-      codex_entry = yatm.codex.get_entry(codex_entry_id)
+    local codex_entry
+    local codex_entry_id
+    if nodedef then
+      codex_entry_id = nodedef.codex_entry_id
+      if codex_entry_id then
+        codex_entry = yatm.codex.get_entry(codex_entry_id)
+      end
     end
-  end
 
-  if codex_entry then
-    show_codex_entry(user, codex_entry_id, codex_entry)
+    if codex_entry then
+      show_codex_entry(user, codex_entry_id, codex_entry)
+    else
+      minetest.chat_send_player(user:get_player_name(), "No CODEX entry available")
+    end
   else
     minetest.chat_send_player(user:get_player_name(), "No CODEX entry available")
   end
