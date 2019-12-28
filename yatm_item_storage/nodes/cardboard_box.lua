@@ -1,10 +1,10 @@
 local ItemInterface = assert(yatm.items.ItemInterface)
 
-function get_cardboard_box_formspec(pos)
+function get_cardboard_box_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
     "size[8,9]" ..
-    yatm.bg.cardboard ..
+    yatm.formspec_bg_for_player(user:get_player_name(), "cardboard") ..
     "label[0,0;Cardboard Box]" ..
     "list[nodemeta:" .. spos .. ";main;2,0.5;4,4;]" ..
     "list[current_player;main;0,4.85;8,1;]" ..
@@ -15,11 +15,11 @@ function get_cardboard_box_formspec(pos)
   return formspec
 end
 
-function get_super_cardboard_box_formspec(pos)
+function get_super_cardboard_box_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
     "size[16,9]" ..
-    yatm.bg.cardboard ..
+    yatm.formspec_bg_for_player(user:get_player_name(), "cardboard") ..
     "label[0,0;SUPER Cardboard Box]" ..
     "list[nodemeta:" .. spos .. ";main;0,0.5;16,4;]" ..
     "list[current_player;main;0,4.85;8,1;]" ..
@@ -114,11 +114,12 @@ minetest.register_node("yatm_item_storage:cardboard_box", {
   after_place_node = cardboard_box_after_place_node,
   preserve_metadata = cardboard_box_preserve_metadata,
   on_blast = cardboard_box_on_blast,
-  on_rightclick = function (pos, node, clicker)
+
+  on_rightclick = function (pos, node, user)
     minetest.show_formspec(
-      clicker:get_player_name(),
+      user:get_player_name(),
       "yatm_item_storage:cardboard_box",
-      get_cardboard_box_formspec(pos))
+      get_cardboard_box_formspec(pos, user))
   end,
 })
 
@@ -164,10 +165,11 @@ minetest.register_node("yatm_item_storage:super_cardboard_box", {
   after_place_node = cardboard_box_after_place_node,
   preserve_metadata = cardboard_box_preserve_metadata,
   on_blast = cardboard_box_on_blast,
-  on_rightclick = function (pos, node, clicker)
+
+  on_rightclick = function (pos, node, user)
     minetest.show_formspec(
-      clicker:get_player_name(),
+      user:get_player_name(),
       "yatm_item_storage:super_cardboard_box",
-      get_super_cardboard_box_formspec(pos))
+      get_super_cardboard_box_formspec(pos, user))
   end,
 })

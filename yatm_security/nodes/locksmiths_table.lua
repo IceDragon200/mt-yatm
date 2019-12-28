@@ -9,14 +9,14 @@ local table_nodebox = {
   }
 }
 
-local function locksmiths_table_get_formspec(pos, assigns)
+local function locksmiths_table_get_formspec(pos, user, assigns)
   local meta = minetest.get_meta(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   assigns.tab = assigns.tab or 1
 
   local formspec =
     "size[8,9]" ..
-    yatm.bg.wood ..
+    yatm.formspec_bg_for_player(user:get_player_name(), "wood") ..
     "label[0,0;Locksmith's Table]" ..
     "tabheader[0,0;tab;Lock Installation,Chip Installation,Key Duplication;" .. assigns.tab .. "]"
 
@@ -93,7 +93,7 @@ local function locksmiths_table_get_formspec(pos, assigns)
   return formspec
 end
 
-local function on_player_receive_fields(player, form_name, fields, assigns)
+local function on_player_receive_fields(user, form_name, fields, assigns)
   local meta = minetest.get_meta(assigns.pos)
 
   local needs_refresh = false
@@ -107,7 +107,7 @@ local function on_player_receive_fields(player, form_name, fields, assigns)
   end
 
   if needs_refresh then
-    local formspec = locksmiths_table_get_formspec(assigns.pos, assigns)
+    local formspec = locksmiths_table_get_formspec(assigns.pos, user, assigns)
     return true, formspec
   else
     return true
@@ -388,17 +388,17 @@ minetest.register_node("yatm_security:locksmiths_table_wood", {
   on_construct = locksmiths_table_on_construct,
   on_destruct = locksmiths_table_on_destruct,
 
-  on_rightclick = function (pos, node, clicker, itemstack, pointed_thing)
+  on_rightclick = function (pos, node, user, itemstack, pointed_thing)
     local assigns = { pos = pos, node = node }
-    local formspec = locksmiths_table_get_formspec(pos, assigns)
+    local formspec = locksmiths_table_get_formspec(pos, user, assigns)
 
     local formspec_name = "yatm_security:locksmiths_table:" .. minetest.pos_to_string(pos)
 
-    yatm_core.bind_on_player_receive_fields(clicker, formspec_name,
+    yatm_core.bind_on_player_receive_fields(user, formspec_name,
                                             assigns,
                                             on_player_receive_fields)
 
-    minetest.show_formspec(clicker:get_player_name(), formspec_name, formspec)
+    minetest.show_formspec(user:get_player_name(), formspec_name, formspec)
   end,
 
   allow_metadata_inventory_move = locksmiths_table_allow_metadata_inventory_move,

@@ -76,3 +76,15 @@ yatm.bg9.other = yatm.bg.base .. bg9 .. "yatm_gui_formbg_other.9s.png;" .. auto_
 yatm.bg9.wood = yatm.bg.base .. bg9 .. "yatm_gui_formbg_wood.9s.png;" .. auto_clip .. ";32]"
 yatm.bg9.cardboard = yatm.bg.base .. bg9 .. "yatm_gui_formbg_cardboard.9s.png;" .. auto_clip .. ";32]"
 yatm.bg9.dscs = yatm.bg.base .. bg9 .. "yatm_gui_formbg_dscs.9s.png;" .. auto_clip .. ";32]"
+
+function yatm.formspec_bg_for_player(player_name, background_name)
+  local info = minetest.get_player_information(player_name)
+
+  if info.formspec_version then
+    if info.formspec_version >= 2 then
+      return yatm.bg9[background_name]
+    end
+  end
+
+  return yatm.bg[background_name]
+end

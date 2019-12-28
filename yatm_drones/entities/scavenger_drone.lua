@@ -387,10 +387,10 @@ local function drone_logic(self)
   end
 end
 
-local function get_scavenger_drone_formspec(self)
+local function get_scavenger_drone_formspec(self, user)
   local formspec =
     "size[8,9]" ..
-    yatm.bg.machine ..
+    yatm.formspec_bg_for_player(user:get_player_name(), "machine") ..
     "label[0,0;Inventory]" ..
     "list[detached:" .. self.inventory_name .. ";main;0,0.5;4,4;]" ..
     "label[4,0;Upgrades]" ..
@@ -556,11 +556,11 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
 
   logic = drone_logic,
 
-  on_rightclick = function (self, clicker)
+  on_rightclick = function (self, user)
     minetest.show_formspec(
-      clicker:get_player_name(),
+      user:get_player_name(),
       "yatm_drones:scavenger_drone",
-      get_scavenger_drone_formspec(self)
+      get_scavenger_drone_formspec(self, user)
     )
   end,
 

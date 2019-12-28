@@ -4,11 +4,11 @@ local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
 local compacting_registry = assert(yatm.compacting.compacting_registry)
 
-local function get_compactor_formspec(pos)
+local function get_compactor_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
     "size[8,9]" ..
-    yatm.bg.machine ..
+    yatm.formspec_bg_for_player(user:get_player_name(), "machine") ..
     "label[0,0;Compactor]" ..
     "list[nodemeta:" .. spos .. ";input_items;0,0.3;1,1;]" ..
     "list[nodemeta:" .. spos .. ";processing_items;2,0.3;1,1;]" ..
@@ -159,11 +159,11 @@ local function compactor_on_construct(pos)
   yatm.devices.device_on_construct(pos)
 end
 
-local function compactor_on_rightclick(pos, node, clicker, item_stack, pointed_thing)
+local function compactor_on_rightclick(pos, node, user, item_stack, pointed_thing)
   minetest.show_formspec(
-    clicker:get_player_name(),
+    user:get_player_name(),
     "yatm_machines:compactor",
-    get_compactor_formspec(pos)
+    get_compactor_formspec(pos, user)
   )
 end
 

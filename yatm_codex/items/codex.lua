@@ -1,7 +1,7 @@
 local function get_codex_entry_formspec(user, assigns)
   local formspec =
     "size[8,9]" ..
-    yatm.bg.codex
+    yatm.formspec_bg_for_player(user:get_player_name(), "codex")
 
   local page = assigns.codex_entry.pages[assigns.page_id]
 

@@ -12,13 +12,13 @@ local cluster_energy = assert(yatm.cluster.energy)
 local cluster_devices = assert(yatm.cluster.devices)
 local Energy = assert(yatm.energy)
 
-local function get_formspec(pos, assigns)
+local function get_formspec(pos, user, assigns)
   local meta = minetest.get_meta(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
   local formspec =
     "size[12,11]" ..
-    yatm.bg.machine ..
+    yatm.formspec_bg_for_player(user:get_player_name(), "machine") ..
     "label[0,0;Programmer's Table]" ..
     "button[0,0.5;3,1;random;Random]" ..
     "field[3.5,0.75;5.5,1;prog_data;Program Data;" .. minetest.formspec_escape(meta:get_string("prog_data")) .. "]" ..
@@ -41,7 +41,7 @@ local function get_formspec(pos, assigns)
   return formspec
 end
 
-local function handle_receive_fields(player, formname, fields, assigns)
+local function handle_receive_fields(user, formname, fields, assigns)
   local meta = minetest.get_meta(assigns.pos)
   local needs_refresh = false
 
@@ -76,7 +76,7 @@ local function handle_receive_fields(player, formname, fields, assigns)
   end
 
   if needs_refresh then
-    return true, get_formspec(assigns.pos, assigns)
+    return true, get_formspec(assigns.pos, user, assigns)
   else
     return true
   end
@@ -235,18 +235,18 @@ yatm.devices.register_stateful_network_device({
     meta:set_string("infotext", infotext)
   end,
 
-  on_rightclick = function (pos, node, clicker, item_stack, pointed_thing)
+  on_rightclick = function (pos, node, user, item_stack, pointed_thing)
     local formspec_name = "yatm_security:programmers_table:" .. minetest.pos_to_string(pos)
     local assigns = { pos = pos, node = node }
 
-    yatm_core.bind_on_player_receive_fields(clicker, formspec_name,
+    yatm_core.bind_on_player_receive_fields(user, formspec_name,
                                             assigns,
                                             handle_receive_fields)
 
     minetest.show_formspec(
-      clicker:get_player_name(),
+      user:get_player_name(),
       formspec_name,
-      get_formspec(pos, assigns)
+      get_formspec(pos, user, assigns)
     )
   end,
 

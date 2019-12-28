@@ -18,11 +18,11 @@ local function is_item_solid_fuel(item_stack)
   return recipe.time > 0
 end
 
-local function get_solid_fuel_heater_formspec(pos)
+local function get_solid_fuel_heater_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
     "size[8,9]" ..
-    yatm.bg.machine_heated ..
+    yatm.formspec_bg_for_player(user:get_player_name(), "machine_heated") ..
     "list[nodemeta:" .. spos .. ";fuel_slot;0,0.3;1,1;]" ..
     "list[current_player;main;0,4.85;8,1;]" ..
     "list[current_player;main;0,6.08;8,3;8]" ..
@@ -44,11 +44,11 @@ local function solid_fuel_heater_after_destruct(pos, old_node)
   cluster_thermal:schedule_remove_node(pos, old_node)
 end
 
-local function solid_fuel_heater_on_rightclick(pos, node, clicker)
+local function solid_fuel_heater_on_rightclick(pos, node, user)
   minetest.show_formspec(
-    clicker:get_player_name(),
+    user:get_player_name(),
     "yatm_foundry:solid_fuel_heater",
-    get_solid_fuel_heater_formspec(pos)
+    get_solid_fuel_heater_formspec(pos, user)
   )
 end
 

@@ -3,11 +3,11 @@ local ItemInterface = assert(yatm.items.ItemInterface)
 local Energy = assert(yatm.energy)
 local grinding_registry = assert(yatm.grinding.grinding_registry)
 
-local function get_auto_grinder_formspec(pos)
+local function get_auto_grinder_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
     "size[8,9]" ..
-    yatm.bg.machine ..
+    yatm.formspec_bg_for_player(user:get_player_name(), "machine") ..
     "list[nodemeta:" .. spos .. ";grinder_input;0,0.3;1,1;]" ..
     "list[nodemeta:" .. spos .. ";grinder_processing;2,0.3;1,1;]" ..
     "list[nodemeta:" .. spos .. ";grinder_output;4,0.3;2,2;]" ..
@@ -160,11 +160,11 @@ local function auto_grinder_on_construct(pos)
   inv:set_size("grinder_output", 4)
 end
 
-local function auto_grinder_on_rightclick(pos, node, clicker)
+local function auto_grinder_on_rightclick(pos, node, user)
   minetest.show_formspec(
-    clicker:get_player_name(),
+    user:get_player_name(),
     "yatm_machines:auto_grinder",
-    get_auto_grinder_formspec(pos)
+    get_auto_grinder_formspec(pos, user)
   )
 end
 

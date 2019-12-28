@@ -204,13 +204,13 @@ local function freezer_on_construct(pos)
   yatm.devices.device_on_construct(pos)
 end
 
-local function get_freezer_formspec(pos)
+local function get_freezer_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local meta = minetest.get_meta(pos)
 
   local formspec =
     "size[8,9]" ..
-    yatm.bg.machine_cooled ..
+    yatm.formspec_bg_for_player(user:get_player_name(), "machine_cooled") ..
     "label[0,0;Freezer]" ..
     "list[nodemeta:" .. spos .. ";input_items;0.5,1;3,3;]" ..
     "list[nodemeta:" .. spos .. ";output_items;4.5,1;3,3;]" ..
@@ -279,13 +279,13 @@ yatm.devices.register_stateful_network_device({
   on_dig = freezer_on_dig,
   --on_blast = freezer_on_blast, -- TODO
 
-  on_rightclick = function (pos, node, clicker)
+  on_rightclick = function (pos, node, user)
     local formspec_name = "yatm_machines:freezer:" .. minetest.pos_to_string(pos)
 
     minetest.show_formspec(
-      clicker:get_player_name(),
+      user:get_player_name(),
       formspec_name,
-      get_freezer_formspec(pos)
+      get_freezer_formspec(pos, user)
     )
   end,
 }, {

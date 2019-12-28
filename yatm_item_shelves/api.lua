@@ -31,7 +31,7 @@ local function parse_shelf_item_static_data(static_data)
   return nil
 end
 
-local function get_shelf_formspec(pos)
+local function get_shelf_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
@@ -41,9 +41,9 @@ local function get_shelf_formspec(pos)
 
   local bg
   if nodedef.material_basename == "wood" then
-    bg = yatm.bg.wood
+    bg = yatm.formspec_bg_for_player(user:get_player_name(), "wood")
   else
-    bg = yatm.bg.default
+    bg = yatm.formspec_bg_for_player(user:get_player_name(), "default")
   end
 
   local formspec =
@@ -206,11 +206,11 @@ function yatm.shelves.shelf_on_metadata_inventory_take(pos, listname, index, sta
   yatm.shelves.shelf_refresh(pos)
 end
 
-function yatm.shelves.shelf_on_rightclick(pos, node, clicker)
+function yatm.shelves.shelf_on_rightclick(pos, node, user)
   minetest.show_formspec(
-    clicker:get_player_name(),
+    user:get_player_name(),
     "yatm_item_shelves:shelf",
-    get_shelf_formspec(pos)
+    get_shelf_formspec(pos, user)
   )
 end
 

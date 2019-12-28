@@ -9,12 +9,12 @@ local function reactor_controller_refresh_infotext(pos, node)
   meta:set_string("infotext", infotext)
 end
 
-local function get_reactor_controller_formspec(pos, node)
+local function get_reactor_controller_formspec(pos, node, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
   local formspec =
     "size[8,9]" ..
-    yatm.bg.machine_radioactive
+    yatm.formspec_bg_for_player(user:get_player_name(), "machine_radioactive")
 
   if node.name == "yatm_reactors:reactor_controller_on" then
     formspec = formspec .. "button[1,1;4,2;stop;Stop]"
@@ -48,15 +48,15 @@ local function reactor_controller_on_receive_fields(player, formname, fields, as
   return true
 end
 
-local function reactor_controller_on_rightclick(pos, node, clicker)
+local function reactor_controller_on_rightclick(pos, node, user)
   local formspec_name = "yatm_reactors:reactor_controller:" .. minetest.pos_to_string(pos)
-  yatm_core.bind_on_player_receive_fields(clicker, formspec_name,
+  yatm_core.bind_on_player_receive_fields(user, formspec_name,
                                           { pos = pos, node = node },
                                           reactor_controller_on_receive_fields)
   minetest.show_formspec(
-    clicker:get_player_name(),
+    user:get_player_name(),
     formspec_name,
-    get_reactor_controller_formspec(pos, node)
+    get_reactor_controller_formspec(pos, node, user)
   )
 end
 

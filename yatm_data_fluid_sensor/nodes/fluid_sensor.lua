@@ -9,12 +9,12 @@ local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local Changeset = assert(yatm_core.Changeset)
 
-local function get_fluid_sensor_formspec(pos)
+local function get_fluid_sensor_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local meta = minetest.get_meta(pos)
   local formspec =
     "size[8,9]" ..
-    yatm.bg.data ..
+    yatm.formspec_bg_for_player(user:get_player_name(), "data") ..
     "field[0.5,0.5;4,1;capacity_port;Capacity Port;" .. meta:get_int("capacity_port") .. "]" ..
     "field[4.5,0.5;4,1;amount_port;Amount Port;" .. meta:get_int("amount_port") .. "]" ..
     "field[0.5,1.5;4,1;remaining_capacity_port;Remaining Capacity Port;" .. meta:get_int("remaining_capacity_port") .. "]" ..
@@ -250,15 +250,15 @@ minetest.register_node("yatm_data_fluid_sensor:fluid_sensor", {
   on_destruct = fluid_sensor_on_destruct,
   after_destruct = fluid_sensor_after_destruct,
 
-  on_rightclick = function (pos, node, clicker)
+  on_rightclick = function (pos, node, user)
     local formspec_name = "yatm_data_fluid_sensor:fluid_sensor:" .. minetest.pos_to_string(pos)
-    yatm_core.bind_on_player_receive_fields(clicker, formspec_name,
+    yatm_core.bind_on_player_receive_fields(user, formspec_name,
                                             { pos = pos, node = node },
                                             fluid_sensor_on_receive_fields)
     minetest.show_formspec(
-      clicker:get_player_name(),
+      user:get_player_name(),
       formspec_name,
-      get_fluid_sensor_formspec(pos)
+      get_fluid_sensor_formspec(pos, user)
     )
   end,
 })

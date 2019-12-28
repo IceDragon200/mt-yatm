@@ -23,13 +23,13 @@ local mode_to_index = {
   io = 4
 }
 
-local function get_battery_bank_formspec(pos)
+local function get_battery_bank_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local meta = minetest.get_meta(pos)
   local mode = meta:get_string("mode")
   local formspec =
     "size[8,9]" ..
-    yatm.bg.machine ..
+    yatm.formspec_bg_for_player(user:get_player_name(), "machine") ..
     "label[0,0;Battery Bank]" ..
     "list[nodemeta:" .. spos .. ";batteries;0,0.5;4,4;]" ..
     "list[current_player;main;0,4.85;8,1;]" ..
@@ -211,16 +211,16 @@ local function battery_bank_on_construct(pos)
   yatm.devices.device_on_construct(pos)
 end
 
-local function battery_bank_on_rightclick(pos, node, clicker)
+local function battery_bank_on_rightclick(pos, node, user)
   local formspec_name = "yatm_energy_storage:battery_bank:" .. minetest.pos_to_string(pos)
-  yatm_core.bind_on_player_receive_fields(clicker, formspec_name,
+  yatm_core.bind_on_player_receive_fields(user, formspec_name,
                                           { pos = pos, node = node },
                                           battery_bank_on_receive_fields)
 
   minetest.show_formspec(
-    clicker:get_player_name(),
+    user:get_player_name(),
     formspec_name,
-    get_battery_bank_formspec(pos)
+    get_battery_bank_formspec(pos, user)
   )
 end
 

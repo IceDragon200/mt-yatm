@@ -7,12 +7,12 @@ local jukebox_node_box = {
   }
 }
 
-local function get_jukebox_formspec(pos)
+local function get_jukebox_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
   local formspec =
     "size[8,9]" ..
-    yatm.bg.default ..
+    yatm.formspec_bg_for_player(user:get_player_name(), "default") ..
     "list[nodemeta:" .. spos .. ";input_disc;1,1;1,1;]"
 
   return formspec
@@ -31,11 +31,11 @@ yatm.register_stateful_node("yatm_decor:jukebox", {
   drawtype = "nodebox",
   node_box = jukebox_node_box,
 
-  on_rightclick = function (pos, node, clicker)
+  on_rightclick = function (pos, node, user)
     minetest.show_formspec(
-      clicker:get_player_name(),
+      user:get_player_name(),
       "yatm_decor:jukebox",
-      get_jukebox_formspec(pos)
+      get_jukebox_formspec(pos, user)
     )
   end,
 }, {

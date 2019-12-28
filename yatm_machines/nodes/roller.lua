@@ -6,11 +6,11 @@ local Energy = assert(yatm.energy)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local rolling_registry = assert(yatm.rolling.rolling_registry)
 
-local function get_roller_formspec(pos)
+local function get_roller_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
     "size[8,9]" ..
-    yatm.bg.machine ..
+    yatm.formspec_bg_for_player(user:get_player_name(), "machine") ..
     "list[nodemeta:" .. spos .. ";roller_input;0,0.3;1,1;]" ..
     "list[nodemeta:" .. spos .. ";roller_processing;1.5,0.3;1,1;]" ..
     "list[nodemeta:" .. spos .. ";roller_output;3,0.3;1,1;]" ..
@@ -153,9 +153,9 @@ yatm.devices.register_stateful_network_device({
     inv:set_size("roller_output", 1)
   end,
 
-  on_rightclick = function (pos, node, clicker)
+  on_rightclick = function (pos, node, user)
     minetest.show_formspec(
-      clicker:get_player_name(),
+      user:get_player_name(),
       "yatm_machines:roller",
       get_roller_formspec(pos)
     )

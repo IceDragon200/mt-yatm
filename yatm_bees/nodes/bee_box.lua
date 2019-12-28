@@ -17,7 +17,7 @@ local function itemstack_is_frame(item_stack)
   return false
 end
 
-local function get_bee_box_formspec(pos)
+local function get_bee_box_formspec(pos, user)
   local meta = minetest.get_meta(pos)
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
@@ -28,9 +28,9 @@ local function get_bee_box_formspec(pos)
 
   local bg
   if nodedef.material_basename == "wood" then
-    bg = yatm.bg.wood
+    bg = yatm.formspec_bg_for_player(user:get_player_name(), "wood")
   else
-    bg = yatm.bg.default
+    bg = yatm.formspec_bg_for_player(user:get_player_name(), "default")
   end
 
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
@@ -188,11 +188,11 @@ local function bee_box_on_timer(pos, elapsed)
   return true
 end
 
-local function bee_box_on_rightclick(pos, node, clicker)
+local function bee_box_on_rightclick(pos, node, user)
   minetest.show_formspec(
-    clicker:get_player_name(),
+    user:get_player_name(),
     "yatm_bees:bee_box",
-    get_bee_box_formspec(pos)
+    get_bee_box_formspec(pos, user)
   )
 end
 

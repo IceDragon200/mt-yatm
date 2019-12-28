@@ -56,13 +56,13 @@ minetest.register_node("yatm_data_logic:data_buffer", {
       meta:set_string("data_buffered_value", value)
     end,
 
-    get_programmer_formspec = function (self, pos, clicker, pointed_thing, assigns)
+    get_programmer_formspec = function (self, pos, user, pointed_thing, assigns)
       --
       local meta = minetest.get_meta(pos)
 
       local formspec =
         "size[8,9]" ..
-        yatm.bg.module ..
+        yatm.formspec_bg_for_player(user:get_player_name(), "module") ..
         "label[0,0;Port Configuration]" ..
         yatm_data_logic.get_io_port_formspec(pos, meta, "io")
 

@@ -12,12 +12,12 @@
 --
 local data_network = assert(yatm.data_network)
 
-local function get_micro_controller_formspec(pos)
+local function get_micro_controller_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local meta = minetest.get_meta(pos)
   local formspec =
     "size[8,9]" ..
-    yatm.bg.computer
+    yatm.formspec_bg_for_player(user:get_player_name(), "computer")
 
   for i = 0,15 do
     local x = 0.25 + math.floor(i % 4)
@@ -177,15 +177,15 @@ minetest.register_node("yatm_oku:oku_micro_controller", {
   on_destruct = micro_controller_on_destruct,
   after_destruct = micro_controller_after_destruct,
 
-  on_rightclick = function (pos, node, clicker)
+  on_rightclick = function (pos, node, user)
     local formspec_name = "yatm_oku:oku_micro_controller:" .. minetest.pos_to_string(pos)
-    yatm_core.bind_on_player_receive_fields(clicker, formspec_name,
+    yatm_core.bind_on_player_receive_fields(user, formspec_name,
                                             { pos = pos, node = node },
                                             micro_controller_on_receive_fields)
     minetest.show_formspec(
-      clicker:get_player_name(),
+      user:get_player_name(),
       formspec_name,
-      get_micro_controller_formspec(pos)
+      get_micro_controller_formspec(pos, user)
     )
   end,
 

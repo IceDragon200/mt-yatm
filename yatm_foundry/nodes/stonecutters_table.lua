@@ -9,10 +9,10 @@ local table_nodebox = {
   }
 }
 
-local function stonecutters_table_get_formspec()
+local function stonecutters_table_get_formspec(pos, user)
   local formspec =
     "size[8,9]" ..
-    yatm.bg.machine ..
+    yatm.formspec_bg_for_player(user:get_player_name(), "machine") ..
     "label[0,0;Stonecutters' Table]" ..
     default.get_hotbar_bg(0, 4.25)
 
@@ -29,15 +29,10 @@ local function stonecutters_table_configure_inventory(meta)
   inv:set_size("item_result", 2) -- slots used to output the result
 end
 
-local function stonecutters_table_initialize_formspec(meta)
-  meta:set_string("formspec", stonecutters_table_get_formspec())
-end
-
 local function stonecutters_table_on_construct(pos)
   local meta = minetest.get_meta(pos)
 
   stonecutters_table_configure_inventory(meta)
-  stonecutters_table_initialize_formspec(meta)
 end
 
 local function stonecutters_table_on_destruct(pos)

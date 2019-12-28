@@ -61,7 +61,7 @@ local data_interface = {
     end
   end,
 
-  get_programmer_formspec = function (self, pos, clicker, pointed_thing, assigns)
+  get_programmer_formspec = function (self, pos, user, pointed_thing, assigns)
     --
     local meta = minetest.get_meta(pos)
 
@@ -69,7 +69,7 @@ local data_interface = {
 
     local formspec =
       "size[8,9]" ..
-      yatm.bg.module ..
+      yatm.formspec_bg_for_player(user:get_player_name(), "module") ..
       "tabheader[0,0;tab;Ports,Data;" .. assigns.tab .. "]"
 
     if assigns.tab == 1 then

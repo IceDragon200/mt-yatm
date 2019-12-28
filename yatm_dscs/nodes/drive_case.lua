@@ -15,11 +15,11 @@ local function get_formspec_name(pos)
   return "yatm_dscs:drive_case:" .. minetest.pos_to_string(pos)
 end
 
-local function get_drive_case_formspec(pos)
+local function get_drive_case_formspec(pos, user, _assigns)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
     "size[8,9]" ..
-    yatm.bg.dscs ..
+    yatm.formspec_bg_for_player(user:get_player_name(), "dscs") ..
     "list[nodemeta:" .. spos .. ";drive_bay;0,0.3;2,4;]" ..
     "list[current_player;main;0,4.85;8,1;]" ..
     "list[current_player;main;0,6.08;8,3;8]" ..
@@ -31,8 +31,8 @@ end
 
 local function refresh_formspec(pos, player)
   minetest.after(0, function ()
-    yatm_core.refresh_player_formspec(player, get_formspec_name(pos), function (ply, assigns)
-      return get_drive_case_formspec(assigns.pos, ply, assigns)
+    yatm_core.refresh_player_formspec(player, get_formspec_name(pos), function (user, assigns)
+      return get_drive_case_formspec(assigns.pos, user, assigns)
     end)
   end)
 end

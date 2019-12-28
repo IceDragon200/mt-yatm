@@ -5,11 +5,11 @@ local FluidMeta = assert(yatm.fluids.FluidMeta)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local SmeltingRegistry = assert(yatm.smelting.SmeltingRegistry)
 
-local function get_smelter_formspec(pos)
+local function get_smelter_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
     "size[8,9]" ..
-    yatm.bg.machine_heated ..
+    yatm.formspec_bg_for_player(user:get_player_name(), "machine_heated") ..
     "list[nodemeta:" .. spos .. ";input_slot;0,0.3;1,1;]" ..
     "list[nodemeta:" .. spos .. ";processing_slot;2,0.3;1,1;]" ..
     "list[current_player;main;0,4.85;8,1;]" ..
@@ -59,11 +59,11 @@ local function smelter_refresh_infotext(pos)
   )
 end
 
-local function smelter_on_rightclick(pos, node, clicker)
+local function smelter_on_rightclick(pos, node, user)
   minetest.show_formspec(
-    clicker:get_player_name(),
+    user:get_player_name(),
     "yatm_foundry:smelter",
-    get_smelter_formspec(pos)
+    get_smelter_formspec(pos, user)
   )
 end
 

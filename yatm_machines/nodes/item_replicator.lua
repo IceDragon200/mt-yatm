@@ -25,11 +25,11 @@ local item_replicator_yatm_network = {
   },
 }
 
-local function get_item_replicator_formspec(pos)
+local function get_item_replicator_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
     "size[8,9]" ..
-    yatm.bg.machine ..
+    yatm.formspec_bg_for_player(user:get_player_name(), "machine") ..
     "list[nodemeta:" .. spos .. ";input_slot;0,0.3;1,1;]" ..
     "list[nodemeta:" .. spos .. ";output_slot;2,0.3;1,1;]" ..
     "list[current_player;main;0,4.85;8,1;]" ..
@@ -124,11 +124,11 @@ yatm.devices.register_stateful_network_device({
     inv:set_size("output_slot", 1)
   end,
 
-  on_rightclick = function (pos, node, clicker)
+  on_rightclick = function (pos, node, user)
     minetest.show_formspec(
-      clicker:get_player_name(),
+      user:get_player_name(),
       "yatm_machines:item_replicator",
-      get_item_replicator_formspec(pos)
+      get_item_replicator_formspec(pos, user)
     )
   end,
 }, {

@@ -3,13 +3,13 @@
 -- In addition they can be adorned with a ribbon and sealed to prevent anyone except the recipient
 -- from opening it.
 --
-function get_package_formspec(pos)
+function get_package_formspec(pos, user)
   local meta = minetest.get_meta(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
   local formspec =
     "size[8,9]" ..
-    yatm.bg.wood ..
+    yatm.formspec_bg_for_player(user:get_player_name(), "wood") ..
     "label[0,0;Package]" ..
     "list[nodemeta:" .. spos .. ";main;0,0.5;3,3;]" ..
     "field[4,1;4,1;addressed_from;From;" .. meta:get_string("addressed_from") .. "]" ..
@@ -92,15 +92,15 @@ local function package_on_receive_fields(player, formname, fields, assigns)
   return true
 end
 
-local function package_on_rightclick(pos, node, clicker)
+local function package_on_rightclick(pos, node, user)
   local formspec_name = "yatm_mail:package_formspec:" .. minetest.pos_to_string(pos)
-  yatm_core.bind_on_player_receive_fields(clicker, formspec_name,
+  yatm_core.bind_on_player_receive_fields(user, formspec_name,
                                           { pos = pos, node = node },
                                           package_on_receive_fields)
   minetest.show_formspec(
-    clicker:get_player_name(),
+    user:get_player_name(),
     formspec_name,
-    get_package_formspec(pos)
+    get_package_formspec(pos, user)
   )
 end
 

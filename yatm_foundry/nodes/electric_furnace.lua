@@ -2,11 +2,11 @@ local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
 
-local function get_electric_furnace_formspec(pos)
+local function get_electric_furnace_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
     "size[8,9]" ..
-    yatm.bg.machine_heated ..
+    yatm.formspec_bg_for_player(user:get_player_name(), "machine_heated") ..
     "list[current_player;main;0,4.85;8,1;]" ..
     "list[current_player;main;0,6.08;8,3;8]" ..
     default.get_hotbar_bg(0,4.85)
@@ -96,11 +96,11 @@ yatm.devices.register_stateful_network_device({
     --inv:set_size("processing_slot", 1)
   end,
 
-  on_rightclick = function (pos, node, clicker)
+  on_rightclick = function (pos, node, user)
     minetest.show_formspec(
-      clicker:get_player_name(),
+      user:get_player_name(),
       "yatm_foundry:electric_furnace",
-      get_electric_furnace_formspec(pos)
+      get_electric_furnace_formspec(pos, user)
     )
   end,
 }, {

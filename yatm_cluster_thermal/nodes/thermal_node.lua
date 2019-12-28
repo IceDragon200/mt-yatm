@@ -18,7 +18,7 @@ local function get_thermal_node_formspec(pos, user, pointed_thing, assigns)
 
   local formspec =
     "size[8,9]" ..
-    yatm.bg[background_type] ..
+    yatm.formspec_bg_for_player(user:get_player_name(), background_type) ..
     "label[0,0;Thermal Node]" ..
     "field[0.25,1;8,1;heat;Heat;" .. heat .. "]"
 

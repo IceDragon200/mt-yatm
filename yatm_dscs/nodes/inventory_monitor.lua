@@ -21,7 +21,7 @@ local function get_formspec(pos, user, assigns)
   assigns.tab = assigns.tab or 1
   local formspec =
     "size[8,9]" ..
-    yatm.bg.dscs ..
+    yatm.formspec_bg_for_player(user:get_player_name(), "dscs") ..
     "label[0,0;DSCS Inventory]" ..
     "tabheader[0,0;tab;Items,Fluids;" .. assigns.tab .. "]" ..
     --"list[nodemeta:" .. spos .. ";drive_bay;0,0.3;2,4;]" ..

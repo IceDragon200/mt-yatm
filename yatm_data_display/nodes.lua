@@ -101,13 +101,13 @@ yatm.register_stateful_node("yatm_data_display:ascii_display", {
       end
     end,
 
-    get_programmer_formspec = function (self, pos, clicker, pointed_thing, assigns)
+    get_programmer_formspec = function (self, pos, user, pointed_thing, assigns)
       --
       local meta = minetest.get_meta(pos)
 
       local formspec =
         "size[8,9]" ..
-        yatm.bg.display ..
+        yatm.formspec_bg_for_player(user:get_player_name(), "display") ..
         "label[0,0;Port Configuration]" ..
         yatm_data_logic.get_io_port_formspec(pos, meta, "i")
 

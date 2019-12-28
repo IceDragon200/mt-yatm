@@ -1,11 +1,11 @@
 local cluster_thermal = assert(yatm.cluster.thermal)
 
-local function get_oven_formspec(pos)
+local function get_oven_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
   local formspec =
     "size[8,9]" ..
-    yatm.bg.machine_heated ..
+    yatm.formspec_bg_for_player(user:get_player_name(), "machine_heated") ..
     "list[nodemeta:" .. spos .. ";fuel_slot;3,2.5.3;1,1;]" ..
     "list[nodemeta:" .. spos .. ";input_slot;1,1;1,1;]" ..
     "list[nodemeta:" .. spos .. ";processing_slot;3,1;1,1;]" ..
@@ -23,11 +23,11 @@ local function get_oven_formspec(pos)
   return formspec
 end
 
-local function oven_on_rightclick(pos, node, clicker)
+local function oven_on_rightclick(pos, node, user)
   minetest.show_formspec(
-    clicker:get_player_name(),
+    user:get_player_name(),
     "yatm_culinary:oven",
-    get_oven_formspec(pos)
+    get_oven_formspec(pos, user)
   )
 end
 

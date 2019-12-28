@@ -26,7 +26,7 @@ local function get_void_chest_formspec(pos, user, assigns)
 
   local formspec =
     "size[9,10]" ..
-    yatm.bg.dscs
+    yatm.formspec_bg_for_player(user:get_player_name(), "dscs")
 
   local row_count = math.ceil(capacity / 32)
   assigns.drive_contents_offset = math.min(math.max(assigns.drive_contents_offset, 0), row_count - 1)

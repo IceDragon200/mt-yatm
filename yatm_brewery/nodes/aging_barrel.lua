@@ -14,12 +14,12 @@ local barrel_nodebox = {
   }
 }
 
-local function barrel_get_formspec(pos)
+local function barrel_get_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
   local formspec =
     "size[8,9]" ..
-    yatm.bg.wood ..
+    yatm.formspec_bg_for_player(user:get_player_name(), "wood") ..
     "list[nodemeta:" .. spos .. ";culture_slot;1,1;1,1]" ..
     "list[current_player;main;1,4.85;8,1;]" ..
     "list[current_player;main;1,6.08;8,3;8]" ..
