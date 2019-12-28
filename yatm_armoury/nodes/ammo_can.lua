@@ -1,10 +1,10 @@
 local ItemInterface = assert(yatm.items.ItemInterface)
 
-function get_ammo_can_formspec(pos)
+function get_ammo_can_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local formspec =
     "size[12,9]" ..
-    yatm.bg.default ..
+    yatm.formspec_bg_for_player(user:get_player_name(), "default") ..
     "list[nodemeta:" .. spos .. ";main;0,0.3;12,4;]" ..
     "list[current_player;main;2,4.85;8,1;]" ..
     "list[current_player;main;2,6.08;8,3;8]" ..
@@ -112,7 +112,7 @@ minetest.register_node("yatm_armoury:ammo_can", {
     minetest.show_formspec(
       clicker:get_player_name(),
       "yatm_armoury:ammo_can",
-      get_ammo_can_formspec(pos)
+      get_ammo_can_formspec(pos, clicker)
     )
   end,
 
