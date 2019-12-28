@@ -8,16 +8,17 @@ end
 
 local ItemInterface = assert(yatm.items.ItemInterface)
 
-local belt_loader_item_interface = ItemInterface.new_directional(function (self, pos, dir)
-  local node = minetest.get_node(pos)
-  local new_dir = yatm_core.facedir_to_face(node.param2, dir)
+local belt_loader_item_interface =
+  ItemInterface.new_directional(function (self, pos, dir)
+    local node = minetest.get_node(pos)
+    local new_dir = yatm_core.facedir_to_face(node.param2, dir)
 
-  if new_dir == yatm_core.D_EAST and new_dir == yatm_core.D_WEST then
-    return "belt_items"
-  else
-    return "ammo_items"
-  end
-end)
+    if new_dir == yatm_core.D_EAST and new_dir == yatm_core.D_WEST then
+      return "belt_items"
+    else
+      return "ammo_items"
+    end
+  end)
 
 local belt_loader_yatm_network = {
   basename = "yatm_armoury:belt_loader",

@@ -26,7 +26,7 @@ function yatm_armoury.is_stack_magazine(stack)
   return false
 end
 
-function yatm_armoury.is_same_calibre_items(a, b)
+function yatm_armoury.is_same_calibre_item_stacks(a, b)
   local ad = a:get_definition()
   local bd = b:get_definition()
 
@@ -49,7 +49,7 @@ end
 --
 -- @spec yatm_armoury.add_bullet_to_magazine(ItemStack, ItemStack) :: (leftover_bullets :: ItemStack, new_magazine :: ItemStack)
 function yatm_armoury.add_bullet_to_magazine(bullet_stack, magazine_stack)
-  if yatm_armoury.is_same_calibre_items(magazine_stack, bullet_stack) then
+  if yatm_armoury.is_same_calibre_item_stacks(magazine_stack, bullet_stack) then
     if not yatm_armoury.is_magazine_full(magazine_stack) then
       local bullet_itemdef = bullet_stack:get_definition()
       local magazine_itemdef = magazine_stack:get_definition()
