@@ -34,6 +34,9 @@ function yatm_data_logic.mark_all_inputs_for_active_receive(pos, options)
   end
 end
 
+--
+-- Treats the specified value as a vector, that is each value in the string is outputted on a different port
+--
 function yatm_data_logic.emit_output_data_vector(pos, vector_value, options)
   options = options or {}
   local meta = minetest.get_meta(pos)
@@ -111,6 +114,15 @@ function yatm_data_logic.emit_output_data(pos, data_name, options)
   local meta = minetest.get_meta(pos)
   local dl = meta:get_string("data_" .. data_name)
   yatm_data_logic.emit_output_data_value(pos, dl, options)
+end
+
+--
+-- Emit value in all directions
+--
+function yatm_data_logic.emit_value(pos, local_port, value)
+  for _, dir in ipairs(yatm_core.DIR6) do
+    data_network:send_value(pos, dir, local_port, value)
+  end
 end
 
 function yatm_data_logic.get_io_port_matrix_formspec(pos, meta, mode, options)
