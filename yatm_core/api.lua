@@ -6,6 +6,12 @@
 yatm.Luna = assert(yatm_core.Luna)
 
 yatm.Cuboid = yatm_core.Cuboid
+yatm.ByteBuf = yatm_core.ByteBuf
+yatm.BinSchema = yatm_core.BinSchema
+yatm.ByteDecoder = yatm_core.ByteDecoder
+yatm.vector2 = yatm_core.vector2
+yatm.vector3 = yatm_core.vector3
+yatm.vector4 = yatm_core.vector4
 
 function yatm.register_stateful_node(basename, base, states)
   for name, changes in pairs(states) do

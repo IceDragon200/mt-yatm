@@ -20,7 +20,12 @@ dofile(yatm_core.modpath .. "/util/toml.lua")
 dofile(yatm_core.modpath .. "/util/string_buf.lua")
 dofile(yatm_core.modpath .. "/util/bin_buf.lua")
 -- Binary Serializer
-dofile(yatm_core.modpath .. "/util/byte_buf.lua")
+dofile(yatm_core.modpath .. "/util/byte_decoder.lua")
+if yatm_core.ByteDecoder then
+  dofile(yatm_core.modpath .. "/util/byte_buf.lua")
+else
+  yatm.warn("yatm_core.ByteDecoder is unavailable, skipping ByteBuf module")
+end
 if yatm_core.ByteBuf then
   dofile(yatm_core.modpath .. "/util/bin_schema.lua")
   dofile(yatm_core.modpath .. "/util/bin_types.lua")

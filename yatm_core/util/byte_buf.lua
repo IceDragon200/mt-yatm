@@ -1,3 +1,4 @@
+local ByteDecoder = yatm_core.ByteDecoder
 local bit = yatm.bit
 
 if not bit then
@@ -339,26 +340,12 @@ local INT_MAX = {
 }
 
 function ByteBuf.r_iv(file, len)
-  local result = 0
   local bytes, read_len = ByteBuf.read(file, len)
   if read_len < len then
     return nil, read_len, "read underflow"
   end
-  for i = 1,(len - 1) do
-    local byte = string.byte(bytes, i)
-    byte = bit.lshift(byte, 8 * (i - 1))
-    result = bit.bor(result, byte)
-  end
-  local byte = string.byte(bytes, len)
-  if bit.band(byte, 128) == 128 then
-    local bits = 8 * (len - 1)
-    local high_byte = bit.lshift(byte, bits) - INT_MAX[len]
-    result = bit.bor(high_byte, result)
-    return result, len
-  else
-    result = bit.bor(result, bit.lshift(bit.band(byte, 127), 8 * (len - 1)))
-    return result, len
-  end
+
+  return ByteDecoder:d_iv(bytes, len)
 end
 
 function ByteBuf.r_i64(file)
@@ -382,17 +369,11 @@ function ByteBuf.r_i8(file)
 end
 
 function ByteBuf.r_uv(file, len)
-  local result = 0
   local bytes, read_len = ByteBuf.read(file, len)
   if read_len < len then
     return nil, read_len, "read underflow"
   end
-  for i = 1,len do
-    local byte = string.byte(bytes, i)
-    byte = bit.lshift(byte, 8 * (i - 1))
-    result = bit.bor(byte, result)
-  end
-  return result, len
+  return ByteDecoder:d_uv(bytes, len)
 end
 
 function ByteBuf.r_u64(file)

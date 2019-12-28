@@ -36,7 +36,7 @@ local ic = BinSchema.instance_class
   {name :: String, "map", key_type, value_type} | -- Map
   {name :: String, element_type} | -- Any other type
 ]
-@spec initialize(String, definition) :: void
+@spec initialize(name :: String, definition) :: void
 ]]
 function ic:initialize(name, definition)
   ic._super.initialize(self)
@@ -132,11 +132,11 @@ function ic:read(stream, target)
       local _, bytes_read = ByteBuf.read(stream, block.length)
       all_bytes_read = all_bytes_read + bytes_read
     else
-      print("debug", "BinSchema", self.m_name, "reading field", block.name, "at pos", stream:tell())
+      --print("debug", "BinSchema", self.m_name, "reading field", block.name, "at pos", stream:tell())
       local value, bytes_read = block.type:read(stream)
       all_bytes_read = all_bytes_read + bytes_read
       target[block.name] = value
-      print("debug", "BinSchema", self.m_name, "read field", block.name)
+      --print("debug", "BinSchema", self.m_name, "read field", block.name)
     end
     return all_bytes_read
   end)
