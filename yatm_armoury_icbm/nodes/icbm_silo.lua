@@ -90,25 +90,35 @@ local function arm_icbm(pos, node)
   local warhead_stack = inv:get_stack("warhead_slot", 1)
   local shell_stack = inv:get_stack("shell_slot", 1)
 
+  if warhead_stack:is_empty() then
+    return
+  end
+
+  if shell_stack:is_empty() then
+    return
+  end
+
   local entity = get_icbm_entity(pos, node)
+  local new_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
+  local up_vec = yatm_core.DIR6_TO_VEC3[new_dir]
+
   if entity then
     --
   else
-    local new_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
-    local up_vec = yatm_core.DIR6_TO_VEC3[new_dir]
-    local entity = minetest.add_entity(vector.add(pos, up_vec), "yatm_armoury_icbm:icbm")
-    local params = {}
-    local offset = vector.new(meta:get_int("offset_x"),
-                              meta:get_int("offset_y"),
-                              meta:get_int("offset_z"))
-    params.target_pos = vector.add(pos, offset)
-    params.origin_pos = pos
-    params.origin_dir = new_dir
-    params.guide_length = count_guiding_rings(pos, node)
-    params.warhead_type = warhead_stack:get_definition().icbm_warhead_type
-
-    entity:get_luaentity():arm_icbm(params)
+    entity = minetest.add_entity(vector.add(pos, up_vec), "yatm_armoury_icbm:icbm")
   end
+
+  local params = {}
+  local offset = vector.new(meta:get_int("offset_x"),
+                            meta:get_int("offset_y"),
+                            meta:get_int("offset_z"))
+  params.target_pos = vector.add(pos, offset)
+  params.origin_pos = pos
+  params.origin_dir = up_vec
+  params.guide_length = count_guiding_rings(pos, node)
+  params.warhead_type = warhead_stack:get_definition().icbm_warhead_type
+
+  entity:get_luaentity():arm_icbm(params)
 end
 
 local function bind_input_port(pos, name)

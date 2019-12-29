@@ -122,32 +122,16 @@ minetest.register_entity("yatm_armoury_icbm:icbm", {
     has_inventory = false,
   },
 
-  on_activate = function (self, staticdata, dtime_s)
-    if staticdata ~= "" then
-      local data = minetest.parse_json(staticdata)
+  refresh_infotext = function (self)
+    local infotext =
+      "Origin: " .. minetest.pos_to_string(self.origin_pos) .. "\n" ..
+      "Target: " .. minetest.pos_to_string(self.target_pos) .. "\n" ..
+      "Velocity: " .. yatm.vector3.to_string(self.object:get_velocity()) .. "\n" ..
+      "Stage: " .. (self.stage or "")
 
-      if not data.version then
-        self.object:remove()
-        return
-      end
-      self.warhead_type = data.warhead_type
-      self.origin_pos = data.origin_pos
-      self.origin_dir = data.origin_dir
-      if self.origin_dir == nil then
-        self.origin_dir = yatm_core.V3_UP
-      end
-      if type(self.origin_dir) == "number" then
-        self.origin_dir = yatm_core.DIR6_TO_VEC3[self.origin_dir]
-      end
-      self.target_pos = data.target_pos
-      self.exit_pos = data.exit_pos
-      self.stage = data.stage or "docked"
-
-      if data.has_inventory then
-        self.has_inventory = true
-        restore_inventory(self, data.inventory)
-      end
-    end
+    self.object:set_properties({
+      infotext = infotext
+    })
   end,
 
   on_punch = function (self, puncher, time_from_last_punch, tool_capabilities, dir, damage)
@@ -181,12 +165,14 @@ minetest.register_entity("yatm_armoury_icbm:icbm", {
     elseif self.stage == "leaving_silo" then
       -- the icbm is currently trying to leave the silo
       -- depending on the exit direction of the silo, the icbm may need to clear up to 6 nodes before it enters cruise flight
-      local velocity = vector.multiply(vector.multiply(self.origin_dir, dtime), 4)
-
-      if vector.distance(self.exit_pos, self:get_luaentity():get_pos()) <= 1 then
+      if vector.distance(self.exit_pos, self.object:get_pos()) <= 1 then
         -- icbm has arrived at exit location, it will now transition into the cruise state
         self.stage = "ascent"
+        self:refresh_infotext()
       else
+        local velocity = yatm.vector3.zero()
+        yatm.vector3.mul(velocity, vector.multiply(self.origin_dir, dtime), 300)
+        self:refresh_infotext()
         self.object:set_velocity(velocity)
       end
 
@@ -195,8 +181,10 @@ minetest.register_entity("yatm_armoury_icbm:icbm", {
       -- TODO: should perform a curved ascent
       if vector.distance(self.cruise_pos, self.object:get_pos()) <= 1 then
         self.stage = "cruise"
+        self:refresh_infotext()
       else
-        local velocity = vector.multiply(vector.multiply(vector.direction(self.cruise_pos, self.object:get_pos()), dtime), 8)
+        local velocity = vector.multiply(vector.multiply(vector.direction(self.object:get_pos(), self.cruise_pos), dtime), 500)
+        self:refresh_infotext()
         self.object:set_velocity(velocity)
       end
 
@@ -205,8 +193,10 @@ minetest.register_entity("yatm_armoury_icbm:icbm", {
       -- note that they always fly in a straight line to the target, and will detonate if they collide with something in this state.
       if vector.distance(self.target_cruise_pos, self.object:get_pos()) <= 1 then
         self.stage = "descent"
+        self:refresh_infotext()
       else
-        local velocity = vector.multiply(vector.multiply(vector.direction(self.target_cruise_pos, self.object:get_pos()), dtime), 16)
+        local velocity = vector.multiply(vector.multiply(vector.direction(self.object:get_pos(), self.target_cruise_pos), dtime), 1000)
+        self:refresh_infotext()
         self.object:set_velocity(velocity)
       end
 
@@ -217,11 +207,14 @@ minetest.register_entity("yatm_armoury_icbm:icbm", {
         -- determine if it should detonate
         if self.warhead_type == "capsule" then
           self.stage = "idle"
+          self:refresh_infotext()
         else
           self.stage = "detonate"
+          self:refresh_infotext()
         end
       else
-        local velocity = vector.multiply(vector.multiply(vector.direction(self.target_pos, self.object:get_pos()), dtime), 32)
+        local velocity = vector.multiply(vector.multiply(vector.direction(self.object:get_pos(), self.target_pos), dtime), 1200)
+        self:refresh_infotext()
         self.object:set_velocity(velocity)
       end
 
@@ -246,6 +239,37 @@ minetest.register_entity("yatm_armoury_icbm:icbm", {
     elseif self.stage == "idle" then
       -- only used by duds or capsule types
 
+    end
+  end,
+
+  on_activate = function (self, staticdata, dtime_s)
+    if staticdata ~= "" then
+      local data = minetest.parse_json(staticdata)
+
+      if not data.version then
+        self.object:remove()
+        return
+      end
+      self.warhead_type = data.warhead_type
+      self.origin_pos = data.origin_pos
+      self.origin_dir = data.origin_dir
+      if self.origin_dir == nil then
+        self.origin_dir = yatm_core.V3_UP
+      end
+      if type(self.origin_dir) == "number" then
+        self.origin_dir = yatm_core.DIR6_TO_VEC3[self.origin_dir]
+      end
+      self.guide_length = data.guide_length
+      self.target_pos = data.target_pos
+      self.exit_pos = data.exit_pos
+      self.cruise_pos = data.cruise_pos
+      self.target_cruise_pos = data.target_cruise_pos
+      self.stage = data.stage or "docked"
+
+      if data.has_inventory then
+        self.has_inventory = true
+        restore_inventory(self, data.inventory)
+      end
     end
   end,
 
@@ -277,16 +301,17 @@ minetest.register_entity("yatm_armoury_icbm:icbm", {
     self.origin_pos = assert(params.origin_pos)
     self.origin_dir = assert(params.origin_dir)
     self.guide_length = assert(params.guide_length)
-
     self.warhead_type = assert(params.warhead_type)
+
+    self:refresh_infotext()
   end,
 
   launch_icbm = function (self)
     -- what position is considered the 'exit' position, where it can transition into the next stage?
     local exit_pos = yatm.vector3.new(0, 0, 0)
-    yatm.vector3.add(exit_pos, self.origin_dir) -- first we add the origin's direction
-    yatm.vector3.mul(exit_pos, guide_length + 6) -- next multiply that direction by the guide length + 6 (4 is the estimated length of the missle, plus 2 for additional clearance)
-    yatm.vector3.add(exit_pos, self.origin_pos) -- finally add the origin position (i.e. the silo position) to obtain the exit position
+    yatm.vector3.add(exit_pos, exit_pos, self.origin_dir) -- first we add the origin's direction
+    yatm.vector3.mul(exit_pos, exit_pos, self.guide_length + 6) -- next multiply that direction by the guide length + 6 (4 is the estimated length of the missle, plus 2 for additional clearance)
+    yatm.vector3.add(exit_pos, exit_pos, self.origin_pos) -- finally add the origin position (i.e. the silo position) to obtain the exit position
 
     self.exit_pos = exit_pos
 
@@ -298,5 +323,7 @@ minetest.register_entity("yatm_armoury_icbm:icbm", {
 
     self.stage = "leaving_silo"
     self.version = 2
+
+    self:refresh_infotext()
   end,
 })
