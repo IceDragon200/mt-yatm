@@ -31,7 +31,14 @@ minetest.register_node("yatm_woodcraft:crafting_table_wood", {
   basename = "yatm_woodcraft:crafting_table",
 
   description = "Wood Crafting Table",
-  groups = { crafting_table = 1, cracky = 1 },
+
+  codex_entry_id = "yatm_woodcraft:crafting_table",
+
+  groups = {
+    crafting_table = 1,
+    cracky = 1,
+  },
+
   tiles = {
     "yatm_crafting_table_top.png",
     "yatm_crafting_table_bottom.png",

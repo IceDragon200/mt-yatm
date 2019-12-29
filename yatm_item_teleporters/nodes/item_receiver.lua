@@ -110,6 +110,8 @@ yatm.devices.register_stateful_network_device({
 
   description = "Item Receiver",
 
+  codex_entry_id = "yatm_item_teleporters:item_receiver",
+
   drop = item_receiver_yatm_network.states.off,
 
   groups = {

@@ -146,6 +146,8 @@ yatm.devices.register_stateful_network_device({
 
   description = "Fluid Teleporter",
 
+  codex_entry_id = "yatm_fluid_teleporters:fluid_teleporter",
+
   drop = fluid_teleporter_yatm_network.states.off,
 
   groups = groups,

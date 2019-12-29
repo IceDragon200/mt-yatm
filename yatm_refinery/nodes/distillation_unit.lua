@@ -209,6 +209,8 @@ yatm.devices.register_stateful_network_device({
 
   description = "Distillation Unit",
 
+  codex_entry_id = "yatm_refinery:distillation_unit",
+
   drop = distillation_unit_yatm_network.states.off,
 
   groups = {

@@ -15,6 +15,8 @@ local size = (8 / 16.0) / 2
 minetest.register_node("yatm_item_ducts:extractor_item_duct", {
   description = "Extractor Item Duct",
 
+  codex_entry_id = "yatm_item_ducts:extractor_item_duct",
+
   groups = { cracky = 1, item_network_device = 1, extractor_item_duct = 1, extractor_item_device = 1 },
 
   paramtype = "light",

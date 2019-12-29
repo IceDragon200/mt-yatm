@@ -167,6 +167,8 @@ yatm.devices.register_stateful_network_device({
 
   description = "Vapourizer",
 
+  codex_entry_id = "yatm_refinery:vapourizer",
+
   groups = {
     cracky = 1,
     fluid_interface_in = 1,

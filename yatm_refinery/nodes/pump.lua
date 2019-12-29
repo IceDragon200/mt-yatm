@@ -120,6 +120,8 @@ yatm.devices.register_stateful_network_device({
 
   description = "Pump",
 
+  codex_entry_id = "yatm_refinery:pump",
+
   groups = {
     cracky = 1,
     fluid_interface_out = 1,

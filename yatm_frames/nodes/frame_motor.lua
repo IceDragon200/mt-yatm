@@ -263,6 +263,8 @@ minetest.register_node("yatm_frames:frame_motor_default_on", {
 
   description = "Frame Motor",
 
+  codex_entry_id = "yatm_frames:frame_motor",
+
   groups = {
     cracky = 1,
     frame_motor = 1,
@@ -317,6 +319,8 @@ if mesecon then
 
     description = "Mesecon Frame Motor",
 
+    codex_entry_id = "yatm_frames:frame_motor_mesecon",
+
     groups = {
       cracky = 1,
       frame_motor = 1,
@@ -344,6 +348,8 @@ if mesecon then
     basename = "yatm_frames:frame_motor_mesecon",
 
     description = "Mesecon Frame Motor",
+
+    codex_entry_id = "yatm_frames:frame_motor_mesecon",
 
     groups = {
       cracky = 1,
@@ -397,6 +403,8 @@ if yatm_data_logic then
     basename = "yatm_frames:frame_motor_data",
 
     description = "Data Frame Motor",
+
+    codex_entry_id = "yatm_frames:frame_motor_data",
 
     paramtype = "light",
     paramtype2 = "facedir",

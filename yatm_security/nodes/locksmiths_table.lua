@@ -369,7 +369,11 @@ minetest.register_node("yatm_security:locksmiths_table_wood", {
   basename = "yatm_security:locksmiths_table",
 
   description = "Wood Locksmiths Table",
+
+  codex_entry_id = "yatm_security:locksmiths_table",
+
   groups = { locksmiths_table = 1, cracky = 1 },
+
   tiles = {
     "yatm_locksmiths_table_wood_top.png",
     "yatm_locksmiths_table_wood_bottom.png",

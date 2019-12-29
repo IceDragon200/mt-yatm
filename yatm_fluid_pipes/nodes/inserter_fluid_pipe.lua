@@ -21,6 +21,8 @@ minetest.register_node("yatm_fluid_pipes:inserter_fluid_pipe", {
 
   description = "Inserter Fluid Pipe",
 
+  codex_entry_id = "yatm_fluid_pipes:inserter_fluid_pipe",
+
   groups = { cracky = 1, fluid_network_device = 1, inserter_fluid_pipe = 1, inserter_fluid_device = 1 },
 
   sounds = default.node_sound_metal_defaults(),

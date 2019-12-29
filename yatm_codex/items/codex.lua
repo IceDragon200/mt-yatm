@@ -6,11 +6,29 @@ local function get_codex_entry_formspec(user, assigns)
   local page = assert(assigns.codex_entry.pages[assigns.page_id])
 
   if page.heading_item then
+    local item_name
+    local ty = type(page.heading_item)
+    if ty == "table" then
+      if page.heading_item.context then
+        item_name = assigns.context.item_name
+      end
+
+      if not item_name then
+        item_name = page.heading_item.default
+      end
+    elseif ty == "string" then
+      item_name = page.heading_item
+    else
+      item_name = "air"
+    end
+
     formspec =
       formspec ..
-      "item_image[0,0;1.5,1.5;" .. page.heading_item .. "]" ..
+      -- For the love of code, WTF, last time I put the grid before it, it appeared above it!
       -- this gives the illusion of a grid around the item
-      "item_image[0,0;1.5,1.5;yatm_core:grid_block]"
+      "item_image[0,0;1.5,1.5;yatm_core:grid_block]" ..
+      "item_image[0,0;1.5,1.5;" .. item_name .. "]" ..
+      ""
   end
 
   if page.heading then
@@ -66,11 +84,12 @@ local function receive_codex_fields(user, form_name, fields, assigns)
   return true, get_codex_entry_formspec(user, assigns)
 end
 
-local function show_codex_entry(user, codex_entry_id, codex_entry)
+local function show_codex_entry(user, codex_entry_id, codex_entry, context)
   local assigns = { original_codex_entry_id = codex_entry_id,
                     codex_entry = codex_entry,
                     page_id = 1,
-                    page_count = #codex_entry.pages }
+                    page_count = #codex_entry.pages,
+                    context = context }
   local formspec = get_codex_entry_formspec(user, assigns)
   local formspec_name = "yatm_codex:codex"
 
@@ -89,8 +108,6 @@ local function on_use_codex(itemstack, user, pointed_thing)
     local node = minetest.get_node(pos)
     local nodedef = minetest.registered_nodes[node.name]
 
-    print(node.name)
-
     local codex_entry
     local codex_entry_id
     if nodedef then
@@ -101,12 +118,16 @@ local function on_use_codex(itemstack, user, pointed_thing)
     end
 
     if codex_entry then
-      show_codex_entry(user, codex_entry_id, codex_entry)
+      show_codex_entry(user, codex_entry_id, codex_entry, { item_name = node.name })
     else
-      minetest.chat_send_player(user:get_player_name(), "No CODEX entry available")
+      if codex_entry_id then
+        minetest.chat_send_player(user:get_player_name(), "Missing CODEX entry: " .. codex_entry_id)
+      else
+        minetest.chat_send_player(user:get_player_name(), "No CODEX entry available")
+      end
     end
   else
-    minetest.chat_send_player(user:get_player_name(), "No CODEX entry available")
+    minetest.chat_send_player(user:get_player_name(), "Not a valid target")
   end
 end
 

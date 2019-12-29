@@ -8,4 +8,6 @@ dofile(yatm_mining.modpath .. "/api.lua")
 
 dofile(yatm_mining.modpath .. "/nodes.lua")
 
+dofile(yatm_mining.modpath .. "/migrations.lua")
+
 dofile(yatm_mining.modpath .. "/tests.lua")

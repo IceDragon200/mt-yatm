@@ -49,6 +49,8 @@ for _,color_pair in ipairs(colors) do
 
     description = "Transporter Item Duct (" .. color_name .. ")",
 
+    codex_entry_id = "yatm_item_ducts:transporter_item_duct",
+
     groups = groups,
 
     sounds = default.node_sound_metal_defaults(),

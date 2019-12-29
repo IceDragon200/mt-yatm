@@ -50,8 +50,17 @@ yatm.devices.register_stateful_network_device({
   basename = "yatm_spacetime:teleporter_relay",
 
   description = "Teleporter Relay",
-  groups = {cracky = 1, spacetime_device = 1, teleporter_relay = 1},
+
+  codex_entry_id = "yatm_spacetime:teleporter_relay",
+
+  groups = {
+    cracky = 1,
+    spacetime_device = 1,
+    teleporter_relay = 1
+  },
+
   drop = teleporter_relay_yatm_network.states.off,
+
   tiles = {
     "yatm_teleporter_relay_top.off.png",
     "yatm_teleporter_relay_bottom.png",

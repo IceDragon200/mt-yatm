@@ -6,10 +6,10 @@ local surface_drill_yatm_network = {
   },
   default_state = "off",
   states = {
-    conflict = "yatm_machines:surface_drill_error",
-    error = "yatm_machines:surface_drill_error",
-    off = "yatm_machines:surface_drill_off",
-    on = "yatm_machines:surface_drill_on",
+    conflict = "yatm_mining:surface_drill_error",
+    error = "yatm_mining:surface_drill_error",
+    off = "yatm_mining:surface_drill_off",
+    on = "yatm_mining:surface_drill_on",
   },
   energy = {
     passive_lost = 0,
@@ -25,7 +25,7 @@ local function update_bit(pos, node)
   local mine_dirv3 = yatm_core.DIR6_TO_VEC3[new_face]
   local mine_pos = pos
   local bit_node = {
-    name = "yatm_machines:surface_drill_bit",
+    name = "yatm_mining:surface_drill_bit",
     param2 = node.param2,
   }
   while true do
@@ -89,9 +89,11 @@ function surface_drill_yatm_network.work(pos, node, energy_available, work_rate,
 end
 
 yatm.devices.register_stateful_network_device({
-  basename = "yatm_machines:surface_drill",
+  basename = "yatm_mining:surface_drill",
 
   description = "Surface Drill",
+
+  codex_entry_id = "yatm_mining:surface_drill",
 
   groups = {cracky = 1, surface_drill = 1},
 
@@ -133,7 +135,7 @@ yatm.devices.register_stateful_network_device({
 })
 
 local surface_drill_ext_yatm_network = {
-  basename = "yatm_machines:surface_drill_ext",
+  basename = "yatm_mining:surface_drill_ext",
   kind = "machine",
   groups = {
     machine = 1,
@@ -141,10 +143,10 @@ local surface_drill_ext_yatm_network = {
   },
   default_state = "off",
   states = {
-    conflict = "yatm_machines:surface_drill_ext_error",
-    error = "yatm_machines:surface_drill_ext_error",
-    off = "yatm_machines:surface_drill_ext_off",
-    on = "yatm_machines:surface_drill_ext_on",
+    conflict = "yatm_mining:surface_drill_ext_error",
+    error = "yatm_mining:surface_drill_ext_error",
+    off = "yatm_mining:surface_drill_ext_off",
+    on = "yatm_mining:surface_drill_ext_on",
   },
   energy = {
     passive_lost = 10,
@@ -152,9 +154,11 @@ local surface_drill_ext_yatm_network = {
 }
 
 yatm.devices.register_stateful_network_device({
-  basename = "yatm_machines:surface_drill_ext",
+  basename = "yatm_mining:surface_drill_ext",
 
   description = "Surface Drill Extension",
+
+  codex_entry_id = "yatm_mining:surface_drill_ext",
 
   groups = {cracky = 1, surface_drill_ext = 1},
 
@@ -195,9 +199,17 @@ yatm.devices.register_stateful_network_device({
   }
 })
 
-minetest.register_node("yatm_machines:surface_drill_bit", {
+minetest.register_node("yatm_mining:surface_drill_bit", {
   description = "Surface Drill Bit",
-  groups = {surface_drill_bit = 1, cracky = 1, not_in_creative_inventory = 1},
+
+  codex_entry_id = "yatm_mining:surface_drill_bit",
+
+  groups = {
+    cracky = 1,
+    surface_drill_bit = 1,
+    not_in_creative_inventory = 1
+  },
+
   tiles = {
     "yatm_surface_drill_bit.top.png",
     "yatm_surface_drill_bit.bottom.png",

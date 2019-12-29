@@ -87,6 +87,8 @@ yatm.devices.register_stateful_network_device({
 
   description = "Programmer's Table",
 
+  codex_entry_id = "yatm_security:programmers_table",
+
   drop = "yatm_security:programmers_table_off",
 
   groups = {

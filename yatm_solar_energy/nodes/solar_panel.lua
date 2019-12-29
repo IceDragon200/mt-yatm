@@ -58,6 +58,8 @@ yatm.devices.register_stateful_network_device({
 
   description = "Solar Panel",
 
+  codex_entry_id = "yatm_solar_energy:solar_panel",
+
   groups = {
     cracky = 1,
     yatm_energy_device = 1,

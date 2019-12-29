@@ -148,6 +148,8 @@ minetest.register_node("yatm_oku:oku_micro_controller", {
 
   description = "OKU Micro Controller",
 
+  codex_entry_id = "yatm_oku:oku_micro_controller",
+
   groups = groups,
 
   tiles = {

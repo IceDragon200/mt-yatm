@@ -57,6 +57,8 @@ for _,color_pair in ipairs(colors) do
 
     description = "Transporter Fluid Pipe (" .. color_name .. ")",
 
+    codex_entry_id = "yatm_fluid_pipes:transporter_fluid_pipe",
+
     groups = groups,
 
     paramtype = "light",

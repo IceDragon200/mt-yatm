@@ -102,6 +102,9 @@ yatm.devices.register_stateful_network_device({
   basename = "yatm_fluid_teleporters:fluid_receiver",
 
   description = "Fluid Receiver",
+
+  codex_entry_id = "yatm_fluid_teleporters:fluid_receiver",
+
   drop = fluid_receiver_yatm_network.states.off,
 
   groups = {

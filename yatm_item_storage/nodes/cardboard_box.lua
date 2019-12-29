@@ -75,6 +75,8 @@ end
 minetest.register_node("yatm_item_storage:cardboard_box", {
   description = "Cardboard Box",
 
+  codex_entry_id = "yatm_item_storage:cardboard_box",
+
   groups = {
     cracky = 1,
     cardboard = 1,
@@ -125,6 +127,8 @@ minetest.register_node("yatm_item_storage:cardboard_box", {
 
 minetest.register_node("yatm_item_storage:super_cardboard_box", {
   description = "SUPER Cardboard Box\nFor when a regular one isn't good enough",
+
+  codex_entry_id = "yatm_item_storage:super_cardboard_box",
 
   groups = {
     cracky = 1,

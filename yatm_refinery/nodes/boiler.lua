@@ -149,6 +149,8 @@ yatm.devices.register_stateful_network_device({
 
   description = "Boiler",
 
+  codex_entry_id = "yatm_refinery:boiler",
+
   groups = {
     cracky = 1,
     fluid_interface_out = 1,

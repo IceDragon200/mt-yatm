@@ -121,11 +121,14 @@ for material_basename, def in pairs(shelf_materials) do
 
     yatm.shelves.register_shelf(full_shelf_name, {
       basename = "yatm_item_shelves:" .. material_basename .. "_full_shelf",
+
       base_description = def.name .. " Full Shelf",
 
       material_basename = material_basename,
 
       description = def.name .. " " .. x .. " Shelf",
+
+      codex_entry_id = "yatm_item_shelves:shelf",
 
       tiles = {
         "yatm_shelf_" .. def.texture_basename .. "_top.png",

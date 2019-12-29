@@ -77,6 +77,8 @@ minetest.register_node("yatm_woodcraft:sawmill", {
 
   description = "Sawmill",
 
+  codex_entry_id = "yatm_woodcraft:sawmill",
+
   groups = {
     cracky = 1,
     item_interface_out = 1,

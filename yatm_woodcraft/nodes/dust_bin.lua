@@ -80,6 +80,8 @@ yatm.register_stateful_node("yatm_woodcraft:dust_bin", {
 
   description = "Dust Bin",
 
+  codex_entry_id = "yatm_woodcraft:dust_bin",
+
   groups = groups,
 
   paramtype = "light",

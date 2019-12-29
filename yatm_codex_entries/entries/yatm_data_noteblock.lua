@@ -70,76 +70,13 @@ yatm.codex.register_demo("yatm_data_noteblock:data_noteblock_demo_1", {
 yatm.codex.register_entry("yatm_data_noteblock:data_noteblock", {
   pages = {
     {
-      heading_item = "yatm_data_network:data_cable_bus_multi",
+      heading_item = "yatm_data_network:data_noteblock",
       heading = "DATA Noteblock",
       lines = {
-        "<normal>Test line 1</normal>",
-        "<normal>Test line 2</normal>",
-        "<normal>Test line 3</normal>",
-        "<normal>Test line 4</normal>",
-        "<normal>Test line 5</normal>",
-        "<normal>Test line 6</normal>",
-        "<normal>Test line 7</normal>",
-        "<normal>Test line 8</normal>",
-        "<normal>Test line 9</normal>",
-        "<normal>Test line 10</normal>",
-        "<normal>Test line 11</normal>",
-        "<normal>Test line 12</normal>",
-        "<normal>Test line 13</normal>",
-        "<normal>Test line 14</normal>",
-        "<normal>Test line 15</normal>",
-        "<normal>Test line 16</normal>",
+        "Noteblocks emit a sound when triggered.",
+        "The tone can be changed by placing different nodes below it.",
+        "The noteblock can only be triggered by a data event.",
       }
     },
-    {
-      heading_item = "yatm_data_noteblock:data_noteblock",
-      heading = "DATA Noteblock (2)",
-      lines = {
-        "<normal>Test line 1</normal>",
-        "<normal>Test line 2</normal>",
-        "<normal>Test line 3</normal>",
-        "<normal>Test line 4</normal>",
-        "<normal>Test line 5</normal>",
-        "<normal>Test line 6</normal>",
-        "<normal>Test line 7</normal>",
-        "<normal>Test line 8</normal>",
-        "<normal>Test line 9</normal>",
-        "<normal>Test line 10</normal>",
-        "<normal>Test line 11</normal>",
-        "<normal>Test line 12</normal>",
-        "<normal>Test line 13</normal>",
-        "<normal>Test line 14</normal>",
-        "<normal>Test line 15</normal>",
-        "<normal>Test line 16</normal>",
-      }
-    },
-    {
-      heading_item = "yatm_data_noteblock:data_noteblock",
-      heading = "DATA Noteblock (3)",
-      lines = {
-        "<normal>Test line 1</normal>",
-        "<normal>Test line 2</normal>",
-        "<normal>Test line 3</normal>",
-        "<normal>Test line 4</normal>",
-        "<normal>Test line 5</normal>",
-        "<normal>Test line 6</normal>",
-        "<normal>Test line 7</normal>",
-        "<normal>Test line 8</normal>",
-        "<normal>Test line 9</normal>",
-        "<normal>Test line 10</normal>",
-        "<normal>Test line 11</normal>",
-        "<normal>Test line 12</normal>",
-        "<normal>Test line 13</normal>",
-        "<normal>Test line 14</normal>",
-        "<normal>Test line 15</normal>",
-        "<normal>Test line 16</normal>",
-      }
-    },
-    {
-      kind = "demos",
-      demos = {
-
-      }
-    }
   }
 })

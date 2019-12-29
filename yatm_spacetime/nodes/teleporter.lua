@@ -195,7 +195,15 @@ yatm.devices.register_stateful_network_device({
   basename = "yatm_spacetime:teleporter",
 
   description = "Teleporter",
-  groups = {cracky = 1, spacetime_device = 1, addressable_spacetime_device = 1},
+
+  codex_entry_id = "yatm_spacetime:teleporter",
+
+  groups = {
+    cracky = 1,
+    spacetime_device = 1,
+    addressable_spacetime_device = 1,
+  },
+
   drop = teleporter_yatm_network.states.off,
   tiles = {
     "yatm_teleporter_top.off.png",

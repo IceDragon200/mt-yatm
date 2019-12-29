@@ -263,6 +263,8 @@ for _,pair in ipairs(colors) do
 
     description = "Wood Mailbox [" .. name .. "]",
 
+    codex_entry_id = "yatm_mail:mailbox",
+
     material_basename = "metal",
 
     groups = {
@@ -312,6 +314,8 @@ for _,pair in ipairs(colors) do
     base_description = "Metal Mailbox",
 
     description = "Metal Mailbox [" .. name .. "]",
+
+    codex_entry_id = "yatm_mail:mailbox",
 
     material_basename = "metal",
 

@@ -109,6 +109,8 @@ minetest.register_node("yatm_mail:package", {
   basename = "yatm_mail:package",
   description = "Package",
 
+  codex_entry_id = "yatm_mail:package",
+
   groups = {
     cracky = 1,
     package = 1,
@@ -154,6 +156,8 @@ for _,color_pair in ipairs(colors) do
   minetest.register_node("yatm_mail:package_with_ribbon_" .. color_basename, {
     basename = "yatm_mail:package_with_ribbon",
     description = "Package (" .. color_name .. " Ribbon)",
+
+    codex_entry_id = "yatm_mail:package",
 
     groups = {
       cracky = 1,
