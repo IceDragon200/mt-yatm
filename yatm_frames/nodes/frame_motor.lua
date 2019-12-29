@@ -3,30 +3,56 @@ local function frame_reducer(pos, node, context, accessible_dirs)
   local nodedef = minetest.registered_nodes[node.name]
 
   if nodedef.groups.motor_frame then
-    -- Is a sticky frame
+    context.frames[node_id] = {
+      sticky = false,
+      pos = pos,
+      node = node,
+    }
+
+    local frame_data = context.frames[node_id]
+    -- is some kind of motor frame
     if nodedef.groups.motor_frame_sticky then
-      context.frames[node_id] = {
-        sticky = 6,
-        pos = pos,
-        node = node,
-        neighbours = {}
-      }
+      -- Is a sticky frame
+      frame_data.sticky = true
+      frame_data.neighbours = {}
+    end
 
-      local frame_data = context.frames[node_id]
-      for sticky_dir,sticky_vec3 in pairs(yatm_core.DIR6_TO_VEC3) do
-        local sticky_pos = vector.add(pos, sticky_vec3)
+    for _,dir in ipairs(yatm_core.DIR6) do
+      -- some sticky frames can be rotated, this will return the specified's face's new orientation.
+      local new_dir = yatm_core.facedir_to_face(node.param2, dir)
+      local sticky_vec3 = yatm_core.DIR6_TO_VEC3[new_dir]
+      local sticky_pos = vector.add(pos, sticky_vec3)
 
-        local sticky_node_id = minetest.hash_node_position(sticky_pos)
-        local sticky_node = minetest.get_node_or_nil(sticky_pos)
+      local sticky_node_id = minetest.hash_node_position(sticky_pos)
+      local sticky_node = minetest.get_node_or_nil(sticky_pos)
 
+      local sticky_nodedef
+      if sticky_node then
+        sticky_nodedef = minetest.registered_nodes[sticky_node.name]
+
+        if sticky_nodedef and sticky_nodedef.groups.motor_frame_wire then
+          -- wire prevents other frames from connecting together
+          -- TODO: optimize the below
+          local inverted_sticky_dir = yatm_core.invert_dir(new_dir)
+          for _,wire_dir in ipairs(sticky_nodedef.wired_faces) do
+            local new_wire_dir = yatm_core.facedir_to_face(sticky_node.param2, wire_dir)
+            if new_wire_dir == inverted_sticky_dir then
+              accessible_dirs[new_dir] = false
+              break
+            end
+          end
+        else
+          -- ignore other frames
+        end
+      end
+
+      if nodedef.sticky_faces and yatm_core.table_key_of(nodedef.sticky_faces, dir) then
         if sticky_node then
           if sticky_node.name == "air" then
-            accessible_dirs[sticky_dir] = false
-          else
-            local sticky_nodedef = minetest.registered_nodes[sticky_node.name]
-
+            accessible_dirs[new_dir] = false
+          elseif sticky_nodedef then
             if sticky_nodedef.groups.motor_frame then
-              -- ignore other frames
+              -- will drag it along like normal
             elseif sticky_nodedef.groups.frame_motor then
               -- check if it's connected to the top face
               local roller_face = yatm_core.facedir_to_face(sticky_node.param2, yatm_core.D_UP)
@@ -34,7 +60,7 @@ local function frame_reducer(pos, node, context, accessible_dirs)
 
               local roller_pos = vector.add(sticky_pos, roller_vec3)
               if vector.equals(roller_pos, pos) then
-                -- ignore it
+                -- this is the same node, ignore it
               else
                 -- pin it
                 frame_data.neighbours[sticky_node_id] = {
@@ -48,41 +74,20 @@ local function frame_reducer(pos, node, context, accessible_dirs)
                 node = sticky_node,
               }
             end
+          else
+            print("no nodedef for " .. minetest.pos_to_string(sticky_pos))
+            accessible_dirs[new_dir] = false
           end
         else
-          accessible_dirs[sticky_dir] = false
+          print("no node for " .. minetest.pos_to_string(sticky_pos))
+          accessible_dirs[new_dir] = false
         end
       end
-    elseif nodedef.groups.motor_frame_sticky_one then
-      local sticky_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_SOUTH)
-      local sticky_vec3 = yatm_core.DIR6_TO_VEC3[sticky_dir]
-      local sticky_pos = vector.add(pos, sticky_vec3)
 
-      local sticky_node = minetest.get_node_or_nil(sticky_pos)
-
-      context.frames[node_id] = {
-        sticky = 1,
-        pos = pos,
-        node = node,
-        neighbours = {}
-      }
-
-      local frame_data = context.frames[node_id]
-      if sticky_node then
-        local stick_node_id = minetest.hash_node_position(sticky_pos)
-        frame_data.neighbours[stick_node_id] = {
-          pos = sticky_pos,
-          node = sticky_node,
-        }
-      else
-        accessible_dirs[sticky_dir] = false
+      if nodedef.wired_faces and yatm_core.table_key_of(nodedef.wired_faces, dir) then
+        print("is an attached wire face " .. minetest.pos_to_string(sticky_pos))
+        accessible_dirs[new_dir] = false
       end
-    else
-      context.frames[node_id] = {
-        sticky = false,
-        pos = pos,
-        node = node,
-      }
     end
     return true, context
   end
@@ -202,11 +207,12 @@ local function maybe_move_frame(pos, dir)
         end
       end
 
-      if can_move_nodes(nodes, dir) then
+      local status, msg = can_move_nodes(nodes, dir)
+      if status then
         print("Can move frame")
         move_nodes(nodes, dir)
       else
-        print("Cannot move frame")
+        print("Cannot move frame", msg)
       end
     end
   end
