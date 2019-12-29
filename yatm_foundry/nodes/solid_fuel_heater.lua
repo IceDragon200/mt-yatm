@@ -166,6 +166,9 @@ yatm.register_stateful_node("yatm_foundry:solid_fuel_heater", {
   basename = "yatm_foundry:solid_fuel_heater",
 
   description = "Solid Fuel Heater",
+
+  codex_entry_id = "yatm_foundry:solid_fuel_heater",
+
   groups = groups,
 
   drawtype = "nodebox",

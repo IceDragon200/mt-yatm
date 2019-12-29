@@ -681,10 +681,10 @@ local function can_connect_to_device(from_device, to_device)
       return compatible_colors(from_device.color, to_device.color)
     end
   elseif from_device.type == "bus" then
-    -- buses can connect to cables of the same color, multi or a device
+    -- buses can connect to cables of the same color, multi or a device and buses of the same color
     if to_device.type == "device" then
       return true
-    elseif to_device.type == "cable" then
+    elseif to_device.type == "cable" or to_device.type == "bus" then
       return compatible_colors(from_device.color, to_device.color)
     end
   elseif from_device.type == "device" then

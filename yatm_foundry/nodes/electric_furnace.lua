@@ -68,6 +68,8 @@ yatm.devices.register_stateful_network_device({
 
   description = "Electric Furnace",
 
+  codex_entry_id = "yatm_foundry:electric_furnace",
+
   groups = groups,
 
   drop = electric_furnace_yatm_network.states.off,

@@ -134,6 +134,9 @@ yatm.register_stateful_node("yatm_foundry:smelter", {
   basename = "yatm_foundry:smelter",
 
   description = "Smelter",
+
+  codex_entry_id = "yatm_foundry:smelter",
+
   groups = groups,
   drop = "yatm_foundry:smelter_off",
 

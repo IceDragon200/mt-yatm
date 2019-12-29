@@ -40,9 +40,13 @@ for _,pair in ipairs(colors) do
     ]]
     minetest.register_node("yatm_foundry:concrete_" .. variant_basename .. "_" .. color_basename, {
       basename = "yatm_foundry:concrete",
+
       base_description = "Concrete",
 
       description = "Concrete - " .. variant_name .. " (" .. color_name .. ")",
+
+      codex_entry_id = "yatm_foundry:concrete",
+
       tiles = {"yatm_concrete_" .. variant_basename .. "_" .. color_basename .. "_side.png"},
       groups = {cracky = 1, concrete = 1},
       is_ground_content = false,
@@ -61,6 +65,9 @@ for _,pair in ipairs(colors) do
       base_description = "Concrete Panel",
 
       description = "Concrete Panel - " .. variant_name .. " (" .. color_name .. ")",
+
+      codex_entry_id = "yatm_foundry:concrete_plate",
+
       tiles = {"yatm_concrete_" .. variant_basename .. "_" .. color_basename .. "_side.png"},
       groups = {cracky = 1, concrete = 1, concrete_plate = 1},
       is_ground_content = false,
@@ -92,7 +99,11 @@ for _,pair in ipairs(colors) do
         base_description = "Concrete Slab",
 
         description = "Concrete Slab - " .. variant_name .. " (" .. color_name .. ")",
+
+        codex_entry_id = "yatm_foundry:concrete_slab",
+
         tiles = {"yatm_concrete_" .. variant_basename .. "_" .. color_basename .. "_side.png"},
+
         groups = {cracky = 1, concrete = 1},
         is_ground_content = false,
         sounds = default.node_sound_stone_defaults(),

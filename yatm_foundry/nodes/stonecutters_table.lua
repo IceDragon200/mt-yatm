@@ -21,12 +21,9 @@ end
 
 local function stonecutters_table_configure_inventory(meta)
   local inv = meta:get_inventory()
-  inv:set_size("item_lockable", 1) -- slot used for placing a 'lockable' item
-  inv:set_size("item_lock", 1) -- slot used for the lock
-  inv:set_size("item_key", 1) -- slot used for the key to match with the lock
-  inv:set_size("item_dupkey_src", 1) -- slot used for duplicating keys (the source)
-  inv:set_size("item_dupkey_dest", 1) -- slot used for duplicating keys (the key to copy to)
-  inv:set_size("item_result", 2) -- slots used to output the result
+  inv:set_size("input_slot", 1)
+  inv:set_size("processing_slot", 1)
+  inv:set_size("output_slot", 1)
 end
 
 local function stonecutters_table_on_construct(pos)
@@ -42,7 +39,14 @@ minetest.register_node("yatm_foundry:stonecutters_table_wood", {
   basename = "yatm_foundry:stonecutters_table",
 
   description = "Stone Cutter's Table (Wood)",
-  groups = { stonecutters_table = 1, cracky = 1 },
+
+  codex_entry_id = "yatm_foundry:stonecutters_table_wood",
+
+  groups = {
+    stonecutters_table = 1,
+    cracky = 1
+  },
+
   tiles = {
     "yatm_stonecutters_table_wood_top.png",
     "yatm_stonecutters_table_wood_bottom.png",

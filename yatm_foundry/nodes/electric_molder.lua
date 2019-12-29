@@ -175,6 +175,8 @@ yatm.devices.register_stateful_network_device({
 
   description = "Electric Molder",
 
+  codex_entry_id = "yatm_foundry:electric_molder",
+
   groups = groups,
 
   drop = electric_molder_yatm_network.states.off,

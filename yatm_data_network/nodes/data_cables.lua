@@ -88,6 +88,8 @@ for _,color_pair in ipairs(colors) do
 
     description = "Data Cable (" .. color_name .. ")",
 
+    codex_entry_id = "yatm_data_network:data_cable",
+
     groups = groups,
 
     paramtype = "light",
@@ -134,14 +136,18 @@ for _,color_pair in ipairs(colors) do
   local node_name = "yatm_data_network:data_cable_bus_" .. color_basename
   local connects_to = {
     "group:yatm_data_device",
+    "group:" .. colored_group_name,
   }
+
   if color_basename == "multi" then
     -- multi can connect to any cable
     table.insert(connects_to, "group:data_cable")
+    table.insert(connects_to, "group:data_cable_bus")
   else
     -- colored cables can only connect to it's own color OR multi
     table.insert(connects_to, "group:data_cable_" .. color_basename)
     table.insert(connects_to, "group:data_cable_multi")
+    table.insert(connects_to, "group:data_cable_bus_multi")
   end
 
   minetest.register_node(node_name, {
@@ -149,6 +155,8 @@ for _,color_pair in ipairs(colors) do
     base_description = "Data Bus",
 
     description = "Data Bus (" .. color_name .. ")",
+
+    codex_entry_id = "yatm_data_network:data_cable_bus",
 
     groups = groups,
 

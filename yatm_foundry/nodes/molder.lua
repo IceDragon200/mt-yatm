@@ -186,6 +186,9 @@ yatm.register_stateful_node("yatm_foundry:molder", {
   basename = "yatm_foundry:molder",
 
   description = "Molder",
+
+  codex_entry_id = "yatm_foundry:molder",
+
   groups = groups,
 
   drop = "yatm_foundry:molder_off",

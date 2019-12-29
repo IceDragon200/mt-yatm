@@ -68,6 +68,8 @@ for _,pair in ipairs(colors) do
 
     description = "Concrete Retaining Wall (" .. color_name .. ")",
 
+    codex_entry_id = "yatm_foundry:concrete_retaining_wall",
+
     groups = {
       cracky = 1,
       concrete = 1,
@@ -107,6 +109,8 @@ for _,pair in ipairs(colors) do
     base_description = "Concrete Retaining Wall Corner",
 
     description = "Concrete Retaining Wall Corner (" .. color_name .. ")",
+
+    codex_entry_id = "yatm_foundry:concrete_retaining_wall_corner",
 
     groups = {
       cracky = 1,

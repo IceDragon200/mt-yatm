@@ -23,6 +23,9 @@ yatm.register_stateful_node("yatm_foundry:kiln", {
   basename = "yatm_foundry:kiln",
 
   description = "Kiln",
+
+  codex_entry_id = "yatm_foundry:kiln",
+
   groups = groups,
   drop = "yatm_foundry:kiln_off",
 

@@ -23,6 +23,8 @@ yatm.register_stateful_node("yatm_foundry:furnace", {
 
   description = "Furnace",
 
+  codex_entry_id = "yatm_foundry:furnace",
+
   groups = groups,
 
   paramtype = "light",

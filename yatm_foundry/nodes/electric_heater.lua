@@ -69,6 +69,8 @@ yatm.devices.register_stateful_network_device({
 
   description = "Electric Heater",
 
+  codex_entry_id = "yatm_foundry:electric_heater",
+
   groups = groups,
 
   drop = heater_yatm_network.states.off,

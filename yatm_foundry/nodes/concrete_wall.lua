@@ -54,6 +54,8 @@ for _,pair in ipairs(colors) do
 
     description = "Concrete Wall (" .. color_name .. ")",
 
+    codex_entry_id = "yatm_foundry:concrete_wall",
+
     groups = {
       cracky = 1,
       concrete = 1,
@@ -93,6 +95,8 @@ for _,pair in ipairs(colors) do
     base_description = "Concrete Wall Corner",
 
     description = "Concrete Wall Corner (" .. color_name .. ")",
+
+    codex_entry_id = "yatm_foundry:concrete_wall_corner",
 
     groups = {
       cracky = 1,

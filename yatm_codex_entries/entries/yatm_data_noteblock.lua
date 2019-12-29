@@ -70,7 +70,7 @@ yatm.codex.register_demo("yatm_data_noteblock:data_noteblock_demo_1", {
 yatm.codex.register_entry("yatm_data_noteblock:data_noteblock", {
   pages = {
     {
-      heading_item = "yatm_data_network:data_noteblock",
+      heading_item = "yatm_data_noteblock:data_noteblock",
       heading = "DATA Noteblock",
       lines = {
         "Noteblocks emit a sound when triggered.",

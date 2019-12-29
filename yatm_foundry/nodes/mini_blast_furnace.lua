@@ -13,6 +13,9 @@ yatm.register_stateful_node("yatm_foundry:mini_blast_furnace", {
   basename = "yatm_foundry:mini_blast_furnace",
 
   description = "Mini Blast Furnace",
+
+  codex_entry_id = "yatm_foundry:mini_blast_furnace",
+
   groups = groups,
 
   drop = "yatm_foundry:mini_blast_furnace_off",

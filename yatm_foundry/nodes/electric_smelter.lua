@@ -139,6 +139,8 @@ yatm.devices.register_stateful_network_device({
 
   description = "Electric Smelter",
 
+  codex_entry_id = "yatm_foundry:electric_smelter",
+
   groups = groups,
 
   drop = electric_smelter_yatm_network.states.off,
