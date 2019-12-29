@@ -41,9 +41,107 @@ local ProbeSchema =
     {"status", "i16"},
   })
 
+local function get_icbm_entity(pos, node)
+  local new_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
+
+  local entities = minetest.get_objects_inside_radius(vector.add(pos, yatm_core.DIR6_TO_VEC3[new_dir]), 0.9)
+
+  for _, entity in ipairs(entities) do
+    local lua_entity = entity:get_luaentity()
+
+    if lua_entity.name == "yatm_armoury_icbm:icbm" then
+      return entity
+    end
+  end
+  return nil
+end
+
+local function launch_icbm(pos, node)
+  local entity = get_icbm_entity(pos, node)
+  if entity then
+    entity:get_luaentity():launch_icbm()
+  end
+end
+
+local function count_guiding_rings(pos, node)
+  local new_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
+  local up_vec = yatm_core.DIR6_TO_VEC3[new_dir]
+
+  local count = 0
+  local origin = pos
+
+  while true do
+    local next_pos = vector.add(origin, up_vec)
+    origin = next_pos
+    local gnode = minetest.get_node(next_pos)
+
+    if yatm_core.groups.has_group(gnode, "icbm_guiding_ring") then
+      count = count + 1
+    else
+      break
+    end
+  end
+  return count
+end
+
+local function arm_icbm(pos, node)
+  local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
+  local warhead_stack = inv:get_stack("warhead_slot", 1)
+  local shell_stack = inv:get_stack("shell_slot", 1)
+
+  local entity = get_icbm_entity(pos, node)
+  if entity then
+    --
+  else
+    local new_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
+    local up_vec = yatm_core.DIR6_TO_VEC3[new_dir]
+    local entity = minetest.add_entity(vector.add(pos, up_vec), "yatm_armoury_icbm:icbm")
+    local params = {}
+    local offset = vector.new(meta:get_int("offset_x"),
+                              meta:get_int("offset_y"),
+                              meta:get_int("offset_z"))
+    params.target_pos = vector.add(pos, offset)
+    params.origin_pos = pos
+    params.origin_dir = new_dir
+    params.guide_length = count_guiding_rings(pos, node)
+    params.warhead_type = warhead_stack:get_definition().icbm_warhead_type
+
+    entity:get_luaentity():arm_icbm(params)
+  end
+end
+
+local function bind_input_port(pos, name)
+  local meta = minetest.get_meta(pos)
+  local port = meta:get_int(name)
+  if port > 0 then
+    yatm_data_logic.bind_input_port(pos, port, "active")
+  end
+end
+
+local function rebind_input_port(pos, name, new_port)
+  local meta = minetest.get_meta(pos)
+  local old_port = meta:get_int(name)
+
+  if old_port > 0 then
+    data_network:unmark_ready_to_receive(pos, 0, old_port)
+  end
+
+  meta:set_int(name, new_port)
+  if new_port > 0 then
+    yatm_data_logic.bind_input_port(pos, new_port, "active")
+  end
+end
+
 local data_interface = {
   on_load = function (self, pos, node)
     yatm_data_logic.mark_all_inputs_for_active_receive(pos)
+    bind_input_port(pos, "launch_port")
+    bind_input_port(pos, "arming_port")
+    bind_input_port(pos, "probing_port")
+    bind_input_port(pos, "offset_x_port")
+    bind_input_port(pos, "offset_y_port")
+    bind_input_port(pos, "offset_z_port")
   end,
 
   receive_pdu = function (self, pos, node, dir, port, value)
@@ -55,11 +153,11 @@ local data_interface = {
       --
       local launch_code = meta:get_string("launch_code")
       if yatm_core.string_hex_unescape(launch_code) == blob then
-        -- TODO: launch ICBM
+        launch_icbm(pos, node)
       end
     elseif port == meta:get_int("arming_port") then
       --
-      -- TODO: arm ICBM
+      arm_icbm(pos, node)
     elseif port == meta:get_int("probing_port") then
       -- Probing asks that the silo report it's current status on it's probe port
       -- This 'probe' packet includes the currently set offsets and a status flag
@@ -74,16 +172,19 @@ local data_interface = {
       yatm_data_logic.emit_value(pos, meta:get_int("probe_port"), probe_packet)
     elseif port == meta:get_int("offset_x_port") then
       --
-      local offset_value = yatm.ByteDecoder.d_i16(value)
+      local offset_value = yatm.ByteDecoder:d_i16(blob)
       meta:set_int("offset_x", offset_value)
+      yatm.queue_refresh_infotext(pos, node)
     elseif port == meta:get_int("offset_y_port") then
       --
-      local offset_value = yatm.ByteDecoder.d_i16(value)
+      local offset_value = yatm.ByteDecoder:d_i16(blob)
       meta:set_int("offset_y", offset_value)
+      yatm.queue_refresh_infotext(pos, node)
     elseif port == meta:get_int("offset_z_port") then
       --
-      local offset_value = yatm.ByteDecoder.d_i16(value)
+      local offset_value = yatm.ByteDecoder:d_i16(blob)
       meta:set_int("offset_z", offset_value)
+      yatm.queue_refresh_infotext(pos, node)
     end
 
     --meta:get_int("error_port")
@@ -111,25 +212,25 @@ local data_interface = {
 
       formspec =
         formspec ..
-        "label[0,1;Inputs]" ..
-        "field[0.25,2;4,1;offset_x_port;X-offset Port;" .. fe(meta:get_int("offset_x_port")) .. "]" ..
-        "field[0.25,3;4,1;offset_y_port;Y-offset Port;" .. fe(meta:get_int("offset_y_port")) .. "]" ..
-        "field[0.25,4;4,1;offset_z_port;Z-offset Port;" .. fe(meta:get_int("offset_z_port")) .. "]" ..
-        "field[4.25,5;4,1;launch_port;Launch Port;" .. fe(meta:get_int("launch_port")) .. "]" ..
-        "field[4.25,6;4,1;arming_port;Arming Port;" .. fe(meta:get_int("arming_port")) .. "]" ..
-        "field[4.25,7;4,1;probing_port;Probing Port;" .. fe(meta:get_int("probing_port")) .. "]" ..
+        "label[0,0.5;Inputs]" ..
+        "field[0.25,1;4,1;offset_x_port;X-offset Port;" .. fe(meta:get_int("offset_x_port")) .. "]" ..
+        "field[0.25,2;4,1;offset_y_port;Y-offset Port;" .. fe(meta:get_int("offset_y_port")) .. "]" ..
+        "field[0.25,3;4,1;offset_z_port;Z-offset Port;" .. fe(meta:get_int("offset_z_port")) .. "]" ..
+        "field[0.25,4;4,1;launch_port;Launch Port;" .. fe(meta:get_int("launch_port")) .. "]" ..
+        "field[0.25,5;4,1;arming_port;Arming Port;" .. fe(meta:get_int("arming_port")) .. "]" ..
+        "field[0.25,6;4,1;probing_port;Probing Port;" .. fe(meta:get_int("probing_port")) .. "]" ..
         "label[4,1;Outputs]" ..
-        "field[0.25,2;4,1;error_port;Error Port;" .. fe(meta:get_int("error_port")) .. "]" ..
-        "field[0.25,3;4,1;launched_port;Launched Port;" .. fe(meta:get_int("launched_port")) .. "]" ..
-        "field[0.25,4;4,1;armed_port;Armed Port;" .. fe(meta:get_int("armed_port")) .. "]" ..
+        "field[4.25,1;4,1;error_port;Error Port;" .. fe(meta:get_int("error_port")) .. "]" ..
+        "field[4.25,2;4,1;launched_port;Launched Port;" .. fe(meta:get_int("launched_port")) .. "]" ..
+        "field[4.25,3;4,1;armed_port;Armed Port;" .. fe(meta:get_int("armed_port")) .. "]" ..
         ""
 
     elseif assigns.tab == 2 then
       formspec =
         formspec ..
         "label[0,0;Data Configuration]" ..
-        "label[0,1;Codes]" ..
-        "field[0.25,2;8,1;launch_code;Launch Code;" .. fe(meta:get_string("launch_code")) .. "]"
+        "label[0,0.5;Codes]" ..
+        "field[0.25,1;8,1;launch_code;Launch Code;" .. fe(meta:get_string("launch_code")) .. "]"
     end
 
     return formspec
@@ -137,6 +238,63 @@ local data_interface = {
 
   receive_programmer_fields = function (self, player, form_name, fields, assigns)
     local meta = minetest.get_meta(assigns.pos)
+
+    local needs_refresh = false
+
+    if fields["tab"] then
+      local tab = tonumber(fields["tab"])
+      if tab ~= assigns.tab then
+        assigns.tab = tab
+        needs_refresh = true
+      end
+    end
+
+    if fields["offset_x_port"] then
+      rebind_input_port(assigns.pos, "offset_x_port", tonumber(fields["offset_x_port"]))
+    end
+
+    if fields["offset_y_port"] then
+      rebind_input_port(assigns.pos, "offset_y_port", tonumber(fields["offset_y_port"]))
+    end
+
+    if fields["offset_z_port"] then
+      rebind_input_port(assigns.pos, "offset_z_port", tonumber(fields["offset_z_port"]))
+    end
+
+    if fields["launch_port"] then
+      rebind_input_port(assigns.pos, "launch_port", tonumber(fields["launch_port"]))
+    end
+
+    if fields["arming_port"] then
+      rebind_input_port(assigns.pos, "arming_port", tonumber(fields["arming_port"]))
+    end
+
+    if fields["probing_port"] then
+      rebind_input_port(assigns.pos, "probing_port", tonumber(fields["probing_port"]))
+    end
+
+    if fields["error_port"] then
+      rebind_input_port(assigns.pos, "error_port", tonumber(fields["error_port"]))
+    end
+
+    if fields["launched_port"] then
+      rebind_input_port(assigns.pos, "launched_port", tonumber(fields["launched_port"]))
+    end
+
+    if fields["armed_port"] then
+      rebind_input_port(assigns.pos, "armed_port", tonumber(fields["armed_port"]))
+    end
+
+    if fields["launch_code"] then
+      meta:set_string("launch_code", fields["launch_code"])
+    end
+
+    if needs_refresh then
+      local formspec = self:get_programmer_formspec(assigns.pos, player, nil, assigns)
+      return true, formspec
+    else
+      return true
+    end
   end,
 }
 
@@ -152,7 +310,10 @@ local function get_formspec(pos, user, assigns)
 
   local formspec =
     "size[8,9]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "machine_radioactive") ..
+    yatm.formspec_bg_for_player(user:get_player_name(), "machine_radioactive")
+
+  formspec =
+    formspec ..
     "label[0,0;Shell]" ..
     "list[nodemeta:" .. spos .. ";shell_slot;0,1.3;1,1;]" ..
     "label[4,0;Warhead]" ..
@@ -177,10 +338,34 @@ local function get_formspec(pos, user, assigns)
     "listring[current_player;main]" ..
     default.get_hotbar_bg(0,4.85)
 
+  formspec =
+    formspec ..
+    "field[1,3;2,1;offset_x;Offset-X;" .. meta:get_int("offset_x") .. "]" ..
+    "field[3,3;2,1;offset_y;Offset-Y;" .. meta:get_int("offset_y") .. "]" ..
+    "field[5,3;2,1;offset_z;Offset-Z;" .. meta:get_int("offset_z") .. "]" ..
+    "field[0.5,4;8,1;launch_code;Launch Code;" .. minetest.formspec_escape(meta:get_string("launch_code")) .. "]"
+
   return formspec
 end
 
 function receive_fields(user, form_name, fields, assigns)
+  local meta = minetest.get_meta(assigns.pos)
+  if fields["offset_x"] then
+    meta:set_int("offset_x", tonumber(fields["offset_x"]))
+  end
+
+  if fields["offset_y"] then
+    meta:set_int("offset_y", tonumber(fields["offset_y"]))
+  end
+
+  if fields["offset_z"] then
+    meta:set_int("offset_z", tonumber(fields["offset_z"]))
+  end
+
+  if fields["launch_code"] then
+    meta:set_string("launch_code", fields["launch_code"])
+  end
+
   if fields["arm"] then
     -- create an ICBM
   elseif fields["disarm"] then
@@ -199,8 +384,8 @@ end
 
 local groups = {
   cracky = 1,
-  data_interface_in = 1,
-  data_interface_out = 1,
+  data_programmable = 1,
+  yatm_data_device = 1,
 }
 
 -- Optional fluid interface
@@ -333,8 +518,6 @@ minetest.register_node("yatm_armoury_icbm:icbm_silo", {
     meta:set_int("offset_x", 0)
     meta:set_int("offset_y", 0)
     meta:set_int("offset_z", 0)
-
-    minetest.add_entity(vector.add(pos, yatm_core.V3_UP), "yatm_armoury_icbm:icbm")
   end,
 
   data_network_device = {
@@ -386,6 +569,7 @@ minetest.register_node("yatm_armoury_icbm:icbm_guiding_ring", {
 
   groups = {
     cracky = 1,
+    icbm_guiding_ring = 1,
   },
 
   tiles = {
@@ -414,6 +598,7 @@ minetest.register_node("yatm_armoury_icbm:icbm_guiding_ring_warning_strips", {
 
   groups = {
     cracky = 1,
+    icbm_guiding_ring = 1,
   },
 
   tiles = {
