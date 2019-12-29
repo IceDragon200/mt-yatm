@@ -11,6 +11,8 @@ local INTERVALS = {
 minetest.register_node("yatm_data_logic:data_pulser", {
   description = "Data Pulser",
 
+  codex_entry_id = "yatm_data_logic:data_pulser",
+
   groups = {
     cracky = 1,
     data_programmable = 1,

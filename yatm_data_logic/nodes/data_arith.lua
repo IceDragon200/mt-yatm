@@ -207,6 +207,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   identity = {
     description = "Data Arithmetic [Identity]\nReturns data unchanged, it may replace any missing entries with other data from inputs",
 
+    codex_entry_id = "yatm_data_logic:data_arith_identity",
+
     tiles = {
       "yatm_data_arith_top.identity.png",
       "yatm_data_arith_bottom.png",
@@ -233,6 +235,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
 
   add = {
     description = "Data Arithmetic [Addition]\nAdds all input data",
+
+    codex_entry_id = "yatm_data_logic:data_arith_add",
 
     tiles = {
       "yatm_data_arith_top.add.png",
@@ -276,6 +280,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
 
   subtract = {
     description = "Data Arithmetic [Subtract]\nSubtracts input data",
+
+    codex_entry_id = "yatm_data_logic:data_arith_subtract",
 
     tiles = {
       "yatm_data_arith_top.subtract.png",
@@ -323,6 +329,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   multiply = {
     description = "Data Arithmetic [Multiply]\nMultiply input data",
 
+    codex_entry_id = "yatm_data_logic:data_arith_multiply",
+
     tiles = {
       "yatm_data_arith_top.multiply.png",
       "yatm_data_arith_bottom.png",
@@ -365,6 +373,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
 
   divide = {
     description = "Data Arithmetic [Divide]\nDivide Arithmetic",
+
+    codex_entry_id = "yatm_data_logic:data_arith_divide",
 
     tiles = {
       "yatm_data_arith_top.divide.png",
@@ -420,6 +430,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   max = {
     description = "Data Arithmetic [Max]",
 
+    codex_entry_id = "yatm_data_logic:data_arith_max",
+
     tiles = {
       "yatm_data_arith_top.max.png",
       "yatm_data_arith_bottom.png",
@@ -453,6 +465,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
 
   min = {
     description = "Data Arithmetic [Min]",
+
+    codex_entry_id = "yatm_data_logic:data_arith_min",
 
     tiles = {
       "yatm_data_arith_top.min.png",
@@ -490,6 +504,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   identity_vector = {
     description = "Data Arithmetic [Identity Vector]\nReturns data unchanged",
 
+    codex_entry_id = "yatm_data_logic:data_arith_identity_vector",
+
     tiles = {
       "yatm_data_arith_top.identity.vector.png",
       "yatm_data_arith_bottom.png",
@@ -523,6 +539,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
 
   add_vector = {
     description = "Data Arithmetic [Addition Vector]\nAdds all input data",
+
+    codex_entry_id = "yatm_data_logic:data_arith_add_vector",
 
     tiles = {
       "yatm_data_arith_top.add.vector.png",
@@ -561,6 +579,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   subtract_vector = {
     description = "Data Arithmetic [Subtract Vector]\nSubtracts input data",
 
+    codex_entry_id = "yatm_data_logic:data_arith_subtract_vector",
+
     tiles = {
       "yatm_data_arith_top.subtract.vector.png",
       "yatm_data_arith_bottom.png",
@@ -598,6 +618,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   multiply_vector = {
     description = "Data Arithmetic [Multiply Vector]\nMultiply input data",
 
+    codex_entry_id = "yatm_data_logic:data_arith_multiply_vector",
+
     tiles = {
       "yatm_data_arith_top.multiply.vector.png",
       "yatm_data_arith_bottom.png",
@@ -634,6 +656,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
 
   divide_vector = {
     description = "Data Arithmetic [Divide Vector]\nDivide input data",
+
+    codex_entry_id = "yatm_data_logic:data_arith_divide_vector",
 
     tiles = {
       "yatm_data_arith_top.divide.vector.png",
@@ -674,7 +698,9 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   },
 
   max_vector = {
-    description = "Data Arithmetic [Max Vector]\nPick large input data",
+    description = "Data Arithmetic [Max Vector]\nPick largest input data",
+
+    codex_entry_id = "yatm_data_logic:data_arith_max_vector",
 
     tiles = {
       "yatm_data_arith_top.max.vector.png",
@@ -718,6 +744,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
 
   min_vector = {
     description = "Data Arithmetic [Min Vector]\nPick smallest input data",
+
+    codex_entry_id = "yatm_data_logic:data_arith_min_vector",
 
     tiles = {
       "yatm_data_arith_top.min.vector.png",

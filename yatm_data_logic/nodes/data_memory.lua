@@ -3,6 +3,8 @@ local data_network = assert(yatm.data_network)
 minetest.register_node("yatm_data_logic:data_memory", {
   description = "Data Memory",
 
+  codex_entry_id = "yatm_data_logic:data_memory",
+
   groups = {
     cracky = 1,
     data_programmable = 1,

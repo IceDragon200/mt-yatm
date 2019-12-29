@@ -11,6 +11,8 @@ local INTERVALS = {
 minetest.register_node("yatm_data_logic:data_sequencer", {
   description = "Data Sequencer",
 
+  codex_entry_id = "yatm_data_logic:data_sequencer",
+
   groups = {
     cracky = 1,
     data_programmable = 1,

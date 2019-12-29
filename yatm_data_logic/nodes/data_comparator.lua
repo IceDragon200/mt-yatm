@@ -217,6 +217,8 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
   equal_to = {
     description = "Data Comparator [Equal To]",
 
+    codex_entry_id = "yatm_data_logic:data_comparator_equal_to",
+
     tiles = {
       "yatm_data_comparator_top.equal_to.png",
       "yatm_data_comparator_bottom.png",
@@ -235,6 +237,8 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
 
   not_equal_to = {
     description = "Data Comparator [Not Equal To]",
+
+    codex_entry_id = "yatm_data_logic:data_comparator_not_equal_to",
 
     tiles = {
       "yatm_data_comparator_top.not_equal_to.png",
@@ -255,6 +259,8 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
   greater_than = {
     description = "Data Comparator [Greater Than]",
 
+    codex_entry_id = "yatm_data_logic:data_comparator_greater_than",
+
     tiles = {
       "yatm_data_comparator_top.greater_than.png",
       "yatm_data_comparator_bottom.png",
@@ -273,6 +279,8 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
 
   greater_than_or_equal_to = {
     description = "Data Comparator [Greater Than or Equal To]",
+
+    codex_entry_id = "yatm_data_logic:data_comparator_greater_than_or_equal_to",
 
     tiles = {
       "yatm_data_comparator_top.greater_than_or_equal_to.png",
@@ -293,6 +301,8 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
   less_than = {
     description = "Data Comparator [Less Than]",
 
+    codex_entry_id = "yatm_data_logic:data_comparator_less_than",
+
     tiles = {
       "yatm_data_comparator_top.less_than.png",
       "yatm_data_comparator_bottom.png",
@@ -311,6 +321,8 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
 
   less_than_or_equal_to = {
     description = "Data Comparator [Less Than or Equal To]",
+
+    codex_entry_id = "yatm_data_logic:data_comparator_less_than_or_equal_to",
 
     tiles = {
       "yatm_data_comparator_top.less_than_or_equal_to.png",

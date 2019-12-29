@@ -3,6 +3,8 @@ local data_network = assert(yatm.data_network)
 minetest.register_node("yatm_data_logic:data_clock", {
   description = "Data Clock\nReports the current time of day ranging from 0 to 255 every second",
 
+  codex_entry_id = "yatm_data_logic:data_clock",
+
   groups = {
     cracky = 1,
     data_programmable = 1,

@@ -3,6 +3,8 @@ local data_network = assert(yatm.data_network)
 yatm.register_stateful_node("yatm_data_logic:data_momentary_button", {
   description = "Data Momentary Button",
 
+  codex_entry_id = "yatm_data_logic:data_momentary_button",
+
   drop = "yatm_data_logic:data_momentary_button_off",
 
   groups = {
