@@ -5,6 +5,12 @@ function yatm_data_logic.unmark_all_receive(pos)
   data_network:unmark_ready_to_receive(pos, 0, 0)
 end
 
+function yatm_data_logic.bind_input_port(pos, local_port, status)
+  for _, dir in ipairs(yatm_core.DIR6) do
+    data_network:mark_ready_to_receive(pos, dir, local_port, status or "active")
+  end
+end
+
 --
 -- Marks all input ports as active, that is to ALWAYS receive data
 --
