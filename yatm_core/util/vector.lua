@@ -9,6 +9,15 @@ function yatm_core.vector2.new(x, y)
   return { x = x, y = y }
 end
 
+function yatm_core.vector2.unwrap(v)
+  if type(v) == "table" then
+    return v.x, v.y
+  elseif type(v) == "number" then
+    return v, v
+  end
+  error("expected a table or number")
+end
+
 function yatm_core.vector2.zero()
   return yatm_core.vector2.new(0, 0)
 end
@@ -75,6 +84,15 @@ function yatm_core.vector3.new(x, y, z)
   return { x = x, y = y, z = z }
 end
 
+function yatm_core.vector3.unwrap(v)
+  if type(v) == "table" then
+    return v.x, v.y, v.z
+  elseif type(v) == "number" then
+    return v, v, v
+  end
+  error("expected a table or number")
+end
+
 function yatm_core.vector3.zero()
   return yatm_core.vector3.new(0, 0, 0)
 end
@@ -103,37 +121,47 @@ function yatm_core.vector3.dot(v1, v2)
 end
 
 function yatm_core.vector3.add(dest, v1, v2)
-  dest.x = v1.x + v2.x
-  dest.y = v1.y + v2.y
-  dest.z = v1.z + v2.z
+  local v1x, v1y, v1z = yatm_core.vector3.unwrap(v1)
+  local v2x, v2y, v2z = yatm_core.vector3.unwrap(v2)
+  dest.x = v1x + v2x
+  dest.y = v1y + v2y
+  dest.z = v1z + v2z
   return dest
 end
 
 function yatm_core.vector3.subtract(dest, v1, v2)
-  dest.x = v1.x + v2.x
-  dest.y = v1.y + v2.y
-  dest.z = v1.z + v2.z
+  local v1x, v1y, v1z = yatm_core.vector3.unwrap(v1)
+  local v2x, v2y, v2z = yatm_core.vector3.unwrap(v2)
+  dest.x = v1x + v2x
+  dest.y = v1y + v2y
+  dest.z = v1z + v2z
   return dest
 end
 
 function yatm_core.vector3.multiply(dest, v1, v2)
-  dest.x = v1.x * v2.x
-  dest.y = v1.y * v2.y
-  dest.z = v1.z * v2.z
+  local v1x, v1y, v1z = yatm_core.vector3.unwrap(v1)
+  local v2x, v2y, v2z = yatm_core.vector3.unwrap(v2)
+  dest.x = v1x * v2x
+  dest.y = v1y * v2y
+  dest.z = v1z * v2z
   return dest
 end
 
 function yatm_core.vector3.divide(dest, v1, v2)
-  dest.x = v1.x / v2.x
-  dest.y = v1.y / v2.y
-  dest.z = v1.z / v2.z
+  local v1x, v1y, v1z = yatm_core.vector3.unwrap(v1)
+  local v2x, v2y, v2z = yatm_core.vector3.unwrap(v2)
+  dest.x = v1x / v2x
+  dest.y = v1y / v2y
+  dest.z = v1z / v2z
   return dest
 end
 
 function yatm_core.vector3.idivide(dest, v1, v2)
-  dest.x = math.floor(v1.x / v2.x)
-  dest.y = math.floor(v1.y / v2.y)
-  dest.z = math.floor(v1.z / v2.z)
+  local v1x, v1y, v1z = yatm_core.vector3.unwrap(v1)
+  local v2x, v2y, v2z = yatm_core.vector3.unwrap(v2)
+  dest.x = math.floor(v1x / v2x)
+  dest.y = math.floor(v1y / v2y)
+  dest.z = math.floor(v1z / v2z)
   return dest
 end
 
@@ -146,6 +174,15 @@ yatm_core.vector4 = {}
 
 function yatm_core.vector4.new(x, y, z, w)
   return { x = x, y = y, z = z, w = w }
+end
+
+function yatm_core.vector4.unwrap(v)
+  if type(v) == "table" then
+    return v.x, v.y, v.z, v.w
+  elseif type(v) == "number" then
+    return v, v, v, v
+  end
+  error("expected a table or number")
 end
 
 function yatm_core.vector4.zero()
@@ -177,34 +214,42 @@ function yatm_core.vector4.dot(v1, v2)
 end
 
 function yatm_core.vector4.add(dest, v1, v2)
-  dest.x = v1.x + v2.x
-  dest.y = v1.y + v2.y
-  dest.z = v1.z + v2.z
-  dest.w = v1.w + v2.w
+  local v1x, v1y, v1z, v1w = yatm_core.vector4.unwrap(v1)
+  local v2x, v2y, v2z, v2w = yatm_core.vector4.unwrap(v2)
+  dest.x = v1x + v2x
+  dest.y = v1y + v2y
+  dest.z = v1z + v2z
+  dest.w = v1w + v2w
   return dest
 end
 
 function yatm_core.vector4.subtract(dest, v1, v2)
-  dest.x = v1.x + v2.x
-  dest.y = v1.y + v2.y
-  dest.z = v1.z + v2.z
-  dest.w = v1.w + v2.w
+  local v1x, v1y, v1z, v1w = yatm_core.vector4.unwrap(v1)
+  local v2x, v2y, v2z, v2w = yatm_core.vector4.unwrap(v2)
+  dest.x = v1x + v2x
+  dest.y = v1y + v2y
+  dest.z = v1z + v2z
+  dest.w = v1w + v2w
   return dest
 end
 
 function yatm_core.vector4.multiply(dest, v1, v2)
-  dest.x = v1.x * v2.x
-  dest.y = v1.y * v2.y
-  dest.z = v1.z * v2.z
-  dest.w = v1.w * v2.w
+  local v1x, v1y, v1z, v1w = yatm_core.vector4.unwrap(v1)
+  local v2x, v2y, v2z, v2w = yatm_core.vector4.unwrap(v2)
+  dest.x = v1x * v2x
+  dest.y = v1y * v2y
+  dest.z = v1z * v2z
+  dest.w = v1w * v2w
   return dest
 end
 
 function yatm_core.vector4.divide(dest, v1, v2)
-  dest.x = v1.x / v2.x
-  dest.y = v1.y / v2.y
-  dest.z = v1.z / v2.z
-  dest.w = v1.w / v2.w
+  local v1x, v1y, v1z, v1w = yatm_core.vector4.unwrap(v1)
+  local v2x, v2y, v2z, v2w = yatm_core.vector4.unwrap(v2)
+  dest.x = v1x / v2x
+  dest.y = v1y / v2y
+  dest.z = v1z / v2z
+  dest.w = v1w / v2w
   return dest
 end
 
