@@ -56,7 +56,17 @@ extern void oku_sm6502_state_refresh(struct oku_sm6502_state* state)
   state->sm8->memory_flags = state->memory_flags;
 }
 
-extern void oku_sm6502_state_step(struct oku_sm6502_state* state)
+extern int oku_sm6502_chip_startup(struct oku_sm6502_state* state)
+{
+
+}
+
+extern int oku_sm6502_chip_fex(struct oku_sm6502_state* state)
+{
+
+}
+
+extern int oku_sm6502_state_step(struct oku_sm6502_state* state)
 {
   switch (chip->state & 0xF)
   {

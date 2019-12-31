@@ -94,12 +94,14 @@ extern int16_t oku_6502_mem_read_i16(int32_t mem_size, char* mem, int32_t index,
 extern int8_t oku_6502_chip_read_mem_i8(struct oku_6502_chip* chip, int32_t index, int32_t mem_size, char* mem, int* status)
 {
   chip->cycles += 1;
+  chip->ab = index;
   return oku_6502_mem_read_i8(mem_size, mem, index, status);
 }
 
 extern void oku_6502_chip_write_mem_i8(struct oku_6502_chip* chip, int32_t index, int8_t value, int32_t mem_size, char* mem, int* status)
 {
   chip->cycles += 1;
+  chip->ab = index;
   oku_6502_mem_write_i8(mem_size, mem, index, value, status);
 }
 
@@ -911,7 +913,7 @@ extern int oku_6502_chip_size()
 extern void oku_6502_chip_init(struct oku_6502_chip* chip)
 {
   chip->pc = 0; // TODO: this shouldn't start in the zeropage from what I remember
-  chip->sp = 0x1FF;
+  chip->sp = 0xFF;
   chip->a = 0;
   chip->x = 0;
   chip->y = 0;
