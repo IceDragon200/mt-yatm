@@ -110,6 +110,8 @@ function yatm_cables.register_cable_state(params, size)
     basename = params.basename,
     base_description = params.base_description or params.description,
 
+    codex_entry_id = params.codex_entry_id,
+
     description = params.description,
 
     groups = groups,
@@ -173,6 +175,9 @@ yatm_cables.register_cable({
 
   name = "yatm_cables:dense_cable",
   description = "Dense Cable",
+
+  codex_entry_id = "yatm_cables:multi_cable",
+
   texture_basename = "yatm_dense_cable",
 
   default_state = "off",
@@ -202,6 +207,9 @@ yatm_cables.register_cable({
 
   name = "yatm_cables:medium_cable",
   description = "Medium Cable",
+
+  codex_entry_id = "yatm_cables:multi_cable",
+
   texture_basename = "yatm_medium_cable",
   default_state = "off",
   states =  {"on", "off", "error"},
@@ -230,6 +238,9 @@ yatm_cables.register_cable({
 
   name = "yatm_cables:small_cable",
   description = "Small Cable",
+
+  codex_entry_id = "yatm_cables:multi_cable",
+
   --texture_basename = "yatm_small_cable_",
   texture_basename = "yatm_medium_cable",
 
@@ -262,6 +273,9 @@ yatm_cables.register_cable({
 
   name = "yatm_cables:pipe_glass", -- TODO: rename to glass_cable
   description = "Glass Cable",
+
+  codex_entry_id = "yatm_cables:glass_cable",
+
   texture_basename = "yatm_pipe.glass",
   states = false,
   sounds = glass_sounds,
@@ -287,6 +301,9 @@ yatm_cables.register_cable({
 
   name = "yatm_cables:pipe_glass_rb",
   description = "Glass Cable (Red/Black)",
+
+  codex_entry_id = "yatm_cables:glass_cable",
+
   texture_basename = "yatm_pipe.glass.red.black.couplings",
   states = false,
   sounds = glass_sounds,
@@ -312,6 +329,9 @@ yatm_cables.register_cable({
 
   name = "yatm_cables:pipe_glass_yb",
   description = "Glass Cable (Yellow/Black)",
+
+  codex_entry_id = "yatm_cables:glass_cable",
+
   texture_basename = "yatm_pipe.glass.yellow.black.couplings",
   states = false,
   sounds = glass_sounds,
@@ -338,6 +358,9 @@ yatm_cables.register_cable({
 
   name = "yatm_cables:pipe_rb",
   description = "Pipe (Red/Black)",
+
+  codex_entry_id = "yatm_cables:energy_cable",
+
   texture_basename = "yatm_pipe.red.black.couplings",
   states = false,
 
@@ -361,6 +384,9 @@ yatm_cables.register_cable({
 
   name = "yatm_cables:pipe_yb",
   description = "Pipe (Yellow/Black)",
+
+  codex_entry_id = "yatm_cables:energy_cable",
+
   texture_basename = "yatm_pipe.yellow.black.couplings",
   states = false,
 
@@ -387,6 +413,9 @@ yatm_cables.register_cable({
 
   name = "yatm_cables:copper_cable_uninsulated",
   description = "Copper Cable (Uninsulated)",
+
+  codex_entry_id = "yatm_cables:copper_cable",
+
   texture_basename = "yatm_copper_cable_side.uninsulated",
   states = false,
 
@@ -438,6 +467,9 @@ do
 
       name = node_name,
       description = "Copper Cable (" .. color_name .. ")",
+
+      codex_entry_id = "yatm_cables:copper_cable",
+
       texture_basename = "yatm_copper_cable_" .. color_basename .. ".on",
       states = false,
 
