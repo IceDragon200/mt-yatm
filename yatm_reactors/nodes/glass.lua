@@ -23,9 +23,9 @@ for variant, variant_texture_name in pairs({
 }) do
   minetest.register_node("yatm_reactors:glass_" .. variant, {
     basename = "yatm_reactors:glass",
-    base_description = "Decor Reactor Glass",
+    base_description = "Decorative Reactor Glass",
 
-    description = "Decor Reactor Glass (" .. variant .. ")",
+    description = "Decorative Reactor Glass (" .. variant .. ")",
     note = "Safe to use for decor",
     groups = {
       cracky = 3,

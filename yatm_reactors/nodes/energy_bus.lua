@@ -1,6 +1,9 @@
 local cluster_reactor = assert(yatm.cluster.reactor)
-local cluster_energy = assert(yatm.cluster.energy)
-local data_network = assert(yatm.data_network)
+local cluster_energy = yatm.cluster.energy
+
+if not cluster_energy then
+  return
+end
 
 local function energy_bus_refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
@@ -68,19 +71,6 @@ yatm_reactors.register_stateful_reactor_node({
 
   reactor_device = energy_bus_reactor_device,
   yatm_network = energy_bus_yatm_network, -- needed for energy
-
-  data_network_device = {
-    type = "device",
-  },
-
-  data_interface = {
-    on_load = function (self, pos, node)
-    end,
-
-    receive_pdu = function (self, pos, node, dir, port, value)
-      --
-    end,
-  },
 
   refresh_infotext = energy_bus_refresh_infotext,
 }, {

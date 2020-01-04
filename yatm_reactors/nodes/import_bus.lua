@@ -48,8 +48,12 @@ for _, variant_pair in ipairs(variants) do
     basename = "yatm_reactors:import_bus",
 
     description = "Reactor Import Bus (" .. variant_name .. ")",
+
+    codex_entry_id = "yatm_reactors:import_bus",
+
     groups = groups,
     drop = import_bus_reactor_device.states.off,
+
     tiles = {
       "yatm_reactor_casing.plain.png",
       "yatm_reactor_casing.plain.png",

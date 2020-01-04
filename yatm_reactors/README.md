@@ -6,10 +6,10 @@ Adds a nuclear reactor multiblock structure.
 
 Actually code the damn thing.
 
-* [ ] Multiblock logic
+* [x] Multiblock logic
 * [ ] Actual reactor logic
 * [ ] Power generation
-* [ ] Properly register nodes in the yatm energy network
+* [x] Properly register nodes in the yatm energy network
 * [ ] Radioactive stuff
 
 ## Inspiration

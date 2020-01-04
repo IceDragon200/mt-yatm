@@ -1,5 +1,9 @@
 local cluster_reactor = assert(yatm.cluster.reactor)
-local data_network = assert(yatm.data_network)
+local data_network = yatm.data_network
+
+if not data_network then
+  return
+end
 
 local function data_bus_refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)

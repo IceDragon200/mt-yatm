@@ -36,7 +36,10 @@ for _, variant_pair in ipairs(variants) do
     }
   }
 
-  local groups = {cracky = 1}
+  local groups = {
+    cracky = 1
+  }
+
   if variant_basename == "hazard" or variant_basename == "coolant" then
     groups.fluid_interface_out = 1
   elseif variant_basename == "signal" then

@@ -54,6 +54,7 @@ yatm_reactors.register_reactor_node("yatm_reactors:fuel_rod_case_open", {
 })
 
 local function update_fuel_rod(pos, node, state, dtime)
+  -- todo consume fuel rod
 end
 
 for _, variant in ipairs({"uranium", "plutonium", "radium"}) do
@@ -83,7 +84,13 @@ for _, variant in ipairs({"uranium", "plutonium", "radium"}) do
 
     description = "Reactor Fuel Rod (" .. variant .. ")",
 
-    groups = {cracky = 1},
+    groups = {
+      cracky = 1,
+      nuclear_fuel_rod = 1,
+      ["nuclear_fuel_rod_" .. variant] = 1,
+    },
+
+    nuclear_fuel_rod_type = variant,
 
     drop = fuel_rod_reactor_device.states.off,
 

@@ -1,5 +1,9 @@
 local cluster_reactor = assert(yatm.cluster.reactor)
-local cluster_thermal = assert(yatm.cluster.thermal)
+local cluster_thermal = yatm.cluster.thermal
+
+if not cluster_thermal then
+  return
+end
 
 local function heat_exchanger_refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)

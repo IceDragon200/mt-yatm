@@ -83,6 +83,8 @@ yatm_reactors.register_stateful_reactor_node({
 
   description = "Reactor Controller",
 
+  codex_entry_id = "yatm_reactors:reactor_controller",
+
   groups = {cracky = 1},
 
   drop = reactor_controller_reactor_device.states.off,

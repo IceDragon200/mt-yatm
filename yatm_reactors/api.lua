@@ -1,17 +1,21 @@
 local cluster_reactor = assert(yatm.cluster.reactor)
-local cluster_energy = assert(yatm.cluster.energy)
-local cluster_thermal = assert(yatm.cluster.thermal)
+local cluster_energy = yatm.cluster.energy
+local cluster_thermal = yatm.cluster.thermal
 
 function yatm_reactors.default_on_construct(pos)
   local node = minetest.get_node(pos)
   cluster_reactor:schedule_add_node(pos, node)
 
   if minetest.get_item_group(node.name, "yatm_cluster_thermal") > 0 then
-    cluster_thermal:schedule_add_node(pos, node)
+    if cluster_thermal then
+      cluster_thermal:schedule_add_node(pos, node)
+    end
   end
 
   if minetest.get_item_group(node.name, "yatm_cluster_energy") > 0 then
-    cluster_energy:schedule_add_node(pos, node)
+    if cluster_energy then
+      cluster_energy:schedule_add_node(pos, node)
+    end
   end
 end
 
@@ -19,11 +23,15 @@ function yatm_reactors.default_after_destruct(pos, old_node)
   cluster_reactor:schedule_remove_node(pos, old_node)
 
   if minetest.get_item_group(old_node.name, "yatm_cluster_thermal") > 0 then
-    cluster_thermal:schedule_remove_node(pos, old_node)
+    if cluster_thermal then
+      cluster_thermal:schedule_remove_node(pos, old_node)
+    end
   end
 
   if minetest.get_item_group(old_node.name, "yatm_cluster_energy") > 0 then
-    cluster_energy:schedule_remove_node(pos, old_node)
+    if cluster_energy then
+      cluster_energy:schedule_remove_node(pos, old_node)
+    end
   end
 end
 
@@ -36,11 +44,15 @@ function yatm_reactors.default_transition_reactor_state(pos, node, state)
   cluster_reactor:schedule_update_node(pos, node)
 
   if minetest.get_item_group(node.name, "yatm_cluster_thermal") > 0 then
-    cluster_thermal:schedule_update_node(pos, node)
+    if cluster_thermal then
+      cluster_thermal:schedule_update_node(pos, node)
+    end
   end
 
   if minetest.get_item_group(node.name, "yatm_cluster_energy") > 0 then
-    cluster_energy:schedule_update_node(pos, node)
+    if cluster_energy then
+      cluster_energy:schedule_update_node(pos, node)
+    end
   end
 end
 
