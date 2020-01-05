@@ -7,6 +7,7 @@ minetest.register_node("yatm_plastics:plastic_panel_plain_block", {
 
   groups = {
     cracky = 1,
+    plastic_block = 1,
   },
 
   tiles = {
@@ -23,6 +24,7 @@ yatm.register_stateful_node("yatm_plastics:plastic_panel_plain_block", {
 
   groups = {
     cracky = 1,
+    plastic_block = 1,
   },
 
   paramtype = "light",
@@ -51,6 +53,7 @@ minetest.register_node("yatm_plastics:plastic_panel_notched_block", {
 
   groups = {
     cracky = 1,
+    plastic_block = 1,
   },
 
   tiles = {
@@ -67,6 +70,7 @@ yatm.register_stateful_node("yatm_plastics:plastic_panel_notched_block", {
 
   groups = {
     cracky = 1,
+    plastic_block = 1,
   },
 
   paramtype = "light",
@@ -96,6 +100,7 @@ minetest.register_node("yatm_plastics:plastic_panel_hollow_block", {
 
   groups = {
     cracky = 1,
+    plastic_block = 1,
   },
 
   tiles = {
@@ -114,6 +119,7 @@ yatm.register_stateful_node("yatm_plastics:plastic_panel_hollow_block", {
 
   groups = {
     cracky = 1,
+    plastic_block = 1,
   },
 
   drawtype = "glasslike",
@@ -145,6 +151,7 @@ yatm.register_stateful_node("yatm_plastics:plastic_panel_checker_block", {
 
   groups = {
     cracky = 1,
+    plastic_block = 1,
   },
 
   drawtype = "glasslike_framed",
