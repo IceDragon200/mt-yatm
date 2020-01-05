@@ -129,6 +129,45 @@ function yatm_core.string_hex_escape(str, mode)
   return table.concat(result)
 end
 
+local function handle_dec_escape(i, j, bytes, result)
+  local d3 = bytes[i + 1] - 48
+  local d2 = bytes[i + 2] - 48
+  local d1 = bytes[i + 3] - 48
+  result[j] = string.char(math.min(math.max(d3 * 100 + d2 * 10 + d1, 0), 255))
+  i = i + 4
+
+  return i, j
+end
+
+local function handle_hex_escape(i, j, bytes, result)
+  local hinibble = bytes[i + 2]
+  local lonibble = bytes[i + 3]
+  if HEXB_TO_DEC[hinibble] and HEXB_TO_DEC[lonibble] then
+    local hi = HEXB_TO_DEC[hinibble]
+    local lo = HEXB_TO_DEC[lonibble]
+    result[j] = string.char(hi * 16 + lo)
+  else
+    -- something isn't right, skip over this
+    result[j] = string.char(byte)
+    result[j + 1] = "x"
+    result[j + 2] = string.char(hinibble)
+    result[j + 3] = string.char(lonibble)
+    j = j + 3
+  end
+  i = i + 4
+
+  return i, j
+end
+
+--
+--
+-- @spec yatm_core.string_hex_unescape(String.t)
+--   Resolves all hex encoded values in the string
+--
+-- Example:
+--   "\\x00\x00\\x01\\x02" > "\x00\x00\x01\x02"
+--   The above describes a literal string with the value \x00\x00\x01\x02
+--   This function will unescape that sequence and produce the actual bytes 0 0 1 2
 function yatm_core.string_hex_unescape(str)
   local result = {}
   local bytes = {string.byte(str, 1, -1)}
@@ -144,24 +183,12 @@ function yatm_core.string_hex_unescape(str)
     if byte == 92 then
       -- 120 x
       if bytes[i + 1] == 120 then
-        local hinibble = bytes[i + 2]
-        local lonibble = bytes[i + 3]
-        if HEXB_TO_DEC[hinibble] and HEXB_TO_DEC[lonibble] then
-          local hi = HEXB_TO_DEC[hinibble]
-          local lo = HEXB_TO_DEC[lonibble]
-          result[j] = string.char(hi * 16 + lo)
-        else
-          -- something isn't right, skip over this
-          result[j] = string.char(byte)
-          result[j + 1] = "x"
-          result[j + 2] = string.char(hinibble)
-          result[j + 3] = string.char(lonibble)
-          j = j + 3
-        end
-        i = i + 4
+        i, j = handle_hex_escape(i, j, bytes, result)
+      -- 92 \
       elseif bytes[i + 1] == 92 then
         result[j] = "\\"
         i = i + 1
+      -- other
       else
         result[j] = bytes[i + 1]
         i = i + 1
@@ -173,6 +200,44 @@ function yatm_core.string_hex_unescape(str)
     j = j + 1
   end
 
+  return table.concat(result)
+end
+
+function yatm_core.string_unescape(str)
+  local result = {}
+  local bytes = {string.byte(str, 1, -1)}
+
+  local i = 1
+  local len = #bytes
+  local j = 1
+
+  while i <= len do
+    local byte = bytes[i]
+
+    -- 92 \
+    if byte == 92 then
+      -- 120 x
+      if bytes[i + 1] == 120 then
+        i, j = handle_hex_escape(i, j, bytes, result)
+      -- 48 0   57 9
+      elseif bytes[i + 1] >= 48 and bytes[i + 1] <= 57 then
+        -- decimal escaped
+        i, j = handle_dec_escape(i, j, bytes, result)
+      -- 92 \
+      elseif bytes[i + 1] == 92 then
+        result[j] = "\\"
+        i = i + 1
+      -- other
+      else
+        result[j] = bytes[i + 1]
+        i = i + 1
+      end
+    else
+      result[j] = string.char(byte)
+      i = i + 1
+    end
+    j = j + 1
+  end
   return table.concat(result)
 end
 

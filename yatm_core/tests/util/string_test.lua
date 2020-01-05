@@ -47,6 +47,18 @@ case:describe("string_hex_unescape", function (t2)
   end)
 end)
 
+case:describe("string_unescape", function (t2)
+  t2:test("hex unescape a string", function (t3)
+    t3:assert_eq("Hello\000\128\255World", m.string_unescape("Hello\\x00\\x80\\xFFWorld"))
+    t3:assert_eq("\000\016\128\255", m.string_unescape("\\x00\\x10\\x80\\xFF"))
+  end)
+
+  t2:test("dec unescape a string", function (t3)
+    t3:assert_eq("Hello\000\128\255World", m.string_unescape("Hello\\000\\128\\255World"))
+    t3:assert_eq("\000\010\128\255", m.string_unescape("\\000\\010\\128\\255"))
+  end)
+end)
+
 case:describe("string_split", function (t2)
   t2:test("can split a string", function (t3)
     -- split by each character, default behaviour
