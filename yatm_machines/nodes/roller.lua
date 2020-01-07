@@ -157,7 +157,7 @@ yatm.devices.register_stateful_network_device({
     minetest.show_formspec(
       user:get_player_name(),
       "yatm_machines:roller",
-      get_roller_formspec(pos)
+      get_roller_formspec(pos, user)
     )
   end,
 
