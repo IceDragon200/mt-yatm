@@ -5,6 +5,14 @@ if not bit then
   return
 end
 
+local INT_MAX = {
+  [1] = math.floor(math.pow(2, 8)),
+  [2] = math.floor(math.pow(2, 16)),
+  [3] = math.floor(math.pow(2, 24)),
+  [4] = math.floor(math.pow(2, 32)),
+  [8] = math.floor(math.pow(2, 64)),
+}
+
 local ByteDecoder = {}
 
 function ByteDecoder:d_iv(bytes, len)
