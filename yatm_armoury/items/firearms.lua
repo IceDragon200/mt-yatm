@@ -20,7 +20,7 @@
 --   62 Valac
 --
 -- <Calibre>[AS]+ (e.g. 19A - meaning it uses 9x19mm and fires in Automatic-only)
---                (e.g. 45AS - meaning it uses 5.56mm and fires in either Automatic or Semi-Automatic)
+--                (e.g. 45AS - meaning it uses 5.56x45mm and fires in either Automatic or Semi-Automatic)
 --
 -- `_ul` at the end of the item name, means 'unloaded'
 -- `_mag` at the end of the item name, means 'loaded with magazine'
@@ -61,7 +61,7 @@ yatm.register_stateful_tool("yatm_armoury:firearm_hg9mm_semi", {
 
 -- 9x19mm - Automatic
 yatm.register_stateful_tool("yatm_armoury:firearm_smg9mm_auto", {
-  description = "AMS Paimon SMG 19A\nVersitile SMG",
+  description = "AMS Paimon SMG 19A\nVersatile SMG",
 
   groups = {
     firearm = 1,
