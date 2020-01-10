@@ -118,8 +118,8 @@ end
 
 function yatm_data_logic.emit_output_data(pos, data_name, options)
   local meta = minetest.get_meta(pos)
-  local dl = meta:get_string("data_" .. data_name)
-  yatm_data_logic.emit_output_data_value(pos, dl, options)
+  local value = meta:get_string("data_" .. data_name)
+  yatm_data_logic.emit_output_data_value(pos, value, options)
 end
 
 --
