@@ -16,25 +16,28 @@ local data_interface = {
     local inv = meta:get_inventory()
 
     assigns.tab = assigns.tab or 1
+    assigns.width = 4
+    assigns.height = 4
 
     local formspec =
       "formspec_version[2]" ..
-      "size[10,12]" ..
+      "size[12,12]" ..
       yatm.formspec_bg_for_player(user:get_player_name(), "module") ..
       "tabheader[0,0;tab;Pads,Pads Setup,Ports,Data;" .. assigns.tab .. "]"
 
     if assigns.tab == 1 then
       formspec =
         formspec ..
-        "label[0.5,0.5;Pads]"
+        "label[0.5,0.75;Pads]"
 
       local list = inv:get_list("pads")
 
-      for y = 0,3 do
-        local dy = 1 + y * 2
-        for x = 0,3 do
-          local dx = 1 + x * 2
-          local i = 1 + y * 4 + x
+      for y = 0,(assigns.height - 1) do
+        local dy = 2 + y * 2
+        for x = 0,(assigns.width - 1) do
+          local dx = 2 + x * 2
+
+          local i = 1 + y * assigns.width + x
 
           if not list[i]:is_empty() then
             local stack = list[i]
@@ -46,8 +49,9 @@ local data_interface = {
                   "image_button[" .. dx .. "," .. dy ..
                                 ";2,2;" ..
                                 minetest.formspec_escape("yatm_button.base.48px.png^" .. spec.images["off"]) ..
-                                ";pad" .. i ..
-                                ";;true;false;" ..
+                                ";pad_trigger_" .. i ..
+                                ";" ..
+                                ";true;false;" ..
                                 minetest.formspec_escape("yatm_button.base.48px.png^" ..spec.images["on"]) .. "]"
               end
             else
@@ -65,23 +69,57 @@ local data_interface = {
     elseif assigns.tab == 2 then
       formspec =
         formspec ..
-        "label[0.5,0.5;Pads Setup]" ..
-        "list[nodemeta:" .. spos .. ";pads;0.5,1;4,4;]" ..
-        "list[current_player;main;0.5,5.85;8,1;]" ..
-        "list[current_player;main;0.5,7.08;8,3;8]" ..
+        "label[0.5,0.75;Pads Setup]" ..
+        "list[nodemeta:" .. spos .. ";pads;4,1;4,4;]" ..
+        "list[current_player;main;1,6.85;8,1;]" ..
+        "list[current_player;main;1,8.08;8,3;8]" ..
         "listring[nodemeta:" .. spos .. ";pads]" ..
         "listring[current_player;main]" ..
-        default.get_hotbar_bg(0.5, 5.85)
+        default.get_hotbar_bg(1, 6.85)
 
     elseif assigns.tab == 3 then
       formspec =
         formspec ..
-        "label[1,0.5;Ports]"
+        "label[0.5,0.75;Ports]"
+
+      for y = 0,3 do
+        local dy = 2 + y * 2
+        for x = 0,3 do
+          local dx = 2.125 + x * 2
+
+          local i = 1 + y * 4 + x
+
+          formspec =
+            formspec ..
+            "field[" .. dx .. "," .. dy ..
+                   ";1.75,1" ..
+                   ";pad_port_" .. i ..
+                   ";Pad Port " .. i ..
+                   ";" .. meta:get_int("pad_port_" .. i) .. "]"
+        end
+      end
 
     elseif assigns.tab == 4 then
       formspec =
         formspec ..
-        "label[1,0.5;Data]"
+        "label[0.5,0.75;Data]"
+
+      for y = 0,3 do
+        local dy = 2 + y * 2
+        for x = 0,3 do
+          local dx = 2.125 + x * 2
+
+          local i = 1 + y * 4 + x
+
+          formspec =
+            formspec ..
+            "field[" .. dx .. "," .. dy ..
+                   ";1.75,1" ..
+                   ";pad_value_" .. i ..
+                   ";Pad Value " .. i ..
+                   ";" .. minetest.formspec_escape(meta:get_string("pad_value_" .. i)) .. "]"
+        end
+      end
     end
 
     return formspec
@@ -92,14 +130,36 @@ local data_interface = {
 
     local needs_refresh = false
 
-    print(dump(fields))
-
     if fields["tab"] then
       local tab = tonumber(fields["tab"])
       if tab ~= assigns.tab then
         assigns.tab = tab
         needs_refresh = true
       end
+    end
+
+    for pad_id = 1,16 do
+      local new_pad_port = tonumber(fields["pad_port_" .. pad_id])
+      if new_pad_port then
+        meta:set_string("pad_port_" .. pad_id, new_pad_port)
+      end
+
+      local new_pad_value = fields["pad_value_" .. pad_id]
+      if new_pad_value then
+        meta:set_string("pad_value_" .. pad_id, new_pad_value)
+      end
+
+      local pad_trigger = fields["pad_trigger_" .. pad_id]
+      if pad_trigger then
+        local port = meta:get_int("pad_port_" .. pad_id)
+        local value = meta:get_string("pad_value_" .. pad_id)
+        if port > 0 then
+          yatm_data_logic.emit_value(assigns.pos, port, value)
+        end
+      end
+    end
+
+    if assigns.tab == 1 then
     end
 
     if needs_refresh then
