@@ -110,9 +110,9 @@ function m:update_member(pos, node, is_register)
     if old_record.network_id then
       old_network_id = old_record.network_id
 
-      if self.m_networks[network_id] then
+      if self.m_networks[old_network_id] then
         -- invalidate the network
-        local n = self.m_networks[network_id]
+        local n = self.m_networks[old_network_id]
         n.members[node_id] = nil
         if n.members_by_type[old_record.device_type] then
           n.members_by_type[old_record.device_type][node_id] = nil
