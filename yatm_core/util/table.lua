@@ -1,3 +1,19 @@
+--
+-- Not table.concat (which is really just a join)
+-- This is concat like any other sane language
+-- @spec yatm_core.table_concat(...tables) :: table
+function yatm_core.table_concat(...)
+  local result = {}
+  local i = 0
+  for _,t in ipairs({...}) do
+    for _,value in ipairs(t) do
+      i = i + 1
+      result[i] = value
+    end
+  end
+  return result
+end
+
 function yatm_core.table_key_of(t, expected_value)
   for key,value in pairs(t) do
     if value == expected_value then
