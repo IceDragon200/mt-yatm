@@ -1,5 +1,84 @@
 local data_network = assert(yatm.data_network)
 
+local function render_pads(inv, assigns)
+  local formspec =
+    "label[0.5,0.75;Pads]"
+
+  local list = inv:get_list("pads")
+
+  for y = 0,(assigns.height - 1) do
+    local dy = 2 + y * 2
+    for x = 0,(assigns.width - 1) do
+      local dx = 2 + x * 2
+
+      local i = 1 + y * assigns.width + x
+
+      if not list[i]:is_empty() then
+        local stack = list[i]
+        local spec = stack:get_definition().data_control_spec
+        if spec then
+          if spec.type == "momentary_button" then
+            formspec =
+              formspec ..
+              "image_button[" .. dx .. "," .. dy ..
+                            ";2,2;" ..
+                            minetest.formspec_escape("yatm_button.base.48px.png^" .. spec.images["off"]) ..
+                            ";pad_trigger_" .. i ..
+                            ";" ..
+                            ";true;false;" ..
+                            minetest.formspec_escape("yatm_button.base.48px.png^" ..spec.images["on"]) .. "]"
+          end
+        else
+          formspec =
+            formspec ..
+            "image[" .. dx .. "," .. dy .. ";2,2;yatm_button.base.48px.png]"
+        end
+      else
+        formspec =
+          formspec ..
+          "image[" .. dx .. "," .. dy .. ";2,2;yatm_button.base.48px.png]"
+      end
+    end
+  end
+  return formspec
+end
+
+local function get_formspec(pos, user, assigns)
+  local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
+
+  assigns.width = 4
+  assigns.height = 4
+
+  local formspec =
+    "formspec_version[2]" ..
+    "size[12,12]" ..
+    yatm.formspec_bg_for_player(user:get_player_name(), "module") ..
+    render_pads(inv, assigns)
+
+  return formspec
+end
+
+local function get_formspec_name(pos)
+  return "yatm_data_control:data_control_plane:" .. yatm.vector3.to_string(pos)
+end
+
+local function receive_fields(player, form_name, fields, assigns)
+  local meta = minetest.get_meta(assigns.pos)
+
+  for pad_id = 1,16 do
+    local pad_trigger = fields["pad_trigger_" .. pad_id]
+    if pad_trigger then
+      local port = meta:get_int("pad_port_" .. pad_id)
+      local value = meta:get_string("pad_value_" .. pad_id)
+      if port > 0 then
+        yatm_data_logic.emit_value(assigns.pos, port, value)
+      end
+    end
+  end
+  return true
+end
+
 local data_interface = {
   on_load = function (self, pos, node)
     --
@@ -28,44 +107,8 @@ local data_interface = {
     if assigns.tab == 1 then
       formspec =
         formspec ..
-        "label[0.5,0.75;Pads]"
+        render_pads(inv, assigns)
 
-      local list = inv:get_list("pads")
-
-      for y = 0,(assigns.height - 1) do
-        local dy = 2 + y * 2
-        for x = 0,(assigns.width - 1) do
-          local dx = 2 + x * 2
-
-          local i = 1 + y * assigns.width + x
-
-          if not list[i]:is_empty() then
-            local stack = list[i]
-            local spec = stack:get_definition().data_control_spec
-            if spec then
-              if spec.type == "momentary_button" then
-                formspec =
-                  formspec ..
-                  "image_button[" .. dx .. "," .. dy ..
-                                ";2,2;" ..
-                                minetest.formspec_escape("yatm_button.base.48px.png^" .. spec.images["off"]) ..
-                                ";pad_trigger_" .. i ..
-                                ";" ..
-                                ";true;false;" ..
-                                minetest.formspec_escape("yatm_button.base.48px.png^" ..spec.images["on"]) .. "]"
-              end
-            else
-              formspec =
-                formspec ..
-                "image[" .. dx .. "," .. dy .. ";2,2;yatm_button.base.48px.png]"
-            end
-          else
-            formspec =
-              formspec ..
-              "image[" .. dx .. "," .. dy .. ";2,2;yatm_button.base.48px.png]"
-          end
-        end
-      end
     elseif assigns.tab == 2 then
       formspec =
         formspec ..
@@ -159,9 +202,6 @@ local data_interface = {
       end
     end
 
-    if assigns.tab == 1 then
-    end
-
     if needs_refresh then
       local formspec = self:get_programmer_formspec(assigns.pos, player, nil, assigns)
       return true, formspec
@@ -226,5 +266,21 @@ minetest.register_node("yatm_data_control:data_control_plane", {
       data_network:get_infotext(pos)
 
     meta:set_string("infotext", infotext)
+  end,
+
+  on_rightclick = function (pos, node, user, itemstack, pointed_thing)
+    local assigns = { pos = pos, node = node }
+    local formspec = get_formspec(pos, user, assigns)
+    local formspec_name = get_formspec_name(pos)
+
+    yatm_core.bind_on_player_receive_fields(user, formspec_name,
+                                            assigns,
+                                            receive_fields)
+
+    minetest.show_formspec(
+      user:get_player_name(),
+      formspec_name,
+      formspec
+    )
   end,
 })
