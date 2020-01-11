@@ -14,6 +14,10 @@ if yatm_armoury_icbm then
   dofile(yatm_codex_entries.modpath .. "/entries/yatm_armoury_icbm.lua")
 end
 
+if yatm_data_control then
+  dofile(yatm_codex_entries.modpath .. "/entries/yatm_data_control.lua")
+end
+
 if yatm_data_logic then
   dofile(yatm_codex_entries.modpath .. "/entries/yatm_data_logic.lua")
 end
