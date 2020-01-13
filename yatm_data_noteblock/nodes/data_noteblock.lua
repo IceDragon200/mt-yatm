@@ -61,9 +61,11 @@ minetest.register_node("yatm_data_noteblock:data_noteblock", {
       local meta = minetest.get_meta(pos)
       local payload = yatm_core.string_hex_unescape(value)
       local key = string.byte(payload, 1)
-      key = key + meta:get_int("offset")
-      local damper = meta:get_int("damper")
-      yatm.noteblock.play_note(pos, key, math.max(0, 127 - damper))
+      if key then
+        key = key + meta:get_int("offset")
+        local damper = meta:get_int("damper")
+        yatm.noteblock.play_note(pos, key, math.max(0, 127 - damper))
+      end
     end,
 
     get_programmer_formspec = function (self, pos, user, pointed_thing, assigns)
