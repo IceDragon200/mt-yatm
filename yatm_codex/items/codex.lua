@@ -45,15 +45,27 @@ local function get_codex_entry_formspec(user, assigns)
 
   local y = 0.5
 
+  local dy = y
   if page.lines then
     for i, line in ipairs(page.lines) do
+      dy = y + (i - 1) * 0.2
       formspec =
         formspec ..
         -- 0.125 vertical spacing is a bit too compact
         -- 0.2 the sweet spot
         -- 0.25 vertical spacing has adequate spacing, but can only fit 16 lines
         -- But in all honestly it's like the inventory based sizing doesn't even apply to hypertext...
-        "hypertext[0.125," .. y + (i - 1) * 0.2 .. ";8,1;line" .. i .. ";" .. minetest.formspec_escape(line) .. "]"
+        "hypertext[0.125," .. dy .. ";8,1;line" .. i .. ";" .. minetest.formspec_escape(line) .. "]"
+    end
+  end
+
+  if page.demos then
+    y = dy
+    for i, demo_name in ipairs(page.demos) do
+      dy = y + (i) * 0.2
+      formspec =
+        formspec ..
+        "button[0.125," .. dy .. ";8,1;demo;" .. minetest.formspec_escape(demo_name) .. "]"
     end
   end
 
@@ -79,6 +91,14 @@ local function receive_codex_fields(user, form_name, fields, assigns)
     assigns.page_id = ((assigns.page_id - 2) % assigns.page_count) + 1
   elseif fields.next_page then
     assigns.page_id = ((assigns.page_id) % assigns.page_count) + 1
+  end
+
+  if fields.demo then
+    local item_stack = ItemStack("yatm_codex:codex_deploy")
+    local meta = item_stack:get_meta()
+    meta:set_string("codex_demo_id", fields.demo)
+    local inv = user:get_inventory()
+    inv:add_item("main", item_stack)
   end
 
   return true, get_codex_entry_formspec(user, assigns)
@@ -131,7 +151,7 @@ local function on_use_codex(itemstack, user, pointed_thing)
   end
 end
 
-local function construct_demo(pos, demo, itemstack, pointed_thing)
+local function construct_demo(user, pos, demo, itemstack, pointed_thing)
   local assigns = demo:init(pos)
   demo:build(pos, assigns)
   demo:configure(pos, assigns)
@@ -176,8 +196,9 @@ minetest.register_tool("yatm_codex:codex_deploy", {
     if demo then
       local pos = pointed_thing.above
       if demo:check_space(pos) then
-        construct_demo(pos, demo, itemstack, pointed_thing)
-        return ItemStack("yatm_codex:codex")
+        construct_demo(user, pos, demo, itemstack, pointed_thing)
+        --return ItemStack("yatm_codex:codex")
+        return itemstack
       else
         minetest.chat_send_player(user:get_player_name(), "Not enough space for demo")
         return itemstack

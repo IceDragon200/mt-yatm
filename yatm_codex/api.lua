@@ -45,9 +45,9 @@ end
 
 function yatm.codex.fill_cuboid(cuboid, node)
   local positions = {}
-  local y2 = cuboid.y + cuboid.h
-  local z2 = cuboid.z + cuboid.d
-  local x2 = cuboid.x + cuboid.w
+  local y2 = (cuboid.y + cuboid.h) - 1
+  local z2 = (cuboid.z + cuboid.d) - 1
+  local x2 = (cuboid.x + cuboid.w) - 1
   for y = cuboid.y,y2 do
     for z = cuboid.z,z2 do
       for x = cuboid.x,x2 do
@@ -62,8 +62,8 @@ end
 local vector2 = yatm_core.vector2
 
 local function place_layer(origin, palette, dim, layer)
-  for y = 0,dim.y do
-    for x = 0,dim.x do
+  for y = 0,(dim.y - 1) do
+    for x = 0,(dim.x - 1) do
       local i = y * dim.x + x
       local cell = layer[i + 1]
 

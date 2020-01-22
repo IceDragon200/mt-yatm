@@ -78,5 +78,16 @@ yatm.codex.register_entry("yatm_data_noteblock:data_noteblock", {
         "The noteblock can only be triggered by a data event.",
       }
     },
+    {
+      heading_item = {
+        context = true,
+        default = "yatm_data_noteblock:data_noteblock",
+      },
+      heading = "Demos",
+      demos = {
+        "yatm_data_noteblock:data_noteblock_demo_1",
+      },
+      lines = {},
+    },
   }
 })
