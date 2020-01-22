@@ -103,6 +103,19 @@ for _index,variant_row in ipairs(variants) do
     stack_max = 32,
   })
 
+  minetest.register_craftitem("yatm_armoury:ammo_" .. variant_basename .. "_40x43mm_grenade", {
+    basename = "yatm_armoury:ammo_40x43mm_grenade",
+    base_description = "AMS 40x43mm Grenade",
+
+    description = "AMS 40x43mm Grenade " .. variant_name,
+    groups = groups,
+    inventory_image = "yatm_ammo_" .. variant_basename .. "_40x43mm_grenade.png",
+    calibre = "40x43mm-grenade",
+    ammo_code = variant_code,
+    ammo_variant = variant_basename,
+    stack_max = 24,
+  })
+
   minetest.register_craftitem("yatm_armoury:ammo_" .. variant_basename .. "_81mm_mortar", {
     basename = "yatm_armoury:ammo_81mm_mortar",
     base_description = "AMS 81mm Mortar",
