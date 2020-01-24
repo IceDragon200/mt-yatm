@@ -64,7 +64,7 @@ minetest.register_node("yatm_data_noteblock:data_noteblock", {
       if key then
         key = key + meta:get_int("offset")
         local damper = meta:get_int("damper")
-        yatm.noteblock.play_note(pos, key, math.max(0, 127 - damper))
+        yatm.noteblock.play_note(pos, node, key, math.max(0, 127 - damper))
       end
     end,
 

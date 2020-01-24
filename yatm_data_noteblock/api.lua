@@ -178,8 +178,9 @@ local function play_instrument(pos, name, key, velo)
   })
 end
 
-function yatm.noteblock.play_note(pos, key, velo)
-  local tone_node_pos = vector.add(pos, yatm_core.V3_DOWN)
+function yatm.noteblock.play_note(pos, node, key, velo)
+  local new_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_DOWN)
+  local tone_node_pos = vector.add(pos, yatm_core.DIR6_TO_VEC3[new_dir])
   local tone_node = minetest.get_node(tone_node_pos)
 
   --print("noteblock_play_audio", minetest.pos_to_string(tone_node_pos), tone_node.name, dump(yatm_core.groups.get_item_groups(tone_node.name)))
