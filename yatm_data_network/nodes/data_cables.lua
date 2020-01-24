@@ -15,6 +15,11 @@ local function data_cable_after_place_node(pos, _placer, _itemstack, _pointed_th
   yatm.queue_refresh_infotext(pos, node)
 end
 
+local function data_cable_bracket_after_place_node(pos, placer, itemstack, pointed_thing)
+  yatm_core.facedir_wallmount_after_place_node(pos, placer, itemstack, pointed_thing)
+  data_cable_after_place_node(pos, placer, itemstack, pointed_thing)
+end
+
 local function data_cable_on_destruct(pos)
   print("data_cable_on_destruct", minetest.pos_to_string(pos))
 end
@@ -57,10 +62,373 @@ local data_bus_nodebox = {
   connect_right  = yatm_core.Cuboid:new(12,0, 5, 4, 2, 6):fast_node_box(), -- x+
 }
 
+local straight_bracket_cable_nodebox = {
+  type = "fixed",
+  fixed          = {
+    yatm_core.Cuboid:new( 5, 0, 0, 6, 2,16):fast_node_box(),
+    yatm_core.Cuboid:new( 4, 0, 1, 8, 3, 2):fast_node_box(),
+    yatm_core.Cuboid:new( 4, 0,13, 8, 3, 2):fast_node_box(),
+  }
+}
+
+local corner_bracket_cable_nodebox = {
+  type = "fixed",
+  fixed          = {
+    yatm_core.Cuboid:new( 5, 0, 5, 6, 2,11):fast_node_box(),
+    yatm_core.Cuboid:new(11, 0, 5, 5, 2, 6):fast_node_box(),
+    yatm_core.Cuboid:new(13, 0, 4, 2, 3, 8):fast_node_box(),
+    yatm_core.Cuboid:new( 4, 0,13, 8, 3, 2):fast_node_box(),
+  }
+}
+
+local tee_bracket_cable_nodebox = {
+  type = "fixed",
+  fixed          = {
+    yatm_core.Cuboid:new( 0, 0, 5,16, 2, 6):fast_node_box(),
+    yatm_core.Cuboid:new( 5, 0,11, 6, 2, 5):fast_node_box(),
+
+    yatm_core.Cuboid:new(13, 0, 4, 2, 3, 8):fast_node_box(),
+    yatm_core.Cuboid:new( 1, 0, 4, 2, 3, 8):fast_node_box(),
+    yatm_core.Cuboid:new( 4, 0,13, 8, 3, 2):fast_node_box(),
+  }
+}
+
+local cross_bracket_cable_nodebox = {
+  type = "fixed",
+  fixed          = {
+    yatm_core.Cuboid:new( 5, 0, 0, 6, 2,16):fast_node_box(),
+    yatm_core.Cuboid:new( 0, 0, 5,16, 2, 6):fast_node_box(),
+    yatm_core.Cuboid:new(13, 0, 4, 2, 3, 8):fast_node_box(),
+    yatm_core.Cuboid:new( 1, 0, 4, 2, 3, 8):fast_node_box(),
+    yatm_core.Cuboid:new( 4, 0, 1, 8, 3, 2):fast_node_box(),
+    yatm_core.Cuboid:new( 4, 0,13, 8, 3, 2):fast_node_box(),
+  }
+}
+
+local riser_bracket_cable_nodebox = {
+  type = "fixed",
+  fixed = {
+    yatm_core.Cuboid:new( 5, 0, 0, 6, 2,16):fast_node_box(),
+    yatm_core.Cuboid:new( 5, 0,14, 6,16, 2):fast_node_box(),
+    yatm_core.Cuboid:new( 4, 2,13, 8, 2, 3):fast_node_box(),
+    yatm_core.Cuboid:new( 4,13,13, 8, 2, 3):fast_node_box(),
+  },
+}
+
+local function on_rotate(pos, node, user, mode, new_param2)
+  print("Rotating cable " .. node.name)
+  if node.param2 ~= new_param2 then
+    local new_node = { name = node.name,
+                       param1 = node.param1,
+                       param2 = new_param2 }
+    minetest.swap_node(pos, new_node)
+    data_network:upsert_member(pos, new_node)
+    minetest.check_for_falling(pos)
+  end
+  return true
+end
+
 for _,color_pair in ipairs(colors) do
   local color_basename = color_pair[1]
   local color_name = color_pair[2]
 
+  local node_name = "yatm_data_network:data_cable_bracket_straight_" .. color_basename
+
+  local colored_group_name = "data_cable_bracket_straight_" .. color_basename
+  local groups = {
+    cracky = 1,
+    data_cable = 1,
+    data_cable_bracket_straight = 1,
+    ["data_cable_" .. color_basename] = 1,
+    [colored_group_name] = 1
+  }
+
+  -- Bracketed Cables can be mounted on walls
+  minetest.register_node(node_name, {
+    basename = "yatm_data_network:data_cable_bracket_straight",
+    base_description = "Data Cable Bracket Straight",
+
+    description = "Data Cable Bracket Straight (" .. color_name .. ")",
+
+    codex_entry_id = "yatm_data_network:data_cable",
+
+    groups = groups,
+
+    paramtype = "light",
+    paramtype2 = "facedir",
+
+    sounds = default.node_sound_metal_defaults(),
+
+    tiles = {
+      "yatm_data_cable_" .. color_basename .. ".top.png^yatm_data_cable_bracket.top.png",
+      "yatm_data_cable_" .. color_basename .. ".top.png^yatm_data_cable_bracket.top.png",
+      "yatm_data_cable_" .. color_basename .. ".side.png^yatm_data_cable_bracket.side.png",
+      "yatm_data_cable_" .. color_basename .. ".side.png^yatm_data_cable_bracket.side.png",
+      "yatm_data_cable_" .. color_basename .. ".side.png^yatm_data_cable_bracket.side.png",
+      "yatm_data_cable_" .. color_basename .. ".side.png^yatm_data_cable_bracket.side.png",
+    },
+
+    drawtype = "nodebox",
+    node_box = straight_bracket_cable_nodebox,
+
+    dye_color = color_basename,
+
+    data_network_device = {
+      color = color_basename,
+      type = "mounted_cable",
+      accessible_dirs = {
+        [yatm_core.D_NORTH] = true,
+        [yatm_core.D_SOUTH] = true,
+      }
+    },
+
+    after_place_node = data_cable_bracket_after_place_node,
+    after_destruct = data_cable_after_destruct,
+    on_destruct = data_cable_on_destruct,
+
+    on_rotate = on_rotate,
+
+    refresh_infotext = data_cable_refresh_infotext,
+  })
+
+  local node_name = "yatm_data_network:data_cable_bracket_corner_" .. color_basename
+
+  local colored_group_name = "data_cable_bracket_corner_" .. color_basename
+  local groups = {
+    cracky = 1,
+    data_cable = 1,
+    data_cable_bracket_corner = 1,
+    ["data_cable_" .. color_basename] = 1,
+    [colored_group_name] = 1
+  }
+
+  minetest.register_node(node_name, {
+    basename = "yatm_data_network:data_cable_bracket_corner",
+    base_description = "Data Cable Bracket Corner",
+
+    description = "Data Cable Bracket Corner (" .. color_name .. ")",
+
+    codex_entry_id = "yatm_data_network:data_cable",
+
+    groups = groups,
+
+    paramtype = "light",
+    paramtype2 = "facedir",
+
+    sounds = default.node_sound_metal_defaults(),
+
+    tiles = {
+      "yatm_data_cable_" .. color_basename .. ".top.png^yatm_data_cable_bracket.top.png",
+      "yatm_data_cable_" .. color_basename .. ".top.png^yatm_data_cable_bracket.top.png",
+      "yatm_data_cable_" .. color_basename .. ".side.png^yatm_data_cable_bracket.side.png",
+      "yatm_data_cable_" .. color_basename .. ".side.png^yatm_data_cable_bracket.side.png",
+      "yatm_data_cable_" .. color_basename .. ".side.png^yatm_data_cable_bracket.side.png",
+      "yatm_data_cable_" .. color_basename .. ".side.png^yatm_data_cable_bracket.side.png",
+    },
+
+    drawtype = "nodebox",
+    node_box = corner_bracket_cable_nodebox,
+
+    dye_color = color_basename,
+
+    data_network_device = {
+      color = color_basename,
+      type = "mounted_cable",
+      accessible_dirs = {
+        [yatm_core.D_EAST] = true,
+        [yatm_core.D_NORTH] = true,
+      }
+    },
+
+    after_place_node = data_cable_bracket_after_place_node,
+    after_destruct = data_cable_after_destruct,
+    on_destruct = data_cable_on_destruct,
+
+    on_rotate = on_rotate,
+
+    refresh_infotext = data_cable_refresh_infotext,
+  })
+
+  local node_name = "yatm_data_network:data_cable_bracket_tee_" .. color_basename
+
+  local colored_group_name = "data_cable_bracket_tee_" .. color_basename
+  local groups = {
+    cracky = 1,
+    data_cable = 1,
+    data_cable_bracket_tee = 1,
+    ["data_cable_" .. color_basename] = 1,
+    [colored_group_name] = 1
+  }
+
+  minetest.register_node(node_name, {
+    basename = "yatm_data_network:data_cable_bracket_tee",
+    base_description = "Data Cable Bracket Tee",
+
+    description = "Data Cable Bracket Tee (" .. color_name .. ")",
+
+    codex_entry_id = "yatm_data_network:data_cable",
+
+    groups = groups,
+
+    paramtype = "light",
+    paramtype2 = "facedir",
+
+    sounds = default.node_sound_metal_defaults(),
+
+    tiles = {
+      "yatm_data_cable_" .. color_basename .. ".top.png^yatm_data_cable_bracket.top.png",
+      "yatm_data_cable_" .. color_basename .. ".top.png^yatm_data_cable_bracket.top.png",
+      "yatm_data_cable_" .. color_basename .. ".side.png^yatm_data_cable_bracket.side.png",
+      "yatm_data_cable_" .. color_basename .. ".side.png^yatm_data_cable_bracket.side.png",
+      "yatm_data_cable_" .. color_basename .. ".side.png^yatm_data_cable_bracket.side.png",
+      "yatm_data_cable_" .. color_basename .. ".side.png^yatm_data_cable_bracket.side.png",
+    },
+
+    drawtype = "nodebox",
+    node_box = tee_bracket_cable_nodebox,
+
+    dye_color = color_basename,
+
+    data_network_device = {
+      color = color_basename,
+      type = "mounted_cable",
+      accessible_dirs = {
+        [yatm_core.D_WEST] = true,
+        [yatm_core.D_EAST] = true,
+        [yatm_core.D_NORTH] = true,
+      }
+    },
+
+    after_place_node = data_cable_bracket_after_place_node,
+    after_destruct = data_cable_after_destruct,
+    on_destruct = data_cable_on_destruct,
+
+    on_rotate = on_rotate,
+
+    refresh_infotext = data_cable_refresh_infotext,
+  })
+
+  local node_name = "yatm_data_network:data_cable_bracket_cross_" .. color_basename
+
+  local colored_group_name = "data_cable_bracket_cross_" .. color_basename
+  local groups = {
+    cracky = 1,
+    data_cable = 1,
+    data_cable_bracket_cross = 1,
+    ["data_cable_" .. color_basename] = 1,
+    [colored_group_name] = 1
+  }
+
+  minetest.register_node(node_name, {
+    basename = "yatm_data_network:data_cable_bracket_cross",
+    base_description = "Data Cable Bracket Cross",
+
+    description = "Data Cable Bracket Cross (" .. color_name .. ")",
+
+    codex_entry_id = "yatm_data_network:data_cable",
+
+    groups = groups,
+
+    paramtype = "light",
+    paramtype2 = "facedir",
+
+    sounds = default.node_sound_metal_defaults(),
+
+    tiles = {
+      "yatm_data_cable_" .. color_basename .. ".top.png^yatm_data_cable_bracket.top.png",
+      "yatm_data_cable_" .. color_basename .. ".top.png^yatm_data_cable_bracket.top.png",
+      "yatm_data_cable_" .. color_basename .. ".side.png^yatm_data_cable_bracket.side.png",
+      "yatm_data_cable_" .. color_basename .. ".side.png^yatm_data_cable_bracket.side.png",
+      "yatm_data_cable_" .. color_basename .. ".side.png^yatm_data_cable_bracket.side.png",
+      "yatm_data_cable_" .. color_basename .. ".side.png^yatm_data_cable_bracket.side.png",
+    },
+
+    drawtype = "nodebox",
+    node_box = cross_bracket_cable_nodebox,
+
+    dye_color = color_basename,
+
+    data_network_device = {
+      color = color_basename,
+      type = "mounted_cable",
+      accessible_dirs = {
+        [yatm_core.D_WEST] = true,
+        [yatm_core.D_EAST] = true,
+        [yatm_core.D_NORTH] = true,
+        [yatm_core.D_SOUTH] = true,
+      }
+    },
+
+    after_place_node = data_cable_bracket_after_place_node,
+    after_destruct = data_cable_after_destruct,
+    on_destruct = data_cable_on_destruct,
+
+    on_rotate = on_rotate,
+
+    refresh_infotext = data_cable_refresh_infotext,
+  })
+
+  local node_name = "yatm_data_network:data_cable_bracket_riser_" .. color_basename
+
+  local colored_group_name = "data_cable_bracket_riser_" .. color_basename
+  local groups = {
+    cracky = 1,
+    data_cable = 1,
+    data_cable_bracket_riser = 1,
+    ["data_cable_" .. color_basename] = 1,
+    [colored_group_name] = 1
+  }
+
+  minetest.register_node(node_name, {
+    basename = "yatm_data_network:data_cable_bracket_riser",
+    base_description = "Data Cable Bracket Riser",
+
+    description = "Data Cable Bracket Riser (" .. color_name .. ")",
+
+    codex_entry_id = "yatm_data_network:data_cable",
+
+    groups = groups,
+
+    paramtype = "light",
+    paramtype2 = "facedir",
+
+    sounds = default.node_sound_metal_defaults(),
+
+    tiles = {
+      "yatm_data_cable_" .. color_basename .. ".riser.front.png^yatm_data_cable_bracket.riser.top.png",
+      "yatm_data_cable_" .. color_basename .. ".riser.front.png^yatm_data_cable_bracket.riser.top.png",
+      "yatm_data_cable_" .. color_basename .. ".riser.side.png^yatm_data_cable_bracket.riser.side.png",
+      "yatm_data_cable_" .. color_basename .. ".riser.side.png^yatm_data_cable_bracket.riser.side.png^[transformFX",
+      "yatm_data_cable_" .. color_basename .. ".riser.front.png^yatm_data_cable_bracket.riser.front.png",
+      "yatm_data_cable_" .. color_basename .. ".riser.front.png^yatm_data_cable_bracket.riser.front.png",
+    },
+
+    drawtype = "nodebox",
+    node_box = riser_bracket_cable_nodebox,
+
+    dye_color = color_basename,
+
+    data_network_device = {
+      color = color_basename,
+      type = "mounted_cable",
+      accessible_dirs = {
+        [yatm_core.D_UP] = true,
+        [yatm_core.D_SOUTH] = true,
+      }
+    },
+
+    after_place_node = data_cable_after_place_node,
+    after_destruct = data_cable_after_destruct,
+    on_destruct = data_cable_on_destruct,
+
+    on_rotate = on_rotate,
+
+    refresh_infotext = data_cable_refresh_infotext,
+  })
+
+  --
+  -- Regular cables can only be placed on the ground
+  --
   local colored_group_name = "data_cable_" .. color_basename
   local groups = {
     cracky = 1,
@@ -122,6 +490,8 @@ for _,color_pair in ipairs(colors) do
     after_place_node = data_cable_after_place_node,
     after_destruct = data_cable_after_destruct,
     on_destruct = data_cable_on_destruct,
+
+    on_rotate = false,
 
     refresh_infotext = data_cable_refresh_infotext,
   })
@@ -190,6 +560,8 @@ for _,color_pair in ipairs(colors) do
     after_place_node = data_cable_after_place_node,
     after_destruct = data_cable_after_destruct,
     on_destruct = data_cable_on_destruct,
+
+    on_rotate = false,
 
     refresh_infotext = data_cable_refresh_infotext,
   })

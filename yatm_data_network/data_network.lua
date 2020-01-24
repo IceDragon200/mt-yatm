@@ -269,13 +269,15 @@ function ic:update_member(pos, node)
   local member = self.m_members[member_id]
   if member then
     self:do_unregister_member_groups(member)
-    member.node = node
-
+    member.node = yatm_core.table_copy(node)
     local nodedef = minetest.registered_nodes[node.name]
     local dnd = assert(nodedef.data_network_device)
+    member.accessible_dirs = yatm_core.table_copy(dnd.accessible_dirs)
+    member.color = dnd.color
     member.groups = dnd.groups or {}
     self:do_register_member_groups(member)
     yatm.clusters:mark_node_block(member.pos, member.node)
+    self:_queue_refresh(pos, "node updated")
   else
     error("no such member " .. minetest.pos_to_string(pos))
   end
@@ -488,7 +490,10 @@ function ic:do_unregister_member_from_networks(member)
           if network.sub_networks[sub_network_id] then
             if member.type == "device" then
               network.sub_networks[sub_network_id].devices[member.id] = nil
-            elseif member.type == "bus" or member.type == "cable" then
+            elseif member.type == "bus" or
+                   member.type == "mounted_bus" or
+                   member.type == "cable" or
+                   member.type == "mounted_cable" then
               network.sub_networks[sub_network_id].cables[member.id] = nil
             end
           end
@@ -673,26 +678,58 @@ local function compatible_colors(a, b)
   end
 end
 
-local function can_connect_to_device(from_device, to_device)
-  if from_device.type == "cable" then
+local function devices_have_compatible_colors(from_device, to_device)
+  if from_device.type == "cable" or
+     from_device.type == "mounted_cable" then
     -- cables can only connect to other cables or buses
     -- and they can only connect to those of the same color or a 'multi'
-    if to_device.type == "cable" or to_device.type == "bus" then
+    if to_device.type == "bus" or
+       to_device.type == "cable" or
+       to_device.type == "mounted_bus" or
+       to_device.type == "mounted_cable" then
       return compatible_colors(from_device.color, to_device.color)
     end
-  elseif from_device.type == "bus" then
+  elseif from_device.type == "bus" or
+         from_device.type == "mounted_bus"  then
     -- buses can connect to cables of the same color, multi or a device and buses of the same color
     if to_device.type == "device" then
       return true
-    elseif to_device.type == "cable" or to_device.type == "bus" then
+    elseif to_device.type == "cable" or
+           to_device.type == "bus" or
+           to_device.type == "mounted_bus" or
+           to_device.type == "mounted_cable" then
       return compatible_colors(from_device.color, to_device.color)
     end
   elseif from_device.type == "device" then
-    if to_device.type == "bus" then
+    if to_device.type == "bus" or
+       to_device.type == "mounted_bus" then
       return true
     end
   end
-  return false
+  return false, "incompatible colors"
+end
+
+local function can_connect_to(from_pos, from_node, from_device, origin_dir, to_pos, to_node, to_device)
+  assert(origin_dir, "expected a direction")
+
+  if from_device.type == "mounted_cable" or
+     from_device.type == "mounted_bus" then
+    local local_dir = yatm_core.facedir_to_local_face(from_node.param2, origin_dir)
+    if not from_device.accessible_dirs[local_dir] then
+      return false, "originating device is not accessible in direction"
+    end
+  end
+
+  if to_device.type == "mounted_cable" or
+     to_device.type == "mounted_bus" then
+    local inverted_dir = yatm_core.invert_dir(origin_dir)
+    local local_dir = yatm_core.facedir_to_local_face(to_node.param2, inverted_dir)
+    if not to_device.accessible_dirs[local_dir] then
+      return false, "target device is not accessible from direction"
+    end
+  end
+
+  return devices_have_compatible_colors(from_device, to_device)
 end
 
 function ic:refresh_from_pos(base_pos)
@@ -730,17 +767,23 @@ function ic:refresh_from_pos(base_pos)
             found[device.type] = found[device.type] or {}
             found[device.type][hash] = pos
 
-            for dir,v3 in pairs(yatm_core.DIR6_TO_VEC3) do
+            for dir,_ in pairs(yatm_core.DIR6_TO_VEC3) do
+              local v3 = yatm_core.DIR6_TO_VEC3[dir]
               local other_pos = vector.add(pos, v3)
-              local other_hash = minetest.hash_node_position(other_pos)
               local other_node = minetest.get_node(other_pos)
               local other_nodedef = minetest.registered_nodes[other_node.name]
 
               if other_nodedef then
                 local other_device = other_nodedef.data_network_device
                 if other_device then
-                  if can_connect_to_device(device, other_device) then
+                  local valid, err = can_connect_to(pos, node, device, dir,
+                                                    other_pos, other_node, other_device)
+                  if valid then
                     table.insert(to_check, other_pos)
+                  else
+                    if err then
+                      print(minetest.pos_to_string(pos), minetest.pos_to_string(other_pos), err)
+                    end
                   end
                 end
               end
@@ -785,13 +828,14 @@ function ic:refresh_from_pos(base_pos)
       member_entry.id = member_id
       member_entry.block_id = block_id
       member_entry.pos = member_entry.pos or pos
-      member_entry.node = node
+      member_entry.node = yatm_core.table_copy(node)
       member_entry.type = dnd.type
+      member_entry.accessible_dirs = yatm_core.table_copy(dnd.accessible_dirs)
       member_entry.color = dnd.color
       member_entry.groups = dnd.groups or {}
       member_entry.resolution_id = self.m_resolution_id
       member_entry.network_id = network.id
-      member_entry.attached_colors = member_entry.attached_colors or {}
+      member_entry.attached_colors = yatm_core.table_copy(member_entry.attached_colors) or {}
       member_entry.sub_network_id = nil
       member_entry.sub_network_ids = {}
 
@@ -891,17 +935,22 @@ function ic:_build_sub_network(network, origin_pos)
         if network.members[hash] then
           local member = self.m_members[hash]
 
-          if member.type == "bus" or member.type == "cable" then
+          if member.type == "bus" or
+             member.type == "cable" or
+             member.type == "mounted_bus" or
+             member.type == "mounted_cable" then
             nodes[hash] = true
 
-            for dir, vec in pairs(yatm_core.DIR6_TO_VEC3) do
+            for dir, _ in pairs(yatm_core.DIR6_TO_VEC3) do
+              local vec = yatm_core.DIR6_TO_VEC3[dir]
               local other_pos = vector.add(pos, vec)
               local other_hash = minetest.hash_node_position(other_pos)
 
               if network.members[other_hash] then
                 local other_member = self.m_members[other_hash]
                 if other_member then
-                  if can_connect_to_device(member, other_member) then
+                  if can_connect_to(pos, member.node, member, dir,
+                                    other_pos, other_member.node, other_member) then
                     table.insert(explore, other_pos)
                   end
                 end
@@ -942,6 +991,23 @@ function ic:_build_sub_network(network, origin_pos)
           if other_member and other_member.type == "device" then
             sub_network.devices[hash] = true
             local new_dir = yatm_core.invert_dir(dir)
+            other_member.attached_colors[new_dir] = member.color
+            other_member.sub_network_ids[new_dir] = sub_network_id
+          end
+        end
+      end
+    elseif member.type == "mounted_bus" then
+      for dir, _ in pairs(member.accessible_dirs) do
+        local new_dir = yatm_core.facedir_to_face(member.node.param2, dir)
+        local vec = yatm_core.DIR6_TO_VEC3[new_dir]
+        local pos = vector.add(member.pos, vec)
+        local hash = minetest.hash_node_position(pos)
+
+        if network.members[hash] then
+          local other_member = self.m_members[hash]
+          if other_member and other_member.type == "device" then
+            sub_network.devices[hash] = true
+            local new_dir = yatm_core.invert_dir(new_dir)
             other_member.attached_colors[new_dir] = member.color
             other_member.sub_network_ids[new_dir] = sub_network_id
           end

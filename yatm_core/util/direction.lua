@@ -245,6 +245,21 @@ function yatm_core.facedir_to_face(facedir, base_face)
   end
 end
 
+function yatm_core.facedir_to_local_faces(facedir)
+  return yatm_core.FACEDIR_TO_NEW_FACEDIR[facedir % 32]
+end
+
+function yatm_core.facedir_to_local_face(facedir, base_face)
+  assert(base_face, "expected a face")
+  assert(facedir, "expected a facedir")
+  local faces = yatm_core.facedir_to_local_faces(facedir)
+  if faces then
+    return faces[base_face]
+  else
+    return nil
+  end
+end
+
 -- TODO
 --function yatm_core.facedir_to_axis_and_rotation(facedir)
 --  local axis_index = math.floor((facedir % 32) / 4)
