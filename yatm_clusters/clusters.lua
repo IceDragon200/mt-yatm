@@ -271,7 +271,7 @@ function ic:reduce_nodes_in_block(block_id, acc, reducer)
   local continue_reduce = true
   local node_ids = self.m_block_nodes[block_id]
   if node_ids then
-    for _, node_id in pairs(node_ids) do
+    for node_id, _ in pairs(node_ids) do
       local node_entry = self.m_nodes[node_id]
       if node_entry then
         continue_reduce, acc = reducer(node_entry, acc)
