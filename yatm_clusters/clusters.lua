@@ -53,6 +53,7 @@ function ic:merge(other_cluster)
   end
 
   for node_id, node_entry in pairs(other_cluster.m_nodes) do
+    assert(type(node_entry) == "table")
     self.m_nodes[node_id] = node_entry
   end
 
@@ -85,6 +86,7 @@ function ic:move_nodes_from_cluster(other_cluster, nodes_to_transfer)
   assert(other_cluster, "expected other cluster")
   for node_id, _ in pairs(nodes_to_transfer) do
     local node_entry = other_cluster.m_nodes[node_id]
+    assert(type(node_entry) == "table", "expected node entry to be a table")
     self.m_nodes[node_id] = node_entry
     other_cluster.m_nodes[node_id] = nil
     self:_refresh_node_entry(node_entry)
@@ -265,14 +267,19 @@ function ic:reduce_nodes(acc, reducer)
 end
 
 function ic:reduce_nodes_in_block(block_id, acc, reducer)
+  assert(type(block_id) == "number", "expected block_id to be a number")
   local continue_reduce = true
   local node_ids = self.m_block_nodes[block_id]
   if node_ids then
     for _, node_id in pairs(node_ids) do
       local node_entry = self.m_nodes[node_id]
-      continue_reduce, acc = reducer(node_entry, acc)
-      if not continue_reduce then
-        break
+      if node_entry then
+        continue_reduce, acc = reducer(node_entry, acc)
+        if not continue_reduce then
+          break
+        end
+      else
+        minetest.log("error", "potential block corruption block_id=" .. block_id .. " missing node entry node_id=" .. node_id)
       end
     end
   end
