@@ -712,6 +712,19 @@ end
 local function can_connect_to(from_pos, from_node, from_device, origin_dir, to_pos, to_node, to_device)
   assert(origin_dir, "expected a direction")
 
+  --[[ Debug
+  local from_dir = yatm_core.facedir_to_local_face(from_node.param2, origin_dir)
+  local to_dir = yatm_core.facedir_to_local_face(to_node.param2, origin_dir)
+
+  print(table.concat({
+        "FROM", minetest.pos_to_string(from_pos), from_node.name, from_node.param2, from_device.type,
+        "TO", minetest.pos_to_string(to_pos), to_node.name, to_node.param2, to_device.type,
+        "origin=" .. yatm_core.DIR_TO_STRING[origin_dir],
+        "from_local=" .. yatm_core.DIR_TO_STRING[from_dir],
+        "to_local=" .. yatm_core.DIR_TO_STRING[to_dir],
+        }, " "))
+  ]]
+
   if from_device.type == "mounted_cable" or
      from_device.type == "mounted_bus" then
     local local_dir = yatm_core.facedir_to_local_face(from_node.param2, origin_dir)
@@ -869,7 +882,8 @@ function ic:refresh_from_pos(base_pos)
 
           if network.members[other_hash] then
             local other_member = self.m_members[other_hash]
-            if other_member.type == "bus" then
+            if other_member.type == "bus" or
+               other_member.type == "mounted_bus" then
               -- the color is used to determine what port range is usable
               -- this also affects emission
               -- each cable color has a maximum of 16 ports (1-16)
@@ -909,7 +923,8 @@ function ic:_build_sub_networks(network)
     local member = self.m_members[member_id]
 
     -- Create subnets by buses
-    if member.type == "bus" then
+    if member.type == "bus" or
+       member.type == "mounted_bus" then
       if not member.sub_network_id then
         self:_build_sub_network(network, member.pos)
       end
@@ -997,9 +1012,9 @@ function ic:_build_sub_network(network, origin_pos)
         end
       end
     elseif member.type == "mounted_bus" then
-      for dir, _ in pairs(member.accessible_dirs) do
-        local new_dir = yatm_core.facedir_to_face(member.node.param2, dir)
-        local vec = yatm_core.DIR6_TO_VEC3[new_dir]
+      for origin_dir, _ in pairs(member.accessible_dirs) do
+        local dir = yatm_core.facedir_to_face(member.node.param2, origin_dir)
+        local vec = yatm_core.DIR6_TO_VEC3[dir]
         local pos = vector.add(member.pos, vec)
         local hash = minetest.hash_node_position(pos)
 
@@ -1007,9 +1022,9 @@ function ic:_build_sub_network(network, origin_pos)
           local other_member = self.m_members[hash]
           if other_member and other_member.type == "device" then
             sub_network.devices[hash] = true
-            local new_dir = yatm_core.invert_dir(new_dir)
-            other_member.attached_colors[new_dir] = member.color
-            other_member.sub_network_ids[new_dir] = sub_network_id
+            local inverted_dir = yatm_core.invert_dir(dir)
+            other_member.attached_colors[inverted_dir] = member.color
+            other_member.sub_network_ids[inverted_dir] = sub_network_id
           end
         end
       end

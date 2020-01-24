@@ -181,9 +181,9 @@ yatm_core.FACEDIR_TO_NEW_FACEDIR = {
   [11] = fm(E, D, U, S, N, W),
   -- Xp
   [12] = fm(W, N, S, U, D, E),
-  [13] = fm(S, E, W, U, D, N),
+  [13] = fm(S, W, E, U, D, N),
   [14] = fm(E, S, N, U, D, W),
-  [15] = fm(N, W, E, U, D, S),
+  [15] = fm(N, E, W, U, D, S),
   -- Xm
   [16] = fm(E, N, S, D, U, W),
   [17] = fm(N, W, E, D, U, S),
