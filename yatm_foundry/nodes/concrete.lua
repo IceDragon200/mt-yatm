@@ -77,6 +77,8 @@ for _,pair in ipairs(colors) do
       drawtype = "nodebox",
       node_box = plate_nodebox,
       dye_color = color_basename,
+
+      after_place_node = yatm_core.facedir_wallmount_after_place_node,
     })
 
     --[[
