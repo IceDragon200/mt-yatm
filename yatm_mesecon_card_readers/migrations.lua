@@ -1,8 +1,8 @@
 local migrations = {
-  ["yatm_mesecon_locks:mesecon_card_reader_off"] = "yatm_data_card_readers:mesecon_card_reader_off",
-  ["yatm_mesecon_locks:mesecon_card_reader_on"] = "yatm_data_card_readers:mesecon_card_reader_on",
-  ["yatm_mesecon_locks:mesecon_card_swiper_off"] = "yatm_data_card_readers:mesecon_card_swiper_off",
-  ["yatm_mesecon_locks:mesecon_card_swiper_on"] = "yatm_data_card_readers:mesecon_card_swiper_on",
+  ["yatm_mesecon_locks:mesecon_card_reader_off"] = "yatm_mesecon_card_readers:mesecon_card_reader_off",
+  ["yatm_mesecon_locks:mesecon_card_reader_on"] = "yatm_mesecon_card_readers:mesecon_card_reader_on",
+  ["yatm_mesecon_locks:mesecon_card_swiper_off"] = "yatm_mesecon_card_readers:mesecon_card_swiper_off",
+  ["yatm_mesecon_locks:mesecon_card_swiper_on"] = "yatm_mesecon_card_readers:mesecon_card_swiper_on",
 }
 
 for from, to in pairs(migrations) do

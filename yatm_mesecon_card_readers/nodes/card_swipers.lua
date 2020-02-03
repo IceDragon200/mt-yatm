@@ -77,28 +77,28 @@ yatm.register_stateful_node("yatm_mesecon_card_readers:mesecon_card_swiper", {
 
     on_rightclick = function (pos, node, _clicker, itemstack)
       local item = itemstack:get_definition()
-
+      local new_node = { name = node.name, param1 = node.param1, param2 = node.param2 }
       if yatm_core.groups.has_group(item, 'access_card') then
         if yatm_security.is_chipped_node(pos) then
           local valid = false
           if yatm_security.is_stack_an_access_card_for_chipped_node(itemstack, pos) then
-            node.name = "yatm_mesecon_card_readers:mesecon_card_swiper_on"
+            new_node.name = "yatm_mesecon_card_readers:mesecon_card_swiper_on"
             valid = true
           else
-            node.name = "yatm_mesecon_card_readers:mesecon_card_swiper_error"
+            new_node.name = "yatm_mesecon_card_readers:mesecon_card_swiper_error"
           end
         else
           -- if the swiper isn't chipped, ANY access card should work
           local prvkey = yatm_security.get_access_card_stack_prvkey(itemstack)
           if yatm_core.is_blank(prvkey) then
             -- unless it doesn't have a prvkey in which case this is an error
-            node.name = "yatm_mesecon_card_readers:mesecon_card_swiper_error"
+            new_node.name = "yatm_mesecon_card_readers:mesecon_card_swiper_error"
           else
-            node.name = "yatm_mesecon_card_readers:mesecon_card_swiper_on"
+            new_node.name = "yatm_mesecon_card_readers:mesecon_card_swiper_on"
             valid = true
           end
         end
-        minetest.swap_node(pos, node)
+        minetest.swap_node(pos, new_node)
         minetest.get_node_timer(pos):start(1.0)
         if valid then
           mesecon.receptor_on(pos, mesecon.rules.buttonlike_get(node))
