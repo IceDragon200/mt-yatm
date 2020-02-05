@@ -1,9 +1,9 @@
 local data_network = assert(yatm.data_network)
 
-minetest.register_node("yatm_data_logic:data_clock", {
-  description = "Data Clock\nReports the current time of day ranging from 0 to 255 every second",
+minetest.register_node("yatm_data_logic:data_light_sensor", {
+  description = "Light Sensor\nReports the current light level where the node is placed.",
 
-  codex_entry_id = "yatm_data_logic:data_clock",
+  codex_entry_id = "yatm_data_logic:data_light_sensor",
 
   groups = {
     cracky = 1,
@@ -20,16 +20,17 @@ minetest.register_node("yatm_data_logic:data_clock", {
     fixed = {
       yatm_core.Cuboid:new(0, 0, 0, 16, 4, 16):fast_node_box(),
       yatm_core.Cuboid:new(3, 4, 3, 10, 1, 10):fast_node_box(),
+      yatm_core.Cuboid:new(4, 5, 4,  8, 1,  8):fast_node_box(),
     },
   },
 
   tiles = {
-    "yatm_data_clock_top.png",
-    "yatm_data_clock_bottom.png",
-    "yatm_data_clock_side.png",
-    "yatm_data_clock_side.png",
-    "yatm_data_clock_side.png",
-    "yatm_data_clock_side.png",
+    "yatm_data_light_sensor_top.png",
+    "yatm_data_light_sensor_bottom.png",
+    "yatm_data_light_sensor_side.png",
+    "yatm_data_light_sensor_side.png",
+    "yatm_data_light_sensor_side.png",
+    "yatm_data_light_sensor_side.png",
   },
 
   on_construct = function (pos)
@@ -56,16 +57,13 @@ minetest.register_node("yatm_data_logic:data_clock", {
 
       if time <= 0 then
         time = time + 1
-        local value = 0
 
-        --minetest.get_day_count()
-        local timeofday = minetest.get_timeofday()
-        value = math.min(math.max(math.floor(timeofday * 255), 0), 255)
+        local light = minetest.get_node_light(pos) or 0
 
-        local output_data = yatm_core.string_hex_escape(string.char(value))
+        local output_data = yatm_core.string_hex_escape(string.char(light))
         yatm_data_logic.emit_output_data_value(pos, output_data)
 
-        meta:set_int("last_timeofday", value)
+        meta:set_int("last_light_level", light)
         yatm.queue_refresh_infotext(pos, node)
       end
 
@@ -105,7 +103,7 @@ minetest.register_node("yatm_data_logic:data_clock", {
   refresh_infotext = function (pos)
     local meta = minetest.get_meta(pos)
     local infotext =
-      "Time of Day: " .. meta:get_int("last_timeofday") .. "\n" ..
+      "Light Level: " .. meta:get_int("last_light_level") .. "\n" ..
       data_network:get_infotext(pos)
 
     meta:set_string("infotext", infotext)

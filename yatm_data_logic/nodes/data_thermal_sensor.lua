@@ -1,13 +1,20 @@
+local cluster_thermal = yatm.cluster.thermal
+if not cluster_thermal then
+  return
+end
+
 local data_network = assert(yatm.data_network)
 
-minetest.register_node("yatm_data_logic:data_clock", {
-  description = "Data Clock\nReports the current time of day ranging from 0 to 255 every second",
+minetest.register_node("yatm_data_logic:data_thermal_sensor", {
+  description = "Thermal Sensor\nConnects to an existing thermal duct and samples temperature readings.",
 
-  codex_entry_id = "yatm_data_logic:data_clock",
+  codex_entry_id = "yatm_data_logic:data_thermal_sensor",
 
   groups = {
     cracky = 1,
     data_programmable = 1,
+    yatm_cluster_thermal = 1,
+    heatable_device = 1,
     yatm_data_device = 1,
   },
 
@@ -18,28 +25,48 @@ minetest.register_node("yatm_data_logic:data_clock", {
   node_box = {
     type = "fixed",
     fixed = {
-      yatm_core.Cuboid:new(0, 0, 0, 16, 4, 16):fast_node_box(),
-      yatm_core.Cuboid:new(3, 4, 3, 10, 1, 10):fast_node_box(),
+      yatm_core.Cuboid:new(0, 0, 0, 16,  4, 16):fast_node_box(),
+      yatm_core.Cuboid:new(0, 4, 3, 16, 10, 10):fast_node_box(),
+      yatm_core.Cuboid:new(3, 4, 0, 10, 10, 16):fast_node_box(),
     },
   },
 
   tiles = {
-    "yatm_data_clock_top.png",
-    "yatm_data_clock_bottom.png",
-    "yatm_data_clock_side.png",
-    "yatm_data_clock_side.png",
-    "yatm_data_clock_side.png",
-    "yatm_data_clock_side.png",
+    "yatm_data_thermal_sensor_top.png",
+    "yatm_data_thermal_sensor_bottom.png",
+    "yatm_data_thermal_sensor_side.png",
+    "yatm_data_thermal_sensor_side.png",
+    "yatm_data_thermal_sensor_side.png",
+    "yatm_data_thermal_sensor_side.png",
   },
 
   on_construct = function (pos)
     local node = minetest.get_node(pos)
     data_network:add_node(pos, node)
+    cluster_thermal:schedule_add_node(pos, node)
   end,
 
   after_destruct = function (pos, node)
     data_network:remove_node(pos, node)
+    cluster_thermal:schedule_remove_node(pos, node)
   end,
+
+  thermal_interface = {
+    groups = {
+      thermal_monitor = 1,
+    },
+
+    get_heat = function (self, pos, node)
+      local meta = minetest.get_meta(pos)
+      return meta:get_float("heat")
+    end,
+
+    update_heat = function (self, pos, node, heat, dtime)
+      local meta = minetest.get_meta(pos)
+      meta:set_float("heat", heat)
+      yatm.queue_refresh_infotext(pos, node)
+    end,
+  },
 
   data_network_device = {
     type = "device",
@@ -56,16 +83,22 @@ minetest.register_node("yatm_data_logic:data_clock", {
 
       if time <= 0 then
         time = time + 1
-        local value = 0
 
-        --minetest.get_day_count()
-        local timeofday = minetest.get_timeofday()
-        value = math.min(math.max(math.floor(timeofday * 255), 0), 255)
+        -- value is a signed 8 bit value here
+        local value
+        local heat = meta:get_float("heat")
+        if heat > 0 then
+          value = math.floor(127 * heat / 100)
+        elseif heat < 0 then
+          value = 127 + math.floor(128 * -heat / 100)
+        else
+          value = 0
+        end
 
         local output_data = yatm_core.string_hex_escape(string.char(value))
         yatm_data_logic.emit_output_data_value(pos, output_data)
 
-        meta:set_int("last_timeofday", value)
+        meta:set_int("last_thermal_level", value)
         yatm.queue_refresh_infotext(pos, node)
       end
 
@@ -105,7 +138,7 @@ minetest.register_node("yatm_data_logic:data_clock", {
   refresh_infotext = function (pos)
     local meta = minetest.get_meta(pos)
     local infotext =
-      "Time of Day: " .. meta:get_int("last_timeofday") .. "\n" ..
+      "Heat: " .. meta:get_float("heat") .. "\n" ..
       data_network:get_infotext(pos)
 
     meta:set_string("infotext", infotext)

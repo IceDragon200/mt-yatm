@@ -1,9 +1,9 @@
 local data_network = assert(yatm.data_network)
 
-minetest.register_node("yatm_data_logic:data_clock", {
-  description = "Data Clock\nReports the current time of day ranging from 0 to 255 every second",
+minetest.register_node("yatm_data_logic:data_proximity_sensor", {
+  description = "Proximity Sensor\nDetects nearby entities.",
 
-  codex_entry_id = "yatm_data_logic:data_clock",
+  codex_entry_id = "yatm_data_logic:data_proximity_sensor",
 
   groups = {
     cracky = 1,
@@ -24,12 +24,12 @@ minetest.register_node("yatm_data_logic:data_clock", {
   },
 
   tiles = {
-    "yatm_data_clock_top.png",
-    "yatm_data_clock_bottom.png",
-    "yatm_data_clock_side.png",
-    "yatm_data_clock_side.png",
-    "yatm_data_clock_side.png",
-    "yatm_data_clock_side.png",
+    "yatm_data_proximity_sensor_top.png",
+    "yatm_data_proximity_sensor_bottom.png",
+    "yatm_data_proximity_sensor_side.png",
+    "yatm_data_proximity_sensor_side.png",
+    "yatm_data_proximity_sensor_side.png",
+    "yatm_data_proximity_sensor_side.png",
   },
 
   on_construct = function (pos)
@@ -56,16 +56,13 @@ minetest.register_node("yatm_data_logic:data_clock", {
 
       if time <= 0 then
         time = time + 1
-        local value = 0
 
-        --minetest.get_day_count()
-        local timeofday = minetest.get_timeofday()
-        value = math.min(math.max(math.floor(timeofday * 255), 0), 255)
+        local value = 0 -- TODO: sample data
 
         local output_data = yatm_core.string_hex_escape(string.char(value))
         yatm_data_logic.emit_output_data_value(pos, output_data)
 
-        meta:set_int("last_timeofday", value)
+        -- TODO: store coords of last sampled entity
         yatm.queue_refresh_infotext(pos, node)
       end
 
@@ -105,7 +102,7 @@ minetest.register_node("yatm_data_logic:data_clock", {
   refresh_infotext = function (pos)
     local meta = minetest.get_meta(pos)
     local infotext =
-      "Time of Day: " .. meta:get_int("last_timeofday") .. "\n" ..
+      -- TODO: report last seen entity
       data_network:get_infotext(pos)
 
     meta:set_string("infotext", infotext)
