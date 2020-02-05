@@ -185,7 +185,7 @@ function ic:on_pre_block_expired(block)
       local pos = node_entry.pos
       local node = node_entry.node -- this is the only time the old node entry has to be used
 
-      local nodedef = registered_nodes[node.name]
+      local nodedef = minetest.registered_nodes[node.name]
       if nodedef and nodedef.yatm_network then
         if nodedef.yatm_network.on_unload then
           nodedef.yatm_network.on_unload(pos, node)
