@@ -824,7 +824,7 @@ function ic:_on_block_expired(block_id)
   for cluster_id,cluster in pairs(self.m_clusters) do
     cluster:on_block_expired(block_id)
   end
-  self:_send_to_observers("on_block_expired", entry)
+  self:_send_to_observers("on_block_expired", block_id)
 end
 
 --
