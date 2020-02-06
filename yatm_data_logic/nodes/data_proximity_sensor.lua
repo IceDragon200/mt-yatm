@@ -1,3 +1,10 @@
+--
+-- Proximity Sensor
+--
+--   Detects and or tracks entities nearby
+--   It can be configured to detect or track entities with different criterias
+--
+--
 local data_network = assert(yatm.data_network)
 local ByteEncoder = yatm.ByteEncoder
 
@@ -71,6 +78,7 @@ minetest.register_node("yatm_data_logic:data_proximity_sensor", {
         local x = 0
         local y = 0
         local z = 0
+        local hp = 0
         local name = ""
 
         if obj then
