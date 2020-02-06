@@ -405,7 +405,10 @@ function m:resolve_queue(counter, _delta)
               network.members_by_type[entry.device_type][ohash] = entry
 
               local meta = minetest.get_meta(entry.pos)
-              meta:set_string("infotext", self.m_description .. " ID <" .. network_id .. ">")
+
+              local node_description = minetest.registered_nodes[entry.name].description
+
+              meta:set_string("infotext", node_description .. "\n" .. self.m_description .. " ID <" .. network_id .. ">")
             end
           end
 
