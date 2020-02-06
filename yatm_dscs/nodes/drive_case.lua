@@ -210,7 +210,7 @@ function drive_case_yatm_network.on_load(pos, node)
     local stack = inv:get_stack("drive_bay", i)
     if yatm.dscs.is_item_stack_fluid_drive(stack) then
       local fluid_inventory_name = get_fluid_inventory_name(pos, i)
-      local fluid_inventory = yatm.dscs.load_fluid_inventory_from_drive(fluid_inventory_name, stack)
+      local fluid_inventory = yatm.dscs.overload_fluid_inventory_from_drive(fluid_inventory_name, stack)
       meta:set_string("fluid_drive_contents_" .. i, fluid_inventory:serialize())
     end
   end
@@ -222,17 +222,15 @@ function drive_case_yatm_network.on_unload(pos, node)
   local inv = meta:get_inventory()
 
   for i = 1,DRIVE_BAY_SIZE do
-    local fluid_inventory_name = get_fluid_inventory_name(pos, i)
-
     local stack = inv:get_stack("drive_bay", i)
     if yatm.dscs.is_item_stack_fluid_drive(stack) then
+      local fluid_inventory_name = get_fluid_inventory_name(pos, i)
       local fluid_inventory = yatm.fluid.fluid_inventories:get_fluid_inventory(fluid_inventory_name)
       if fluid_inventory then
         meta:set_string("fluid_drive_contents_" .. i, fluid_inventory:serialize())
       end
+      yatm.fluids.fluid_inventories:destroy_fluid_inventory(fluid_inventory_name)
     end
-
-    yatm.fluids.fluid_inventories:destroy_fluid_inventory(fluid_inventory_name)
   end
 end
 

@@ -42,6 +42,16 @@ function yatm.dscs.load_fluid_inventory_from_drive(fluid_inventory_name, item_st
   return inv
 end
 
+function yatm.dscs.overload_fluid_inventory_from_drive(fluid_inventory_name, item_stack)
+  local inv = yatm.fluids.fluid_inventories:get_fluid_inventory(fluid_inventory_name)
+
+  if inv then
+    minetest.log("warn", "fluid inventory name=" .. fluid_inventory_name .. " still exists")
+    return inv
+  end
+  return yatm.dscs.load_fluid_inventory_from_drive(fluid_inventory_name, item_stack)
+end
+
 function yatm.dscs.persist_inventory_list_to_drive(item_stack, list)
   if yatm.dscs.is_item_stack_item_drive(item_stack) then
     local list_dump = yatm_item_storage.InventorySerializer.serialize(list)
