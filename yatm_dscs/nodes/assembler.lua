@@ -32,6 +32,7 @@ local assembler_yatm_network = {
 local function refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
   local infotext =
+    "Assembler\n" ..
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     cluster_energy:get_node_infotext(pos) .. " [" .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "]\n"
 
