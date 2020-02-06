@@ -315,6 +315,9 @@ end
 
 -- @spec split(String.t, String.t) :: {String.t}
 function yatm_core.string_split(str, pattern)
+  if str == "" then
+    return {}
+  end
   if not pattern or pattern == "" then
     local result = {}
     for i = 1,#str do

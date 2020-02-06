@@ -61,6 +61,8 @@ end)
 
 case:describe("string_split", function (t2)
   t2:test("can split a string", function (t3)
+    t3:assert_table_eq({}, m.string_split(""))
+    t3:assert_table_eq({}, m.string_split("", ","))
     -- split by each character, default behaviour
     t3:assert_table_eq({"a", "b", "c", "d", "e"}, m.string_split("abcde"))
     t3:assert_table_eq({"H", "e", "l", "l", "o"}, m.string_split("Hello"))

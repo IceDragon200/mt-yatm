@@ -21,6 +21,7 @@ dofile(yatm_core.modpath .. "/util/string_buf.lua")
 dofile(yatm_core.modpath .. "/util/bin_buf.lua")
 -- Binary Serializer
 dofile(yatm_core.modpath .. "/util/byte_decoder.lua")
+dofile(yatm_core.modpath .. "/util/byte_encoder.lua")
 if yatm_core.ByteDecoder then
   dofile(yatm_core.modpath .. "/util/byte_buf.lua")
 else

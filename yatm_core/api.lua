@@ -9,6 +9,7 @@ yatm.Cuboid = yatm_core.Cuboid
 yatm.ByteBuf = yatm_core.ByteBuf
 yatm.BinSchema = yatm_core.BinSchema
 yatm.ByteDecoder = yatm_core.ByteDecoder
+yatm.ByteEncoder = yatm_core.ByteEncoder
 yatm.vector2 = yatm_core.vector2
 yatm.vector3 = yatm_core.vector3
 yatm.vector4 = yatm_core.vector4
