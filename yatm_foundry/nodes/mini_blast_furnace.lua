@@ -1,5 +1,15 @@
 local cluster_thermal = assert(yatm.cluster.thermal)
 
+local function mini_blast_furnace_refresh_infotext(pos)
+  local meta = minetest.get_meta(pos)
+  local heat = meta:get_float("heat")
+
+  meta:set_string("infotext",
+    cluster_thermal:get_node_infotext(pos) .. "\n" ..
+    "Heat: " .. math.floor(heat)
+  )
+end
+
 local groups = {
   cracky = 1,
   item_interface_in = 1,
@@ -37,6 +47,8 @@ yatm.register_stateful_node("yatm_foundry:mini_blast_furnace", {
   on_timer = function (pos, elapsed)
     return true
   end,
+
+  refresh_infotext = mini_blast_furnace_refresh_infotext,
 
   thermal_interface = {
     groups = {
