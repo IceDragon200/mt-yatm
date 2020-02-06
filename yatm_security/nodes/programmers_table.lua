@@ -1,12 +1,12 @@
-if not yatm_machines then
-  return
-end
-
 --
 -- A programmers table is the node equivalent of the programming tool.
 -- However its main purpose is to program items, not other nodes.
 -- So it's not really an equivalent, it has a totally different function...
 --
+if not yatm_machines then
+  return
+end
+
 local data_network = assert(yatm.data_network)
 local cluster_energy = assert(yatm.cluster.energy)
 local cluster_devices = assert(yatm.cluster.devices)
@@ -16,27 +16,36 @@ local function get_formspec(pos, user, assigns)
   local meta = minetest.get_meta(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
+  assigns.tab = assigns.tab or 1
+
   local formspec =
     "size[12,11]" ..
     yatm.formspec_bg_for_player(user:get_player_name(), "machine") ..
-    "label[0,0;Programmer's Table]" ..
-    "button[0,0.5;3,1;random;Random]" ..
-    "field[3.5,0.75;5.5,1;prog_data;Program Data;" .. minetest.formspec_escape(meta:get_string("prog_data")) .. "]" ..
-    "button[9,0.5;3,1;commit;Commit]" ..
-    "label[0,1.25;Input Items]" ..
-    "list[nodemeta:" .. spos .. ";input_items;0,2;4,4;]" ..
-    "box[3.875,1.875;4.125,4.125;#45d5d8]" ..
-    "label[4,1.25;Processing Items]" ..
-    "list[nodemeta:" .. spos .. ";processing_items;4,2;4,4;]" ..
-    "label[8,1.25;Output Items]" ..
-    "list[nodemeta:" .. spos .. ";output_items;8,2;4,4;]" ..
-    "list[current_player;main;2,6.85;8,1;]" ..
-    "list[current_player;main;2,8.08;8,3;8]" ..
-    "listring[nodemeta:" .. spos .. ";input_items]" ..
-    "listring[current_player;main]" ..
-    "listring[nodemeta:" .. spos .. ";output_items]" ..
-    "listring[current_player;main]" ..
-    default.get_hotbar_bg(2,6.85)
+    "tabheader[0,0;tab;Writer;" .. assigns.tab .. "]"
+
+  if assigns.tab == 1 then
+    -- Writer Tab
+    formspec =
+      formspec ..
+      "label[0,0;Programmer's Table]" ..
+      "button[0,0.5;3,1;random;Random]" ..
+      "field[3.5,0.75;5.5,1;prog_data;Data;" .. minetest.formspec_escape(meta:get_string("prog_data")) .. "]" ..
+      "button[9,0.5;3,1;commit;Commit]" ..
+      "label[0,1.25;Input Items]" ..
+      "list[nodemeta:" .. spos .. ";input_items;0,2;4,4;]" ..
+      "box[3.875,1.875;4.125,4.125;#45d5d8]" ..
+      "label[4,1.25;Processing Items]" ..
+      "list[nodemeta:" .. spos .. ";processing_items;4,2;4,4;]" ..
+      "label[8,1.25;Output Items]" ..
+      "list[nodemeta:" .. spos .. ";output_items;8,2;4,4;]" ..
+      "list[current_player;main;2,6.85;8,1;]" ..
+      "list[current_player;main;2,8.08;8,3;8]" ..
+      "listring[nodemeta:" .. spos .. ";input_items]" ..
+      "listring[current_player;main]" ..
+      "listring[nodemeta:" .. spos .. ";output_items]" ..
+      "listring[current_player;main]" ..
+      default.get_hotbar_bg(2,6.85)
+  end
 
   return formspec
 end
@@ -44,6 +53,14 @@ end
 local function handle_receive_fields(user, formname, fields, assigns)
   local meta = minetest.get_meta(assigns.pos)
   local needs_refresh = false
+
+  if fields["tab"] then
+    local tab = tonumber(fields["tab"])
+    if tab ~= assigns.tab then
+      assigns.tab = tab
+      needs_refresh = true
+    end
+  end
 
   if fields["prog_data"] then
     meta:set_string("prog_data", fields["prog_data"])
