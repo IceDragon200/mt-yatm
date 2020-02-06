@@ -71,6 +71,23 @@ function yatm_data_logic.emit_output_data_vector(pos, vector_value, options)
   end
 end
 
+function yatm_data_logic.emit_port_value(pos, port_prefix, port_name, value)
+  local meta = minetest.get_meta(pos)
+  local sub_network_ids = data_network:get_sub_network_ids(pos)
+
+  for _, dir in ipairs(yatm_core.DIR6) do
+    local port_field_name = port_prefix .. "_" .. dir .. "_" .. port_name
+    local local_port = meta:get_int(port_field_name)
+    --print("emit_port_value", port_field_name, "port_prefix=" .. port_prefix,
+    --                                     "port_name=" .. port_name,
+    --                                     "value=" .. dump(value),
+    --                                     "local_port=" .. local_port)
+    if local_port and local_port > 0 then
+      data_network:send_value(pos, dir, local_port, value)
+    end
+  end
+end
+
 function yatm_data_logic.emit_output_data_value(pos, dl, options)
   options = options or {}
   local meta = minetest.get_meta(pos)
@@ -131,37 +148,33 @@ function yatm_data_logic.emit_value(pos, local_port, value)
   end
 end
 
-function yatm_data_logic.get_io_port_matrix_formspec(pos, meta, mode, options)
+--
+-- @type options :: {
+--   width = float,
+--   sections = [
+--     {
+--        name = string, -- lower case string will be prefixed on the port names
+--        label = string, -- descriptive label of the section
+--        cols = integer, -- how many colunms are allowed in this section
+--        port_count = integer, -- how many ports does this section have
+--        port_names = [string], -- the port names
+--        port_labels = [string], -- the descriptive labels of each port
+--     }
+--   ]
+-- }
+-- @spec yatm_data_logic.get_port_matrix_formspec(vector, MetaRef, options)
+function yatm_data_logic.get_port_matrix_formspec(pos, meta, options)
   options = options or {}
-  mode = mode or "io"
   local sub_network_ids = data_network:get_sub_network_ids(pos)
   local attached_colors = data_network:get_attached_colors(pos)
 
-  -- these are port counts PER direction
-  options.input_port_cols = options.input_port_cols or 1
-  options.input_port_count = options.input_port_count or 1
-  options.output_port_cols = options.output_port_cols or 1
-  options.output_port_count = options.output_port_count or 1
-
   local col_width = options.width or 8
-  if mode == "io" then
-    col_width = math.floor(col_width / 2)
-  end
+  local i = 1
 
-  local input_col_width = math.floor(col_width / options.input_port_cols)
-  local output_col_width = math.floor(col_width / options.output_port_cols)
+  local formspec = ""
 
-  local inputs =
-    "label[0,1;Inputs]"
-
-  if mode == "io" then
-    outputs = "label[" .. col_width .. ",1;Outputs]"
-    output_x = col_width
-  elseif mode == "o" then
-    outputs = "label[0,1;Outputs]"
-  end
-
-  local i = 2
+  -- 0.5 is the border size (0.25 on each side)
+  local sections_width = (col_width - 0.5) / #options.sections
 
   for _, dir in ipairs(yatm_core.DIR6) do
     local sub_network_id = sub_network_ids[dir]
@@ -170,47 +183,51 @@ function yatm_data_logic.get_io_port_matrix_formspec(pos, meta, mode, options)
                                             (attached_colors[dir] or "N/A") .. " - " ..
                                             sub_network_id)
 
-      if mode == "io" or mode == "i" then
-        for input_port_id = 1,options.input_port_count do
-          local x = (0.25) + (input_port_id % options.input_port_cols) * input_col_width
-          local y = i + math.floor(input_port_id / options.input_port_cols)
-
-          inputs =
-            inputs ..
-            "field[" .. x .. "," .. y ..
-                   ";" .. col_width .. ",1;" .. field_name ..
-                   ";" .. name ..
-                   ";" .. meta:get_int(field_name) .. "]"
-        end
-      end
-
-      if mode == "io" or mode == "o" then
-        for output_port_id = 1,options.output_port_count do
-          local x = (output_x + 0.25) + (output_port_id % options.output_port_cols) * output_col_width
-          local y = i + math.floor(output_port_id / options.output_port_cols)
-
-          local field_name = "output_" .. dir .. "_" ..  output_port_id
-
-          outputs =
-            outputs ..
-            "field[" .. x ..  "," .. y ..
-                   ";" .. col_width .. ",1;" .. field_name ..
-                   ";" .. name ..
-                   ";" .. meta:get_int(field_name) .. "]"
-        end
-      end
+      formspec =
+        formspec ..
+        "label[0.25," .. i .. ";" .. minetest.formspec_escape(name) .. "]"
 
       i = i + 1
+
+      local max_section_y = 0
+
+      for section_index, section in ipairs(options.sections) do
+        local section_y = i
+        local section_x = 0.25 + sections_width * (section_index - 1)
+
+        if section.label then
+          formspec =
+            formspec ..
+            "label[" .. section_x .. "," .. section_y .. ";" .. minetest.formspec_escape(section.label) .. "]"
+
+          section_y = section_y + 1
+        end
+
+        local section_col_width = sections_width / section.cols
+
+        for port_id = 1, section.port_count do
+          local x = section_x + ((port_id - 1) % section.cols) * section_col_width
+          local y = section_y + math.floor((port_id - 1) / section.cols)
+
+          local field_name = section.name .. "_" .. dir .. "_" .. (section.port_names[port_id] or port_id)
+          local field_label = section.port_labels[port_id] or field_name
+
+          formspec =
+            formspec ..
+            "field[" .. x .. "," .. y ..
+                   ";" .. section_col_width .. ",1;" .. field_name ..
+                   ";" .. minetest.formspec_escape(field_label) ..
+                   ";" .. meta:get_int(field_name) .. "]"
+        end
+
+        max_section_y = math.max(max_section_y, section_y)
+      end
+
+      i = max_section_y + 1
     end
   end
 
-  if mode == "io" then
-    return inputs .. outputs
-  elseif mode == "o" then
-    return outputs
-  elseif mode == "i" then
-    return inputs
-  end
+  return formspec
 end
 
 function yatm_data_logic.get_io_port_formspec(pos, meta, mode, options)
@@ -372,4 +389,20 @@ function yatm_data_logic.handle_io_port_fields(pos, fields, meta, mode, options)
   end
 
   return inputs_changed, outputs_changed
+end
+
+function yatm_data_logic.handle_port_matrix_fields(pos, fields, meta, options)
+  for _, dir in ipairs(yatm_core.DIR6) do
+    for section_index, section in ipairs(options.sections) do
+      for port_id = 1, section.port_count do
+        local field_name = section.name .. "_" .. dir .. "_" .. (section.port_names[port_id] or port_id)
+
+        if fields[field_name] then
+          local value = tonumber(fields[field_name])
+
+          meta:set_int(field_name, value)
+        end
+      end
+    end
+  end
 end

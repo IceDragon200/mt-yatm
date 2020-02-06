@@ -1,4 +1,10 @@
 local data_network = assert(yatm.data_network)
+local ByteEncoder = yatm.ByteEncoder
+
+if not ByteEncoder then
+  minetest.log("warn", "Proximity sensor requires yatm.ByteEncoder")
+  return
+end
 
 minetest.register_node("yatm_data_logic:data_proximity_sensor", {
   description = "Proximity Sensor\nDetects nearby entities.",
@@ -18,8 +24,8 @@ minetest.register_node("yatm_data_logic:data_proximity_sensor", {
   node_box = {
     type = "fixed",
     fixed = {
-      yatm_core.Cuboid:new(0, 0, 0, 16, 4, 16):fast_node_box(),
-      yatm_core.Cuboid:new(3, 4, 3, 10, 1, 10):fast_node_box(),
+      yatm_core.Cuboid:new(0, 0, 0, 16,  4, 16):fast_node_box(),
+      yatm_core.Cuboid:new(3, 4, 3, 10, 10, 10):fast_node_box(),
     },
   },
 
@@ -57,12 +63,45 @@ minetest.register_node("yatm_data_logic:data_proximity_sensor", {
       if time <= 0 then
         time = time + 1
 
-        local value = 0 -- TODO: sample data
+        local objects = minetest.get_objects_inside_radius(pos, 32)
 
-        local output_data = yatm_core.string_hex_escape(string.char(value))
-        yatm_data_logic.emit_output_data_value(pos, output_data)
+        local obj = objects[1]
 
-        -- TODO: store coords of last sampled entity
+        local exists = 0
+        local x = 0
+        local y = 0
+        local z = 0
+        local name = ""
+
+        if obj then
+          exists = 1
+          local lua_entity = obj:get_luaentity()
+
+          local object_pos = obj:get_pos()
+          x = math.floor(object_pos.x)
+          y = math.floor(object_pos.y)
+          z = math.floor(object_pos.z)
+          hp = math.floor(obj:get_hp())
+
+          if lua_entity then
+            name = lua_entity.name
+          end
+        end
+
+        meta:set_int("last_exists", exists)
+        meta:set_int("last_x", x)
+        meta:set_int("last_y", y)
+        meta:set_int("last_z", z)
+        meta:set_int("last_hp", hp)
+        meta:set_string("last_name", name)
+
+        yatm_data_logic.emit_port_value(pos, "port", "exists", yatm_core.string_hex_escape(ByteEncoder:e_u8(exists)))
+        yatm_data_logic.emit_port_value(pos, "port", "x", yatm_core.string_hex_escape(ByteEncoder:e_i16(x)))
+        yatm_data_logic.emit_port_value(pos, "port", "y", yatm_core.string_hex_escape(ByteEncoder:e_i16(y)))
+        yatm_data_logic.emit_port_value(pos, "port", "z", yatm_core.string_hex_escape(ByteEncoder:e_i16(z)))
+        yatm_data_logic.emit_port_value(pos, "port", "hp", yatm_core.string_hex_escape(ByteEncoder:e_u16(hp)))
+        yatm_data_logic.emit_port_value(pos, "port", "name", name)
+
         yatm.queue_refresh_infotext(pos, node)
       end
 
@@ -85,7 +124,19 @@ minetest.register_node("yatm_data_logic:data_proximity_sensor", {
         "size[8,9]" ..
         yatm.formspec_bg_for_player(user:get_player_name(), "module") ..
         "label[0,0;Port Configuration]" ..
-        yatm_data_logic.get_io_port_formspec(pos, meta, "o")
+        yatm_data_logic.get_port_matrix_formspec(pos, meta, {
+          width = 8,
+          sections = {
+            {
+              name = "port",
+              label = nil,
+              cols = 3,
+              port_count = 6,
+              port_names = {"exists", "name", "hp", "x", "y", "z"},
+              port_labels = {"Exists?", "Name", "HP", "X-Coord", "Y-Coord", "Z-Coord"},
+            }
+          }
+        })
 
       return formspec
     end,
@@ -93,7 +144,15 @@ minetest.register_node("yatm_data_logic:data_proximity_sensor", {
     receive_programmer_fields = function (self, player, form_name, fields, assigns)
       local meta = minetest.get_meta(assigns.pos)
 
-      yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "o")
+      yatm_data_logic.handle_port_matrix_fields(assigns.pos, fields, meta, {
+        sections = {
+          {
+            name = "port",
+            port_count = 6,
+            port_names = {"exists", "name", "hp", "x", "y", "z"},
+          }
+        }
+      })
 
       return true
     end,
@@ -101,8 +160,17 @@ minetest.register_node("yatm_data_logic:data_proximity_sensor", {
 
   refresh_infotext = function (pos)
     local meta = minetest.get_meta(pos)
+    local vec = vector.new(meta:get_int("last_x"), meta:get_int("last_y"), meta:get_int("last_z"))
+    local exists_str
+    if meta:get_int("last_exists") > 0 then
+      exists_str = "(Exists) "
+    else
+      exists_str = "(Nothing)"
+    end
     local infotext =
-      -- TODO: report last seen entity
+      "Last Position: " .. yatm.vector3.to_string(vec) .. "\n" ..
+      "Last HP: " .. meta:get_int("last_hp") .. "\n" ..
+      "Last Entity: " .. exists_str .. meta:get_string("last_name") .. "\n" ..
       data_network:get_infotext(pos)
 
     meta:set_string("infotext", infotext)
