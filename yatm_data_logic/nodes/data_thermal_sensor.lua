@@ -137,9 +137,13 @@ minetest.register_node("yatm_data_logic:data_thermal_sensor", {
 
   refresh_infotext = function (pos)
     local meta = minetest.get_meta(pos)
+    local heat = math.floor(meta:get_float("heat"))
+
     local infotext =
-      "Heat: " .. meta:get_float("heat") .. "\n" ..
-      data_network:get_infotext(pos)
+      cluster_thermal:get_node_infotext(pos) .. "\n" ..
+      data_network:get_infotext(pos) .. "\n" ..
+      "Heat: " .. heat .. "\n" ..
+      ""
 
     meta:set_string("infotext", infotext)
   end,
