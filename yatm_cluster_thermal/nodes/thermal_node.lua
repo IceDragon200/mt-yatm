@@ -1,7 +1,7 @@
 local cluster_thermal = assert(yatm.cluster.thermal)
 local table_length = assert(yatm_core.table_length)
 
-local function get_thermal_node_formspec(pos, user, pointed_thing, assigns)
+local function get_thermal_node_formspec(pos, user, assigns)
   local meta = minetest.get_meta(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
@@ -31,7 +31,7 @@ local function receive_fields(player, formname, fields, assigns)
     local heat = tonumber(fields["heat"]) or 0.0
     meta:set_float("heat", heat)
     yatm.queue_refresh_infotext(assigns.pos, minetest.get_node(assigns.pos))
-    return true, get_thermal_node_formspec(assigns.pos, player, nil, assigns)
+    return true, get_thermal_node_formspec(assigns.pos, player, assigns)
   end
   return true
 end
@@ -81,7 +81,7 @@ yatm.register_stateful_node("yatm_cluster_thermal:thermal_node", {
 
   on_rightclick = function (pos, node, user)
     local assigns = { pos = pos, node = node }
-    local formspec = get_thermal_node_formspec(pos, user, pointed_thing, assigns)
+    local formspec = get_thermal_node_formspec(pos, user, assigns)
     local formspec_name = "yatm_cluster_thermal:thermal_node:" .. minetest.pos_to_string(pos)
 
     yatm_core.bind_on_player_receive_fields(user, formspec_name,
