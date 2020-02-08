@@ -174,7 +174,7 @@ local function on_rotate(pos, node, user, mode, new_param2)
                        param1 = node.param1,
                        param2 = new_param2 }
     minetest.swap_node(pos, new_node)
-    data_network:upsert_member(pos, new_node)
+    data_network:upsert_member(pos, new_node, true)
     minetest.check_for_falling(pos)
   end
   return true

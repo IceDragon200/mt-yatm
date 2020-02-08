@@ -263,7 +263,7 @@ function ic:add_node(pos, node)
 end
 
 -- @spec update_member(Vector3.t, Node.t) :: DataNetwork.t
-function ic:update_member(pos, node)
+function ic:update_member(pos, node, force_refresh)
   self:log("update_member", minetest.pos_to_string(pos), node.name)
   local member_id = minetest.hash_node_position(pos)
   local member = self.m_members[member_id]
@@ -293,7 +293,7 @@ function ic:update_member(pos, node)
     member.node = yatm_core.table_copy(node)
 
     yatm.clusters:mark_node_block(member.pos, member.node)
-    if need_refresh then
+    if need_refresh or force_refresh then
       self:_queue_refresh(pos, "node updated")
     end
   else
@@ -302,12 +302,12 @@ function ic:update_member(pos, node)
   return self
 end
 
-function ic:upsert_member(pos, node)
+function ic:upsert_member(pos, node, force_refresh)
   self:log("upsert_member", minetest.pos_to_string(pos), node.name)
   local member_id = minetest.hash_node_position(pos)
   local member = self.m_members[member_id]
   if member then
-    return self:update_member(pos, node)
+    return self:update_member(pos, node, force_refresh)
   else
     return self:add_node(pos, node)
   end
