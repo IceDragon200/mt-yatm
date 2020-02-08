@@ -80,6 +80,7 @@ yatm.register_stateful_node("yatm_data_display:ascii_display", {
 
   data_network_device = {
     type = "device",
+    groups = {},
   },
   data_interface = {
     on_load = function (self, pos, node)
@@ -95,8 +96,13 @@ yatm.register_stateful_node("yatm_data_display:ascii_display", {
         local new_name = "yatm_data_display:ascii_display_" .. ASCII_TABLE[byte]
 
         if new_name ~= node.name then
-          node.name = new_name
-          minetest.swap_node(pos, node)
+          local new_node = {
+            name = new_name,
+            param1 = node.param1,
+            param2 = node.param2,
+          }
+          minetest.swap_node(pos, new_node)
+          data_network:upsert_member(pos, node)
         end
       end
     end,
