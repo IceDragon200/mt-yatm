@@ -268,16 +268,34 @@ function ic:update_member(pos, node)
   local member_id = minetest.hash_node_position(pos)
   local member = self.m_members[member_id]
   if member then
-    self:do_unregister_member_groups(member)
-    member.node = yatm_core.table_copy(node)
+    local need_refresh = false
     local nodedef = minetest.registered_nodes[node.name]
     local dnd = assert(nodedef.data_network_device)
-    member.accessible_dirs = yatm_core.table_copy(dnd.accessible_dirs)
-    member.color = dnd.color
-    member.groups = dnd.groups or {}
-    self:do_register_member_groups(member)
+
+    if dnd.color ~= member.color then
+      member.color = dnd.color
+      need_refresh = true
+    end
+
+    if not yatm_core.table_equals(member.accessible_dirs, dnd.accessible_dirs) then
+      member.accessible_dirs = yatm_core.table_copy(dnd.accessible_dirs)
+      need_refresh = true
+    end
+
+    local new_groups = dnd.groups or {}
+    if not yatm_core.table_equals(member.groups, dnd.groups) then
+      self:do_unregister_member_groups(member)
+      member.groups = new_groups
+      need_refresh = true
+      self:do_register_member_groups(member)
+    end
+
+    member.node = yatm_core.table_copy(node)
+
     yatm.clusters:mark_node_block(member.pos, member.node)
-    self:_queue_refresh(pos, "node updated")
+    if need_refresh then
+      self:_queue_refresh(pos, "node updated")
+    end
   else
     error("no such member " .. minetest.pos_to_string(pos))
   end
