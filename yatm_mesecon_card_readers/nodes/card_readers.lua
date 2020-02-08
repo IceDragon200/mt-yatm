@@ -180,8 +180,9 @@ yatm.register_stateful_node("yatm_mesecon_card_readers:mesecon_card_reader", {
     },
 
     on_access_card_removed = function (pos, node, access_card)
-      node.name = "yatm_mesecon_card_readers:mesecon_card_reader_off"
-      minetest.swap_node(pos, node)
+      local new_node = { name = "yatm_mesecon_card_readers:mesecon_card_reader_off",
+                         param1 = node.param1, param2 = node.param2 }
+      minetest.swap_node(pos, new_node)
       mesecon.receptor_off(pos, mesecon.rules.buttonlike_get(node))
     end,
   },
@@ -209,8 +210,9 @@ yatm.register_stateful_node("yatm_mesecon_card_readers:mesecon_card_reader", {
     },
 
     on_access_card_removed = function (pos, node, access_card)
-      node.name = "yatm_mesecon_card_readers:mesecon_card_reader_off"
-      minetest.swap_node(pos, node)
+      local new_node = { name = "yatm_mesecon_card_readers:mesecon_card_reader_off",
+                         param1 = node.param1, param2 = node.param2 }
+      minetest.swap_node(pos, new_node)
       mesecon.receptor_off(pos, mesecon.rules.buttonlike_get(node))
     end,
   }

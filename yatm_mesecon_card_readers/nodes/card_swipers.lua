@@ -79,8 +79,8 @@ yatm.register_stateful_node("yatm_mesecon_card_readers:mesecon_card_swiper", {
       local item = itemstack:get_definition()
       local new_node = { name = node.name, param1 = node.param1, param2 = node.param2 }
       if yatm_core.groups.has_group(item, 'access_card') then
+        local valid = false
         if yatm_security.is_chipped_node(pos) then
-          local valid = false
           if yatm_security.is_stack_an_access_card_for_chipped_node(itemstack, pos) then
             new_node.name = "yatm_mesecon_card_readers:mesecon_card_swiper_on"
             valid = true
@@ -101,7 +101,7 @@ yatm.register_stateful_node("yatm_mesecon_card_readers:mesecon_card_swiper", {
         minetest.swap_node(pos, new_node)
         minetest.get_node_timer(pos):start(1.0)
         if valid then
-          mesecon.receptor_on(pos, mesecon.rules.buttonlike_get(node))
+          mesecon.receptor_on(pos, mesecon.rules.buttonlike_get(new_node))
         end
       end
     end,
@@ -131,8 +131,9 @@ yatm.register_stateful_node("yatm_mesecon_card_readers:mesecon_card_swiper", {
 
     on_timer = function (pos, elapsed)
       local node = minetest.get_node(pos)
-      node.name = "yatm_mesecon_card_readers:mesecon_card_swiper_off"
-      minetest.swap_node(pos, node)
+      local new_node = { name = "yatm_mesecon_card_readers:mesecon_card_swiper_off",
+                         param1 = node.param1, param2 = node.param2 }
+      minetest.swap_node(pos, new_node)
       mesecon.receptor_off(pos, mesecon.rules.buttonlike_get(node))
       return false
     end,
@@ -162,8 +163,9 @@ yatm.register_stateful_node("yatm_mesecon_card_readers:mesecon_card_swiper", {
 
     on_timer = function (pos, elapsed)
       local node = minetest.get_node(pos)
-      node.name = "yatm_mesecon_card_readers:mesecon_card_swiper_off"
-      minetest.swap_node(pos, node)
+      local new_node = { name = "yatm_mesecon_card_readers:mesecon_card_swiper_off",
+                         param1 = node.param1, param2 = node.param2 }
+      minetest.swap_node(pos, new_node)
       mesecon.receptor_off(pos, mesecon.rules.buttonlike_get(node))
       return false
     end,
