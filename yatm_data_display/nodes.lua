@@ -74,6 +74,8 @@ yatm.register_stateful_node("yatm_data_display:ascii_display", {
     data_network:add_node(pos, node)
   end,
 
+  after_place_node = yatm_core.facedir_wallmount_after_place_node,
+
   after_destruct = function (pos, node)
     data_network:remove_node(pos, node)
   end,
