@@ -224,7 +224,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
 
         for dir, value in pairs(values) do
           if #value > 0 then
-            local result = string_hex_escape(value)
+            local result = yatm_core.string_hex_escape(value)
             yatm_data_logic.emit_output_data_value(pos, result)
             return result
           end
