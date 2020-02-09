@@ -68,6 +68,7 @@ for _,color in pairs(colors) do
 
   minetest.register_node(off_name, {
     basename = "yatm_mesecon_locks:mesecon_lock",
+    base_description = "Mesecon Lock",
 
     description = description,
 
