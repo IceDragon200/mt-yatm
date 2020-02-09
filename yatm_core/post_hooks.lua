@@ -10,7 +10,8 @@ local function dump_nodes()
   local i = 0
 
   for name, def in pairs(minetest.registered_nodes) do
-    if yatm_core.string_starts_with(name, "yatm_") then
+    if yatm_core.string_starts_with(name, "yatm_") or
+       yatm_core.string_starts_with(name, "harmonia_") then
       i = i + 1
 
       file:write(minetest.write_json({
@@ -40,7 +41,8 @@ local function dump_craftitems()
   local i = 0
 
   for name, def in pairs(minetest.registered_craftitems) do
-    if yatm_core.string_starts_with(name, "yatm_") then
+    if yatm_core.string_starts_with(name, "yatm_") or
+       yatm_core.string_starts_with(name, "harmonia_") then
       i = i + 1
       file:write(minetest.write_json({
         name = name,
@@ -64,7 +66,8 @@ local function dump_tools()
   local i = 0
 
   for name, def in pairs(minetest.registered_tools) do
-    if yatm_core.string_starts_with(name, "yatm_") then
+    if yatm_core.string_starts_with(name, "yatm_") or
+       yatm_core.string_starts_with(name, "harmonia_") then
       i = i + 1
       file:write(minetest.write_json({
         name = name,
