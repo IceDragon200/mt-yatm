@@ -2,6 +2,9 @@
 --
 --
 minetest.register_craftitem("yatm_dscs:fluid_drive_t1", {
+  basename = "yatm_dscs:fluid_drive",
+  base_description = "Fluid Drive",
+
   description = "Fluid Drive [32 Cells]",
 
   groups = {inventory_drive = 1, fluid_drive = 1},
@@ -15,6 +18,9 @@ minetest.register_craftitem("yatm_dscs:fluid_drive_t1", {
 })
 
 minetest.register_craftitem("yatm_dscs:fluid_drive_t2", {
+  basename = "yatm_dscs:fluid_drive",
+  base_description = "Fluid Drive",
+
   description = "Fluid Drive [128 Cells]",
 
   groups = {inventory_drive = 2, fluid_drive = 2},
@@ -28,6 +34,9 @@ minetest.register_craftitem("yatm_dscs:fluid_drive_t2", {
 })
 
 minetest.register_craftitem("yatm_dscs:fluid_drive_t3", {
+  basename = "yatm_dscs:fluid_drive",
+  base_description = "Fluid Drive",
+
   description = "Fluid Drive [512 Cells]",
 
   groups = {inventory_drive = 3, fluid_drive = 3},
