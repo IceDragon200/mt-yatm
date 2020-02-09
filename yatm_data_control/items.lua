@@ -14,6 +14,9 @@ for _,pair in ipairs(colors) do
   local display_name = pair[2]
 
   minetest.register_craftitem("yatm_data_control:control_button_" .. basename, {
+    basename = "yatm_data_control:control_button",
+    base_description = "Control Button [Momentary Button]",
+
     description = "Control Button [Momentary Button] (" .. display_name .. ")",
 
     group = {
@@ -34,6 +37,9 @@ for _,pair in ipairs(colors) do
   })
 
   minetest.register_craftitem("yatm_data_control:control_switch_" .. basename, {
+    basename = "yatm_data_control:control_switch",
+    base_description = "Control Switch",
+
     description = "Control Switch (" .. display_name .. ")",
 
     group = {
