@@ -11,9 +11,14 @@ local variants = {
   {"X", "he", "High-Explosive", {explosive = 1}},
   -- ele - elemental round, when firing it also consumes MP from the user to deal additional damage
   {"E", "ele", "Elemental", {elemental = 1, magical = 1}},
-  -- frost - FROST special issued rounds, causes a freezing effect
-  {"F", "frost", "FROST", {freezing = 1}},
 }
+
+if yatm_blasts then
+  -- frost - FROST special issued rounds, causes a freezing effect
+  table.insert(variants, {"F", "frost", "FROST", {freezing = 1}})
+  -- emp - Electro Magnetic Pulse, disrupts the operation of some machines and entities
+  table.insert(variants, {"M", "emp", "EMP", {emp = 1}})
+end
 
 for _index,variant_row in ipairs(variants) do
   variant_code = variant_row[1]
