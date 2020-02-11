@@ -31,19 +31,20 @@ minetest.register_craftitem("yatm_armoury_icbm:icbm_nuclear_warhead", {
 
 -- Load any fluid into the warhead, when detonated it will cause an associated effect.
 --
-minetest.register_craftitem("yatm_armoury_icbm:icbm_chemical_warhead", {
-  description = "ICBM Chemical Warhead",
+if yatm_fluids then
+  minetest.register_craftitem("yatm_armoury_icbm:icbm_chemical_warhead", {
+    description = "ICBM Chemical Warhead",
 
-  groups = {
-    icbm_warhead = 1,
-    icbm_chemical_warhead = 1,
-  },
+    groups = {
+      icbm_warhead = 1,
+      icbm_chemical_warhead = 1,
+    },
 
-  icbm_warhead_type = "chemical",
+    icbm_warhead_type = "chemical",
 
-  inventory_image = "yatm_icbm_chemical_warhead.png",
-})
-
+    inventory_image = "yatm_icbm_chemical_warhead.png",
+  })
+end
 
 -- Sets fire to the area when detonated
 minetest.register_craftitem("yatm_armoury_icbm:icbm_incendiary_warhead", {
@@ -87,20 +88,6 @@ minetest.register_craftitem("yatm_armoury_icbm:icbm_he_warhead", {
   inventory_image = "yatm_icbm_high_explosive_warhead.png",
 })
 
--- Freezes area on detontation
-minetest.register_craftitem("yatm_armoury_icbm:icbm_frost_warhead", {
-  description = "ICBM FROST Warhead",
-
-  groups = {
-    icbm_warhead = 1,
-    icbm_frost_warhead = 1,
-  },
-
-  icbm_warhead_type = "frost",
-
-  inventory_image = "yatm_icbm_frost_warhead.png",
-})
-
 -- Capsule warhead
 -- Doesn't detontate, but offers inventory space
 minetest.register_craftitem("yatm_armoury_icbm:icbm_capsule_warhead", {
@@ -115,3 +102,35 @@ minetest.register_craftitem("yatm_armoury_icbm:icbm_capsule_warhead", {
 
   inventory_image = "yatm_icbm_capsule_warhead.png",
 })
+
+if yatm_blasts_frost then
+  -- Freezes area on detontation
+  minetest.register_craftitem("yatm_armoury_icbm:icbm_frost_warhead", {
+    description = "ICBM FROST Warhead",
+
+    groups = {
+      icbm_warhead = 1,
+      icbm_frost_warhead = 1,
+    },
+
+    icbm_warhead_type = "frost",
+
+    inventory_image = "yatm_icbm_frost_warhead.png",
+  })
+end
+
+if yatm_blasts_emp then
+  -- Disrupts electrical equipment in area
+  minetest.register_craftitem("yatm_armoury_icbm:icbm_emp_warhead", {
+    description = "ICBM EMP Warhead",
+
+    groups = {
+      icbm_warhead = 1,
+      icbm_emp_warhead = 1,
+    },
+
+    icbm_warhead_type = "emp",
+
+    inventory_image = "yatm_icbm_emp_warhead.png",
+  })
+end
