@@ -47,6 +47,8 @@ function belt_loader_yatm_network.work(pos, node, available_energy, work_rate, d
 end
 
 yatm.devices.register_stateful_network_device({
+  basename = "yatm_armoury:belt_loader",
+
   description =  "Ammo Belt Loader",
 
   groups = {
