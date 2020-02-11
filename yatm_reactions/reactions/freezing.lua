@@ -29,10 +29,10 @@ minetest.register_abm({
 
   catch_up = false,
 
-  action = function (pos, node)
-    local nodedef = minetest.registered_nodes[node.name]
+  action = function (pos, freezing_node)
+    local nodedef = minetest.registered_nodes[freezing_node.name]
     if nodedef.do_freezing then
-      nodedef.do_freezing(pos, node)
+      nodedef.do_freezing(pos, freezing_node)
     else
       local strength = nodedef.groups.freezing
       local p = minetest.find_node_near(pos, strength, dirts)
@@ -47,13 +47,13 @@ minetest.register_abm({
 
       p = minetest.find_node_near(pos, strength, freezables)
       if p then
-        local new_node = minetest.get_node(p)
-        local new_nodedef = minetest.registered_nodes[new_node.name]
-        if new_nodedef then
-          if new_nodedef.on_freeze then
-            new_nodedef.on_freeze(p, new_node)
-          elseif new_nodedef.freezes_to then
-            local freezes_to = new_nodedef.freezes_to
+        local freezable_node = minetest.get_node(p)
+        local freezable_nodedef = minetest.registered_nodes[freezable_node.name]
+        if freezable_nodedef then
+          if freezable_nodedef.on_freeze then
+            freezable_nodedef.on_freeze(p, freezable_node, strength)
+          elseif freezable_nodedef.freezes_to then
+            local freezes_to = freezable_nodedef.freezes_to
             minetest.set_node(p, { name = freezes_to })
           end
         end
