@@ -1,5 +1,7 @@
--- AMS - Azeros Munitions Standards: a fictional organization, I don't feel like dipping my foot in trademark stuff.
+-- AMS - Azeros Munitions Standards
 -- It's based on the NATO standard, so it should be easy to pick up.
+-- The Azeros is a fictional organization.
+yatm_armoury.ammunition_codes = {}
 
 local function yatm_armoury.register_ammunition_type(mod, params)
   local variant_code = params.code
@@ -7,9 +9,26 @@ local function yatm_armoury.register_ammunition_type(mod, params)
   local variant_name = params.name
   local variant_groups = params.groups
 
+  yatm_armoury.ammunition_codes[variant_code] = {
+    basename = variant_basename,
+    name = variant_name,
+    groups = variant_groups,
+    calibres = {
+      ["9x19mm"] = mod .. ":ammo_" .. variant_basename .. "_9x19mm",
+      ["5.56x45mm"] = mod .. ":ammo_" .. variant_basename .. "_5p56x45mm",
+      ["7.62x51mm"] = mod .. ":ammo_" .. variant_basename .. "_7p62x51mm",
+      ["12.7x99mm"] = mod .. ":ammo_" .. variant_basename .. "_12p7x99mm",
+      ["25x137mm"] = mod .. ":ammo_" .. variant_basename .. "_25x137mm",
+      ["30x173mm"] = mod .. ":ammo_" .. variant_basename .. "_30x173mm",
+      ["40x43mm-grenade"] = mod .. ":ammo_" .. variant_basename .. "_40x43mm_grenade",
+      ["81mm-mortar"] = mod .. ":ammo_" .. variant_basename .. "_81mm_mortar",
+    }
+  }
+  local ammo_def = yatm_armoury.ammunition_codes[variant_code]
+
   local groups = yatm_core.table_merge({ammunition = 1}, variant_groups)
 
-  minetest.register_craftitem(mod .. ":ammo_" .. variant_basename .. "_9x19mm", {
+  minetest.register_craftitem(ammo_def.calibres["9x19mm"], {
     basename = mod .. ":ammo_9x19mm",
     base_description = "AMS 9x19mm",
 
@@ -22,7 +41,7 @@ local function yatm_armoury.register_ammunition_type(mod, params)
     stack_max = 256,
   })
 
-  minetest.register_craftitem(mod .. ":ammo_" .. variant_basename .. "_5p56x45mm", {
+  minetest.register_craftitem(ammo_def.calibres["5.56x45mm"], {
     basename = mod .. ":ammo_5p56x45mm",
     base_description = "AMS 5.56x45mm",
 
@@ -36,7 +55,7 @@ local function yatm_armoury.register_ammunition_type(mod, params)
   })
 
   -- Battle Rifle Ammo
-  minetest.register_craftitem(mod .. ":ammo_" .. variant_basename .. "_7p62x51mm", {
+  minetest.register_craftitem(ammo_def.calibres["7.62x51mm"], {
     basename = mod .. ":ammo_7p62x51mm",
     base_description = "AMS 7.62x51mm",
 
@@ -50,7 +69,7 @@ local function yatm_armoury.register_ammunition_type(mod, params)
   })
 
   -- Anti-Material & Machine Gun Ammo
-  minetest.register_craftitem(mod .. ":ammo_" .. variant_basename .. "_12p7x99mm", {
+  minetest.register_craftitem(ammo_def.calibres["12.7x99mm"], {
     basename = mod .. ":ammo_12p7x99mm",
     base_description = "AMS 12.7x99mm",
 
@@ -63,7 +82,7 @@ local function yatm_armoury.register_ammunition_type(mod, params)
     stack_max = 96,
   })
 
-  minetest.register_craftitem(mod .. ":ammo_" .. variant_basename .. "_25x137mm", {
+  minetest.register_craftitem(ammo_def.calibres["25x137mm"], {
     basename = mod .. ":ammo_25x137mm",
     base_description = "AMS 25x137mm",
 
@@ -76,7 +95,7 @@ local function yatm_armoury.register_ammunition_type(mod, params)
     stack_max = 64,
   })
 
-  minetest.register_craftitem(mod .. ":ammo_" .. variant_basename .. "_30x173mm", {
+  minetest.register_craftitem(ammo_def.calibres["30x173mm"], {
     basename = mod .. ":ammo_30x173mm",
     base_description = "AMS 30x173mm",
 
@@ -89,7 +108,7 @@ local function yatm_armoury.register_ammunition_type(mod, params)
     stack_max = 32,
   })
 
-  minetest.register_craftitem(mod .. ":ammo_" .. variant_basename .. "_40x43mm_grenade", {
+  minetest.register_craftitem(ammo_def.calibres["40x43mm-grenade"], {
     basename = mod .. ":ammo_40x43mm_grenade",
     base_description = "AMS 40x43mm Grenade",
 
@@ -102,7 +121,7 @@ local function yatm_armoury.register_ammunition_type(mod, params)
     stack_max = 24,
   })
 
-  minetest.register_craftitem(mod .. ":ammo_" .. variant_basename .. "_81mm_mortar", {
+  minetest.register_craftitem(ammo_def.calibres["81mm-mortar"], {
     basename = mod .. ":ammo_81mm_mortar",
     base_description = "AMS 81mm Mortar",
 

@@ -56,14 +56,29 @@ function yatm_armoury.add_bullet_to_magazine(bullet_stack, magazine_stack)
 
       local magazine_meta = magazine_stack:get_meta()
 
+      -- these are how many bullets are currently in the magazine
       local bullet_count = magazine_meta:get_int("bullet_count")
+      -- this is a string representing the bullet order
       local bullet_string = magazine_meta:get_string("bullet_string")
+      -- this is the maximum size allowed for the magazine
       local magazine_size = magazine_itemdef.magazine_size
 
       local remaining_space = magazine_size - bullet_count
-      local bullets_to_take = math.min(bullet_stack:get_count(), remaining_space)
+      if remaining_space > 0 then
+        local bullets_to_take = math.min(bullet_stack:get_count(), remaining_space)
 
-      bullet_stack:take_item(bullets_to_take)
+        if bullets_to_take > 0 then
+          bullet_stack:take_item(bullets_to_take)
+
+          for i = 1,bullets_to_take do
+            -- the ammo_code is a single char that will be placed into the bullet_string
+            -- notice it's prefixed to the string, this because all magazines are LIFO
+            bullet_string = bullet_itemdef.ammo_code .. bullet_string
+          end
+          magazine_meta:set_int("bullet_count", bullet_count + bullets_to_take)
+          magazine_meta:set_string("bullet_string", bullet_string)
+        end
+      end
     end
   end
   return bullet_stack, magazine_stack

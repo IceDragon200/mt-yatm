@@ -14,7 +14,8 @@
 --  12.7x99mm
 --  25x137mm
 --  30x173mm
---  81mm_mortar
+--  40x43mm-grenade
+--  81mm-mortar
 --
 -- The magazines only specify a capacity, the type of Cartridges is up to the user
 -- For example they may load a magazine with alternating rounds
