@@ -42,10 +42,8 @@ function ic:_load_dump(dump)
           self.explosions[explosion_id] = {
             pos = explosion.pos,
             kind = explosion.kind,
-            params = explosion.params,
             assigns = explosion.assigns,
             elapsed = explosion.elapsed,
-            started = explosion.started,
             expired = explosion.expired,
           }
         else
@@ -72,10 +70,8 @@ function ic:persist_explosions()
     explosions[tostring(explosion_id)] = {
       pos = explosion.pos,
       kind = explosion.kind,
-      params = explosion.params,
       assigns = explosion.assigns,
       elapsed = explosion.elapsed,
-      started = explosion.started,
       expired = explosion.expired,
     }
   end
@@ -123,13 +119,6 @@ function ic:update(delta)
       explosion.elapsed = explosion.elapsed + delta
       local explosion_def = assert(self.explosion_types[explosion.kind])
 
-      if explosion.started then
-        explosion.started = true
-        if explosion_def.init then
-          explosion_def.init(self, explosion, explosion.assigns)
-        end
-      end
-
       explosion_def.update(self, explosion, explosion.assigns, delta)
     end
   end
@@ -158,18 +147,23 @@ end
 
 function ic:create_explosion(pos, kind, params)
   if self.explosion_types[kind] then
+    local explosion_def = self.explosion_types[kind]
     self.g_explosion_id = self.g_explosion_id + 1
     local id = self.g_explosion_id
 
-    self.explosions[id] = {
+    local explosion = {
       pos = pos,
       kind = kind,
-      params = params,
       assigns = {},
       elapsed = 0,
-      started = false,
       expired = false,
     }
+
+    if explosion_def.init then
+      explosion_def.init(self, explosion, explosion.assigns, params)
+    end
+
+    self.explosions[id] = explosion
     return true, nil
   end
   minetest.log("error", "explosion type " .. kind .. " does not exist")

@@ -14,6 +14,5 @@ dofile(yatm_blasts.modpath .. "/blasts_system.lua")
 
 dofile(yatm_blasts.modpath .. "/api.lua")
 
-
-
+-- so no one else gets a hold of it
 yatm_blasts.mod_storage = nil

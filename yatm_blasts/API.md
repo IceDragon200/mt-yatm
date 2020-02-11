@@ -19,7 +19,7 @@ yatm.blasts.system:register_explosion_type(name :: String, params :: Table)
 yatm.blasts.system:register_explosion_type("high-explosive", {
   description = "High Explosive",
 
-  init = function (blasts_system, explosion, assigns)
+  init = function (blasts_system, explosion, assigns, params)
     -- an example of setting some information on the assigns for use elsewhere
     assigns.is_high_explosive = true
   end,
