@@ -1,3 +1,23 @@
+function yatm_core.list_slice(t, start, len)
+  local result = {}
+
+  local j = 1
+  for i = start,start+len do
+    result[j] = t[i]
+    j = j + 1
+  end
+  return result
+end
+
+function yatm_core.list_last(t, count)
+  if count then
+    count = math.min(#t, count)
+    return yatm_core.list_slice(t, #t - count + 1, count)
+  else
+    return t[#t]
+  end
+end
+
 function yatm_core.list_map(list, fun)
   return yatm_core.list_reduce(list, {}, function (value, acc)
     table.insert(acc, fun(value))

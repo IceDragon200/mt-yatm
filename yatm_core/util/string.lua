@@ -33,13 +33,18 @@ for hexc, dec in pairs(HEX_TO_DEC) do
   HEXB_TO_DEC[string.byte(hexc)] = dec
 end
 
+local HEX_BYTE_TO_DEC = {}
+for hex_char, dec in pairs(HEX_TO_DEC) do
+  HEX_BYTE_TO_DEC[string.byte(hex_char, 1, 1)] = dec
+end
+
 local function byte_to_hex(byte)
   local hinibble = math.floor(byte / 16)
   local lonibble = byte % 16
   return "\\x" .. HEX_TABLE[hinibble] .. HEX_TABLE[lonibble]
 end
 
-function yatm_core.string_bin_encode(str)
+function yatm_core.string_bin_encode(str, spacer)
   local result = {}
   local bytes = {string.byte(str, 1, -1)}
 
@@ -64,12 +69,18 @@ function yatm_core.string_bin_encode(str)
     result[j + 6] = b1
     result[j + 7] = b0
     j = j + 8
+    if spacer then
+      if i < len then
+        result[j] = spacer
+        j = j + #spacer
+      end
+    end
   end
 
   return table.concat(result)
 end
 
-function yatm_core.string_dec_encode(str)
+function yatm_core.string_dec_encode(str, spacer)
   local result = {}
   local bytes = {string.byte(str, 1, -1)}
 
@@ -85,16 +96,64 @@ function yatm_core.string_dec_encode(str)
     result[j + 2] = o
 
     j = j + 3
+    if spacer then
+      if i < len then
+        result[j] = spacer
+        j = j + #spacer
+      end
+    end
   end
 
   return table.concat(result)
 end
 
-function yatm_core.string_hex_encode(str)
+--
+-- Removes any non-hex characters
+--
+function yatm_core.string_hex_clean(str)
   local result = {}
   local bytes = {string.byte(str, 1, -1)}
 
   local j = 1
+  local i = 1
+  local len = #bytes
+  while i < len do
+    local byte = bytes[i]
+    if HEX_BYTE_TO_DEC[byte] then
+      result[j] = string.char(byte)
+      j = j + 1
+    end
+    i = i + 1
+  end
+
+  return table.concat(result)
+end
+
+function yatm_core.string_hex_decode(str)
+  local result = {}
+  local bytes = {string.byte(str, 1, -1)}
+
+  local j = 1
+  local i = 1
+  local len = #bytes
+  while i < len do
+    local hinibble = bytes[i + 0] or 0
+    local lonibble = bytes[i + 1] or 0
+    local byte = HEX_BYTE_TO_DEC[hinibble] * 16 + HEX_BYTE_TO_DEC[lonibble]
+    result[j] = string.char(byte)
+    i = i + 2
+    j = j + 1
+  end
+
+  return table.concat(result)
+end
+
+function yatm_core.string_hex_encode(str, spacer)
+  local result = {}
+  local bytes = {string.byte(str, 1, -1)}
+
+  local j = 1
+  local len = #bytes
 
   for i, byte in ipairs(bytes) do
     local hinibble = math.floor(byte / 16)
@@ -102,6 +161,12 @@ function yatm_core.string_hex_encode(str)
     result[j] = HEX_TABLE[hinibble]
     result[j + 1] = HEX_TABLE[lonibble]
     j = j + 2
+    if spacer then
+      if i < len then
+        result[j] = spacer
+        j = j + #spacer
+      end
+    end
   end
 
   return table.concat(result)
@@ -241,6 +306,46 @@ function yatm_core.string_unescape(str)
   return table.concat(result)
 end
 
+function yatm_core.string_sub_join(str, cols, joiner)
+  local result = {}
+  local remaining = str
+  local i = 1
+  while #remaining > 0 do
+    local line = string.sub(remaining, 1, cols)
+    remaining = string.sub(remaining, cols + 1)
+    result[i] = line
+    i = i + 1
+  end
+  return table.concat(result, joiner)
+end
+
+function yatm_core.string_remove_spaces(str)
+  local result = {}
+  local bytes = {string.byte(str, 1, -1)}
+
+  local i = 1
+  local len = #bytes
+  local j = 1
+
+  while i <= len do
+    local byte = bytes[i]
+
+    -- skip spaces, newlines, returns and tabs
+    if byte == 32 or
+       byte == 13 or
+       byte == 10 or
+       byte == 9 or
+       byte == 0 then
+      --
+    else
+      result[j] = string.char(byte)
+      j = j + 1
+    end
+    i = i + 1
+  end
+  return table.concat(result)
+end
+
 function yatm_core.string_starts_with(str, expected)
   return expected == "" or string.sub(str, 1, #expected) == expected
 end
@@ -289,51 +394,54 @@ function yatm_core.string_pad_trailing(str, count, padding)
   return result
 end
 
--- https://stackoverflow.com/a/1647577
--- Modified for this
-local function string_split_iter(str, pat)
-  if string.find(str, pat) then
-    local st = 1
-    local g = string.gmatch(str, "()(" .. pat .. ")")
-
-    local function getter(segs, seps, sep, cap1, ...)
-      st = sep and seps + #sep
-      return string.sub(str, segs, (seps or 0) - 1), cap1 or sep, ...
-    end
-
-    return function()
-      if st then
-        return getter(st, g())
-      end
-    end
-  else
-    return function ()
-      return str
-    end
-  end
-end
-
--- @spec split(String.t, String.t) :: {String.t}
 function yatm_core.string_split(str, pattern)
   if str == "" then
     return {}
   end
+
+  local result = {}
+
   if not pattern or pattern == "" then
-    local result = {}
     for i = 1,#str do
       result[i] = string.sub(str, i, i)
     end
-    return result
   else
-    local result = {}
-    local iter = string_split_iter(str, pattern)
-    local item = iter()
-    local i = 0
-    while item do
+    local remaining = str
+    local pattern_length = #pattern
+    local i = 1
+
+    while remaining do
+      local head, tail = string.find(remaining, pattern)
+      if head then
+        local part = string.sub(remaining, 1, head - 1)
+        result[i] = part
+        remaining = string.sub(remaining, tail + 1)
+      else
+        result[i] = remaining
+        remaining = nil
+      end
       i = i + 1
-      result[i] = item
-      item = iter()
     end
-    return result
   end
+
+  return result
+end
+
+function yatm_core.binary_splice(target, start, byte_count, bin)
+  local head = string.sub(target, 1, start - 1)
+  local tail = string.sub(target, start + byte_count)
+
+  local mid
+  if type(bin) == "number" then
+    if byte_count == 1 then
+      mid = string.char(bin)
+    else
+      error("using a number as the binary value and a non byte_count of 1 is not yet supported")
+    end
+  else
+    -- expected to be a string
+    mid = string.sub(bin, 1, byte_count)
+  end
+
+  return head .. mid .. tail
 end
