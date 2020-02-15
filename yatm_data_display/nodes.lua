@@ -43,6 +43,8 @@ for ascii_code, new_ascii_code in pairs(ASCII_TABLE) do
 
       groups = groups,
 
+      ascii_char = string.char(new_ascii_code),
+
       tiles = {
         top_tile,
         "yatm_data_char_display_bottom.png",
@@ -138,7 +140,11 @@ yatm.register_stateful_node("yatm_data_display:ascii_display", {
 
   refresh_infotext = function (pos)
     local meta = minetest.get_meta(pos)
+    local node = minetest.get_node(pos)
+    local nodedef = minetest.registered_nodes[node.name]
+
     local infotext =
+      "ASCII Display: " .. nodedef.ascii_char .. "\n" ..
       data_network:get_infotext(pos)
 
     meta:set_string("infotext", infotext)
