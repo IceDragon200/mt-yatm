@@ -1,4 +1,5 @@
 local BlastsSystem = yatm_core.Class:extends("BlastsSystem")
+local ic = assert(BlastsSystem.instance_class)
 
 local mod_storage = yatm_blasts.mod_storage
 
@@ -96,7 +97,7 @@ function ic:register_explosion_type(name, params)
 end
 
 function ic:unregister_explosion_type(name)
-  self.explosion_types[name]
+  self.explosion_types[name] = nil
   return self
 end
 
@@ -167,7 +168,7 @@ function ic:create_explosion(pos, kind, params)
     return true, nil
   end
   minetest.log("error", "explosion type " .. kind .. " does not exist")
-  return false, 'explosion type doesn't exist
+  return false, "explosion type doesn't exist"
 end
 
 yatm_blasts.BlastsSystem = BlastsSystem
