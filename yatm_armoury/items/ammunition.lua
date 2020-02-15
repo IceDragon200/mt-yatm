@@ -3,13 +3,13 @@
 -- The Azeros is a fictional organization.
 yatm_armoury.ammunition_codes = {}
 
-local function yatm_armoury.register_ammunition_type(mod, params)
+function yatm_armoury:register_ammunition_type(mod, params)
   local variant_code = params.code
   local variant_basename = params.basename
   local variant_name = params.name
   local variant_groups = params.groups
 
-  yatm_armoury.ammunition_codes[variant_code] = {
+  self.ammunition_codes[variant_code] = {
     basename = variant_basename,
     name = variant_name,
     groups = variant_groups,
@@ -24,7 +24,7 @@ local function yatm_armoury.register_ammunition_type(mod, params)
       ["81mm-mortar"] = mod .. ":ammo_" .. variant_basename .. "_81mm_mortar",
     }
   }
-  local ammo_def = yatm_armoury.ammunition_codes[variant_code]
+  local ammo_def = self.ammunition_codes[variant_code]
 
   local groups = yatm_core.table_merge({ammunition = 1}, variant_groups)
 
@@ -147,18 +147,18 @@ local variants = {
   {"E", "ele", "Elemental", {elemental = 1, magical = 1}},
 }
 
-if yatm_blasts_frost then
+if rawget(_G, "yatm_blasts_frost") then
   -- frost - FROST special issued rounds, causes a freezing effect
   table.insert(variants, {"F", "frost", "FROST", {freezing = 1}})
 end
 
-if yatm_blasts_emp then
+if rawget(_G, "yatm_blasts_emp") then
   -- emp - Electro Magnetic Pulse, disrupts the operation of some machines and entities
   table.insert(variants, {"M", "emp", "EMP", {emp = 1}})
 end
 
 for _index,variant_row in ipairs(variants) do
-  yatm_armoury.register_ammunition_type("yatm_armoury", {
+  yatm_armoury:register_ammunition_type("yatm_armoury", {
     code = variant_row[1],
     basename = variant_row[2],
     name = variant_row[3],

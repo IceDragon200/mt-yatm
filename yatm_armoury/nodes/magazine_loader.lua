@@ -6,6 +6,8 @@ if not yatm_machines then
   return
 end
 
+local ItemInterface = assert(yatm.items.ItemInterface)
+
 local magazine_loader_item_interface =
   ItemInterface.new_directional(function (self, pos, dir)
     local node = minetest.get_node(pos)
@@ -18,7 +20,7 @@ local magazine_loader_item_interface =
     end
   end)
 
-local magazine_yatm_network = {
+local magazine_loader_yatm_network = {
   basename = "yatm_armoury:magazine_loader",
   kind = "machine",
   groups = {
@@ -39,6 +41,9 @@ local magazine_yatm_network = {
     startup_threshold = 500,
   },
 }
+
+function magazine_loader_yatm_network.work()
+end
 
 yatm.devices.register_stateful_network_device({
   basename = "yatm_armoury:magazine_loader",

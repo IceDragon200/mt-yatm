@@ -20,7 +20,7 @@ minetest.register_tool("yatm_armoury:grenade_chemical", {
   inventory_image = "yatm_grenades_chemical.png",
 })
 
-if yatm_blasts_emp then
+if rawget(_G, "yatm_blasts_emp") then
   minetest.register_tool("yatm_armoury:grenade_emp", {
     description = "EMP Grenade\nCaution: Do not throw near machines.",
     lore = "A neatly packed Grenade of electro-magnetic goodness.",
@@ -34,7 +34,7 @@ if yatm_blasts_emp then
   })
 end
 
-if yatm_blasts_frost then
+if rawget(_G, "yatm_blasts_frost") then
   minetest.register_tool("yatm_armoury:grenade_frost", {
     description = "FROST Grenade\nCold to touch.",
     lore = "An experimental grenade issued by FROST, causes freezing upon detonation.",
