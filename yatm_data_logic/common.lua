@@ -1,13 +1,19 @@
 local data_network = assert(yatm.data_network)
 
+--
+-- Unbind input on ALL directions for specified position
+--
 function yatm_data_logic.unmark_all_receive(pos)
   assert(pos, "expected a position")
   data_network:unmark_ready_to_receive(pos, 0, 0)
 end
 
-function yatm_data_logic.bind_input_port(pos, local_port, status)
+--
+-- Bind specified port to ALL directions on the position
+--
+function yatm_data_logic.bind_input_port(pos, local_port, bind_type)
   for _, dir in ipairs(yatm_core.DIR6) do
-    data_network:mark_ready_to_receive(pos, dir, local_port, status or "active")
+    data_network:mark_ready_to_receive(pos, dir, local_port, bind_type or "active")
   end
 end
 
@@ -71,7 +77,23 @@ function yatm_data_logic.emit_output_data_vector(pos, vector_value, options)
   end
 end
 
-function yatm_data_logic.emit_port_value(pos, port_prefix, port_name, value)
+function yatm_data_logic.get_matrix_port(pos, port_prefix, port_name, dir)
+  local meta = minetest.get_meta(pos)
+  local port_field_name = port_prefix .. "_" .. dir .. "_" .. port_name
+
+  return meta:get_int(port_field_name)
+end
+
+function yatm_data_logic.bind_matrix_ports(pos, port_prefix, port_name, bind_type)
+  for _, dir in ipairs(yatm_core.DIR6) do
+    local local_port = yatm_data_logic.get_matrix_port(pos, port_prefix, port_name, dir)
+    if local_port > 0 then
+      data_network:mark_ready_to_receive(pos, dir, local_port, bind_type or "active")
+    end
+  end
+end
+
+function yatm_data_logic.emit_matrix_port_value(pos, port_prefix, port_name, value)
   local meta = minetest.get_meta(pos)
   local sub_network_ids = data_network:get_sub_network_ids(pos)
 
@@ -392,17 +414,27 @@ function yatm_data_logic.handle_io_port_fields(pos, fields, meta, mode, options)
 end
 
 function yatm_data_logic.handle_port_matrix_fields(pos, fields, meta, options)
+  local result = {}
   for _, dir in ipairs(yatm_core.DIR6) do
     for section_index, section in ipairs(options.sections) do
       for port_id = 1, section.port_count do
-        local field_name = section.name .. "_" .. dir .. "_" .. (section.port_names[port_id] or port_id)
+        local port_name = section.port_names[port_id] or port_id
+        local field_name = section.name .. "_" .. dir .. "_" .. port_name
 
         if fields[field_name] then
+          local old_value = meta:get_int(field_name)
           local value = tonumber(fields[field_name])
 
-          meta:set_int(field_name, value)
+          if old_value ~= value then
+            meta:set_int(field_name, value)
+            if not result[section.name] then
+              result[section.name] = {}
+            end
+            result[section.name][port_name] = value
+          end
         end
       end
     end
   end
+  return result
 end

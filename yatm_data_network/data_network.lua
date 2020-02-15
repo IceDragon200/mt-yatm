@@ -6,7 +6,7 @@ local ic = assert(DataNetwork.instance_class)
 
 DataNetwork.PORT_RANGE = 16
 DataNetwork.COLOR_RANGE = {
--- name      = {offset :: integer, range :: integer}
+-- name      = { offset = integer, range = integer}
   multi      = { offset = 0,   range = DataNetwork.PORT_RANGE * 16},
   white      = { offset = 16,  range = DataNetwork.PORT_RANGE},
   grey       = { offset = 32,  range = DataNetwork.PORT_RANGE},
@@ -38,6 +38,44 @@ function ic:initialize()
   yatm.clusters:observe('on_block_expired', 'yatm_data_network/block_unloader', function (block_id)
     self:unload_block(block_id)
   end)
+end
+
+function ic:init()
+  self:log("initializing")
+  self:log("initialized")
+end
+
+function ic:terminate()
+  --
+  self:log("terminating")
+  -- release everything
+  self.m_queued_refreshes = {}
+  self.m_networks = {}
+  self.m_members = {}
+  self.m_members_by_group = {}
+  self:log("terminated")
+end
+
+function ic:update(dt)
+  self.m_counter = self.m_counter + 1
+  if not yatm_core.is_table_empty(self.m_queued_refreshes) then
+    self.m_resolution_id = self.m_resolution_id + 1
+    self:log("starting queued refreshes", "resolution_id=" .. self.m_resolution_id)
+
+    local old_queued_refreshes = self.m_queued_refreshes
+    self.m_queued_refreshes = {}
+
+    for hash, event in pairs(old_queued_refreshes) do
+      if not event.cancelled then
+        --self:log("refreshing from position", minetest.pos_to_string(event.pos))
+        self:refresh_from_pos(event.pos)
+      end
+    end
+  end
+
+  for network_id, network in pairs(self.m_networks) do
+    self:update_network(network, dt)
+  end
 end
 
 function ic:log(...)
@@ -1050,42 +1088,10 @@ function ic:_build_sub_network(network, origin_pos)
   end
 end
 
-function ic:update(dt)
-  self.m_counter = self.m_counter + 1
-  if not yatm_core.is_table_empty(self.m_queued_refreshes) then
-    self.m_resolution_id = self.m_resolution_id + 1
-    self:log("starting queued refreshes", "resolution_id=" .. self.m_resolution_id)
-
-    local old_queued_refreshes = self.m_queued_refreshes
-    self.m_queued_refreshes = {}
-
-    for hash, event in pairs(old_queued_refreshes) do
-      if not event.cancelled then
-        --self:log("refreshing from position", minetest.pos_to_string(event.pos))
-        self:refresh_from_pos(event.pos)
-      end
-    end
-  end
-
-  for network_id, network in pairs(self.m_networks) do
-    self:update_network(network, dt)
-  end
-end
-
-function ic:terminate()
-  --
-  self:log("terminating")
-  -- release everything
-  self.m_queued_refreshes = {}
-  self.m_networks = {}
-  self.m_members = {}
-  self.m_members_by_group = {}
-  self:log("terminated")
-end
-
 local data_network = DataNetwork:new()
 
 do
+  minetest.register_on_mods_loaded(data_network:method("init"))
   minetest.register_globalstep(data_network:method("update"))
   minetest.register_on_shutdown(data_network:method("terminate"))
 

@@ -103,12 +103,12 @@ minetest.register_node("yatm_data_logic:data_proximity_sensor", {
         meta:set_int("last_hp", hp)
         meta:set_string("last_name", name)
 
-        yatm_data_logic.emit_port_value(pos, "port", "exists", yatm_core.string_hex_escape(ByteEncoder:e_u8(exists)))
-        yatm_data_logic.emit_port_value(pos, "port", "x", yatm_core.string_hex_escape(ByteEncoder:e_i16(x)))
-        yatm_data_logic.emit_port_value(pos, "port", "y", yatm_core.string_hex_escape(ByteEncoder:e_i16(y)))
-        yatm_data_logic.emit_port_value(pos, "port", "z", yatm_core.string_hex_escape(ByteEncoder:e_i16(z)))
-        yatm_data_logic.emit_port_value(pos, "port", "hp", yatm_core.string_hex_escape(ByteEncoder:e_u16(hp)))
-        yatm_data_logic.emit_port_value(pos, "port", "name", name)
+        yatm_data_logic.emit_matrix_port_value(pos, "port", "exists", yatm_core.string_hex_escape(ByteEncoder:e_u8(exists)))
+        yatm_data_logic.emit_matrix_port_value(pos, "port", "x", yatm_core.string_hex_escape(ByteEncoder:e_i16(x)))
+        yatm_data_logic.emit_matrix_port_value(pos, "port", "y", yatm_core.string_hex_escape(ByteEncoder:e_i16(y)))
+        yatm_data_logic.emit_matrix_port_value(pos, "port", "z", yatm_core.string_hex_escape(ByteEncoder:e_i16(z)))
+        yatm_data_logic.emit_matrix_port_value(pos, "port", "hp", yatm_core.string_hex_escape(ByteEncoder:e_u16(hp)))
+        yatm_data_logic.emit_matrix_port_value(pos, "port", "name", name)
 
         yatm.queue_refresh_infotext(pos, node)
       end
