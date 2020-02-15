@@ -60,7 +60,9 @@ local function get_formspec(pos, user, assigns)
     "formspec_version[2]" ..
     "size[12,12]" ..
     yatm.formspec_bg_for_player(user:get_player_name(), "display") ..
-    "field[0.5,10.5;11,1;console_input;;;]" ..
+    "textarea[0.5,1;11,9;;History;" .. minetest.formspec_escape(meta:get_string("history")) .. "]" ..
+    "field[0.5,10.5;11,1;console_input;;]" ..
+    "field_close_on_enter[console_input;false]" ..
     ""
 
   return formspec
@@ -70,6 +72,14 @@ local function get_formspec_name(pos)
   return "yatm_data_console_monitor:console_monitor:" .. yatm.vector3.to_string(pos)
 end
 
+local function append_history(meta, new_line)
+  local history = meta:get_string("history")
+  local lines = yatm_core.string_split(history, "\n")
+  table.insert(lines, new_line)
+  lines = yatm_core.list_last(lines, 16)
+  meta:set_string("history", table.concat(lines, "\n"))
+end
+
 local function receive_fields(player, form_name, fields, assigns)
   local meta = minetest.get_meta(assigns.pos)
   local needs_refresh = false
@@ -77,7 +87,11 @@ local function receive_fields(player, form_name, fields, assigns)
   --
   if fields["key_enter_field"] then
     if fields["key_enter_field"] == "console_input" then
-      yatm_data_logic.emit_output_data_value(assigns.pos, fields.console_input)
+      local new_line = fields.console_input
+      append_history(meta, new_line)
+
+      minetest.log("action", player:get_player_name() .. " sent some data from console")
+      yatm_data_logic.emit_output_data_value(assigns.pos, new_line)
       needs_refresh = true
     end
   end
@@ -168,13 +182,15 @@ yatm.devices.register_stateful_network_device({
   refresh_infotext = refresh_infotext,
 
   on_construct = function (pos)
+    local meta = minetest.get_meta(pos)
+    meta:set_string("history", "")
     local node = minetest.get_node(pos)
-    devices.device_on_construct(pos)
+    yatm.devices.device_on_construct(pos)
     data_network:add_node(pos, node)
   end,
 
   after_destruct = function (pos, node)
-    devices.device_after_destruct(pos, node)
+    yatm.devices.device_after_destruct(pos, node)
     data_network:remove_node(pos, node)
   end,
 
