@@ -106,7 +106,8 @@ yatm.register_stateful_node("yatm_data_display:ascii_display", {
             param2 = node.param2,
           }
           minetest.swap_node(pos, new_node)
-          data_network:upsert_member(pos, node)
+          data_network:upsert_member(pos, new_node)
+          yatm.queue_refresh_infotext(pos, new_node)
         end
       end
     end,
