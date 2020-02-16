@@ -42,6 +42,12 @@
 -- 'gl'  Grenade Launcher
 --
 
+-- firearms are designed on a 24x24 grid, the Sallos HG is the reference point
+local function make_visual_scale(res)
+  local a = res / 24
+  return { x = a, y = a, z = a }
+end
+
 -- 9x19mm - Semi-Automatic
 yatm.register_stateful_tool("yatm_armoury:firearm_hg9mm_semi", {
   description = "AMS Sallos HG 19S\nStandard issued Handgun",
@@ -57,6 +63,8 @@ yatm.register_stateful_tool("yatm_armoury:firearm_hg9mm_semi", {
   feed_systems = {magazine = 1},
 
   stack_max = 1,
+
+  wield_scale = make_visual_scale(24),
 }, {
   ul = {
     inventory_image = "yatm_firearms_hg9mm_semi_ul.png",
@@ -81,6 +89,8 @@ yatm.register_stateful_tool("yatm_armoury:firearm_smg9mm_auto", {
   feed_systems = {magazine = 1, drum = 1},
 
   stack_max = 1,
+
+  wield_scale = make_visual_scale(32),
 }, {
   ul = {
     inventory_image = "yatm_firearms_smg9mm_auto_ul.png",
@@ -108,6 +118,8 @@ yatm.register_stateful_tool("yatm_armoury:firearm_mg9mm_auto", {
   feed_systems = {belt = 1},
 
   stack_max = 1,
+
+  wield_scale = make_visual_scale(32),
 }, {
   ul = {
     inventory_image = "yatm_firearms_mg9mm_auto_ul.png",
@@ -132,6 +144,8 @@ yatm.register_stateful_tool("yatm_armoury:firearm_rfl45mm_semi", {
   feed_systems = {magazine = 1},
 
   stack_max = 1,
+
+  wield_scale = make_visual_scale(64),
 }, {
   ul = {
     inventory_image = "yatm_firearms_rfl45mm_semi_ul.png",
@@ -156,6 +170,8 @@ yatm.register_stateful_tool("yatm_armoury:firearm_rfl45mm_auto", {
   feed_systems = {magazine = 1, belt = 1, drum = 1},
 
   stack_max = 1,
+
+  wield_scale = make_visual_scale(64),
 }, {
   ul = {
     inventory_image = "yatm_firearms_rfl45mm_auto_ul.png",
@@ -187,6 +203,8 @@ yatm.register_stateful_tool("yatm_armoury:firearm_br51mm_semi", {
   feed_systems = {magazine = 1},
 
   stack_max = 1,
+
+  wield_scale = make_visual_scale(80),
 }, {
   ul = {
     inventory_image = "yatm_firearms_br51mm_semi_ul.png",
@@ -211,6 +229,8 @@ yatm.register_stateful_tool("yatm_armoury:firearm_br51mm_auto", {
   feed_systems = {magazine = 1, belt = 1},
 
   stack_max = 1,
+
+  wield_scale = make_visual_scale(80),
 }, {
   ul = {
     inventory_image = "yatm_firearms_br51mm_auto_ul.png",
@@ -238,6 +258,8 @@ yatm.register_stateful_tool("yatm_armoury:firearm_amr99mm_semi", {
   feed_systems = {magazine = 1},
 
   stack_max = 1,
+
+  wield_scale = make_visual_scale(96),
 }, {
   ul = {
     inventory_image = "yatm_firearms_amr99mm_semi_ul.png",
@@ -262,6 +284,8 @@ yatm.register_stateful_tool("yatm_armoury:firearm_hmg99mm_auto", {
   feed_systems = {magazine = 1, belt = 1},
 
   stack_max = 1,
+
+  wield_scale = make_visual_scale(96),
 }, {
   ul = {
     inventory_image = "yatm_firearms_hmg99mm_auto_ul.png",
