@@ -1,6 +1,6 @@
 local data_network = assert(yatm.data_network)
 
-local function scale_value(range)
+local function scale_value(value, range)
   return math.min(math.max(math.floor(value * range), 0), range)
 end
 
@@ -142,7 +142,7 @@ minetest.register_node("yatm_data_logic:data_clock", {
         local precision = math.max(math.min(tonumber(fields["precision"]), 4), 1)
 
         local old_precision = meta:get_int("precision")
-        if old_precision ~= then
+        if old_precision ~= precision then
           meta:set_int("precision", precision)
           needs_refresh = true
         end
