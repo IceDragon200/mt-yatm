@@ -1,5 +1,30 @@
 local data_network = assert(yatm.data_network)
 
+function yatm_data_logic.encode_u8(value)
+  return string.char(value % 0xFF)
+end
+
+function yatm_data_logic.encode_u16(value)
+  local lobyte = value % 0xFF
+  local hibyte = math.floor(value / 0xFF) % 0xFF
+  return string.char(lobyte) .. string.char(hibyte)
+end
+
+function yatm_data_logic.encode_u24(value)
+  local lobyte = value % 0xFF
+  local mibyte = math.floor(value / 0xFF) % 0xFF
+  local hibyte = math.floor(math.floor(value / 0xFF) / 0xFF) % 0xFF
+  return string.char(lobyte) .. string.char(mibyte) .. string.char(hibyte)
+end
+
+function yatm_data_logic.encode_u32(value)
+  local seg0 = value % 0xFF
+  local seg1 = math.floor(value / 0xFF) % 0xFF
+  local seg2 = math.floor(math.floor(value / 0xFF) / 0xFF) % 0xFF
+  local seg3 = math.floor(math.floor(math.floor(value / 0xFF) / 0xFF) / 0xFF) % 0xFF
+  return string.char(seg0) .. string.char(seg1) .. string.char(seg2) .. string.char(seg3)
+end
+
 --
 -- Unbind input on ALL directions for specified position
 --

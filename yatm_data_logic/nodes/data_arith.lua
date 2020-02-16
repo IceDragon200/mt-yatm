@@ -279,7 +279,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   },
 
   subtract = {
-    description = "Data Arithmetic [Subtract]\nSubtracts input data",
+    description = "Data Arithmetic [Subtraction]\nSubtracts input data",
 
     codex_entry_id = "yatm_data_logic:data_arith_subtract",
 
@@ -327,7 +327,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   },
 
   multiply = {
-    description = "Data Arithmetic [Multiply]\nMultiply input data",
+    description = "Data Arithmetic [Multiplication]\nMultiplies input data",
 
     codex_entry_id = "yatm_data_logic:data_arith_multiply",
 
@@ -372,7 +372,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   },
 
   divide = {
-    description = "Data Arithmetic [Divide]\nDivide Arithmetic",
+    description = "Data Arithmetic [Division]\nDivide Arithmetic",
 
     codex_entry_id = "yatm_data_logic:data_arith_divide",
 
@@ -577,7 +577,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   },
 
   subtract_vector = {
-    description = "Data Arithmetic [Subtract Vector]\nSubtracts input data",
+    description = "Data Arithmetic [Subtraction Vector]\nSubtracts input data",
 
     codex_entry_id = "yatm_data_logic:data_arith_subtract_vector",
 
@@ -616,7 +616,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   },
 
   multiply_vector = {
-    description = "Data Arithmetic [Multiply Vector]\nMultiply input data",
+    description = "Data Arithmetic [Multiplication Vector]\nMultiply input data",
 
     codex_entry_id = "yatm_data_logic:data_arith_multiply_vector",
 
@@ -655,7 +655,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   },
 
   divide_vector = {
-    description = "Data Arithmetic [Divide Vector]\nDivide input data",
+    description = "Data Arithmetic [Division Vector]\nDivide input data",
 
     codex_entry_id = "yatm_data_logic:data_arith_divide_vector",
 
