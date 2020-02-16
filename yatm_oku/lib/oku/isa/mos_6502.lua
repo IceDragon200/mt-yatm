@@ -50,7 +50,7 @@ local isa = {}
 function isa.test()
   local chip = ffi.new("struct oku_6502_chip")
   local mem_size = 0xFFFF
-  local mem = ffi.new("char[?]", mem_size)
+  local mem = ffi.new("uint8_t[?]", mem_size)
 
   oku_6502.oku_6502_init(chip)
 

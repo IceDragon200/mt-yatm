@@ -1,3 +1,7 @@
+--
+-- Memory model used by OKU
+--
+
 -- yatm_oku will remove ffi from it's global object before finishing init,
 -- therefore we need to keep a reference here instead
 local ffi = yatm_oku.ffi

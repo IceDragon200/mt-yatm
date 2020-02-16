@@ -1,3 +1,6 @@
+--
+-- Utility module for parsing ELF32 binares and possibly ELF64 in the future...
+--
 local ByteBuf = yatm_core.ByteBuf
 
 if not ByteBuf then
