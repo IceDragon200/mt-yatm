@@ -159,7 +159,7 @@ minetest.register_node("yatm_data_logic:data_memory", {
 
       if fields["address"] then
         local address = tonumber(fields["address"])
-        meta:set_string("address_offset", address)
+        meta:set_int("address_offset", address)
       end
 
       if fields["memory"] then
