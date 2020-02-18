@@ -289,12 +289,12 @@ yatm.devices.register_stateful_network_device({
 
   on_construct = function (pos)
     local node = minetest.get_node(pos)
-    devices.device_on_construct(pos)
+    yatm.devices.device_on_construct(pos)
     data_network:add_node(pos, node)
   end,
 
   after_destruct = function (pos, node)
-    devices.device_after_destruct(pos, node)
+    yatm.devices.device_after_destruct(pos, node)
     data_network:remove_node(pos, node)
   end,
 
