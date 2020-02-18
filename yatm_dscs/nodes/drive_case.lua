@@ -74,7 +74,7 @@ local drive_case_yatm_network = {
 
 local function allow_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
   if from_list == "drive_bay" and to_list == "drive_bay" then
-    return count
+    return 1
   end
   return 0
 end
