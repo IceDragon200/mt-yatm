@@ -75,6 +75,7 @@ end
 
 local function computer_after_destruct(pos, old_node)
   data_network:remove_node(pos, old_node)
+  yatm.computers:destroy_computer(pos, old_node)
   yatm.devices.device_after_destruct(pos, old_node)
 end
 
@@ -180,7 +181,7 @@ yatm.devices.register_stateful_network_device({
       meta:set_string("secret", "comp." .. secret)
     end
     yatm.computers:upsert_computer(pos, node, meta:get_string("secret"), {})
-  end
+  end,
 }, {
   error = {
     tiles = {

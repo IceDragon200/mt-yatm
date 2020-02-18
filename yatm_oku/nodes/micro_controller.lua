@@ -104,7 +104,7 @@ local function micro_controller_on_destruct(pos)
 end
 
 local function micro_controller_after_destruct(pos, old_node)
-  data_network:unregister_member(pos, old_node)
+  data_network:remove_node(pos, old_node)
   yatm.computers:destroy_computer(pos, old_node)
 end
 

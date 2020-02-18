@@ -49,6 +49,12 @@ function m:initialize(size)
   print("oku", "Memory", "allocated size=" .. self.m_size)
 end
 
+-- Sets the circular access flag in memory
+-- This causes overwrites to start back from the start when it overflows.
+function m:set_circular_access(bool)
+  self.m_circular_access = bool
+end
+
 function m:size()
   return self.m_size
 end
@@ -110,6 +116,11 @@ function m:w_blob(index, blob)
   local size = #blob
   index = self:check_and_adjust_index(index, size)
   ffi.copy(self.m_data + index, blob, size)
+  return self
+end
+
+function m:fill(value)
+  ffi.fill(self.m_data, self.m_size, value)
   return self
 end
 

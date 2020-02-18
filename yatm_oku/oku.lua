@@ -66,6 +66,12 @@ function ic:initialize(options)
   self.exec_counter = 0
 end
 
+-- (see Memory:set_circular_access for details)
+function ic:set_memory_circular_access(bool)
+  self.m_memory:set_circular_access(bool)
+  return self
+end
+
 -- Reset the stack pointer to the end of memory
 function ic:reset_sp()
   self.registers.x[2].u32 = self.m_memory:size()
@@ -106,6 +112,12 @@ function ic:w_memory_blob(index, bytes)
   assert(index, "expected an index")
   assert(index, "expected a blob")
   self.m_memory:w_blob(index, bytes)
+  return self
+end
+
+function ic:fill_memory(value)
+  assert(value, "expected a value")
+  self.m_memory:fill(value)
   return self
 end
 
