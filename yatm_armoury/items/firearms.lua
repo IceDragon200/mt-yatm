@@ -45,8 +45,12 @@
 -- firearms are designed on a 24x24 grid, the Sallos HG is the reference point
 local function make_visual_scale(res)
   local a = res / 24
-  return { x = a, y = a, z = a }
+  return { x = a, y = a, z = 1 }
 end
+
+local ballistics = {
+  type = 'hitscan',
+}
 
 -- 9x19mm - Semi-Automatic
 yatm.register_stateful_tool("yatm_armoury:firearm_hg9mm_semi", {
@@ -58,19 +62,28 @@ yatm.register_stateful_tool("yatm_armoury:firearm_hg9mm_semi", {
     handgun = 1,
   },
 
-  calibre = "9x19mm",
-  fire_modes = {semi = 1},
-  feed_systems = {magazine = 1},
+  firearm = {
+    calibre = "9x19mm",
+    fire_modes = {semi = 1},
+    allowed_feed_systems = {
+      ul = "yatm_armoury:firearm_hg9mm_semi_ul",
+      box = "yatm_armoury:firearm_hg9mm_semi_mag",
+    },
+  },
 
   stack_max = 1,
 
   wield_scale = make_visual_scale(24),
+
+  ballistics = ballistics,
+  on_use = yatm_armoury.handle_ballistics,
 }, {
   ul = {
     inventory_image = "yatm_firearms_hg9mm_semi_ul.png",
   },
   mag = {
     inventory_image = "yatm_firearms_hg9mm_semi_mag.png",
+    feed_system = "box",
   },
 })
 
@@ -84,22 +97,32 @@ yatm.register_stateful_tool("yatm_armoury:firearm_smg9mm_auto", {
     sub_machine_gun = 1,
   },
 
-  calibre = "9x19mm",
-  fire_modes = {auto = 1},
-  feed_systems = {magazine = 1, drum = 1},
+  firearm = {
+    calibre = "9x19mm",
+    fire_modes = {auto = 1},
+    allowed_feed_systems = {
+      ul = "yatm_armoury:firearm_smg9mm_auto_ul",
+      box = "yatm_armoury:firearm_smg9mm_auto_mag",
+      drum = "yatm_armoury:firearm_smg9mm_auto_drum",
+    },
+  },
 
   stack_max = 1,
 
   wield_scale = make_visual_scale(32),
+
+  on_use = yatm_armoury.handle_ballistics,
 }, {
   ul = {
     inventory_image = "yatm_firearms_smg9mm_auto_ul.png",
   },
   mag = {
     inventory_image = "yatm_firearms_smg9mm_auto_mag.png",
+    feed_system = "box",
   },
   drum = {
     inventory_image = "yatm_firearms_smg9mm_auto_drum.png",
+    feed_system = "drum",
   },
 })
 
@@ -113,19 +136,27 @@ yatm.register_stateful_tool("yatm_armoury:firearm_mg9mm_auto", {
     machine_gun = 1,
   },
 
-  calibre = "9x19mm",
-  fire_modes = {auto = 1},
-  feed_systems = {belt = 1},
+  firearm = {
+    calibre = "9x19mm",
+    fire_modes = {auto = 1},
+    allowed_feed_systems = {
+      ul = "yatm_armoury:firearm_mg9mm_auto_ul",
+      belt = "yatm_armoury:firearm_mg9mm_auto_belt",
+    },
+  },
 
   stack_max = 1,
 
   wield_scale = make_visual_scale(32),
+
+  on_use = yatm_armoury.handle_ballistics,
 }, {
   ul = {
     inventory_image = "yatm_firearms_mg9mm_auto_ul.png",
   },
   belt = {
     inventory_image = "yatm_firearms_mg9mm_auto_belt.png",
+    feed_system = "belt",
   },
 })
 
@@ -139,19 +170,27 @@ yatm.register_stateful_tool("yatm_armoury:firearm_rfl45mm_semi", {
     sniper_rifle = 1,
   },
 
-  calibre = "5.56x45mm",
-  fire_modes = {semi = 1},
-  feed_systems = {magazine = 1},
+  firearm = {
+    calibre = "5.56x45mm",
+    fire_modes = {semi = 1},
+    allowed_feed_systems = {
+      ul = "yatm_armoury:firearm_rfl45mm_semi_ul",
+      box = "yatm_armoury:firearm_rfl45mm_semi_mag",
+    },
+  },
 
   stack_max = 1,
 
   wield_scale = make_visual_scale(64),
+
+  on_use = yatm_armoury.handle_ballistics,
 }, {
   ul = {
     inventory_image = "yatm_firearms_rfl45mm_semi_ul.png",
   },
   mag = {
     inventory_image = "yatm_firearms_rfl45mm_semi_mag.png",
+    feed_system = "box",
   },
 })
 
@@ -165,25 +204,37 @@ yatm.register_stateful_tool("yatm_armoury:firearm_rfl45mm_auto", {
     assault_rifle = 1,
   },
 
-  calibre = "5.56x45mm",
-  fire_modes = {auto = 1, semi = 1},
-  feed_systems = {magazine = 1, belt = 1, drum = 1},
+  firearm = {
+    calibre = "5.56x45mm",
+    fire_modes = {auto = 1, semi = 1},
+    allowed_feed_systems = {
+      ul = "yatm_armoury:firearm_rfl45mm_auto_ul",
+      box = "yatm_armoury:firearm_rfl45mm_auto_mag",
+      drum = "yatm_armoury:firearm_rfl45mm_auto_drum",
+      belt = "yatm_armoury:firearm_rfl45mm_auto_belt",
+    },
+  },
 
   stack_max = 1,
 
   wield_scale = make_visual_scale(64),
+
+  on_use = yatm_armoury.handle_ballistics,
 }, {
   ul = {
     inventory_image = "yatm_firearms_rfl45mm_auto_ul.png",
   },
   mag = {
     inventory_image = "yatm_firearms_rfl45mm_auto_mag.png",
+    feed_system = "box",
   },
   belt = {
     inventory_image = "yatm_firearms_rfl45mm_auto_belt.png",
+    feed_system = "belt",
   },
   drum = {
     inventory_image = "yatm_firearms_rfl45mm_auto_drum.png",
+    feed_system = "drum",
   },
 })
 
@@ -198,19 +249,27 @@ yatm.register_stateful_tool("yatm_armoury:firearm_br51mm_semi", {
     sniper_rifle = 1,
   },
 
-  calibre = "7.62x51mm",
-  fire_modes = {semi = 1},
-  feed_systems = {magazine = 1},
+  firearm = {
+    calibre = "7.62x51mm",
+    fire_modes = {semi = 1},
+    allowed_feed_systems = {
+      ul = "yatm_armoury:firearm_br51mm_semi_ul",
+      box = "yatm_armoury:firearm_br51mm_semi_mag",
+    },
+  },
 
   stack_max = 1,
 
   wield_scale = make_visual_scale(80),
+
+  on_use = yatm_armoury.handle_ballistics,
 }, {
   ul = {
     inventory_image = "yatm_firearms_br51mm_semi_ul.png",
   },
   mag = {
     inventory_image = "yatm_firearms_br51mm_semi_mag.png",
+    feed_system = "box",
   },
 })
 
@@ -224,22 +283,32 @@ yatm.register_stateful_tool("yatm_armoury:firearm_br51mm_auto", {
     battle_rifle = 1,
   },
 
-  calibre = "7.62x51mm",
-  fire_modes = {auto = 1, semi = 1},
-  feed_systems = {magazine = 1, belt = 1},
+  firearm = {
+    calibre = "7.62x51mm",
+    fire_modes = {auto = 1, semi = 1},
+    allowed_feed_systems = {
+      ul = "yatm_armoury:firearm_br51mm_semi_ul",
+      box = "yatm_armoury:firearm_br51mm_semi_mag",
+      belt = "yatm_armoury:firearm_br51mm_semi_belt",
+    },
+  },
 
   stack_max = 1,
 
   wield_scale = make_visual_scale(80),
+
+  on_use = yatm_armoury.handle_ballistics,
 }, {
   ul = {
     inventory_image = "yatm_firearms_br51mm_auto_ul.png",
   },
   mag = {
     inventory_image = "yatm_firearms_br51mm_auto_mag.png",
+    feed_system = "box",
   },
   belt = {
     inventory_image = "yatm_firearms_br51mm_auto_belt.png",
+    feed_system = "belt",
   },
 })
 
@@ -253,19 +322,27 @@ yatm.register_stateful_tool("yatm_armoury:firearm_amr99mm_semi", {
     anti_material_rifle = 1,
   },
 
-  calibre = "12.7x99mm",
-  fire_modes = {semi = 1},
-  feed_systems = {magazine = 1},
+  firearm = {
+    calibre = "12.7x99mm",
+    fire_modes = {semi = 1},
+    allowed_feed_systems = {
+      ul = "yatm_armoury:firearm_amr99mm_semi_ul",
+      box = "yatm_armoury:firearm_amr99mm_semi_mag",
+    },
+  },
 
   stack_max = 1,
 
   wield_scale = make_visual_scale(96),
+
+  on_use = yatm_armoury.handle_ballistics,
 }, {
   ul = {
     inventory_image = "yatm_firearms_amr99mm_semi_ul.png",
   },
   mag = {
     inventory_image = "yatm_firearms_amr99mm_semi_mag.png",
+    feed_system = "box",
   }
 })
 
@@ -279,22 +356,32 @@ yatm.register_stateful_tool("yatm_armoury:firearm_hmg99mm_auto", {
     machine_gun = 1,
   },
 
-  calibre = "12.7x99mm",
-  fire_modes = {auto = 1},
-  feed_systems = {magazine = 1, belt = 1},
+  firearm = {
+    calibre = "12.7x99mm",
+    fire_modes = {auto = 1},
+    allowed_feed_systems = {
+      ul = "yatm_armoury:firearm_hmg99mm_auto_ul",
+      box = "yatm_armoury:firearm_hmg99mm_auto_mag",
+      belt = "yatm_armoury:firearm_hmg99mm_auto_belt",
+    },
+  },
 
   stack_max = 1,
 
   wield_scale = make_visual_scale(96),
+
+  on_use = yatm_armoury.handle_ballistics,
 }, {
   ul = {
     inventory_image = "yatm_firearms_hmg99mm_auto_ul.png",
   },
   mag = {
     inventory_image = "yatm_firearms_hmg99mm_auto_mag.png",
+    feed_system = "box",
   },
   belt = {
     inventory_image = "yatm_firearms_hmg99mm_auto_belt.png",
+    feed_system = "belt",
   },
 })
 
@@ -308,16 +395,24 @@ yatm.register_stateful_tool("yatm_armoury:firearm_gren43mm_semi", {
     grenade_launcher = 1,
   },
 
-  calibre = "40x43mm-grenade",
-  fire_modes = {semi = 1},
-  feed_systems = {revolver = 1},
+  firearm = {
+    calibre = "40x43mm-grenade",
+    fire_modes = {semi = 1},
+    allowed_feed_systems = {
+      ul = "yatm_armoury:firearm_gren43mm_semi_ul",
+      revolver = "yatm_armoury:firearm_gren43mm_semi_revo",
+    },
+  },
 
   stack_max = 1,
+
+  on_use = yatm_armoury.handle_ballistics,
 }, {
   ul = {
     inventory_image = "yatm_firearms_gren43mm_semi_ul.png",
   },
   revo = {
     inventory_image = "yatm_firearms_gren43mm_semi_revo.png",
+    feed_system = "revolver",
   },
 })
