@@ -7,8 +7,8 @@ pcall(function ()
 end)
 
 if not oku_6502 then
-  minetest.log("warn", "oku_6502 shared object is not available, skipping implementation")
-  minetest.log("warn", "\n\nWARN: 6502 based CPUs will not be available.\n\n")
+  minetest.log("warning", "oku_6502 shared object is not available, skipping implementation")
+  minetest.log("warning", "\n\nWARN: 6502 based CPUs will not be available.\n\n")
   return
 end
 
