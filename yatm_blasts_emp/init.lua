@@ -25,7 +25,7 @@ local function handle_emp_target_node_at(pos, explosion, assigns)
         if not node then
           -- can't continue for some reason
           blocked = true
-          return
+          break
         end
         local nodedef = minetest.registered_nodes[node.name]
 
