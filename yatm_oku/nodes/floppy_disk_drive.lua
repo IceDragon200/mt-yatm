@@ -402,7 +402,8 @@ yatm.devices.register_stateful_network_device({
 
   on_metadata_inventory_take = function(pos, listname, index, stack, player)
     if listname == "floppy_disk" then
-      -- TODO:
+      local computer = yatm.computers:get_computer(pos)
+      computer.oku:fill_memory(0)
     end
   end,
 }, {
