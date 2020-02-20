@@ -60,10 +60,10 @@ do
     ffi.copy(input_buffer, str, cursor.input_size)
     while cursor.input_index < cursor.input_size and
           cursor.end_of_buffer == 0 do
-      print("input_index=" .. cursor.input_index ..
-            " input_size=" .. cursor.input_size ..
-            " buffer_index=" .. cursor.buffer_index ..
-            " buffer_size=" .. cursor.buffer_size)
+      --print("input_index=" .. cursor.input_index ..
+      --      " input_size=" .. cursor.input_size ..
+      --      " buffer_index=" .. cursor.buffer_index ..
+      --      " buffer_size=" .. cursor.buffer_size)
       callback(cursor, input_buffer, buffer)
 
       result[i] = ffi.string(buffer, cursor.buffer_index)
