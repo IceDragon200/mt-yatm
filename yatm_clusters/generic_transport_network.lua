@@ -199,10 +199,10 @@ function m:unregister_member(pos)
     if record.block_id then
       if self.m_block_members[record.block_id] then
         self.m_block_members[record.block_id][node_id] = nil
-      end
 
-      if yatm_core.is_table_empty(self.m_block_members[record.block_id]) then
-        self.m_block_members[record.block_id] = nil
+        if yatm_core.is_table_empty(self.m_block_members[record.block_id]) then
+          self.m_block_members[record.block_id] = nil
+        end
       end
     end
 
