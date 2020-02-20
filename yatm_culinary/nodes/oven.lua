@@ -156,6 +156,8 @@ local function oven_refresh_infotext(pos)
 end
 
 yatm.register_stateful_node("yatm_culinary:oven", {
+  codex_entry_id = "yatm_culinary:oven",
+
   basename = "yatm_culinary:oven",
 
   description = "Oven",
