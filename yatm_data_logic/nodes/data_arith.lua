@@ -6,41 +6,75 @@
 --   Vector mode - input streams are vectors, each byte in the stream is a single number and overflow is treated as a loop around
 local data_network = assert(yatm.data_network)
 
+local function get_input_value(meta, dir)
+  return meta:get_string("input_value_" .. dir)
+end
+
+local function set_input_value(meta, dir, value)
+  meta:set_string("input_value_" .. dir, value)
+end
+
+local function get_input_values(pos)
+  local sub_network_ids = data_network:get_sub_network_ids(pos)
+  local meta = minetest.get_meta(pos)
+  local result = {}
+
+  for _, dir in ipairs(yatm_core.DIR6) do
+    if sub_network_ids[dir] then
+      local port = yatm_data_logic.get_matrix_port(pos, "port", "input", dir)
+      if port > 0 then
+        local value = get_input_value(meta, dir)
+        result[dir] = yatm_core.string_hex_unescape(value)
+      end
+    end
+  end
+
+  return result
+end
+
 local data_interface = {
   on_load = function (self, pos, node)
-    yatm_data_logic.mark_all_inputs_for_active_receive(pos)
+    yatm_data_logic.bind_matrix_ports(pos, "port", "reset", "active")
+    yatm_data_logic.bind_matrix_ports(pos, "port", "input", "active")
+    yatm_data_logic.bind_matrix_ports(pos, "port", "exec", "active")
   end,
 
   receive_pdu = function (self, pos, node, dir, port, value)
     local meta = minetest.get_meta(pos)
 
-    local sub_network_ids = data_network:get_sub_network_ids(pos)
-    local input_port = meta:get_int("input_" .. dir)
-    if input_port > 0 then
-      meta:set_string("input_value_" .. dir, value)
+    local should_exec = false
+    local needs_refresh = false
 
-      local result = {}
-      for _, dir in ipairs(yatm_core.DIR6) do
-        if sub_network_ids[dir] then
-          local port = meta:get_int("input_" .. dir)
-          if port > 0 then
-            local value = meta:get_string("input_value_" .. dir)
+    local reset_port = yatm_data_logic.get_matrix_port(pos, "port", "reset", dir)
+    if reset_port == port then
+      set_input_value(meta, dir, "\0")
+      needs_refresh = true
+    end
 
-            result[dir] = yatm_core.string_hex_unescape(value)
-          end
-        end
-      end
+    local input_port = yatm_data_logic.get_matrix_port(pos, "port", "input", dir)
+    if input_port == port then
+      set_input_value(meta, dir, value)
+      needs_refresh = true
+    end
 
+    local exec_port = yatm_data_logic.get_matrix_port(pos, "port", "exec", dir)
+    if exec_port == port then
+      should_exec = true
+    end
+
+    if should_exec then
+      local result = get_input_values(pos)
       local ops = meta:get_string("operands")
-      local operands = {}
-      for i = 1,#ops do
-        operands[i] = string.sub(ops, i, i)
-      end
-
+      local operands = yatm_core.string_split(ops)
       local new_value = self:operate(pos, node, result, operands)
 
-      meta:set_string("last_value", new_value)
+      if meta:get_string("last_value") ~= new_value then
+        meta:set_string("last_value", new_value)
+        needs_refresh = true
+      end
+    end
 
+    if needs_refresh then
       yatm.queue_refresh_infotext(pos, node)
     end
   end,
@@ -59,13 +93,20 @@ local data_interface = {
     if assigns.tab == 1 then
       formspec =
         formspec ..
-        "label[0,0;Port Configuration]"
-
-      local io_formspec = yatm_data_logic.get_io_port_formspec(pos, meta, "io")
-
-      formspec =
-        formspec ..
-        io_formspec
+        "label[0,0;Port Configuration]" ..
+        yatm_data_logic.get_port_matrix_formspec(pos, meta, {
+          width = 8,
+          sections = {
+            {
+              name = "port",
+              label = "Ports",
+              cols = 4,
+              port_count = 4,
+              port_names = {"input", "output", "exec", "reset"},
+              port_labels = {"Input", "Output", "Exec", "Reset"},
+            }
+          }
+        })
 
     elseif assigns.tab == 2 then
       formspec =
@@ -91,11 +132,23 @@ local data_interface = {
       end
     end
 
-    local inputs_changed = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "io")
+    local inputs_changed =
+      yatm_data_logic.handle_port_matrix_fields(assigns.pos, fields, meta, {
+        sections = {
+          {
+            name = "port",
+            port_count = 4,
+            port_names = {"input", "output", "exec", "reset"},
+          }
+        }
+      })
 
     if not yatm_core.is_table_empty(inputs_changed) then
       yatm_data_logic.unmark_all_receive(assigns.pos)
-      yatm_data_logic.mark_all_inputs_for_active_receive(assigns.pos)
+
+      yatm_data_logic.bind_matrix_ports(assigns.pos, "port", "reset", "active")
+      yatm_data_logic.bind_matrix_ports(assigns.pos, "port", "input", "active")
+      yatm_data_logic.bind_matrix_ports(assigns.pos, "port", "exec", "active")
     end
 
     if fields["operands"] then
@@ -194,8 +247,17 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
 
   refresh_infotext = function (pos)
     local meta = minetest.get_meta(pos)
+    local node = minetest.get_node(pos)
+    local nodedef = minetest.registered_nodes[node.name]
+
+    local result = get_input_values(pos)
+    local ops = meta:get_string("operands")
+    local operands = yatm_core.string_split(ops)
+
     local infotext =
+      yatm_core.string_split(nodedef.description, "\n")[1] .. "\n" ..
       "Last Output: " .. meta:get_string("last_value") .. "\n" ..
+      "Operands: " .. ops .. "\n" ..
       data_network:get_infotext(pos)
 
     meta:set_string("infotext", infotext)
@@ -225,7 +287,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         for dir, value in pairs(values) do
           if #value > 0 then
             local result = yatm_core.string_hex_escape(value)
-            yatm_data_logic.emit_output_data_value(pos, result)
+            yatm_data_logic.emit_matrix_port_value(pos, "port", "output", result)
             return result
           end
         end
@@ -271,7 +333,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         end
         local value = table.concat(result)
         value = yatm_core.string_hex_escape(value)
-        yatm_data_logic.emit_output_data_value(pos, value)
+        yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
 
         return value
       end,
@@ -319,7 +381,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         end
         local value = table.concat(result)
         value = yatm_core.string_hex_escape(value)
-        yatm_data_logic.emit_output_data_value(pos, value)
+        yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
 
         return value
       end,
@@ -364,7 +426,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         end
         local value = table.concat(result)
         value = yatm_core.string_hex_escape(value)
-        yatm_data_logic.emit_output_data_value(pos, value)
+        yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
 
         return value
       end,
@@ -420,7 +482,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         end
         local value = table.concat(result)
         value = yatm_core.string_hex_escape(value)
-        yatm_data_logic.emit_output_data_value(pos, value)
+        yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
 
         return value
       end,
@@ -456,7 +518,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         end
 
         value = yatm_core.string_hex_escape(accumulator)
-        yatm_data_logic.emit_output_data_value(pos, value)
+        yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
 
         return value
       end,
@@ -492,7 +554,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         end
 
         value = yatm_core.string_hex_escape(accumulator)
-        yatm_data_logic.emit_output_data_value(pos, value)
+        yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
 
         return value
       end,
@@ -530,7 +592,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         end
 
         local value = table.concat(identity)
-        yatm_data_logic.emit_output_data_value(pos, value)
+        yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
 
         return value
       end,
@@ -569,7 +631,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         end
         local value = table.concat(result)
         value = yatm_core.string_hex_escape(value)
-        yatm_data_logic.emit_output_data_value(pos, value)
+        yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
 
         return value
       end,
@@ -608,7 +670,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         end
         local value = table.concat(result)
         value = yatm_core.string_hex_escape(value)
-        yatm_data_logic.emit_output_data_value(pos, value)
+        yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
 
         return value
       end,
@@ -647,7 +709,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         end
         local value = table.concat(result)
         value = yatm_core.string_hex_escape(value)
-        yatm_data_logic.emit_output_data_value(pos, value)
+        yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
 
         return value
       end,
@@ -690,7 +752,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         end
         local value = table.concat(result)
         value = yatm_core.string_hex_escape(value)
-        yatm_data_logic.emit_output_data_value(pos, value)
+        yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
 
         return value
       end,
@@ -735,7 +797,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         end
         local value = table.concat(result)
         value = yatm_core.string_hex_escape(value)
-        yatm_data_logic.emit_output_data_value(pos, value)
+        yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
 
         return value
       end,
@@ -780,7 +842,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
         end
         local value = table.concat(result)
         value = yatm_core.string_hex_escape(value)
-        yatm_data_logic.emit_output_data_value(pos, value)
+        yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
 
         return value
       end,

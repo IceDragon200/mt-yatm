@@ -110,10 +110,14 @@ function yatm_data_logic.get_matrix_port(pos, port_prefix, port_name, dir)
 end
 
 function yatm_data_logic.bind_matrix_ports(pos, port_prefix, port_name, bind_type)
+  assert(pos, "expected a position")
+  assert(port_prefix, "expected a port_prefix")
+  assert(port_name, "expected a port_name")
+  bind_type = bind_type or "active"
   for _, dir in ipairs(yatm_core.DIR6) do
     local local_port = yatm_data_logic.get_matrix_port(pos, port_prefix, port_name, dir)
     if local_port > 0 then
-      data_network:mark_ready_to_receive(pos, dir, local_port, bind_type or "active")
+      data_network:mark_ready_to_receive(pos, dir, local_port, bind_type)
     end
   end
 end
