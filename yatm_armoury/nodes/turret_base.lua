@@ -1,4 +1,6 @@
 minetest.register_node("yatm_armoury:turret_base", {
+  codex_entry_id = "yatm_armoury:turret_base",
+
   basename = "yatm_armoury:turret_base",
 
   description = "Turret Base",

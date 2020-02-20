@@ -37,6 +37,8 @@ local chemical_injector_yatm_network = {
 }
 
 yatm.devices.register_stateful_network_device({
+  codex_entry_id = "yatm_armoury:chemical_injector",
+
   basename = "yatm_armoury:chemical_injector",
 
   description =  "Chemical Injector",

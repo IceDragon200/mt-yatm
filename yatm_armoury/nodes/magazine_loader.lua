@@ -46,6 +46,8 @@ function magazine_loader_yatm_network.work()
 end
 
 yatm.devices.register_stateful_network_device({
+  codex_entry_id = "yatm_armoury:magazine_loader",
+
   basename = "yatm_armoury:magazine_loader",
 
   description = "Magazine Loader",
