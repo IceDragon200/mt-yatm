@@ -92,6 +92,8 @@ minetest.register_node(node_name, yatm.devices.patch_device_nodedef(node_name, {
 
 local node_name = "yatm_energy_storage_array:array_energy_cell"
 yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_name, {
+  base_description = "Array Energy Cell",
+
   description = "Array Energy Cell",
 
   drop = node_name .. "_stage0",
