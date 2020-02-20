@@ -185,17 +185,9 @@ minetest.register_node("yatm_data_logic:data_memory", {
 
         yatm_data_logic.unmark_all_receive(assigns.pos)
 
-        if sections_changed.port.read then
-          yatm_data_logic.bind_matrix_ports(assigns.pos, "port", "read", "active")
-        end
-
-        if sections_changed.port.write then
-          yatm_data_logic.bind_matrix_ports(assigns.pos, "port", "write", "active")
-        end
-
-        if sections_changed.port.address then
-          yatm_data_logic.bind_matrix_ports(assigns.pos, "port", "address", "active")
-        end
+        yatm_data_logic.bind_matrix_ports(assigns.pos, "port", "read", "active")
+        yatm_data_logic.bind_matrix_ports(assigns.pos, "port", "write", "active")
+        yatm_data_logic.bind_matrix_ports(assigns.pos, "port", "address", "active")
       end
 
       if needs_refresh then
