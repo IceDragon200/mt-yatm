@@ -58,6 +58,8 @@ for ascii_code, new_ascii_code in pairs(ASCII_TABLE) do
 end
 
 yatm.register_stateful_node("yatm_data_display:ascii_display", {
+  codex_entry_id = "yatm_data_display:ascii_display",
+
   base_description = "ASCII Display",
 
   paramtype = "light",

@@ -222,6 +222,8 @@ local groups = {
 }
 
 minetest.register_node("yatm_data_fluid_sensor:fluid_sensor", {
+  codex_entry_id = "yatm_data_fluid_sensor:fluid_sensor",
+
   description = "Fluid Sensor",
 
   groups = groups,

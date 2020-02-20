@@ -312,6 +312,8 @@ local data_interface = {
 }
 
 yatm.register_stateful_node("yatm_data_control:data_control_plane", {
+  codex_entry_id = "yatm_data_control:data_control_plane",
+
   base_description = "Data Control Plane",
 
   codex_entry_id = "yatm_data_control:data_control_plane",

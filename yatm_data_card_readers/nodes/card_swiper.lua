@@ -49,6 +49,8 @@ local function data_card_swiper_after_place_node(pos, _placer, itemstack, _point
 end
 
 yatm.register_stateful_node("yatm_data_card_readers:data_card_swiper", {
+  codex_entry_id = "yatm_data_card_readers:data_card_swiper",
+
   basename = "yatm_data_card_readers:data_card_swiper",
 
   description = "Card Swiper (DATA)",

@@ -157,6 +157,8 @@ local monitor_console_yatm_network = {
 }
 
 yatm.devices.register_stateful_network_device({
+  codex_entry_id = "yatm_data_console_monitor:monitor_console",
+
   basename = "yatm_data_console_monitor:monitor_console",
 
   description = "Monitor (console)",

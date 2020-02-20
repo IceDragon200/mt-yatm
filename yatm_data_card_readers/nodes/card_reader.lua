@@ -103,6 +103,8 @@ local function data_card_reader_after_place_node(pos, _placer, itemstack, _point
 end
 
 yatm.register_stateful_node("yatm_data_card_readers:data_card_reader", {
+  codex_entry_id = "yatm_data_card_readers:data_card_reader",
+
   basename = "yatm_data_card_readers:data_card_reader",
 
   description = "Card Reader (DATA)",
