@@ -8,7 +8,23 @@ local INTERVALS = {
   ["1/16"] = 5,
 }
 
-minetest.register_node("yatm_data_logic:data_pulser", {
+local function on_node_pulsed(pos, node)
+  local nodedef = minetest.registered_nodes[node.name]
+
+  if nodedef.next_step then
+    local new_node = {
+      name = nodedef.next_step,
+      param1 = node.param1,
+      param2 = node.param2,
+    }
+
+    minetest.swap_node(pos, new_node)
+    data_network:upsert_member(pos, new_node)
+  end
+end
+
+yatm.register_stateful_node("yatm_data_logic:data_pulser", {
+  basename = "yatm_data_logic:data_pulser",
   description = "Data Pulser",
 
   codex_entry_id = "yatm_data_logic:data_pulser",
@@ -62,6 +78,8 @@ minetest.register_node("yatm_data_logic:data_pulser", {
       time = time - dtime
       if time <= 0 then
         yatm_data_logic.emit_output_data(pos, "pulse")
+        on_node_pulsed(pos, node)
+
         local interval_option = meta:get_string("interval_option")
         local duration = 1
         if interval_option == "1" then
@@ -81,10 +99,11 @@ minetest.register_node("yatm_data_logic:data_pulser", {
     end,
 
     on_load = function (self, pos, node)
-      -- toggles don't need to bind listeners of any sorts
+      -- pulsers don't need to bind listeners of any sorts
     end,
 
     receive_pdu = function (self, pos, node, dir, port, value)
+      --
     end,
 
     get_programmer_formspec = function (self, pos, user, pointed_thing, assigns)
@@ -162,4 +181,30 @@ minetest.register_node("yatm_data_logic:data_pulser", {
 
     meta:set_string("infotext", infotext)
   end,
+}, {
+  off = {
+    next_step = "yatm_data_logic:data_pulser_step_0",
+  },
+  step_0 = {
+    next_step = "yatm_data_logic:data_pulser_step_1",
+    tiles = {
+      "yatm_data_pulser_top.pulse.0.png",
+      "yatm_data_pulser_bottom.png",
+      "yatm_data_pulser_side.png",
+      "yatm_data_pulser_side.png",
+      "yatm_data_pulser_side.png",
+      "yatm_data_pulser_side.png",
+    },
+  },
+  step_1 = {
+    next_step = "yatm_data_logic:data_pulser_step_0",
+    tiles = {
+      "yatm_data_pulser_top.pulse.1.png",
+      "yatm_data_pulser_bottom.png",
+      "yatm_data_pulser_side.png",
+      "yatm_data_pulser_side.png",
+      "yatm_data_pulser_side.png",
+      "yatm_data_pulser_side.png",
+    },
+  }
 })

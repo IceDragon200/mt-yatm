@@ -8,3 +8,5 @@ dofile(yatm_data_logic.modpath .. "/common.lua")
 
 dofile(yatm_data_logic.modpath .. "/nodes.lua")
 dofile(yatm_data_logic.modpath .. "/items.lua")
+
+dofile(yatm_data_logic.modpath .. "/migrations.lua")
