@@ -12,6 +12,10 @@
 --
 local data_network = assert(yatm.data_network)
 
+-- need at least 256 for the zero-page and then another for the stack, so addressable memory is really only
+-- 512 bytes
+local MEMORY_SIZE = 256 * 4
+
 local function get_micro_controller_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local meta = minetest.get_meta(pos)
@@ -95,7 +99,7 @@ local function micro_controller_after_place_node(pos, _placer, _item_stack, _poi
   data_network:add_node(pos, node)
 
   yatm.computers:create_computer(pos, node, secret, {
-    memory_size = 16 * 4, -- 16 ins * 4 bytes wide
+    memory_size = MEMORY_SIZE,
   })
 end
 
@@ -140,7 +144,31 @@ local micro_controller_nodebox = {
 }
 
 local connects_to = {
-  "group:data_cable_bus"
+  "group:data_cable_bus",
+  --"group:mesecon",
+}
+
+local rules = {}
+if mesecon then
+  rules = assert(mesecon.rules.default)
+else
+  print("yatm_decor", "mesecons is unavailable, lamps cannot be toggled")
+end
+
+local micro_controller_mesecons = {
+  effector = {
+    rules = rules,
+
+    -- Boring lamp stuff
+    action_on = function (pos, node)
+      local nodedef = minetest.registered_nodes[node.name]
+      -- TODO: pulse clock
+    end,
+
+    action_off = function (pos, node)
+      -- Do, absolutely nothing.
+    end,
+  }
 }
 
 minetest.register_node("yatm_oku:oku_micro_controller", {
@@ -199,7 +227,9 @@ minetest.register_node("yatm_oku:oku_micro_controller", {
       meta:set_string("secret", "mctl." .. secret)
     end
     yatm.computers:upsert_computer(pos, node, meta:get_string("secret"), {
-      memory_size = 16 * 4, -- 16 ins * 4 bytes wide
+      memory_size = MEMORY_SIZE,
     })
-  end
+  end,
+
+  mesecons = micro_controller_mesecons,
 })
