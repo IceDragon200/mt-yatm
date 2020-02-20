@@ -96,7 +96,8 @@ minetest.register_node("yatm_data_logic:data_memory", {
         -- yet another reminder that address offset is a 0-offset
         local address_offset = meta:get_int("address_offset")
         local cell_id = (address_offset + cell_id_offset) % 256 + 1
-        yatm_data_logic.emit_matrix_port_value(pos, "port", "data", string.sub(memory, cell_id, cell_id))
+        local output_value = yatm_core.string_hex_escape(string.sub(memory, cell_id, cell_id))
+        yatm_data_logic.emit_matrix_port_value(pos, "port", "data", output_value)
       end
     end,
 
