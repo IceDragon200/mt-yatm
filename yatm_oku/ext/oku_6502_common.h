@@ -64,4 +64,21 @@ struct oku_6502_chip
 #define SET_OVERFLOW_FLAG(sr, value) (WBIT6(sr, value))
 #define SET_NEGATIVE_FLAG(sr, value) (WBIT7(sr, value))
 
+extern int8_t oku_6502_mem_read_i8(int32_t mem_size, char* mem, int32_t index, int* status);
+extern void oku_6502_mem_write_i8(int32_t mem_size, char* mem, int32_t index, int8_t value, int* status);
+extern int16_t oku_6502_mem_read_i16(int32_t mem_size, char* mem, int32_t index, int* status);
+extern int8_t oku_6502_chip_read_mem_i8(struct oku_6502_chip* chip, int32_t index, int32_t mem_size, char* mem, int* status);
+extern void oku_6502_chip_write_mem_i8(struct oku_6502_chip* chip, int32_t index, int8_t value, int32_t mem_size, char* mem, int* status);
+extern int8_t oku_6502_read_pc_mem_i8(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status);
+extern void oku_6502_write_pc_mem_i8(struct oku_6502_chip* chip, int8_t value, int32_t mem_size, char* mem, int* status);
+extern int16_t oku_6502_read_pc_mem_i16(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status);
+extern void oku_6502_push_stack(struct oku_6502_chip* chip, int8_t value, int32_t mem_size, char* mem, int* status);
+extern int8_t oku_6502_read_stack(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status);
+extern int8_t oku_6502_pop_stack(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status);
+extern void oku_6502_push_pc(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status);
+extern void oku_6502_pop_pc(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status);
+extern int oku_6502_chip_size();
+extern void oku_6502_chip_init(struct oku_6502_chip* chip);
+extern int oku_6502_chip_step(struct oku_6502_chip* chip, int32_t mem_size, char* mem);
+
 #endif

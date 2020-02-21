@@ -40,7 +40,20 @@ Notably this is not related in any way to the state of the carry bit of the accu
 Page transitions may occur and add an extra cycle to the exucution.
 
 */
+#include <stdio.h>
 #include "oku_6502_common.h"
+
+/* Debug
+#define increment_pc(chip, reason) \
+  printf("Incrementing PC ir=%02X line=%d current=%d reason=%s\n", chip->ir, __LINE__, chip->pc, reason); \
+  chip->pc += 1;
+
+#define DEBUG(chip, reason) \
+  printf("Incrementing PC ir=%02X line=%d current=%d reason=%s\n", chip->ir, __LINE__, chip->pc, reason)
+*/
+
+#define increment_pc(chip, reason) chip->pc += 1;
+#define DEBUG(chip, reason)
 
 extern int8_t oku_6502_mem_read_i8(int32_t mem_size, char* mem, int32_t index, int* status)
 {
@@ -173,21 +186,22 @@ static void opr_implied_i8(struct oku_6502_chip* chip, int32_t mem_size, char* m
 static void opr_immediate_i8(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
   chip->operand = chip->pc;
-  chip->pc += 1;
+  increment_pc(chip, "opr_immediate_i8");
 }
 
 static void opr_absolute_i16(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
   chip->operand = oku_6502_read_pc_mem_i16(chip, mem_size, mem, status);
-  chip->pc += 2;
+  increment_pc(chip, "opr_absolute_i16 lo");
+  increment_pc(chip, "opr_absolute_i16 hi");
 }
 
 static void opr_absolute_i16x(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
   int16_t ol = (int16_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
-  chip->pc += 1;
+  increment_pc(chip, "opr_absolute_i16x lo");
   int16_t oh = (int16_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
-  chip->pc += 1;
+  increment_pc(chip, "opr_absolute_i16x hi");
 
   ol += chip->x;
 
@@ -207,9 +221,9 @@ static void opr_absolute_i16x(struct oku_6502_chip* chip, int32_t mem_size, char
 static void opr_absolute_i16y(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
   int16_t ol = (int16_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
-  chip->pc += 1;
+  increment_pc(chip, "opr_absolute_i16y lo");
   int16_t oh = (int16_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
-  chip->pc += 1;
+  increment_pc(chip, "opr_absolute_i16y hi");
 
   oh <<= 8;
 
@@ -231,9 +245,9 @@ static void opr_absolute_i16y(struct oku_6502_chip* chip, int32_t mem_size, char
 static void opr_indirect_i16(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
   int16_t al = (int16_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
-  chip->pc += 1;
+  increment_pc(chip, "opr_indirect_i16 lo");
   int16_t ah = (int16_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
-  chip->pc += 1;
+  increment_pc(chip, "opr_indirect_i16 hi");
 
   ah <<= 8;
 
@@ -248,7 +262,7 @@ static void opr_indirect_i16(struct oku_6502_chip* chip, int32_t mem_size, char*
 static void opr_indirect_i16x(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
   int16_t ptr = (int16_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
-  chip->pc += 1;
+  increment_pc(chip, "opr_indirect_i16x");
 
   ptr = (ptr + chip->x) & 0xFF;
 
@@ -262,7 +276,7 @@ static void opr_indirect_i16x(struct oku_6502_chip* chip, int32_t mem_size, char
 static void opr_indirect_i16y(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
   int16_t ptr = (int16_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
-  chip->pc += 1;
+  increment_pc(chip, "opr_indirect_i16y");
 
   int16_t ol = (int16_t)oku_6502_chip_read_mem_i8(chip, ptr, mem_size, mem, status);
   ol += chip->y;
@@ -281,7 +295,7 @@ static void opr_indirect_i16y(struct oku_6502_chip* chip, int32_t mem_size, char
 static void opr_relative_i16(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
   int16_t offset = (int16_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
-  chip->pc += 1;
+  increment_pc(chip, "opr_relative_i16");
 
   chip->operand = (int32_t)(chip->pc + offset) & 0xFFFF;
 }
@@ -289,7 +303,7 @@ static void opr_relative_i16(struct oku_6502_chip* chip, int32_t mem_size, char*
 static void opr_zeropage_i16(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
   int16_t ptr = (int16_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
-  chip->pc += 1;
+  increment_pc(chip, "opr_zeropage_i16");
 
   chip->operand = (int32_t)ptr;
 }
@@ -297,7 +311,7 @@ static void opr_zeropage_i16(struct oku_6502_chip* chip, int32_t mem_size, char*
 static void opr_zeropage_i16x(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
   int16_t ptr = (int16_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
-  chip->pc += 1;
+  increment_pc(chip, "opr_zeropage_i16x");
 
   chip->operand = (int32_t)(ptr + chip->x) & 0xFF;
 }
@@ -305,7 +319,7 @@ static void opr_zeropage_i16x(struct oku_6502_chip* chip, int32_t mem_size, char
 static void opr_zeropage_i16y(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
   int16_t ptr = (int16_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
-  chip->pc += 1;
+  increment_pc(chip, "opr_zeropage_i16y");
 
   chip->operand = (int32_t)(ptr + chip->y) & 0xFF;
 }
@@ -622,7 +636,8 @@ static void exec_jmp(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 static void exec_jsr(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
   int8_t lo = oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
-  chip->pc += 1;
+  increment_pc(chip, "exec_jsr lo");
+
   oku_6502_chip_read_mem_i8(chip, chip->sp + 0x100, mem_size, mem, status);
   oku_6502_push_pc(chip, mem_size, mem, status);
 
@@ -926,7 +941,7 @@ extern void oku_6502_chip_init(struct oku_6502_chip* chip)
 //
 // Execute
 //
-extern int oku_6502_chip_exec(struct oku_6502_chip* chip, int32_t mem_size, char* mem)
+static int oku_6502_chip_exec(struct oku_6502_chip* chip, int32_t mem_size, char* mem)
 {
   int status = INVALID_CODE;
 
@@ -1574,6 +1589,7 @@ extern int oku_6502_chip_exec(struct oku_6502_chip* chip, int32_t mem_size, char
       break;
 
     case 0xA9: // LDA #
+      DEBUG(chip, "LDA");
       opr_immediate_i8(chip, mem_size, mem, &status);
       exec_lda(chip, mem_size, mem, &status);
       break;
@@ -1923,7 +1939,7 @@ extern int oku_6502_chip_exec(struct oku_6502_chip* chip, int32_t mem_size, char
   return status;
 }
 
-extern int oku_6502_chip_fetch(struct oku_6502_chip* chip, int32_t mem_size, char* mem)
+static int oku_6502_chip_fetch(struct oku_6502_chip* chip, int32_t mem_size, char* mem)
 {
   int status = INVALID_CODE;
 
@@ -1932,12 +1948,12 @@ extern int oku_6502_chip_fetch(struct oku_6502_chip* chip, int32_t mem_size, cha
   {
     return status;
   }
-
   chip->ir = opcode;
-  return oku_6502_chip_exec(chip, mem_size, mem);
+  increment_pc(chip, "oku_6502_chip_fetch");
+  return status;
 }
 
-extern int oku_6502_chip_fex(struct oku_6502_chip* chip, int32_t mem_size, char* mem)
+static int oku_6502_chip_fex(struct oku_6502_chip* chip, int32_t mem_size, char* mem)
 {
   int status;
   status = oku_6502_chip_fetch(chip, mem_size, mem);
@@ -1955,7 +1971,7 @@ extern int oku_6502_chip_fex(struct oku_6502_chip* chip, int32_t mem_size, char*
 //
 #define NEXT_STAGE(value) (((((value) >> 4) & 0xF) + 1) << 4) | ((value) & 0xF);
 
-extern int oku_6502_chip_startup(struct oku_6502_chip* chip, int32_t mem_size, char* mem)
+static int oku_6502_chip_startup(struct oku_6502_chip* chip, int32_t mem_size, char* mem)
 {
   int status = 0;
   int8_t startup_stage = (chip->state >> 4) & 0xF;

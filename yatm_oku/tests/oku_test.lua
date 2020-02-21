@@ -85,12 +85,27 @@ case:describe("step (mos6502)", function (t2)
 
       local b = m.isa.MOS6502.Builder
 
-      local blob = b.adc_imm(20)
+      local blob =
+        b.lda_imm(0) ..
+        b.adc_imm(20)
 
       oku:w_memory_blob(512, blob)
-      oku:w_memory_blob(0xFFFC, "\x02\x00")
+      oku:w_memory_blob(0xFFFC, "\x00\x02")
+
+      -- reset sequence is roughly 9 steps
+      for i = 1,9 do
+        t3:assert_eq(1, oku:step(1))
+      end
+      t3:assert_eq(2, oku.isa_assigns.chip.state)
+      t3:assert_eq(512, oku.isa_assigns.chip.pc)
 
       t3:assert_eq(1, oku:step(1))
+      t3:assert_eq(514, oku.isa_assigns.chip.pc)
+
+      t3:assert_eq(0, oku.isa_assigns.chip.a)
+
+      t3:assert_eq(1, oku:step(1))
+      t3:assert_eq(20, oku.isa_assigns.chip.a)
     end)
   else
     t2:xtest("mos6502 unavailable", function ()
