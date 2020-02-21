@@ -383,7 +383,7 @@ function yatm_security.prvkey_to_pubkey(prvkey)
 end
 
 function yatm_security.gen_prvkey()
-  return yatm_core.random_string(64)
+  return yatm_core.random_string62(64)
 end
 
 function yatm_security.compare_keys(prvkey, pubkey)

@@ -210,7 +210,7 @@ yatm.devices.register_stateful_network_device({
     local node = minetest.get_node(pos)
     local meta = minetest.get_meta(pos)
 
-    meta:set_string("prog_data", yatm_core.random_string(16))
+    meta:set_string("prog_data", yatm_core.random_string62(16))
 
     local inv = meta:get_inventory()
 
