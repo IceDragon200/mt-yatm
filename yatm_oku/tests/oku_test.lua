@@ -1,5 +1,6 @@
 local Luna = assert(yatm_core.Luna)
 local m = yatm_oku.OKU
+local Buffer = yatm_core.BinaryBuffer or yatm_core.StringBuf
 
 if not m then
   yatm.warn("OKU not available for tests")
@@ -56,7 +57,7 @@ case:describe("step (rv32i)", function (t2)
   if yatm_oku.elf then
     t2:test("run a simple RISCV program", function (t3)
       local oku =
-        yatm_oku.OKU:new({
+        m:new({
           arch = "rv32i"
         })
 
@@ -75,15 +76,119 @@ case:describe("step (rv32i)", function (t2)
 end)
 
 case:describe("step (mos6502)", function (t2)
-  if OKU:has_arch("mos6502") then
+  if m:has_arch("mos6502") then
     t2:test("runs a simple 6502 program", function (t3)
       local oku =
-        yatm_oku.OKU:new({
+        m:new({
           arch = "mos6502"
         })
+
+      local b = m.isa.MOS6502.Builder
+
+      local blob = b.adc_imm(20)
+
+      oku:w_memory_blob(512, blob)
+      oku:w_memory_blob(0xFFFC, "\x02\x00")
+
+      t3:assert_eq(1, oku:step(1))
     end)
   else
     t2:xtest("mos6502 unavailable", function ()
+    end)
+  end
+end)
+
+case:describe("bindump/1", function (t2)
+  if m:has_arch("mos6502") then
+    t2:test("can dump a mos6502 machine", function (t3)
+      local oku =
+        m:new({
+          arch = "mos6502"
+        })
+
+      local stream = Buffer:new('', 'w')
+
+      oku:bindump(stream)
+    end)
+  else
+    t2:xtest("mos6502 unavailable", function ()
+    end)
+  end
+
+  if m:has_arch("rv32i") then
+    t2:test("can dump a riscv rv32i machine", function (t3)
+      local oku =
+        m:new({
+          arch = "rv32i"
+        })
+
+      local stream = Buffer:new('', 'w')
+
+      oku:bindump(stream)
+    end)
+  else
+    t2:xtest("riscv rv32i unavailable", function ()
+    end)
+  end
+end)
+
+case:describe("binload/1", function (t2)
+  if m:has_arch("mos6502") then
+    t2:test("can dump a mos6502 machine", function (t3)
+      local oku =
+        m:new({
+          arch = "mos6502",
+          label = "awesome label",
+        })
+
+      oku.isa_assigns.chip.a = 127
+      oku.isa_assigns.chip.x = 76
+      oku.isa_assigns.chip.y = 32
+      local stream = Buffer:new('', 'w')
+
+      oku:bindump(stream)
+      stream:close()
+
+      local oku =
+        m:new({
+          arch = "mos6502",
+          label = "awesome label",
+        })
+
+      stream:open('r')
+      oku:binload(stream)
+
+      t3:assert_eq(oku.arch, "mos6502")
+      t3:assert_eq(oku.label, "awesome label")
+      t3:assert_eq(oku.isa_assigns.chip.a, 127)
+      t3:assert_eq(oku.isa_assigns.chip.x, 76)
+      t3:assert_eq(oku.isa_assigns.chip.y, 32)
+    end)
+  else
+    t2:xtest("mos6502 unavailable", function ()
+    end)
+  end
+
+  if m:has_arch("rv32i") then
+    t2:test("can dump a riscv rv32i machine", function (t3)
+      local oku =
+        m:new({
+          arch = "rv32i",
+          label = "awesome label",
+        })
+
+      local stream = Buffer:new('', 'w')
+
+      oku:bindump(stream)
+      stream:close()
+      stream:open('r')
+      oku:binload(stream)
+
+      t3:assert_eq(oku.arch, "rv32i")
+      t3:assert_eq(oku.label, "awesome label")
+    end)
+  else
+    t2:xtest("riscv rv32i unavailable", function ()
     end)
   end
 end)

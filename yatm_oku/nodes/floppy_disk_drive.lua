@@ -356,7 +356,7 @@ yatm.devices.register_stateful_network_device({
     local meta = minetest.get_meta(pos)
     local secret = meta:get_string("secret")
     if not secret then
-      secret = yatm_core.random_string(8)
+      secret = yatm_core.random_string62(8)
       meta:set_string("secret", "flpd." .. secret)
     end
     yatm.computers:upsert_computer(pos, node, meta:get_string("secret"), {

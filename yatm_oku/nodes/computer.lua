@@ -61,7 +61,7 @@ local function computer_after_place_node(pos, _placer, _item_stack, _pointed_thi
   local node = minetest.get_node(pos)
   local meta = minetest.get_meta(pos)
 
-  local secret = yatm_core.random_string(8)
+  local secret = yatm_core.random_string62(8)
   meta:set_string("secret", "comp." .. secret)
 
   yatm.computers:create_computer(pos, node, secret, {})

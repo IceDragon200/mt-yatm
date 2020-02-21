@@ -239,6 +239,7 @@ function ic:bindump(stream)
   end
 
   -- Write the label
+  assert(self.label, 'label is missing')
   local bw, err = ByteBuf.w_u8string(stream, self.label)
   bytes_written = bytes_written + bw
   if err then
@@ -246,6 +247,7 @@ function ic:bindump(stream)
   end
 
   -- Write the arch
+  assert(self.arch, 'arch is missing')
   local bytes_written = 0
   local bw, err = ByteBuf.w_u8string(stream, self.arch)
   bytes_written = bytes_written + bw
@@ -298,6 +300,8 @@ function ic:binload(stream)
     -- Reset registers
     self.registers = ffi.new("struct yatm_oku_registers32")
 
+    self.label = ""
+
     if arch == "rv32i" then
       self.arch = arch
       bytes_read = bytes_read + self:_binload_arch_rv32i_oku1(stream)
@@ -307,13 +311,13 @@ function ic:binload(stream)
   elseif mahou == "OKU2" then
     -- read the version
     local version, br = ByteBuf.r_u32(stream)
-    bytes_read = bytes + br
+    bytes_read = bytes_read + br
 
     if version == 1 then
       -- read the label
       local label, br = ByteBuf.r_u8string(stream)
-      bytes_read = bytes + br
-      self.label = label
+      bytes_read = bytes_read + br
+      self.label = label or ""
 
       -- next we read the arch, normally just rv32i
       local arch, br = ByteBuf.r_u8string(stream)
@@ -351,23 +355,26 @@ function OKU:binload(stream)
 end
 
 function ic:_bindump_memory(stream)
-  local bw = ByteBuf.w_u32(stream, self.memory:size())
+  local bytes_written = 0
+  local bw, err = ByteBuf.w_u32(stream, self.memory:size())
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
 
-  local bw = ByteBuf.w_u8bool(stream, true)
+  local bw, err = ByteBuf.w_u8bool(stream, true)
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
 
-  local bw = self.memory:bindump(stream)
+  local bw, err = self.memory:bindump(stream)
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
+
+  return bytes_written, nil
 end
 
 function ic:_bindump_registers(stream)
@@ -383,7 +390,7 @@ function ic:_bindump_registers(stream)
     end
   end
 
-  local bw = ByteBuf.w_u32(stream, self.registers.pc.u32)
+  local bw, err = ByteBuf.w_u32(stream, self.registers.pc.u32)
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
@@ -391,7 +398,7 @@ function ic:_bindump_registers(stream)
   return bytes_written, nil
 end
 
-function ic._binload_registers(stream)
+function ic:_binload_registers(stream)
   local bytes_read = 0
   for i = 0,31 do
     local rv, br = ByteBuf.r_i32(stream)
@@ -402,7 +409,7 @@ function ic._binload_registers(stream)
   return bytes_read
 end
 
-function ic._binload_memory(stream)
+function ic:_binload_memory(stream)
   local bytes_read = 0
   -- time to figure out what the memory size was
   local memory_size, br = ByteBuf.r_u32(stream)
@@ -423,7 +430,7 @@ function ic._binload_memory(stream)
   return bytes_read
 end
 
-function ic._binload_arch_rv32i_oku1(stream)
+function ic:_binload_arch_rv32i_oku1(stream)
   local bytes_read = 0
 
   -- Restore registers

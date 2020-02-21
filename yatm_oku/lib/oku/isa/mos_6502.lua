@@ -1,3 +1,10 @@
+local ByteBuf = yatm_core.ByteBuf
+
+if not ByteBuf then
+  yatm.error("yatm_core.ByteBuf is not available, cannot create OKU state")
+  return
+end
+
 local bit = assert(yatm_oku.bit)
 local ffi = assert(yatm_oku.ffi)
 

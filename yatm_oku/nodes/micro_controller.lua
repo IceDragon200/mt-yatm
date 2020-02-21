@@ -95,7 +95,7 @@ local function micro_controller_after_place_node(pos, _placer, _item_stack, _poi
   meta:set_int("p16", 0)
 
   -- Initialize secret
-  local secret = yatm_core.random_string(8)
+  local secret = yatm_core.random_string62(8)
   meta:set_string("secret", "mctl." .. secret)
   data_network:add_node(pos, node)
 
@@ -222,7 +222,7 @@ minetest.register_node("yatm_oku:oku_micro_controller", {
     local meta = minetest.get_meta(pos)
     local secret = meta:get_string("secret")
     if not secret then
-      secret = yatm_core.random_string(8)
+      secret = yatm_core.random_string62(8)
       meta:set_string("secret", "mctl." .. secret)
     end
     yatm.computers:upsert_computer(pos, node, meta:get_string("secret"), {

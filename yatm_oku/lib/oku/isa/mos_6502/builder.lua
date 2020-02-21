@@ -11,12 +11,12 @@ end
 local Builder = {}
 local m = Builder
 
-local function imm(addr)
-  return ByteEncoder.e_i8(addr)
+local function imm(val)
+  return ByteEncoder:e_i8(val)
 end
 
 local function abs(addr)
-  return ByteEncoder.e_u16(addr)
+  return ByteEncoder:e_u16(addr)
 end
 
 -- BRK impl      // case 0x00:
