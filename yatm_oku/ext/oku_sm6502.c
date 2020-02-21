@@ -51,30 +51,30 @@ extern void oku_sm6502_state_init(struct oku_sm6502_state* state)
 
 extern void oku_sm6502_state_refresh(struct oku_sm6502_state* state)
 {
-  state->sm8->memory_size = state->memory_size;
-  state->sm8->memory = state->memory;
-  state->sm8->memory_flags = state->memory_flags;
+  state->sm8.memory_size = state->memory_size;
+  state->sm8.memory = state->memory;
+  state->sm8.memory_flags = state->memory_flags;
 }
 
 extern int oku_sm6502_chip_startup(struct oku_sm6502_state* state)
 {
-
+  return 0;
 }
 
 extern int oku_sm6502_chip_fex(struct oku_sm6502_state* state)
 {
-
+  return 0;
 }
 
 extern int oku_sm6502_state_step(struct oku_sm6502_state* state)
 {
-  switch (chip->state & 0xF)
+  switch (state->chip.state & 0xF)
   {
     case CPU_STATE_RESET:
-      return oku_sm6502_chip_startup(chip, mem_size, mem);
+      return oku_sm6502_chip_startup(state);
 
     case CPU_STATE_RUN:
-      return oku_sm6502_chip_fex(chip, mem_size, mem);
+      return oku_sm6502_chip_fex(state);
 
     case CPU_STATE_HANG:
       return HANG_CODE;

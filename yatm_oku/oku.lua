@@ -43,6 +43,20 @@ dofile(yatm_oku.modpath .. "/lib/oku/isa/riscv.lua")
 dofile(yatm_oku.modpath .. "/lib/oku/isa/mos_6502.lua")
 
 local OKU = yatm_oku.OKU
+OKU.DEFAULT_ARCH = "mos6502"
+OKU.AVAILABLE_ARCH = {
+  mos6502 = yatm_oku.OKU.isa.MOS6502,
+  rv32i = yatm_oku.OKU.isa.RISCV,
+  ["8086"] = yatm_oku.OKU.isa.I8086,
+}
+
+function OKU:has_arch(arch)
+  if OKU.AVAILABLE_ARCH[arch] then
+    return true
+  end
+  return false
+end
+
 local ic = OKU.instance_class
 
 local function check_memory_size(memory_size)
@@ -54,33 +68,89 @@ local function check_memory_size(memory_size)
   end
 end
 
+--
+-- Options:
+--   arch = "mos6502" | "rv32i"
+--   label = String
+--   memory_size = Integer
+--
 function ic:initialize(options)
   options = options or {}
-  options.memory_size = options.memory_size or 0x20000 --[[ Roughly 512Kb ]]
+
+  self.disposed = false
+  self.arch = options.arch or OKU.DEFAULT_ARCH
+  assert(OKU.AVAILABLE_ARCH[self.arch], "arch=" .. self.arch .. " not available")
+
+  if not options.memory_size then
+    if self.arch == "rv32i" or self.arch == "8086" then
+      options.memory_size = 0x20000 --[[ Roughly 128Kb ]]
+    elseif self.arch == "mos6502" then
+      options.memory_size = 0x10000 --[[ Roughly 64Kb ]]
+    else
+      error("unsupported arch=" .. self.arch)
+    end
+  end
   check_memory_size(options.memory_size)
+
+  self.label = options.label or ""
+
   -- the registers
   self.registers = ffi.new("struct yatm_oku_registers32")
+
   -- memory
-  self.m_memory = yatm_oku.OKU.Memory:new(options.memory_size)
+  self.memory = yatm_oku.OKU.Memory:new(options.memory_size)
 
   self.exec_counter = 0
+
+  self.isa_assigns = {}
+  self:_init_isa()
+end
+
+function ic:_init_isa()
+  OKU.AVAILABLE_ARCH[self.arch].init(self, self.isa_assigns)
+end
+
+function ic:dispose()
+  OKU.AVAILABLE_ARCH[self.arch].dispose(self, self.isa_assigns)
+
+  self.memory = nil
+  self.registers = nil
+
+  self.disposed = true
 end
 
 -- (see Memory:set_circular_access for details)
 function ic:set_memory_circular_access(bool)
-  self.m_memory:set_circular_access(bool)
+  self.memory:set_circular_access(bool)
   return self
 end
 
 -- Reset the stack pointer to the end of memory
 function ic:reset_sp()
-  self.registers.x[2].u32 = self.m_memory:size()
+  self.registers.x[2].u32 = self.memory:size()
+end
+
+function ic:reset()
+  local isa = OKU.AVAILABLE_ARCH[self.arch]
+  isa.reset(self, self.isa_assigns)
+  return self
 end
 
 function ic:step(steps)
+  if self.disposed then
+    return 0, "disposed"
+  end
+
   assert(steps, "expected steps to a number")
+
   for step_i = 1,steps do
-    local okay, err = yatm_oku.OKU.isa.RISCV.step(self)
+    local isa = OKU.AVAILABLE_ARCH[self.arch]
+    local okay, err
+    if isa then
+      okay, err = isa.step(self, self.isa_assigns)
+    else
+      error("unsupported arch=" .. self.arch)
+    end
     if not okay then
       return step_i, err
     end
@@ -90,43 +160,47 @@ end
 
 for _,key in ipairs({"i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64"}) do
   ic["get_memory_" .. key] = function (self, index)
-    return self.m_memory["r_" .. key](self.m_memory, index)
+    return self.memory["r_" .. key](self.memory, index)
   end
 
   ic["put_memory_" .. key] = function (self, index, value)
-    self.m_memory["w_" .. key](self.m_memory, index, value)
+    self.memory["w_" .. key](self.memory, index, value)
     return self
   end
 end
 
 function ic:clear_memory_slice(index, size)
-  self.m_memory:fill_slice(index, size, 0)
+  self.memory:fill_slice(index, size, 0)
   return self
 end
 
 function ic:r_memory_blob(index, size)
-  return self.m_memory:r_blob(index, size)
+  return self.memory:r_blob(index, size)
 end
 
 function ic:w_memory_blob(index, bytes)
   assert(index, "expected an index")
   assert(index, "expected a blob")
-  self.m_memory:w_blob(index, bytes)
+  self.memory:w_blob(index, bytes)
   return self
 end
 
 function ic:fill_memory(value)
   assert(value, "expected a value")
-  self.m_memory:fill(value)
+  self.memory:fill(value)
   return self
 end
 
 function ic:upload_memory(blob)
-  self.m_memory:upload(blob)
+  self.memory:upload(blob)
   return self
 end
 
+-- Honestly only usable with the RV32i
 function ic:load_elf_binary(blob)
+  if self.arch ~= "rv32i" then
+    error("cannot load elf binaries in non-rv32i arch")
+  end
   local stream = yatm_core.StringBuf:new(blob)
 
   local elf_prog = yatm_oku.elf:read(stream)
@@ -149,35 +223,43 @@ end
 --
 -- Binary Serialization
 --
-
 function ic:bindump(stream)
   local bytes_written = 0
-  local bw, err = ByteBuf.write(stream, "OKU1")
+  local bw, err = ByteBuf.write(stream, "OKU2")
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
 
-  local bw, err = ByteBuf.w_u8string(stream, "rv32i")
+  -- Write the version
+  local bw, err = ByteBuf.w_u32(stream, 1)
   bytes_written = bytes_written + bw
-
   if err then
     return bytes_written, err
   end
+
+  -- Write the label
+  local bw, err = ByteBuf.w_u8string(stream, self.label)
+  bytes_written = bytes_written + bw
+  if err then
+    return bytes_written, err
+  end
+
+  -- Write the arch
+  local bytes_written = 0
+  local bw, err = ByteBuf.w_u8string(stream, self.arch)
+  bytes_written = bytes_written + bw
+  if err then
+    return bytes_written, err
+  end
+
+  local isa = OKU.AVAILABLE_ARCH[self.arch]
+
+  assert(isa, "unsupported arch=" .. self.arch)
 
   --
   -- Registers
-  for i = 0,31 do
-    local rv = self.registers.x[i].i32
-    local bw, err = ByteBuf.w_i32(stream, rv)
-    bytes_written = bytes_written + bw
-
-    if err then
-      return bytes_written, err
-    end
-  end
-
-  local bw = ByteBuf.w_u32(stream, self.registers.pc.u32)
+  local bw, err = self:_bindump_registers(stream)
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
@@ -185,19 +267,15 @@ function ic:bindump(stream)
 
   --
   -- Memory
-  local bw = ByteBuf.w_u32(stream, self.m_memory:size())
+  local bw, err = self:_bindump_memory(stream)
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
 
-  local bw = ByteBuf.w_u8bool(stream, true)
-  bytes_written = bytes_written + bw
-  if err then
-    return bytes_written, err
-  end
-
-  local bw = self.m_memory:bindump(stream)
+  --
+  -- ISA State
+  local bw, err = isa.bindump(self, stream, self.isa_assigns)
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
@@ -216,35 +294,49 @@ function ic:binload(stream)
     -- next we read the arch, normally just rv32i
     local arch, br = ByteBuf.r_u8string(stream)
     bytes_read = bytes_read + br
+
+    -- Reset registers
+    self.registers = ffi.new("struct yatm_oku_registers32")
+
     if arch == "rv32i" then
-      -- reinitialize a RISCV-32I machine
+      self.arch = arch
+      bytes_read = bytes_read + self:_binload_arch_rv32i_oku1(stream)
+    else
+      error("unsupported OKU arch=" .. arch)
+    end
+  elseif mahou == "OKU2" then
+    -- read the version
+    local version, br = ByteBuf.r_u32(stream)
+    bytes_read = bytes + br
+
+    if version == 1 then
+      -- read the label
+      local label, br = ByteBuf.r_u8string(stream)
+      bytes_read = bytes + br
+      self.label = label
+
+      -- next we read the arch, normally just rv32i
+      local arch, br = ByteBuf.r_u8string(stream)
+      bytes_read = bytes_read + br
+
+      self.arch = arch
+
+      -- Reset registers
       self.registers = ffi.new("struct yatm_oku_registers32")
-      -- Restore registers
-      for i = 0,31 do
-        local rv, br = ByteBuf.r_i32(stream)
-        bytes_read = bytes_read + br
-        self.registers.x[i].i32 = rv
-      end
-      self.registers.pc.u32 = ByteBuf.r_u32(stream)
 
-      -- time to figure out what the memory size was
-      local memory_size, br = ByteBuf.r_u32(stream)
-
-      bytes_read = bytes_read + br
-      check_memory_size(memory_size) -- make sure someone isn't trying something funny.
-      self.m_memory = yatm_oku.OKU.Memory:new(memory_size)
-
-      -- okay, now determine if the memory should be reloaded, or was it volatile
-      local has_state, br = ByteBuf.r_u8bool(stream)
-      bytes_read = bytes_read + br
-      if has_state then
-        -- the state was persisted, attempt to reload it
-        self.m_memory:binload(stream)
+      local isa = OKU.AVAILABLE_ARCH[self.arch]
+      if isa then
+        -- Restore registers
+        bytes_read = bytes_read + self:_binload_registers(stream)
+        -- Restore memory
+        bytes_read = bytes_read + self:_binload_memory(stream)
+        -- Restore ISA state
+        bytes_read = bytes_read + isa.binload(self, stream, self.isa_assigns)
       else
-        -- the state was not persisted, we're done now.
+        error("unsupported OKU arch=" .. arch)
       end
     else
-      error("unhandled OKU arch got:" .. arch)
+      error("invalid version, got=" .. version)
     end
   else
     error("expected an OKU1 state got:" .. dump(mahou))
@@ -256,6 +348,90 @@ function OKU:binload(stream)
   local oku = self:alloc()
   local oku, br = oku:binload(stream)
   return oku, br
+end
+
+function ic:_bindump_memory(stream)
+  local bw = ByteBuf.w_u32(stream, self.memory:size())
+  bytes_written = bytes_written + bw
+  if err then
+    return bytes_written, err
+  end
+
+  local bw = ByteBuf.w_u8bool(stream, true)
+  bytes_written = bytes_written + bw
+  if err then
+    return bytes_written, err
+  end
+
+  local bw = self.memory:bindump(stream)
+  bytes_written = bytes_written + bw
+  if err then
+    return bytes_written, err
+  end
+end
+
+function ic:_bindump_registers(stream)
+  local bytes_written = 0
+
+  for i = 0,31 do
+    local rv = self.registers.x[i].i32
+    local bw, err = ByteBuf.w_i32(stream, rv)
+    bytes_written = bytes_written + bw
+
+    if err then
+      return bytes_written, err
+    end
+  end
+
+  local bw = ByteBuf.w_u32(stream, self.registers.pc.u32)
+  bytes_written = bytes_written + bw
+  if err then
+    return bytes_written, err
+  end
+  return bytes_written, nil
+end
+
+function ic._binload_registers(stream)
+  local bytes_read = 0
+  for i = 0,31 do
+    local rv, br = ByteBuf.r_i32(stream)
+    bytes_read = bytes_read + br
+    self.registers.x[i].i32 = rv
+  end
+  self.registers.pc.u32 = ByteBuf.r_u32(stream)
+  return bytes_read
+end
+
+function ic._binload_memory(stream)
+  local bytes_read = 0
+  -- time to figure out what the memory size was
+  local memory_size, br = ByteBuf.r_u32(stream)
+
+  bytes_read = bytes_read + br
+  check_memory_size(memory_size) -- make sure someone isn't trying something funny.
+  self.memory = yatm_oku.OKU.Memory:new(memory_size)
+
+  -- okay, now determine if the memory should be reloaded, or was it volatile
+  local has_state, br = ByteBuf.r_u8bool(stream)
+  bytes_read = bytes_read + br
+  if has_state then
+    -- the state was persisted, attempt to reload it
+    self.memory:binload(stream)
+  else
+    -- the state was not persisted, we're done now.
+  end
+  return bytes_read
+end
+
+function ic._binload_arch_rv32i_oku1(stream)
+  local bytes_read = 0
+
+  -- Restore registers
+  bytes_read = bytes_read + self:_binload_registers(stream)
+  -- Restore memory
+  bytes_read = bytes_read + self:_binload_memory(stream)
+
+  return bytes_read
 end
 
 yatm_oku.OKU = OKU

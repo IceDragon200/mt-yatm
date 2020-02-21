@@ -49,6 +49,10 @@ function m:initialize(size)
   print("oku", "Memory", "allocated size=" .. self.m_size)
 end
 
+function m:ptr()
+  return self.m_data
+end
+
 -- Sets the circular access flag in memory
 -- This causes overwrites to start back from the start when it overflows.
 function m:set_circular_access(bool)

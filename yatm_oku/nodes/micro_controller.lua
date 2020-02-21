@@ -59,6 +59,7 @@ end
 local function micro_controller_refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
   local infotext =
+    "Micro Controller\n" ..
     data_network:get_infotext(pos)
 
   meta:set_string("infotext", infotext)
@@ -159,10 +160,9 @@ local micro_controller_mesecons = {
   effector = {
     rules = rules,
 
-    -- Boring lamp stuff
     action_on = function (pos, node)
       local nodedef = minetest.registered_nodes[node.name]
-      -- TODO: pulse clock
+      -- TODO: pulse computer
     end,
 
     action_off = function (pos, node)
@@ -174,7 +174,7 @@ local micro_controller_mesecons = {
 minetest.register_node("yatm_oku:oku_micro_controller", {
   basename = "yatm_oku:oku_micro_controller",
 
-  description = "OKU Micro Controller",
+  description = "OKU Micro Controller [MOS6502]",
 
   codex_entry_id = "yatm_oku:oku_micro_controller",
 
@@ -190,7 +190,6 @@ minetest.register_node("yatm_oku:oku_micro_controller", {
   },
   paramtype = "light",
   paramtype2 = "facedir",
-  place_param2 = 0,
 
   drawtype = "nodebox",
   node_box = micro_controller_nodebox,
@@ -227,6 +226,7 @@ minetest.register_node("yatm_oku:oku_micro_controller", {
       meta:set_string("secret", "mctl." .. secret)
     end
     yatm.computers:upsert_computer(pos, node, meta:get_string("secret"), {
+      arch = "mos6502",
       memory_size = MEMORY_SIZE,
     })
   end,

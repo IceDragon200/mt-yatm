@@ -1062,11 +1062,43 @@ function isa.step_ins(oku, ins)
   end
 end
 
-function isa.step(oku)
+function isa.init(oku, assigns)
+  --
+end
+
+function isa.dispose(oku, assigns)
+  --
+end
+
+function isa.reset(oku, assigns)
+  --
+end
+
+function isa.step(oku, assigns)
   oku.exec_counter = oku.exec_counter + 1
   assert(oku.registers.x[0].i32 == 0, "expected 0 register to be well 0 got:" .. oku.registers.x[0].i32)
 
   return isa.step_ins(oku, oku:get_memory_i32(oku.registers.pc.u32))
+end
+
+local ByteBuf = yatm_core.ByteBuf
+
+function isa.bindump(oku, stream, assigns)
+  local bytes_written = 0
+  local bw, err = ByteBuf.w_u32(stream, 0)
+  bytes_written = bytes_written + bw
+  if err then
+    return bytes_written, err
+  end
+  return bytes_written, nil
+end
+
+function isa.binload(oku, stream, assigns)
+  local bytes_read = 0
+  local version, br = ByteBuf.r_u32(stream)
+  bytes_read = bytes_read + br
+  assert(version == 0)
+  return bytes_read
 end
 
 yatm_oku.OKU.isa.RISCV = isa
