@@ -224,6 +224,7 @@ function ByteBuf.w_cstring(file, str)
 end
 
 function ByteBuf.w_u8string(file, data)
+  assert(data, "expected a string of some kind")
   -- length
   local len = #data
   if len > 255 then
