@@ -119,15 +119,17 @@ function ic:get_infotext(pos)
                               yatm_core.DIR_TO_STRING[dir] .. "=" ..
                               "sub:" .. sub_network_id ..
                               "(" .. color .. ":" ..
-                                     self:get_port_offset_for_color(color) .. "/" .. self:get_port_range_for_color(color) ..
+                                     self:get_port_offset_for_color(color) .. ":" ..
+                                     self:get_port_range_for_color(color) ..
                               ")"
           end
         end
       else
         network_id_str = network_id_str .. "\n" ..
-                         (member.sub_network_id or "no-subnet") ..
+                         "sub:" .. (member.sub_network_id or "no-subnet") ..
                          "(" .. member.color .. ":" ..
-                                self:get_port_offset_for_color(member.color) .. "/" .. self:get_port_range_for_color(member.color) ..
+                                self:get_port_offset_for_color(member.color) .. ":" ..
+                                self:get_port_range_for_color(member.color) ..
                          ")"
       end
     end
@@ -478,9 +480,9 @@ function ic:_mark_ready_to_receive_in_network(network_id, member_id, dir, local_
 end
 
 function ic:generate_network_id()
-  local result = {self.m_abbr}
+  local result = {}
   for i = 1,4 do
-    table.insert(result, yatm_core.random_string16(4))
+    table.insert(result, yatm_core.random_string32(2))
   end
   return table.concat(result, ":")
 end
