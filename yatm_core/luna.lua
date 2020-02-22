@@ -14,6 +14,13 @@ local Luna = yatm_core.Class:extends()
 
 local c = Luna.instance_class
 
+local function format_message(message)
+  if type(message) == "function" then
+    return message()
+  end
+  return message
+end
+
 function c:initialize(name)
   self.name = name
   self.reporter = DefaultReporter
@@ -73,23 +80,29 @@ function c:assert(truth_value, message)
     self.stats.assertions_passed = self.stats.assertions_passed + 1
   else
     self.stats.assertions_failed = self.stats.assertions_failed + 1
-    error("assertion failed: " .. message)
+    error("assertion failed: " .. format_message(message))
   end
 end
 
 function c:assert_eq(a, b, message)
-  message = message or ("expected " .. dump(a) .. " to be equal to " .. dump(b))
+  message = message or function () return ("expected " .. dump(a) .. " to be equal to " .. dump(b)) end
   self:assert(a == b, message)
 end
 
 function c:assert_neq(a, b, message)
-  message = message or ("expected " .. dump(a) .. " to not be equal to " .. dump(b))
+  message = message or function () return ("expected " .. dump(a) .. " to not be equal to " .. dump(b)) end
   self:assert(a ~= b, message)
 end
 
 function c:assert_table_eq(a, b, message)
-  message = message or ("expected " .. dump(a) .. " to be equal to " .. dump(b))
+  message = message or function () return ("expected " .. dump(a) .. " to be equal to " .. dump(b)) end
   self:assert(yatm_core.table_equals(a, b), message)
+end
+
+function c:assert_deep_eq(a, b, message)
+  message = message or function () return ("expected " .. dump(a) .. " to be equal to " .. dump(b)) end
+
+  self:assert(yatm_core.deep_equals(a, b), message)
 end
 
 function c:assert_in(item, list, message)
@@ -98,11 +111,12 @@ function c:assert_in(item, list, message)
 end
 
 function c:refute(truth_value, message)
-  return self:assert(not truth_value, message or ("expected " .. dump(truth_value) .. " to be falsy"))
+  message = message or function () return ("expected " .. dump(truth_value) .. " to be falsy") end
+  return self:assert(not truth_value, message)
 end
 
 function c:refute_eq(a, b, message)
-  message = message or ("expected " .. dump(a) .. " to not be equal to " .. dump(b))
+  message = message or function () return ("expected " .. dump(a) .. " to not be equal to " .. dump(b)) end
   self:refute(a == b, message)
 end
 
