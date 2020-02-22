@@ -19,6 +19,10 @@ function ic:initialize(tokens, mode)
   self:open(mode)
 end
 
+function ic:to_list()
+  return yatm_core.table_copy(self.m_data)
+end
+
 function ic:open(mode)
   self.m_cursor = 1
   self.m_mode = mode or "r"
@@ -302,9 +306,9 @@ local function tokenize_dollar_hex(buf, result)
 end
 
 local function tokenize_integer(buf, result)
-  local int = buf:scan("%d")
+  local int = buf:scan("%d+")
   if int then
-    result:push_token("integer", int)
+    result:push_token("integer", tonumber(int))
     return true
   end
   return false

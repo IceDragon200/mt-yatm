@@ -25,7 +25,7 @@ do
 
   local case = Luna:new("yatm_oku.OKU.isa.MOS6502.Assembler.Lexer")
 
-  case:describe("tokenize/1", function (t2)
+  case:describe("tokenize/1 (individual tokens)", function (t2)
     t2:test("can tokenize a comment", function (t3)
       local token_buf = m.tokenize("; this is a comment")
       token_buf:open('r')
@@ -138,6 +138,23 @@ do
       t3:assert_table_eq({"atom", "THE_QUICK_BROWN_FOX_JUMPS_OVER_THE_LAZY_DOG"}, tokens[1])
     end)
 
+    t2:test("can tokenize a decimal integer", function (t3)
+      local token_buf = m.tokenize("0")
+      token_buf:open('r')
+
+      local tokens = token_buf:scan("integer")
+      t3:assert(tokens[1])
+      t3:assert_table_eq({"integer", 0}, tokens[1])
+
+
+      local token_buf = m.tokenize("1234567890")
+      token_buf:open('r')
+
+      local tokens = token_buf:scan("integer")
+      t3:assert(tokens[1])
+      t3:assert_table_eq({"integer", 1234567890}, tokens[1])
+    end)
+
     t2:test("can tokenize $hex", function (t3)
       local token_buf = m.tokenize("$00FF")
       token_buf:open('r')
@@ -208,6 +225,27 @@ do
       local tokens = token_buf:scan("squote")
       t3:assert(tokens[1])
       t3:assert_table_eq({"squote", "\\n\\tHello, World\\s"}, tokens[1])
+    end)
+  end)
+
+  case:describe("tokenize/1 (stream)", function (t2)
+    t2:test("can tokenize a simple program", function (t3)
+      local prog =
+        "main:\n" ..
+        "  LDA #0 ; zero accumulator\n" ..
+        "  ADC #$20 ; add 32 to the accumulator"
+
+      local token_buf = m.tokenize(prog)
+      token_buf:open('r')
+
+      local tokens = token_buf:to_list()
+
+      local result = {
+        {"atom", "main"}, {":", true}, {"nl", true},
+        {"ws", true}, {"atom", "LDA"}, {"ws", true}, {"#", true}, {"integer", 0}, {"ws", true}, {"comment", " zero accumulator"}, {"nl", true},
+        {"ws", true}, {"atom", "ADC"}, {"ws", true}, {"#", true}, {"hex", "20"}, {"ws", true}, {"comment", " add 32 to the accumulator"}
+      }
+      t3:assert_deep_eq(result, tokens)
     end)
   end)
 
