@@ -222,9 +222,65 @@ local function tokenize_spaces(buf, result)
 end
 
 local function tokenize_dquote(buf, result)
+  if buf:scan("\"") then
+    local contents = {}
+    local i = 1
+    while not buf:isEOF() do
+      local blob = buf:scan_upto("[\\\"]")
+      if not blob then
+        return false
+      end
+      contents[i] = blob
+      i = i + 1
+      local nxt = buf:read(1)
+      if nxt == "\\" then
+        -- escape sequence
+        local nxt = buf:read(1)
+
+        if nxt == "0" then
+          -- null
+          contents[i] = "\0"
+        elseif nxt == "s" then
+          -- space
+          contents[i] = " "
+        elseif nxt == "r" then
+          -- line return
+          contents[i] = "\r"
+        elseif nxt == "n" then
+          -- newline
+          contents[i] = "\n"
+        elseif nxt == "t" then
+          -- tab
+          contents[i] = "\t"
+        else
+          contents[i] = nxt
+        end
+        i = i + 1
+      elseif nxt == "\"" then
+        -- end of string
+        result:push_token("dquote", table.concat(contents))
+        break
+      else
+        error("something... odd happened")
+      end
+    end
+
+    return true
+  end
+  return false
 end
 
 local function tokenize_squote(buf, result)
+  if buf:scan("'") then
+    local contents = {}
+    local blob = buf:scan_upto("'")
+    if blob then
+      buf:walk(1)
+      result:push_token("squote", blob)
+      return true
+    end
+  end
+  return false
 end
 
 local function tokenize_atom(buf, result)

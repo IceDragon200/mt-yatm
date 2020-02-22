@@ -160,7 +160,7 @@ do
       local token_buf = m.tokenize("\"\"")
       token_buf:open('r')
 
-      local tokens = token_buf:scan("hex")
+      local tokens = token_buf:scan("dquote")
       t3:assert(tokens[1])
       t3:assert_table_eq({"dquote", ""}, tokens[1])
     end)
@@ -190,6 +190,24 @@ do
       local tokens = token_buf:scan("dquote")
       t3:assert(tokens[1])
       t3:assert_table_eq({"dquote", "New\nLine\tTabs Spaces"}, tokens[1])
+    end)
+
+    t2:test("can tokenize an empty single-quoted string", function (t3)
+      local token_buf = m.tokenize("''")
+      token_buf:open('r')
+
+      local tokens = token_buf:scan("squote")
+      t3:assert(tokens[1])
+      t3:assert_table_eq({"squote", ""}, tokens[1])
+    end)
+
+    t2:test("can tokenize an a single-quoted string (ignoring escape codes)", function (t3)
+      local token_buf = m.tokenize("'\\n\\tHello, World\\s'")
+      token_buf:open('r')
+
+      local tokens = token_buf:scan("squote")
+      t3:assert(tokens[1])
+      t3:assert_table_eq({"squote", "\\n\\tHello, World\\s"}, tokens[1])
     end)
   end)
 
