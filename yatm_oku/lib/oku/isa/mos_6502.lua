@@ -228,3 +228,4 @@ end
 yatm_oku.OKU.isa.MOS6502 = isa
 
 dofile(yatm_oku.modpath .. "/lib/oku/isa/mos_6502/builder.lua")
+dofile(yatm_oku.modpath .. "/lib/oku/isa/mos_6502/assembler.lua")
