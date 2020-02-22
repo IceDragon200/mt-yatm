@@ -5,6 +5,7 @@ local StringBuf = yatm_core.Class:extends()
 local ic = StringBuf.instance_class
 
 function ic:initialize(data, mode)
+  assert(type(data) == "string", "expected a string for data")
   ic._super.initialize(self)
   self.m_data = data
   self:open(mode)
@@ -32,13 +33,13 @@ function ic:isEOF()
   return self.m_cursor > #self.m_data
 end
 
+function ic:tell()
+  return self.m_cursor
+end
+
 function ic:rewind()
   self.m_cursor = 1
   return self
-end
-
-function ic:tell()
-  return self.m_cursor
 end
 
 function ic:seek(pos)
@@ -52,7 +53,8 @@ function ic:cseek(pos)
 end
 
 function ic:walk(distance)
-  self.m_cursor = self.m_cursor + 1
+  distance = distance or 1
+  self.m_cursor = self.m_cursor + distance
   return self
 end
 
@@ -79,18 +81,31 @@ function ic:scan_until(pattern)
   end
 end
 
+function ic:scan_upto(pattern)
+  local k = self:tell()
+  local i, j = self:find(pattern)
+  if i then
+    return self:read(j - k)
+  else
+    return nil, 0
+  end
+end
+
 function ic:scan_while(pattern)
   local k = self:tell()
   local result = {}
+
   while not self:isEOF() do
-    local i, j = self:find(pattern)
-    if i then
-      local str = self:read(j - k + 1)
-      local k = self:tell()
+    local str = self:scan(pattern)
+    if str then
       table.insert(result, str)
     else
-      return table.concat(result)
+      break
     end
+  end
+
+  for _, _ in pairs(result) do
+    return table.concat(result)
   end
   return nil
 end
