@@ -737,12 +737,12 @@ function m.sty_abs(addr)
 end
 
 -- STY zpg       // case 0x84:
-function m.sty_abs(addr)
+function m.sty_zpg(addr)
   return "\x84" .. imm(addr)
 end
 
 -- STY zpg,X     // case 0x94:
-function m.sty_abs(addr)
+function m.sty_zpg_x(addr)
   return "\x94" .. imm(addr)
 end
 

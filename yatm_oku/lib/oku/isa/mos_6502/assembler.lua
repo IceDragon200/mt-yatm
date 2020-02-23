@@ -9,14 +9,27 @@ local StringBuf = assert(yatm_core.StringBuf)
 local TokenBuffer = yatm_core.Class:extends("TokenBuffer")
 local ic = TokenBuffer.instance_class
 
+local function _check_readable(self)
+  assert(self.m_mode == 'r' or self.m_mode == 'rw')
+end
+
 local function _check_writable(self)
-  assert(self.m_mode == 'w' or self.m_mode == 'rw')
+  assert(self.m_mode == 'w' or self.m_mode == 'rw' or self.m_mode == 'a')
 end
 
 function ic:initialize(tokens, mode)
   self.m_mode = mode
   self.m_data = tokens or {}
   self:open(mode)
+end
+
+function ic:seek(cursor)
+  self.m_cursor = cursor
+  return self
+end
+
+function ic:isEOB()
+  return self.m_cursor > #self.m_data
 end
 
 function ic:to_list()
@@ -34,24 +47,47 @@ function ic:open(mode)
 end
 
 function ic:walk(distance)
+  _check_readable(self)
   self.m_cursor = self.m_cursor + distance
   return self
 end
 
-function ic:push_token(token_name, data)
+function ic:push(token)
   _check_writable(self)
-  self.m_data[self.m_cursor] = {token_name, data}
+  self.m_data[self.m_cursor] = token
   self.m_cursor = self.m_cursor + 1
+  return self
+end
+
+function ic:push_token(token_name, data)
+  return self:push({token_name, data})
 end
 
 local function tokens_match(token, matcher)
   return token[1] == matcher
 end
 
+function ic:skip(token_name)
+  _check_readable(self)
+  if not self:isEOB() then
+    local token = self.m_data[self.m_cursor]
+    if tokens_match(token, token_name) then
+      self.m_cursor = self.m_cursor + 1
+      return true
+    end
+  end
+  return false
+end
+
+function ic:peek(count)
+  return yatm_core.list_slice(self.m_data, self.m_cursor, count)
+end
+
 -- @doc Returns a list of the matched tokens, or nil if no match
 --
 -- @spec :scan(...tokens :: [String]) :: [Token] | nil
 function ic:scan(...)
+  _check_readable(self)
   local token_matchers = {...}
   local token_matchers_len = #token_matchers
 
@@ -77,11 +113,20 @@ function ic:scan(...)
     i = i + 1
     j = j + 1
   end
-
+  self.m_cursor = j
   return tokens
 end
 
+function ic:scan_one(token_name)
+  local tokens = self:scan(token_name)
+  if tokens then
+    return tokens[1]
+  end
+  return nil
+end
+
 function ic:scan_until(token_name)
+  _check_readable(self)
   local i = 1
   local len = #self.m_data
   local tokens = {}
@@ -91,7 +136,6 @@ function ic:scan_until(token_name)
     if self.m_data[j] then
       table.insert(tokens, self.m_data[j])
       if tokens_match(self.m_data[j], token_name) then
-        self.m_cursor = j + 1
         break
       end
     else
@@ -99,11 +143,13 @@ function ic:scan_until(token_name)
     end
     j = j + 1
   end
+  self.m_cursor = j
 
   return tokens
 end
 
 function ic:scan_upto(token_name)
+  _check_readable(self)
   local len = #self.m_data
   local tokens = {}
 
@@ -111,7 +157,6 @@ function ic:scan_upto(token_name)
   while j <= len do
     if self.m_data[j] then
       if tokens_match(self.m_data[j], token_name) then
-        self.m_cursor = j
         break
       else
         table.insert(tokens, self.m_data[j])
@@ -121,6 +166,7 @@ function ic:scan_upto(token_name)
     end
     j = j + 1
   end
+  self.m_cursor = j
 
   return tokens
 end
@@ -129,6 +175,7 @@ end
 --
 -- @spec :match_tokens(...tokens :: [String]) :: boolean
 function ic:match_tokens(...)
+  _check_readable(self)
   local token_matchers = {...}
   local token_matchers_len = #token_matchers
 
@@ -363,16 +410,168 @@ function Lexer.tokenize(str)
     end
   end
 
-  print(dump(result.m_data))
-
   return result, buf:read()
+end
+
+local Parser = {}
+local m = Parser
+
+local function atom_value(token)
+  return token[2]
+end
+
+local function parse_comment(token_buf, result)
+  if token_buf:scan("ws", "comment", "nl") then
+    return true
+  elseif token_buf:scan("comment", "nl") then
+    return true
+  elseif token_buf:scan("ws", "comment") then
+    return true
+  elseif token_buf:skip("comment") then
+    return true
+  end
+  return false
+end
+
+local function parse_label(token_buf, result)
+  local tokens = token_buf:scan("atom", ":")
+  if tokens then
+    result:push_token("label", atom_value(tokens[1]))
+    return true
+  end
+  return false
+end
+
+local function parse_line_term(token_buf, result)
+  if token_buf:scan("ws", "nl") then
+    return true
+  elseif token_buf:scan("nl") then
+    return true
+  elseif token_buf:scan("ws", "comment", "nl") then
+    return true
+  elseif token_buf:scan("comment", "nl") then
+    return true
+  end
+  return false
+end
+
+local function parse_indirect_offset(token_buf)
+  if token_buf:skip("(") then
+    local result = {}
+    while not token_buf:isEOB() do
+      token_buf:skip("ws") -- skip leading spaces
+      local value = token_buf:scan("hex") or
+                    token_buf:scan("integer")
+      if value then
+        table.insert(result, value[1])
+        token_buf:skip("ws")
+        if token_buf:skip(",") then
+          -- can continue
+        else
+          break
+        end
+      else
+        break
+      end
+    end
+    token_buf:skip("ws") -- skip trailing spaces
+    if token_buf:skip(")") then
+      return {"indirect", result}
+    else
+      error("invalid indirect syntax, expected (hex | integer[,hex | integer])")
+    end
+  end
+
+  return nil
+end
+
+local function parse_immediate(token_buf)
+  local tokens = token_buf:scan("#", "hex") or token_buf:scan("#", "integer")
+  if tokens then
+    return {"immediate", tokens[2]}
+  end
+  return nil
+end
+
+local function parse_ins_arg(token_buf)
+  return token_buf:scan_one("atom") or
+         token_buf:scan_one("integer") or
+         token_buf:scan_one("hex") or
+         parse_immediate(token_buf) or
+         parse_indirect_offset(token_buf)
+end
+
+local function parse_ins_args(token_buf)
+  local result = {}
+  while not token_buf:isEOB() do
+    token_buf:skip("ws")
+    local token = parse_ins_arg(token_buf)
+    if token then
+      table.insert(result, token)
+      token_buf:skip("ws")
+      if token_buf:skip(",") then
+        --
+      else
+        break
+      end
+    else
+      break
+    end
+  end
+  return result
+end
+
+local function parse_ins(token_buf, result)
+  token_buf:skip("ws")
+  local ins = token_buf:scan_one("atom")
+  if ins then
+    local args = parse_ins_args(token_buf)
+    parse_line_term(token_buf, result)
+    result:push_token("ins", { name = atom_value(ins), args = args })
+    return true
+  end
+  return false
+end
+
+function m.parse(token_buf)
+  local result = TokenBuffer:new({}, 'w')
+
+  while not token_buf:isEOB() do
+    if parse_line_term(token_buf, result) then
+      --
+    elseif parse_label(token_buf, result) then
+      --
+    elseif parse_ins(token_buf, result) then
+      --
+    else
+      break
+    end
+  end
+  return result
 end
 
 local Assembler = {
   TokenBuffer = TokenBuffer,
   Lexer = Lexer,
+  Parser = Parser,
 }
 
 local m = Assembler
+
+function m.parse(prog)
+  local token_buf = m.Lexer.tokenize(prog)
+  token_buf:open('r')
+  return m.Parser.parse(token_buf)
+end
+
+function m.assemble_tokens(token_buf)
+end
+
+-- @spec assemble(String) :: (binary :: String, error :: String)
+function m.assemble(prog)
+  local tokens = m.parse(prog)
+
+  return m.assemble_tokens(parsed_tokens)
+end
 
 yatm_oku.OKU.isa.MOS6502.Assembler = Assembler
