@@ -1,7 +1,7 @@
 local Luna = assert(yatm_core.Luna)
 local m = yatm_core
 
-local case = Luna:new("yatm_core-util/table")
+local case = Luna:new("yatm_core.table")
 
 case:describe("table_equals/2", function (t2)
   t2:test("compares 2 tables and determines if they're equal", function (t3)
@@ -111,4 +111,3 @@ end)
 case:execute()
 case:display_stats()
 case:maybe_error()
-

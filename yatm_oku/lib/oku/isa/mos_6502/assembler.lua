@@ -565,6 +565,16 @@ function m.parse(prog)
 end
 
 function m.assemble_tokens(token_buf)
+  local tokens = token_buf:to_list()
+
+  local pos = 0
+  local pos_table = {}
+
+  for _, token in ipairs(tokens) do
+    if token[1] == "ins" then
+    elseif token[1] == "label" then
+    end
+  end
 end
 
 -- @spec assemble(String) :: (binary :: String, error :: String)
