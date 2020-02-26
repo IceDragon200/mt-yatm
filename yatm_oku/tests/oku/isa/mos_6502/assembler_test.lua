@@ -319,5 +319,3 @@ do
   case:display_stats()
   case:maybe_error()
 end
-
-error("Always fail")
