@@ -129,6 +129,15 @@ function yatm_core.string_pad_trailing(str, count, padding)
   return result
 end
 
+--
+--
+-- @spec string_rsub(String, Integer) :: String
+-- @doc Returns a substring starting from the tail of the string
+function yatm_core.string_rsub(str, len)
+  local i = #str - len + 1
+  return string.sub(str, i)
+end
+
 function yatm_core.string_split(str, pattern)
   if str == "" then
     return {}

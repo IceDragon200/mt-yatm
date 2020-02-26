@@ -66,6 +66,17 @@ function yatm_core.string_hex_clean(str)
   return table.concat(result)
 end
 
+--
+--
+-- @spec string_hex_pair_to_byte(String) :: Integer
+-- @doc Decode a hexpair string as a plain byte
+-- @example string_hex_pair_to_byte("FF") -- => 255
+function yatm_core.string_hex_pair_to_byte(pair)
+  local hinibble = string.byte(pair, 1) or 0
+  local lonibble = string.byte(pair, 2) or 0
+  return HEX_BYTE_TO_DEC[hinibble] * 16 + HEX_BYTE_TO_DEC[lonibble]
+end
+
 function yatm_core.lua_string_hex_decode(str)
   local result = {}
   local bytes = {string.byte(str, 1, -1)}
