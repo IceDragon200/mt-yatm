@@ -6,6 +6,36 @@
 --
 local StringBuf = assert(yatm_core.StringBuf)
 
+local function tokens_match(token, matcher)
+  return token[1] == matcher
+end
+
+local function match_tokens(tokens, start, stop, token_matchers)
+  local i = 1
+  local len = #tokens
+
+  local matched = false
+  local j = start
+  while j <= len and i <= stop do
+    if tokens[j] then
+      local token = tokens[j]
+      local matcher_token = token_matchers[i]
+
+      if tokens_match(token, matcher_token) then
+        matched = true
+      else
+        return false
+      end
+    else
+      return false
+    end
+    i = i + 1
+    j = j + 1
+  end
+
+  return matched
+end
+
 local TokenBuffer = yatm_core.Class:extends("TokenBuffer")
 local ic = TokenBuffer.instance_class
 
@@ -61,10 +91,6 @@ end
 
 function ic:push_token(token_name, data)
   return self:push({token_name, data})
-end
-
-local function tokens_match(token, matcher)
-  return token[1] == matcher
 end
 
 function ic:skip(token_name)
@@ -178,30 +204,7 @@ function ic:match_tokens(...)
   _check_readable(self)
   local token_matchers = {...}
   local token_matchers_len = #token_matchers
-
-  local i = 1
-  local len = #self.m_data
-
-  local matched = false
-  local j = self.m_cursor
-  while j <= len and i <= token_matchers_len do
-    if self.m_data[j] then
-      local token = self.m_data[j]
-      local matcher_token = token_matchers[i]
-
-      if tokens_match(token, matcher_token) then
-        matched = true
-      else
-        return false
-      end
-    else
-      return false
-    end
-    i = i + 1
-    j = j + 1
-  end
-
-  return matched
+  return match_tokens(self.m_data, self.m_cursor, token_matchers_len, token_matchers)
 end
 
 local Lexer = {}
@@ -455,15 +458,104 @@ local function parse_line_term(token_buf, result)
   return false
 end
 
+local function parse_register_name_or_atom(token_buf)
+  local token = token_buf:scan_one("atom")
+  if token then
+    local name = atom_value(token)
+
+    if name == "X" or name == "x" then
+      return {"register_x", true}
+    elseif name == "Y" or name == "y" then
+      return {"register_y", true}
+    else
+      -- return a new atom
+      return {"atom", name}
+    end
+  end
+  return nil
+end
+
+local function hex_token_to_byte(token)
+  local hex_value = token[2]
+  if #hex_value < 2 then
+    -- TODO: issue warning, the value was padded
+    hex_value = yatm_core.string_pad_leading(hex_value, 2, "0")
+  elseif #hex_value > 2 then
+    -- TODO: issue warning, the value was truncated
+    hex_value = yatm_core.string_rsub(hex_value, 2)
+  end
+  return yatm_core.string_hex_pair_to_byte(hex_value)
+end
+
+local function hex_token_to_num(token)
+  local hex_value = token[2]
+  if #hex_value > 2 then
+    hex_value = yatm_core.string_pad_leading(hex_value, 4, "0")
+    hex_value = yatm_core.string_rsub(hex_value, 4)
+    local hipair = string.sub(hex_value, 1, 2)
+    local lopair = string.sub(hex_value, 3, 4)
+    return hipair * 256 + lopair
+  else
+    return hex_token_to_byte(token)
+  end
+end
+
+local function parse_absolute_or_zeropage_address(token_buf)
+  local token = token_buf:scan_one("integer") or token_buf:scan_one("hex")
+
+  if token then
+    if token[1] == "hex" then
+      local hex_value = token[2]
+      if #hex_value <= 2 then
+        hex_value = yatm_core.string_pad_leading(hex_value, 2, "0")
+        local value = yatm_core.string_hex_pair_to_byte(hex_value)
+        return {"zeropage", value}
+      else
+        hex_value = yatm_core.string_pad_leading(hex_value, 4, "0")
+        hex_value = yatm_core.string_rsub(hex_value, 4)
+        local hipair = string.sub(hex_value, 1, 2)
+        local lopair = string.sub(hex_value, 3, 4)
+        return {"absolute", hipair * 256 + lopair}
+      end
+    else
+      local value = token[2]
+      if value > 255 then
+        return {"absolute", value}
+      else
+        return {"zeropage", value}
+      end
+    end
+  end
+  return nil
+end
+
+local function parse_immediate(token_buf)
+  local tokens = token_buf:scan("#", "hex") or token_buf:scan("#", "integer")
+  if tokens then
+    local token = tokens[2]
+    local value
+    if token[1] == "hex" then
+      value = hex_token_to_byte(token)
+    elseif token[1] == "integer" then
+      value = math.min(math.max(-128, token[2]), 255)
+    else
+      error("expected an integer or hex")
+    end
+    return {"immediate", value}
+  end
+  return nil
+end
+
 local function parse_indirect_offset(token_buf)
   if token_buf:skip("(") then
     local result = {}
     while not token_buf:isEOB() do
       token_buf:skip("ws") -- skip leading spaces
-      local value = token_buf:scan("hex") or
-                    token_buf:scan("integer")
-      if value then
-        table.insert(result, value[1])
+      local token = token_buf:scan_one("hex") or
+                    token_buf:scan_one("integer") or
+                    parse_register_name_or_atom(token_buf)
+      if token then
+        table.insert(result, token)
         token_buf:skip("ws")
         if token_buf:skip(",") then
           -- can continue
@@ -474,31 +566,84 @@ local function parse_indirect_offset(token_buf)
         break
       end
     end
+
     token_buf:skip("ws") -- skip trailing spaces
+
     if token_buf:skip(")") then
-      return {"indirect", result}
+      if #result == 2 then
+        if match_tokens(result, 1, #result, {"hex", "register_x"}) then
+          return {"indirect_x", hex_token_to_byte(result[1])}
+        elseif match_tokens(result, 1, #result, {"integer", "register_x"}) then
+          return {"indirect_x", result[1][2]}
+        else
+          error("unexpected indirect args")
+        end
+      elseif #result == 1 then
+        if match_tokens(result, 1, #result, {"hex"}) then
+          return {"indirect", hex_token_to_num(result[1])}
+        elseif match_tokens(result, 1, #result, {"integer"}) then
+          return {"indirect", result[1][2]}
+        else
+          error("unexpected token")
+        end
+      else
+        error("invalid number of arguments expected 1 or 2 got " .. #result)
+      end
     else
-      error("invalid indirect syntax, expected (hex | integer[,hex | integer])")
+      error("invalid indirect syntax, expected (hex | integer[,atom])")
     end
   end
 
   return nil
 end
 
-local function parse_immediate(token_buf)
-  local tokens = token_buf:scan("#", "hex") or token_buf:scan("#", "integer")
-  if tokens then
-    return {"immediate", tokens[2]}
-  end
-  return nil
-end
-
 local function parse_ins_arg(token_buf)
-  return token_buf:scan_one("atom") or
-         token_buf:scan_one("integer") or
-         token_buf:scan_one("hex") or
+  return parse_register_name_or_atom(token_buf) or
+         parse_absolute_or_zeropage_address(token_buf) or
          parse_immediate(token_buf) or
          parse_indirect_offset(token_buf)
+end
+
+local function tokens_to_addressing_mode(result)
+  --
+  -- TODO: Support variable substitution
+  --   Example:
+  --     ADC #word
+  --     ADC word
+  --
+  if #result == 0 then
+    return {}
+  elseif #result == 1 then
+    if match_tokens(result, 1, 1, {"indirect_x"}) then
+      return result
+    elseif match_tokens(result, 1, 1, {"absolute"}) then
+      return result
+    elseif match_tokens(result, 1, 1, {"immediate"}) then
+      return result
+    elseif match_tokens(result, 1, 1, {"zeropage"}) then
+      return result
+    elseif match_tokens(result, 1, 1, {"register_a"}) then
+      return result
+    else
+      error("invalid 1 argument pattern")
+    end
+  elseif #result == 2 then
+    if match_tokens(result, 1, 2, {"absolute", "register_x"}) then
+      return {{"absolute_x", result[1][2]}}
+    elseif match_tokens(result, 1, 2, {"absolute", "register_y"}) then
+      return {{"absolute_y", result[1][2]}}
+    elseif match_tokens(result, 1, 2, {"indirect", "register_y"}) then
+      return {{"indirect_y", result[1][2]}}
+    elseif match_tokens(result, 1, 2, {"zeropage", "register_y"}) then
+      return {{"zeropage_y", result[1][2]}}
+    elseif match_tokens(result, 1, 2, {"zeropage", "register_x"}) then
+      return {{"zeropage_x", result[1][2]}}
+    else
+      error("invalid 2 argument pattern")
+    end
+  else
+    error("invalid number of arguments expected 0, 1 or 2 got " .. #result)
+  end
 end
 
 local function parse_ins_args(token_buf)
@@ -518,7 +663,8 @@ local function parse_ins_args(token_buf)
       break
     end
   end
-  return result
+
+  return tokens_to_addressing_mode(result)
 end
 
 local function parse_ins(token_buf, result)
@@ -527,7 +673,10 @@ local function parse_ins(token_buf, result)
   if ins then
     local args = parse_ins_args(token_buf)
     parse_line_term(token_buf, result)
-    result:push_token("ins", { name = atom_value(ins), args = args })
+    result:push_token("ins", {
+      name = string.lower(atom_value(ins)),
+      args = args
+    })
     return true
   end
   return false
@@ -550,6 +699,10 @@ function m.parse(token_buf)
   return result
 end
 
+dofile(yatm_oku.modpath .. "/lib/oku/isa/mos_6502/nmos_assembly.lua")
+
+local NMOS_Assembly = assert(yatm_oku.OKU.isa.MOS6502.NMOS_Assembly)
+local AssemblyBuilder = assert(yatm_oku.OKU.isa.MOS6502.Builder)
 local Assembler = {
   TokenBuffer = TokenBuffer,
   Lexer = Lexer,
@@ -559,29 +712,89 @@ local Assembler = {
 local m = Assembler
 
 function m.parse(prog)
-  local token_buf = m.Lexer.tokenize(prog)
+  local token_buf, rest = m.Lexer.tokenize(prog)
   token_buf:open('r')
-  return m.Parser.parse(token_buf)
+  return m.Parser.parse(token_buf), rest
 end
 
 function m.assemble_tokens(token_buf)
   local tokens = token_buf:to_list()
 
-  local pos = 0
-  local pos_table = {}
+  local context = {
+    -- yes, a zero index
+    pos = 0,
+    -- TODO: actually use the jump table
+    jump_table = {},
+  }
+
+  local result = {}
+  local result_i = 1
+
+  local function push_binary(binary)
+    result[result_i] = binary
+    result_i = result_i + 1
+    context.pos = context.pos + #binary
+  end
 
   for _, token in ipairs(tokens) do
     if token[1] == "ins" then
+      local ins_name = token[2].name
+      local ins_args = token[2].args
+
+      local branch = NMOS_Assembly[ins_name]
+      if branch then
+        local leaf
+        if #ins_args == 0 then
+          leaf = branch["implied"]
+          if leaf then
+            local binary = AssemblyBuilder[leaf]()
+            push_binary(binary)
+          else
+            error("invalid instruction " .. ins_name .. " with arg pattern " .. arg[1])
+          end
+        else
+          local arg = assert(ins_args[1])
+          leaf = branch[arg[1]]
+          if leaf then
+            local binary = AssemblyBuilder[leaf](arg[2])
+            push_binary(binary)
+          else
+            error("invalid instruction " .. ins_name .. " with arg pattern " .. arg[1])
+          end
+        end
+      else
+        error("no such instruction " .. ins_name)
+      end
     elseif token[1] == "label" then
+      context.jump_table[token[2]] = context.pos
+    else
+      error("unexpected token " .. token[1])
     end
   end
+
+  return table.concat(result), context
 end
 
 -- @spec assemble(String) :: (binary :: String, error :: String)
 function m.assemble(prog)
-  local tokens = m.parse(prog)
+  local tokens, rest = m.parse(prog)
 
-  return m.assemble_tokens(parsed_tokens)
+  local blob, context = m.assemble_tokens(tokens)
+  return blob, context, rest
+end
+
+-- @spec assemble_safe(String) :: (boolean, binary :: String, error :: String)
+function m.assemble_safe(prog)
+  local result, blob, context, rest =
+    pcall(function ()
+      return m.assemble(prog)
+    end)
+
+  if result then
+    return true, blob, context, rest
+  else
+    return false, blob
+  end
 end
 
 yatm_oku.OKU.isa.MOS6502.Assembler = Assembler

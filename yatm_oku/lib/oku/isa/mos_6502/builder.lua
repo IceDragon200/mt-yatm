@@ -50,7 +50,7 @@ function m.adc_ind_y(addr)
 end
 
 -- ADC X,ind     // case 0x61:
-function m.adc_x_ind(addr)
+function m.adc_ind_x(addr)
   return "\x61" .. imm(addr)
 end
 
@@ -90,7 +90,7 @@ function m.and_ind_y(addr)
 end
 
 -- AND X,ind     // case 0x21:
-function m.and_x_ind(addr)
+function m.and_ind_x(addr)
   return "\x21" .. imm(addr)
 end
 
@@ -226,7 +226,7 @@ function m.cmp_ind_y(addr)
 end
 
 -- CMP X,ind     // case 0xC1:
-function m.cmp_x_ind(addr)
+function m.cmp_ind_x(addr)
   return "\xC1" .. imm(addr)
 end
 
@@ -326,7 +326,7 @@ function m.eor_ind_y(addr)
 end
 
 -- EOR X,ind     // case 0x41:
-function m.eor_x_ind(addr)
+function m.eor_ind_x(addr)
   return "\x41" .. imm(addr)
 end
 
@@ -412,7 +412,7 @@ function m.lda_ind_y(addr)
 end
 
 -- LDA X,ind     // case 0xA1:
-function m.lda_x_ind(addr)
+function m.lda_ind_x(addr)
   return "\xA1" .. imm(addr)
 end
 
@@ -652,7 +652,7 @@ function m.sbc_ind_y(addr)
 end
 
 -- SBC X,ind     // case 0xE1:
-function m.sbc_x_ind(addr)
+function m.sbc_ind_x(addr)
   return "\xE1" .. imm(addr)
 end
 
@@ -702,7 +702,7 @@ function m.sta_ind_y(addr)
 end
 
 -- STA X,ind     // case 0x81:
-function m.sta_x_ind(addr)
+function m.sta_ind_x(addr)
   return "\x81" .. imm(addr)
 end
 

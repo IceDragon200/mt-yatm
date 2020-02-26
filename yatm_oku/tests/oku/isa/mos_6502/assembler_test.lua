@@ -17,13 +17,34 @@ do
         "  LDA #$00\n" ..
         "  ADC #20\n" ..
         ""
-      local tokens = m.parse(prog)
+
+      local tokens, rest = m.parse(prog)
+
+      t3:assert_eq("", rest)
 
       t3:assert_deep_eq({
         {"label", "main"},
-        {"ins", { name = "LDA", args = { {"immediate", {"hex", "00"}}} }},
-        {"ins", { name = "ADC", args = { {"immediate", {"integer", 20}}} }},
+        {"ins", { name = "lda", args = { {"immediate", 0} } }},
+        {"ins", { name = "adc", args = { {"immediate", 20} } }},
       }, tokens:to_list())
+    end)
+  end)
+
+  case:describe(".assemble_safe/1", function (t2)
+    t2:test("assembler can actually assemble a 6502 object binary (without crashing)", function (t3)
+      local prog =
+        "main:\n" ..
+        "  LDA #$00\n" ..
+        "  ADC #20\n" ..
+        ""
+
+      local okay, object, context, rest = m.assemble_safe(prog)
+
+      t3:assert(okay)
+      t3:assert_eq("", rest)
+
+      local blob = yatm_core.string_hex_escape(object, "all")
+      print(dump(blob))
     end)
   end)
 
@@ -44,73 +65,85 @@ do
 
   case:describe("tokenize/1 (individual tokens)", function (t2)
     t2:test("can tokenize a comment", function (t3)
-      local token_buf = m.tokenize("; this is a comment")
+      local token_buf, rest = m.tokenize("; this is a comment")
+      t3:assert_eq("", rest)
       token_buf:open('r')
       t3:assert(token_buf:match_tokens("comment"))
     end)
 
     t2:test("can tokenize comma", function (t3)
-      local token_buf = m.tokenize(",")
+      local token_buf, rest = m.tokenize(",")
+      t3:assert_eq("", rest)
       token_buf:open('r')
       t3:assert(token_buf:match_tokens(","))
     end)
 
     t2:test("can tokenize hash", function (t3)
-      local token_buf = m.tokenize("#")
+      local token_buf, rest = m.tokenize("#")
+      t3:assert_eq("", rest)
       token_buf:open('r')
       t3:assert(token_buf:match_tokens("#"))
     end)
 
     t2:test("can tokenize colon", function (t3)
-      local token_buf = m.tokenize(":")
+      local token_buf, rest = m.tokenize(":")
+      t3:assert_eq("", rest)
       token_buf:open('r')
       t3:assert(token_buf:match_tokens(":"))
     end)
 
     t2:test("can tokenize open-round-bracket", function (t3)
-      local token_buf = m.tokenize("(")
+      local token_buf, rest = m.tokenize("(")
+      t3:assert_eq("", rest)
       token_buf:open('r')
       t3:assert(token_buf:match_tokens("("))
     end)
 
     t2:test("can tokenize closed-round-bracket", function (t3)
-      local token_buf = m.tokenize(")")
+      local token_buf, rest = m.tokenize(")")
+      t3:assert_eq("", rest)
       token_buf:open('r')
       t3:assert(token_buf:match_tokens(")"))
     end)
 
     t2:test("can tokenize newlines", function (t3)
-      local token_buf = m.tokenize("\n")
+      local token_buf, rest = m.tokenize("\n")
+      t3:assert_eq("", rest)
       token_buf:open('r')
       t3:assert(token_buf:match_tokens("nl"))
     end)
 
     t2:test("can tokenize single space", function (t3)
-      local token_buf = m.tokenize(" ")
+      local token_buf, rest = m.tokenize(" ")
+      t3:assert_eq("", rest)
       token_buf:open('r')
       t3:assert(token_buf:match_tokens("ws"))
     end)
 
     t2:test("can tokenize single space (as tab)", function (t3)
-      local token_buf = m.tokenize("\t")
+      local token_buf, rest = m.tokenize("\t")
+      t3:assert_eq("", rest)
       token_buf:open('r')
       t3:assert(token_buf:match_tokens("ws"))
     end)
 
     t2:test("can tokenize multiple spaces", function (t3)
-      local token_buf = m.tokenize("       ")
+      local token_buf, rest = m.tokenize("       ")
+      t3:assert_eq("", rest)
       token_buf:open('r')
       t3:assert(token_buf:match_tokens("ws"))
     end)
 
     t2:test("can tokenize multiple spaces (as tabs)", function (t3)
-      local token_buf = m.tokenize("\t\t")
+      local token_buf, rest = m.tokenize("\t\t")
+      t3:assert_eq("", rest)
       token_buf:open('r')
       t3:assert(token_buf:match_tokens("ws"))
     end)
 
     t2:test("can tokenize single char atom", function (t3)
-      local token_buf = m.tokenize("X")
+      local token_buf, rest = m.tokenize("X")
+      t3:assert_eq("", rest)
       token_buf:open('r')
       t3:assert(token_buf:match_tokens("atom"))
       local tokens = token_buf:scan("atom")
@@ -118,7 +151,8 @@ do
     end)
 
     t2:test("can tokenize simple atom word", function (t3)
-      local token_buf = m.tokenize("word")
+      local token_buf, rest = m.tokenize("word")
+      t3:assert_eq("", rest)
       token_buf:open('r')
       t3:assert(token_buf:match_tokens("atom"))
       local tokens = token_buf:scan("atom")
@@ -126,7 +160,8 @@ do
     end)
 
     t2:test("can tokenize complex atoms", function (t3)
-      local token_buf = m.tokenize("_marker_with_spaces_and_1234")
+      local token_buf, rest = m.tokenize("_marker_with_spaces_and_1234")
+      t3:assert_eq("", rest)
       token_buf:open('r')
       local tokens = token_buf:scan("atom")
       t3:assert(tokens[1])
@@ -134,7 +169,8 @@ do
     end)
 
     t2:test("can tokenize all numbers as atoms (leading underscore)", function (t3)
-      local token_buf = m.tokenize("_0123456789")
+      local token_buf, rest = m.tokenize("_0123456789")
+      t3:assert_eq("", rest)
       token_buf:open('r')
       local tokens = token_buf:scan("atom")
       t3:assert(tokens[1])
@@ -142,13 +178,15 @@ do
     end)
 
     t2:test("can tokenize entire latin alphabet atoms", function (t3)
-      local token_buf = m.tokenize("the_quick_brown_fox_jumps_over_the_lazy_dog")
+      local token_buf, rest = m.tokenize("the_quick_brown_fox_jumps_over_the_lazy_dog")
+      t3:assert_eq("", rest)
       token_buf:open('r')
       local tokens = token_buf:scan("atom")
       t3:assert(tokens[1])
       t3:assert_table_eq({"atom", "the_quick_brown_fox_jumps_over_the_lazy_dog"}, tokens[1])
 
-      local token_buf = m.tokenize("THE_QUICK_BROWN_FOX_JUMPS_OVER_THE_LAZY_DOG")
+      local token_buf, rest = m.tokenize("THE_QUICK_BROWN_FOX_JUMPS_OVER_THE_LAZY_DOG")
+      t3:assert_eq("", rest)
       token_buf:open('r')
       local tokens = token_buf:scan("atom")
       t3:assert(tokens[1])
@@ -156,7 +194,8 @@ do
     end)
 
     t2:test("can tokenize a decimal integer", function (t3)
-      local token_buf = m.tokenize("0")
+      local token_buf, rest = m.tokenize("0")
+      t3:assert_eq("", rest)
       token_buf:open('r')
 
       local tokens = token_buf:scan("integer")
@@ -164,7 +203,8 @@ do
       t3:assert_table_eq({"integer", 0}, tokens[1])
 
 
-      local token_buf = m.tokenize("1234567890")
+      local token_buf, rest = m.tokenize("1234567890")
+      t3:assert_eq("", rest)
       token_buf:open('r')
 
       local tokens = token_buf:scan("integer")
@@ -173,7 +213,8 @@ do
     end)
 
     t2:test("can tokenize $hex", function (t3)
-      local token_buf = m.tokenize("$00FF")
+      local token_buf, rest = m.tokenize("$00FF")
+      t3:assert_eq("", rest)
       token_buf:open('r')
 
       local tokens = token_buf:scan("hex")
@@ -182,7 +223,8 @@ do
     end)
 
     t2:test("can tokenize entire hex alphabet", function (t3)
-      local token_buf = m.tokenize("$0123456789ABCDEFabcdef")
+      local token_buf, rest = m.tokenize("$0123456789ABCDEFabcdef")
+      t3:assert_eq("", rest)
       token_buf:open('r')
 
       local tokens = token_buf:scan("hex")
@@ -191,7 +233,8 @@ do
     end)
 
     t2:test("can tokenize an empty double-quoted string", function (t3)
-      local token_buf = m.tokenize("\"\"")
+      local token_buf, rest = m.tokenize("\"\"")
+      t3:assert_eq("", rest)
       token_buf:open('r')
 
       local tokens = token_buf:scan("dquote")
@@ -200,7 +243,8 @@ do
     end)
 
     t2:test("can tokenize a double-quoted string", function (t3)
-      local token_buf = m.tokenize("\"Hello\"")
+      local token_buf, rest = m.tokenize("\"Hello\"")
+      t3:assert_eq("", rest)
       token_buf:open('r')
 
       local tokens = token_buf:scan("dquote")
@@ -209,7 +253,8 @@ do
     end)
 
     t2:test("can tokenize a complex double-quoted string", function (t3)
-      local token_buf = m.tokenize("\"Hello World, how are you m8\"")
+      local token_buf, rest = m.tokenize("\"Hello World, how are you m8\"")
+      t3:assert_eq("", rest)
       token_buf:open('r')
 
       local tokens = token_buf:scan("dquote")
@@ -218,7 +263,8 @@ do
     end)
 
     t2:test("can tokenize a double-quoted string with escape codes", function (t3)
-      local token_buf = m.tokenize("\"New\\nLine\\tTabs\\sSpaces\"")
+      local token_buf, rest = m.tokenize("\"New\\nLine\\tTabs\\sSpaces\"")
+      t3:assert_eq("", rest)
       token_buf:open('r')
 
       local tokens = token_buf:scan("dquote")
@@ -227,7 +273,8 @@ do
     end)
 
     t2:test("can tokenize an empty single-quoted string", function (t3)
-      local token_buf = m.tokenize("''")
+      local token_buf, rest = m.tokenize("''")
+      t3:assert_eq("", rest)
       token_buf:open('r')
 
       local tokens = token_buf:scan("squote")
@@ -236,7 +283,8 @@ do
     end)
 
     t2:test("can tokenize an a single-quoted string (ignoring escape codes)", function (t3)
-      local token_buf = m.tokenize("'\\n\\tHello, World\\s'")
+      local token_buf, rest = m.tokenize("'\\n\\tHello, World\\s'")
+      t3:assert_eq("", rest)
       token_buf:open('r')
 
       local tokens = token_buf:scan("squote")
@@ -252,7 +300,8 @@ do
         "  LDA #0 ; zero accumulator\n" ..
         "  ADC #$20 ; add 32 to the accumulator"
 
-      local token_buf = m.tokenize(prog)
+      local token_buf, rest = m.tokenize(prog)
+      t3:assert_eq("", rest)
       token_buf:open('r')
 
       local tokens = token_buf:to_list()
