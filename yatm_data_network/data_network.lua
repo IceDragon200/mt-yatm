@@ -304,7 +304,7 @@ end
 
 -- @spec update_member(Vector3.t, Node.t) :: DataNetwork.t
 function ic:update_member(pos, node, force_refresh)
-  self:log("update_member", minetest.pos_to_string(pos), node.name)
+  self:log("update_member/3 pos=" .. minetest.pos_to_string(pos) .. " name=" .. node.name .. " force_refresh=" .. dump(force_refresh))
   local member_id = minetest.hash_node_position(pos)
   local member = self.m_members[member_id]
   if member then
