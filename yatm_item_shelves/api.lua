@@ -216,7 +216,10 @@ end
 
 function yatm.shelves.register_shelf(name, def)
   minetest.register_node(name, yatm_core.table_merge({
-    groups = { cracky = 1, item_shelf = 1 },
+    groups = {
+      cracky = 1,
+      item_shelf = 1,
+    },
 
     paramtype = "light",
     paramtype2 = "facedir",
@@ -242,12 +245,21 @@ minetest.register_entity("yatm_item_shelves:shelf_item", {
     visual = "wielditem",
     visual_size = {x = 0.20, y = 0.20},
     collisionbox = {0,0,0, 0,0,0},
+    use_texture_alpha = true,
     physical = false,
+    collide_with_objects = false,
+    pointable = false,
+    static_save = false, -- delete the entity on block unload, the shelf will refresh it on load
   },
+
+  on_step = function (self, delta)
+    --
+  end,
+
   on_activate = function(self, static_data)
     local data = parse_shelf_item_static_data(static_data)
     if not data then
-      print("Static data was invalid, removing entity")
+      minetest.log("error", "shelf entity static data was invalid, removing it")
       self.object:remove()
       return
     end
@@ -287,5 +299,80 @@ minetest.register_entity("yatm_item_shelves:shelf_item", {
     else
       return ""
     end
+  end,
+})
+
+local LoadingSystem = yatm_core.Class:extends("shelves.LoadingSystem")
+local ic = LoadingSystem.instance_class
+
+function ic:initialize()
+  self.queue_max_size = 0xFFFF
+  self.loading_queue = {}
+  self.start_index = 0
+  self.end_index = 0
+  self.size = 0
+  self.wait = 0
+end
+
+function ic:next_item()
+  if self.size > 0 then
+    self.size = self.size - 1
+    local item = self.loading_queue[self.start_index]
+    self.loading_queue[self.start_index] = nil
+    self.start_index = (self.start_index + 1) % self.queue_max_size
+    return item
+  else
+    return nil
+  end
+end
+
+function ic:push_item(item)
+  minetest.log("info", "pushing item " .. dump(item))
+  self.size = self.size + 1
+  self.loading_queue[self.end_index] = item
+  self.end_index = (self.end_index + 1) % self.queue_max_size
+  return self
+end
+
+function ic:update(delta)
+  if self.wait > 0 then
+    self.wait = self.wait - delta
+    return
+  end
+  local seen_items = 0
+  while seen_items < 8 do
+    local item = self:next_item()
+    if item then
+      yatm.shelves.shelf_refresh(item)
+      seen_items = seen_items + 1
+    else
+      break
+    end
+  end
+  if seen_items > 0 then
+    self.wait = 0.25
+    minetest.log("info", "refreshed" ..
+                          " start=" .. self.start_index ..
+                          " end=" .. self.end_index ..
+                          " count=" .. seen_items .. " shelves this round")
+  end
+end
+
+local loading_system = LoadingSystem:new()
+
+minetest.register_globalstep(loading_system:method("update"))
+
+minetest.register_lbm({
+  label = "Refresh Shelf Contents",
+
+  nodenames = {"group:item_shelf"},
+
+  name = "yatm_item_shelves:refresh_shelf_contents",
+
+  run_at_every_load = true,
+
+  action = function (pos, _node)
+    minetest.log("info", "reloading shelf contents pos=" .. yatm_core.vector3.to_string(pos))
+    loading_system:push_item(pos)
   end,
 })
