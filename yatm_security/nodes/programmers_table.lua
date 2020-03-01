@@ -173,7 +173,7 @@ yatm.devices.register_stateful_network_device({
                 if itemdef.on_programmed then
                   output_items[i] = itemdef.on_programmed(item, prog_data)
                 else
-                  minetest.log("warn", item:get_name() .. " does not support on_programmed callback")
+                  minetest.log("warning", item:get_name() .. " does not support on_programmed callback")
                   output_items[i] = item
                 end
               end

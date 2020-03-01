@@ -9,7 +9,7 @@ local FluidUtils = assert(yatm.fluids.Utils)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 
 if not cluster_thermal then
-  minetest.log("warn", "thermal cluster is not available, skipping thermal boiler")
+  minetest.log("warning", "thermal cluster is not available, skipping thermal boiler")
   return
 end
 

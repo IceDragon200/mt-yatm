@@ -4,7 +4,7 @@
 local ByteEncoder = yatm.ByteEncoder
 
 if not ByteEncoder then
-  minetest.log("warn", "Memory module requires yatm.ByteEncoder")
+  minetest.log("warning", "Memory module requires yatm.ByteEncoder")
   return
 end
 

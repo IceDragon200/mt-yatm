@@ -9,7 +9,7 @@ local data_network = assert(yatm.data_network)
 local ByteEncoder = yatm.ByteEncoder
 
 if not ByteEncoder then
-  minetest.log("warn", "Proximity sensor requires yatm.ByteEncoder")
+  minetest.log("warning", "Proximity sensor requires yatm.ByteEncoder")
   return
 end
 

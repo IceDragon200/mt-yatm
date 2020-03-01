@@ -46,7 +46,7 @@ function yatm.dscs.overload_fluid_inventory_from_drive(fluid_inventory_name, ite
   local inv = yatm.fluids.fluid_inventories:get_fluid_inventory(fluid_inventory_name)
 
   if inv then
-    minetest.log("warn", "fluid inventory name=" .. fluid_inventory_name .. " still exists")
+    minetest.log("warning", "fluid inventory name=" .. fluid_inventory_name .. " still exists")
     return inv
   end
   return yatm.dscs.load_fluid_inventory_from_drive(fluid_inventory_name, item_stack)

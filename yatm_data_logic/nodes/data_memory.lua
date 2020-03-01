@@ -2,7 +2,7 @@ local data_network = assert(yatm.data_network)
 local ByteDecoder = yatm.ByteDecoder
 
 if not ByteDecoder then
-  minetest.log("warn", "Memory module requires yatm.ByteDecoder")
+  minetest.log("warning", "Memory module requires yatm.ByteDecoder")
   return
 end
 

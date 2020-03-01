@@ -48,7 +48,7 @@ function ic:_load_dump(dump)
             expired = explosion.expired,
           }
         else
-          minetest.log("warn", "refusing to load explosion of kind=" .. explosion.kind)
+          minetest.log("warning", "refusing to load explosion of kind=" .. explosion.kind)
         end
       end
     end
