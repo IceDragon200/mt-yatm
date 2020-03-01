@@ -21,13 +21,14 @@ local function get_formspec(pos, user, assigns)
   local formspec =
     "size[12,11]" ..
     yatm.formspec_bg_for_player(user:get_player_name(), "machine") ..
-    "tabheader[0,0;tab;Writer;" .. assigns.tab .. "]"
+    "tabheader[0,0;tab;Writer,Assembler;" .. assigns.tab .. "]" ..
+    "label[0,0;Programmer's Table]" ..
+    ""
 
   if assigns.tab == 1 then
     -- Writer Tab
     formspec =
       formspec ..
-      "label[0,0;Programmer's Table]" ..
       "button[0,0.5;3,1;random;Random]" ..
       "field[3.5,0.75;5.5,1;prog_data;Data;" .. minetest.formspec_escape(meta:get_string("prog_data")) .. "]" ..
       "button[9,0.5;3,1;commit;Commit]" ..
@@ -44,6 +45,16 @@ local function get_formspec(pos, user, assigns)
       "listring[current_player;main]" ..
       "listring[nodemeta:" .. spos .. ";output_items]" ..
       "listring[current_player;main]" ..
+      default.get_hotbar_bg(2,6.85)
+  elseif assigns.tab == 2 then
+    -- 6502 Assembler
+    formspec =
+      formspec ..
+      "textarea[0.25,1;6,5;source;Source;" .. minetest.formspec_escape(meta:get_string("assembly_source")) .. "]" ..
+      "textarea[6.25,1;6,5;;Binary (Hex Dump);" .. minetest.formspec_escape(meta:get_string("assembly_binary")) .. "]" ..
+      "button[9,6;3,1;assemble;Assemble]" ..
+      "list[current_player;main;2,6.85;8,1;]" ..
+      "list[current_player;main;2,8.08;8,3;8]" ..
       default.get_hotbar_bg(2,6.85)
   end
 
@@ -69,6 +80,41 @@ local function handle_receive_fields(user, formname, fields, assigns)
   if fields["random"] then
     meta:set_string("prog_data", yatm_security.gen_prvkey())
     needs_refresh = true
+  end
+
+  if fields["source"] then
+    meta:set_string("assembly_source", fields["source"])
+  end
+
+  if fields["assemble"] then
+    local inv = meta:get_inventory()
+    local source = meta:get_string("assembly_source")
+    local pos = assigns.pos
+    minetest.after(0.016, function ()
+      local node = minetest.get_node_or_nil(pos)
+      local meta = minetest.get_meta(pos)
+
+      if node then
+        local nodedef = minetest.registered_nodes[node.name]
+        if nodedef.basename == "yatm_security:programmers_table" then
+          -- it's still a programmer's table, whew.
+          local okay, blob, context, rest = yatm_oku.OKU.isa.MOS6502.Assembler.assemble_safe(source)
+
+          if okay then
+            -- TODO: maybe play a little jingle when assembled sucessfully
+            --
+            minetest.log("action", "Assembly completed")
+            local blob_hex = yatm_core.string_hex_encode(blob)
+            meta:set_string("assembly_binary", blob_hex)
+            meta:set_string("assembly_error", "")
+          else
+            minetest.log("action", "Assembly failed ", blob)
+            meta:set_string("assembly_binary", "")
+            meta:set_string("assembly_error", blob)
+          end
+        end
+      end
+    end)
   end
 
   if fields["commit"] then
