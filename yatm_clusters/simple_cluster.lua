@@ -171,10 +171,12 @@ function ic:find_compatible_neighbours(cls, origin, node, cluster_ids)
 end
 
 function ic:_handle_load_node(cls, generation_id, event, given_cluster_ids)
+  self:log('_handle_load_node', minetest.pos_to_string(event.pos))
   return self:_handle_add_node(cls, generation_id, event, given_cluster_ids)
 end
 
 function ic:_handle_add_node(cls, generation_id, event, given_cluster_ids)
+  self:log('_handle_add_node', minetest.pos_to_string(event.pos))
   local neighbours = self:find_compatible_neighbours(cls, event.pos, event.node, given_cluster_ids)
 
   local needs_full_refresh = false
@@ -219,6 +221,7 @@ function ic:_handle_add_node(cls, generation_id, event, given_cluster_ids)
 end
 
 function ic:_handle_update_node(cls, generation_id, event, given_cluster_ids)
+  self:log('_handle_update_node', minetest.pos_to_string(event.pos))
   local cluster
   for cluster_id, _ in pairs(given_cluster_ids) do
     local ncluster = cls:get_cluster(cluster_id)
@@ -328,6 +331,7 @@ function ic:scan_for_branches(origin, node)
 end
 
 function ic:_handle_remove_node(cls, generation_id, event, _cluster_ids)
+  self:log('_handle_remove_node', minetest.pos_to_string(event.pos))
   -- TODO:
   local cluster_id =
     cls:reduce_node_clusters(event.pos, nil, function (cluster, acc)

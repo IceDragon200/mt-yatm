@@ -79,7 +79,7 @@ function ic:update(dt)
 end
 
 function ic:log(...)
-  print("yatm.data_network", self.m_counter, ...)
+  --print("yatm.data_network", self.m_counter, ...)
 end
 
 function ic:get_port_offset_for_color(color)
@@ -853,7 +853,7 @@ function ic:refresh_from_pos(base_pos)
                     table.insert(to_check, other_pos)
                   else
                     if err then
-                      print(minetest.pos_to_string(pos), minetest.pos_to_string(other_pos), err)
+                      self:log(minetest.pos_to_string(pos), minetest.pos_to_string(other_pos), err)
                     end
                   end
                 end

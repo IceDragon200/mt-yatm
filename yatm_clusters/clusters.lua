@@ -122,23 +122,37 @@ function ic:add_node(pos, node, groups)
   local node_id = hash_pos(pos)
 
   if self.m_nodes[node_id] then
-    print("duplicate not registration", node_id)
-    return false, "duplicate node registration"
-  else
-    self.m_nodes[node_id] = {
-      id = node_id,
-      pos = pos,
-      node = node,
-      groups = groups or {},
-      assigns = {}
-    }
-
-    local node_entry = self.m_nodes[node_id]
-    self:_refresh_node_entry(node_entry)
-
-    self:on_node_added(node_entry)
-    return true
+    print(debug.traceback())
+    local old_node = self.m_nodes[node_id]
+    if old_node.node.name == node.name then
+      minetest.log("warning", "duplicate node registration detected" ..
+                            " cluster_id=" .. self.id ..
+                            " node_id=" .. node_id ..
+                            " pos=" .. minetest.pos_to_string(pos) ..
+                            " name=" .. node.name)
+      return false, "duplicate node registration"
+    else
+      minetest.log("warning", "dangerous node replacement" ..
+                              " cluster_id=" .. self.id ..
+                              " node_id=" .. node_id ..
+                              " pos=" .. minetest.pos_to_string(pos) ..
+                              " name=" .. node.name)
+    end
   end
+
+  self.m_nodes[node_id] = {
+    id = node_id,
+    pos = pos,
+    node = node,
+    groups = groups or {},
+    assigns = {}
+  }
+
+  local node_entry = self.m_nodes[node_id]
+  self:_refresh_node_entry(node_entry)
+
+  self:on_node_added(node_entry)
+  return true
 end
 
 function ic:get_node(pos)
@@ -419,7 +433,8 @@ function ic:mark_node_block(pos, node)
   local block_pos = vector3.idiv({}, pos, MAP_BLOCK_SIZE3)
   local block_hash = minetest.hash_node_position(block_pos)
 
-  print("clusters", "mark_node_block", minetest.pos_to_string(pos), dump(node.name))
+  --self:log("info", "clusters mark_node_block/2", minetest.pos_to_string(pos), dump(node.name))
+
   -- mark the block as still active
   self.m_active_blocks[block_hash] = {
     id = block_hash,
