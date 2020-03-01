@@ -422,12 +422,12 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
   --},
 
   weight = 100,
-  stepheight = 0.1,
+  stepheight = 0.3,
   springiness = 0,
   buoyancy = 1,
   max_hp = 1,
   max_speed = 5,
-  jump_height = 0.25, -- it really shouldn't be jumping
+  jump_height = 0.3, -- it really shouldn't be jumping
   vacuum_range = 1.0,
   view_range = view_range,
   static_save = true,
