@@ -3,6 +3,12 @@ dofile(yatm_core.modpath .. "/util/string/dec_encoding.lua")
 dofile(yatm_core.modpath .. "/util/string/hex_encoding.lua")
 dofile(yatm_core.modpath .. "/util/string/oct_encoding.lua")
 
+function yatm_core.string_empty(str)
+  -- check if the first byte is nil, if it is, the string is empty
+  -- not sure if this is cheaper than just checking the length though
+  return string.byte(str, 1) == nil
+end
+
 function yatm_core.string_unescape(str)
   local result = {}
   local bytes = {string.byte(str, 1, -1)}
