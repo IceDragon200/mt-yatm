@@ -1,42 +1,16 @@
---[[
-Structured metadata, because sometimes you need to know just what the f*** you're doing
-
-Optionally, the MetaSchema can be compiled with a fixed name to reduce some of the overhead
-]]
-local MetaSchema = yatm_core.Class:extends()
-
-MetaSchema.Vec2 = {
-  type = "schema",
-  schema = {
-    x = { type = "float" },
-    y = { type = "float" },
-  },
-}
-
-MetaSchema.Vec3 = {
-  type = "schema",
-  schema = {
-    x = { type = "float" },
-    y = { type = "float" },
-    z = { type = "float" },
-  },
-}
-
-MetaSchema.Vec4 = {
-  type = "schema",
-  schema = {
-    x = { type = "float" },
-    y = { type = "float" },
-    z = { type = "float" },
-    w = { type = "float" },
-  },
-}
+--
+-- Structured metadata, because sometimes you need to know just what the f*** you're doing
+--
+-- Optionally, the MetaSchema can be compiled with a fixed name to reduce some of the overhead
+--
+local MetaSchema = yatm_core.Class:extends("yatm.MetaSchema")
 
 local m = assert(MetaSchema.instance_class)
--- Create a new kind of buffer
---
+
+-- Initialize a new instance of the MetaSchema
+-- @spec initialize(name: String, prefix: String, schema: Table)
 function m:initialize(name, prefix, schema)
-  -- The name is used to help identify the buffer type
+  -- The name is used to help identify the schema
   self.name = name
   -- A string to prefix any fields in the schema with when writing.
   self.prefix = prefix
@@ -202,6 +176,8 @@ function m:get_field(meta, basename, key)
   return nil
 end
 
+--
+-- @spec get(meta: MetaRef, basename: String) :: Table
 function m:get(meta, basename)
   assert(meta, "expected a meta")
   assert(basename, "expected a basename")
