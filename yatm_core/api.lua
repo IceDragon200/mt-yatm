@@ -5,6 +5,7 @@
 ]]
 yatm.Luna = assert(yatm_core.Luna)
 
+yatm.MetaSchema = yatm_core.MetaSchema
 yatm.Cuboid = yatm_core.Cuboid
 yatm.ByteBuf = yatm_core.ByteBuf
 yatm.BinSchema = yatm_core.BinSchema
