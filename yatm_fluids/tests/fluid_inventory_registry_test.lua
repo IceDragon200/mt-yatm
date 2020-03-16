@@ -50,3 +50,7 @@ case:describe("destroy_fluid_inventory/1", function (t2)
     t3:refute(fi)
   end)
 end)
+
+case:execute()
+case:display_stats()
+case:maybe_error()

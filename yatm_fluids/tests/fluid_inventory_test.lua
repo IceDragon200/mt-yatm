@@ -133,3 +133,7 @@ case:describe("add_fluid_stack/1", function (t2)
     t3:assert_eq(8000, fs.amount)
   end)
 end)
+
+case:execute()
+case:display_stats()
+case:maybe_error()
