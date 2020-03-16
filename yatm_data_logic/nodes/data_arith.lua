@@ -296,7 +296,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   },
 
   add = {
-    description = "Data Arithmetic [Addition]\nAdds all input data",
+    description = "DATA Arithmetic [Addition]\nAdds all input data",
 
     codex_entry_id = "yatm_data_logic:data_arith_add",
 

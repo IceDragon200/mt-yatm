@@ -1,7 +1,7 @@
 local data_network = assert(yatm.data_network)
 
 minetest.register_tool("yatm_data_logic:data_programmer", {
-  description = "Data Programmer\nRight-click on programmable data device.",
+  description = "Data Programmer\nRight-click on programmable DATA device.",
 
   groups = {
     data_programmer = 1,
