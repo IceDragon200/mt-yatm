@@ -1,28 +1,36 @@
 local data_network = assert(yatm.data_network)
 
+-- @spec yatm_data_logic.encode_varuint(value: Integer, length: Integer) :: String
+function yatm_data_logic.encode_varuint(value, length)
+  local now = value
+  local result = {}
+  local j = 0
+  for i = 1,length do
+    j = j + 1
+    result[j] = string.char(now % 0xFF)
+    now = math.floor(now / 255)
+  end
+  return table.concat(result)
+end
+
+-- @spec yatm_data_logic.encode_u8(value: Integer) :: String
 function yatm_data_logic.encode_u8(value)
-  return string.char(value % 0xFF)
+  return yatm_data_logic.encode_varuint(value, 1)
 end
 
+-- @spec yatm_data_logic.encode_u16(value: Integer) :: String
 function yatm_data_logic.encode_u16(value)
-  local lobyte = value % 0xFF
-  local hibyte = math.floor(value / 0xFF) % 0xFF
-  return string.char(lobyte) .. string.char(hibyte)
+  return yatm_data_logic.encode_varuint(value, 2)
 end
 
+-- @spec yatm_data_logic.encode_u24(value: Integer) :: String
 function yatm_data_logic.encode_u24(value)
-  local lobyte = value % 0xFF
-  local mibyte = math.floor(value / 0xFF) % 0xFF
-  local hibyte = math.floor(math.floor(value / 0xFF) / 0xFF) % 0xFF
-  return string.char(lobyte) .. string.char(mibyte) .. string.char(hibyte)
+  return yatm_data_logic.encode_varuint(value, 3)
 end
 
+-- @spec yatm_data_logic.encode_u32(value: Integer) :: String
 function yatm_data_logic.encode_u32(value)
-  local seg0 = value % 0xFF
-  local seg1 = math.floor(value / 0xFF) % 0xFF
-  local seg2 = math.floor(math.floor(value / 0xFF) / 0xFF) % 0xFF
-  local seg3 = math.floor(math.floor(math.floor(value / 0xFF) / 0xFF) / 0xFF) % 0xFF
-  return string.char(seg0) .. string.char(seg1) .. string.char(seg2) .. string.char(seg3)
+  return yatm_data_logic.encode_varuint(value, 4)
 end
 
 --

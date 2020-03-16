@@ -10,3 +10,5 @@ dofile(yatm_data_logic.modpath .. "/nodes.lua")
 dofile(yatm_data_logic.modpath .. "/items.lua")
 
 dofile(yatm_data_logic.modpath .. "/migrations.lua")
+
+dofile(yatm_data_logic.modpath .. "/tests.lua")
