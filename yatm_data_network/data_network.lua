@@ -1,7 +1,8 @@
 --
+-- The DATA network is a form of node cluster which keeps track of
+-- DATA nodes and handles the event passing.
 --
---
-local DataNetwork = yatm_core.Class:extends()
+local DataNetwork = yatm_core.Class:extends('yatm.data.Network')
 local ic = assert(DataNetwork.instance_class)
 
 DataNetwork.PORT_RANGE = 16
