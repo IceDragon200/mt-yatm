@@ -252,11 +252,12 @@ end
 -- it's up to the caller to deal with the result
 
 --
--- @spec check_node_locks(pos: Vector, callback: Function) :: (AccessFlag, Function | nil | String, SecurityTransaction)
-function yatm.security.check_node_locks(pos, callback)
+-- @spec check_node_locks(pos: Vector, slot_ids: nil | [String], callback: Function) ::
+--         (AccessFlag, Function | nil | String, SecurityTransaction)
+function yatm.security.check_node_locks(pos, slot_ids, callback)
   local node = minetest.get_node_or_nil(pos)
   if node then
-    local slots = yatm.security.get_node_slots(pos, node)
+    local slots = slot_ids or yatm.security.get_node_slots(pos, node)
 
     if slots and not yatm_core.is_table_empty(slots) then
       local security_transaction =
@@ -272,7 +273,7 @@ function yatm.security.check_node_locks(pos, callback)
         local result, extra = security_transaction:continue()
 
         if result == yatm.security.CONTINUE then
-          --
+          -- just continue the loop
         elseif result == yatm.security.OK then
           return result, nil, security_transaction
         elseif result == yatm.security.REJECT or result == yatm.security.NEEDS_ACTION then
@@ -286,32 +287,36 @@ function yatm.security.check_node_locks(pos, callback)
   return yatm.security.NOTHING, nil, nil
 end
 
--- Check all locks on given object
--- Use this when all locks need to be checked at once
--- @spec execute_check_object_locks(object: ObjectRef, callback: Function) :: void
-function yatm.security.execute_check_object_locks(object, callback)
-end
+-- @spec check_object_locks(object: ObjectRef, slot_ids: nil | [String], callback: Function) ::
+--         (AccessFlag, Function | nil | String, SecurityTransaction)
+function yatm.security.check_object_locks(object, slot_ids, callback)
+  local slots = slot_ids or yatm.security.get_object_slots(object)
 
--- @spec check_object_locks(object: ObjectRef) :: (AccessFlag, Function | nil | String)
-function yatm.security.check_object_locks(object)
-end
+  if slots and not yatm_core.is_table_empty(slots) then
+    local security_transaction =
+      yatm.security.context:create_transaction({
+        kind = "object",
+        slots = slots,
+        object = object,
+        player_name = player:get_player_name(),
+      }, callback)
 
--- Check a specific lock on a specific node
--- @spec execute_check_node_lock(pos: Vector, slot_id: String, callback: Function) :: void
-function yatm.security.execute_check_node_lock(pos, slot_id, callback)
-end
+    while true do
+      local result, extra = security_transaction:continue()
 
--- @spec check_node_lock(pos: Vector, slot_id: String) :: (AccessFlag, Function | nil | String)
-function yatm.security.check_node_lock(pos, slot_id)
-end
+      if result == yatm.security.CONTINUE then
+        -- just continue the loop
+      elseif result == yatm.security.OK then
+        return result, nil, security_transaction
+      elseif result == yatm.security.REJECT or result == yatm.security.NEEDS_ACTION then
+        return result, extra, security_transaction
+      else
+        error("unxepected response")
+      end
+    end
+  end
 
--- Check a specific lock on given object
--- @spec execute_check_object_lock(object: ObjectRef, slot_id: String, callback: Function) :: void
-function yatm.security.execute_check_object_lock(object, slot_id, callback)
-end
-
--- @spec check_object_lock(object: ObjectRef, slot_id: String) :: (AccessFlag, Function | nil | String)
-function yatm.security.check_object_lock(object, slot_id)
+  return yatm.security.NOTHING, nil, nil
 end
 
 -- Check for presence of locks with:
