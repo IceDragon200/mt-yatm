@@ -185,7 +185,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_steam_turbine_side.off.png",
     "yatm_steam_turbine_side.off.png"
   },
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
   yatm_network = steam_turbine_yatm_network,
 

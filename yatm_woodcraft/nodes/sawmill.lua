@@ -117,7 +117,7 @@ minetest.register_node("yatm_woodcraft:sawmill", {
     },
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   on_construct = sawmill_on_construct,

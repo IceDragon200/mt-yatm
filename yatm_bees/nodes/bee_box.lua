@@ -232,7 +232,7 @@ minetest.register_node("yatm_bees:bee_box_wood", {
 
   groups = yatm_core.table_merge(groups, { choppy = 1 }),
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   sounds = default.node_sound_wood_defaults(),
@@ -270,7 +270,7 @@ minetest.register_node("yatm_bees:bee_box_metal", {
 
   groups = yatm_core.table_merge(groups, { cracky = 1 }),
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   sounds = default.node_sound_metal_defaults(),

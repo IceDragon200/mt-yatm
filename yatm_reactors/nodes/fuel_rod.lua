@@ -45,7 +45,7 @@ yatm_reactors.register_reactor_node("yatm_reactors:fuel_rod_case_open", {
     "yatm_reactor_casing.plain.png",
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   reactor_device = fuel_rod_open_reactor_device,
@@ -103,7 +103,7 @@ for _, variant in ipairs({"uranium", "plutonium", "radium"}) do
       "yatm_reactor_casing.plain.png",
     },
 
-    paramtype = "light",
+    paramtype = "none",
     paramtype2 = "facedir",
 
     reactor_device = fuel_rod_reactor_device,

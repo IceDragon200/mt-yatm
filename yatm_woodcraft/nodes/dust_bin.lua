@@ -84,7 +84,7 @@ yatm.register_stateful_node("yatm_woodcraft:dust_bin", {
 
   groups = groups,
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   drawtype = "nodebox",

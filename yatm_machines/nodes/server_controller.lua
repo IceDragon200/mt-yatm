@@ -88,7 +88,7 @@ yatm.devices.register_stateful_network_device({
   drawtype = "nodebox",
   node_box = server_controller_node_box,
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   yatm_network = server_controller_yatm_network,

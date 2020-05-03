@@ -83,7 +83,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_electric_furnace_front.off.png"
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   yatm_network = electric_furnace_yatm_network,

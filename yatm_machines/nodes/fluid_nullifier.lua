@@ -36,7 +36,7 @@ minetest.register_node("yatm_machines:fluid_nullifier", {
     "yatm_fluid_nullifier_side.on.png",
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   fluid_interface = fluid_interface,

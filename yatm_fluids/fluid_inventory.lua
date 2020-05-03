@@ -109,14 +109,19 @@ function ic:add_fluid_stack(list_name, fluid_stack)
         break
       end
       local slot_stack = list.entries[i]
+      local new_stack
       if FluidStack.is_empty(slot_stack) then
-        list.entries[i] = FluidStack.merge({}, remaining_stack)
+        new_stack = FluidStack.copy(remaining_stack)
       elseif FluidStack.same_fluid(slot_stack, remaining_stack) then
-        local new_stack = FluidStack.merge(slot_stack, remaining_stack)
+        new_stack = FluidStack.merge(slot_stack, remaining_stack)
+      end
+
+      if new_stack then
         if list.max_stack_size > 0 then
           local new_amount = math.min(new_stack.amount, list.max_stack_size)
           local used_amount = new_amount - slot_stack.amount
           remaining_stack.amount = remaining_stack.amount - used_amount
+          new_stack.amount = new_amount
         end
         list.entries[i] = new_stack
       end

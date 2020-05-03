@@ -14,6 +14,6 @@ minetest.register_node("yatm_bees:bee_hive", {
     "yatm_bee_hive_front.png",
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 })

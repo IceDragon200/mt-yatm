@@ -10,7 +10,7 @@ minetest.register_node("yatm_foundry:carbon_steel_block", {
   tiles = {
     "yatm_carbon_steel_block_side.png",
   },
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   sounds = default.node_sound_metal_defaults(),
@@ -28,7 +28,7 @@ minetest.register_node("yatm_foundry:carbon_steel_smooth_block", {
   tiles = {
     "yatm_carbon_steel_block_smooth.side.png",
   },
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   sounds = default.node_sound_metal_defaults(),
@@ -46,7 +46,7 @@ minetest.register_node("yatm_foundry:carbon_steel_base_panel_block", {
   tiles = {
     "yatm_carbon_steel_block_base_panel.png",
   },
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   sounds = default.node_sound_metal_defaults(),
@@ -65,7 +65,7 @@ minetest.register_node("yatm_foundry:carbon_steel_plain_panel_block", {
   tiles = {
     "yatm_carbon_steel_block_plain_panel.png",
   },
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   sounds = default.node_sound_metal_defaults(),

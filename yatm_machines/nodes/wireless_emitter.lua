@@ -29,6 +29,6 @@ minetest.register_node("yatm_machines:wireless_emitter", {
       },
     },
   },
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 })

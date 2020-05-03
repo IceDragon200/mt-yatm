@@ -89,7 +89,7 @@ for _,pair in ipairs(colors) do
 
     sounds = default.node_sound_stone_defaults(),
 
-    paramtype = "light",
+    paramtype = "none",
     paramtype2 = "facedir",
 
     drawtype = "nodebox",
@@ -124,7 +124,7 @@ for _,pair in ipairs(colors) do
 
     sounds = default.node_sound_stone_defaults(),
 
-    paramtype = "light",
+    paramtype = "none",
     paramtype2 = "facedir",
 
     drawtype = "nodebox",

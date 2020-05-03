@@ -30,6 +30,6 @@ minetest.register_node("yatm_machines:wireless_receiver", {
       },
     },
   },
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 })

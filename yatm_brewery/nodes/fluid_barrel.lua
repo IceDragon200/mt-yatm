@@ -76,7 +76,7 @@ for _,pair in ipairs(colors) do
       "yatm_barrel_wood_fluid_" .. color_basename .. "_side.png",
     },
 
-    paramtype = "light",
+    paramtype = "none",
     paramtype2 = "facedir",
     drawtype = "nodebox",
     node_box = barrel_nodebox,
@@ -109,7 +109,7 @@ for _,pair in ipairs(colors) do
       "yatm_barrel_metal_fluid_" .. color_basename .. "_side.png",
     },
 
-    paramtype = "light",
+    paramtype = "none",
     paramtype2 = "facedir",
     drawtype = "nodebox",
     node_box = barrel_nodebox,

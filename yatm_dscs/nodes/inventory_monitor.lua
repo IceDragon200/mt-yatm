@@ -106,7 +106,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_monitor_front.inventory.off.png",
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   on_rightclick = on_rightclick,

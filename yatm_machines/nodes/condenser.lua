@@ -93,7 +93,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_condenser_front.off.png"
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   yatm_network = condenser_yatm_network,

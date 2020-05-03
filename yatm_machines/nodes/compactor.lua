@@ -201,7 +201,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_compactor_front.off.png",
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   on_construct = compactor_on_construct,

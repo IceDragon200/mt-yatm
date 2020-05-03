@@ -23,7 +23,7 @@ case:describe("get_fluid_inventory/1", function (t2)
     local fi = fim:get_fluid_inventory("yatm_fluids:test_inventory")
 
     t3:assert(fi)
-    t3:asser_eq("yatm_fluids:test_inventory", fi.name)
+    t3:assert_eq("yatm_fluids:test_inventory", fi.name)
   end)
 
   t2:test("returns nil if an inventory does not exist", function (t3)

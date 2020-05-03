@@ -507,7 +507,7 @@ minetest.register_node("yatm_armoury_icbm:icbm_silo", {
     "yatm_icbm_silo_side.png",
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   sounds = default.node_sound_metal_defaults(),

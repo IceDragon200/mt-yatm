@@ -57,7 +57,7 @@ yatm.devices.register_stateful_network_device({
 
   tiles = {"yatm_inventory_controller_side.off.png"},
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   yatm_network = inventory_controller_yatm_network,

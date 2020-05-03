@@ -156,7 +156,7 @@ yatm.register_stateful_node("yatm_brewery:kettle", {
   drawtype = "nodebox",
   node_box = kettle_node_box,
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   on_construct = kettle_on_construct,

@@ -12,7 +12,7 @@ minetest.register_node("yatm_data_noteblock:data_noteblock", {
     yatm_data_device = 1,
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   drawtype = "nodebox",

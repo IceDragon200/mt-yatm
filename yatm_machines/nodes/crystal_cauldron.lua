@@ -68,7 +68,7 @@ yatm.devices.register_stateful_network_device({
   drawtype = "nodebox",
   node_box = crysytal_cauldron_node_box,
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   yatm_network = crystal_cauldron_yatm_network,

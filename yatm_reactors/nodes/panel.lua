@@ -47,7 +47,7 @@ for variant, variant_texture_name in pairs({
     },
     --drawtype = "glasslike_framed",
 
-    paramtype = "light",
+    paramtype = "none",
     paramtype2 = "facedir",
 
     reactor_device = panel_reactor_device,
@@ -82,7 +82,7 @@ for variant, variant_texture_name in pairs({
     },
     --drawtype = "glasslike_framed",
 
-    paramtype = "light",
+    paramtype = "none",
     paramtype2 = "facedir",
 
     reactor_device = casing_reactor_device,

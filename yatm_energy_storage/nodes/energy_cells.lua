@@ -130,7 +130,7 @@ for cell_type, cell_config in pairs(cell_types) do
           },
         },
       },
-      paramtype = "light",
+      paramtype = "none",
       paramtype2 = "facedir",
 
       yatm_network = energy_cell_yatm_network,
@@ -192,7 +192,7 @@ for cell_type, cell_config in pairs(cell_types) do
         },
       },
     },
-    paramtype = "light",
+    paramtype = "none",
     paramtype2 = "facedir",
 
     yatm_network = creative_energy_cell_yatm_network,

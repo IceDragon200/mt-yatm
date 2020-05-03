@@ -251,7 +251,7 @@ minetest.register_node("yatm_frames:frame_motor_default_off", {
     "yatm_frame_motor_side.png",
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   is_ground_content = false,
@@ -280,7 +280,7 @@ minetest.register_node("yatm_frames:frame_motor_default_on", {
     "yatm_frame_motor_side.png",
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   is_ground_content = false,
@@ -335,7 +335,7 @@ if mesecon then
       "yatm_frame_motor_side_mesecon.off.png",
     },
 
-    paramtype = "light",
+    paramtype = "none",
     paramtype2 = "facedir",
 
     mesecons = frame_motor_mesecons,
@@ -366,7 +366,7 @@ if mesecon then
       "yatm_frame_motor_side_mesecon.on.png",
     },
 
-    paramtype = "light",
+    paramtype = "none",
     paramtype2 = "facedir",
 
     mesecons = frame_motor_mesecons,
@@ -406,7 +406,7 @@ if yatm_data_logic then
 
     codex_entry_id = "yatm_frames:frame_motor_data",
 
-    paramtype = "light",
+    paramtype = "none",
     paramtype2 = "facedir",
 
     refresh_infotext = refresh_infotext,

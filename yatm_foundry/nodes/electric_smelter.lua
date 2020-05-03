@@ -154,7 +154,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_electric_smelter_side.off.png"
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   yatm_network = electric_smelter_yatm_network,

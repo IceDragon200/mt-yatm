@@ -257,7 +257,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_drive_case_front.off.png"
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   yatm_network = drive_case_yatm_network,

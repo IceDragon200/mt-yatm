@@ -265,7 +265,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_freezer_side.off.png",
     "yatm_freezer_side.off.png"
   },
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   on_construct = freezer_on_construct,

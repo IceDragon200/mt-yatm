@@ -176,7 +176,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_console_monitor_front.console.off.png",
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   yatm_network = monitor_console_yatm_network,

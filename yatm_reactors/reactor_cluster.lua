@@ -25,7 +25,7 @@ function ic:schedule_stop_reactor(pos, node, player_name)
 end
 
 function ic:schedule_remove_node(pos, node)
-  return self._super.schedule_remove_node(self, pos, node)
+  return ic._super.schedule_remove_node(self, pos, node)
 end
 
 function ic:handle_node_event(cls, generation_id, event, cluster_ids)

@@ -111,7 +111,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_fluid_replicator_back.off.png",
     "yatm_fluid_replicator_front.off.png",
   },
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
   yatm_network = fluid_replicator_yatm_network,
 }, {

@@ -132,7 +132,7 @@ function FluidStack.merge(a, ...)
   assert(a, "expected a fluid stack")
   local result = {
     name = FluidRegistry.normalize_fluid_name(a.name),
-    amount = a.amount
+    amount = a.amount or 0,
   }
   for _,b in ipairs({...}) do
     FluidRegistry.normalize_fluid_name(b.name)

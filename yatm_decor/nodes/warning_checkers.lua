@@ -23,7 +23,7 @@ for _,color in ipairs(colors) do
         "yatm_warning_checkers_" .. size .. "_" .. color .. "_15.png",
       },
       place_param2 = 0,
-      paramtype = "light",
+      paramtype = "none",
       paramtype2 = "facedir",
     })
 
@@ -37,7 +37,7 @@ for _,color in ipairs(colors) do
         "yatm_warning_checkers_" .. size .. "_" .. color .. "_15.png",
       },
       place_param2 = 0,
-      paramtype = "light",
+      paramtype = "none",
       paramtype2 = "facedir",
 
       drawtype = "nodebox",
@@ -53,7 +53,7 @@ for _,color in ipairs(colors) do
       tiles = {
         "yatm_warning_checkers_" .. size .. "_" .. color .. "_15.png",
       },
-      paramtype = "light",
+      paramtype = "none",
       paramtype2 = "facedir",
 
       drawtype = "nodebox",

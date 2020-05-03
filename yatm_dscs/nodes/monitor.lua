@@ -70,7 +70,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_monitor_front.crafting.off.png",
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   yatm_network = monitor_crafting_yatm_network,
@@ -143,7 +143,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_monitor_front.ele.off.png",
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   yatm_network = monitor_ele_yatm_network,

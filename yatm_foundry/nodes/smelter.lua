@@ -140,7 +140,7 @@ yatm.register_stateful_node("yatm_foundry:smelter", {
   groups = groups,
   drop = "yatm_foundry:smelter_off",
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   sounds = default.node_sound_stone_defaults(),

@@ -232,7 +232,7 @@ minetest.register_node("yatm_data_fluid_sensor:fluid_sensor", {
     "yatm_fluid_sensor_side.png",
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
   place_param2 = 0,
 

@@ -28,7 +28,7 @@ for _,color in ipairs(colors) do
           "yatm_warning_stripes_" .. size .. "_" .. color .. "_15.png",
         },
 
-        paramtype = "light",
+        paramtype = "none",
         paramtype2 = "facedir",
 
         place_param2 = 0,
@@ -46,7 +46,7 @@ for _,color in ipairs(colors) do
           "yatm_warning_stripes_" .. size .. "_" .. color .. "_15.png",
         },
 
-        paramtype = "light",
+        paramtype = "none",
         paramtype2 = "facedir",
 
         place_param2 = 0,
@@ -67,7 +67,7 @@ for _,color in ipairs(colors) do
           "yatm_warning_stripes_" .. size .. "_" .. color .. "_15.png",
         },
 
-        paramtype = "light",
+        paramtype = "none",
         paramtype2 = "facedir",
 
         drawtype = "nodebox",

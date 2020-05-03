@@ -51,12 +51,12 @@ function ic:handle_node_event(cls, generation_id, event, node_clusters)
     self:_handle_transition_state(cls, generation_id, event, node_clusters)
 
   else
-    self._super.handle_node_event(self, cls, generation_id, event, node_clusters)
+    ic._super.handle_node_event(self, cls, generation_id, event, node_clusters)
   end
 end
 
 function ic:_handle_load_node(cls, generation_id, event, node_clusters)
-  local cluster = self._super._handle_load_node(self, cls, generation_id, event, node_clusters)
+  local cluster = ic._super._handle_load_node(self, cls, generation_id, event, node_clusters)
   if cluster then
     local node = minetest.get_node(event.pos)
     local nodedef = minetest.registered_nodes[node.name]
@@ -70,7 +70,7 @@ function ic:_handle_load_node(cls, generation_id, event, node_clusters)
 end
 
 function ic:_handle_add_node(cls, generation_id, event, node_clusters)
-  local cluster = self._super._handle_add_node(self, cls, generation_id, event, node_clusters)
+  local cluster = ic._super._handle_add_node(self, cls, generation_id, event, node_clusters)
   cls:schedule_node_event(self.m_cluster_group, 'refresh_controller',
                            event.pos, event.node,
                            { cluster_id = cluster.id, generation_id = generation_id })

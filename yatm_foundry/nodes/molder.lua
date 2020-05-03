@@ -196,7 +196,7 @@ yatm.register_stateful_node("yatm_foundry:molder", {
   drawtype = "nodebox",
   node_box = node_box,
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   sounds = default.node_sound_stone_defaults(),

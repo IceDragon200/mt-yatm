@@ -32,7 +32,7 @@ minetest.register_node(node_name, yatm.devices.patch_device_nodedef(node_name, {
 
   tiles = {"yatm_array_energy_cell_creative.png"},
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   yatm_network = {
@@ -103,7 +103,7 @@ yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_na
     yatm_cluster_device = 1,
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   yatm_network = {

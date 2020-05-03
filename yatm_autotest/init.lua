@@ -17,7 +17,7 @@ local AutotestLuna = assert(yatm_core.Luna):extends()
 local ic = AutotestLuna.instance_class
 
 function ic:initialize(...)
-  self._super.initialize(self, ...)
+  ic._super.initialize(self, ...)
   self.reporter = AutotestReporter
 end
 

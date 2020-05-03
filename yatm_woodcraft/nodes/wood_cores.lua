@@ -42,7 +42,7 @@ for wood_basename, wood_config in pairs(wood_types) do
       "yatm_wood_core_" .. wood_config.default_basename .. ".side.png",
     },
 
-    paramtype = "light",
+    paramtype = "none",
     paramtype2 = "facedir",
   })
 end

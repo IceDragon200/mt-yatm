@@ -187,7 +187,7 @@ yatm.devices.register_stateful_network_device({
   drawtype = "nodebox",
   node_box = combustion_engine_nodebox,
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   yatm_network = combustion_engine_yatm_network,
@@ -297,7 +297,7 @@ yatm.devices.register_stateful_network_device({
   drawtype = "nodebox",
   node_box = combustion_engine_nodebox,
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   yatm_network = creative_engine_yatm_network,

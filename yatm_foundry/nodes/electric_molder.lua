@@ -204,7 +204,7 @@ yatm.devices.register_stateful_network_device({
     },
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   yatm_network = electric_molder_yatm_network,

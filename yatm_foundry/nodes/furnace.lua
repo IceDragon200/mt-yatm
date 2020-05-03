@@ -27,7 +27,7 @@ yatm.register_stateful_node("yatm_foundry:furnace", {
 
   groups = groups,
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   sounds = default.node_sound_stone_defaults(),

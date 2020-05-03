@@ -57,7 +57,7 @@ yatm_reactors.register_stateful_reactor_node({
     "yatm_reactor_casing.plain.png",
     "yatm_reactor_heat_exchanger_front.off.png"
   },
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   reactor_device = heat_exchanger_reactor_device,

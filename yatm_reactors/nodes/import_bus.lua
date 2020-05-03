@@ -62,7 +62,7 @@ for _, variant_pair in ipairs(variants) do
       "yatm_reactor_casing.plain.png",
       "yatm_reactor_" .. variant_basename .. "_import_bus_front.off.png"
     },
-    paramtype = "light",
+    paramtype = "none",
     paramtype2 = "facedir",
 
     reactor_device = import_bus_reactor_device,

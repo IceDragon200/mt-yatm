@@ -168,7 +168,7 @@ yatm.register_stateful_node("yatm_culinary:oven", {
     yatm_cluster_thermal = 1,
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   on_construct = on_construct,

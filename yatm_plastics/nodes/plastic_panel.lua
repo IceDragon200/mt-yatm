@@ -14,7 +14,7 @@ minetest.register_node("yatm_plastics:plastic_panel_plain_block", {
     "yatm_plastic_panel_plain.off.png",
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 })
 
@@ -27,7 +27,7 @@ yatm.register_stateful_node("yatm_plastics:plastic_panel_plain_block", {
     plastic_block = 1,
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 }, {
   cooling = {
@@ -60,7 +60,7 @@ minetest.register_node("yatm_plastics:plastic_panel_notched_block", {
     "yatm_plastic_panel_notched.off.png",
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 })
 
@@ -73,7 +73,7 @@ yatm.register_stateful_node("yatm_plastics:plastic_panel_notched_block", {
     plastic_block = 1,
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 }, {
   cooling = {
@@ -109,7 +109,7 @@ minetest.register_node("yatm_plastics:plastic_panel_hollow_block", {
 
   drawtype = "glasslike",
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 })
 
@@ -124,7 +124,7 @@ yatm.register_stateful_node("yatm_plastics:plastic_panel_hollow_block", {
 
   drawtype = "glasslike",
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 }, {
   cooling = {
@@ -156,7 +156,7 @@ yatm.register_stateful_node("yatm_plastics:plastic_panel_checker_block", {
 
   drawtype = "glasslike_framed",
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 }, {
   off = {

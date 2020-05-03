@@ -21,7 +21,7 @@ for variant_basename, variant_name in pairs(variants) do
       "yatm_shoji_panel_" .. variant_basename .. ".png",
     },
 
-    paramtype = "light",
+    paramtype = "none",
     paramtype2 = "facedir",
 
     sounds = default.node_sound_wood_defaults(),

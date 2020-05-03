@@ -25,7 +25,7 @@ yatm.register_stateful_node("yatm_decor:jukebox", {
 
   groups = {cracky = 1},
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   drawtype = "nodebox",

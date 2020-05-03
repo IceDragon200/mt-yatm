@@ -30,7 +30,7 @@ yatm.register_stateful_node("yatm_foundry:mini_blast_furnace", {
 
   drop = "yatm_foundry:mini_blast_furnace_off",
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   sounds = default.node_sound_stone_defaults(),

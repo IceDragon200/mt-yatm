@@ -12,7 +12,7 @@ minetest.register_node("yatm_core:face_debug", {
     "yatm_face_debug_zm.png"  -- -Z
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   is_ground_content = false,

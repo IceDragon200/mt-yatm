@@ -100,7 +100,7 @@ minetest.register_node("yatm_item_storage:cardboard_box", {
 
   sounds = default.node_sound_wood_defaults(), -- do we have paper default?
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   item_interface = cardboard_box_item_interface,
@@ -153,7 +153,7 @@ minetest.register_node("yatm_item_storage:super_cardboard_box", {
 
   sounds = default.node_sound_wood_defaults(), -- do we have paper default?
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   item_interface = cardboard_box_item_interface,

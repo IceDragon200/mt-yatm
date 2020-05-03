@@ -22,7 +22,14 @@ local function handle_freezable_node_at(pos, assigns)
           freezable_nodedef.on_freeze(p, freezable_node, assigns.strength)
         elseif freezable_nodedef.freezes_to then
           local freezes_to = freezable_nodedef.freezes_to
-          minetest.set_node(p, { name = freezes_to })
+
+          if type(freezes_to) == "string" then
+            minetest.set_node(p, { name = freezes_to })
+          elseif type(freezes_to) == "table" then
+            minetest.set_node(p, { name = freezes_to.name,
+                                   param1 = freezes_to.param1,
+                                 param2 = freezes_to.param2 })
+          end
         end
       end
     elseif groups.has_group(freezable_nodedef, "water") then

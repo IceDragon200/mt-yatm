@@ -82,7 +82,7 @@ yatm.register_stateful_node("yatm_refinery:thermal_boiler", {
     heatable_device = 1,
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   on_construct = on_construct,

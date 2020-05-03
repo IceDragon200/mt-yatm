@@ -7,7 +7,9 @@ local SimpleCluster = yatm_core.Class:extends("SimpleCluster")
 local ic = SimpleCluster.instance_class
 
 function ic:initialize(options)
-  assert(type(options) == "table", "expected options to be a table")
+  if type(options) ~= "table" then
+    error("expected options to be a table (got " .. type(options) .. ")")
+  end
   self.m_cluster_group = assert(options.cluster_group)
   self.m_node_group = assert(options.node_group)
 

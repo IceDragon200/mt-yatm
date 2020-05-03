@@ -11,7 +11,7 @@ minetest.register_node("yatm_woodcraft:sawdust_block", {
     "yatm_sawdust_base.png",
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
   place_param2 = 0,
 })

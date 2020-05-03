@@ -64,7 +64,7 @@ for _, variant_pair in ipairs(variants) do
       "yatm_reactor_" .. variant_basename .. "_export_bus_front.off.png"
     },
 
-    paramtype = "light",
+    paramtype = "none",
     paramtype2 = "facedir",
 
     reactor_device = export_bus_reactor_device,

@@ -64,7 +64,7 @@ yatm.devices.register_stateful_network_device({
 
   tiles = {"yatm_materializer_side.off.png"},
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   yatm_network = materializer_yatm_network,

@@ -334,7 +334,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_battery_bank_front.level.0.png"
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   on_construct = battery_bank_on_construct,

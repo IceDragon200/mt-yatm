@@ -108,7 +108,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_surface_drill_front.off.png"
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
   yatm_network = surface_drill_yatm_network,
 }, {
@@ -173,7 +173,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_surface_drill_side.ext.off.png"
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
   yatm_network = surface_drill_ext_yatm_network,
 }, {

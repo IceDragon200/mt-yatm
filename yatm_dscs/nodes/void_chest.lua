@@ -237,7 +237,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_void_chest_front.off.png",
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   on_construct = function (pos)

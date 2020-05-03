@@ -29,7 +29,7 @@ yatm.register_stateful_node("yatm_foundry:kiln", {
   groups = groups,
   drop = "yatm_foundry:kiln_off",
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   sounds = default.node_sound_stone_defaults(),

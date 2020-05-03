@@ -56,7 +56,7 @@ yatm.devices.register_stateful_network_device({
 
   tiles = {"yatm_compute_module_side.off.png"},
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   yatm_network = compute_module_yatm_network,

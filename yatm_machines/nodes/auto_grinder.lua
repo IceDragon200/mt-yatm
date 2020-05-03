@@ -193,7 +193,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_auto_grinder_front.off.png",
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   on_construct = auto_grinder_on_construct,

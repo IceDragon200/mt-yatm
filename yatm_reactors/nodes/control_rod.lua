@@ -45,7 +45,7 @@ yatm_reactors.register_stateful_reactor_node({
     "yatm_reactor_casing.plain.png",
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   reactor_device = control_rod_open_reactor_device,

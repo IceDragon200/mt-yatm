@@ -5,7 +5,7 @@ minetest.register_node("yatm_decor:vent", {
   tiles = {
     "yatm_vents_vent.png",
   },
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   sounds = default.node_sound_metal_defaults(),

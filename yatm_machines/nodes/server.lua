@@ -99,7 +99,7 @@ yatm.devices.register_stateful_network_device({
     }
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   yatm_network = server_yatm_network,

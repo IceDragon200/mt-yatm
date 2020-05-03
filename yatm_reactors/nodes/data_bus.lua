@@ -46,7 +46,7 @@ for _, variant in ipairs({"hazard", "coolant", "signal"}) do
       "yatm_reactor_casing.plain.png",
       "yatm_reactor_" .. variant .. "_data_bus_front.off.png"
     },
-    paramtype = "light",
+    paramtype = "none",
     paramtype2 = "facedir",
 
     reactor_device = data_bus_reactor_device,

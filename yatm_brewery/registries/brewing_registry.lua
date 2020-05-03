@@ -3,7 +3,7 @@
 -- for 'brewing' recipes, these are recipes used by the kettle.
 -- The recipes themselves can be quite complicated.
 --
-local BrewingRegistry = yatm_core.Class:extends()
+local BrewingRegistry = yatm_core.Class:extends('yatm.brewery.BrewingRegistry')
 local ic = BrewingRegistry.instance_class
 
 -- @type item_def :: {
@@ -12,7 +12,7 @@ local ic = BrewingRegistry.instance_class
 -- @type fluid_def :: {
 --   name :: string, amount :: integer = 0
 -- }
--- @type recipe_def :: {
+-- @type RecipeDefinition :: {
 --   inputs = {
 --     item = item_def,
 --     fluid = fluid_def,
@@ -26,7 +26,7 @@ local ic = BrewingRegistry.instance_class
 -- }
 --
 -- @type recipe_id :: integer
--- @type recipes :: { [recipe_id] = recipe_def }
+-- @type recipes :: { [recipe_id] = RecipeDefinition }
 -- @type recipes_index :: { [fluid_name :: string] = { [item_name :: string] = recipe_id }}
 -- @type output_fluid_to_recipes :: { [fluid_name :: string] = { [recipe_id] = true } }
 -- @type output_item_to_recipes :: { [item_name :: string] = { [recipe_id] = true } }
@@ -42,8 +42,9 @@ end
 
 --
 --
--- @spec register_brewing_recipe(recipe_def) :: void
+-- @spec register_brewing_recipe(RecipeDefinition) :: void
 function ic:register_brewing_recipe(recipe_def)
+  assert(type(recipe_def) == "table", "expected recipe definition to be a table")
   assert(recipe_def.inputs, "expected an input")
   assert(recipe_def.outputs, "expected an output")
   assert(recipe_def.duration, "expected a duration")
@@ -58,11 +59,11 @@ function ic:register_brewing_recipe(recipe_def)
                        {recipe_def.input.fluid.name, recipe_def.input.item.name},
                        recipe_id)
 
-  if recipe_def.output.fluid then
+  if recipe_def.outputs.fluid then
     yatm_core.table_bury(self.m_output_fluid_to_recipes, {recipe_def.output.fluid.name, recipe_id}, true)
   end
 
-  if recipe_def.output.item then
+  if recipe_def.outputs.item then
     yatm_core.table_bury(self.m_output_item_to_recipes, {recipe_def.output.item.name, recipe_id}, true)
   end
 

@@ -221,7 +221,7 @@ function yatm.shelves.register_shelf(name, def)
       item_shelf = 1,
     },
 
-    paramtype = "light",
+    paramtype = "none",
     paramtype2 = "facedir",
 
     on_construct = yatm.shelves.shelf_on_construct,
