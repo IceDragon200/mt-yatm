@@ -21,7 +21,7 @@ local function get_formspec(pos, user, assigns)
   local formspec =
     "size[12,11]" ..
     yatm.formspec_bg_for_player(user:get_player_name(), "machine") ..
-    "tabheader[0,0;tab;Writer,Assembler;" .. assigns.tab .. "]" ..
+    "tabheader[0,0;tab;Writer,6502 Assembler;" .. assigns.tab .. "]" ..
     "label[0,0;Programmer's Table]" ..
     ""
 
@@ -52,6 +52,7 @@ local function get_formspec(pos, user, assigns)
       formspec ..
       "textarea[0.25,1;6,5;source;Source;" .. minetest.formspec_escape(meta:get_string("assembly_source")) .. "]" ..
       "textarea[6.25,1;6,5;;Binary (Hex Dump);" .. minetest.formspec_escape(meta:get_string("assembly_binary")) .. "]" ..
+      "textarea[0.25,6;9,2;;Error;" .. minetest.formspec_escape(meta:get_string("assembly_error")) .. "]" ..
       "button[9,6;3,1;assemble;Assemble]" ..
       "list[current_player;main;2,6.85;8,1;]" ..
       "list[current_player;main;2,8.08;8,3;8]" ..
@@ -90,31 +91,32 @@ local function handle_receive_fields(user, formname, fields, assigns)
     local inv = meta:get_inventory()
     local source = meta:get_string("assembly_source")
     local pos = assigns.pos
-    minetest.after(0.016, function ()
-      local node = minetest.get_node_or_nil(pos)
-      local meta = minetest.get_meta(pos)
 
-      if node then
-        local nodedef = minetest.registered_nodes[node.name]
-        if nodedef.basename == "yatm_security:programmers_table" then
-          -- it's still a programmer's table, whew.
-          local okay, blob, context, rest = yatm_oku.OKU.isa.MOS6502.Assembler.assemble_safe(source)
+    local node = minetest.get_node_or_nil(pos)
+    local meta = minetest.get_meta(pos)
 
-          if okay then
-            -- TODO: maybe play a little jingle when assembled sucessfully
-            --
-            minetest.log("action", "Assembly completed")
-            local blob_hex = yatm_core.string_hex_encode(blob)
-            meta:set_string("assembly_binary", blob_hex)
-            meta:set_string("assembly_error", "")
-          else
-            minetest.log("action", "Assembly failed ", blob)
-            meta:set_string("assembly_binary", "")
-            meta:set_string("assembly_error", blob)
-          end
+    if node then
+      local nodedef = minetest.registered_nodes[node.name]
+      if nodedef.basename == "yatm_security:programmers_table" then
+        -- it's still a programmer's table, whew.
+        local okay, blob, context, rest = yatm_oku.OKU.isa.MOS6502.Assembler.assemble_safe(source)
+
+        if okay then
+          -- TODO: maybe play a little jingle when assembled sucessfully
+          --
+          minetest.log("action", "Assembly completed")
+          local blob_hex = yatm_core.string_hex_encode(blob)
+          meta:set_string("assembly_binary", blob_hex)
+          meta:set_string("assembly_error", "")
+        else
+          minetest.log("action", "Assembly failed ", blob)
+          meta:set_string("assembly_binary", "")
+          meta:set_string("assembly_error", blob)
         end
+
+        needs_refresh = true
       end
-    end)
+    end
   end
 
   if fields["commit"] then
