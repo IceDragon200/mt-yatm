@@ -1,4 +1,5 @@
 local TokenBuffer = assert(yatm_oku.TokenBuffer)
+local match_tokens = assert(yatm_oku.match_tokens)
 
 local Parser = {}
 local m = Parser
@@ -282,3 +283,5 @@ function m.parse(token_buf)
   end
   return result
 end
+
+yatm_oku.OKU.isa.MOS6502.Parser = Parser

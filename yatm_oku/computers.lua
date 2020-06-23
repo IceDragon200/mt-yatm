@@ -1,5 +1,5 @@
 --
---
+-- Computers service, allows registering computers
 --
 local OKU = yatm_oku.OKU
 if not OKU then

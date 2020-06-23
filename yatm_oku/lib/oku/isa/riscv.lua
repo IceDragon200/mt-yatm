@@ -223,3 +223,4 @@ end
 
 dofile(yatm_oku.modpath .. "/lib/oku/isa/riscv/ffi.lua")
 dofile(yatm_oku.modpath .. "/lib/oku/isa/riscv/isa.lua")
+dofile(yatm_oku.modpath .. "/lib/oku/isa/riscv/assembler.lua")
