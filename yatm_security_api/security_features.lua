@@ -1,3 +1,7 @@
+--
+-- Mechanical Locks are security locks that require a physical key to access.
+-- Think Carbon Steel locks/key pairs.
+--
 yatm.security.register_security_feature("yatm_security:mechanical_lock", {
   get_node_slot_data = function (self, pos, node, slot_data)
     return slot_data
@@ -14,6 +18,10 @@ yatm.security.register_security_feature("yatm_security:mechanical_lock", {
   end,
 })
 
+--
+-- The Keypad lock is form of electrical lock, players input their passcode
+-- on a numpad to unlock the node/object at that point.
+--
 yatm.security.register_security_feature("yatm_security:keypad_lock", {
   get_node_slot_data = function (self, pos, node, slot_data)
     return slot_data
@@ -30,6 +38,9 @@ yatm.security.register_security_feature("yatm_security:keypad_lock", {
   end,
 })
 
+--
+-- The password lock is similar to the keypad lock, but allows arbitary characters
+--
 yatm.security.register_security_feature("yatm_security:password_lock", {
   get_node_slot_data = function (self, pos, node, slot_data)
     return slot_data
@@ -46,6 +57,10 @@ yatm.security.register_security_feature("yatm_security:password_lock", {
   end,
 })
 
+--
+-- The player lock is a form of biometric lock
+-- (well sorta, it just needs to check the accessing player)
+--
 yatm.security.register_security_feature("yatm_security:player_lock", {
   get_node_slot_data = function (self, pos, node, slot_data)
     return slot_data
