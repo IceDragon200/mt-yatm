@@ -582,7 +582,7 @@ function m.rol_abs_x(addr)
 end
 
 -- ROL zpg       // case 0x26:
-function m.rol_zpg()
+function m.rol_zpg(addr)
   return "\x26" .. imm(addr)
 end
 

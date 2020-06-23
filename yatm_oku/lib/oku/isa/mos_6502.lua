@@ -88,6 +88,16 @@ function isa.reset(oku, assigns)
   assigns.chip.state = CPU_STATE_RESET
 end
 
+function isa.load_com_binary(oku, assigns, blob)
+  -- COM files are a raw binary executable format
+  -- The executation starts at address 0x0100
+  -- https://www.csc.depauw.edu/~bhoward/asmtut/asmtut11.html
+  assigns.chip.pc = 0x0100
+
+  oku:clear_memory_slice(0x0100, #blob)
+  oku:w_memory_blob(0x0100, blob)
+end
+
 function isa.step(oku, assigns)
   local mem_size = oku.memory:size()
   local mem_ptr = oku.memory:ptr()
@@ -102,7 +112,7 @@ function isa.step(oku, assigns)
   end
 end
 
-function isa.bindump(oku, stream, assigns)
+function isa.bindump(oku, assigns, stream)
   local bytes_written = 0
   local bw, err = ByteBuf.w_u32(stream, 1)
   bytes_written = bytes_written + bw
@@ -190,10 +200,14 @@ function isa.bindump(oku, stream, assigns)
   return bytes_written, nil
 end
 
-function isa.binload(oku, stream, assigns)
+function isa.binload(oku, assigns, stream)
   local bytes_read = 0
   local version, br = ByteBuf.r_u32(stream)
   bytes_read = bytes_read + br
+
+  local chip = ffi.new("struct oku_6502_chip")
+  oku_6502.oku_6502_chip_init(chip)
+  assigns.chip = chip
 
   if version == 1 then
     local ab, br = ByteBuf.r_u16(stream)

@@ -1,6 +1,65 @@
 local ffi = assert(yatm_oku.ffi)
 
 ffi.cdef[[
+union yatm_oku_register32 {
+  int8_t   i8v[4];
+  uint8_t  u8v[4];
+  int16_t  i16v[2];
+  uint16_t u16v[2];
+  int32_t  i32v[1];
+  uint32_t u32v[1];
+  float    fv[1];
+  int32_t  i32;
+  uint32_t u32;
+  float    f32;
+};
+]]
+
+ffi.cdef[[
+union yatm_oku_rv32i_itypes {
+  union {
+    int32_t i32;
+    uint32_t u32;
+  };
+  union {
+    struct {
+      int16_t i16h;
+      int16_t i16l;
+    };
+    struct {
+      uint16_t u16h;
+      uint16_t u16l;
+    };
+    int16_t i16v[2];
+    uint16_t ui16v[2];
+  };
+  union {
+    struct {
+      int8_t i8_0;
+      int8_t i8_1;
+      int8_t i8_2;
+      int8_t i8_3;
+    };
+    struct {
+      uint8_t u8_0;
+      uint8_t u8_1;
+      uint8_t u8_2;
+      uint8_t u8_3;
+    };
+    int8_t i8v[4];
+    uint8_t u8v[4];
+  };
+};
+]]
+
+ffi.cdef[[
+struct yatm_oku_registers32 {
+  union yatm_oku_register32 x[32];
+  union yatm_oku_register32 pc;
+};
+]]
+
+ffi.cdef[[
 union yatm_oku_rv32i_syn {
   int32_t xlen;
   uint32_t uxlen;

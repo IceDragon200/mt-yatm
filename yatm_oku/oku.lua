@@ -10,39 +10,17 @@ if not ByteBuf then
   return
 end
 
-yatm_oku.OKU = yatm_core.Class:extends()
+local ffi = assert(yatm_oku.ffi, "oku needs ffi")
+
+yatm_oku.OKU = yatm_core.Class:extends('OKU')
 yatm_oku.OKU.isa = {}
 
 dofile(yatm_oku.modpath .. "/lib/oku/memory.lua")
-
-local ffi = assert(yatm_oku.ffi, "oku needs ffi")
-
-ffi.cdef[[
-union yatm_oku_register32 {
-  int8_t   i8v[4];
-  uint8_t  u8v[4];
-  int16_t  i16v[2];
-  uint16_t u16v[2];
-  int32_t  i32v[1];
-  uint32_t u32v[1];
-  float    fv[1];
-  int32_t  i32;
-  uint32_t u32;
-  float    f32;
-};
-]]
-
-ffi.cdef[[
-struct yatm_oku_registers32 {
-  union yatm_oku_register32 x[32];
-  union yatm_oku_register32 pc;
-};
-]]
-
 dofile(yatm_oku.modpath .. "/lib/oku/isa/riscv.lua")
 dofile(yatm_oku.modpath .. "/lib/oku/isa/mos_6502.lua")
 
 local OKU = yatm_oku.OKU
+
 OKU.DEFAULT_ARCH = "mos6502"
 OKU.AVAILABLE_ARCH = {
   mos6502 = yatm_oku.OKU.isa.MOS6502,
@@ -63,8 +41,8 @@ local function check_memory_size(memory_size)
   if memory_size < 4 then
     error("requested memory size too small")
   end
-  if memory_size > 0x40000 then
-    error("requested memory size too larger, cannot exceed 1Mb")
+  if memory_size > 0x100000 then
+    error("requested memory size too large, cannot exceed 1Mb")
   end
 end
 
@@ -94,9 +72,6 @@ function ic:initialize(options)
 
   self.label = options.label or ""
 
-  -- the registers
-  self.registers = ffi.new("struct yatm_oku_registers32")
-
   -- memory
   self.memory = yatm_oku.OKU.Memory:new(options.memory_size)
 
@@ -106,16 +81,26 @@ function ic:initialize(options)
   self:_init_isa()
 end
 
+-- Invokes function on given ARCH module
+-- The method must accept the OKU state and ISA assigns as it's first 2 arguments.
+--
+-- @spec call_arch(method_name: String, ...: [term]) :: term
+function ic:call_arch(method_name, ...)
+  local mod = OKU.AVAILABLE_ARCH[self.arch]
+  if mod then
+    return mod[method_name](self, self.isa_assigns, ...)
+  else
+    error("arch module " .. self.arch .. " is not available")
+  end
+end
+
 function ic:_init_isa()
-  OKU.AVAILABLE_ARCH[self.arch].init(self, self.isa_assigns)
+  return self:call_arch('init')
 end
 
 function ic:dispose()
-  OKU.AVAILABLE_ARCH[self.arch].dispose(self, self.isa_assigns)
-
+  self:call_arch('dispose')
   self.memory = nil
-  self.registers = nil
-
   self.disposed = true
 end
 
@@ -125,14 +110,8 @@ function ic:set_memory_circular_access(bool)
   return self
 end
 
--- Reset the stack pointer to the end of memory
-function ic:reset_sp()
-  self.registers.x[2].u32 = self.memory:size()
-end
-
 function ic:reset()
-  local isa = OKU.AVAILABLE_ARCH[self.arch]
-  isa.reset(self, self.isa_assigns)
+  self:call_arch('reset')
   return self
 end
 
@@ -144,13 +123,9 @@ function ic:step(steps)
   assert(steps, "expected steps to a number")
 
   for step_i = 1,steps do
-    local isa = OKU.AVAILABLE_ARCH[self.arch]
     local okay, err
-    if isa then
-      okay, err = isa.step(self, self.isa_assigns)
-    else
-      error("unsupported arch=" .. self.arch)
-    end
+    okay, err = self:call_arch('step')
+
     if not okay then
       return step_i, err
     end
@@ -196,35 +171,12 @@ function ic:upload_memory(blob)
   return self
 end
 
--- Honestly only usable with the RV32i
-function ic:load_elf_binary(blob)
-  if self.arch ~= "rv32i" then
-    error("cannot load elf binaries in non-rv32i arch")
-  end
-  local stream = yatm_core.StringBuf:new(blob)
-
-  local elf_prog = yatm_oku.elf:read(stream)
-
-  elf_prog:reduce_segments(nil, function (segment, _unused)
-    if segment.header.type == "PT_LOAD" then
-      --print(dump(segment))
-      self:clear_memory_slice(segment.header.vaddr, segment.header.memsz)
-      self:w_memory_blob(segment.header.vaddr, segment.blob)
-    end
-  end)
-
-  self.registers.pc.u32 = elf_prog:get_entry_vaddr()
-
-  --print(elf_prog:inspect())
-
-  return self
-end
-
 --
 -- Binary Serialization
 --
 function ic:bindump(stream)
   local bytes_written = 0
+  -- Write the magic bytes
   local bw, err = ByteBuf.write(stream, "OKU2")
   bytes_written = bytes_written + bw
   if err then
@@ -232,7 +184,7 @@ function ic:bindump(stream)
   end
 
   -- Write the version
-  local bw, err = ByteBuf.w_u32(stream, 1)
+  local bw, err = ByteBuf.w_u32(stream, 2)
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
@@ -256,16 +208,7 @@ function ic:bindump(stream)
   end
 
   local isa = OKU.AVAILABLE_ARCH[self.arch]
-
   assert(isa, "unsupported arch=" .. self.arch)
-
-  --
-  -- Registers
-  local bw, err = self:_bindump_registers(stream)
-  bytes_written = bytes_written + bw
-  if err then
-    return bytes_written, err
-  end
 
   --
   -- Memory
@@ -277,7 +220,7 @@ function ic:bindump(stream)
 
   --
   -- ISA State
-  local bw, err = isa.bindump(self, stream, self.isa_assigns)
+  local bw, err = isa.bindump(self, self.isa_assigns, stream)
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
@@ -287,6 +230,7 @@ function ic:bindump(stream)
 end
 
 function ic:binload(stream)
+  self.isa_assigns = {}
   self.exec_counter = 0
   local bytes_read = 0
   -- First thing is to read the magic bytes
@@ -296,9 +240,6 @@ function ic:binload(stream)
     -- next we read the arch, normally just rv32i
     local arch, br = ByteBuf.r_u8string(stream)
     bytes_read = bytes_read + br
-
-    -- Reset registers
-    self.registers = ffi.new("struct yatm_oku_registers32")
 
     self.label = ""
 
@@ -319,26 +260,38 @@ function ic:binload(stream)
       bytes_read = bytes_read + br
       self.label = label or ""
 
-      -- next we read the arch, normally just rv32i
+      -- next we read the arch
       local arch, br = ByteBuf.r_u8string(stream)
       bytes_read = bytes_read + br
 
       self.arch = arch
 
       -- Reset registers
-      self.registers = ffi.new("struct yatm_oku_registers32")
+      local registers = ffi.new("struct yatm_oku_registers32")
+      self.isa_assigns.registers = registers
 
-      local isa = OKU.AVAILABLE_ARCH[self.arch]
-      if isa then
-        -- Restore registers
-        bytes_read = bytes_read + self:_binload_registers(stream)
-        -- Restore memory
-        bytes_read = bytes_read + self:_binload_memory(stream)
-        -- Restore ISA state
-        bytes_read = bytes_read + isa.binload(self, stream, self.isa_assigns)
-      else
-        error("unsupported OKU arch=" .. arch)
-      end
+      -- Restore registers
+      bytes_read = bytes_read + self:_binload_registers(stream, registers)
+      -- Restore memory
+      bytes_read = bytes_read + self:_binload_memory(stream)
+      -- Restore ISA state
+      bytes_read = bytes_read + self:call_arch('binload', stream)
+    elseif version == 2 then
+      -- read the label
+      local label, br = ByteBuf.r_u8string(stream)
+      bytes_read = bytes_read + br
+      self.label = label or ""
+
+      -- next we read the arch
+      local arch, br = ByteBuf.r_u8string(stream)
+      bytes_read = bytes_read + br
+
+      self.arch = arch
+
+      -- Restore memory
+      bytes_read = bytes_read + self:_binload_memory(stream)
+      -- Restore ISA state
+      bytes_read = bytes_read + self:call_arch('binload', stream)
     else
       error("invalid version, got=" .. version)
     end
@@ -377,35 +330,14 @@ function ic:_bindump_memory(stream)
   return bytes_written, nil
 end
 
-function ic:_bindump_registers(stream)
-  local bytes_written = 0
-
-  for i = 0,31 do
-    local rv = self.registers.x[i].i32
-    local bw, err = ByteBuf.w_i32(stream, rv)
-    bytes_written = bytes_written + bw
-
-    if err then
-      return bytes_written, err
-    end
-  end
-
-  local bw, err = ByteBuf.w_u32(stream, self.registers.pc.u32)
-  bytes_written = bytes_written + bw
-  if err then
-    return bytes_written, err
-  end
-  return bytes_written, nil
-end
-
-function ic:_binload_registers(stream)
+function ic:_binload_registers(stream, registers)
   local bytes_read = 0
   for i = 0,31 do
     local rv, br = ByteBuf.r_i32(stream)
     bytes_read = bytes_read + br
-    self.registers.x[i].i32 = rv
+    registers.x[i].i32 = rv
   end
-  self.registers.pc.u32 = ByteBuf.r_u32(stream)
+  registers.pc.u32 = ByteBuf.r_u32(stream)
   return bytes_read
 end
 
@@ -434,7 +366,8 @@ function ic:_binload_arch_rv32i_oku1(stream)
   local bytes_read = 0
 
   -- Restore registers
-  bytes_read = bytes_read + self:_binload_registers(stream)
+  self.isa_assigns.registers = ffi.new("struct yatm_oku_registers32")
+  bytes_read = bytes_read + self:_binload_registers(stream, self.isa_assigns.registers)
   -- Restore memory
   bytes_read = bytes_read + self:_binload_memory(stream)
 
