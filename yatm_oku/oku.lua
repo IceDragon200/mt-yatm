@@ -1,8 +1,3 @@
---
--- Registers:
---   x0-x31
---   pc
---
 local ByteBuf = yatm_core.ByteBuf
 
 if not ByteBuf then
@@ -15,6 +10,7 @@ local ffi = assert(yatm_oku.ffi, "oku needs ffi")
 yatm_oku.OKU = yatm_core.Class:extends('OKU')
 yatm_oku.OKU.isa = {}
 
+dofile(yatm_oku.modpath .. "/lib/oku/token_buffer.lua")
 dofile(yatm_oku.modpath .. "/lib/oku/memory.lua")
 dofile(yatm_oku.modpath .. "/lib/oku/isa/riscv.lua")
 dofile(yatm_oku.modpath .. "/lib/oku/isa/mos_6502.lua")

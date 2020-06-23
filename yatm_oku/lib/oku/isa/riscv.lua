@@ -1,3 +1,8 @@
+--
+-- Registers:
+--   x0-x31
+--   pc
+--
 local ffi = assert(yatm_oku.ffi)
 local ByteBuf = yatm_core.ByteBuf
 
