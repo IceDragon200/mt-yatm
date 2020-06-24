@@ -43,19 +43,22 @@ local function get_codex_entry_formspec(user, assigns)
     end
   end
 
-  local y = 0.5
+  local y = 1.5
 
   local dy = y
   if page.lines then
     for i, line in ipairs(page.lines) do
-      dy = y + (i - 1) * 0.2
+      dy = y + (i - 1) * 1.2
       formspec =
         formspec ..
-        -- 0.125 vertical spacing is a bit too compact
-        -- 0.2 the sweet spot
-        -- 0.25 vertical spacing has adequate spacing, but can only fit 16 lines
-        -- But in all honestly it's like the inventory based sizing doesn't even apply to hypertext...
-        "hypertext[0.125," .. dy .. ";8,1;line" .. i .. ";" .. minetest.formspec_escape(line) .. "]"
+        -- For 5.1.x
+        --   0.125 vertical spacing is a bit too compact
+        --   0.2 the sweet spot
+        --   0.25 vertical spacing has adequate spacing, but can only fit 16 lines
+        --   But in all honestly it's like the inventory based sizing doesn't even apply to hypertext...
+        -- As of 5.2.0-1db3d252
+        --   Elements seem to behave like normal now, instead of the weird line spacing they had before.
+        "hypertext[0.125," .. dy .. ";8,1.2;line" .. i .. ";" .. minetest.formspec_escape(line) .. "]"
     end
   end
 
