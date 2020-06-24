@@ -33,13 +33,19 @@ local data_network = assert(yatm.data_network)
 --   Offset Y - little-endian i16 (signed 16 bit integer) string representing the Y-coord offset from the silo position
 --   Offset Z - little-endian i16 (signed 16 bit integer) string representing the Z-coord offset from the silo position
 
-local ProbeSchema =
-  yatm.BinSchema:new("icbm_silo.probe", {
-    {"offset_x", "i16"},
-    {"offset_y", "i16"},
-    {"offset_z", "i16"},
-    {"status", "i16"},
-  })
+local ProbeSchema = false
+
+if yatm.BinSchema then
+  ProbeSchema =
+    yatm.BinSchema:new("icbm_silo.probe", {
+      {"offset_x", "i16"},
+      {"offset_y", "i16"},
+      {"offset_z", "i16"},
+      {"status", "i16"},
+    })
+else
+  minetest.log("warning", "BinSchema is not available, ICBM probes will be disabled")
+end
 
 local function get_icbm_entity(pos, node)
   local new_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
@@ -169,17 +175,21 @@ local data_interface = {
       --
       arm_icbm(pos, node)
     elseif port == meta:get_int("probing_port") then
-      -- Probing asks that the silo report it's current status on it's probe port
-      -- This 'probe' packet includes the currently set offsets and a status flag
-      local probe_packet =
-        ProbeSchema:write({
-          offset_x = meta:get_int("offset_x"),
-          offset_y = meta:get_int("offset_y"),
-          offset_z = meta:get_int("offset_z"),
-          status = 0, -- FIXME: proper status codes
-        })
+      if ProbeSchema then
+        -- Probing asks that the silo report it's current status on it's probe port
+        -- This 'probe' packet includes the currently set offsets and a status flag
+        local probe_packet =
+          ProbeSchema:write({
+            offset_x = meta:get_int("offset_x"),
+            offset_y = meta:get_int("offset_y"),
+            offset_z = meta:get_int("offset_z"),
+            status = 0, -- FIXME: proper status codes
+          })
 
-      yatm_data_logic.emit_value(pos, meta:get_int("probe_port"), probe_packet)
+        yatm_data_logic.emit_value(pos, meta:get_int("probe_port"), probe_packet)
+      else
+        minetest.log("warning", "ICBM probing is not available")
+      end
     elseif port == meta:get_int("offset_x_port") then
       --
       local offset_value = yatm.ByteDecoder:d_i16(blob)
