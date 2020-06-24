@@ -1,20 +1,17 @@
 --
 -- Callbacks when everything has loaded
 --
-local iio = yatm.io
-
 local function dump_nodes()
   -- Export yatm specific nodes for documentation purposes
   print("Exporting Nodes")
-  local file = iio.open("yatm_exported_nodes.mljson", "w")
   local i = 0
-
+  local result = {}
   for name, def in pairs(minetest.registered_nodes) do
     if yatm_core.string_starts_with(name, "yatm_") or
        yatm_core.string_starts_with(name, "harmonia_") then
       i = i + 1
 
-      file:write(minetest.write_json({
+      result[i] = minetest.write_json({
         name = name,
         basename = def.basename or name,
         base_description = def.base_description,
@@ -26,61 +23,61 @@ local function dump_nodes()
         node_box = def.node_box,
         paramtype = def.paramtype,
         paramtype2 = def.paramtype2,
-      }))
-      file:write("\n")
+      })
     end
   end
-  iio.close(file)
+
+  minetest.safe_file_write(minetest.get_worldpath() .. "/yatm_exported_nodes.mljson", table.concat(result, "\n"))
   print("Exported Nodes count=" .. i)
 end
 
 local function dump_craftitems()
   -- Export yatm specific nodes for documentation purposes
   print("Exporting Craftitems")
-  local file = iio.open("yatm_exported_craftitems.mljson", "w")
   local i = 0
+  local result = {}
 
   for name, def in pairs(minetest.registered_craftitems) do
     if yatm_core.string_starts_with(name, "yatm_") or
        yatm_core.string_starts_with(name, "harmonia_") then
       i = i + 1
-      file:write(minetest.write_json({
+      result[i] = minetest.write_json({
         name = name,
         basename = def.basename or name,
         base_description = def.base_description,
         description = def.description,
         groups = def.groups,
         inventory_image = def.inventory_image,
-      }))
-      file:write("\n")
+      })
     end
   end
-  iio.close(file)
+
+  minetest.safe_file_write(minetest.get_worldpath() .. "/yatm_exported_craftitems.mljson", table.concat(result, "\n"))
   print("Exported Craftitems count=" .. i)
 end
 
 local function dump_tools()
   -- Export yatm specific nodes for documentation purposes
   print("Exporting Tools")
-  local file = iio.open("yatm_exported_tools.mljson", "w")
   local i = 0
+  local result = {}
 
   for name, def in pairs(minetest.registered_tools) do
     if yatm_core.string_starts_with(name, "yatm_") or
        yatm_core.string_starts_with(name, "harmonia_") then
       i = i + 1
-      file:write(minetest.write_json({
+      result[i] = minetest.write_json({
         name = name,
         basename = def.basename or name,
         base_description = def.base_description,
         description = def.description,
         groups = def.groups,
         inventory_image = def.inventory_image,
-      }))
-      file:write("\n")
+      })
     end
   end
-  iio.close(file)
+
+  minetest.safe_file_write(minetest.get_worldpath() .. "/yatm_exported_tools.mljson", table.concat(result, "\n"))
   print("Exported Tools count=" .. i)
 end
 

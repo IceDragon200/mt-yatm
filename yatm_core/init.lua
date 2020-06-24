@@ -13,11 +13,6 @@ dofile(yatm_core.modpath .. "/errors.lua")
 
 local insec = minetest.request_insecure_environment()
 if insec then
-  if yatm.config.dump_nodes then
-    -- Only the TOML dump needs the io
-    yatm.io = assert(insec.io, "no IO available on the insecure environment!")
-  end
-
   yatm.bit = insec.require("bit")
   yatm.ffi = insec.require("ffi")
 else
@@ -59,6 +54,5 @@ dofile(yatm_core.modpath .. "/post_hooks.lua")
 dofile(yatm_core.modpath .. "/tests.lua")
 
 -- prevent insecure modules from leaking
-yatm.io = nil
 yatm.bit = nil
 yatm.ffi = nil

@@ -11,4 +11,4 @@ yatm.config.dump_tools = true
 
 -- When a module or modules is crippled by missing core features,
 -- should YATM throw an error instead of just logging?
-yatm.config.fail_loud = true
+yatm.config.fail_loud = false

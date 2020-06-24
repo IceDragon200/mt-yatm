@@ -1,4 +1,10 @@
-local ffi = assert(yatm.ffi)
+local ffi = yatm.ffi
+
+if not ffi then
+  minetest.log("warning", "ffi is unavailable, yatm_core native extensions cannot be loaded")
+  minetest.log("warning", "yatm_core will fallback to lua based implementations for some functions")
+  return
+end
 
 local yatm_core_utils
 pcall(function ()
@@ -7,7 +13,7 @@ end)
 
 if not yatm_core_utils then
   minetest.log("warning", "yatm_core_utils shared object is not available, skipping implementation")
-  minetest.log("warning", "\n\nWARN: Some functions will be slightly slower, should be fine for the most part.\n\n")
+  minetest.log("warning", "WARN: Some functions will be slightly slower, should be fine for the most part.\n\n")
   return
 end
 
