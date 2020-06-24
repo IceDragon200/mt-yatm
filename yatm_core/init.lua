@@ -13,7 +13,7 @@ dofile(yatm_core.modpath .. "/errors.lua")
 
 local insec = minetest.request_insecure_environment()
 if insec then
-  yatm.bit = insec.require("bit")
+  yatm.native_bit = insec.require("bit")
   yatm.ffi = insec.require("ffi")
 else
   yatm.warn("yatm_core requested an insecure environment but received nil, several modules will be disabled due to this.")
@@ -54,5 +54,5 @@ dofile(yatm_core.modpath .. "/post_hooks.lua")
 dofile(yatm_core.modpath .. "/tests.lua")
 
 -- prevent insecure modules from leaking
-yatm.bit = nil
+yatm.native_bit = nil
 yatm.ffi = nil

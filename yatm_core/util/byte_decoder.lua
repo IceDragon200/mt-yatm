@@ -3,11 +3,6 @@
 --
 local bit = yatm.bit
 
-if not bit then
-  yatm.error("ByteDecoder module not available, because the bit module is not available")
-  return
-end
-
 local INT_MAX = {
   [1] = math.floor(math.pow(2, 8)),
   [2] = math.floor(math.pow(2, 16)),

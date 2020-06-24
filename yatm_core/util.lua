@@ -1,3 +1,5 @@
+dofile(yatm_core.modpath .. "/util/bit.lua")
+
 dofile(yatm_core.modpath .. "/util/native.lua")
 
 dofile(yatm_core.modpath .. "/util/value.lua")

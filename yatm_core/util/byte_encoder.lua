@@ -3,11 +3,6 @@
 --
 local bit = yatm.bit
 
-if not bit then
-  yatm.error("ByteEncoder module not available, because the bit module is not available")
-  return
-end
-
 local ByteEncoder = {}
 
 -- Signed Integers

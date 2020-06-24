@@ -1,11 +1,6 @@
 local ByteDecoder = yatm_core.ByteDecoder
 local bit = yatm.bit
 
-if not bit then
-  yatm.error("ByteBuf module not available, because the bit module is not available")
-  return
-end
-
 local ByteBuf = {}
 
 --

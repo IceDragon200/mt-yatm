@@ -12,14 +12,13 @@ yatm_oku.modpath = minetest.get_modpath(minetest.get_current_modname())
 local insec = minetest.request_insecure_environment()
 if insec then
   yatm_oku.ffi = insec.require("ffi")
-  yatm_oku.bit = insec.require("bit")
 end
+
+-- YATM now has it's own builtin bit module!
+yatm_oku.bit = assert(yatm.bit)
 
 if not yatm_oku.ffi then
   yatm.error("yatm_oku requires LuaJIT's FFI, please add yatm_oku to your trusted mods list if you use LuaJIT, or disable yatm_oku otherwise.")
-end
-if not yatm_oku.bit then
-  yatm.error("yatm_oku requires LuaJIT's bitmodule, please add yatm_oku to your trusted mods list if you use LuaJIT, or disable yatm_oku otherwise.")
 end
 
 if yatm_oku.ffi and yatm_oku.bit then
