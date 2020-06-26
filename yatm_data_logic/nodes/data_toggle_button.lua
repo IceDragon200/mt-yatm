@@ -128,6 +128,7 @@ yatm.register_stateful_node("yatm_data_logic:data_toggle_button", {
     },
 
     on_rightclick = function (pos, node, clicker)
+      yatm_core.sounds:play("button_click")
       node.name = "yatm_data_logic:data_toggle_button_right"
       minetest.swap_node(pos, node)
 
@@ -155,6 +156,7 @@ yatm.register_stateful_node("yatm_data_logic:data_toggle_button", {
     },
 
     on_rightclick = function (pos, node, clicker)
+      yatm_core.sounds:play("button_click")
       node.name = "yatm_data_logic:data_toggle_button_left"
       minetest.swap_node(pos, node)
 

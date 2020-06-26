@@ -3,6 +3,7 @@ minetest.register_node("yatm_overhead_rails:overhead_docking_station", {
 
   groups = {
     cracky = 1,
+    overhead_rail = 1,
     overhead_docking_station = 1,
   },
 

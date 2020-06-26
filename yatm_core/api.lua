@@ -15,6 +15,8 @@ yatm.vector2 = yatm_core.vector2
 yatm.vector3 = yatm_core.vector3
 yatm.vector4 = yatm_core.vector4
 
+yatm.sounds = yatm_core.sounds
+
 function yatm.register_stateful_node(basename, base, states)
   for name, changes in pairs(states) do
     local nodedef = yatm_core.table_merge(base, changes)

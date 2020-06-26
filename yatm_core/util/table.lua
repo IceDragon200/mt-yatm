@@ -14,6 +14,33 @@ function yatm_core.table_concat(...)
   return result
 end
 
+--
+-- Copy the specified keys from the given table, returning a new table with those keys
+--
+-- @spec yatm_core.table_take(t: Table, keys: [String]) :: Table
+function yatm_core.table_take(t, keys)
+  local result = {}
+
+  for _, key in ipairs(keys) do
+    result[key] = t[key]
+  end
+
+  return result
+end
+
+--
+-- Removes the specified keys from the given table
+-- This will return the same table.
+--
+-- @mutative
+-- @spec yatm_core.table_drop(t: Table, keys: [String]) :: Table
+function yatm_core.table_drop(t, keys)
+  for _, key in ipairs(keys) do
+    t[key] = nil
+  end
+  return t
+end
+
 function yatm_core.table_key_of(t, expected_value)
   for key,value in pairs(t) do
     if value == expected_value then
@@ -42,6 +69,8 @@ end
 
 --
 -- Create-And-Push
+-- @mutative
+-- @spec yatm_core.table_cpush(t: Table, key: String, value: term) :: Table
 function yatm_core.table_cpush(t, key, value)
   if not t[key] then
     t[key] = {}
@@ -85,6 +114,8 @@ function yatm_core.table_copy(t)
   return yatm_core.table_merge(t)
 end
 
+-- @mutative
+-- @spec yatm_core.table_put(t: Table, k: String, v: term) :: Table
 function yatm_core.table_put(t, k, v)
   t[k] = v
   return t
@@ -92,7 +123,8 @@ end
 
 -- Puts a value nested into a table
 --
--- @spec table_bury(table, keys :: [string | integer], value :: term)
+-- @mutative
+-- @spec table_bury(table, keys :: [string | integer], value :: term) :: Table
 function yatm_core.table_bury(t, keys, value)
   local top = t
   for i = 1,(#keys - 1) do

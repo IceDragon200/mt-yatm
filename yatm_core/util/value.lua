@@ -9,6 +9,17 @@ function yatm_core.is_blank(value)
 end
 
 --
+-- Takes a list of arguments, and returns the first non-blank one
+function yatm_core.first_present(...)
+  for _, value in ipairs({...}) do
+    if not yatm_core.is_blank(value) then
+      return value
+    end
+  end
+  return nil
+end
+
+--
 --
 -- @spec deep_equals(Value, Value)! :: boolean
 function yatm_core.deep_equals(a, b, depth)

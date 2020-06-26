@@ -45,6 +45,9 @@ dofile(yatm_core.modpath .. "/luna.lua")
 -- Formspec Handle system
 dofile(yatm_core.modpath .. "/formspec_handles.lua")
 
+-- Sounds
+dofile(yatm_core.modpath .. "/sounds.lua")
+
 -- API
 dofile(yatm_core.modpath .. "/api.lua")
 -- Post Load Hooks
