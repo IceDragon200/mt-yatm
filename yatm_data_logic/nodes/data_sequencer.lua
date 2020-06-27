@@ -65,7 +65,7 @@ minetest.register_node("yatm_data_logic:data_sequencer", {
         -- emit the current data_seq
         if yatm_data_logic.emit_output_data(pos, "seq" .. (seq + 1)) then
           -- if any data was actually sent then make a beep sound
-          yatm_core.sounds:play("beep", { pos = pos, max_hear_distance = 32 })
+          yatm_core.sounds:play("blip0", { pos = pos, max_hear_distance = 32 })
         end
 
         seq = (seq + 1) % 16

@@ -70,7 +70,7 @@ yatm.register_stateful_node("yatm_data_logic:data_pulser", {
       time = time - dtime
       if time <= 0 then
         if yatm_data_logic.emit_output_data(pos, "pulse") then
-          yatm_core.sounds:play("beep", { pos = pos, max_hear_distance = 32, pitch_variance = 0.025 })
+          yatm_core.sounds:play("blip1", { pos = pos, max_hear_distance = 32, pitch_variance = 0.025 })
         end
         on_node_pulsed(pos, node)
 
