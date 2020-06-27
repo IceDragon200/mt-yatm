@@ -120,23 +120,27 @@ local function handle_receive_fields(user, formname, fields, assigns)
   end
 
   if fields["commit"] then
-    local inv = meta:get_inventory()
+    if meta:get_float("processing_time") > 0 then
+      yatm_core.sounds:play("action_error", { to_player = user:get_player_name(), max_hear_distance = 32 })
+    else
+      local inv = meta:get_inventory()
 
-    if inv:is_empty("processing_items") then
-      local input_items = inv:get_list("input_items")
-      local count = 0
-      for _, item in ipairs(input_items) do
-        if not item:is_empty() then
-          count = count + 1
+      if inv:is_empty("processing_items") then
+        local input_items = inv:get_list("input_items")
+        local count = 0
+        for _, item in ipairs(input_items) do
+          if not item:is_empty() then
+            count = count + 1
+          end
         end
+
+        meta:set_float("processing_time", 3)
+        meta:set_int("processing_count", count)
+        meta:set_string("processing_prog_data", meta:get_string("prog_data"))
+
+        inv:set_list("processing_items", input_items)
+        inv:set_list("input_items", {})
       end
-
-      meta:set_float("processing_time", 3)
-      meta:set_int("processing_count", count)
-      meta:set_string("processing_prog_data", meta:get_string("prog_data"))
-
-      inv:set_list("processing_items", input_items)
-      inv:set_list("input_items", {})
     end
   end
 
@@ -201,8 +205,8 @@ yatm.devices.register_stateful_network_device({
 
       local processing_count = meta:get_int("processing_count")
 
+      local org_proc_time = meta:get_float("processing_time")
       if not inv:is_empty("processing_items") then
-        local org_proc_time = meta:get_float("processing_time")
         local proc_time = org_proc_time
         if proc_time > 0 then
           proc_time = math.max(proc_time - dtime, 0)
@@ -229,11 +233,16 @@ yatm.devices.register_stateful_network_device({
 
             inv:set_list("output_items", output_items)
             inv:set_list("processing_items", {})
+
+            yatm_core.sounds:play("action_completed", { pos = pos, max_hear_distance = 32 })
           end
         end
 
         -- 100 units per item per second
         return 100 * processing_count * (org_proc_time - proc_time)
+      elseif org_proc_time > 0 then
+        yatm_core.sounds:play("long_error", { pos = pos, max_hear_distance = 32 })
+        meta:set_float("processing_time", 0)
       end
 
       return 0
