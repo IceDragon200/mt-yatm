@@ -102,14 +102,14 @@ local function handle_receive_fields(user, formname, fields, assigns)
         local okay, blob, context, rest = yatm_oku.OKU.isa.MOS6502.Assembler.assemble_safe(source)
 
         if okay then
-          -- TODO: maybe play a little jingle when assembled sucessfully
-          --
           minetest.log("action", "Assembly completed")
+          yatm_core.sounds:play("compile_success", { pos = pos, max_hear_distance = 32 })
           local blob_hex = yatm_core.string_hex_encode(blob)
           meta:set_string("assembly_binary", blob_hex)
           meta:set_string("assembly_error", "")
         else
           minetest.log("action", "Assembly failed ", blob)
+          yatm_core.sounds:play("action_error", { pos = pos, max_hear_distance = 32 })
           meta:set_string("assembly_binary", "")
           meta:set_string("assembly_error", blob)
         end
