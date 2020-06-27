@@ -1,5 +1,67 @@
 local data_network = assert(yatm.data_network)
 
+yatm_data_logic.INTERVAL_LIST = {
+  {
+    id = 1,
+    value = "1",
+    duration = 1.0,
+  },
+  {
+    id = 2,
+    value = "1/2",
+    duration = 1/2,
+  },
+  {
+    id = 3,
+    value = "1/3",
+    duration = 1/3,
+  },
+  {
+    id = 4,
+    value = "1/4",
+    duration = 1/4,
+  },
+  {
+    id = 5,
+    value = "1/5",
+    duration = 1/5,
+  },
+  {
+    id = 6,
+    value = "1/6",
+    duration = 1/6,
+  },
+  {
+    id = 7,
+    value = "1/8",
+    duration = 1/8,
+  },
+  {
+    id = 8,
+    value = "1/10",
+    duration = 1/10,
+  },
+  {
+    id = 9,
+    value = "1/12",
+    duration = 1/12,
+  },
+  {
+    id = 10,
+    value = "1/16",
+    duration = 1/16,
+  }
+}
+
+yatm_data_logic.INTERVALS = {}
+for _, item in ipairs(yatm_data_logic.INTERVAL_LIST) do
+  yatm_data_logic.INTERVALS[item.value] = item
+end
+
+yatm_data_logic.INTERVAL_STRING = table.concat(yatm_core.list_map(yatm_data_logic.INTERVAL_LIST, function (item)
+  return item.value
+end), ",")
+
 -- @spec yatm_data_logic.encode_varuint(value: Integer, length: Integer) :: String
 function yatm_data_logic.encode_varuint(value, length)
   local now = value
@@ -82,11 +144,14 @@ end
 --
 -- Treats the specified value as a vector, that is each value in the string is outputted on a different port
 --
+-- @spec yatm_data_logic.emit_output_data_vector(pos: Vector, vector_value: String, options: Table) :: boolean
 function yatm_data_logic.emit_output_data_vector(pos, vector_value, options)
   options = options or {}
   local meta = minetest.get_meta(pos)
 
   local sub_network_ids = data_network:get_sub_network_ids(pos)
+
+  local did_output = false
 
   if vector_value and #vector_value > 0 then
     for _, dir in ipairs(yatm_core.DIR6) do
@@ -97,6 +162,7 @@ function yatm_data_logic.emit_output_data_vector(pos, vector_value, options)
           if local_port and local_port > 0 then
             local char = string.sub(vector_value, i, i)
             data_network:send_value(pos, dir, local_port, char)
+            did_output = true
           end
         end
       else
@@ -104,10 +170,12 @@ function yatm_data_logic.emit_output_data_vector(pos, vector_value, options)
 
         if local_port and local_port > 0 then
           data_network:send_value(pos, dir, local_port, vector_value)
+          did_output = true
         end
       end
     end
   end
+  return did_output
 end
 
 function yatm_data_logic.get_matrix_port(pos, port_prefix, port_name, dir)
@@ -153,6 +221,8 @@ function yatm_data_logic.emit_output_data_value(pos, dl, options)
 
   local sub_network_ids = data_network:get_sub_network_ids(pos)
 
+  local did_output = false
+
   if dl and #dl > 0 then
     for _, dir in ipairs(yatm_core.DIR6) do
       if options.output_vector then
@@ -167,6 +237,7 @@ function yatm_data_logic.emit_output_data_value(pos, dl, options)
                                     dump(sub_network_ids))]]
 
             data_network:send_value(pos, dir, local_port, dl)
+            did_output = true
           else
             --print("port not set", minetest.pos_to_string(pos), data_name, dir)
           end
@@ -182,6 +253,7 @@ function yatm_data_logic.emit_output_data_value(pos, dl, options)
                                     dump(sub_network_ids))]]
 
           data_network:send_value(pos, dir, local_port, dl)
+          did_output = true
         else
           --print("port not set", minetest.pos_to_string(pos), data_name, dir)
         end
@@ -190,21 +262,26 @@ function yatm_data_logic.emit_output_data_value(pos, dl, options)
   else
     --print("no data", minetest.pos_to_string(pos), data_name, dump(dl))
   end
+
+  return did_output
 end
 
 function yatm_data_logic.emit_output_data(pos, data_name, options)
   local meta = minetest.get_meta(pos)
   local value = meta:get_string("data_" .. data_name)
-  yatm_data_logic.emit_output_data_value(pos, value, options)
+  return yatm_data_logic.emit_output_data_value(pos, value, options)
 end
 
 --
 -- Emit value in all directions
 --
 function yatm_data_logic.emit_value(pos, local_port, value)
+  local did_output = false
   for _, dir in ipairs(yatm_core.DIR6) do
-    data_network:send_value(pos, dir, local_port, value)
+    did_output = data_network:send_value(pos, dir, local_port, value) or
+                 did_output
   end
+  return did_output
 end
 
 --

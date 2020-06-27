@@ -1,13 +1,5 @@
 local data_network = assert(yatm.data_network)
 
-local INTERVALS = {
-  ["1"] = 1,
-  ["1/2"] = 2,
-  ["1/4"] = 3,
-  ["1/8"] = 4,
-  ["1/16"] = 5,
-}
-
 minetest.register_node("yatm_data_logic:data_sequencer", {
   description = "Data Sequencer",
 
@@ -71,23 +63,19 @@ minetest.register_node("yatm_data_logic:data_sequencer", {
       if time <= 0 then
         local seq = meta:get_int("seq")
         -- emit the current data_seq
-        yatm_data_logic.emit_output_data(pos, "seq" .. (seq + 1))
+        if yatm_data_logic.emit_output_data(pos, "seq" .. (seq + 1)) then
+          -- if any data was actually sent then make a beep sound
+          yatm_core.sounds:play("beep", { pos = pos, max_hear_distance = 32 })
+        end
 
         seq = (seq + 1) % 16
         meta:set_int("seq", seq)
 
         local interval_option = meta:get_string("interval_option")
         local duration = 1
-        if interval_option == "1" then
-          duration = 1
-        elseif interval_option == "1/2" then
-          duration = 0.5
-        elseif interval_option == "1/4" then
-          duration = 0.25
-        elseif interval_option == "1/8" then
-          duration = 0.125
-        elseif interval_option == "1/16" then
-          duration = 0.0625
+        local interval = yatm_data_logic.INTERVALS[interval_option]
+        if interval then
+          duration = interval.duration
         end
         time = time + duration
       end
@@ -95,7 +83,7 @@ minetest.register_node("yatm_data_logic:data_sequencer", {
     end,
 
     on_load = function (self, pos, node)
-      -- toggles don't need to bind listeners of any sorts
+      -- sequencers don't need to bind listeners of any sorts
     end,
 
     receive_pdu = function (self, pos, node, dir, port, value)
@@ -123,13 +111,17 @@ minetest.register_node("yatm_data_logic:data_sequencer", {
           io_formspec
 
       elseif assigns.tab == 2 then
-        local interval_option = INTERVALS[meta:get_string("interval_option")] or 1
+        local interval_id = 1
+        local interval = yatm_data_logic.INTERVALS[meta:get_string("interval_option")]
+        if interval then
+          interval_id = interval.id
+        end
 
         formspec =
           formspec ..
           "label[0,0;Data Configuration]" ..
           "label[0,0.5;Interval (Seconds)]" ..
-          "dropdown[0.25,1;8,1;interval_option;1,1/2,1/4,1/8,1/16;" .. interval_option .. "]"
+          "dropdown[0.25,1;8,1;interval_option;" .. yatm_data_logic.INTERVAL_STRING .. ";" .. interval_id .. "]"
 
         for i = 1,16 do
           local x = ((i - 1) % 2) * 4

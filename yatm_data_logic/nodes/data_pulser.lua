@@ -1,13 +1,5 @@
 local data_network = assert(yatm.data_network)
 
-local INTERVALS = {
-  ["1"] = 1,
-  ["1/2"] = 2,
-  ["1/4"] = 3,
-  ["1/8"] = 4,
-  ["1/16"] = 5,
-}
-
 local function on_node_pulsed(pos, node)
   local nodedef = minetest.registered_nodes[node.name]
 
@@ -77,21 +69,16 @@ yatm.register_stateful_node("yatm_data_logic:data_pulser", {
       local time = meta:get_float("time")
       time = time - dtime
       if time <= 0 then
-        yatm_data_logic.emit_output_data(pos, "pulse")
+        if yatm_data_logic.emit_output_data(pos, "pulse") then
+          yatm_core.sounds:play("beep", { pos = pos, max_hear_distance = 32, pitch_variance = 0.025 })
+        end
         on_node_pulsed(pos, node)
 
         local interval_option = meta:get_string("interval_option")
         local duration = 1
-        if interval_option == "1" then
-          duration = 1
-        elseif interval_option == "1/2" then
-          duration = 0.5
-        elseif interval_option == "1/4" then
-          duration = 0.25
-        elseif interval_option == "1/8" then
-          duration = 0.125
-        elseif interval_option == "1/16" then
-          duration = 0.0625
+        local interval = yatm_data_logic.INTERVALS[interval_option]
+        if interval then
+          duration = interval.duration
         end
         time = time + duration
       end
@@ -129,12 +116,17 @@ yatm.register_stateful_node("yatm_data_logic:data_pulser", {
 
       elseif assigns.tab == 2 then
         local data_pulse = meta:get_string("data_pulse") or ""
-        local interval_option = INTERVALS[meta:get_string("interval_option")] or 1
+
+        local interval_id = 1
+        local interval = yatm_data_logic.INTERVALS[meta:get_string("interval_option")]
+        if interval then
+          interval_id = interval.id
+        end
 
         formspec =
           formspec ..
           "label[0,0;Data Configuration]" ..
-          "dropdown[0.25,1;8,1;interval_option;1,1/2,1/4,1/8,1/16;" .. interval_option .. "]" ..
+          "dropdown[0.25,1;8,1;interval_option;" .. yatm_data_logic.INTERVAL_STRING .. ";" .. interval_id .. "]" ..
           "label[0,2;On Trigger]" ..
           "field[0.25,3;8,1;data_pulse;Data;" .. minetest.formspec_escape(data_pulse) .. "]"
       end

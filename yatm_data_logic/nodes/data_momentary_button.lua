@@ -145,7 +145,7 @@ yatm.register_stateful_node("yatm_data_logic:data_momentary_button", {
     },
 
     on_rightclick = function (pos, node, clicker, itemstack, pointed_thing)
-      yatm_core.sounds:play("button_click")
+      yatm_core.sounds:play("button_click", { pos = pos, max_hear_distance = 32 })
       node.name = "yatm_data_logic:data_momentary_button_on"
       minetest.swap_node(pos, node)
 
