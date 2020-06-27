@@ -18,13 +18,6 @@ function yatm_core.list_last(t, count)
   end
 end
 
-function yatm_core.list_map(list, fun)
-  return yatm_core.list_reduce(list, {}, function (value, acc)
-    table.insert(acc, fun(value))
-    return acc, false
-  end)
-end
-
 function yatm_core.list_reverse(list)
   -- https://forums.coronalabs.com/topic/61784-function-for-reversing-table-order/
   local j = #list
@@ -46,6 +39,13 @@ function yatm_core.list_reduce(list, acc, fun)
     end
   end
   return acc
+end
+
+function yatm_core.list_map(list, fun)
+  return yatm_core.list_reduce(list, {}, function (value, acc)
+    table.insert(acc, fun(value))
+    return acc, false
+  end)
 end
 
 function yatm_core.list_sample(l)
