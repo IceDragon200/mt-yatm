@@ -29,17 +29,38 @@ function ic:register(name, filename, default_params)
   return self
 end
 
+--
+--
+-- @spec :play(name: String, params: Table) :: (boolean, SoundHandle)
 function ic:play(name, params)
   local entry = self.registered[name]
   if entry then
     params = params or {}
-    local sound_params = yatm_core.table_merge(entry.params, yatm_core.table_take(params, {}))
+    local sound_params = yatm_core.table_merge(entry.params, params)
     local spec = {
       name = entry.filename,
     }
+    local pitch = sound_params.pitch or 1.0
+
+    -- Pitch Variance
+    local pv_min = 0
+    local pv_max = 0
+
+    if sound_params.pitch_variance then
+      local pv = sound_params.pitch_variance
+      pv_min = -pv
+      pv_max = pv
+    end
+
+    if pv_min ~= 0 or pv_max ~= 0 then
+      local variance_range = pv_max - pv_min
+      pitch = math.max(pitch + pv_min + variance_range * math.random(), 0)
+    end
+    --
+
     local parameters = {
       gain = sound_params.gain or 1.0,
-      pitch = sound_params.pitch or 1.0,
+      pitch = pitch,
       loop = sound_params.loop,
       fade = sound_params.fade,
       object = sound_params.object,
