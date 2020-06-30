@@ -327,6 +327,7 @@ yatm.local_bit.ror = ror
 yatm.local_bit.rshift = rshift
 
 if yatm.native_bit then
+  minetest.log("info", "using native bit module")
   -- native bit module is available, wrapper that mofo up
   yatm.bit.tohex = yatm.native_bit.tohex
   yatm.bit.arshift = yatm.native_bit.arshift
@@ -340,6 +341,7 @@ if yatm.native_bit then
   yatm.bit.ror = yatm.native_bit.ror
   yatm.bit.rshift = yatm.native_bit.rshift
 else
+  minetest.log("info", "using local bit module")
   yatm.bit.tohex = yatm.local_bit.tohex
   yatm.bit.arshift = yatm.local_bit.arshift
   yatm.bit.band = yatm.local_bit.band
