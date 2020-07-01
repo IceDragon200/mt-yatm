@@ -14,7 +14,7 @@ minetest.register_node("yatm_mining:quarry_wall", {
     "yatm_quarry_wall_side.png",
   },
 
-  sounds = default.node_sound_glass_defaults(),
+  sounds = yatm.node_sounds:build("glass"),
 
   connects_to = {
     "yatm_mining:quarry_wall",

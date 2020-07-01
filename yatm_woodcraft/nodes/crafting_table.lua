@@ -52,7 +52,7 @@ minetest.register_node("yatm_woodcraft:crafting_table_wood", {
   drawtype = "nodebox",
   node_box = table_nodebox,
 
-  sounds = default.node_sound_wood_defaults(),
+  sounds = yatm.node_sounds:build("wood"),
 
   on_construct = crafting_table_on_construct,
   --on_destruct = crafting_table_on_destruct,

@@ -323,7 +323,7 @@ yatm.devices.register_stateful_network_device({
 
   drop = battery_bank_yatm_network.states.off,
 
-  sounds = default.node_sound_metal_defaults(),
+  sounds = yatm.node_sounds:build("metal"),
 
   tiles = {
     "yatm_battery_bank_top.off.png",

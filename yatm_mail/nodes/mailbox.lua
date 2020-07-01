@@ -276,7 +276,7 @@ for _,pair in ipairs(colors) do
       item_interface_out = 1,
     },
 
-    sounds = default.node_sound_wood_defaults(),
+    sounds = yatm.node_sounds:build("wood"),
     is_ground_content = false,
     tiles = {
       "yatm_mailbox_wood_" .. basename .. "_top.png",
@@ -328,7 +328,7 @@ for _,pair in ipairs(colors) do
       item_interface_out = 1,
     },
 
-    sounds = default.node_sound_metal_defaults(),
+    sounds = yatm.node_sounds:build("metal"),
     is_ground_content = false,
     tiles = {
       "yatm_mailbox_metal_" .. basename .. "_top.png",

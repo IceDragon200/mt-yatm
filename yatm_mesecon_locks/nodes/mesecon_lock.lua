@@ -81,7 +81,7 @@ for _,color in pairs(colors) do
     sunlight_propagates = false,
     is_ground_content = false,
 
-    sounds = default.node_sound_metal_defaults(),
+    sounds = yatm.node_sounds:build("metal"),
 
     paramtype = "light",
     paramtype2 = "facedir",
@@ -133,7 +133,7 @@ for _,color in pairs(colors) do
     sunlight_propagates = false,
     is_ground_content = false,
 
-    sounds = default.node_sound_metal_defaults(),
+    sounds = yatm.node_sounds:build("metal"),
 
     paramtype = "light",
     paramtype2 = "facedir",

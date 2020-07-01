@@ -64,7 +64,7 @@ for _,color_pair in ipairs(colors) do
     paramtype = "light",
     paramtype2 = "facedir",
 
-    sounds = default.node_sound_metal_defaults(),
+    sounds = yatm.node_sounds:build("metal"),
 
     tiles = {"yatm_fluid_pipe_" .. color_basename .. "_pipe.on.png"},
 

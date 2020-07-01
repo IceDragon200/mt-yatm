@@ -6,6 +6,8 @@ local variants = {
   ["design_4"] = "Design #4",
 }
 
+local wood_sounds = yatm.node_sounds:build("wood")
+
 for variant_basename, variant_name in pairs(variants) do
   minetest.register_node("yatm_papercraft:shoji_panel_block" .. variant_basename, {
     basename = "yatm_papercraft:shoji_panel_block",
@@ -24,7 +26,7 @@ for variant_basename, variant_name in pairs(variants) do
     paramtype = "none",
     paramtype2 = "facedir",
 
-    sounds = default.node_sound_wood_defaults(),
+    sounds = wood_sounds,
   })
 
   minetest.register_node("yatm_papercraft:shoji_panel_" .. variant_basename, {
@@ -52,6 +54,6 @@ for variant_basename, variant_name in pairs(variants) do
       },
     },
 
-    sounds = default.node_sound_wood_defaults(),
+    sounds = wood_sounds,
   })
 end

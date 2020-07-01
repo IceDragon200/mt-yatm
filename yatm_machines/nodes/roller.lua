@@ -130,7 +130,7 @@ yatm.devices.register_stateful_network_device({
   },
   drop = roller_yatm_network.states.off,
 
-  sounds = default.node_sound_metal_defaults(),
+  sounds = yatm.node_sounds:build("metal"),
 
   tiles = {
     "yatm_roller_top.off.png",

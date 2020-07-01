@@ -124,7 +124,7 @@ yatm.devices.register_stateful_network_device({
   paramtype = "light",
   paramtype2 = "facedir",
 
-  sounds = default.node_sound_glass_defaults(),
+  sounds = yatm.node_sounds:build("glass"),
 
   tiles = {
     "yatm_item_teleporter_top.receiver.off.png",

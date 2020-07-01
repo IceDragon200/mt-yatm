@@ -55,7 +55,7 @@ minetest.register_node("yatm_armoury:ammo_can", {
 
   is_ground_content = false,
 
-  sounds = default.node_sound_metal_defaults(), -- do we have paper default?
+  sounds = yatm.node_sounds:build("metal"),
 
   paramtype = "light",
   paramtype2 = "facedir",

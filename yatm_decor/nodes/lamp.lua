@@ -84,7 +84,7 @@ local lamp_mesecons = {
   }
 }
 
-local lamp_sounds = default.node_sound_glass_defaults()
+local lamp_sounds = yatm.node_sounds:build("glass")
 
 local states = {
   "on",
@@ -154,7 +154,7 @@ for _,default_state in ipairs(states) do
       paramtype = "light",
       paramtype2 = "facedir",
       sunlight_propagates = false,
-      light_source = default.LIGHT_MAX,
+      light_source = minetest.LIGHT_MAX,
       drawtype = "nodebox",
       node_box = lamp_node_box,
       after_place_node = lamp_after_place_node,
@@ -208,7 +208,7 @@ for _,default_state in ipairs(states) do
       paramtype = "light",
       paramtype2 = "facedir",
       sunlight_propagates = false,
-      light_source = default.LIGHT_MAX,
+      light_source = minetest.LIGHT_MAX,
       drawtype = "nodebox",
       node_box = flat_lamp_node_box,
       after_place_node = lamp_after_place_node,
@@ -264,7 +264,7 @@ for _,default_state in ipairs(states) do
       paramtype = "light",
       paramtype2 = "facedir",
       sunlight_propagates = false,
-      light_source = default.LIGHT_MAX,
+      light_source = minetest.LIGHT_MAX,
       drawtype = "nodebox",
       node_box = small_lamp_node_box,
       after_place_node = lamp_after_place_node,

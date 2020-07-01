@@ -67,7 +67,7 @@ yatm.devices.register_stateful_network_device({
 
   drop = solar_panel_yatm_network.states.off,
 
-  sounds = default.node_sound_glass_defaults(),
+  sounds = yatm.node_sounds:build("glass"),
 
   tiles = {
     "yatm_solar_panel_top.off.png",

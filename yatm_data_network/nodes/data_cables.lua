@@ -209,7 +209,7 @@ for _,color_pair in ipairs(colors) do
     paramtype = "light",
     paramtype2 = "facedir",
 
-    sounds = default.node_sound_metal_defaults(),
+    sounds = yatm.node_sounds:build("metal"),
 
     tiles = {
       "yatm_data_cable_" .. color_basename .. ".top.png^yatm_data_cable_bracket.top.png",
@@ -267,7 +267,7 @@ for _,color_pair in ipairs(colors) do
     paramtype = "light",
     paramtype2 = "facedir",
 
-    sounds = default.node_sound_metal_defaults(),
+    sounds = yatm.node_sounds:build("metal"),
 
     tiles = {
       "yatm_data_cable_" .. color_basename .. ".top.png^yatm_data_cable_bracket.top.png",
@@ -325,7 +325,7 @@ for _,color_pair in ipairs(colors) do
     paramtype = "light",
     paramtype2 = "facedir",
 
-    sounds = default.node_sound_metal_defaults(),
+    sounds = yatm.node_sounds:build("metal"),
 
     tiles = {
       "yatm_data_cable_" .. color_basename .. ".top.png^yatm_data_cable_bracket.top.png",
@@ -384,7 +384,7 @@ for _,color_pair in ipairs(colors) do
     paramtype = "light",
     paramtype2 = "facedir",
 
-    sounds = default.node_sound_metal_defaults(),
+    sounds = yatm.node_sounds:build("metal"),
 
     tiles = {
       "yatm_data_cable_" .. color_basename .. ".top.png^yatm_data_cable_bracket.top.png",
@@ -444,7 +444,7 @@ for _,color_pair in ipairs(colors) do
     paramtype = "light",
     paramtype2 = "facedir",
 
-    sounds = default.node_sound_metal_defaults(),
+    sounds = yatm.node_sounds:build("metal"),
 
     tiles = {
       "yatm_data_cable_" .. color_basename .. ".riser.front.png^yatm_data_cable_bracket.riser.top.png",
@@ -503,7 +503,7 @@ for _,color_pair in ipairs(colors) do
     paramtype = "light",
     paramtype2 = "facedir",
 
-    sounds = default.node_sound_metal_defaults(),
+    sounds = yatm.node_sounds:build("metal"),
 
     tiles = {
       "yatm_data_cable_" .. color_basename .. ".bus.top.png^yatm_data_cable_bracket.top.png",
@@ -561,7 +561,7 @@ for _,color_pair in ipairs(colors) do
     paramtype = "light",
     paramtype2 = "facedir",
 
-    sounds = default.node_sound_metal_defaults(),
+    sounds = yatm.node_sounds:build("metal"),
 
     tiles = {
       "yatm_data_cable_" .. color_basename .. ".bus.top.png^yatm_data_cable_bracket.top.png",
@@ -619,7 +619,7 @@ for _,color_pair in ipairs(colors) do
     paramtype = "light",
     paramtype2 = "facedir",
 
-    sounds = default.node_sound_metal_defaults(),
+    sounds = yatm.node_sounds:build("metal"),
 
     tiles = {
       "yatm_data_cable_" .. color_basename .. ".bus.top.png^yatm_data_cable_bracket.top.png",
@@ -678,7 +678,7 @@ for _,color_pair in ipairs(colors) do
     paramtype = "light",
     paramtype2 = "facedir",
 
-    sounds = default.node_sound_metal_defaults(),
+    sounds = yatm.node_sounds:build("metal"),
 
     tiles = {
       "yatm_data_cable_" .. color_basename .. ".bus.top.png^yatm_data_cable_bracket.top.png",
@@ -752,7 +752,7 @@ for _,color_pair in ipairs(colors) do
     paramtype2 = "facedir",
     place_param2 = 0,
 
-    sounds = default.node_sound_metal_defaults(),
+    sounds = yatm.node_sounds:build("metal"),
 
     tiles = {
       "yatm_data_cable_" .. color_basename .. ".top.png",
@@ -822,7 +822,7 @@ for _,color_pair in ipairs(colors) do
     paramtype2 = "facedir",
     place_param2 = 0,
 
-    sounds = default.node_sound_metal_defaults(),
+    sounds = yatm.node_sounds:build("metal"),
 
     tiles = {
       "yatm_data_cable_" .. color_basename .. ".bus.top.png",

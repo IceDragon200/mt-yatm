@@ -32,7 +32,7 @@ yatm.register_stateful_node("yatm_foundry:kiln", {
   paramtype = "none",
   paramtype2 = "facedir",
 
-  sounds = default.node_sound_stone_defaults(),
+  sounds = yatm.node_sounds:build("stone"),
 
   refresh_infotext = kiln_refresh_infotext,
 

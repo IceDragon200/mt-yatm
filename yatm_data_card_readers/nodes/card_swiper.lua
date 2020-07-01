@@ -67,7 +67,7 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_swiper", {
   sunlight_propagates = false,
   is_ground_content = false,
 
-  sounds = default.node_sound_metal_defaults(),
+  sounds = yatm.node_sounds:build("metal"),
 
   paramtype = "light",
   paramtype2 = "facedir",

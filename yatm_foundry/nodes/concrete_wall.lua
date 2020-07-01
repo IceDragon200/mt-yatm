@@ -87,7 +87,7 @@ for _,pair in ipairs(colors) do
 
     is_ground_content = false,
 
-    sounds = default.node_sound_stone_defaults(),
+    sounds = yatm.node_sounds:build("stone"),
 
     paramtype = "none",
     paramtype2 = "facedir",
@@ -122,7 +122,7 @@ for _,pair in ipairs(colors) do
 
     is_ground_content = false,
 
-    sounds = default.node_sound_stone_defaults(),
+    sounds = yatm.node_sounds:build("stone"),
 
     paramtype = "none",
     paramtype2 = "facedir",

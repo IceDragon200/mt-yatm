@@ -13,7 +13,7 @@ minetest.register_node("yatm_foundry:carbon_steel_block", {
   paramtype = "none",
   paramtype2 = "facedir",
 
-  sounds = default.node_sound_metal_defaults(),
+  sounds = yatm.node_sounds:build("metal"),
 })
 
 minetest.register_node("yatm_foundry:carbon_steel_smooth_block", {
@@ -31,7 +31,7 @@ minetest.register_node("yatm_foundry:carbon_steel_smooth_block", {
   paramtype = "none",
   paramtype2 = "facedir",
 
-  sounds = default.node_sound_metal_defaults(),
+  sounds = yatm.node_sounds:build("metal"),
 })
 
 minetest.register_node("yatm_foundry:carbon_steel_base_panel_block", {
@@ -49,7 +49,7 @@ minetest.register_node("yatm_foundry:carbon_steel_base_panel_block", {
   paramtype = "none",
   paramtype2 = "facedir",
 
-  sounds = default.node_sound_metal_defaults(),
+  sounds = yatm.node_sounds:build("metal"),
 })
 
 
@@ -68,7 +68,7 @@ minetest.register_node("yatm_foundry:carbon_steel_plain_panel_block", {
   paramtype = "none",
   paramtype2 = "facedir",
 
-  sounds = default.node_sound_metal_defaults(),
+  sounds = yatm.node_sounds:build("metal"),
 })
 
 if stairs then
@@ -79,7 +79,7 @@ if stairs then
     {"yatm_carbon_steel_block_side.png"},
     "Carbon Steel Stair",
     "Carbon Steel Slab",
-    default.node_sound_metal_defaults(),
+    yatm.node_sounds:build("metal"),
     false
   )
 
@@ -90,7 +90,7 @@ if stairs then
     {"yatm_carbon_steel_block_smooth.side.png"},
     "Carbon Steel Smooth Stair",
     "Carbon Steel Smooth Slab",
-    default.node_sound_metal_defaults(),
+    yatm.node_sounds:build("metal"),
     false
   )
 
@@ -101,7 +101,7 @@ if stairs then
     {"yatm_carbon_steel_block_base_panel.png"},
     "Carbon Steel Base Panel Stair",
     "Carbon Steel Base Panel Slab",
-    default.node_sound_metal_defaults(),
+    yatm.node_sounds:build("metal"),
     false
   )
 
@@ -112,7 +112,7 @@ if stairs then
     {"yatm_carbon_steel_block_plain_panel.png"},
     "Carbon Steel Plain Panel Stair",
     "Carbon Steel Plain Panel Slab",
-    default.node_sound_metal_defaults(),
+    yatm.node_sounds:build("metal"),
     false
   )
 end

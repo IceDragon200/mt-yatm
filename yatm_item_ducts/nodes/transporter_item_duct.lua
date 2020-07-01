@@ -53,7 +53,7 @@ for _,color_pair in ipairs(colors) do
 
     groups = groups,
 
-    sounds = default.node_sound_metal_defaults(),
+    sounds = yatm.node_sounds:build("metal"),
 
     paramtype = "light",
     paramtype2 = "facedir",

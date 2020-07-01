@@ -143,7 +143,7 @@ yatm.register_stateful_node("yatm_foundry:smelter", {
   paramtype = "none",
   paramtype2 = "facedir",
 
-  sounds = default.node_sound_stone_defaults(),
+  sounds = yatm.node_sounds:build("stone"),
 
   refresh_infotext = smelter_refresh_infotext,
   item_interface = item_interface,

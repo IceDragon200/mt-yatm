@@ -79,7 +79,7 @@ for _,color_pair in ipairs(colors) do
 
     groups = groups,
 
-    sounds = default.node_sound_metal_defaults(),
+    sounds = yatm.node_sounds:build("metal"),
 
     paramtype = "light",
     paramtype2 = "facedir",
@@ -126,7 +126,7 @@ for _,color_pair in ipairs(colors) do
 
     groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
 
-    sounds = default.node_sound_metal_defaults(),
+    sounds = yatm.node_sounds:build("metal"),
 
     paramtype = "light",
     paramtype2 = "facedir",

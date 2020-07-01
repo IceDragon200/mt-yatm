@@ -8,5 +8,5 @@ minetest.register_node("yatm_decor:vent", {
   paramtype = "none",
   paramtype2 = "facedir",
 
-  sounds = default.node_sound_metal_defaults(),
+  sounds = yatm.node_sounds:build("metal"),
 })

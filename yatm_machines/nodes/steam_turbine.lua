@@ -175,7 +175,7 @@ yatm.devices.register_stateful_network_device({
 
   drop = steam_turbine_yatm_network.states.off,
 
-  sounds = default.node_sound_metal_defaults(),
+  sounds = yatm.node_sounds:build("metal"),
 
   tiles = {
     "yatm_steam_turbine_top.off.png",

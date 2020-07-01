@@ -1,6 +1,6 @@
 local cluster_reactor = assert(yatm.cluster.reactor)
 
-local glass_sounds = default.node_sound_glass_defaults()
+local glass_sounds = yatm.node_sounds:build("glass")
 
 local function glass_refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)

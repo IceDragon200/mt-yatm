@@ -92,7 +92,7 @@ function FluidRegistry.register_fluid_tank(modname, fluid_name, nodedef)
 
     light_source = nodedef.light_source,
 
-    sounds = default.node_sound_glass_defaults(),
+    sounds = yatm.node_sounds:build("glass"),
 
     refresh_infotext = yatm_fluids.fluid_tank_refresh_infotext,
 
@@ -156,7 +156,7 @@ function FluidRegistry.register_fluid_nodes(basename, def)
     liquid_alternative_source = basename .. "_source",
     liquid_viscosity = 1,
     post_effect_color = def.post_effect_color,
-    sounds = default.node_sound_water_defaults(),
+    sounds = yatm.node_sounds:build("water"),
   })
 
   minetest.register_node(basename .. "_flowing", {
@@ -201,7 +201,7 @@ function FluidRegistry.register_fluid_nodes(basename, def)
     liquid_alternative_source = basename .. "_source",
     liquid_viscosity = 1,
     post_effect_color = def.post_effect_color,
-    sounds = default.node_sound_water_defaults(),
+    sounds = yatm.node_sounds:build("water"),
   })
 end
 

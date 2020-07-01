@@ -199,7 +199,7 @@ yatm.register_stateful_node("yatm_foundry:molder", {
   paramtype = "none",
   paramtype2 = "facedir",
 
-  sounds = default.node_sound_stone_defaults(),
+  sounds = yatm.node_sounds:build("stone"),
 
   fluid_interface = fluid_interface,
   item_interface = item_interface,

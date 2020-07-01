@@ -33,7 +33,7 @@ yatm.register_stateful_node("yatm_foundry:mini_blast_furnace", {
   paramtype = "none",
   paramtype2 = "facedir",
 
-  sounds = default.node_sound_stone_defaults(),
+  sounds = yatm.node_sounds:build("stone"),
 
   on_construct = function (pos)
     local node = minetest.get_node(pos)

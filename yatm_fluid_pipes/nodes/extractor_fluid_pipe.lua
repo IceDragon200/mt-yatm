@@ -25,7 +25,7 @@ minetest.register_node("yatm_fluid_pipes:extractor_fluid_pipe", {
 
   groups = { cracky = 1, fluid_network_device = 1, extractor_fluid_pipe = 1, extractor_fluid_device = 1 },
 
-  sounds = default.node_sound_metal_defaults(),
+  sounds = yatm.node_sounds:build("metal"),
 
   paramtype = "light",
   paramtype2 = "facedir",

@@ -135,7 +135,7 @@ for cell_type, cell_config in pairs(cell_types) do
 
       yatm_network = energy_cell_yatm_network,
 
-      sounds = default.node_sound_glass_defaults(),
+      sounds = yatm.node_sounds:build("glass"),
 
       refresh_infotext = energy_cell_refresh_infotext,
     })
@@ -199,6 +199,6 @@ for cell_type, cell_config in pairs(cell_types) do
 
     refresh_infotext = energy_cell_refresh_infotext,
 
-    sounds = default.node_sound_glass_defaults(),
+    sounds = yatm.node_sounds:build("glass"),
   })
 end

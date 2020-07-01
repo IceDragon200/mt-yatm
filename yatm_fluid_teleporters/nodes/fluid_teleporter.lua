@@ -155,7 +155,7 @@ yatm.devices.register_stateful_network_device({
   paramtype = "light",
   paramtype2 = "facedir",
 
-  sounds = default.node_sound_metal_defaults(),
+  sounds = yatm.node_sounds:build("metal"),
 
   tiles = {
     "yatm_fluid_teleporter_top.teleporter.off.png",

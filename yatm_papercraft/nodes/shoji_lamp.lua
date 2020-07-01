@@ -15,7 +15,7 @@ local shoji_lamp_node_box = {
   },
 }
 
-local lamp_sounds = default.node_sound_leaves_defaults()
+local lamp_sounds = yatm.node_sounds:build("leaves")
 
 minetest.register_node("yatm_papercraft:shoji_lamp_off", {
   basename = "yatm_papercraft:shoji_lamp",
@@ -74,7 +74,7 @@ minetest.register_node("yatm_papercraft:shoji_lamp_on", {
   paramtype = "light",
   paramtype2 = "facedir",
   sunlight_propagates = false,
-  light_source = default.LIGHT_MAX,
+  light_source = minetest.LIGHT_MAX,
 
   drawtype = "nodebox",
   node_box = shoji_lamp_node_box,

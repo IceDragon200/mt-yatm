@@ -66,7 +66,7 @@ for _,pair in ipairs(colors) do
 
     description = "Fluid Barrel (Wood / " .. color_name .. ")",
     groups = { fluid_barrel = 1, wood_fluid_barrel = 1, cracky = 2, fluid_interface_in = 1, fluid_interface_out = 1 },
-    sounds = default.node_sound_wood_defaults(),
+    sounds = yatm.node_sounds:build("wood"),
     tiles = {
       "yatm_barrel_wood_fluid_" .. color_basename .. "_top.png",
       "yatm_barrel_wood_fluid_" .. color_basename .. "_bottom.png",
@@ -99,7 +99,7 @@ for _,pair in ipairs(colors) do
 
     description = "Fluid Barrel (Metal / " .. color_name .. ")",
     groups = { fluid_barrel = 1, metal_fluid_barrel = 1, cracky = 1, fluid_interface_in = 1, fluid_interface_out = 1 },
-    sounds = default.node_sound_metal_defaults(),
+    sounds = yatm.node_sounds:build("metal"),
     tiles = {
       "yatm_barrel_metal_fluid_" .. color_basename .. "_top.png",
       "yatm_barrel_metal_fluid_" .. color_basename .. "_bottom.png",

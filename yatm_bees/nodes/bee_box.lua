@@ -235,7 +235,7 @@ minetest.register_node("yatm_bees:bee_box_wood", {
   paramtype = "none",
   paramtype2 = "facedir",
 
-  sounds = default.node_sound_wood_defaults(),
+  sounds = yatm.node_sounds:build("wood"),
 
   tiles = {
     "yatm_bee_box_wood_top.png",
@@ -273,7 +273,7 @@ minetest.register_node("yatm_bees:bee_box_metal", {
   paramtype = "none",
   paramtype2 = "facedir",
 
-  sounds = default.node_sound_metal_defaults(),
+  sounds = yatm.node_sounds:build("metal"),
 
   tiles = {
     "yatm_bee_box_metal_top.png",

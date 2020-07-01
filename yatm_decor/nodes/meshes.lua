@@ -3,7 +3,7 @@ minetest.register_node("yatm_decor:mesh_dense", {
 
   groups = {cracky = 1},
 
-  sounds = default.node_sound_metal_defaults(),
+  sounds = yatm.node_sounds:build("metal"),
 
   tiles = {
     "yatm_meshes_border.png",
@@ -20,7 +20,7 @@ minetest.register_node("yatm_decor:mesh_wide", {
 
   groups = {cracky = 1},
 
-  sounds = default.node_sound_metal_defaults(),
+  sounds = yatm.node_sounds:build("metal"),
 
   tiles = {
     "yatm_meshes_border.png",

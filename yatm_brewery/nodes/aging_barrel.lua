@@ -122,7 +122,8 @@ for _,pair in ipairs(colors) do
       fluid_interface_out = 1,
     },
 
-    sounds = default.node_sound_wood_defaults(),
+    sounds = yatm.node_sounds:build("wood"),
+
     tiles = {
       "yatm_barrel_wood_brewing_" .. color_basename .. "_top.png",
       "yatm_barrel_wood_brewing_" .. color_basename .. "_bottom.png",

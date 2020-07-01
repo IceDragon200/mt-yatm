@@ -47,7 +47,7 @@ yatm.devices.register_stateful_network_device({
 
   drop = network_controller_yatm_network.states.off,
 
-  sounds = default.node_sound_metal_defaults(),
+  sounds = yatm.node_sounds:build("metal"),
 
   tiles = {
     "yatm_network_controller_top.off.png",

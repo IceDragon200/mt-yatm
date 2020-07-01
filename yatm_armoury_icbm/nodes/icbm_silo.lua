@@ -520,7 +520,7 @@ minetest.register_node("yatm_armoury_icbm:icbm_silo", {
   paramtype = "none",
   paramtype2 = "facedir",
 
-  sounds = default.node_sound_metal_defaults(),
+  sounds = yatm.node_sounds:build("metal"),
 
   drawtype = "nodebox",
   node_box = {
@@ -621,7 +621,7 @@ minetest.register_node("yatm_armoury_icbm:icbm_guiding_ring", {
   paramtype = "light",
   paramtype2 = "facedir",
 
-  sounds = default.node_sound_metal_defaults(),
+  sounds = yatm.node_sounds:build("metal"),
 
   drawtype = "nodebox",
   node_box = node_box,
@@ -652,7 +652,7 @@ minetest.register_node("yatm_armoury_icbm:icbm_guiding_ring_single", {
   paramtype = "light",
   paramtype2 = "facedir",
 
-  sounds = default.node_sound_metal_defaults(),
+  sounds = yatm.node_sounds:build("metal"),
 
   drawtype = "nodebox",
   node_box = single_node_box,
@@ -683,7 +683,7 @@ minetest.register_node("yatm_armoury_icbm:icbm_guiding_ring_warning_strips", {
   paramtype = "light",
   paramtype2 = "facedir",
 
-  sounds = default.node_sound_metal_defaults(),
+  sounds = yatm.node_sounds:build("metal"),
 
   drawtype = "nodebox",
   node_box = node_box,
@@ -714,7 +714,7 @@ minetest.register_node("yatm_armoury_icbm:icbm_guiding_ring_single_warning_strip
   paramtype = "light",
   paramtype2 = "facedir",
 
-  sounds = default.node_sound_metal_defaults(),
+  sounds = yatm.node_sounds:build("metal"),
 
   drawtype = "nodebox",
   node_box = single_node_box,

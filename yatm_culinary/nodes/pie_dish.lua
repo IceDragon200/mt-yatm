@@ -1,4 +1,4 @@
-local glass_sounds = default.node_sound_glass_defaults()
+local glass_sounds = yatm.node_sounds:build("glass")
 
 local h = 5
 local pie_dish_node_box = {

@@ -267,7 +267,8 @@ yatm_cables.register_cable({
 }, 4 * yatm_core.PX16)
 
 -- Glass cables are device cables, they do not carry power
-local glass_sounds = default.node_sound_glass_defaults()
+local glass_sounds = yatm.node_sounds:build("glass")
+
 yatm_cables.register_cable({
   basename = "yatm_cables:pipe_glass",
 

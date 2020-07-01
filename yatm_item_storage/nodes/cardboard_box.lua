@@ -98,7 +98,7 @@ minetest.register_node("yatm_item_storage:cardboard_box", {
 
   is_ground_content = false,
 
-  sounds = default.node_sound_wood_defaults(), -- do we have paper default?
+  sounds = yatm.node_sounds:build("cardboard"),
 
   paramtype = "none",
   paramtype2 = "facedir",
@@ -151,7 +151,7 @@ minetest.register_node("yatm_item_storage:super_cardboard_box", {
 
   is_ground_content = false,
 
-  sounds = default.node_sound_wood_defaults(), -- do we have paper default?
+  sounds = yatm.node_sounds:build("cardboard"),
 
   paramtype = "none",
   paramtype2 = "facedir",

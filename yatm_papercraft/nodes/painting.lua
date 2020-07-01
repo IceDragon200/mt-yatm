@@ -34,7 +34,7 @@ local function register_painting(name, cols, rows, def)
 
     drop = "yatm_papercraft:painting_canvas",
 
-    sounds = default.node_sound_defaults(),
+    sounds = yatm.node_sounds:build("base"),
 
     is_ground_content = false,
 

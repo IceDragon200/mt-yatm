@@ -177,7 +177,7 @@ yatm.register_stateful_node("yatm_foundry:solid_fuel_heater", {
   paramtype = "none",
   paramtype2 = "facedir",
 
-  sounds = default.node_sound_stone_defaults(),
+  sounds = yatm.node_sounds:build("stone"),
 
   item_interface = solid_fuel_heater_item_interface,
 

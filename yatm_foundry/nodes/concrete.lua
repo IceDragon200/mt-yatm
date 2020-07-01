@@ -50,7 +50,7 @@ for _,pair in ipairs(colors) do
       tiles = {"yatm_concrete_" .. variant_basename .. "_" .. color_basename .. "_side.png"},
       groups = {cracky = 1, concrete = 1},
       is_ground_content = false,
-      sounds = default.node_sound_stone_defaults(),
+      sounds = yatm.node_sounds:build("stone"),
       paramtype = "none",
       paramtype2 = "facedir",
       place_param2 = 0,
@@ -71,7 +71,7 @@ for _,pair in ipairs(colors) do
       tiles = {"yatm_concrete_" .. variant_basename .. "_" .. color_basename .. "_side.png"},
       groups = {cracky = 1, concrete = 1, concrete_plate = 1},
       is_ground_content = false,
-      sounds = default.node_sound_stone_defaults(),
+      sounds = yatm.node_sounds:build("stone"),
       paramtype = "none",
       paramtype2 = "facedir",
       drawtype = "nodebox",
@@ -92,7 +92,7 @@ for _,pair in ipairs(colors) do
         {"yatm_concrete_" .. variant_basename .. "_" .. color_basename .. "_side.png"},
         "Concrete Stair - " .. variant_name .. " (" .. color_name .. ")",
         "Concrete Slab  - " .. variant_name .. " (" .. color_name .. ")",
-        default.node_sound_stone_defaults(),
+        yatm.node_sounds:build("stone"),
         false
       )
     else
@@ -108,7 +108,7 @@ for _,pair in ipairs(colors) do
 
         groups = {cracky = 1, concrete = 1},
         is_ground_content = false,
-        sounds = default.node_sound_stone_defaults(),
+        sounds = yatm.node_sounds:build("stone"),
         paramtype = "none",
         paramtype2 = "facedir",
         place_param2 = 0,

@@ -60,7 +60,7 @@ minetest.register_node("yatm_foundry:stonecutters_table_wood", {
   drawtype = "nodebox",
   node_box = table_nodebox,
 
-  sounds = default.node_sound_wood_defaults(),
+  sounds = yatm.node_sounds:build("wood"),
 
   on_construct = stonecutters_table_on_construct,
   on_destruct = stonecutters_table_on_destruct,
