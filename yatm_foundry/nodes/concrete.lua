@@ -19,6 +19,7 @@ local plate_nodebox = {
 
 local variants = {
   {"bare", "Bare"}, -- Bare is the plain texture
+  {"simple", "Simple"}, -- A simple border
   {"dotted", "Dotted"}, -- Dotted has small 2x2 indents present
   {"circles", "Circles"}, -- Circles have large 4x4 hollow circles
   {"striped", "Striped"}, -- Stripes have just that, stripes
@@ -26,6 +27,9 @@ local variants = {
   {"tiled", "Tiled"}, -- Has a neat tile texture
   {"meshed", "Meshed"}, -- Has holes in it's tetxure
   {"rosy", "Rosy"}, -- Has a kind of floral texture, maybe
+  {"swirl", "Swirl"}, -- A simple swirl pattern
+  {"pillar", "Pillar"}, -- A simple pillar like pattern
+  {"pillar2", "Pillar (Alt)"}, -- Another pillar like pattern
 }
 
 for _,pair in ipairs(colors) do
