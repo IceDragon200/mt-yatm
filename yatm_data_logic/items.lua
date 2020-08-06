@@ -1,3 +1,4 @@
+local Groups = assert(foundation.com.Groups)
 local data_network = assert(yatm.data_network)
 
 minetest.register_tool("yatm_data_logic:data_programmer", {
@@ -14,7 +15,7 @@ minetest.register_tool("yatm_data_logic:data_programmer", {
     local node = minetest.get_node(pos)
     local nodedef = minetest.registered_nodes[node.name]
     if nodedef then
-      if yatm_core.groups.get_item(nodedef, "data_programmable") then
+      if Groups.get_item(nodedef, "data_programmable") then
         local di = data_network:get_data_interface(pos)
         if di then
           local assigns = { pos = pos, node = node }

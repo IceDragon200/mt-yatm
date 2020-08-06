@@ -3,15 +3,18 @@
   A paper lamp.
 
 ]]
+local Cuboid = assert(foundation.com.Cuboid)
+local ng = Cuboid.new_fast_node_box
+
 local shoji_lamp_node_box = {
   type = "fixed",
   fixed = {
-    yatm_core.Cuboid:new( 2, 3, 2,12,12,12):fast_node_box(), -- main box
+    ng( 2, 3, 2,12,12,12), -- main box
     -- legs
-    yatm_core.Cuboid:new( 2, 0, 2, 2, 3, 2):fast_node_box(),
-    yatm_core.Cuboid:new( 2, 0,12, 2, 3, 2):fast_node_box(),
-    yatm_core.Cuboid:new(12, 0,12, 2, 3, 2):fast_node_box(),
-    yatm_core.Cuboid:new(12, 0, 2, 2, 3, 2):fast_node_box(),
+    ng( 2, 0, 2, 2, 3, 2),
+    ng( 2, 0,12, 2, 3, 2),
+    ng(12, 0,12, 2, 3, 2),
+    ng(12, 0, 2, 2, 3, 2),
   },
 }
 

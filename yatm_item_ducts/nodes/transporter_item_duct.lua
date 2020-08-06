@@ -1,3 +1,5 @@
+local list_concat = assert(foundation.com.list_concat)
+
 local ItemTransportNetwork = assert(yatm.item_transport.ItemTransportNetwork)
 
 local function duct_after_place_node(pos, _placer, _itemstack, _pointed_thing)
@@ -18,7 +20,7 @@ if dye then
   colors = dye.dyes
 end
 
-colors = yatm_core.list_concat({{"default", "Default"}}, colors)
+colors = list_concat({{"default", "Default"}}, colors)
 
 local fsize = (6 / 16.0) / 2
 local size = (6 / 16.0) / 2

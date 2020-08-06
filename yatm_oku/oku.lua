@@ -1,13 +1,12 @@
-local ByteBuf = yatm_core.ByteBuf
+local ByteBuf = assert(foundation.com.ByteBuf)
 
-if not ByteBuf then
-  yatm.error("yatm_core.ByteBuf is not available, cannot create OKU state")
+local ffi = yatm_oku.ffi
+if not ffi then
+  minetest.log("error", "OKU requires ffi")
   return
 end
 
-local ffi = assert(yatm_oku.ffi, "oku needs ffi")
-
-yatm_oku.OKU = yatm_core.Class:extends('OKU')
+yatm_oku.OKU = foundation.com.Class:extends('OKU')
 yatm_oku.OKU.isa = {}
 
 dofile(yatm_oku.modpath .. "/lib/oku/token_buffer.lua")

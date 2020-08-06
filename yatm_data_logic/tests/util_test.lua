@@ -1,7 +1,7 @@
-local Luna = assert(yatm_core.Luna)
+local Luna = assert(foundation.com.Luna)
 local m = yatm_data_logic
 
-local case = Luna:new("yatm_data_logic-util")
+local case = Luna:new("yatm_data_logic.util")
 
 case:describe("encode_u8", function (t2)
   t2:test("can encode a unsigned 8 bit integer", function (t3)

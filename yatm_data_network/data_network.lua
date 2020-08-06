@@ -2,7 +2,14 @@
 -- The DATA network is a form of node cluster which keeps track of
 -- DATA nodes and handles the event passing.
 --
-local DataNetwork = yatm_core.Class:extends('yatm.data.Network')
+local is_table_empty = assert(foundation.com.is_table_empty)
+local table_equals = assert(foundation.com.table_equals)
+local table_copy = assert(foundation.com.table_copy)
+local table_bury = assert(foundation.com.table_bury)
+local random_string32 = assert(foundation.com.random_string32)
+local Directions = assert(foundation.com.Directions)
+
+local DataNetwork = foundation.com.Class:extends('yatm.data.Network')
 local ic = assert(DataNetwork.instance_class)
 
 DataNetwork.PORT_RANGE = 16
@@ -59,7 +66,7 @@ end
 
 function ic:update(dt)
   self.m_counter = self.m_counter + 1
-  if not yatm_core.is_table_empty(self.m_queued_refreshes) then
+  if not is_table_empty(self.m_queued_refreshes) then
     self.m_resolution_id = self.m_resolution_id + 1
     self:log("starting queued refreshes", "resolution_id=" .. self.m_resolution_id)
 
@@ -117,7 +124,7 @@ function ic:get_infotext(pos)
           local color = self:get_attached_color(pos, dir)
           if color then
             network_id_str =  network_id_str .. "\n" ..
-                              yatm_core.DIR_TO_STRING[dir] .. "=" ..
+                              Directions.DIR_TO_STRING[dir] .. "=" ..
                               "sub:" .. sub_network_id ..
                               "(" .. color .. ":" ..
                                      self:get_port_offset_for_color(color) .. ":" ..
@@ -318,20 +325,20 @@ function ic:update_member(pos, node, force_refresh)
       need_refresh = true
     end
 
-    if not yatm_core.table_equals(member.accessible_dirs, dnd.accessible_dirs) then
-      member.accessible_dirs = yatm_core.table_copy(dnd.accessible_dirs)
+    if not table_equals(member.accessible_dirs, dnd.accessible_dirs) then
+      member.accessible_dirs = table_copy(dnd.accessible_dirs)
       need_refresh = true
     end
 
     local new_groups = dnd.groups or {}
-    if not yatm_core.table_equals(member.groups, dnd.groups) then
+    if not table_equals(member.groups, dnd.groups) then
       self:do_unregister_member_groups(member)
       member.groups = new_groups
       need_refresh = true
       self:do_register_member_groups(member)
     end
 
-    member.node = yatm_core.table_copy(node)
+    member.node = table_copy(node)
 
     yatm.clusters:mark_node_block(member.pos, member.node)
     if need_refresh or force_refresh then
@@ -383,7 +390,7 @@ function ic:_send_value_to_network(network_id, member_id, dir, local_port, value
         local sub_network_id = member.sub_network_ids[dir]
 
         if sub_network_id then
-          yatm_core.table_bury(network.ready_to_send, {sub_network_id, global_port, member_id, dir}, value)
+          table_bury(network.ready_to_send, {sub_network_id, global_port, member_id, dir}, value)
         end
       else
         self:log(member.node.name, "port out of range", local_port, "expected to be between 1 and " .. port_offset.range)
@@ -442,7 +449,7 @@ function ic:_unmark_ready_to_receive_in_network(network_id, member_id, dir, loca
                 end
               end
             end
-            yatm_core.table_bury(network.ready_to_receive, {sub_network_id, global_port, member_id, dir}, state)
+            table_bury(network.ready_to_receive, {sub_network_id, global_port, member_id, dir}, state)
           end
         else
           self:log(member.node.name, "port out of range", local_port, "expected to be between 1 and " .. port_offset.range)
@@ -468,7 +475,7 @@ function ic:_mark_ready_to_receive_in_network(network_id, member_id, dir, local_
         local sub_network_id = member.sub_network_ids[dir]
 
         if sub_network_id then
-          yatm_core.table_bury(network.ready_to_receive, {sub_network_id, global_port, member_id, dir}, state)
+          table_bury(network.ready_to_receive, {sub_network_id, global_port, member_id, dir}, state)
         end
       else
         self:log(member.node.name, "port out of range", local_port, "expected to be between 1 and " .. port_offset.range)
@@ -483,7 +490,7 @@ end
 function ic:generate_network_id()
   local result = {}
   for i = 1,4 do
-    table.insert(result, yatm_core.random_string32(2))
+    table.insert(result, random_string32(2))
   end
   return table.concat(result, ":")
 end
@@ -495,7 +502,7 @@ function ic:_queue_refresh(base_pos, reason)
     pos = base_pos,
     cancelled = false,
   }
-  for dir,v3 in pairs(yatm_core.DIR6_TO_VEC3) do
+  for dir,v3 in pairs(Directions.DIR6_TO_VEC3) do
     local pos = vector.add(base_pos, v3)
     local hash = minetest.hash_node_position(pos)
     self.m_queued_refreshes[hash] = {
@@ -539,7 +546,7 @@ function ic:do_unregister_member_from_networks(member)
     if network then
       if network.members[member.id] then
         network.members[member.id] = nil
-        if yatm_core.is_table_empty(network.members) then
+        if is_table_empty(network.members) then
           self:remove_network(member.network_id)
         end
       end
@@ -574,7 +581,7 @@ function ic:_internal_remove_node(pos, node)
       if self.m_block_members[entry.block_id] then
         self.m_block_members[entry.block_id][member_id] = nil
 
-        if yatm_core.is_table_empty(self.m_block_members[entry.block_id]) then
+        if is_table_empty(self.m_block_members[entry.block_id]) then
           self.m_block_members[entry.block_id] = nil
         end
       end
@@ -610,8 +617,8 @@ function ic:remove_network(network_id)
 end
 
 function ic:handle_network_dispatch(network, dt)
-  if not yatm_core.is_table_empty(network.ready_to_send) and
-     not yatm_core.is_table_empty(network.ready_to_receive) then
+  if not is_table_empty(network.ready_to_send) and
+     not is_table_empty(network.ready_to_receive) then
 
     local old_ready_to_send = network.ready_to_send
     local old_ready_to_receive = network.ready_to_receive
@@ -624,7 +631,7 @@ function ic:handle_network_dispatch(network, dt)
         for member_id, dirs in pairs(members) do
           for dir, state in pairs(dirs) do
             if state == "active" then
-              yatm_core.table_bury(network.ready_to_receive, {sub_network_id, port, member_id, dir}, state)
+              table_bury(network.ready_to_receive, {sub_network_id, port, member_id, dir}, state)
             end
           end
         end
@@ -772,21 +779,21 @@ local function can_connect_to(from_pos, from_node, from_device, origin_dir, to_p
   assert(origin_dir, "expected a direction")
 
   --[[ Debug
-  local from_dir = yatm_core.facedir_to_local_face(from_node.param2, origin_dir)
-  local to_dir = yatm_core.facedir_to_local_face(to_node.param2, origin_dir)
+  local from_dir = Directions.facedir_to_local_face(from_node.param2, origin_dir)
+  local to_dir = Directions.facedir_to_local_face(to_node.param2, origin_dir)
 
   print(table.concat({
         "FROM", minetest.pos_to_string(from_pos), from_node.name, from_node.param2, from_device.type,
         "TO", minetest.pos_to_string(to_pos), to_node.name, to_node.param2, to_device.type,
-        "origin=" .. yatm_core.DIR_TO_STRING[origin_dir],
-        "from_local=" .. yatm_core.DIR_TO_STRING[from_dir],
-        "to_local=" .. yatm_core.DIR_TO_STRING[to_dir],
+        "origin=" .. Directions.DIR_TO_STRING[origin_dir],
+        "from_local=" .. Directions.DIR_TO_STRING[from_dir],
+        "to_local=" .. Directions.DIR_TO_STRING[to_dir],
         }, " "))
   ]]
 
   if from_device.type == "mounted_cable" or
      from_device.type == "mounted_bus" then
-    local local_dir = yatm_core.facedir_to_local_face(from_node.param2, origin_dir)
+    local local_dir = Directions.facedir_to_local_face(from_node.param2, origin_dir)
     if not from_device.accessible_dirs[local_dir] then
       return false, "originating device is not accessible in direction"
     end
@@ -794,8 +801,8 @@ local function can_connect_to(from_pos, from_node, from_device, origin_dir, to_p
 
   if to_device.type == "mounted_cable" or
      to_device.type == "mounted_bus" then
-    local inverted_dir = yatm_core.invert_dir(origin_dir)
-    local local_dir = yatm_core.facedir_to_local_face(to_node.param2, inverted_dir)
+    local inverted_dir = Directions.invert_dir(origin_dir)
+    local local_dir = Directions.facedir_to_local_face(to_node.param2, inverted_dir)
     if not to_device.accessible_dirs[local_dir] then
       return false, "target device is not accessible from direction"
     end
@@ -819,7 +826,7 @@ function ic:refresh_from_pos(base_pos)
   local found = {}
   local to_check = {base_pos}
 
-  while not yatm_core.is_table_empty(to_check) do
+  while not is_table_empty(to_check) do
     local old_to_check = to_check
     to_check = {}
 
@@ -839,8 +846,8 @@ function ic:refresh_from_pos(base_pos)
             found[device.type] = found[device.type] or {}
             found[device.type][hash] = pos
 
-            for dir,_ in pairs(yatm_core.DIR6_TO_VEC3) do
-              local v3 = yatm_core.DIR6_TO_VEC3[dir]
+            for dir,_ in pairs(Directions.DIR6_TO_VEC3) do
+              local v3 = Directions.DIR6_TO_VEC3[dir]
               local other_pos = vector.add(pos, v3)
               local other_node = minetest.get_node(other_pos)
               local other_nodedef = minetest.registered_nodes[other_node.name]
@@ -900,14 +907,14 @@ function ic:refresh_from_pos(base_pos)
       member_entry.id = member_id
       member_entry.block_id = block_id
       member_entry.pos = member_entry.pos or pos
-      member_entry.node = yatm_core.table_copy(node)
+      member_entry.node = table_copy(node)
       member_entry.type = dnd.type
-      member_entry.accessible_dirs = yatm_core.table_copy(dnd.accessible_dirs)
+      member_entry.accessible_dirs = table_copy(dnd.accessible_dirs)
       member_entry.color = dnd.color
       member_entry.groups = dnd.groups or {}
       member_entry.resolution_id = self.m_resolution_id
       member_entry.network_id = network.id
-      member_entry.attached_colors = yatm_core.table_copy(member_entry.attached_colors) or {}
+      member_entry.attached_colors = table_copy(member_entry.attached_colors) or {}
       member_entry.sub_network_id = nil
       member_entry.sub_network_ids = {}
 
@@ -926,7 +933,7 @@ function ic:refresh_from_pos(base_pos)
     end
   end
 
-  if not yatm_core.is_table_empty(network.members) then
+  if not is_table_empty(network.members) then
     self:log("new data network", network.id)
     self.m_networks[network.id] = network
 
@@ -935,7 +942,7 @@ function ic:refresh_from_pos(base_pos)
       self:do_register_member_groups(member)
 
       if member.type == "device" then
-        for dir,v3 in pairs(yatm_core.DIR6_TO_VEC3) do
+        for dir,v3 in pairs(Directions.DIR6_TO_VEC3) do
           local other_pos = vector.add(member.pos, v3)
           local other_hash = minetest.hash_node_position(other_pos)
 
@@ -997,7 +1004,7 @@ function ic:_build_sub_network(network, origin_pos)
   local explore = {origin_pos}
   local nodes = {}
 
-  while not yatm_core.is_table_empty(explore) do
+  while not is_table_empty(explore) do
     local old_explore = explore
     explore = {}
 
@@ -1015,8 +1022,8 @@ function ic:_build_sub_network(network, origin_pos)
              member.type == "mounted_cable" then
             nodes[hash] = true
 
-            for dir, _ in pairs(yatm_core.DIR6_TO_VEC3) do
-              local vec = yatm_core.DIR6_TO_VEC3[dir]
+            for dir, _ in pairs(Directions.DIR6_TO_VEC3) do
+              local vec = Directions.DIR6_TO_VEC3[dir]
               local other_pos = vector.add(pos, vec)
               local other_hash = minetest.hash_node_position(other_pos)
 
@@ -1056,7 +1063,7 @@ function ic:_build_sub_network(network, origin_pos)
     member.sub_network_id = sub_network_id
 
     if member.type == "bus" then
-      for dir, vec in pairs(yatm_core.DIR6_TO_VEC3) do
+      for dir, vec in pairs(Directions.DIR6_TO_VEC3) do
         local pos = vector.add(member.pos, vec)
         local hash = minetest.hash_node_position(pos)
 
@@ -1064,7 +1071,7 @@ function ic:_build_sub_network(network, origin_pos)
           local other_member = self.m_members[hash]
           if other_member and other_member.type == "device" then
             sub_network.devices[hash] = true
-            local new_dir = yatm_core.invert_dir(dir)
+            local new_dir = Directions.invert_dir(dir)
             other_member.attached_colors[new_dir] = member.color
             other_member.sub_network_ids[new_dir] = sub_network_id
           end
@@ -1072,8 +1079,8 @@ function ic:_build_sub_network(network, origin_pos)
       end
     elseif member.type == "mounted_bus" then
       for origin_dir, _ in pairs(member.accessible_dirs) do
-        local dir = yatm_core.facedir_to_face(member.node.param2, origin_dir)
-        local vec = yatm_core.DIR6_TO_VEC3[dir]
+        local dir = Directions.facedir_to_face(member.node.param2, origin_dir)
+        local vec = Directions.DIR6_TO_VEC3[dir]
         local pos = vector.add(member.pos, vec)
         local hash = minetest.hash_node_position(pos)
 
@@ -1081,7 +1088,7 @@ function ic:_build_sub_network(network, origin_pos)
           local other_member = self.m_members[hash]
           if other_member and other_member.type == "device" then
             sub_network.devices[hash] = true
-            local inverted_dir = yatm_core.invert_dir(dir)
+            local inverted_dir = Directions.invert_dir(dir)
             other_member.attached_colors[inverted_dir] = member.color
             other_member.sub_network_ids[inverted_dir] = sub_network_id
           end

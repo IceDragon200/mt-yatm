@@ -1,4 +1,4 @@
-local AgingRegistry = yatm_core.Class:extends('yatm.brewery.AgingRegistry')
+local AgingRegistry = foundation.com.Class:extends('yatm.brewery.AgingRegistry')
 local ic = AgingRegistry.instance_class
 
 function ic:initialize()

@@ -1,3 +1,6 @@
+local Cuboid = assert(foundation.com.Cuboid)
+local ng = Cuboid.new_fast_node_box
+local string_hex_escape = assert(foundation.com.string_hex_escape)
 local data_network = assert(yatm.data_network)
 
 minetest.register_node("yatm_data_logic:data_node_sensor", {
@@ -18,8 +21,8 @@ minetest.register_node("yatm_data_logic:data_node_sensor", {
   node_box = {
     type = "fixed",
     fixed = {
-      yatm_core.Cuboid:new(0, 0, 0, 16, 4, 16):fast_node_box(),
-      yatm_core.Cuboid:new(3, 4, 3, 10, 1, 10):fast_node_box(),
+      ng(0, 0, 0, 16, 4, 16),
+      ng(3, 4, 3, 10, 1, 10),
     },
   },
 
@@ -59,7 +62,7 @@ minetest.register_node("yatm_data_logic:data_node_sensor", {
 
         local value = 0 -- TODO: sample data
 
-        local output_data = yatm_core.string_hex_escape(string.char(value))
+        local output_data = string_hex_escape(string.char(value))
         yatm_data_logic.emit_output_data_value(pos, output_data)
 
         -- TODO: store coords of last sampled entity

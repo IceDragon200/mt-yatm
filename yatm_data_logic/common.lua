@@ -1,3 +1,6 @@
+local Directions = assert(foundation.com.Directions)
+local list_map = assert(foundation.com.list_map)
+local string_split = assert(foundation.com.string_split)
 local data_network = assert(yatm.data_network)
 
 yatm_data_logic.INTERVAL_LIST = {
@@ -58,7 +61,7 @@ for _, item in ipairs(yatm_data_logic.INTERVAL_LIST) do
   yatm_data_logic.INTERVALS[item.value] = item
 end
 
-yatm_data_logic.INTERVAL_STRING = table.concat(yatm_core.list_map(yatm_data_logic.INTERVAL_LIST, function (item)
+yatm_data_logic.INTERVAL_STRING = table.concat(list_map(yatm_data_logic.INTERVAL_LIST, function (item)
   return item.value
 end), ",")
 
@@ -107,7 +110,7 @@ end
 -- Bind specified port to ALL directions on the position
 --
 function yatm_data_logic.bind_input_port(pos, local_port, bind_type)
-  for _, dir in ipairs(yatm_core.DIR6) do
+  for _, dir in ipairs(Directions.DIR6) do
     data_network:mark_ready_to_receive(pos, dir, local_port, bind_type or "active")
   end
 end
@@ -122,7 +125,7 @@ function yatm_data_logic.mark_all_inputs_for_active_receive(pos, options)
 
   local sub_network_ids = data_network:get_sub_network_ids_by_color(pos)
 
-  for _, dir in ipairs(yatm_core.DIR6) do
+  for _, dir in ipairs(Directions.DIR6) do
     if options.input_vector then
       for i = 1,options.input_vector do
         local local_port = meta:get_int("input_" .. dir .. "_" .. i)
@@ -154,7 +157,7 @@ function yatm_data_logic.emit_output_data_vector(pos, vector_value, options)
   local did_output = false
 
   if vector_value and #vector_value > 0 then
-    for _, dir in ipairs(yatm_core.DIR6) do
+    for _, dir in ipairs(Directions.DIR6) do
       if options.output_vector then
         for i = 1,options.output_vector do
           local local_port = meta:get_int("output_" .. dir .. "_" .. i)
@@ -190,7 +193,7 @@ function yatm_data_logic.bind_matrix_ports(pos, port_prefix, port_name, bind_typ
   assert(port_prefix, "expected a port_prefix")
   assert(port_name, "expected a port_name")
   bind_type = bind_type or "active"
-  for _, dir in ipairs(yatm_core.DIR6) do
+  for _, dir in ipairs(Directions.DIR6) do
     local local_port = yatm_data_logic.get_matrix_port(pos, port_prefix, port_name, dir)
     if local_port > 0 then
       data_network:mark_ready_to_receive(pos, dir, local_port, bind_type)
@@ -202,7 +205,7 @@ function yatm_data_logic.emit_matrix_port_value(pos, port_prefix, port_name, val
   local meta = minetest.get_meta(pos)
   local sub_network_ids = data_network:get_sub_network_ids(pos)
 
-  for _, dir in ipairs(yatm_core.DIR6) do
+  for _, dir in ipairs(Directions.DIR6) do
     local port_field_name = port_prefix .. "_" .. dir .. "_" .. port_name
     local local_port = meta:get_int(port_field_name)
     --print("emit_port_value", port_field_name, "port_prefix=" .. port_prefix,
@@ -224,7 +227,7 @@ function yatm_data_logic.emit_output_data_value(pos, dl, options)
   local did_output = false
 
   if dl and #dl > 0 then
-    for _, dir in ipairs(yatm_core.DIR6) do
+    for _, dir in ipairs(Directions.DIR6) do
       if options.output_vector then
         for i = 1,options.output_vector do
           local local_port = meta:get_int("output_" .. dir .. "_" .. i)
@@ -277,7 +280,7 @@ end
 --
 function yatm_data_logic.emit_value(pos, local_port, value)
   local did_output = false
-  for _, dir in ipairs(yatm_core.DIR6) do
+  for _, dir in ipairs(Directions.DIR6) do
     did_output = data_network:send_value(pos, dir, local_port, value) or
                  did_output
   end
@@ -312,10 +315,10 @@ function yatm_data_logic.get_port_matrix_formspec(pos, meta, options)
   -- 0.5 is the border size (0.25 on each side)
   local sections_width = (col_width - 0.5) / #options.sections
 
-  for _, dir in ipairs(yatm_core.DIR6) do
+  for _, dir in ipairs(Directions.DIR6) do
     local sub_network_id = sub_network_ids[dir]
     if sub_network_id then
-      local name = minetest.formspec_escape(yatm_core.dir_to_string(dir) .. " - " ..
+      local name = minetest.formspec_escape(Directions.dir_to_string(dir) .. " - " ..
                                             (attached_colors[dir] or "N/A") .. " - " ..
                                             sub_network_id)
 
@@ -392,11 +395,11 @@ function yatm_data_logic.get_io_port_formspec(pos, meta, mode, options)
 
   local i = 2
 
-  for _, dir in ipairs(yatm_core.DIR6) do
+  for _, dir in ipairs(Directions.DIR6) do
     if sub_network_ids[dir] then
       local sub_network_id = sub_network_ids[dir]
 
-      local name = yatm_core.dir_to_string(dir) .. " - " ..
+      local name = Directions.dir_to_string(dir) .. " - " ..
                    (attached_colors[dir] or "N/A") .. " - " ..
                    sub_network_id
 
@@ -460,7 +463,7 @@ function yatm_data_logic.get_io_port_formspec(pos, meta, mode, options)
 end
 
 local function set_vector(meta, basename, dir, value, vector, changed)
-  local items = yatm_core.string_split(value, ",")
+  local items = string_split(value, ",")
 
   for i = 1,vector do
     local base_value = meta:get_int(basename .. "_" .. dir .. "_" .. i)
@@ -493,7 +496,7 @@ function yatm_data_logic.handle_io_port_fields(pos, fields, meta, mode, options)
   local inputs_changed = {}
   local outputs_changed = {}
 
-  for _, dir in ipairs(yatm_core.DIR6) do
+  for _, dir in ipairs(Directions.DIR6) do
     local input_value = fields["input_" .. dir]
     local output_value = fields["output_" .. dir]
 
@@ -529,7 +532,7 @@ end
 
 function yatm_data_logic.handle_port_matrix_fields(pos, fields, meta, options)
   local result = {}
-  for _, dir in ipairs(yatm_core.DIR6) do
+  for _, dir in ipairs(Directions.DIR6) do
     for section_index, section in ipairs(options.sections) do
       for port_id = 1, section.port_count do
         local port_name = section.port_names[port_id] or port_id

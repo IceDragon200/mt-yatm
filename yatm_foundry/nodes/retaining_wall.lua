@@ -1,3 +1,6 @@
+local Cuboid = yatm_core.Cuboid
+local ng = Cuboid.new_fast_node_box
+
 local colors = {
   {"white", "White"}
 }
@@ -10,51 +13,51 @@ end
 local retaining_wall_nodebox = {
   type = "fixed",
   fixed = {
-    yatm_core.Cuboid:new( 0,  0,  6, 16,  8,  4):fast_node_box(), -- mid wall bottom
-    yatm_core.Cuboid:new( 1,  8,  7, 14,  8,  2):fast_node_box(), -- top small wall
-    yatm_core.Cuboid:new( 0,  8,  6,  2,  8,  4):fast_node_box(), -- top left segment wall
-    yatm_core.Cuboid:new( 6,  8,  6,  4,  8,  4):fast_node_box(), -- top mid segment wall
-    yatm_core.Cuboid:new(14,  8,  6,  2,  8,  4):fast_node_box(), -- top right segment wall
+    ng( 0,  0,  6, 16,  8,  4), -- mid wall bottom
+    ng( 1,  8,  7, 14,  8,  2), -- top small wall
+    ng( 0,  8,  6,  2,  8,  4), -- top left segment wall
+    ng( 6,  8,  6,  4,  8,  4), -- top mid segment wall
+    ng(14,  8,  6,  2,  8,  4), -- top right segment wall
 
-    yatm_core.Cuboid:new( 1,  0,  2,  6,  2, 12):fast_node_box(), -- bottom left leg
-    yatm_core.Cuboid:new( 9,  0,  2,  6,  2, 12):fast_node_box(), -- bottom right leg
+    ng( 1,  0,  2,  6,  2, 12), -- bottom left leg
+    ng( 9,  0,  2,  6,  2, 12), -- bottom right leg
 
-    yatm_core.Cuboid:new( 2,  6,  4,  4,  2,  8):fast_node_box(), -- top left leg
-    yatm_core.Cuboid:new(10,  6,  4,  4,  2,  8):fast_node_box(), -- top right leg
+    ng( 2,  6,  4,  4,  2,  8), -- top left leg
+    ng(10,  6,  4,  4,  2,  8), -- top right leg
   }
 }
 
 local retaining_wall_collision_box = {
   type = "fixed",
   fixed = {
-    yatm_core.Cuboid:new( 0,  0,  4, 16, 16, 12):fast_node_box(),
+    ng( 0,  0,  4, 16, 16, 12),
   }
 }
 
 local retaining_wall_corner_nodebox = {
   type = "fixed",
   fixed = {
-    yatm_core.Cuboid:new( 0,  0,  6, 10,  8,  4):fast_node_box(), -- mid wall bottom - front
-    yatm_core.Cuboid:new( 1,  8,  7,  8,  8,  2):fast_node_box(), -- top small wall - front
-    yatm_core.Cuboid:new( 0,  8,  6,  2,  8,  4):fast_node_box(), -- top left segment wall - front
-    yatm_core.Cuboid:new( 1,  0,  2,  6,  2, 12):fast_node_box(), -- bottom left leg - front
-    yatm_core.Cuboid:new( 2,  6,  4,  4,  2,  8):fast_node_box(), -- top left leg - front
+    ng( 0,  0,  6, 10,  8,  4), -- mid wall bottom - front
+    ng( 1,  8,  7,  8,  8,  2), -- top small wall - front
+    ng( 0,  8,  6,  2,  8,  4), -- top left segment wall - front
+    ng( 1,  0,  2,  6,  2, 12), -- bottom left leg - front
+    ng( 2,  6,  4,  4,  2,  8), -- top left leg - front
 
-    yatm_core.Cuboid:new( 6,  8,  6,  4,  8,  4):fast_node_box(), -- top mid segment wall
+    ng( 6,  8,  6,  4,  8,  4), -- top mid segment wall
 
-    yatm_core.Cuboid:new( 6,  0,  0,  4,  8, 10):fast_node_box(), -- mid wall bottom - side
-    yatm_core.Cuboid:new( 7,  8,  1,  2,  8,  8):fast_node_box(), -- top small wall - side
-    yatm_core.Cuboid:new( 6,  8,  0,  4,  8,  2):fast_node_box(), -- top left segment wall - side
-    yatm_core.Cuboid:new( 2,  0,  1, 12,  2,  6):fast_node_box(), -- bottom left leg - side
-    yatm_core.Cuboid:new( 4,  6,  2,  8,  2,  4):fast_node_box(), -- top left leg - side
+    ng( 6,  0,  0,  4,  8, 10), -- mid wall bottom - side
+    ng( 7,  8,  1,  2,  8,  8), -- top small wall - side
+    ng( 6,  8,  0,  4,  8,  2), -- top left segment wall - side
+    ng( 2,  0,  1, 12,  2,  6), -- bottom left leg - side
+    ng( 4,  6,  2,  8,  2,  4), -- top left leg - side
   }
 }
 
 local retaining_wall_corner_collision_box = {
   type = "fixed",
   fixed = {
-    yatm_core.Cuboid:new( 0,  0,  4, 10, 16, 12):fast_node_box(),
-    yatm_core.Cuboid:new( 4,  0,  0, 12, 16, 10):fast_node_box(),
+    ng( 0,  0,  4, 10, 16, 12),
+    ng( 4,  0,  0, 12, 16, 10),
   }
 }
 
@@ -88,14 +91,14 @@ for _,pair in ipairs(colors) do
     collision_box = {
       type = "fixed",
       fixed = {
-        yatm_core.Cuboid:new(0, 0, 6, 16, 16, 4):fast_node_box()
+        ng(0, 0, 6, 16, 16, 4)
       },
     },
 
     selection_box = {
       type = "fixed",
       fixed = {
-        yatm_core.Cuboid:new(0, 0, 6, 16, 16, 4):fast_node_box()
+        ng(0, 0, 6, 16, 16, 4)
       },
     },
 

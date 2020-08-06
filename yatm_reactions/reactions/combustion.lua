@@ -3,8 +3,7 @@ Nodes in the `combustable` group will sometimes spotaneously combust when expose
 
 A node can define a `on_combust(pos :: vector, node :: NodeDef) :: boolean` callback
 to handle the pre-combustion,
-if true is returned, then the node is swapped for fire
-else, nothing happens.
+if true is returned, then the node is swapped for fire else, nothing happens.
 ]]
 minetest.register_abm({
   name = "yatm_reactions:combustion",
@@ -22,7 +21,10 @@ minetest.register_abm({
   action = function (pos, node)
     local nodedef = minetest.registered_nodes[node.name]
     if nodedef.on_combust then
-      nodedef.on_combust(pos, node)
+      if nodedef.on_combust(pos, node) then
+        -- nothing
+        minetest.swap_node(pos, { name = "fire:basic_flame" })
+      end
     else
       minetest.swap_node(pos, { name = "fire:basic_flame" })
     end

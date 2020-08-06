@@ -1,3 +1,4 @@
+local Directions = assert(foundation.com.Directions)
 local Network = assert(yatm.mesecon_hubs.wireless_network)
 local NetworkMeta = assert(yatm.mesecon_hubs.NetworkMeta)
 
@@ -17,7 +18,7 @@ local function hub_refresh_infotext(pos)
 end
 
 local function hub_after_place_node(pos, placer, item_stack, pointed_thing)
-  yatm_core.facedir_wallmount_after_place_node(pos, placer, item_stack, pointed_thing)
+  Directions.facedir_wallmount_after_place_node(pos, placer, item_stack, pointed_thing)
   local meta = minetest.get_meta(pos)
   NetworkMeta.patch_hub_address(meta)
   hub_refresh_infotext(pos)

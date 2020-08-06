@@ -1,1 +1,1 @@
-dofile(yatm_core.modpath .. "/tests/util_test.lua")
+yatm_data_logic:require("tests/util_test.lua")

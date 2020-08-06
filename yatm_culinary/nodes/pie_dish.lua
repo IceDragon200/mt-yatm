@@ -1,3 +1,6 @@
+local Cuboid = assert(foundation.com.Cuboid)
+local ng = Cuboid.new_fast_node_box
+
 local glass_sounds = yatm.node_sounds:build("glass")
 
 local h = 5
@@ -5,19 +8,19 @@ local pie_dish_node_box = {
   type = "fixed",
   fixed = {
     -- Base
-    yatm_core.Cuboid:new( 2, 0,  2,  12, 1, 12):fast_node_box(),
+    ng( 2, 0,  2,  12, 1, 12),
 
     -- Sides
-    yatm_core.Cuboid:new( 1, 0,  1,  14, h,  1):fast_node_box(),
-    yatm_core.Cuboid:new(14, 0,  1,   1, h, 14):fast_node_box(),
-    yatm_core.Cuboid:new( 1, 0, 14,  14, h,  1):fast_node_box(),
-    yatm_core.Cuboid:new( 1, 0,  1,   1, h, 14):fast_node_box(),
+    ng( 1, 0,  1,  14, h,  1),
+    ng(14, 0,  1,   1, h, 14),
+    ng( 1, 0, 14,  14, h,  1),
+    ng( 1, 0,  1,   1, h, 14),
 
     -- Rim
-    yatm_core.Cuboid:new( 0, h - 1,  0,  16, 1,  1):fast_node_box(),
-    yatm_core.Cuboid:new(15, h - 1,  0,   1, 1, 16):fast_node_box(),
-    yatm_core.Cuboid:new( 0, h - 1, 15,  16, 1,  1):fast_node_box(),
-    yatm_core.Cuboid:new( 0, h - 1,  0,   1, 1, 16):fast_node_box(),
+    ng( 0, h - 1,  0,  16, 1,  1),
+    ng(15, h - 1,  0,   1, 1, 16),
+    ng( 0, h - 1, 15,  16, 1,  1),
+    ng( 0, h - 1,  0,   1, 1, 16),
   },
 }
 

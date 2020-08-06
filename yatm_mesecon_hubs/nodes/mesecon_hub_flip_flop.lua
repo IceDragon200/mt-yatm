@@ -1,3 +1,6 @@
+local Directions = assert(foundation.com.Directions)
+local table_merge = assert(foundation.com.table_merge)
+
 local mesecon_hub_node_box = {
   type = "fixed",
   fixed = {
@@ -8,17 +11,17 @@ local mesecon_hub_node_box = {
 }
 
 local function hub_after_place_node(pos, placer, item_stack, pointed_thing)
-  yatm_core.facedir_wallmount_after_place_node(pos, placer, item_stack, pointed_thing)
+  Directions.facedir_wallmount_after_place_node(pos, placer, item_stack, pointed_thing)
 end
 
 local function hub_effector_rules_get(node)
   local result = {}
   local dir
-  dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_NORTH)
-  table.insert(result, yatm_core.DIR6_TO_VEC3[dir])
+  dir = Directions.facedir_to_face(node.param2, Directions.D_NORTH)
+  table.insert(result, Directions.DIR6_TO_VEC3[dir])
 
-  dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_SOUTH)
-  table.insert(result, yatm_core.DIR6_TO_VEC3[dir])
+  dir = Directions.facedir_to_face(node.param2, Directions.D_SOUTH)
+  table.insert(result, Directions.DIR6_TO_VEC3[dir])
 
   return result
 end
@@ -26,11 +29,11 @@ end
 local function hub_receptor_rules_get(node)
   local result = {}
   if node.name == "yatm_mesecon_hubs:mesecon_hub_flip_flop_left" then
-    local left = yatm_core.facedir_to_face(node.param2, yatm_core.D_WEST)
-    table.insert(result, yatm_core.DIR6_TO_VEC3[left])
+    local left = Directions.facedir_to_face(node.param2, Directions.D_WEST)
+    table.insert(result, Directions.DIR6_TO_VEC3[left])
   elseif node.name == "yatm_mesecon_hubs:mesecon_hub_flip_flop_right" then
-    local right = yatm_core.facedir_to_face(node.param2, yatm_core.D_EAST)
-    table.insert(result, yatm_core.DIR6_TO_VEC3[right])
+    local right = Directions.facedir_to_face(node.param2, Directions.D_EAST)
+    table.insert(result, Directions.DIR6_TO_VEC3[right])
   else
     error("invalid")
   end
@@ -45,9 +48,9 @@ local function toggle_hub(pos, node)
   local new_node
 
   if node.name == "yatm_mesecon_hubs:mesecon_hub_flip_flop_left" then
-    new_node = yatm_core.table_merge(node, { name = "yatm_mesecon_hubs:mesecon_hub_flip_flop_right" })
+    new_node = table_merge(node, { name = "yatm_mesecon_hubs:mesecon_hub_flip_flop_right" })
   elseif node.name == "yatm_mesecon_hubs:mesecon_hub_flip_flop_right" then
-    new_node = yatm_core.table_merge(node, { name = "yatm_mesecon_hubs:mesecon_hub_flip_flop_left" })
+    new_node = table_merge(node, { name = "yatm_mesecon_hubs:mesecon_hub_flip_flop_left" })
   else
     error("invalid")
   end

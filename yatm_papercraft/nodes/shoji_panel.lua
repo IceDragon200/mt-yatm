@@ -1,3 +1,6 @@
+local Cuboid = assert(foundation.com.Cuboid)
+local ng = Cuboid.new_fast_node_box
+
 local variants = {
   ["plain"] = "Plain",
   ["design_1"] = "Design #1",
@@ -50,7 +53,7 @@ for variant_basename, variant_name in pairs(variants) do
     node_box = {
       type = "fixed",
       fixed = {
-        yatm_core.Cuboid:new(0, 0, 0, 16, 1, 16):fast_node_box(),
+        ng(0, 0, 0, 16, 1, 16),
       },
     },
 

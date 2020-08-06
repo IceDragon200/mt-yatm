@@ -1,5 +1,3 @@
-local NetworkMeta = assert(yatm_mesecon_hubs.NetworkMeta)
-
 --[[
 "This looks familiar", I hear you mumble, of it is, it's a copy of the yatm_spacetime network.
 
@@ -7,7 +5,12 @@ But this one is used specifically for the wireless components of mesecon_hubs.
 
 In addition it also has an update step.
 ]]
-local WirelessNetwork = yatm_core.Class:extends("WirelessNetwork")
+local NetworkMeta = assert(yatm_mesecon_hubs.NetworkMeta)
+local is_table_empty = assert(foundation.com.is_table_empty)
+local is_blank = assert(foundation.com.is_blank)
+local Trace = assert(foundation.com.Trace)
+
+local WirelessNetwork = foundation.com.Class:extends("WirelessNetwork")
 local ic = WirelessNetwork.instance_class
 
 function ic:initialize()
@@ -42,7 +45,7 @@ function ic:unregister_listener(pos)
     self.m_members_by_address[address][hash] = nil
 
     -- Check if there are no more members in the members_by_address map
-    if yatm_core.is_table_empty(self.m_members_by_address[address]) then
+    if is_table_empty(self.m_members_by_address[address]) then
       self.m_members_by_address[address] = nil
     end
   end
@@ -91,10 +94,10 @@ end
 function ic:update(dtime)
   local counter = self.m_counter
 
-  local ot = yatm_core.trace.new("yatm_mesecon_hubs.wireless_network", "update/1")
+  local ot = Trace.new("yatm_mesecon_hubs.wireless_network", "update/1")
   self:dispatch_queued()
-  yatm_core.trace.span_end(ot)
-  --yatm_core.trace.inspect(ot)
+  Trace.span_end(ot)
+  --Trace.inspect(ot)
 
   self.m_counter = counter + 1
 end
@@ -118,7 +121,7 @@ minetest.register_lbm({
   action = function (pos, node)
     local meta = minetest.get_meta(pos)
     local address = NetworkMeta.get_hub_address(meta)
-    if not yatm_core.is_blank(address) then
+    if not is_blank(address) then
       wireless_network:register_listener(pos, address)
     end
   end,

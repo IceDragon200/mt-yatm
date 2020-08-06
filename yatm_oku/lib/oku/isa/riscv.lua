@@ -4,7 +4,8 @@
 --   pc
 --
 local ffi = assert(yatm_oku.ffi)
-local ByteBuf = yatm_core.ByteBuf
+local ByteBuf = assert(foundation.com.ByteBuf)
+local StringBuffer = assert(foundation.com.StringBuffer)
 
 yatm_oku.OKU.isa.RISCV = {}
 local isa = yatm_oku.OKU.isa.RISCV
@@ -109,7 +110,7 @@ end
 
 -- Honestly only usable with the RV32i
 function isa.load_elf_binary(oku, assigns, blob)
-  local stream = yatm_core.StringBuf:new(blob)
+  local stream = StringBuffer:new(blob)
 
   local elf_prog = yatm_oku.elf:read(stream)
 

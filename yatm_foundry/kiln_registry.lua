@@ -1,7 +1,7 @@
 --[[
 The KilnRegistry contains recipes for the kiln
 ]]
-local KilnRegistry = yatm_core.Class:extends()
+local KilnRegistry = foundation.com.Class:extends("KilnRegistry")
 
 local m = assert(KilnRegistry.instance_class)
 

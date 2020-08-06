@@ -10,9 +10,14 @@
   * Transporters - these only act as a pathway for the network and only matter when tracing the path
 
 ]]
+local Directions = assert(foundation.com.Directions)
 local GenericTransportNetwork = assert(yatm.transport.GenericTransportNetwork)
-local DIR6_TO_VEC3 = assert(yatm_core.DIR6_TO_VEC3)
-local invert_dir = assert(yatm_core.invert_dir)
+local DIR6_TO_VEC3 = assert(Directions.DIR6_TO_VEC3)
+local itemstack_is_blank = assert(foundation.com.itemstack_is_blank)
+local itemstack_inspect = assert(foundation.com.itemstack_inspect)
+local invert_dir = assert(Directions.invert_dir)
+local inspect_axis = assert(Directions.inspect_axis)
+local is_table_empty = assert(foundation.com.is_table_empty)
 local ItemDevice = assert(yatm_item_storage.ItemDevice)
 
 local ItemTransportNetwork = GenericTransportNetwork:extends()
@@ -34,10 +39,10 @@ function m:update_extractor_duct(network, extractor_hash, extractor, items_avail
     local stack, err = ItemDevice.get_item(new_pos, node_face_dir)
     if err then
       if network.debug then
-        print("ITN: update_extractor_duct error", err, minetest.pos_to_string(new_pos), yatm_core.inspect_axis(node_face_dir))
+        print("ITN: update_extractor_duct error", err, minetest.pos_to_string(new_pos), inspect_axis(node_face_dir))
       end
     else
-      if yatm_core.itemstack_is_blank(stack) then
+      if itemstack_is_blank(stack) then
         --
       else
         local new_hash = minetest.hash_node_position(new_pos)
@@ -52,7 +57,7 @@ function m:update_extractor_duct(network, extractor_hash, extractor, items_avail
         }
 
         if network.debug then
-          print("DEBUG", self.m_description, minetest.pos_to_string(new_pos), yatm_core.inspect_axis(node_face_dir), "found an item stack", stack:to_string())
+          print("DEBUG", self.m_description, minetest.pos_to_string(new_pos), inspect_axis(node_face_dir), "found an item stack", stack:to_string())
         end
       end
     end
@@ -62,7 +67,7 @@ end
 function m:update_inserter_duct(network, inserter_hash, inserter, items_available)
   local new_items_available = items_available
   for dir, v3 in pairs(DIR6_TO_VEC3) do
-    if yatm_core.is_table_empty(new_items_available) then
+    if is_table_empty(new_items_available) then
       break
     end
 
@@ -82,15 +87,15 @@ function m:update_inserter_duct(network, inserter_hash, inserter, items_availabl
           local remaining, err = ItemDevice.insert_item(target_pos, insert_dir, stack, true)
           if err then
             if network.debug then
-              print(self.m_description, "insert_item error", err, minetest.pos_to_string(target_pos), yatm_core.inspect_axis(insert_dir))
+              print(self.m_description, "insert_item error", err, minetest.pos_to_string(target_pos), inspect_axis(insert_dir))
             end
             new_entries[entry_hash] = entry
           else
             if remaining:is_empty() then
               local extracted, err = ItemDevice.extract_item(entry.pos, entry.dir, stack, true)
               if network.debug then
-                print(self.m_description, "inserted item", minetest.pos_to_string(target_pos), yatm_core.inspect_axis(insert_dir), yatm_core.itemstack_inspect(stack))
-                print(self.m_description, "remaining item", minetest.pos_to_string(target_pos), yatm_core.inspect_axis(insert_dir), yatm_core.itemstack_inspect(remaining))
+                print(self.m_description, "inserted item", minetest.pos_to_string(target_pos), inspect_axis(insert_dir), itemstack_inspect(stack))
+                print(self.m_description, "remaining item", minetest.pos_to_string(target_pos), inspect_axis(insert_dir), itemstack_inspect(remaining))
               end
 
               local new_stack = ItemStack(entry.stack)
@@ -104,7 +109,7 @@ function m:update_inserter_duct(network, inserter_hash, inserter, items_availabl
               end
             else
               if network.debug then
-                print(self.m_description, "remaining is not empty", minetest.pos_to_string(target_pos), yatm_core.inspect_axis(insert_dir), yatm_core.itemstack_inspect(stack), yatm_core.itemstack_inspect(remaining))
+                print(self.m_description, "remaining is not empty", minetest.pos_to_string(target_pos), inspect_axis(insert_dir), itemstack_inspect(stack), itemstack_inspect(remaining))
               end
               new_entries[entry_hash] = entry
             end
@@ -114,7 +119,7 @@ function m:update_inserter_duct(network, inserter_hash, inserter, items_availabl
         end
       end
 
-      if not yatm_core.is_table_empty(new_entries) then
+      if not is_table_empty(new_entries) then
         new_items_available[extractor_hash] = new_entries
       end
     end
@@ -135,13 +140,13 @@ function m:update_network(network, counter, delta)
       end
     end
 
-    if yatm_core.is_table_empty(items_available) then
+    if is_table_empty(items_available) then
       if network.debug then
         print(self.m_description, network.id, "no available items")
       end
     else
       for inserter_hash,inserter in pairs(inserters) do
-        if yatm_core.is_table_empty(items_available) then
+        if is_table_empty(items_available) then
           if network.debug then
             print(self.m_description, network.id, "items finished")
           end

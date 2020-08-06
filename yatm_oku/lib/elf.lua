@@ -1,21 +1,13 @@
 --
 -- Utility module for parsing ELF32 binares and possibly ELF64 in the future...
 --
-local ByteBuf = yatm_core.ByteBuf
+local ByteBuf = assert(foundation.com.ByteBuf)
 
-if not ByteBuf then
-  yatm.error("ELF module not available, because yatm_core.ByteBuf is not available")
-  return
-end
+local Enum = assert(foundation.com.binary_types.Enum)
+local BitFlags = assert(foundation.com.binary_types.BitFlags)
+local BinSchema = assert(foundation.com.BinSchema)
 
-local Enum = assert(yatm_core.binary_types.Enum)
-local BitFlags = yatm_core.binary_types.BitFlags
-local BinSchema = assert(yatm_core.BinSchema)
-
-if not BitFlags then
-  yatm.error("ELF module not available, because yatm_core.binary_types.BitFlags is not available")
-  return
-end
+local list_reduce = assert(foundation.com.list_reduce)
 
 local ELF = {}
 local ELF32 = {}
@@ -41,7 +33,7 @@ ELF.OSABI = Enum:new("u8", {
 })
 
 ELF32.Ident = BinSchema:new("ELF32.Ident", {
-  {"magic", yatm_core.binary_types.Bytes:new(4)},
+  {"magic", foundation.com.binary_types.Bytes:new(4)},
   {"class", ELF.Class},
   {"data", ELF.Data},
   {"version", "u8"},
@@ -228,7 +220,7 @@ yatm_oku.elf = {
   ELF32 = ELF32
 }
 
-local Prog = yatm_core.Class:extends("ELF.Program")
+local Prog = foundation.com.Class:extends("ELF.Program")
 
 local ic = Prog.instance_class
 
@@ -248,7 +240,7 @@ function ic:inspect()
 end
 
 function ic:reduce_sections(acc, fn)
-  return yatm_core.list_reduce(self.m_sections, acc, fn)
+  return list_reduce(self.m_sections, acc, fn)
 end
 
 function ic:get_section(name)
@@ -261,7 +253,7 @@ function ic:get_section(name)
 end
 
 function ic:reduce_segments(acc, fn)
-  return yatm_core.list_reduce(self.m_prog_segments, acc, fn)
+  return list_reduce(self.m_prog_segments, acc, fn)
 end
 
 function ic:get_prog_segment(name)

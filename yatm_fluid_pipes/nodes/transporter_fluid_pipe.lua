@@ -1,3 +1,4 @@
+local list_concat = assert(foundation.com.list_concat)
 local fluid_transport_cluster = assert(yatm.fluids.fluid_transport_cluster)
 
 local colors = {
@@ -9,7 +10,7 @@ if dye then
   colors = dye.dyes
 end
 
-colors = yatm_core.list_concat({{"default", "Default"}}, colors)
+colors = list_concat({{"default", "Default"}}, colors)
 
 local function pipe_after_place_node(pos, _placer, _itemstack, _pointed_thing)
   local node = minetest.get_node(pos)

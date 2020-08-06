@@ -8,7 +8,7 @@
 local m = {
 }
 
-m.schema = yatm_core.MetaSchema:new("measurable", "", {
+m.schema = foundation.com.MetaSchema:new("measurable", "", {
   name = {
     type = "string"
   },
@@ -109,4 +109,4 @@ function m.set_measurable_amount(meta, key, amount)
   return meta
 end
 
-yatm_core.measurable = m
+yatm.Measurable = m

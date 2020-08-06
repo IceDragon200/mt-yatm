@@ -5,6 +5,11 @@
 --   It can be configured to detect or track entities with different criterias
 --
 --
+local Cuboid = assert(foundation.com.Cuboid)
+local ng = Cuboid.new_fast_node_box
+
+local string_hex_escape = assert(foundation.com.string_hex_escape)
+
 local data_network = assert(yatm.data_network)
 local ByteEncoder = yatm.ByteEncoder
 
@@ -31,8 +36,8 @@ minetest.register_node("yatm_data_logic:data_proximity_sensor", {
   node_box = {
     type = "fixed",
     fixed = {
-      yatm_core.Cuboid:new(0, 0, 0, 16,  4, 16):fast_node_box(),
-      yatm_core.Cuboid:new(3, 4, 3, 10, 10, 10):fast_node_box(),
+      ng(0, 0, 0, 16,  4, 16),
+      ng(3, 4, 3, 10, 10, 10),
     },
   },
 
@@ -103,11 +108,11 @@ minetest.register_node("yatm_data_logic:data_proximity_sensor", {
         meta:set_int("last_hp", hp)
         meta:set_string("last_name", name)
 
-        yatm_data_logic.emit_matrix_port_value(pos, "port", "exists", yatm_core.string_hex_escape(ByteEncoder:e_u8(exists)))
-        yatm_data_logic.emit_matrix_port_value(pos, "port", "x", yatm_core.string_hex_escape(ByteEncoder:e_i16(x)))
-        yatm_data_logic.emit_matrix_port_value(pos, "port", "y", yatm_core.string_hex_escape(ByteEncoder:e_i16(y)))
-        yatm_data_logic.emit_matrix_port_value(pos, "port", "z", yatm_core.string_hex_escape(ByteEncoder:e_i16(z)))
-        yatm_data_logic.emit_matrix_port_value(pos, "port", "hp", yatm_core.string_hex_escape(ByteEncoder:e_u16(hp)))
+        yatm_data_logic.emit_matrix_port_value(pos, "port", "exists", string_hex_escape(ByteEncoder:e_u8(exists)))
+        yatm_data_logic.emit_matrix_port_value(pos, "port", "x", string_hex_escape(ByteEncoder:e_i16(x)))
+        yatm_data_logic.emit_matrix_port_value(pos, "port", "y", string_hex_escape(ByteEncoder:e_i16(y)))
+        yatm_data_logic.emit_matrix_port_value(pos, "port", "z", string_hex_escape(ByteEncoder:e_i16(z)))
+        yatm_data_logic.emit_matrix_port_value(pos, "port", "hp", string_hex_escape(ByteEncoder:e_u16(hp)))
         yatm_data_logic.emit_matrix_port_value(pos, "port", "name", name)
 
         yatm.queue_refresh_infotext(pos, node)

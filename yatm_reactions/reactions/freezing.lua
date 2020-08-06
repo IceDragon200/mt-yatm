@@ -1,7 +1,5 @@
 --[[
-Nodes in the `radioactive` group will attempt harm nearby entities without radioactive protection.
-
-It may also set off other nodes.
+Nodes in the `freezing` group will attempt to freeze nearby nodes.
 ]]
 local dirts = {
   "default:dirt",

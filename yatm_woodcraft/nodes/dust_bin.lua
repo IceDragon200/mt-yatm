@@ -2,6 +2,9 @@
 -- Dust bins attach to any sawmill, or milling tool and collects the fallen dust
 --
 -- For now it only connects to the sawmill
+local Cuboid = yatm_core.Cuboid
+local ng = Cuboid.new_fast_node_box
+
 local ItemInterface = assert(yatm.items.ItemInterface)
 local ItemDevice = assert(yatm.items.ItemDevice)
 
@@ -109,12 +112,12 @@ yatm.register_stateful_node("yatm_woodcraft:dust_bin", {
     node_box = {
       type = "fixed",
       fixed = {
-        yatm_core.Cuboid:new( 0,  0,  0, 16, 16,  2):fast_node_box(),
-        yatm_core.Cuboid:new( 0,  0,  0,  2, 16, 16):fast_node_box(),
-        yatm_core.Cuboid:new( 0,  0, 14, 16, 16,  2):fast_node_box(),
-        yatm_core.Cuboid:new(14,  0,  0,  2, 16, 16):fast_node_box(),
+        ng( 0,  0,  0, 16, 16,  2),
+        ng( 0,  0,  0,  2, 16, 16),
+        ng( 0,  0, 14, 16, 16,  2),
+        ng(14,  0,  0,  2, 16, 16),
 
-        yatm_core.Cuboid:new( 2,  0,  2, 12,  1, 12):fast_node_box(),
+        ng( 2,  0,  2, 12,  1, 12),
       },
     },
   },
@@ -134,12 +137,12 @@ yatm.register_stateful_node("yatm_woodcraft:dust_bin", {
     node_box = {
       type = "fixed",
       fixed = {
-        yatm_core.Cuboid:new( 0,  0,  0, 16, 16,  2):fast_node_box(),
-        yatm_core.Cuboid:new( 0,  0,  0,  2, 16, 16):fast_node_box(),
-        yatm_core.Cuboid:new( 0,  0, 14, 16, 16,  2):fast_node_box(),
-        yatm_core.Cuboid:new(14,  0,  0,  2, 16, 16):fast_node_box(),
+        ng( 0,  0,  0, 16, 16,  2),
+        ng( 0,  0,  0,  2, 16, 16),
+        ng( 0,  0, 14, 16, 16,  2),
+        ng(14,  0,  0,  2, 16, 16),
 
-        yatm_core.Cuboid:new( 2,  0,  2, 12, 14, 12):fast_node_box(),
+        ng( 2,  0,  2, 12, 14, 12),
       },
     },
   }

@@ -4,6 +4,9 @@
 -- Cuts up given wood blocks when right clicked on
 -- It's pretty much instant, so have fun!
 --
+local Directions = assert(foundation.com.Directions)
+local Groups = assert(foundation.com.Groups)
+
 local ItemDevice = assert(yatm.items.ItemDevice)
 local sawing_registry = assert(yatm.sawing.sawing_registry)
 
@@ -48,12 +51,12 @@ local function sawmill_on_rightclick(pos, node, clicker, itemstack, _pointed_thi
         local sawdust = ItemStack("yatm_woodcraft:sawdust 1")
         local placed = false
 
-        for dir6, vec3 in pairs(yatm_core.DIR6_TO_VEC3) do
+        for dir6, vec3 in pairs(Directions.DIR6_TO_VEC3) do
           local bin_pos = vector.add(pos, vec3)
           local bin_node = minetest.get_node(bin_pos)
 
-          if yatm_core.groups.item_has_group(bin_node.name, "dust_bin") then
-            local remaining = ItemDevice.insert_item(bin_pos, yatm_core.invert_dir(dir6), sawdust, true)
+          if Groups.item_has_group(bin_node.name, "dust_bin") then
+            local remaining = ItemDevice.insert_item(bin_pos, Directions.invert_dir(dir6), sawdust, true)
 
             if remaining and remaining:is_empty() then
               placed = true

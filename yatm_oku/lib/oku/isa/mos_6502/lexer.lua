@@ -1,5 +1,5 @@
-local StringBuf = assert(yatm_core.StringBuf)
-local TokenBuffer = assert(yatm_oku.TokenBuffer)
+local StringBuffer = assert(foundation.com.StringBuffer)
+local TokenBuffer = assert(foundation.com.TokenBuffer)
 
 local Lexer = {}
 local m = Lexer
@@ -173,7 +173,7 @@ end
 
 -- @spec tokenize(String) :: TokenBuffer, String
 function Lexer.tokenize(str)
-  local buf = StringBuf:new(str, 'r')
+  local buf = StringBuffer:new(str, 'r')
 
   local result = TokenBuffer:new({}, 'w')
 

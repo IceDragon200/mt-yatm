@@ -1,3 +1,13 @@
+local Cuboid = assert(foundation.com.Cuboid)
+local ng = Cuboid.new_fast_node_box
+local string_hex_decode = assert(foundation.com.string_hex_decode)
+local string_hex_clean = assert(foundation.com.string_hex_clean)
+local string_pad_trailing = assert(foundation.com.string_pad_trailing)
+local string_hex_encode = assert(foundation.com.string_hex_encode)
+local string_hex_unescape = assert(foundation.com.string_hex_unescape)
+local string_hex_escape = assert(foundation.com.string_hex_escape)
+local string_sub_join = assert(foundation.com.string_sub_join)
+local binary_splice = assert(foundation.com.binary_splice)
 local data_network = assert(yatm.data_network)
 local ByteDecoder = yatm.ByteDecoder
 
@@ -7,14 +17,14 @@ if not ByteDecoder then
 end
 
 local function get_memory_binary(meta)
-  return yatm_core.string_hex_decode(meta:get_string("memory"))
+  return string_hex_decode(meta:get_string("memory"))
 end
 
 local function set_memory_blob(meta, memory)
-  memory = yatm_core.string_hex_clean(memory) -- remove any non-hex characters from the blob
-  memory = yatm_core.string_hex_decode(memory) -- decode it as binary
-  memory = yatm_core.string_pad_trailing(string.sub(memory, 1, 256), 256, "\x00") -- limit it to 256 characters
-  memory = yatm_core.string_hex_encode(memory) -- re-encode the result
+  memory = string_hex_clean(memory) -- remove any non-hex characters from the blob
+  memory = string_hex_decode(memory) -- decode it as binary
+  memory = string_pad_trailing(string.sub(memory, 1, 256), 256, "\x00") -- limit it to 256 characters
+  memory = string_hex_encode(memory) -- re-encode the result
   meta:set_string("memory", memory) -- store it
 end
 
@@ -36,8 +46,8 @@ minetest.register_node("yatm_data_logic:data_memory", {
   node_box = {
     type = "fixed",
     fixed = {
-      yatm_core.Cuboid:new(0, 0, 0, 16, 4, 16):fast_node_box(),
-      yatm_core.Cuboid:new(3, 4, 3, 10, 1, 10):fast_node_box(),
+      ng(0, 0, 0, 16, 4, 16),
+      ng(3, 4, 3, 10, 1, 10),
     },
   },
 
@@ -74,7 +84,7 @@ minetest.register_node("yatm_data_logic:data_memory", {
 
     receive_pdu = function (self, pos, node, dir, port, value)
       local meta = minetest.get_meta(pos)
-      local blob = yatm_core.string_hex_unescape(value)
+      local blob = string_hex_unescape(value)
 
       if yatm_data_logic.get_matrix_port(pos, "port", "address", dir) == port then
         local cell_id = ByteDecoder:d_u8(blob)
@@ -86,8 +96,8 @@ minetest.register_node("yatm_data_logic:data_memory", {
         local memory = get_memory_binary(meta)
         -- reminder that address offset is a 0-offset
         local address_offset = meta:get_int("address_offset")
-        memory = yatm_core.binary_splice(memory, address_offset + 1, 1, cell_value)
-        meta:set_string("memory", yatm_core.string_hex_encode(memory))
+        memory = binary_splice(memory, address_offset + 1, 1, cell_value)
+        meta:set_string("memory", string_hex_encode(memory))
       end
 
       if yatm_data_logic.get_matrix_port(pos, "port", "read", dir) == port then
@@ -96,7 +106,7 @@ minetest.register_node("yatm_data_logic:data_memory", {
         -- yet another reminder that address offset is a 0-offset
         local address_offset = meta:get_int("address_offset")
         local cell_id = (address_offset + cell_id_offset) % 256 + 1
-        local output_value = yatm_core.string_hex_escape(string.sub(memory, cell_id, cell_id))
+        local output_value = string_hex_escape(string.sub(memory, cell_id, cell_id))
         yatm_data_logic.emit_matrix_port_value(pos, "port", "data", output_value)
       end
     end,
@@ -130,7 +140,7 @@ minetest.register_node("yatm_data_logic:data_memory", {
           })
       elseif assigns.tab == 2 then
         local memory_blob = meta:get_string("memory")
-        memory_blob = yatm_core.string_sub_join(memory_blob, 32, "\n")
+        memory_blob = string_sub_join(memory_blob, 32, "\n")
         memory_blob = minetest.formspec_escape(memory_blob)
 
         local address_blob = minetest.formspec_escape(meta:get_int("address_offset"))

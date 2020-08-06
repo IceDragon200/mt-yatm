@@ -3,6 +3,8 @@
   Bee Box, keeps all your bees in one easy to access place.
 
 ]]
+local table_merge = assert(foundation.com.table_merge)
+
 local ItemInterface = assert(yatm.items.ItemInterface)
 
 local function itemstack_is_frame(item_stack)
@@ -230,7 +232,7 @@ minetest.register_node("yatm_bees:bee_box_wood", {
 
   description = "Bee Box (Wood)",
 
-  groups = yatm_core.table_merge(groups, { choppy = 1 }),
+  groups = table_merge(groups, { choppy = 1 }),
 
   paramtype = "none",
   paramtype2 = "facedir",
@@ -268,7 +270,7 @@ minetest.register_node("yatm_bees:bee_box_metal", {
 
   description = "Bee Box (Metal)",
 
-  groups = yatm_core.table_merge(groups, { cracky = 1 }),
+  groups = table_merge(groups, { cracky = 1 }),
 
   paramtype = "none",
   paramtype2 = "facedir",

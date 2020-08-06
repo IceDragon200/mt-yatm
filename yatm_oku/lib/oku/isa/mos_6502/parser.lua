@@ -1,5 +1,8 @@
 local TokenBuffer = assert(yatm_oku.TokenBuffer)
 local match_tokens = assert(yatm_oku.match_tokens)
+local string_pad_leading = assert(foundation.com.string_pad_leading)
+local string_rsub = assert(foundation.com.string_rsub)
+local string_hex_pair_to_byte = assert(foundation.com.string_hex_pair_to_byte)
 
 local Parser = {}
 local m = Parser
@@ -64,19 +67,19 @@ local function hex_token_to_byte(token)
   local hex_value = token[2]
   if #hex_value < 2 then
     -- TODO: issue warning, the value was padded
-    hex_value = yatm_core.string_pad_leading(hex_value, 2, "0")
+    hex_value = string_pad_leading(hex_value, 2, "0")
   elseif #hex_value > 2 then
     -- TODO: issue warning, the value was truncated
-    hex_value = yatm_core.string_rsub(hex_value, 2)
+    hex_value = string_rsub(hex_value, 2)
   end
-  return yatm_core.string_hex_pair_to_byte(hex_value)
+  return string_hex_pair_to_byte(hex_value)
 end
 
 local function hex_token_to_num(token)
   local hex_value = token[2]
   if #hex_value > 2 then
-    hex_value = yatm_core.string_pad_leading(hex_value, 4, "0")
-    hex_value = yatm_core.string_rsub(hex_value, 4)
+    hex_value = string_pad_leading(hex_value, 4, "0")
+    hex_value = string_rsub(hex_value, 4)
     local hipair = string.sub(hex_value, 1, 2)
     local lopair = string.sub(hex_value, 3, 4)
     return hipair * 256 + lopair
@@ -92,12 +95,12 @@ local function parse_absolute_or_zeropage_address(token_buf)
     if token[1] == "hex" then
       local hex_value = token[2]
       if #hex_value <= 2 then
-        hex_value = yatm_core.string_pad_leading(hex_value, 2, "0")
-        local value = yatm_core.string_hex_pair_to_byte(hex_value)
+        hex_value = string_pad_leading(hex_value, 2, "0")
+        local value = string_hex_pair_to_byte(hex_value)
         return {"zeropage", value}
       else
-        hex_value = yatm_core.string_pad_leading(hex_value, 4, "0")
-        hex_value = yatm_core.string_rsub(hex_value, 4)
+        hex_value = string_pad_leading(hex_value, 4, "0")
+        hex_value = string_rsub(hex_value, 4)
         local hipair = string.sub(hex_value, 1, 2)
         local lopair = string.sub(hex_value, 3, 4)
         return {"absolute", hipair * 256 + lopair}

@@ -11,6 +11,12 @@
 --
 local data_network = assert(yatm.data_network)
 
+local Cuboid = assert(foundation.com.Cuboid)
+local ng = Cuboid.new_fast_node_box
+local Directions = assert(foundation.com.Directions)
+local Groups = assert(foundation.com.Groups)
+local string_hex_unescape = assert(foundation.com.string_hex_unescape)
+
 -- Deadzone
 --   The Silo has a deadzone of up to 8 nodes in any direction, this it to prevent it from blowing itself up with a misconfigured ICBM.
 --
@@ -48,9 +54,9 @@ else
 end
 
 local function get_icbm_entity(pos, node)
-  local new_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
+  local new_dir = Directions.facedir_to_face(node.param2, Directions.D_UP)
 
-  local entities = minetest.get_objects_inside_radius(vector.add(pos, yatm_core.DIR6_TO_VEC3[new_dir]), 0.9)
+  local entities = minetest.get_objects_inside_radius(vector.add(pos, Directions.DIR6_TO_VEC3[new_dir]), 0.9)
 
   for _, entity in ipairs(entities) do
     local lua_entity = entity:get_luaentity()
@@ -70,8 +76,8 @@ local function launch_icbm(pos, node)
 end
 
 local function count_guiding_rings(pos, node)
-  local new_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
-  local up_vec = yatm_core.DIR6_TO_VEC3[new_dir]
+  local new_dir = Directions.facedir_to_face(node.param2, Directions.D_UP)
+  local up_vec = Directions.DIR6_TO_VEC3[new_dir]
 
   local count = 0
   local origin = pos
@@ -81,7 +87,7 @@ local function count_guiding_rings(pos, node)
     origin = next_pos
     local gnode = minetest.get_node(next_pos)
 
-    if yatm_core.groups.has_group(gnode, "icbm_guiding_ring") then
+    if Groups.has_group(gnode, "icbm_guiding_ring") then
       count = count + 1
     else
       break
@@ -105,8 +111,8 @@ local function arm_icbm(pos, node)
   end
 
   local entity = get_icbm_entity(pos, node)
-  local new_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
-  local up_vec = yatm_core.DIR6_TO_VEC3[new_dir]
+  local new_dir = Directions.facedir_to_face(node.param2, Directions.D_UP)
+  local up_vec = Directions.DIR6_TO_VEC3[new_dir]
 
   if entity then
     --
@@ -163,12 +169,12 @@ local data_interface = {
   receive_pdu = function (self, pos, node, dir, port, value)
     local meta = minetest.get_meta(pos)
 
-    local blob = yatm_core.string_hex_unescape(value)
+    local blob = string_hex_unescape(value)
 
     if port == meta:get_int("launch_port") then
       --
       local launch_code = meta:get_string("launch_code")
-      if yatm_core.string_hex_unescape(launch_code) == blob then
+      if string_hex_unescape(launch_code) == blob then
         launch_icbm(pos, node)
       end
     elseif port == meta:get_int("arming_port") then
@@ -431,12 +437,12 @@ if yatm_item_storage then
   item_interface =
     ItemInterface.new_directional(function (self, pos, dir)
       local node = minetest.get_node(pos)
-      local new_dir = yatm_core.facedir_to_face(node.param2, dir)
+      local new_dir = Directions.facedir_to_face(node.param2, dir)
 
-      if new_dir == yatm_core.D_DOWN then
+      if new_dir == Directions.D_DOWN then
         -- load shells from the bottom
         return "shell_slot"
-      elseif new_dir == yatm_core.D_UP then
+      elseif new_dir == Directions.D_UP then
         -- Can't load anything from the top
         return nil, "cannot interact with top of node"
       else
@@ -572,30 +578,30 @@ minetest.register_node("yatm_armoury_icbm:icbm_silo", {
 local node_box = {
   type = "fixed",
   fixed = {
-    yatm.Cuboid:new( 0,  2,  0, 15,  4,  1):fast_node_box(),
-    yatm.Cuboid:new( 0, 10,  0, 15,  4,  1):fast_node_box(),
+    ng( 0,  2,  0, 15,  4,  1),
+    ng( 0, 10,  0, 15,  4,  1),
 
-    yatm.Cuboid:new(15,  2,  0,  1,  4, 15):fast_node_box(),
-    yatm.Cuboid:new(15, 10,  0,  1,  4, 15):fast_node_box(),
+    ng(15,  2,  0,  1,  4, 15),
+    ng(15, 10,  0,  1,  4, 15),
 
-    yatm.Cuboid:new( 1,  2, 15, 15,  4,  1):fast_node_box(),
-    yatm.Cuboid:new( 1, 10, 15, 15,  4,  1):fast_node_box(),
+    ng( 1,  2, 15, 15,  4,  1),
+    ng( 1, 10, 15, 15,  4,  1),
 
-    yatm.Cuboid:new( 0,  2,  1,  1,  4, 15):fast_node_box(),
-    yatm.Cuboid:new( 0, 10,  1,  1,  4, 15):fast_node_box(),
+    ng( 0,  2,  1,  1,  4, 15),
+    ng( 0, 10,  1,  1,  4, 15),
   },
 }
 
 local single_node_box = {
   type = "fixed",
   fixed = {
-    yatm.Cuboid:new( 0,  2,  0, 15, 12,  1):fast_node_box(),
+    ng( 0,  2,  0, 15, 12,  1),
 
-    yatm.Cuboid:new(15,  2,  0,  1, 12, 15):fast_node_box(),
+    ng(15,  2,  0,  1, 12, 15),
 
-    yatm.Cuboid:new( 1,  2, 15, 15, 12,  1):fast_node_box(),
+    ng( 1,  2, 15, 15, 12,  1),
 
-    yatm.Cuboid:new( 0,  2,  1,  1, 12, 15):fast_node_box(),
+    ng( 0,  2,  1,  1, 12, 15),
   },
 }
 

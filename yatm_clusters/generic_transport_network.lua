@@ -7,7 +7,12 @@
   Currently it's only used for Items and Fluids, but could be used for other resources.
 
 ]]
-local GenericTransportNetwork = yatm_core.Class:extends()
+local Directions = assert(foundation.com.Directions)
+local is_table_empty = assert(foundation.com.is_table_empty)
+local random_string16 = assert(foundation.com.random_string16)
+local table_keys = assert(foundation.com.table_keys)
+
+local GenericTransportNetwork = foundation.com.Class:extends("GenericTransportNetwork")
 local m = assert(GenericTransportNetwork.instance_class)
 
 --[[
@@ -103,7 +108,7 @@ function m:update_member(pos, node, is_register)
     end
 
     self.m_members_by_type[old_record.device_type][node_id] = nil
-    if yatm_core.is_table_empty(self.m_members_by_type[old_record.device_type]) then
+    if is_table_empty(self.m_members_by_type[old_record.device_type]) then
       self.m_members_by_type[old_record.device_type] = nil
     end
 
@@ -159,7 +164,7 @@ function m:queue_all_adjacent(pos)
 
   self.m_queue[node_id] = pos
 
-  for dir,v3 in pairs(yatm_core.DIR6_TO_VEC3) do
+  for dir,v3 in pairs(Directions.DIR6_TO_VEC3) do
     local new_pos = vector.add(pos, v3)
     local new_hash = minetest.hash_node_position(new_pos)
 
@@ -179,7 +184,7 @@ function m:unregister_member(pos)
     self.m_members[node_id] = nil
     self.m_members_by_type[device_type][node_id] = nil
 
-    if yatm_core.is_table_empty(self.m_members_by_type[device_type]) then
+    if is_table_empty(self.m_members_by_type[device_type]) then
       self.m_members_by_type[device_type] = nil
     end
 
@@ -200,7 +205,7 @@ function m:unregister_member(pos)
       if self.m_block_members[record.block_id] then
         self.m_block_members[record.block_id][node_id] = nil
 
-        if yatm_core.is_table_empty(self.m_block_members[record.block_id]) then
+        if is_table_empty(self.m_block_members[record.block_id]) then
           self.m_block_members[record.block_id] = nil
         end
       end
@@ -250,7 +255,7 @@ end
 
 function m:get_connected_pos(pos, node, nodedef, to_visit)
   local interface = nodedef[self.m_node_interface_name]
-  for _d6,v3 in pairs(yatm_core.DIR6_TO_VEC3) do
+  for _d6,v3 in pairs(Directions.DIR6_TO_VEC3) do
     local npos = vector.add(pos, v3)
     local neighbour_node = minetest.get_node(npos)
     local neighbour_nodedef = minetest.registered_nodes[neighbour_node.name]
@@ -287,14 +292,14 @@ function m:generate_network_id()
   local result = {self.m_abbr}
 
   for i = 1,4 do
-    table.insert(result, yatm_core.random_string16(4))
+    table.insert(result, random_string16(4))
   end
 
   return table.concat(result, ":")
 end
 
 function m:resolve_invalid_networks(counter, delta)
-  if not yatm_core.is_table_empty(self.m_invalid_networks) then
+  if not is_table_empty(self.m_invalid_networks) then
     local old_invalid_networks = self.m_invalid_networks
     self.m_invalid_networks = {}
 
@@ -316,7 +321,7 @@ function m:resolve_invalid_networks(counter, delta)
 end
 
 function m:resolve_queue(counter, _delta)
-  if not yatm_core.is_table_empty(self.m_queue) then
+  if not is_table_empty(self.m_queue) then
     local queue = self.m_queue
     self.m_queue = {}
 
@@ -340,7 +345,7 @@ function m:resolve_queue(counter, _delta)
         local visited = {}
         local members = {}
 
-        while not yatm_core.is_table_empty(to_visit) do
+        while not is_table_empty(to_visit) do
           local old_to_visit = to_visit
           to_visit = {}
 
@@ -365,7 +370,7 @@ function m:resolve_queue(counter, _delta)
           end
         end
 
-        if not yatm_core.is_table_empty(members) then
+        if not is_table_empty(members) then
           local network_id = self:generate_network_id()
           local network = {
             id = network_id,
@@ -393,7 +398,7 @@ function m:resolve_queue(counter, _delta)
                     mbt[ohash] = nil
                   end
 
-                  if yatm_core.is_table_empty(mbt) then
+                  if is_table_empty(mbt) then
                     n.members_by_type[entry.device_type] = nil
                   end
                 end
@@ -422,7 +427,7 @@ end
 
 function m:update_networks(counter, delta)
   for _network_id,network in pairs(self.m_networks) do
-    if yatm_core.is_table_empty(network.members) then
+    if is_table_empty(network.members) then
       self.m_need_network_gc = true
     else
       network.wait = (network.wait or 0) - delta
@@ -437,12 +442,12 @@ end
 
 function m:gc_networks(counter, delta)
   print(self.m_description, "gc_networks/0", "running garbage collection")
-  local keys = yatm_core.table_keys(self.m_networks)
+  local keys = table_keys(self.m_networks)
 
   for _,network_id in ipairs(keys) do
     local network = self.m_networks[network_id]
 
-    if yatm_core.is_table_empty(network.members) then
+    if is_table_empty(network.members) then
       self.m_networks[network_id] = nil
 
       print(self.m_description, "Removed empty network", network_id)

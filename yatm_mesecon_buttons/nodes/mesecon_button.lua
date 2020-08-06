@@ -1,4 +1,9 @@
-local button_after_place_node = yatm_core.facedir_wallmount_after_place_node
+local Cuboid = assert(foundation.com.Cuboid)
+local ng = Cuboid.new_fast_node_box
+local Directions = assert(foundation.com.Directions)
+local table_merge = assert(foundation.com.table_merge)
+
+local button_after_place_node = assert(Directions.facedir_wallmount_after_place_node)
 
 local colors = {
   {"white", "White"}
@@ -11,19 +16,19 @@ end
 
 -- Buttons affect everything below and adjacent to them, however, they do not affect what's directly in front of the button!
 local button_dirs = {
-  yatm_core.D_DOWN,
-  yatm_core.D_NORTH,
-  yatm_core.D_EAST,
-  yatm_core.D_SOUTH,
-  yatm_core.D_WEST,
+  Directions.D_DOWN,
+  Directions.D_NORTH,
+  Directions.D_EAST,
+  Directions.D_SOUTH,
+  Directions.D_WEST,
 }
 
 local function mesecon_button_rules_get(node)
   local result = {}
   local i = 1
   for _,dir in ipairs(button_dirs) do
-    local new_dir = yatm_core.facedir_to_face(node.param2, dir)
-    result[i] = yatm_core.DIR6_TO_VEC3[new_dir]
+    local new_dir = Directions.facedir_to_face(node.param2, dir)
+    result[i] = Directions.DIR6_TO_VEC3[new_dir]
     i = i + 1
   end
   return result
@@ -33,7 +38,7 @@ local mesecon_button_nodebox = {
   type = "fixed",
   fixed = {
     {-0.5, -0.5, -0.5, 0.5, (3 / 16) - 0.5, 0.5}, -- Base
-    yatm_core.Cuboid:new(  3,  3,  3, 10,  1, 10):fast_node_box(), -- Button
+    ng(  3,  3,  3, 10,  1, 10), -- Button
   }
 }
 
@@ -108,7 +113,7 @@ for _,color in pairs(colors) do
 
     drop = off_name,
 
-    groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
+    groups = table_merge(groups, {not_in_creative_inventory = 1}),
 
     dye_color = color_basename,
 

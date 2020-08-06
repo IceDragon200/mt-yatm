@@ -1,3 +1,5 @@
+local Directions = assert(foundation.com.Directions)
+
 local mesecon_hub_node_box = {
   type = "fixed",
   fixed = {
@@ -8,7 +10,7 @@ local mesecon_hub_node_box = {
 }
 
 local function hub_after_place_node(pos, placer, item_stack, pointed_thing)
-  yatm_core.facedir_wallmount_after_place_node(pos, placer, item_stack, pointed_thing)
+  Directions.facedir_wallmount_after_place_node(pos, placer, item_stack, pointed_thing)
 end
 
 minetest.register_node("yatm_mesecon_hubs:mesecon_hub_bus_off", {

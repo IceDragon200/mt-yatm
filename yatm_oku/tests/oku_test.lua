@@ -1,6 +1,6 @@
-local Luna = assert(yatm_core.Luna)
+local Luna = assert(foundation.com.Luna)
 local m = yatm_oku.OKU
-local Buffer = yatm_core.BinaryBuffer or yatm_core.StringBuf
+local Buffer = assert(foundation.com.BinaryBuffer or foundation.com.StringBuffer)
 
 if not m then
   yatm.warn("OKU not available for tests")

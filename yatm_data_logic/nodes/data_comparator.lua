@@ -2,6 +2,12 @@
 -- Comparator Data Hubs
 --
 -- Comparator's take data input and then compare them before emitting a different payload depending on whether it was true or false.
+local Cuboid = assert(foundation.com.Cuboid)
+local ng = Cuboid.new_fast_node_box
+local table_merge = assert(foundation.com.table_merge)
+local is_table_empty = assert(foundation.com.is_table_empty)
+local string_hex_unescape = assert(foundation.com.string_hex_unescape)
+local Directions = assert(foundation.com.Directions)
 local data_network = assert(yatm.data_network)
 
 local data_interface = {
@@ -11,7 +17,7 @@ local data_interface = {
 
   receive_pdu = function (self, pos, node, dir, port, value)
     --print(minetest.pos_to_string(pos), node.name,
-    --      yatm_core.DIR_TO_STRING[dir], port,
+    --      Directions.DIR_TO_STRING[dir], port,
     --      dump(value))
 
     local meta = minetest.get_meta(pos)
@@ -28,16 +34,16 @@ local data_interface = {
 
       -- requires at least 2 values
       if operands[1] and operands[2] then
-        local left_dir = yatm_core.STRING1_TO_DIR[operands[1]]
-        local right_dir = yatm_core.STRING1_TO_DIR[operands[2]]
+        local left_dir = Directions.STRING1_TO_DIR[operands[1]]
+        local right_dir = Directions.STRING1_TO_DIR[operands[2]]
 
         if left_dir and right_dir then
-          local left = yatm_core.string_hex_unescape(meta:get_string("input_value_" .. left_dir))
-          local right = yatm_core.string_hex_unescape(meta:get_string("input_value_" .. right_dir))
+          local left = string_hex_unescape(meta:get_string("input_value_" .. left_dir))
+          local right = string_hex_unescape(meta:get_string("input_value_" .. right_dir))
 
           --print(minetest.pos_to_string(pos), node.name,
-          --      yatm_core.DIR_TO_STRING1[left_dir], dump(left),
-          --      yatm_core.DIR_TO_STRING1[right_dir], dump(right))
+          --      Directions.DIR_TO_STRING1[left_dir], dump(left),
+          --      Directions.DIR_TO_STRING1[right_dir], dump(right))
 
           local name
           if self:operate(pos, node, left, right) then
@@ -113,7 +119,7 @@ local data_interface = {
 
     local inputs_changed = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "io")
 
-    if not yatm_core.is_table_empty(inputs_changed) then
+    if not is_table_empty(inputs_changed) then
       yatm_data_logic.unmark_all_receive(assigns.pos)
       yatm_data_logic.mark_all_inputs_for_active_receive(assigns.pos)
     end
@@ -180,8 +186,8 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
   node_box = {
     type = "fixed",
     fixed = {
-      yatm_core.Cuboid:new(0, 0, 0, 16, 4, 16):fast_node_box(),
-      yatm_core.Cuboid:new(3, 4, 3, 10, 1, 10):fast_node_box(),
+      ng(0, 0, 0, 16, 4, 16),
+      ng(3, 4, 3, 10, 1, 10),
     },
   },
 
@@ -228,7 +234,7 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
       "yatm_data_comparator_side.png",
     },
 
-    data_interface = yatm_core.table_merge(data_interface, {
+    data_interface = table_merge(data_interface, {
       operate = function (self, pos, node, left, right)
         return left == right
       end,
@@ -249,7 +255,7 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
       "yatm_data_comparator_side.png",
     },
 
-    data_interface = yatm_core.table_merge(data_interface, {
+    data_interface = table_merge(data_interface, {
       operate = function (self, pos, node, left, right)
         return left ~= right
       end,
@@ -270,7 +276,7 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
       "yatm_data_comparator_side.png",
     },
 
-    data_interface = yatm_core.table_merge(data_interface, {
+    data_interface = table_merge(data_interface, {
       operate = function (self, pos, node, left, right)
         return left > right
       end,
@@ -291,7 +297,7 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
       "yatm_data_comparator_side.png",
     },
 
-    data_interface = yatm_core.table_merge(data_interface, {
+    data_interface = table_merge(data_interface, {
       operate = function (self, pos, node, left, right)
         return left >= right
       end,
@@ -312,7 +318,7 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
       "yatm_data_comparator_side.png",
     },
 
-    data_interface = yatm_core.table_merge(data_interface, {
+    data_interface = table_merge(data_interface, {
       operate = function (self, pos, node, left, right)
         return left < right
       end,
@@ -333,7 +339,7 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
       "yatm_data_comparator_side.png",
     },
 
-    data_interface = yatm_core.table_merge(data_interface, {
+    data_interface = table_merge(data_interface, {
       operate = function (self, pos, node, left, right)
         return left <= right
       end,

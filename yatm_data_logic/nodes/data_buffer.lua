@@ -1,3 +1,6 @@
+local Cuboid = assert(foundation.com.Cuboid)
+local ng = Cuboid.new_fast_node_box
+local is_table_empty = assert(foundation.com.is_table_empty)
 local data_network = assert(yatm.data_network)
 
 minetest.register_node("yatm_data_logic:data_buffer", {
@@ -18,7 +21,7 @@ minetest.register_node("yatm_data_logic:data_buffer", {
   node_box = {
     type = "fixed",
     fixed = {
-      yatm_core.Cuboid:new(0, 0, 0, 16, 4, 16):fast_node_box(),
+      ng(0, 0, 0, 16, 4, 16),
     },
   },
 
@@ -76,7 +79,7 @@ minetest.register_node("yatm_data_logic:data_buffer", {
 
       local inputs_changed = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "io")
 
-      if not yatm_core.is_table_empty(inputs_changed) then
+      if not is_table_empty(inputs_changed) then
         yatm_data_logic.unmark_all_receive(assigns.pos)
         yatm_data_logic.mark_all_inputs_for_active_receive(assigns.pos)
       end

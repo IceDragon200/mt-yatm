@@ -1,3 +1,5 @@
+local is_table_empty = assert(foundation.com.is_table_empty)
+
 local bindings = {}
 
 function yatm_core.bind_on_player_receive_fields(clicker, name, assigns, callback)
@@ -21,7 +23,7 @@ function yatm_core.unbind_on_player_receive_fields(player_name, name)
   if bindings[player_name] then
     bindings[player_name][name] = nil
 
-    if yatm_core.is_table_empty(bindings[player_name]) then
+    if is_table_empty(bindings[player_name]) then
       bindings[player_name] = nil
     end
   end

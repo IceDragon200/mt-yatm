@@ -1,109 +1,34 @@
---
--- Utility module for YATM to register sounds
---
-yatm_core.SoundsRegistry = yatm_core.Class:extends("SoundsRegistry")
-local ic = yatm_core.SoundsRegistry.instance_class
+local sounds = foundation.com.SoundsRegistry:new()
 
-function ic:initialize()
-  self.registered = {}
-end
+sounds:register("access_denied", "yatm_access_denied", {})
+sounds:register("access_granted", "yatm_beep0", {})
+sounds:register("action_close", "yatm_action_close", {})
+sounds:register("action_completed", "yatm_action_completed", {})
+sounds:register("action_error", "yatm_action_error", {})
+sounds:register("action_open", "yatm_action_open", {})
+sounds:register("beep", "yatm_beep1", {})
+sounds:register("blip0", "yatm_blip0", {})
+sounds:register("blip1", "yatm_blip1", {})
+sounds:register("boop0", "yatm_boop0", {})
+sounds:register("bottle_place", "yatm_bottle_place", {})
+sounds:register("button_click", "yatm_button_click", {})
+sounds:register("compile_success", "yatm_compile_success", {})
+sounds:register("critical_access_denied", "yatm_critical_access_denied", {})
+sounds:register("double_boop0", "yatm_double_boop0", {})
+sounds:register("hard_read", "yatm_hard_read", {})
+sounds:register("heavy_klaxon", "yatm_heavy_klaxon", {})
+sounds:register("inventory_place", "yatm_inventory_place", {})
+sounds:register("janky_read", "yatm_janky_read", {})
+sounds:register("long_error", "yatm_long_error", {})
+sounds:register("long_read", "yatm_long_read", {})
+sounds:register("machine_open", "yatm_machine_open", {})
+sounds:register("move", "yatm_move", {})
+sounds:register("not_enough_material", "yatm_not_enough_material", {})
+sounds:register("notify", "yatm_notify", {})
+sounds:register("ping0", "yatm_ping0", {})
+sounds:register("print", "yatm_print", {})
+sounds:register("sharp_boop0", "yatm_sharp_boop0", {})
+sounds:register("short_circuit", "yatm_short_circuit", {})
+sounds:register("stop_read", "yatm_stop_read", {})
 
--- @spec :register(name: String,
---                 filename: String,
---                 default_params: Table) :: self
-function ic:register(name, filename, default_params)
-  default_params = default_params or {}
-  self.registered[name] = {
-    filename = filename,
-    params = yatm_core.table_merge({
-      gain = 1.0,
-      pitch = 1.0,
-      loop = false,
-      fade = 0.0,
-      object = nil, -- ObjectRef
-      player = nil, -- PlayerName
-      pos = nil, -- Vector3
-      ephemeral = true,
-    }, default_params),
-  }
-  return self
-end
-
---
---
--- @spec :play(name: String, params: Table) :: (boolean, SoundHandle)
-function ic:play(name, params)
-  local entry = self.registered[name]
-  if entry then
-    params = params or {}
-    local sound_params = yatm_core.table_merge(entry.params, params)
-    local spec = {
-      name = entry.filename,
-    }
-    local pitch = sound_params.pitch or 1.0
-
-    -- Pitch Variance
-    local pv_min = 0
-    local pv_max = 0
-
-    if sound_params.pitch_variance then
-      local pv = sound_params.pitch_variance
-      pv_min = -pv
-      pv_max = pv
-    end
-
-    if pv_min ~= 0 or pv_max ~= 0 then
-      local variance_range = pv_max - pv_min
-      pitch = math.max(pitch + pv_min + variance_range * math.random(), 0)
-    end
-    --
-
-    local parameters = {
-      gain = sound_params.gain or 1.0,
-      pitch = pitch,
-      loop = sound_params.loop,
-      fade = sound_params.fade,
-      object = sound_params.object,
-      to_player = sound_params.to_player,
-      pos = sound_params.pos,
-      max_hear_distance = sound_params.max_hear_distance,
-      exclude_player = sound_params.exclude_player,
-    }
-    local handle = minetest.sound_play(spec, parameters, entry.ephemeral)
-    return true, handle
-  end
-  return false, nil
-end
-
-yatm_core.sounds = yatm_core.SoundsRegistry:new()
-
-yatm_core.sounds:register("access_denied", "yatm_access_denied", {})
-yatm_core.sounds:register("access_granted", "yatm_beep0", {})
-yatm_core.sounds:register("action_close", "yatm_action_close", {})
-yatm_core.sounds:register("action_completed", "yatm_action_completed", {})
-yatm_core.sounds:register("action_error", "yatm_action_error", {})
-yatm_core.sounds:register("action_open", "yatm_action_open", {})
-yatm_core.sounds:register("beep", "yatm_beep1", {})
-yatm_core.sounds:register("blip0", "yatm_blip0", {})
-yatm_core.sounds:register("blip1", "yatm_blip1", {})
-yatm_core.sounds:register("boop0", "yatm_boop0", {})
-yatm_core.sounds:register("bottle_place", "yatm_bottle_place", {})
-yatm_core.sounds:register("button_click", "yatm_button_click", {})
-yatm_core.sounds:register("compile_success", "yatm_compile_success", {})
-yatm_core.sounds:register("critical_access_denied", "yatm_critical_access_denied", {})
-yatm_core.sounds:register("double_boop0", "yatm_double_boop0", {})
-yatm_core.sounds:register("hard_read", "yatm_hard_read", {})
-yatm_core.sounds:register("heavy_klaxon", "yatm_heavy_klaxon", {})
-yatm_core.sounds:register("inventory_place", "yatm_inventory_place", {})
-yatm_core.sounds:register("janky_read", "yatm_janky_read", {})
-yatm_core.sounds:register("long_error", "yatm_long_error", {})
-yatm_core.sounds:register("long_read", "yatm_long_read", {})
-yatm_core.sounds:register("machine_open", "yatm_machine_open", {})
-yatm_core.sounds:register("move", "yatm_move", {})
-yatm_core.sounds:register("not_enough_material", "yatm_not_enough_material", {})
-yatm_core.sounds:register("notify", "yatm_notify", {})
-yatm_core.sounds:register("ping0", "yatm_ping0", {})
-yatm_core.sounds:register("print", "yatm_print", {})
-yatm_core.sounds:register("sharp_boop0", "yatm_sharp_boop0", {})
-yatm_core.sounds:register("short_circuit", "yatm_short_circuit", {})
-yatm_core.sounds:register("stop_read", "yatm_stop_read", {})
+yatm_core.sounds = sounds

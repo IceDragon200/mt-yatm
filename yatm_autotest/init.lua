@@ -13,7 +13,7 @@ function AutotestReporter:report(...)
   minetest.chat_send_all(table.concat({...}, "\t"))
 end
 
-local AutotestLuna = assert(yatm_core.Luna):extends()
+local AutotestLuna = assert(foundation.com.Luna):extends()
 local ic = AutotestLuna.instance_class
 
 function ic:initialize(...)

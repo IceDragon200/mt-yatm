@@ -1,3 +1,9 @@
+local Vector3 = assert(foundation.com.Vector3)
+local is_blank = assert(foundation.com.is_blank)
+local string_split = assert(foundation.com.string_split)
+local table_merge = assert(foundation.com.table_merge)
+local Directions = assert(foundation.com.Directions)
+
 yatm.shelves = {}
 
 yatm.shelves.PRESET_SCALES = {
@@ -9,14 +15,14 @@ yatm.shelves.PRESET_SCALES = {
 }
 
 local function parse_shelf_item_static_data(static_data)
-  if yatm_core.is_blank(static_data) then
+  if is_blank(static_data) then
     return nil
   end
-  local data = yatm_core.string_split(static_data, "data:")
-  if yatm_core.is_blank(data[2]) then
+  local data = string_split(static_data, "data:")
+  if is_blank(data[2]) then
     return nil
   end
-  local attrs = yatm_core.string_split(data[2], "|")
+  local attrs = string_split(data[2], "|")
   if #attrs == 3 then
     local shelf_pos = attrs[1]
     local scale = tonumber(attrs[2])
@@ -178,7 +184,7 @@ function yatm.shelves.shelf_refresh(pos)
       local col = o % shelf_configuration.cols
 
       local offpos =
-        yatm_core.rotate_position_by_facedir({
+        Directions.rotate_position_by_facedir({
           x = item_base_pos.x + xd * col,
           y = item_base_pos.y + yd * row,
           z = item_base_pos.z + zd * layer,
@@ -215,7 +221,7 @@ function yatm.shelves.shelf_on_rightclick(pos, node, user)
 end
 
 function yatm.shelves.register_shelf(name, def)
-  minetest.register_node(name, yatm_core.table_merge({
+  minetest.register_node(name, table_merge({
     groups = {
       cracky = 1,
       item_shelf = 1,
@@ -268,7 +274,7 @@ minetest.register_entity("yatm_item_shelves:shelf_item", {
     self.scale = data.scale
     self.item_name = data.item_name
 
-    local pos_and_index = yatm_core.string_split(data.shelf_pos, ",")
+    local pos_and_index = string_split(data.shelf_pos, ",")
 
     local x = tonumber(pos_and_index[1])
     local y = tonumber(pos_and_index[2])
@@ -302,7 +308,7 @@ minetest.register_entity("yatm_item_shelves:shelf_item", {
   end,
 })
 
-local LoadingSystem = yatm_core.Class:extends("shelves.LoadingSystem")
+local LoadingSystem = foundation.com.Class:extends("shelves.LoadingSystem")
 local ic = LoadingSystem.instance_class
 
 function ic:initialize()
@@ -372,7 +378,7 @@ minetest.register_lbm({
   run_at_every_load = true,
 
   action = function (pos, _node)
-    minetest.log("info", "reloading shelf contents pos=" .. yatm_core.vector3.to_string(pos))
+    minetest.log("info", "reloading shelf contents pos=" .. Vector3.to_string(pos))
     loading_system:push_item(pos)
   end,
 })

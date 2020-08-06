@@ -1,3 +1,6 @@
+local table_merge = assert(foundation.com.table_merge)
+local Directions = assert(foundation.com.Directions)
+
 local Paintings = {
   members = {}
 }
@@ -13,13 +16,13 @@ function Paintings:reduce_while(acc, cb)
   return acc
 end
 
-local painting_after_place_node = yatm_core.facedir_wallmount_after_place_node
+local painting_after_place_node = Directions.facedir_wallmount_after_place_node
 
 local function register_painting(name, cols, rows, def)
-  local nodedef = yatm_core.table_merge({
+  local nodedef = table_merge({
     basename = name,
 
-    groups = yatm_core.table_merge(def.groups or {}, {
+    groups = table_merge(def.groups or {}, {
       snappy = 3,
       painting = 1,
       -- It's apart of the painting canvas group, allowing the changing of the painting
@@ -63,8 +66,8 @@ local function register_painting(name, cols, rows, def)
   for row = 1,rows do
     for col = 1,cols do
       local tile_texture_name = texture_basename .. "_" .. (col - 1) .. "_" .. (row - 1) .. ".png"
-      local new_def = yatm_core.table_merge(nodedef, {
-        groups = yatm_core.table_merge(nodedef.groups or {}, {
+      local new_def = table_merge(nodedef, {
+        groups = table_merge(nodedef.groups or {}, {
           -- This represents the cells position in the total painting
           ["painting_cell_" .. col .. "_" .. row] = 1,
         }),

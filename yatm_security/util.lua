@@ -1,8 +1,17 @@
+local MetaSchema = assert(foundation.com.MetaSchema)
+local Groups = assert(foundation.com.Groups)
+local random_string62 = assert(foundation.com.random_string62)
+local set_itemstack_meta_description = assert(foundation.com.set_itemstack_meta_description)
+local get_itemstack_description = assert(foundation.com.get_itemstack_description)
+local get_itemstack_item_description = assert(foundation.com.get_itemstack_item_description)
+local is_blank = assert(foundation.com.is_blank)
+local itemstack_inspect = assert(foundation.com.itemstack_inspect)
+
 --
 -- `lockable` is used for any item or node that can be locked using a key, the locked item is created
 -- using the locksmith's table.
 --
-local lockable_object_schema = yatm_core.MetaSchema:new("lockable_object", "", {
+local lockable_object_schema = MetaSchema:new("lockable_object", "", {
   -- Lockable objects have a public key, this ensures that the private key
   -- (attached to the key itself) is never exposed, now since I don't actually have
   -- a crypto library, it's just the same string copied around for now.
@@ -11,7 +20,7 @@ local lockable_object_schema = yatm_core.MetaSchema:new("lockable_object", "", {
   },
 })
 
-local lockable_key_schema = yatm_core.MetaSchema:new("lockable_key", "", {
+local lockable_key_schema = MetaSchema:new("lockable_key", "", {
   -- Lockable Key objects have a private key, this will be used to generate the public key upon request
   -- for matching.
   prvkey = {
@@ -19,7 +28,7 @@ local lockable_key_schema = yatm_core.MetaSchema:new("lockable_key", "", {
   },
 })
 
-local chipped_object_schema = yatm_core.MetaSchema:new("chipped_object", "", {
+local chipped_object_schema = MetaSchema:new("chipped_object", "", {
   chip_item = {
     type = "string",
   },
@@ -28,13 +37,13 @@ local chipped_object_schema = yatm_core.MetaSchema:new("chipped_object", "", {
   },
 })
 
-local access_chip_schema = yatm_core.MetaSchema:new("access_chip", "", {
+local access_chip_schema = MetaSchema:new("access_chip", "", {
   pubkey = {
     type = "string",
   },
 })
 
-local access_card_schema = yatm_core.MetaSchema:new("access_card", "", {
+local access_card_schema = MetaSchema:new("access_card", "", {
   prvkey = {
     type = "string",
   },
@@ -53,14 +62,14 @@ yatm_security.access_card_schema = access_card_schema:compile(ACCESS_BASENAME)
 -- Determines if the given item is a lock, locks are just boring single use items for the locksmith table.
 function yatm_security.item_is_lock(item)
   if item then
-    return yatm_core.groups.has_group(item, "lockable_lock")
+    return Groups.has_group(item, "lockable_lock")
   end
   return false
 end
 
 function yatm_security.item_is_access_card(item)
   if item then
-    return yatm_core.groups.has_group(item, "access_card")
+    return Groups.has_group(item, "access_card")
   end
   return false
 end
@@ -68,7 +77,7 @@ end
 -- Determines if the given item is a access chip, access chips are paired before hand using a programmer's table
 function yatm_security.item_is_access_chip(item)
   if item then
-    return yatm_core.groups.has_group(item, "access_chip")
+    return Groups.has_group(item, "access_chip")
   end
   -- it was null, it's not a access chip then.
   return false
@@ -76,35 +85,35 @@ end
 
 function yatm_security.item_is_key(item)
   if item then
-    return yatm_core.groups.has_group(item, "lockable_key")
+    return Groups.has_group(item, "lockable_key")
   end
   return false
 end
 
 function yatm_security.item_is_blank_key(item)
   if item then
-    return yatm_core.groups.has_group(item, "blank_key")
+    return Groups.has_group(item, "blank_key")
   end
   return false
 end
 
 function yatm_security.item_is_toothed_key(item)
   if item then
-    return yatm_core.groups.has_group(item, "toothed_key")
+    return Groups.has_group(item, "toothed_key")
   end
   return false
 end
 
 function yatm_security.item_is_chippable_object(item)
   if item then
-    return yatm_core.groups.has_group(item, "chippable_object")
+    return Groups.has_group(item, "chippable_object")
   end
   return false
 end
 
 function yatm_security.item_is_lockable_object(item)
   if item then
-    return yatm_core.groups.has_group(item, "lockable_object")
+    return Groups.has_group(item, "lockable_object")
   end
   return false
 end
@@ -348,9 +357,9 @@ function yatm_security.install_chip(chippable_stack, chip_stack)
   yatm_security.set_chipped_object_stack_pubkey(chippable_stack, pubkey)
   yatm_security.set_chipped_object_stack_chip_item(chippable_stack, chip_stack:to_string())
 
-  yatm_core.set_itemstack_meta_description(
+  set_itemstack_meta_description(
     chippable_stack,
-    yatm_core.get_itemstack_description(chippable_stack) .. " [Chip Locked]")
+    get_itemstack_description(chippable_stack) .. " [Chip Locked]")
 
   return chippable_stack
 end
@@ -367,12 +376,12 @@ function yatm_security.pair_lockables(key_stack, object_stack, prvkey)
   yatm_security.set_lockable_object_stack_pubkey(object_stack, pubkey)
 
   -- TODO: move this stuff elsewhere
-  yatm_core.set_itemstack_meta_description(object_stack, yatm_core.get_itemstack_description(object_stack) .. " [Locked]")
+  set_itemstack_meta_description(object_stack, get_itemstack_description(object_stack) .. " [Locked]")
   local key_description =
-    yatm_core.get_itemstack_item_description(key_stack) ..
+    get_itemstack_item_description(key_stack) ..
     "\nPaired with " ..
-    yatm_core.get_itemstack_description(object_stack)
-  yatm_core.set_itemstack_meta_description(key_stack, key_description)
+    get_itemstack_description(object_stack)
+  set_itemstack_meta_description(key_stack, key_description)
 end
 
 --
@@ -383,7 +392,7 @@ function yatm_security.prvkey_to_pubkey(prvkey)
 end
 
 function yatm_security.gen_prvkey()
-  return yatm_core.random_string62(64)
+  return random_string62(64)
 end
 
 function yatm_security.compare_keys(prvkey, pubkey)
@@ -421,7 +430,7 @@ function yatm_security.is_lockable_node(pos)
     local lockable_meta = minetest.get_meta(pos)
     local pubkey = yatm_security.get_lockable_object_pubkey(lockable_meta)
 
-    return not yatm_core.is_blank(pubkey)
+    return not is_blank(pubkey)
   end
 
   return false
@@ -444,7 +453,7 @@ function yatm_security.is_stack_a_key_for_locked_node(stack, pos)
       print("node was not a lockable object", minetest.pos_to_string(pos), lockable_node.name)
     end
   else
-    print("stack was not a toothed key: ", yatm_core.itemstack_inspect(stack))
+    print("stack was not a toothed key: ", itemstack_inspect(stack))
   end
   return false
 end
@@ -475,7 +484,7 @@ function yatm_security.is_chipped_node(pos)
     local chipped_meta = minetest.get_meta(pos)
     local pubkey = yatm_security.get_chipped_object_pubkey(chipped_meta)
 
-    return not yatm_core.is_blank(pubkey)
+    return not is_blank(pubkey)
   end
 
   return false
@@ -499,7 +508,7 @@ function yatm_security.is_stack_an_access_card_for_chipped_node(access_card_stac
       print("node was not a chipped object", minetest.pos_to_string(pos), chipped_node.name)
     end
   else
-    print("stack was not an access card: ", yatm_core.itemstack_inspect(access_card_stack))
+    print("stack was not an access card: ", itemstack_inspect(access_card_stack))
   end
   return false
 end

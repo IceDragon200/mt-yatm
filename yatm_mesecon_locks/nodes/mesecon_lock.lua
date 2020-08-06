@@ -1,3 +1,7 @@
+local Directions = assert(foundation.com.Directions)
+local FakeMetaRef = assert(foundation.com.FakeMetaRef)
+local table_merge = assert(foundation.com.table_merge)
+
 local colors = {
   {"white", "White"}
 }
@@ -8,19 +12,19 @@ if dye then
 end
 
 local lock_dirs = {
-  yatm_core.D_DOWN,
-  yatm_core.D_NORTH,
-  yatm_core.D_EAST,
-  yatm_core.D_SOUTH,
-  yatm_core.D_WEST,
+  assert(Directions.D_DOWN),
+  assert(Directions.D_NORTH),
+  assert(Directions.D_EAST),
+  assert(Directions.D_SOUTH),
+  assert(Directions.D_WEST),
 }
 
 local function mesecon_lock_rules_get(node)
   local result = {}
   local i = 1
   for _,dir in ipairs(lock_dirs) do
-    local new_dir = yatm_core.facedir_to_face(node.param2, dir)
-    result[i] = yatm_core.DIR6_TO_VEC3[new_dir]
+    local new_dir = Directions.facedir_to_face(node.param2, dir)
+    result[i] = Directions.DIR6_TO_VEC3[new_dir]
     i = i + 1
   end
   return result
@@ -29,14 +33,14 @@ end
 local function mesecon_lock_preserve_metadata(pos, oldnode, old_meta_table, drops)
   local stack = drops[1]
 
-  local old_meta = yatm_core.FakeMetaRef:new(old_meta_table)
+  local old_meta = FakeMetaRef:new(old_meta_table)
   local new_meta = stack:get_meta()
   yatm_security.copy_lockable_object_pubkey(old_meta, new_meta)
   new_meta:set_string(old_meta:get_string("description"))
 end
 
 local function mesecon_lock_after_place_node(pos, placer, itemstack, pointed_thing)
-  yatm_core.facedir_wallmount_after_place_node(pos, placer, itemstack, pointed_thing)
+  Directions.facedir_wallmount_after_place_node(pos, placer, itemstack, pointed_thing)
 
   local new_meta = minetest.get_meta(pos)
   local old_meta = itemstack:get_meta()
@@ -126,7 +130,7 @@ for _,color in pairs(colors) do
 
     drop = off_name,
 
-    groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
+    groups = table_merge(groups, {not_in_creative_inventory = 1}),
 
     dye_color = color_basename,
 

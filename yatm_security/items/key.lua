@@ -1,3 +1,5 @@
+local list_concat = assert(foundation.com.list_concat)
+
 local colors = {
   {"white", "White"}
 }
@@ -7,7 +9,7 @@ if dye then
   colors = dye.dyes
 end
 
-colors = yatm_core.list_concat({{"default", "Default"}}, colors)
+colors = list_concat({{"default", "Default"}}, colors)
 
 local materials = {
   {"carbon_steel", "Carbon Steel"},

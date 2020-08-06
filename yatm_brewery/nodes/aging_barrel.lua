@@ -1,3 +1,5 @@
+local list_concat = assert(foundation.com.list_concat)
+local Directions = assert(foundation.com.Directions)
 local aging_registry = assert(yatm.brewing.aging_registry)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
@@ -51,7 +53,7 @@ local function barrel_refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
   node = node or minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
-  local stack = FluidTanks.get_fluid(pos, yatm_core.D_NONE)
+  local stack = FluidTanks.get_fluid(pos, Directions.D_NONE)
   if stack and stack.amount > 0 then
     meta:set_string("infotext",
       "Brewing Barrel: " ..
@@ -102,7 +104,7 @@ if dye then
   colors = dye.dyes
 end
 
-colors = yatm_core.list_concat({{"default", "Default"}}, colors)
+colors = list_concat({{"default", "Default"}}, colors)
 
 for _,pair in ipairs(colors) do
   local color_basename = pair[1]

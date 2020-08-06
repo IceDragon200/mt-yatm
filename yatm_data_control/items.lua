@@ -1,10 +1,12 @@
+local table_concat = assert(foundation.com.table_concat)
+
 local colors = {
   {"default", "default"}
 }
 
 -- If the dye module is available, use the colors from there instead.
 if dye then
-  colors = yatm_core.table_concat(colors, dye.dyes)
+  colors = table_concat(colors, dye.dyes)
 else
   print("yatm_data_control", "dye is not available, lamps will only be available in white")
 end

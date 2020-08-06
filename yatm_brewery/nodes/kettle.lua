@@ -1,3 +1,8 @@
+local Cuboid = assert(foundation.com.Cuboid)
+local ng = Cuboid.new_fast_node_box
+local Directions = assert(foundation.com.Directions)
+local maybe_start_node_timer = assert(foundation.com.maybe_start_node_timer)
+local table_merge = assert(foundation.com.table_merge)
 local cluster_thermal = assert(yatm.cluster.thermal)
 local brewing_registry = assert(yatm.brewing.brewing_registry)
 local ItemInterface = assert(yatm.items.ItemInterface)
@@ -8,8 +13,8 @@ local FluidExchange = assert(yatm.fluids.FluidExchange)
 local tank_capacity = 4000
 local fluid_interface = FluidInterface.new_directional(function (self, pos, dir)
   local node = minetest.get_node(pos)
-  local new_dir = yatm_core.facedir_to_face(node.param2, dir)
-  if new_dir == yatm_core.D_DOWN or new_dir == yatm_core.D_UP then
+  local new_dir = Directions.facedir_to_face(node.param2, dir)
+  if new_dir == Directions.D_DOWN or new_dir == Directions.D_UP then
     return "input_fluid_tank", tank_capacity
   else
     return "output_fluid_tank", tank_capacity
@@ -18,8 +23,8 @@ end)
 
 local item_interface = ItemInterface.new_directional(function (self, pos, dir)
   local node = minetest.get_node(pos)
-  local new_dir = yatm_core.facedir_to_face(node.param2, dir)
-  if new_dir == yatm_core.D_DOWN or new_dir == yatm_core.D_UP then
+  local new_dir = Directions.facedir_to_face(node.param2, dir)
+  if new_dir == Directions.D_DOWN or new_dir == Directions.D_UP then
     return "input_item"
   else
     return "output_item"
@@ -132,17 +137,17 @@ local kettle_node_box = {
   type = "fixed",
   fixed = {
     -- legs
-    yatm_core.Cuboid:new(2, 0, 2, 3, 2, 3):fast_node_box(),
-    yatm_core.Cuboid:new(11,0, 2, 3, 2, 3):fast_node_box(),
-    yatm_core.Cuboid:new(2, 0,11, 3, 2, 3):fast_node_box(),
-    yatm_core.Cuboid:new(11,0,11, 3, 2, 3):fast_node_box(),
+    ng(2, 0, 2, 3, 2, 3),
+    ng(11,0, 2, 3, 2, 3),
+    ng(2, 0,11, 3, 2, 3),
+    ng(11,0,11, 3, 2, 3),
     --
-    yatm_core.Cuboid:new(1, 2, 1,14, 3,14):fast_node_box(), -- base plate
+    ng(1, 2, 1,14, 3,14), -- base plate
     --
-    yatm_core.Cuboid:new(0, 4, 0,16,12, 2):fast_node_box(), -- north side
-    yatm_core.Cuboid:new(0, 4,14,16,12, 2):fast_node_box(), -- south side
-    yatm_core.Cuboid:new(0, 4, 0, 2,12,16):fast_node_box(), -- west side
-    yatm_core.Cuboid:new(14,4, 0, 2,12,16):fast_node_box(), -- east side
+    ng(0, 4, 0,16,12, 2), -- north side
+    ng(0, 4,14,16,12, 2), -- south side
+    ng(0, 4, 0, 2,12,16), -- west side
+    ng(14,4, 0, 2,12,16), -- east side
   },
 }
 
@@ -185,7 +190,7 @@ yatm.register_stateful_node("yatm_brewery:kettle", {
           minetest.swap_node(pos, node)
         end
 
-        yatm_core.maybe_start_node_timer(pos, 1.0)
+        maybe_start_node_timer(pos, 1.0)
 
         yatm.queue_refresh_infotext(pos, node)
       end
@@ -204,7 +209,7 @@ yatm.register_stateful_node("yatm_brewery:kettle", {
   },
 
   on = {
-    groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
+    groups = table_merge(groups, {not_in_creative_inventory = 1}),
 
     tiles = {
       "yatm_kettle_top.png",

@@ -1,7 +1,9 @@
+local Groups = assert(foundation.com.Groups)
+
 yatm.icbm = yatm.icbm or {}
 
 function yatm.icbm.is_item_icbm_warhead(item_stack)
-  return yatm_core.groups.has_group(item, "icbm_warhead")
+  return Groups.has_group(item, "icbm_warhead")
 end
 
 function yatm.icbm.is_item_stack_icbm_warhead(item_stack)
@@ -15,7 +17,7 @@ function yatm.icbm.is_item_stack_icbm_warhead(item_stack)
 end
 
 function yatm.icbm.is_item_icbm_shell(item)
-  return yatm_core.groups.has_group(item, "icbm_shell")
+  return Groups.has_group(item, "icbm_shell")
 end
 
 function yatm.icbm.is_item_stack_icbm_shell(item_stack)

@@ -4,6 +4,10 @@
 -- A multipurpose sensor block that can be attached to a tank and communicate over the yatm data network.
 -- The sensor can be configured to monitor the level and output different signals unto the network.
 --
+local Cuboid = assert(foundation.com.Cuboid)
+local ng = Cuboid.new_fast_node_box
+local metaref_merge_fields_from_table = assert(foundation.com.metaref_merge_fields_from_table)
+local Directions = assert(foundation.com.Directions)
 local data_network = assert(yatm.data_network)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidStack = assert(yatm.fluids.FluidStack)
@@ -63,7 +67,7 @@ local function fluid_sensor_on_receive_fields(player, formname, fields, assigns)
   if changeset.is_valid then
     local new_fields = changeset:apply_changes()
     print("New Fields", dump(new_fields))
-    yatm_core.metaref_merge_fields_from_table(meta, new_fields)
+    metaref_merge_fields_from_table(meta, new_fields)
 
     print("New Meta", dump(meta:to_table()))
   end
@@ -100,12 +104,12 @@ function fluid_sensor_data_interface:update(pos, node, dt)
   local fluid_test_port = meta:get_int("fluid_test_port")
   local empty_test_port = meta:get_int("empty_test_port")
 
-  for d6, v3 in pairs(yatm_core.DIR6_TO_VEC3) do
+  for d6, v3 in pairs(Directions.DIR6_TO_VEC3) do
     local new_pos = vector.add(pos, v3)
     local node = minetest.get_node(new_pos)
 
     if node.name ~= "air" then
-      local id6 = yatm_core.invert_dir(d6)
+      local id6 = Directions.invert_dir(d6)
 
       if FluidTanks.has_fluid_interface(new_pos, id6) then
         local fluid_stack = FluidStack.presence(FluidTanks.get_fluid(new_pos, id6))
@@ -201,13 +205,13 @@ end
 
 local fluid_sensor_node_box = {
   type = "connected",
-  fixed          = yatm_core.Cuboid:new(3, 3, 3,10,10,10):fast_node_box(),
-  connect_top    = yatm_core.Cuboid:new(2,13, 2,12, 3,12):fast_node_box(), -- y+
-  connect_bottom = yatm_core.Cuboid:new(2, 0, 2,12, 3,12):fast_node_box(), -- y-
-  connect_front  = yatm_core.Cuboid:new(4, 0, 0, 8,13, 3):fast_node_box(), -- z-
-  connect_back   = yatm_core.Cuboid:new(4, 0,13, 8,13, 3):fast_node_box(), -- z+
-  connect_left   = yatm_core.Cuboid:new(0, 0, 4, 3,13, 8):fast_node_box(), -- x-
-  connect_right  = yatm_core.Cuboid:new(13,0, 4, 3,13, 8):fast_node_box(), -- x+
+  fixed          = ng(3, 3, 3,10,10,10),
+  connect_top    = ng(2,13, 2,12, 3,12), -- y+
+  connect_bottom = ng(2, 0, 2,12, 3,12), -- y-
+  connect_front  = ng(4, 0, 0, 8,13, 3), -- z-
+  connect_back   = ng(4, 0,13, 8,13, 3), -- z+
+  connect_left   = ng(0, 0, 4, 3,13, 8), -- x-
+  connect_right  = ng(13,0, 4, 3,13, 8), -- x+
 }
 
 local connects_to = {

@@ -3,7 +3,9 @@
   If you've ever used Elixir's Ecto, then you know what this is.
 
 ]]
-local Changeset = yatm_core.Class:extends("Changeset")
+local is_table_empty = assert(foundation.com.is_table_empty)
+
+local Changeset = foundation.com.Class:extends("Changeset")
 
 Changeset.Types = {
   number = {},
@@ -57,7 +59,7 @@ function ic:initialize(schema, record)
 end
 
 function ic:has_errors()
-  return not yatm_core.is_table_empty(self.errors)
+  return not is_table_empty(self.errors)
 end
 
 function ic:apply_changes()

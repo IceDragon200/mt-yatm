@@ -4,13 +4,17 @@
   it will trigger a refresh of the nodes to change the painting.
 
 ]]
+local is_table_empty = assert(foundation.com.is_table_empty)
+local Directions = assert(foundation.com.Directions)
+local list_get_next = assert(foundation.com.list_get_next)
+
 local Paintings = assert(yatm_papercraft.Paintings)
-local Groups = assert(yatm_core.groups)
+local Groups = assert(foundation.com.Groups)
 
 local function find_canvases(root_pos)
   local result = {}
   local to_search = { root_pos }
-  while not yatm_core.is_table_empty(to_search) do
+  while not is_table_empty(to_search) do
     local old_to_search = to_search
     to_search = {}
     for _,pos in ipairs(old_to_search) do
@@ -22,16 +26,16 @@ local function find_canvases(root_pos)
           if Groups.get_item(nodedef, "painting_canvas") then
             result[hash] = {
               pos = pos,
-              face = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP),
+              face = Directions.facedir_to_face(node.param2, Directions.D_UP),
               node = node,
             }
 
             -- Canvases explore their 4 cardinals from their top face
             -- That is, if it's placed against the ground it will only explore the x and z axis
             -- On the wall it will explore the x or z and the y axis, depending on what side it's placed.
-            for _,code in pairs(yatm_core.DIR4) do
-              local new_code = yatm_core.facedir_to_face(node.param2, code)
-              local vec3 = yatm_core.DIR6_TO_VEC3[new_code]
+            for _,code in pairs(Directions.DIR4) do
+              local new_code = Directions.facedir_to_face(node.param2, code)
+              local vec3 = Directions.DIR6_TO_VEC3[new_code]
 
               table.insert(to_search, vector.add(pos, vec3))
             end
@@ -55,14 +59,14 @@ local function painting_brush_on_use(itemstack, user, pointed_thing)
     end
     -- Floor mounted paintings are all correct now, but not so much for wall ones
     -- TODO: fix wall mounted paintings
-    local facing_axis = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
-    local facing_rotation = yatm_core.cardinal_direction_from(facing_axis, pointed_thing.under, user:get_pos())
-    local new_rotation = yatm_core.invert_dir(facing_rotation)
-    local new_facedir = yatm_core.facedir_from_axis_and_rotation(facing_axis, new_rotation)
+    local facing_axis = Directions.facedir_to_face(node.param2, Directions.D_UP)
+    local facing_rotation = Directions.cardinal_direction_from(facing_axis, pointed_thing.under, user:get_pos())
+    local new_rotation = Directions.invert_dir(facing_rotation)
+    local new_facedir = Directions.facedir_from_axis_and_rotation(facing_axis, new_rotation)
 
-    print("Axis & Rotation", yatm_core.inspect_axis_and_rotation(facing_axis, facing_rotation),
-                             yatm_core.facedir_from_axis_and_rotation(facing_axis, facing_rotation))
-    print("Axis & New Rotation", yatm_core.inspect_axis_and_rotation(facing_axis, new_rotation), new_facedir)
+    print("Axis & Rotation", Directions.inspect_axis_and_rotation(facing_axis, facing_rotation),
+                             Directions.facedir_from_axis_and_rotation(facing_axis, facing_rotation))
+    print("Axis & New Rotation", Directions.inspect_axis_and_rotation(facing_axis, new_rotation), new_facedir)
 
     local canvases = find_canvases(pos)
 
@@ -71,13 +75,13 @@ local function painting_brush_on_use(itemstack, user, pointed_thing)
     for _hash,entry in pairs(canvases) do
       local y
       local x
-      if facing_axis == yatm_core.D_UP or facing_axis == yatm_core.D_DOWN then
+      if facing_axis == Directions.D_UP or facing_axis == Directions.D_DOWN then
         y = entry.pos.z
         x = entry.pos.x
-      elseif facing_axis == yatm_core.D_NORTH or facing_axis == yatm_core.D_SOUTH then
+      elseif facing_axis == Directions.D_NORTH or facing_axis == Directions.D_SOUTH then
         y = entry.pos.y
         x = entry.pos.x
-      elseif facing_axis == yatm_core.D_EAST or facing_axis == yatm_core.D_WEST then
+      elseif facing_axis == Directions.D_EAST or facing_axis == Directions.D_WEST then
         y = entry.pos.y
         x = entry.pos.z
       end
@@ -157,10 +161,10 @@ local function painting_brush_on_use(itemstack, user, pointed_thing)
       local w
       local h
       local r90 = false
-      if facing_rotation == yatm_core.D_NORTH or facing_rotation == yatm_core.D_SOUTH then
+      if facing_rotation == Directions.D_NORTH or facing_rotation == Directions.D_SOUTH then
         w = nw
         h = nh
-      elseif facing_rotation == yatm_core.D_WEST or facing_rotation == yatm_core.D_EAST then
+      elseif facing_rotation == Directions.D_WEST or facing_rotation == Directions.D_EAST then
         -- w, h remain the same
         r90 = true
         w = nh
@@ -181,7 +185,7 @@ local function painting_brush_on_use(itemstack, user, pointed_thing)
       end)
 
       if painting_names then
-        local new_name = yatm_core.list_get_next(painting_names, nodedef.painting_name)
+        local new_name = list_get_next(painting_names, nodedef.painting_name)
 
         if new_name then
           print("painting will be replaced", dump(nodedef.painting_name), new_name)
@@ -202,65 +206,65 @@ local function painting_brush_on_use(itemstack, user, pointed_thing)
             end
 
             local cell_facedir = new_facedir
-            if facing_axis == yatm_core.D_UP then
-              if facing_rotation == yatm_core.D_NORTH then
+            if facing_axis == Directions.D_UP then
+              if facing_rotation == Directions.D_NORTH then
                 -- north needs it's x coord flipped
                 cx = w - 1 - cx
-              elseif facing_rotation == yatm_core.D_SOUTH then
+              elseif facing_rotation == Directions.D_SOUTH then
                 -- south has it's y coord flipped
                 cy = h - 1 - cy
-              elseif facing_rotation == yatm_core.D_WEST then
+              elseif facing_rotation == Directions.D_WEST then
                 -- needs to have both it's coords flipped
                 cx = h - 1 - cx
                 cy = w - 1 - cy
-              elseif facing_rotation == yatm_core.D_EAST then
+              elseif facing_rotation == Directions.D_EAST then
                 -- east is only normal face
               end
-            elseif facing_axis == yatm_core.D_DOWN then
-              if facing_rotation == yatm_core.D_NORTH then
+            elseif facing_axis == Directions.D_DOWN then
+              if facing_rotation == Directions.D_NORTH then
                 -- is upside down
                 cy = h - 1 - cy
                 cx = w - 1 - cx
-                cell_facedir = yatm_core.facedir_from_axis_and_rotation(facing_axis, facing_rotation)
-              elseif facing_rotation == yatm_core.D_SOUTH then
+                cell_facedir = Directions.facedir_from_axis_and_rotation(facing_axis, facing_rotation)
+              elseif facing_rotation == Directions.D_SOUTH then
                 -- just need to rotate the faces back
-                cell_facedir = yatm_core.facedir_from_axis_and_rotation(facing_axis, facing_rotation)
-              elseif facing_rotation == yatm_core.D_WEST then
+                cell_facedir = Directions.facedir_from_axis_and_rotation(facing_axis, facing_rotation)
+              elseif facing_rotation == Directions.D_WEST then
                 -- needs to have both it's coords flipped
                 --cy = w - 1 - cy
                 cx = h - 1 - cx
-                cell_facedir = yatm_core.facedir_from_axis_and_rotation(facing_axis, facing_rotation)
-              elseif facing_rotation == yatm_core.D_EAST then
+                cell_facedir = Directions.facedir_from_axis_and_rotation(facing_axis, facing_rotation)
+              elseif facing_rotation == Directions.D_EAST then
                 -- east is only normal face
                 cy = w - 1 - cy
-                cell_facedir = yatm_core.facedir_from_axis_and_rotation(facing_axis, facing_rotation)
+                cell_facedir = Directions.facedir_from_axis_and_rotation(facing_axis, facing_rotation)
               end
-            elseif facing_axis == yatm_core.D_NORTH then
-              if facing_rotation == yatm_core.D_SOUTH then
+            elseif facing_axis == Directions.D_NORTH then
+              if facing_rotation == Directions.D_SOUTH then
                 -- is upside down, so it needs to flip it's rotation around
                 -- and invert it's y coord
                 cx = w - 1 - cx
                 cy = h - 1 - cy
-                cell_facedir = yatm_core.facedir_from_axis_and_rotation(facing_axis, facing_rotation)
+                cell_facedir = Directions.facedir_from_axis_and_rotation(facing_axis, facing_rotation)
               end
-            elseif facing_axis == yatm_core.D_SOUTH then
-              if facing_rotation == yatm_core.D_SOUTH then
+            elseif facing_axis == Directions.D_SOUTH then
+              if facing_rotation == Directions.D_SOUTH then
                 -- needs to flip it's y coord
                 cy = h - 1 - cy
               end
-            elseif facing_axis == yatm_core.D_WEST then
-              if facing_rotation == yatm_core.D_SOUTH then
+            elseif facing_axis == Directions.D_WEST then
+              if facing_rotation == Directions.D_SOUTH then
                 cx = w - 1 - cx
                 cy = h - 1 - cy
                 -- rotate clockwise
-                cell_facedir = yatm_core.rotate_facedir_face_clockwise(cell_facedir)
+                cell_facedir = Directions.rotate_facedir_face_clockwise(cell_facedir)
               end
-            elseif facing_axis == yatm_core.D_EAST then
-              if facing_rotation == yatm_core.D_SOUTH then
+            elseif facing_axis == Directions.D_EAST then
+              if facing_rotation == Directions.D_SOUTH then
                 -- needs to flip it's y coord
                 cy = h - 1 - cy
                 -- rotate annti-clockwise
-                cell_facedir = yatm_core.rotate_facedir_face_anticlockwise(cell_facedir)
+                cell_facedir = Directions.rotate_facedir_face_anticlockwise(cell_facedir)
               end
             end
 

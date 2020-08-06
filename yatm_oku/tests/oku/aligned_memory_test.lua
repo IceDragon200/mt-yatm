@@ -1,4 +1,4 @@
-local Luna = assert(yatm_core.Luna)
+local Luna = assert(foundation.com.Luna)
 
 local case = Luna:new("yatm_oku.OKU.Memory")
 

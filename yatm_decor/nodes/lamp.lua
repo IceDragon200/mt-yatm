@@ -1,3 +1,4 @@
+local Directions = assert(foundation.com.Directions)
 local lamp_node_box = {
   type = "fixed",
   fixed = {
@@ -39,7 +40,7 @@ local lamp_after_place_node = function (pos, placer, itemstack, pointed_thing)
   -- FIXME: If the digtron places the node, YATM will override the param2
   --        This causes the lamp to be placed in the wrong direction.
   --print(pos, placer.get_player_name())
-  yatm_core.facedir_wallmount_after_place_node(pos, placer, itemstack, pointed_thing)
+  Directions.facedir_wallmount_after_place_node(pos, placer, itemstack, pointed_thing)
 end
 
 local lamp_rules = {}

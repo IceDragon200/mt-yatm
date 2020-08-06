@@ -4,6 +4,15 @@
 -- Each type has 2 modes:
 --   Normal mode - input streams are treated as single numbers and will be affected by overflows
 --   Vector mode - input streams are vectors, each byte in the stream is a single number and overflow is treated as a loop around
+local Cuboid = assert(foundation.com.Cuboid)
+local ng = Cuboid.new_fast_node_box
+local string_hex_unescape = assert(foundation.com.string_hex_unescape)
+local string_hex_escape = assert(foundation.com.string_hex_escape)
+local string_split = assert(foundation.com.string_split)
+local table_merge = assert(foundation.com.table_merge)
+local table_copy = assert(foundation.com.table_copy)
+local is_table_empty = assert(foundation.com.is_table_empty)
+local Directions = assert(foundation.com.Directions)
 local data_network = assert(yatm.data_network)
 
 local function get_input_value(meta, dir)
@@ -19,12 +28,12 @@ local function get_input_values(pos)
   local meta = minetest.get_meta(pos)
   local result = {}
 
-  for _, dir in ipairs(yatm_core.DIR6) do
+  for _, dir in ipairs(Directions.DIR6) do
     if sub_network_ids[dir] then
       local port = yatm_data_logic.get_matrix_port(pos, "port", "input", dir)
       if port > 0 then
         local value = get_input_value(meta, dir)
-        result[dir] = yatm_core.string_hex_unescape(value)
+        result[dir] = string_hex_unescape(value)
       end
     end
   end
@@ -65,7 +74,7 @@ local data_interface = {
     if should_exec then
       local result = get_input_values(pos)
       local ops = meta:get_string("operands")
-      local operands = yatm_core.string_split(ops)
+      local operands = string_split(ops)
       local new_value = self:operate(pos, node, result, operands)
 
       if meta:get_string("last_value") ~= new_value then
@@ -143,7 +152,7 @@ local data_interface = {
         }
       })
 
-    if not yatm_core.is_table_empty(inputs_changed) then
+    if not is_table_empty(inputs_changed) then
       yatm_data_logic.unmark_all_receive(assigns.pos)
 
       yatm_data_logic.bind_matrix_ports(assigns.pos, "port", "reset", "active")
@@ -223,8 +232,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   node_box = {
     type = "fixed",
     fixed = {
-      yatm_core.Cuboid:new(0, 0, 0, 16, 4, 16):fast_node_box(),
-      yatm_core.Cuboid:new(3, 4, 3, 10, 1, 10):fast_node_box(),
+      ng(0, 0, 0, 16, 4, 16),
+      ng(3, 4, 3, 10, 1, 10),
     },
   },
 
@@ -252,10 +261,10 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
 
     local result = get_input_values(pos)
     local ops = meta:get_string("operands")
-    local operands = yatm_core.string_split(ops)
+    local operands = string_split(ops)
 
     local infotext =
-      yatm_core.string_split(nodedef.description, "\n")[1] .. "\n" ..
+      string_split(nodedef.description, "\n")[1] .. "\n" ..
       "Last Output: " .. meta:get_string("last_value") .. "\n" ..
       "Operands: " .. ops .. "\n" ..
       data_network:get_infotext(pos)
@@ -280,13 +289,13 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
     },
 
-    data_interface = yatm_core.table_merge(data_interface, {
+    data_interface = table_merge(data_interface, {
       operate = function (self, pos, node, values, operands)
         local identity = {}
 
         for dir, value in pairs(values) do
           if #value > 0 then
-            local result = yatm_core.string_hex_escape(value)
+            local result = string_hex_escape(value)
             yatm_data_logic.emit_matrix_port_value(pos, "port", "output", result)
             return result
           end
@@ -309,7 +318,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
     },
 
-    data_interface = yatm_core.table_merge(data_interface, {
+    data_interface = table_merge(data_interface, {
       operate = function (self, pos, node, values, operands)
         local accumulator = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
         local carry = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
@@ -332,7 +341,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
           result[i] = string.char(accumulator[i])
         end
         local value = table.concat(result)
-        value = yatm_core.string_hex_escape(value)
+        value = string_hex_escape(value)
         yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
 
         return value
@@ -354,13 +363,13 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
     },
 
-    data_interface = yatm_core.table_merge(data_interface, {
+    data_interface = table_merge(data_interface, {
       operate = function (self, pos, node, origin_values, operands)
-        local values = yatm_core.table_copy(origin_values)
+        local values = table_copy(origin_values)
         local accumulator = {}
 
         for _, dir_code in ipairs(operands) do
-          local value = values[yatm_core.STRING1_TO_DIR[dir_code]]
+          local value = values[Directions.STRING1_TO_DIR[dir_code]]
           for i = 1,16 do
             local byte = string.byte(value, i) or 0
 
@@ -380,7 +389,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
           result[i] = string.char(accumulator[i])
         end
         local value = table.concat(result)
-        value = yatm_core.string_hex_escape(value)
+        value = string_hex_escape(value)
         yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
 
         return value
@@ -402,7 +411,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
     },
 
-    data_interface = yatm_core.table_merge(data_interface, {
+    data_interface = table_merge(data_interface, {
       operate = function (self, pos, node, values, operands)
         local accumulator = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
         local carry = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
@@ -425,7 +434,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
           result[i] = string.char(accumulator[i])
         end
         local value = table.concat(result)
-        value = yatm_core.string_hex_escape(value)
+        value = string_hex_escape(value)
         yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
 
         return value
@@ -447,13 +456,13 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
     },
 
-    data_interface = yatm_core.table_merge(data_interface, {
+    data_interface = table_merge(data_interface, {
       operate = function (self, pos, node, values, operands)
         local accumulator = {}
 
         for _, dir_code in ipairs(operands) do
           for i = 1,16 do
-            local value = values[yatm_core.STRING1_TO_DIR[dir_code]]
+            local value = values[Directions.STRING1_TO_DIR[dir_code]]
             local byte = string.byte(value, i) or 0
 
             if accumulator[i] then
@@ -481,7 +490,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
           result[i] = string.char(accumulator[i])
         end
         local value = table.concat(result)
-        value = yatm_core.string_hex_escape(value)
+        value = string_hex_escape(value)
         yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
 
         return value
@@ -503,7 +512,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
     },
 
-    data_interface = yatm_core.table_merge(data_interface, {
+    data_interface = table_merge(data_interface, {
       operate = function (self, pos, node, values, operands)
         local accumulator
 
@@ -517,7 +526,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
           end
         end
 
-        value = yatm_core.string_hex_escape(accumulator)
+        value = string_hex_escape(accumulator)
         yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
 
         return value
@@ -539,7 +548,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
     },
 
-    data_interface = yatm_core.table_merge(data_interface, {
+    data_interface = table_merge(data_interface, {
       operate = function (self, pos, node, values, operands)
         local accumulator
 
@@ -553,7 +562,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
           end
         end
 
-        value = yatm_core.string_hex_escape(accumulator)
+        value = string_hex_escape(accumulator)
         yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
 
         return value
@@ -577,7 +586,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
     },
 
-    data_interface = yatm_core.table_merge(data_interface, {
+    data_interface = table_merge(data_interface, {
       operate = function (self, pos, node, values, operands)
         local identity = {}
 
@@ -613,7 +622,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
     },
 
-    data_interface = yatm_core.table_merge(data_interface, {
+    data_interface = table_merge(data_interface, {
       operate = function (self, pos, node, values, operands)
         local accumulator = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
@@ -630,7 +639,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
           result[i] = string.char(accumulator[i])
         end
         local value = table.concat(result)
-        value = yatm_core.string_hex_escape(value)
+        value = string_hex_escape(value)
         yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
 
         return value
@@ -652,7 +661,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
     },
 
-    data_interface = yatm_core.table_merge(data_interface, {
+    data_interface = table_merge(data_interface, {
       operate = function (self, pos, node, values, operands)
         local accumulator = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
@@ -669,7 +678,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
           result[i] = string.char(accumulator[i])
         end
         local value = table.concat(result)
-        value = yatm_core.string_hex_escape(value)
+        value = string_hex_escape(value)
         yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
 
         return value
@@ -691,7 +700,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
     },
 
-    data_interface = yatm_core.table_merge(data_interface, {
+    data_interface = table_merge(data_interface, {
       operate = function (self, pos, node, values, operands)
         local accumulator = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
@@ -708,7 +717,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
           result[i] = string.char(accumulator[i])
         end
         local value = table.concat(result)
-        value = yatm_core.string_hex_escape(value)
+        value = string_hex_escape(value)
         yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
 
         return value
@@ -730,7 +739,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
     },
 
-    data_interface = yatm_core.table_merge(data_interface, {
+    data_interface = table_merge(data_interface, {
       operate = function (self, pos, node, values, operands)
         local accumulator = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
@@ -751,7 +760,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
           result[i] = string.char(accumulator[i])
         end
         local value = table.concat(result)
-        value = yatm_core.string_hex_escape(value)
+        value = string_hex_escape(value)
         yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
 
         return value
@@ -773,7 +782,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
     },
 
-    data_interface = yatm_core.table_merge(data_interface, {
+    data_interface = table_merge(data_interface, {
       operate = function (self, pos, node, values, operands)
         local accumulator = {}
 
@@ -796,7 +805,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
           result[i] = string.char(accumulator[i])
         end
         local value = table.concat(result)
-        value = yatm_core.string_hex_escape(value)
+        value = string_hex_escape(value)
         yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
 
         return value
@@ -818,7 +827,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
     },
 
-    data_interface = yatm_core.table_merge(data_interface, {
+    data_interface = table_merge(data_interface, {
       operate = function (self, pos, node, values, operands)
         local accumulator = {}
 
@@ -841,7 +850,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
           result[i] = string.char(accumulator[i])
         end
         local value = table.concat(result)
-        value = yatm_core.string_hex_escape(value)
+        value = string_hex_escape(value)
         yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
 
         return value

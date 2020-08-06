@@ -1,3 +1,5 @@
+local maybe_start_node_timer = assert(foundation.com.maybe_start_node_timer)
+local format_pretty_time = assert(foundation.com.format_pretty_time)
 local cluster_thermal = assert(yatm.cluster.thermal)
 
 local function get_oven_formspec(pos, user)
@@ -62,15 +64,15 @@ local function allow_metadata_inventory_take(pos, listname, index, stack, player
 end
 
 local function on_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
-  yatm_core.maybe_start_node_timer(pos, 1.0)
+  maybe_start_node_timer(pos, 1.0)
 end
 
 local function on_metadata_inventory_put(pos, listname, index, stack, player)
-  yatm_core.maybe_start_node_timer(pos, 1.0)
+  maybe_start_node_timer(pos, 1.0)
 end
 
 local function on_metadata_inventory_take(pos, listname, index, stack, player)
-  yatm_core.maybe_start_node_timer(pos, 1.0)
+  maybe_start_node_timer(pos, 1.0)
 end
 
 local function on_timer(pos, elapsed)
@@ -151,7 +153,7 @@ local function oven_refresh_infotext(pos)
   meta:set_string("infotext",
     -- TODO: pull the max heat from configuration
     "Heat: " .. heat .. " / 1600" .. "\n" ..
-    "Fuel Time: " .. yatm_core.format_pretty_time(fuel_time) .. " / " .. yatm_core.format_pretty_time(fuel_time_max)
+    "Fuel Time: " .. format_pretty_time(fuel_time) .. " / " .. format_pretty_time(fuel_time_max)
   )
 end
 
@@ -209,7 +211,7 @@ yatm.register_stateful_node("yatm_culinary:oven", {
           minetest.swap_node(pos, node)
         end
 
-        yatm_core.maybe_start_node_timer(pos, 1.0)
+        maybe_start_node_timer(pos, 1.0)
         yatm.queue_refresh_infotext(pos, node)
       end
     end,

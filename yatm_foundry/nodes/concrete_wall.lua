@@ -1,3 +1,6 @@
+local Cuboid = yatm_core.Cuboid
+local ng = Cuboid.new_fast_node_box
+
 local colors = {
   {"white", "White"}
 }
@@ -10,37 +13,37 @@ end
 local concrete_wall_nodebox = {
   type = "fixed",
   fixed = {
-    yatm_core.Cuboid:new( 1,  0,  7, 14, 16,  2):fast_node_box(), -- top small wall
-    yatm_core.Cuboid:new( 0,  0,  6,  2, 16,  4):fast_node_box(), -- top left segment wall
-    yatm_core.Cuboid:new( 6,  0,  6,  4, 16,  4):fast_node_box(), -- top mid segment wall
-    yatm_core.Cuboid:new(14,  0,  6,  2, 16,  4):fast_node_box(), -- top right segment wall
+    ng( 1,  0,  7, 14, 16,  2), -- top small wall
+    ng( 0,  0,  6,  2, 16,  4), -- top left segment wall
+    ng( 6,  0,  6,  4, 16,  4), -- top mid segment wall
+    ng(14,  0,  6,  2, 16,  4), -- top right segment wall
   }
 }
 
 local concrete_wall_collision_box = {
   type = "fixed",
   fixed = {
-    yatm_core.Cuboid:new( 0,  0,  6, 16, 16,  4):fast_node_box(),
+    ng( 0,  0,  6, 16, 16,  4),
   }
 }
 
 local concrete_wall_corner_nodebox = {
   type = "fixed",
   fixed = {
-    yatm_core.Cuboid:new( 1,  0,  7,  8, 16,  2):fast_node_box(), -- top small wall
-    yatm_core.Cuboid:new( 0,  0,  6,  2, 16,  4):fast_node_box(), -- top left segment wall
-    yatm_core.Cuboid:new( 6,  0,  6,  4, 16,  4):fast_node_box(), -- top mid segment wall
+    ng( 1,  0,  7,  8, 16,  2), -- top small wall
+    ng( 0,  0,  6,  2, 16,  4), -- top left segment wall
+    ng( 6,  0,  6,  4, 16,  4), -- top mid segment wall
 
-    yatm_core.Cuboid:new( 7,  0,  1,  2, 16,  8):fast_node_box(), -- top small wall
-    yatm_core.Cuboid:new( 6,  0,  0,  4, 16,  2):fast_node_box(), -- top left segment wall
+    ng( 7,  0,  1,  2, 16,  8), -- top small wall
+    ng( 6,  0,  0,  4, 16,  2), -- top left segment wall
   }
 }
 
 local concrete_wall_corner_collision_box = {
   type = "fixed",
   fixed = {
-    yatm_core.Cuboid:new( 0,  0,  6, 10, 16,  4):fast_node_box(),
-    yatm_core.Cuboid:new( 6,  0,  0,  4, 16, 10):fast_node_box(),
+    ng( 0,  0,  6, 10, 16,  4),
+    ng( 6,  0,  0,  4, 16, 10),
   }
 }
 
@@ -74,14 +77,14 @@ for _,pair in ipairs(colors) do
     collision_box = {
       type = "fixed",
       fixed = {
-        yatm_core.Cuboid:new(0, 0, 6, 16, 16, 4):fast_node_box()
+        ng(0, 0, 6, 16, 16, 4)
       },
     },
 
     selection_box = {
       type = "fixed",
       fixed = {
-        yatm_core.Cuboid:new(0, 0, 6, 16, 16, 4):fast_node_box()
+        ng(0, 0, 6, 16, 16, 4)
       },
     },
 

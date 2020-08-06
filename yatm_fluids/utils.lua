@@ -1,10 +1,11 @@
+local string_starts_with = assert(foundation.com.string_starts_with)
 local FluidRegistry = assert(yatm_fluids.FluidRegistry)
 
 local Utils = {}
 
 function Utils.is_valid_name(name)
   -- A fluid name must not be nil, empty or is a group name
-  return name ~= nil and name ~= "" and not yatm_core.string_starts_with(name, "group:")
+  return name ~= nil and name ~= "" and not string_starts_with(name, "group:")
 end
 
 function Utils.can_replace(dest_name, src_name, amount)
@@ -35,22 +36,22 @@ Returns:
 function Utils.matches(a, b)
   a = FluidRegistry.normalize_fluid_name(a)
   b = FluidRegistry.normalize_fluid_name(b)
-  if yatm_core.string_starts_with(a, "group:") then
+  if string_starts_with(a, "group:") then
     -- We can't match group to group, since it has to return a valid name
-    if b ~= "*" and not yatm_core.string_starts_with(b, "group:") then
+    if b ~= "*" and not string_starts_with(b, "group:") then
       local group = string.sub(a, #"group:" + 1)
-      local members = yatm_core.measurable.members_of(FluidRegistry, group)
+      local members = yatm.Measurable.members_of(FluidRegistry, group)
       if members and members[b] then
         return b
       end
     end
     return nil
-  elseif yatm_core.string_starts_with(b, "group:") then
+  elseif string_starts_with(b, "group:") then
     if a == "*" then
       return nil
     end
     local group = string.sub(b, #"group:" + 1)
-    local members = yatm_core.measurable.members_of(FluidRegistry, group)
+    local members = yatm.Measurable.members_of(FluidRegistry, group)
     if members and members[a] then
       return a
     end

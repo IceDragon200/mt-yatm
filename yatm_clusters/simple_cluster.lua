@@ -1,9 +1,11 @@
-local is_table_empty = assert(yatm_core.is_table_empty)
-local table_keys = assert(yatm_core.table_keys)
-local table_length = assert(yatm_core.table_length)
-local DIR6_TO_VEC3 = assert(yatm_core.DIR6_TO_VEC3)
+local is_table_empty = assert(foundation.com.is_table_empty)
+local table_keys = assert(foundation.com.table_keys)
+local table_merge = assert(foundation.com.table_merge)
+local table_bury = assert(foundation.com.table_bury)
+local table_length = assert(foundation.com.table_length)
+local DIR6_TO_VEC3 = assert(foundation.com.Directions.DIR6_TO_VEC3)
 
-local SimpleCluster = yatm_core.Class:extends("SimpleCluster")
+local SimpleCluster = foundation.com.Class:extends("SimpleCluster")
 local ic = SimpleCluster.instance_class
 
 function ic:initialize(options)
@@ -272,8 +274,6 @@ function ic:scan_for_branches(origin, node)
   local all_nodes = {}
   local branches = {}
   local hash_node_position = minetest.hash_node_position
-  local table_merge = yatm_core.table_merge
-  local table_bury = yatm_core.table_bury
 
   local g_branch_id = 0
   for dir6, vec3 in pairs(DIR6_TO_VEC3) do

@@ -1,3 +1,14 @@
+local Cuboid = assert(foundation.com.Cuboid)
+local ng = Cuboid.new_fast_node_box
+local is_blank = assert(foundation.com.is_blank)
+local string_hex_escape = assert(foundation.com.string_hex_escape)
+local string_hex_unescape = assert(foundation.com.string_hex_unescape)
+local string_bin_encode = assert(foundation.com.string_bin_encode)
+local string_dec_encode = assert(foundation.com.string_dec_encode)
+local string_hex_encode = assert(foundation.com.string_hex_encode)
+local string_hex_decode = assert(foundation.com.string_hex_decode)
+local string_pad_trailing = assert(foundation.com.string_pad_trailing)
+local is_table_empty = assert(foundation.com.is_table_empty)
 local data_network = assert(yatm.data_network)
 local ByteDecoder = yatm.ByteDecoder
 
@@ -46,9 +57,9 @@ local function emit_last_value(pos, node)
   local value = meta:get_string("last_value")
   local decode_format = meta:get_string("decode_format")
   --print("receive_pdu", minetest.pos_to_string(pos), node.name, dir, port, dump(value), dump(decode_format))
-  if not yatm_core.is_blank(decode_format) then
+  if not is_blank(decode_format) then
     -- handle hex escape codes i.e. '\x00'
-    local str = yatm_core.string_hex_unescape(value)
+    local str = string_hex_unescape(value)
     -- Decoders can only handle a maximum of 16 characters (which is enough for a 128 bit value)
     str = string.sub(str, 1, 16)
 
@@ -56,14 +67,14 @@ local function emit_last_value(pos, node)
 
     if decode_format == "binary" then
       -- decimal splits a byte into 8 ascii components
-      result = yatm_core.string_bin_encode(str)
+      result = string_bin_encode(str)
     elseif decode_format == "decimal" then
       local input_format = meta:get_string("input_format")
       -- decimal splits a value into 3 ascii components
       -- decimal is the only problem child that needs to actually decode the value
       -- into it's integral parts
       if input_format == "" or input_format == "char" then
-        result = yatm_core.string_dec_encode(str)
+        result = string_dec_encode(str)
       else
         local value
         result = ""
@@ -107,15 +118,15 @@ local function emit_last_value(pos, node)
       end
     elseif decode_format == "hex" then
       -- splits a byte into 2 ascii components
-      result = yatm_core.string_hex_encode(str)
+      result = string_hex_encode(str)
     elseif decode_format == "split" then
       -- just split the string 'as is' across multiple output ports
       result = str
     end
 
-    result = yatm_core.string_pad_trailing(result, 16, " ")
+    result = string_pad_trailing(result, 16, " ")
 
-    meta:set_string("last_vector", yatm_core.string_hex_escape(result))
+    meta:set_string("last_vector", string_hex_escape(result))
     yatm_data_logic.emit_output_data_vector(pos, result, VECTOR_CONFIG)
     yatm.queue_refresh_infotext(pos, node)
   end
@@ -139,8 +150,8 @@ minetest.register_node("yatm_data_logic:data_decoder", {
   node_box = {
     type = "fixed",
     fixed = {
-      yatm_core.Cuboid:new(0, 0, 0, 16, 4, 16):fast_node_box(),
-      yatm_core.Cuboid:new(3, 4, 3, 10, 1, 10):fast_node_box(),
+      ng(0, 0, 0, 16, 4, 16),
+      ng(3, 4, 3, 10, 1, 10),
     },
   },
 
@@ -225,7 +236,7 @@ minetest.register_node("yatm_data_logic:data_decoder", {
 
       local inputs_changed = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "io", VECTOR_CONFIG)
 
-      if not yatm_core.is_table_empty(inputs_changed) then
+      if not is_table_empty(inputs_changed) then
         yatm_data_logic.unmark_all_receive(assigns.pos)
         yatm_data_logic.mark_all_inputs_for_active_receive(assigns.pos)
       end

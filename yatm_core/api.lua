@@ -3,24 +3,23 @@
   The public API exposed by the yatm_core
 
 ]]
-yatm.Luna = assert(yatm_core.Luna)
+local table_merge = assert(foundation.com.table_merge)
 
-yatm.MetaSchema = yatm_core.MetaSchema
-yatm.Cuboid = yatm_core.Cuboid
-yatm.ByteBuf = yatm_core.ByteBuf
-yatm.BinSchema = yatm_core.BinSchema
-yatm.ByteDecoder = yatm_core.ByteDecoder
-yatm.ByteEncoder = yatm_core.ByteEncoder
-yatm.vector2 = yatm_core.vector2
-yatm.vector3 = yatm_core.vector3
-yatm.vector4 = yatm_core.vector4
-
-yatm.sounds = yatm_core.sounds
-yatm.node_sounds = yatm_core.node_sounds
+-- alias foundation modules into yatm, they were originally yatm modules to begin with
+yatm.Luna = foundation.com.Luna
+yatm.MetaSchema = foundation.com.MetaSchema
+yatm.ByteBuf = foundation.com.ByteBuf
+yatm.BinSchema = foundation.com.BinSchema
+yatm.ByteDecoder = foundation.com.ByteDecoder
+yatm.ByteEncoder = foundation.com.ByteEncoder
+yatm.Vector2 = foundation.com.Vector2
+yatm.Vector3 = foundation.com.Vector3
+yatm.Vector4 = foundation.com.Vector4
+yatm.Cuboid = foundation.com.Cuboid
 
 function yatm.register_stateful_node(basename, base, states)
   for name, changes in pairs(states) do
-    local nodedef = yatm_core.table_merge(base, changes)
+    local nodedef = table_merge(base, changes)
     nodedef.basename = nodedef.basename or basename
     minetest.register_node(basename .. "_" .. name, nodedef)
   end
@@ -28,7 +27,7 @@ end
 
 function yatm.register_stateful_tool(basename, base, states)
   for name, changes in pairs(states) do
-    local tooldef = yatm_core.table_merge(base, changes)
+    local tooldef = table_merge(base, changes)
     tooldef.basename = tooldef.basename or basename
     minetest.register_tool(basename .. "_" .. name, tooldef)
   end
@@ -36,7 +35,7 @@ end
 
 function yatm.register_stateful_craftitem(basename, base, states)
   for name, changes in pairs(states) do
-    local craftitemdef = yatm_core.table_merge(base, changes)
+    local craftitemdef = table_merge(base, changes)
     craftitemdef.basename = craftitemdef.basename or basename
     minetest.register_craftitem(basename .. "_" .. name, craftitemdef)
   end

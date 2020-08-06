@@ -1,5 +1,5 @@
 local Form = yatm_core.UI.Form
-local Luna = assert(yatm_core.Luna)
+local Luna = assert(foundation.com.Luna)
 
 local case = Luna:new("yatm_core.UI.Form")
 

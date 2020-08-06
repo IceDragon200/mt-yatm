@@ -1,8 +1,10 @@
 --[[
 The fluid registry
 ]]
-local Measurable = assert(yatm_core.measurable)
-local Groups = assert(yatm_core.groups)
+local Measurable = assert(yatm.Measurable)
+local Groups = assert(foundation.com.Groups)
+local table_merge = assert(foundation.com.table_merge)
+local Directions = assert(foundation.com.Directions)
 
 local FluidRegistry = {
   m_item_name_to_fluid_name = {},
@@ -58,7 +60,7 @@ function FluidRegistry.register_fluid_tank(modname, fluid_name, nodedef)
   nodedef = nodedef or {}
   local fluiddef = assert(FluidRegistry.get_fluid(fluid_name), "expected fluid " .. fluid_name .. "to exist")
 
-  local groups = yatm_core.table_merge({
+  local groups = table_merge({
     cracky = 1,
     fluid_tank = 1,
     filled_fluid_tank = 1,
@@ -100,7 +102,7 @@ function FluidRegistry.register_fluid_tank(modname, fluid_name, nodedef)
     after_destruct = yatm_fluids.fluid_tank_after_destruct,
 
     after_place_node = function (pos, _placer, _itemstack, _pointed_thing)
-      yatm.fluids.FluidTanks.replace_fluid(pos, yatm_core.D_NONE,
+      yatm.fluids.FluidTanks.replace_fluid(pos, Directions.D_NONE,
         yatm.fluids.FluidStack.new(fluiddef.name, tank_fluid_interface.capacity), true)
     end,
 
@@ -161,7 +163,7 @@ function FluidRegistry.register_fluid_nodes(basename, def)
 
   minetest.register_node(basename .. "_flowing", {
     description = "Flowing " .. def.description_base,
-    groups = yatm_core.table_merge(def.groups or {}, {not_in_creative_inventory = 1}),
+    groups = table_merge(def.groups or {}, {not_in_creative_inventory = 1}),
     drawtype = "flowingliquid",
     tiles = {def.texture_basename .. "_source.png"},
     special_tiles = {

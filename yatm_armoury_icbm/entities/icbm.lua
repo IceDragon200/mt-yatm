@@ -1,3 +1,7 @@
+local Directions = assert(foundation.com.Directions)
+local Cuboid = assert(foundation.com.Cuboid)
+local ng = Cuboid.new_fast_node_box
+
 local g_inventory_id = 0
 
 local function create_inventory(self)
@@ -111,8 +115,8 @@ minetest.register_entity("yatm_armoury_icbm:icbm", {
   --glow = 1,
   visual = "mesh",
   visual_size = {x = 10, y = 10},
-  collisionbox = yatm_core.Cuboid:new(2, -4, 2, 12, 68, 12):fast_node_box(),
-  selectionbox = yatm_core.Cuboid:new(1, -4, 1, 14, 68, 14):fast_node_box(),
+  collisionbox = ng(2, -4, 2, 12, 68, 12),
+  selectionbox = ng(1, -4, 1, 14, 68, 14),
   mesh = "yatm_icbm.obj",
   textures = {"yatm_icbm_empty_warhead.png"},
 
@@ -254,10 +258,10 @@ minetest.register_entity("yatm_armoury_icbm:icbm", {
       self.origin_pos = data.origin_pos
       self.origin_dir = data.origin_dir
       if self.origin_dir == nil then
-        self.origin_dir = yatm_core.V3_UP
+        self.origin_dir = Directions.V3_UP
       end
       if type(self.origin_dir) == "number" then
-        self.origin_dir = yatm_core.DIR6_TO_VEC3[self.origin_dir]
+        self.origin_dir = Directions.DIR6_TO_VEC3[self.origin_dir]
       end
       self.guide_length = data.guide_length
       self.target_pos = data.target_pos

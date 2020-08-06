@@ -1,3 +1,5 @@
+local Directions = assert(foundation.com.Directions)
+
 local mesecon_hub_node_box = {
   type = "fixed",
   fixed = {
@@ -24,20 +26,20 @@ local INTERVALS_NAME = {
 }
 
 local DIR_TO_CODE = {
-  [yatm_core.D_NORTH] = "n",
-  [yatm_core.D_SOUTH] = "s",
-  [yatm_core.D_EAST] = "e",
-  [yatm_core.D_WEST] = "w",
+  [Directions.D_NORTH] = "n",
+  [Directions.D_SOUTH] = "s",
+  [Directions.D_EAST] = "e",
+  [Directions.D_WEST] = "w",
 }
 
 local TILE_DIR_ORDER = {
-  yatm_core.D_EAST,
-  yatm_core.D_WEST,
-  yatm_core.D_NORTH,
-  yatm_core.D_SOUTH,
+  Directions.D_EAST,
+  Directions.D_WEST,
+  Directions.D_NORTH,
+  Directions.D_SOUTH,
 }
 
-local drop = "yatm_mesecon_sequencer:sequencer_i0_d" .. yatm_core.D_NORTH
+local drop = "yatm_mesecon_sequencer:sequencer_i0_d" .. Directions.D_NORTH
 
 local function trigger_receptor_off(pos, node)
   local nodedef = minetest.registered_nodes[node.name]
@@ -52,20 +54,20 @@ end
 for interval,duration in pairs(INTERVALS) do
   for _, dir in ipairs(TILE_DIR_ORDER) do
     local name = "yatm_mesecon_sequencer:sequencer_i" .. interval .. "_d" .. dir
-    local prev_seq_name = "yatm_mesecon_sequencer:sequencer_i" .. interval .. "_d" .. yatm_core.DIR4_ACW_ROTATION[dir]
-    local next_seq_name = "yatm_mesecon_sequencer:sequencer_i" .. interval .. "_d" .. yatm_core.DIR4_CW_ROTATION[dir]
+    local prev_seq_name = "yatm_mesecon_sequencer:sequencer_i" .. interval .. "_d" .. Directions.DIR4_ACW_ROTATION[dir]
+    local next_seq_name = "yatm_mesecon_sequencer:sequencer_i" .. interval .. "_d" .. Directions.DIR4_CW_ROTATION[dir]
     local next_interval_name = "yatm_mesecon_sequencer:sequencer_i" .. ((interval + 1) % 5) .. "_d" .. dir
 
     local receptor_rules = function (node)
       return {
-        vector.new(yatm_core.DIR6_TO_VEC3[dir]),
+        vector.new(Directions.DIR6_TO_VEC3[dir]),
       }
     end
 
     local effector_rules = {}
     for _, effector_dir in ipairs(TILE_DIR_ORDER) do
       if effector_dir ~= dir then
-        effector_rules[effector_dir] = vector.new(yatm_core.DIR6_TO_VEC3[effector_dir])
+        effector_rules[effector_dir] = vector.new(Directions.DIR6_TO_VEC3[effector_dir])
       end
     end
 
@@ -157,7 +159,7 @@ for interval,duration in pairs(INTERVALS) do
       end,
 
       after_place_node = function (pos, placer, item_stack, pointed_thing)
-        yatm_core.facedir_wallmount_after_place_node(pos, placer, item_stack, pointed_thing)
+        Directions.facedir_wallmount_after_place_node(pos, placer, item_stack, pointed_thing)
       end,
 
       sequencer = {

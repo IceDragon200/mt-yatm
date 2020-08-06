@@ -6,16 +6,19 @@
 -- It can also be coupled with a cardboard box or other compatible inventory to
 -- grab items
 --
+local Cuboid = yatm_core.Cuboid
+local ng = Cuboid.new_fast_node_box
+
 local table_nodebox = {
   type = "fixed",
   fixed = {
     -- TOP
-    yatm_core.Cuboid:new( 0,  4,  0, 16, 12, 16):fast_node_box(),
+    ng( 0,  4,  0, 16, 12, 16),
     -- LEGS
-    yatm_core.Cuboid:new( 1,  0,  1,  4,  4,  4):fast_node_box(),
-    yatm_core.Cuboid:new(11,  0,  1,  4,  4,  4):fast_node_box(),
-    yatm_core.Cuboid:new(11,  0, 11,  4,  4,  4):fast_node_box(),
-    yatm_core.Cuboid:new( 1,  0, 11,  4,  4,  4):fast_node_box(),
+    ng( 1,  0,  1,  4,  4,  4),
+    ng(11,  0,  1,  4,  4,  4),
+    ng(11,  0, 11,  4,  4,  4),
+    ng( 1,  0, 11,  4,  4,  4),
   }
 }
 

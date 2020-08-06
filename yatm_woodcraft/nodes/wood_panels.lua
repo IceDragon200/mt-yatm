@@ -1,3 +1,6 @@
+local Cuboid = yatm_core.Cuboid
+local ng = Cuboid.new_fast_node_box
+
 local wood_types = {
   oak_wood    = {
     name = "Apple Wood",
@@ -43,7 +46,7 @@ for wood_basename, wood_config in pairs(wood_types) do
     node_box = {
       type = "fixed",
       fixed = {
-        yatm_core.Cuboid:new(0, 0, 0, 16, 2, 16):fast_node_box(),
+        ng(0, 0, 0, 16, 2, 16),
       },
     },
   })

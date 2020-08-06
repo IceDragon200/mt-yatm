@@ -1,9 +1,12 @@
+local Cuboid = yatm_core.Cuboid
+local ng = Cuboid.new_fast_node_box
+
 local swiper_node_box = {
   type = "fixed",
   fixed = {
-    yatm_core.Cuboid:new(0, 0, 15, 16, 16, 1):fast_node_box(),
-    yatm_core.Cuboid:new( 1, 1,12, 3, 14, 3):fast_node_box(),
-    yatm_core.Cuboid:new( 5, 1,12, 3, 14, 3):fast_node_box(),
+    ng(0, 0, 15, 16, 16, 1),
+    ng( 1, 1,12, 3, 14, 3),
+    ng( 5, 1,12, 3, 14, 3),
   }
 }
 

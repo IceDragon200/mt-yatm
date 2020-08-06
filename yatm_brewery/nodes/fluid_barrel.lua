@@ -2,6 +2,9 @@
 -- FluidBarrels as their name states contain fluids.
 -- Unlike the brewing barrel used to age booze.
 --
+local Directions = assert(foundation.com.Directions)
+local list_concat = assert(foundation.com.list_concat)
+
 local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
 
@@ -30,7 +33,7 @@ end
 
 local function barrel_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
-  local stack = FluidTanks.get_fluid(pos, yatm_core.D_NONE)
+  local stack = FluidTanks.get_fluid(pos, Directions.D_NONE)
   if stack and stack.amount > 0 then
     meta:set_string("infotext", "Barrel: " .. stack.name .. " " .. stack.amount .. " / " .. BARREL_CAPACITY)
   else
@@ -54,7 +57,7 @@ if dye then
   colors = dye.dyes
 end
 
-colors = yatm_core.list_concat({{"default", "Default"}}, colors)
+colors = list_concat({{"default", "Default"}}, colors)
 
 for _,pair in ipairs(colors) do
   local color_basename = pair[1]

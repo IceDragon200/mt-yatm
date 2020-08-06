@@ -3,6 +3,8 @@
   This is just the empty tank.
 
 ]]
+local Directions = assert(foundation.com.Directions)
+local table_copy = assert(foundation.com.table_copy)
 local FluidStack = assert(yatm_fluids.FluidStack)
 local FluidTanks = assert(yatm_fluids.FluidTanks)
 local FluidMeta = assert(yatm_fluids.FluidMeta)
@@ -41,7 +43,7 @@ minetest.register_node("yatm_fluids:fluid_tank", {
   on_construct = yatm_fluids.fluid_tank_on_construct,
   after_destruct = yatm_fluids.fluid_tank_after_destruct,
   after_place_node = function (pos)
-    FluidTanks.replace_fluid(pos, yatm_core.D_NONE, FluidStack.new_empty(), true)
+    FluidTanks.replace_fluid(pos, Directions.D_NONE, FluidStack.new_empty(), true)
   end,
 
   fluid_interface = assert(yatm_fluids.fluid_tank_fluid_interface),
@@ -49,7 +51,7 @@ minetest.register_node("yatm_fluids:fluid_tank", {
   connects_to = {"group:fluid_tank"},
 })
 
-local steel_tank_fluid_interface = yatm_core.table_copy(yatm_fluids.fluid_tank_fluid_interface)
+local steel_tank_fluid_interface = table_copy(yatm_fluids.fluid_tank_fluid_interface)
 
 steel_tank_fluid_interface.capacity = 32000
 
@@ -105,7 +107,7 @@ minetest.register_node("yatm_fluids:steel_fluid_tank", {
   on_construct = yatm_fluids.fluid_tank_on_construct,
   after_destruct = yatm_fluids.fluid_tank_after_destruct,
   after_place_node = function (pos)
-    FluidTanks.replace_fluid(pos, yatm_core.D_NONE, FluidStack.new_empty(), true)
+    FluidTanks.replace_fluid(pos, Directions.D_NONE, FluidStack.new_empty(), true)
   end,
 
   fluid_interface = steel_tank_fluid_interface,

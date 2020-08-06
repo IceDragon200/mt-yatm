@@ -1,6 +1,10 @@
+local MetaSchema = assert(foundation.com.MetaSchema)
+local random_string16 = assert(foundation.com.random_string16)
+local is_blank = assert(foundation.com.is_blank)
+
 local NetworkMeta = {}
 
-local hub_address_schema = yatm_core.MetaSchema:new("yatm_mesecon_hubs.hub_address", "", {
+local hub_address_schema = MetaSchema:new("yatm_mesecon_hubs.hub_address", "", {
   hub_address = { type = "string" },
 })
 
@@ -9,7 +13,7 @@ NetworkMeta.hub_address_schema = hub_address_schema:compile("mesehub")
 function NetworkMeta.generate_hub_address()
   local result = {}
   for i = 1,4 do
-    table.insert(result, yatm_core.random_string16(4))
+    table.insert(result, random_string16(4))
   end
   return table.concat(result, ":")
 end
@@ -35,7 +39,7 @@ end
 
 function NetworkMeta.patch_hub_address(meta, new_address)
   local addr = NetworkMeta.get_hub_address(meta)
-  if yatm_core.is_blank(addr) then
+  if is_blank(addr) then
     new_address = new_address or NetworkMeta.generate_hub_address()
     return NetworkMeta.set_hub_address(meta, new_address)
   else

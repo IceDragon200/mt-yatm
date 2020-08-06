@@ -10,6 +10,9 @@
 --
 -- Even the designer is baffled by that.
 --
+local Cuboid = assert(foundation.com.Cuboid)
+local ng = Cuboid.new_fast_node_box
+local random_string62 = assert(foundation.com.random_string62)
 local data_network = assert(yatm.data_network)
 
 -- need at least 256 for the zero-page and then another for the stack, so addressable memory is really only
@@ -95,7 +98,7 @@ local function micro_controller_after_place_node(pos, _placer, _item_stack, _poi
   meta:set_int("p16", 0)
 
   -- Initialize secret
-  local secret = yatm_core.random_string62(8)
+  local secret = random_string62(8)
   meta:set_string("secret", "mctl." .. secret)
   data_network:add_node(pos, node)
 
@@ -135,13 +138,13 @@ local groups = {
 
 local micro_controller_nodebox = {
   type = "connected",
-  fixed          = yatm_core.Cuboid:new(3, 0, 3,10, 4,10):fast_node_box(),
-  connect_top    = yatm_core.Cuboid:new(5, 4, 5, 6,12, 6):fast_node_box(), -- y+
-  connect_bottom = yatm_core.Cuboid:new(2, 0, 2,12, 1,12):fast_node_box(), -- y-
-  connect_front  = yatm_core.Cuboid:new(4, 0, 0, 8, 3, 4):fast_node_box(), -- z-
-  connect_back   = yatm_core.Cuboid:new(4, 0,12, 8, 3, 4):fast_node_box(), -- z+
-  connect_left   = yatm_core.Cuboid:new(0, 0, 4, 4, 3, 8):fast_node_box(), -- x-
-  connect_right  = yatm_core.Cuboid:new(12,0, 4, 4, 3, 8):fast_node_box(), -- x+
+  fixed          = ng(3, 0, 3,10, 4,10),
+  connect_top    = ng(5, 4, 5, 6,12, 6), -- y+
+  connect_bottom = ng(2, 0, 2,12, 1,12), -- y-
+  connect_front  = ng(4, 0, 0, 8, 3, 4), -- z-
+  connect_back   = ng(4, 0,12, 8, 3, 4), -- z+
+  connect_left   = ng(0, 0, 4, 4, 3, 8), -- x-
+  connect_right  = ng(12,0, 4, 4, 3, 8), -- x+
 }
 
 local connects_to = {
@@ -222,7 +225,7 @@ minetest.register_node("yatm_oku:oku_micro_controller", {
     local meta = minetest.get_meta(pos)
     local secret = meta:get_string("secret")
     if not secret then
-      secret = yatm_core.random_string62(8)
+      secret = random_string62(8)
       meta:set_string("secret", "mctl." .. secret)
     end
     yatm.computers:upsert_computer(pos, node, meta:get_string("secret"), {

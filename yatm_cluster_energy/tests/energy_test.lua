@@ -1,4 +1,4 @@
-local Luna = assert(yatm_core.Luna)
+local Luna = assert(foundation.com.Luna)
 local Energy = assert(yatm_cluster_energy.energy)
 
 local case = Luna:new("yatm_cluster_energy.energy")

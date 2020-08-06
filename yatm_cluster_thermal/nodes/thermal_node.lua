@@ -1,5 +1,6 @@
 local cluster_thermal = assert(yatm.cluster.thermal)
-local table_length = assert(yatm_core.table_length)
+local table_length = assert(foundation.com.table_length)
+local table_merge = assert(foundation.com.table_merge)
 
 local function get_thermal_node_formspec(pos, user, assigns)
   local meta = minetest.get_meta(pos)
@@ -138,7 +139,7 @@ yatm.register_stateful_node("yatm_cluster_thermal:thermal_node", {
   },
 
   heating = {
-    groups = yatm_core.table_merge(groups, { not_in_creative_inventory = 1 }),
+    groups = table_merge(groups, { not_in_creative_inventory = 1 }),
 
     tiles = {
       {
@@ -154,7 +155,7 @@ yatm.register_stateful_node("yatm_cluster_thermal:thermal_node", {
   },
 
   cooling = {
-    groups = yatm_core.table_merge(groups, { not_in_creative_inventory = 1 }),
+    groups = table_merge(groups, { not_in_creative_inventory = 1 }),
 
     tiles = {
       {
@@ -170,7 +171,7 @@ yatm.register_stateful_node("yatm_cluster_thermal:thermal_node", {
   },
 
   radiating = {
-    groups = yatm_core.table_merge(groups, { not_in_creative_inventory = 1 }),
+    groups = table_merge(groups, { not_in_creative_inventory = 1 }),
 
     tiles = {
       {

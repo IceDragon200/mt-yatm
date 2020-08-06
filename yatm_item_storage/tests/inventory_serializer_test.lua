@@ -1,4 +1,4 @@
-local Luna = assert(yatm_core.Luna)
+local Luna = assert(foundation.com.Luna)
 local InventorySerializer = assert(yatm_item_storage.InventorySerializer)
 
 local case = Luna:new("yatm_item_storage.InventorySerializer")

@@ -11,12 +11,15 @@
 --      '.|.'
 --        '
 --
+local Cuboid = assert(foundation.com.Cuboid)
+local ng = Cuboid.new_fast_node_box
+local Directions = assert(foundation.com.Directions)
 
 -- Frames only join with other frames
 local node_box = {
   type = "fixed",
   fixed = {
-    yatm_core.Cuboid:new(0, 0, 0, 16, 16, 16):fast_node_box(),
+    ng(0, 0, 0, 16, 16, 16),
   },
 }
 
@@ -55,7 +58,7 @@ minetest.register_node("yatm_frames:frame_sticky_one", {
     motor_frame_sticky = 1,
   },
 
-  sticky_faces = {yatm_core.D_SOUTH},
+  sticky_faces = {Directions.D_SOUTH},
 
   tiles = {
     "yatm_frame_side.png",
@@ -84,7 +87,7 @@ minetest.register_node("yatm_frames:frame_sticky_two", {
     motor_frame_sticky = 1,
   },
 
-  sticky_faces = {yatm_core.D_UP, yatm_core.D_SOUTH},
+  sticky_faces = {Directions.D_UP, Directions.D_SOUTH},
 
   tiles = {
     "yatm_frame_side_sticky.png",
@@ -113,7 +116,7 @@ minetest.register_node("yatm_frames:frame_sticky_three", {
     motor_frame_sticky = 1,
   },
 
-  sticky_faces = {yatm_core.D_UP, yatm_core.D_EAST, yatm_core.D_SOUTH},
+  sticky_faces = {Directions.D_UP, Directions.D_EAST, Directions.D_SOUTH},
 
   tiles = {
     "yatm_frame_side_sticky.png",
@@ -143,7 +146,7 @@ minetest.register_node("yatm_frames:frame_sticky_four", {
     motor_frame_sticky = 1,
   },
 
-  sticky_faces = {yatm_core.D_UP, yatm_core.D_WEST, yatm_core.D_EAST, yatm_core.D_SOUTH},
+  sticky_faces = {Directions.D_UP, Directions.D_WEST, Directions.D_EAST, Directions.D_SOUTH},
 
   tiles = {
     "yatm_frame_side_sticky.png",
@@ -172,7 +175,7 @@ minetest.register_node("yatm_frames:frame_sticky_cross_axle", {
     motor_frame_sticky = 1,
   },
 
-  sticky_faces = {yatm_core.D_WEST, yatm_core.D_EAST, yatm_core.D_NORTH, yatm_core.D_SOUTH},
+  sticky_faces = {Directions.D_WEST, Directions.D_EAST, Directions.D_NORTH, Directions.D_SOUTH},
 
   tiles = {
     "yatm_frame_side.png",
@@ -201,7 +204,7 @@ minetest.register_node("yatm_frames:frame_sticky_five", {
     motor_frame_sticky = 1,
   },
 
-  sticky_faces = {yatm_core.D_UP, yatm_core.D_DOWN, yatm_core.D_WEST, yatm_core.D_EAST, yatm_core.D_SOUTH},
+  sticky_faces = {Directions.D_UP, Directions.D_DOWN, Directions.D_WEST, Directions.D_EAST, Directions.D_SOUTH},
 
   tiles = {
     "yatm_frame_side_sticky.png",
@@ -230,7 +233,7 @@ minetest.register_node("yatm_frames:frame_sticky", {
     motor_frame_sticky = 1,
   },
 
-  sticky_faces = {yatm_core.D_UP, yatm_core.D_DOWN, yatm_core.D_WEST, yatm_core.D_EAST, yatm_core.D_NORTH, yatm_core.D_SOUTH},
+  sticky_faces = {Directions.D_UP, Directions.D_DOWN, Directions.D_WEST, Directions.D_EAST, Directions.D_NORTH, Directions.D_SOUTH},
 
   tiles = {
     "yatm_frame_side_sticky.png",
@@ -255,7 +258,7 @@ minetest.register_node("yatm_frames:frame_sticky_axle", {
     motor_frame_sticky = 1,
   },
 
-  sticky_faces = {yatm_core.D_NORTH, yatm_core.D_SOUTH},
+  sticky_faces = {Directions.D_NORTH, Directions.D_SOUTH},
 
   tiles = {
     "yatm_frame_side.png",
@@ -285,7 +288,7 @@ minetest.register_node("yatm_frames:frame_wire_one", {
     motor_frame_wire = 1,
   },
 
-  wired_faces = {yatm_core.D_SOUTH},
+  wired_faces = {Directions.D_SOUTH},
 
   tiles = {
     "yatm_frame_side.png",
@@ -314,7 +317,7 @@ minetest.register_node("yatm_frames:frame_wire", {
     motor_frame_wire = 1,
   },
 
-  wired_faces = {yatm_core.D_UP, yatm_core.D_DOWN, yatm_core.D_WEST, yatm_core.D_EAST, yatm_core.D_NORTH, yatm_core.D_SOUTH},
+  wired_faces = {Directions.D_UP, Directions.D_DOWN, Directions.D_WEST, Directions.D_EAST, Directions.D_NORTH, Directions.D_SOUTH},
 
   drawtype = "glasslike",
   tiles = {
@@ -339,7 +342,7 @@ minetest.register_node("yatm_frames:frame_wire_axle", {
     motor_frame_wire = 1,
   },
 
-  wired_faces = {yatm_core.D_NORTH, yatm_core.D_SOUTH},
+  wired_faces = {Directions.D_NORTH, Directions.D_SOUTH},
 
   tiles = {
     "yatm_frame_side.png",
@@ -369,8 +372,8 @@ minetest.register_node("yatm_frames:frame_wire_and_sticky_axle", {
     motor_frame_sticky = 1,
   },
 
-  sticky_faces = {yatm_core.D_SOUTH},
-  wired_faces = {yatm_core.D_NORTH},
+  sticky_faces = {Directions.D_SOUTH},
+  wired_faces = {Directions.D_NORTH},
 
   tiles = {
     "yatm_frame_side.png",
@@ -400,8 +403,8 @@ minetest.register_node("yatm_frames:frame_wire_and_sticky_cross_axle_1", {
     motor_frame_sticky = 1,
   },
 
-  sticky_faces = {yatm_core.D_NORTH, yatm_core.D_SOUTH},
-  wired_faces = {yatm_core.D_WEST, yatm_core.D_EAST},
+  sticky_faces = {Directions.D_NORTH, Directions.D_SOUTH},
+  wired_faces = {Directions.D_WEST, Directions.D_EAST},
 
   drawtype = "glasslike",
   tiles = {
@@ -432,8 +435,8 @@ minetest.register_node("yatm_frames:frame_wire_and_sticky_cross_axle_2", {
     motor_frame_sticky = 1,
   },
 
-  sticky_faces = {yatm_core.D_EAST, yatm_core.D_SOUTH},
-  wired_faces = {yatm_core.D_WEST, yatm_core.D_NORTH},
+  sticky_faces = {Directions.D_EAST, Directions.D_SOUTH},
+  wired_faces = {Directions.D_WEST, Directions.D_NORTH},
 
   drawtype = "glasslike",
   tiles = {

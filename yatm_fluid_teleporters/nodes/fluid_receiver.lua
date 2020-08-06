@@ -4,6 +4,7 @@ take fluids into their internal inventory, and then teleport them to a connected
 
 Like all other wireless devices, it has it's own address scheme and registration process.
 ]]
+local is_blank = assert(foundation.com.is_blank)
 local cluster_devices = assert(yatm.cluster.devices)
 local SpacetimeNetwork = assert(yatm.spacetime.network)
 local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
@@ -68,7 +69,7 @@ local function teleporter_change_spacetime_address(pos, node, new_address)
   SpacetimeNetwork:maybe_update_node(pos, node)
 
   local nodedef = minetest.registered_nodes[node.name]
-  if yatm_core.is_blank(new_address) then
+  if is_blank(new_address) then
     node.name = fluid_receiver_yatm_network.states.off
     minetest.swap_node(pos, node)
   else

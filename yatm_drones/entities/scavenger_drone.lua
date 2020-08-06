@@ -1,3 +1,5 @@
+local Cuboid = yatm_core.Cuboid
+local ng = Cuboid.new_fast_node_box
 local Energy = assert(yatm.energy)
 local invbat = assert(yatm.energy.inventory_batteries)
 
@@ -416,7 +418,7 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
     collide_with_objects = true,
     visual = "mesh",
     visual_size = {x = 10, y = 10},
-    collisionbox = yatm_core.Cuboid:new(2, 0, 2, 12, 6, 12):fast_node_box(),
+    collisionbox = ng(2, 0, 2, 12, 6, 12),
     mesh = "scavenger_drone.b3d",
     textures = {"yatm_scavenger_drone.off.png"},
   --},

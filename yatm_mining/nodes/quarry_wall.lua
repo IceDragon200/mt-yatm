@@ -1,3 +1,6 @@
+local Cuboid = yatm_core.Cuboid
+local ng = Cuboid.new_fast_node_box
+
 minetest.register_node("yatm_mining:quarry_wall", {
   description = "Quarry Wall",
 
@@ -28,10 +31,10 @@ minetest.register_node("yatm_mining:quarry_wall", {
   node_box = {
     type = "connected",
 
-    fixed = yatm_core.Cuboid:new(7, 0, 7, 2, 14, 2):fast_node_box(),
-    connect_front = yatm_core.Cuboid:new(7, 0, 0, 2, 14, 7):fast_node_box(),
-    connect_back = yatm_core.Cuboid:new(7, 0, 9, 2, 14, 7):fast_node_box(),
-    connect_left = yatm_core.Cuboid:new(0, 0, 7, 7, 14, 2):fast_node_box(),
-    connect_right = yatm_core.Cuboid:new(9, 0, 7, 7, 14, 2):fast_node_box(),
+    fixed = ng(7, 0, 7, 2, 14, 2),
+    connect_front = ng(7, 0, 0, 2, 14, 7),
+    connect_back = ng(7, 0, 9, 2, 14, 7),
+    connect_left = ng(0, 0, 7, 7, 14, 2),
+    connect_right = ng(9, 0, 7, 7, 14, 2),
   }
 })

@@ -1,7 +1,7 @@
 local FluidUtil = assert(yatm_fluids.Utils)
 local FluidRegistry = assert(yatm_fluids.FluidRegistry)
 local FluidStack = assert(yatm_fluids.FluidStack)
-local Measurable = assert(yatm_core.measurable)
+local Measurable = assert(yatm.Measurable)
 local FluidMeta = {}
 
 function FluidMeta.set_amount(meta, key, amount, commit)

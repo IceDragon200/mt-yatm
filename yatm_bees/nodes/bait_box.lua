@@ -3,6 +3,8 @@
   A bait box attracts bees, if you're lucky you'll get a queen!
 
 ]]
+local table_merge = assert(foundation.com.table_merge)
+
 local ItemInterface = assert(yatm.items.ItemInterface)
 
 local item_interface = ItemInterface.new_directional(function (self, pos, dir)
@@ -43,7 +45,7 @@ local groups = {
 minetest.register_node("yatm_bees:bait_box_wood", {
   description = "Bait Box (Wood)",
 
-  groups = yatm_core.table_merge(groups, { choppy = 1 }),
+  groups = table_merge(groups, { choppy = 1 }),
 
   paramtype = "none",
   paramtype2 = "facedir",
@@ -70,7 +72,7 @@ minetest.register_node("yatm_bees:bait_box_wood", {
 minetest.register_node("yatm_bees:bait_box_metal", {
   description = "Bait Box (Metal)",
 
-  groups = yatm_core.table_merge(groups, { cracky = 1 }),
+  groups = table_merge(groups, { cracky = 1 }),
 
   paramtype = "none",
   paramtype2 = "facedir",

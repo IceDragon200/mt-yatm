@@ -1,3 +1,6 @@
+local Cuboid = foundation.com.Cuboid
+local ng = Cuboid.new_fast_node_box
+local string_hex_escape = assert(foundation.com.string_hex_escape)
 local data_network = assert(yatm.data_network)
 
 local function scale_value(value, range)
@@ -22,8 +25,8 @@ minetest.register_node("yatm_data_logic:data_clock", {
   node_box = {
     type = "fixed",
     fixed = {
-      yatm_core.Cuboid:new(0, 0, 0, 16, 4, 16):fast_node_box(),
-      yatm_core.Cuboid:new(3, 4, 3, 10, 1, 10):fast_node_box(),
+      ng(0, 0, 0, 16, 4, 16),
+      ng(3, 4, 3, 10, 1, 10),
     },
   },
 
@@ -72,16 +75,16 @@ minetest.register_node("yatm_data_logic:data_clock", {
         local output_data
         if precision == 2 then
           value = scale_value(timeofday, 0xFFFF)
-          output_data = yatm_core.string_hex_escape(yatm_data_logic.encode_u16(value))
+          output_data = string_hex_escape(yatm_data_logic.encode_u16(value))
         elseif precision == 3 then
           value = scale_value(timeofday, 0xFFFFFF)
-          output_data = yatm_core.string_hex_escape(yatm_data_logic.encode_u24(value))
+          output_data = string_hex_escape(yatm_data_logic.encode_u24(value))
         elseif precision == 4 then
           value = scale_value(timeofday, 0xFFFFFFFF)
-          output_data = yatm_core.string_hex_escape(yatm_data_logic.encode_u32(value))
+          output_data = string_hex_escape(yatm_data_logic.encode_u32(value))
         else
           value = scale_value(timeofday, 0xFF)
-          output_data = yatm_core.string_hex_escape(yatm_data_logic.encode_u8(value))
+          output_data = string_hex_escape(yatm_data_logic.encode_u8(value))
         end
 
         yatm_data_logic.emit_output_data_value(pos, output_data)

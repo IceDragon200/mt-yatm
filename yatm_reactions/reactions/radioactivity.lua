@@ -1,8 +1,8 @@
---[[
-Nodes in the `radioactive` group will attempt harm nearby entities without radioactive protection.
-
-It may also set off other nodes.
-]]
+--
+-- Nodes in the `radioactive` group will attempt harm nearby entities without radioactive protection.
+--
+-- It may also set off other nodes.
+--
 minetest.register_abm({
   name = "yatm_reactions:radioactivity",
   label = "Radioactivity",
@@ -20,6 +20,7 @@ minetest.register_abm({
     local nodedef = minetest.registered_nodes[node.name]
     if nodedef.do_radioactive_decay then
       nodedef.do_radioactive_decay(pos, node)
+      -- TODO: send out a pulse affecting nodes and entities within range
     end
   end
 })

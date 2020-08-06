@@ -1,3 +1,6 @@
+local Cuboid = yatm_core.Cuboid
+local ng = Cuboid.new_fast_node_box
+
 local data_network = assert(yatm.data_network)
 
 local function mesecon_rules(node)
@@ -28,8 +31,8 @@ yatm.register_stateful_node("yatm_data_to_mesecon:mesecon_to_data", {
   node_box = {
     type = "fixed",
     fixed = {
-      yatm_core.Cuboid:new(0, 0, 0, 16, 4, 16):fast_node_box(),
-      yatm_core.Cuboid:new(3, 4, 3, 10, 2, 10):fast_node_box(),
+      ng(0, 0, 0, 16, 4, 16),
+      ng(3, 4, 3, 10, 2, 10),
     },
   },
 

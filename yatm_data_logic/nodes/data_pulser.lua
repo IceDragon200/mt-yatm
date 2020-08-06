@@ -1,3 +1,6 @@
+local Cuboid = assert(foundation.com.Cuboid)
+local ng = Cuboid.new_fast_node_box
+local sounds = assert(yatm_core.sounds)
 local data_network = assert(yatm.data_network)
 
 local function on_node_pulsed(pos, node)
@@ -34,7 +37,7 @@ yatm.register_stateful_node("yatm_data_logic:data_pulser", {
   node_box = {
     type = "fixed",
     fixed = {
-      yatm_core.Cuboid:new(0, 0, 0, 16, 4, 16):fast_node_box(),
+      ng(0, 0, 0, 16, 4, 16),
     },
   },
 
@@ -70,7 +73,7 @@ yatm.register_stateful_node("yatm_data_logic:data_pulser", {
       time = time - dtime
       if time <= 0 then
         if yatm_data_logic.emit_output_data(pos, "pulse") then
-          yatm_core.sounds:play("blip1", { pos = pos, max_hear_distance = 32, pitch_variance = 0.025 })
+          sounds:play("blip1", { pos = pos, max_hear_distance = 32, pitch_variance = 0.025 })
         end
         on_node_pulsed(pos, node)
 

@@ -6,10 +6,9 @@
 
   EMP explosions will raycast their way to a target and can be deflected.
 ]]
-yatm_blasts_emp = rawget(_G, "yatm_blasts_emp") or {}
-yatm_blasts_emp.modpath = minetest.get_modpath(minetest.get_current_modname())
+foundation.new_module("yatm_blasts_emp", "0.1.0")
 
-local groups = yatm_core.groups
+local Groups = assert(foundation.com.Groups)
 
 local function handle_emp_target_node_at(pos, explosion, assigns)
   local target_node = minetest.get_node_or_nil(pos)
@@ -29,7 +28,7 @@ local function handle_emp_target_node_at(pos, explosion, assigns)
         end
         local nodedef = minetest.registered_nodes[node.name]
 
-        if groups.has_group(nodedef, "em_insulator") then
+        if Groups.has_group(nodedef, "em_insulator") then
           -- if it's an insulator drop the ray
           -- the target node cannot be affected since something is blocking the path
           blocked = true

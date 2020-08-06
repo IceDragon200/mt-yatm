@@ -13,9 +13,10 @@ The 3 main components of a fluid transport are:
 * Transporters - these only act as a pathway for the network and only matter when tracing the path
 ]]
 local GenericTransportNetwork = assert(yatm.transport.GenericTransportNetwork)
-local invert_dir = assert(yatm_core.invert_dir)
-local DIR_TO_STRING = assert(yatm_core.DIR_TO_STRING)
-local DIR6_TO_VEC3 = assert(yatm_core.DIR6_TO_VEC3)
+local invert_dir = assert(foundation.com.Directions.invert_dir)
+local DIR_TO_STRING = assert(foundation.com.Directions.DIR_TO_STRING)
+local DIR6_TO_VEC3 = assert(foundation.com.Directions.DIR6_TO_VEC3)
+local is_table_empty = assert(foundation.com.is_table_empty)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
@@ -70,7 +71,7 @@ end
 
 function m:update_inserter_duct(inserter_hash, inserter, fluids_available)
   for vdir,v3 in pairs(DIR6_TO_VEC3) do
-    if yatm_core.is_table_empty(fluids_available) then
+    if is_table_empty(fluids_available) then
       break
     end
     local filling_dir = invert_dir(vdir)
@@ -101,7 +102,7 @@ function m:update_inserter_duct(inserter_hash, inserter, fluids_available)
         end
       end
 
-      if not yatm_core.is_table_empty(new_entries) then
+      if not is_table_empty(new_entries) then
         fluids_available[extractor_hash] = new_entries
       end
     end

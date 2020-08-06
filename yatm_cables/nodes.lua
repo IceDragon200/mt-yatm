@@ -1,5 +1,9 @@
+local table_merge = assert(foundation.com.table_merge)
+
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
+
+local SIXTEENTH = 1 / 16.0
 
 local function cable_after_place_node(pos, placer, itemstack, pointed_thing)
   local node = minetest.get_node(pos)
@@ -102,7 +106,7 @@ function yatm_cables.register_cable_state(params, size)
   --
   if params.states and params.default_state then
     if params.state ~= params.default_state then
-      groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1})
+      groups = table_merge(groups, {not_in_creative_inventory = 1})
     end
   end
 
@@ -155,13 +159,13 @@ function yatm_cables.register_cable(params, size)
     for _,state in ipairs(params.states) do
       local state_postfix = "." .. state
 
-      yatm_cables.register_cable_state(yatm_core.table_merge(params, {
+      yatm_cables.register_cable_state(table_merge(params, {
         state_postfix = state_postfix,
         state = state,
       }), size)
     end
   else
-    yatm_cables.register_cable_state(yatm_core.table_merge(params, {
+    yatm_cables.register_cable_state(table_merge(params, {
       state_postfix = false,
       state = false,
       states = {},
@@ -200,7 +204,7 @@ yatm_cables.register_cable({
   },
 
   postfix = "_15",
-}, 8 * yatm_core.PX16)
+}, 8 * SIXTEENTH)
 
 yatm_cables.register_cable({
   basename = "yatm_cables:medium_cable",
@@ -231,7 +235,7 @@ yatm_cables.register_cable({
   },
 
   postfix = "_15",
-}, 6 * yatm_core.PX16)
+}, 6 * SIXTEENTH)
 
 yatm_cables.register_cable({
   basename = "yatm_cables:small_cable",
@@ -264,7 +268,7 @@ yatm_cables.register_cable({
   },
 
   postfix = "_15",
-}, 4 * yatm_core.PX16)
+}, 4 * SIXTEENTH)
 
 -- Glass cables are device cables, they do not carry power
 local glass_sounds = yatm.node_sounds:build("glass")
@@ -295,7 +299,7 @@ yatm_cables.register_cable({
   },
 
   postfix = "_15",
-}, 4 * yatm_core.PX16)
+}, 4 * SIXTEENTH)
 
 yatm_cables.register_cable({
   basename = "yatm_cables:pipe_glass_rb",
@@ -323,7 +327,7 @@ yatm_cables.register_cable({
   },
 
   postfix = "_15",
-}, 4 * yatm_core.PX16)
+}, 4 * SIXTEENTH)
 
 yatm_cables.register_cable({
   basename = "yatm_cables:pipe_glass_yb",
@@ -351,7 +355,7 @@ yatm_cables.register_cable({
   },
 
   postfix = "_15",
-}, 4 * yatm_core.PX16)
+}, 4 * SIXTEENTH)
 
 -- Standard pipe cables only carry energy
 yatm_cables.register_cable({
@@ -378,7 +382,7 @@ yatm_cables.register_cable({
   },
 
   postfix = "_15",
-}, 4 * yatm_core.PX16)
+}, 4 * SIXTEENTH)
 
 yatm_cables.register_cable({
   basename = "yatm_cables:pipe_yb",
@@ -404,7 +408,7 @@ yatm_cables.register_cable({
   },
 
   postfix = "_15",
-}, 4 * yatm_core.PX16)
+}, 4 * SIXTEENTH)
 
 --
 -- Copper Cables only carry energy
@@ -435,7 +439,7 @@ yatm_cables.register_cable({
   },
 
   postfix = "",
-}, 4 * yatm_core.PX16)
+}, 4 * SIXTEENTH)
 
 do
   local colors = {
@@ -484,6 +488,6 @@ do
       },
 
       postfix = "",
-    }, 6 * yatm_core.PX16)
+    }, 6 * SIXTEENTH)
   end
 end

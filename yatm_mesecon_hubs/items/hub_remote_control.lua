@@ -1,3 +1,6 @@
+local Groups = assert(foundation.com.Groups)
+local is_blank = assert(foundation.com.is_blank)
+
 local NetworkMeta = assert(yatm.mesecon_hubs.NetworkMeta)
 local Network = assert(yatm.mesecon_hubs.wireless_network)
 
@@ -7,12 +10,12 @@ local function hub_remote_control_on_place(itemstack, placer, pointed_thing)
     local node = minetest.get_node(pos)
     local nodedef = minetest.registered_nodes[node.name]
     if nodedef then
-      if yatm_core.groups.get_item(nodedef, "addressable_hub_device") then
+      if Groups.get_item(nodedef, "addressable_hub_device") then
         local meta = minetest.get_meta(pos)
         NetworkMeta.copy_hub_address(meta, itemstack:get_meta())
         local address = NetworkMeta.get_hub_address(itemstack:get_meta())
         if placer and placer:is_player() then
-          if yatm_core.is_blank(address) then
+          if is_blank(address) then
             itemstack:get_meta():set_string("description", nil)
             minetest.chat_send_player(placer:get_player_name(), "No Hub Address!")
           else
@@ -28,7 +31,7 @@ end
 
 local function hub_remote_control_on_use(itemstack, user, pointed_thing)
   local address = NetworkMeta.get_hub_address(itemstack:get_meta())
-  if yatm_core.is_blank(address) then
+  if is_blank(address) then
     -- Don't do shit.
     minetest.chat_send_player(user:get_player_name(), "No Target Address")
   else

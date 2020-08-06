@@ -1,13 +1,13 @@
 --
 -- A Cluster is single network of nodes
 --
-local is_table_empty = assert(yatm_core.is_table_empty)
-local table_length = assert(yatm_core.table_length)
-local vector3 = yatm_core.vector3
+local is_table_empty = assert(foundation.com.is_table_empty)
+local table_length = assert(foundation.com.table_length)
+local Vector3 = assert(foundation.com.Vector3)
 
 local hash_pos = minetest.hash_node_position
 
-local Cluster = yatm_core.Class:extends("YATM.Cluster")
+local Cluster = foundation.com.Class:extends("YATM.Cluster")
 local ic = Cluster.instance_class
 
 function ic:initialize(id, groups)
@@ -365,9 +365,9 @@ end
 -- Clusters represent a unified format and system for joining nodes together
 -- to form 'networks'.
 --
-local MAP_BLOCK_SIZE3 = vector3.new(16, 16, 16)
+local MAP_BLOCK_SIZE3 = Vector3.new(16, 16, 16)
 
-local Clusters = yatm_core.Class:extends("YATM.Clusters")
+local Clusters = foundation.com.Class:extends("YATM.Clusters")
 local ic = Clusters.instance_class
 
 function ic:initialize()
@@ -430,7 +430,7 @@ end
 function ic:mark_node_block(pos, node)
   assert(pos, "expected a node position")
   assert(node, "expected a node")
-  local block_pos = vector3.idiv({}, pos, MAP_BLOCK_SIZE3)
+  local block_pos = Vector3.idiv({}, pos, MAP_BLOCK_SIZE3)
   local block_hash = minetest.hash_node_position(block_pos)
 
   --self:log("info", "clusters mark_node_block/2", minetest.pos_to_string(pos), dump(node.name))

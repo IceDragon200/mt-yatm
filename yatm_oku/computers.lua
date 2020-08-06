@@ -7,17 +7,20 @@ if not OKU then
   return
 end
 
-local BinSchema = yatm_core.BinSchema
+local BinSchema = foundation.com.BinSchema
 
 if not BinSchema then
-  yatm.error("computers service not available, yatm_core.BinSchema is unavailable")
+  yatm.error("computers service not available, foundation.com.BinSchema is unavailable")
   return
 end
 
--- Pick a buffer module, prefer binary or string, as it's faster
-local Buffer = yatm_core.BinaryBuffer or yatm_core.StringBuf
+local path_join = assert(foundation.com.path_join)
+local Trace = assert(foundation.com.Trace)
 
-local Computers = yatm_core.Class:extends()
+-- Pick a buffer module, prefer binary or string, as it's faster
+local Buffer = foundation.com.BinaryBuffer or foundation.com.StringBuffer
+
+local Computers = foundation.com.Class:extends("ComputersService")
 local ic = assert(Computers.instance_class)
 
 --
@@ -27,7 +30,7 @@ local ic = assert(Computers.instance_class)
 --
 local ComputerStateHeaderSchema =
   BinSchema:new("ComputerStateHeader", {
-    {"magic", yatm_core.binary_types.Bytes:new(4)},
+    {"magic", foundation.com.binary_types.Bytes:new(4)},
     --
     {"version", "i32"},
     --
@@ -44,7 +47,7 @@ local ComputerStateHeaderSchema =
   })
 
 function ic:initialize()
-  self.m_root_dir = yatm_core.path_join(minetest.get_worldpath(), "/yatm/oku")
+  self.m_root_dir = path_join(minetest.get_worldpath(), "/yatm/oku")
   minetest.mkdir(self.m_root_dir)
   self.m_computers = {}
 end
@@ -65,17 +68,17 @@ end
 -- @spec load_computer_state(Vector) :: {ComputerState | nil, error}
 function ic:load_computer_state(pos)
   local basename = pos_to_basename(pos)
-  local filename = yatm_core.path_join(self.m_root_dir, basename)
+  local filename = path_join(self.m_root_dir, basename)
 
-  local trace = yatm_core.trace.new('load_computer_state/' .. minetest.pos_to_string(pos))
+  local trace = Trace.new('load_computer_state/' .. minetest.pos_to_string(pos))
   local file = io.open(filename, "r")
   if file then
-    local ot = yatm_core.trace.span_start(trace, 'read-binary')
+    local ot = Trace.span_start(trace, 'read-binary')
     local stream = Buffer:new(file:read('*all'), 'r')
     file:close()
-    yatm_core.trace.span_end(ot)
+    Trace.span_end(ot)
 
-    local ot = yatm_core.trace.span_start(trace, 'decode-stream')
+    local ot = Trace.span_start(trace, 'decode-stream')
     -- FIXME: This entire section should be wrapped in a protected call
     --        and the file closed properly.
     -- Read the state header
@@ -86,9 +89,9 @@ function ic:load_computer_state(pos)
     local oku, br = OKU:binload(stream)
 
     stream:close()
-    yatm_core.trace.span_end(ot)
-    yatm_core.trace.span_end(trace)
-    yatm_core.trace.inspect(trace)
+    Trace.span_end(ot)
+    Trace.span_end(trace)
+    Trace.inspect(trace)
 
     local state_pos = vector.new(state.x, state.y, state.z)
     local node = {
@@ -115,13 +118,13 @@ end
 function ic:save_computer_state(state, parent_trace)
   print("Saving Computer State", minetest.pos_to_string(state.pos))
   local basename = pos_to_basename(state.pos)
-  local filename = yatm_core.path_join(self.m_root_dir, basename)
+  local filename = path_join(self.m_root_dir, basename)
 
   local ot
   if parent_trace then
-    ot = yatm_core.trace.span_start(parent_trace, 'save_computer_state/' .. minetest.pos_to_string(state.pos))
+    ot = Trace.span_start(parent_trace, 'save_computer_state/' .. minetest.pos_to_string(state.pos))
   else
-    ot = yatm_core.trace.new('save_computer_state/' .. minetest.pos_to_string(state.pos))
+    ot = Trace.new('save_computer_state/' .. minetest.pos_to_string(state.pos))
   end
   local stream = Buffer:new('', 'w')
 
@@ -160,9 +163,9 @@ function ic:save_computer_state(state, parent_trace)
   stream:close()
 
   minetest.safe_file_write(filename, stream:blob())
-  yatm_core.trace.span_end(ot)
+  Trace.span_end(ot)
   if not parent_trace then
-    yatm_core.trace.inspect(ot)
+    Trace.inspect(ot)
   end
   return bytes_written, nil
 end
@@ -171,7 +174,7 @@ end
 -- @spec delete_computer_state(Vector) :: boolean
 function ic:delete_computer_state(pos)
   local basename = pos_to_basename(pos)
-  local filename = yatm_core.path_join(self.m_root_dir, basename)
+  local filename = path_join(self.m_root_dir, basename)
 
   local file = io.open(filename, "r")
   if file then
@@ -184,12 +187,12 @@ function ic:delete_computer_state(pos)
 end
 
 function ic:persist_computer_states()
-  local ot = yatm_core.trace.new('persist_computer_states')
+  local ot = Trace.new('persist_computer_states')
   for _hash,state in pairs(self.m_computers) do
     self:save_computer_state(state, ot)
   end
-  yatm_core.trace.span_end(ot)
-  yatm_core.trace.inspect(ot)
+  Trace.span_end(ot)
+  Trace.inspect(ot)
 end
 
 function ic:terminate()
@@ -202,17 +205,17 @@ function ic:terminate()
 end
 
 function ic:update(dt)
-  local ot = yatm_core.trace.new("oku_computers_update")
+  local ot = Trace.new("oku_computers_update")
   --
   local clock_speed = math.floor(dt * 1000)
   for _, computer in pairs(self.m_computers) do
-    local ct = yatm_core.trace.span_start(ot, "computer-" .. computer.node.name .. "-" .. minetest.pos_to_string(computer.pos))
+    local ct = Trace.span_start(ot, "computer-" .. computer.node.name .. "-" .. minetest.pos_to_string(computer.pos))
     --local steps_taken, err = computer.oku:step(clock_speed)
     --print("STEPS", ct.name, steps_taken, err)
-    yatm_core.trace.span_end(ct)
+    Trace.span_end(ct)
   end
-  yatm_core.trace.span_end(ot)
-  --yatm_core.trace.inspect(ot)
+  Trace.span_end(ot)
+  --Trace.inspect(ot)
 end
 
 --

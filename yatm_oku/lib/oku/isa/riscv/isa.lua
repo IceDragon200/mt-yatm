@@ -52,6 +52,8 @@
 local bit = assert(yatm_oku.bit)
 local ffi = assert(yatm_oku.ffi)
 
+local list_reverse = assert(foundation.com.list_reverse)
+
 local isa = yatm_oku.OKU.isa.RISCV
 
 local function format_hex(size, value)
@@ -83,7 +85,7 @@ local function format_bin(size, value, break_point)
     digits = digits + 1
     i = i + 1
   end
-  result = yatm_core.list_reverse(result)
+  result = list_reverse(result)
   result = table.concat(result, "")
 
   return "0b" .. result

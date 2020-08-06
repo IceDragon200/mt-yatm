@@ -1,4 +1,4 @@
-local Luna = assert(yatm_core.Luna)
+local Luna = assert(foundation.com.Luna)
 local m = yatm_oku.OKU.isa.MOS6502.Builder
 
 if not m then

@@ -1,7 +1,10 @@
+local Cuboid = yatm_core.Cuboid
+local ng = Cuboid.new_fast_node_box
+
 local reader_node_box = {
   type = "fixed",
   fixed = {
-    yatm_core.Cuboid:new( 0,  0, 13, 16, 16, 3):fast_node_box(),
+    ng( 0,  0, 13, 16, 16, 3),
   }
 }
 

@@ -1,26 +1,27 @@
-local c = assert(yatm_core.Cuboid)
+local Cuboid = assert(foundation.com.Cuboid)
+local ng = Cuboid.new_fast_node_box
 
 local full_shelf_nodebox = {
   type = "fixed",
   fixed = {
-    c:new( 0,  0,  0, 16,  1, 16):fast_node_box(), -- bottom shelf
-    c:new( 0,  7,  0, 16,  1, 16):fast_node_box(), -- mid shelf
-    c:new( 0, 15,  0, 16,  1, 16):fast_node_box(), -- top
-    c:new( 0,  0, 15, 16, 16,  1):fast_node_box(), -- back
-    c:new( 0,  0,  0,  1, 16, 16):fast_node_box(), -- left
-    c:new(15,  0,  0,  1, 16, 16):fast_node_box(), -- right
+    ng( 0,  0,  0, 16,  1, 16), -- bottom shelf
+    ng( 0,  7,  0, 16,  1, 16), -- mid shelf
+    ng( 0, 15,  0, 16,  1, 16), -- top
+    ng( 0,  0, 15, 16, 16,  1), -- back
+    ng( 0,  0,  0,  1, 16, 16), -- left
+    ng(15,  0,  0,  1, 16, 16), -- right
   }
 }
 
 local half_shelf_nodebox = {
   type = "fixed",
   fixed = {
-    c:new( 0,  0,  8, 16,  1,  8):fast_node_box(), -- bottom shelf
-    c:new( 0,  7,  8, 16,  1,  8):fast_node_box(), -- mid shelf
-    c:new( 0, 15,  8, 16,  1,  8):fast_node_box(), -- top
-    c:new( 0,  0, 15, 16, 16,  1):fast_node_box(), -- back
-    c:new( 0,  0,  8,  1, 16,  8):fast_node_box(), -- left
-    c:new(15,  0,  8,  1, 16,  8):fast_node_box(), -- right
+    ng( 0,  0,  8, 16,  1,  8), -- bottom shelf
+    ng( 0,  7,  8, 16,  1,  8), -- mid shelf
+    ng( 0, 15,  8, 16,  1,  8), -- top
+    ng( 0,  0, 15, 16, 16,  1), -- back
+    ng( 0,  0,  8,  1, 16,  8), -- left
+    ng(15,  0,  8,  1, 16,  8), -- right
   }
 }
 
@@ -28,11 +29,11 @@ local full_shelf_nodeboxes = {
   ["1x1x1"] = {
     type = "fixed",
     fixed = {
-      c:new( 0,  0,  0, 16,  1, 16):fast_node_box(), -- bottom shelf
-      c:new( 0, 15,  0, 16,  1, 16):fast_node_box(), -- top
-      c:new( 0,  0, 15, 16, 16,  1):fast_node_box(), -- back
-      c:new( 0,  0,  0,  1, 16, 16):fast_node_box(), -- left
-      c:new(15,  0,  0,  1, 16, 16):fast_node_box(), -- right
+      ng( 0,  0,  0, 16,  1, 16), -- bottom shelf
+      ng( 0, 15,  0, 16,  1, 16), -- top
+      ng( 0,  0, 15, 16, 16,  1), -- back
+      ng( 0,  0,  0,  1, 16, 16), -- left
+      ng(15,  0,  0,  1, 16, 16), -- right
     },
   },
   ["2x2x1"] = full_shelf_nodebox,
@@ -44,11 +45,11 @@ local half_shelf_nodeboxes = {
   ["1x1x1"] = {
     type = "fixed",
     fixed = {
-      c:new( 0,  0,  8, 16,  1,  8):fast_node_box(), -- bottom shelf
-      c:new( 0, 15,  8, 16,  1,  8):fast_node_box(), -- top
-      c:new( 0,  0, 15, 16, 16,  1):fast_node_box(), -- back
-      c:new( 0,  0,  8,  1, 16,  8):fast_node_box(), -- left
-      c:new(15,  0,  8,  1, 16,  8):fast_node_box(), -- right
+      ng( 0,  0,  8, 16,  1,  8), -- bottom shelf
+      ng( 0, 15,  8, 16,  1,  8), -- top
+      ng( 0,  0, 15, 16, 16,  1), -- back
+      ng( 0,  0,  8,  1, 16,  8), -- left
+      ng(15,  0,  8,  1, 16,  8), -- right
     },
   },
   ["2x2x1"] = half_shelf_nodebox,

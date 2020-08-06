@@ -1,4 +1,4 @@
-local InventoryList = assert(yatm_core.InventoryList)
+local InventoryList = assert(foundation.com.InventoryList)
 local ItemInterface = {
   version = "1.1.0"
 }

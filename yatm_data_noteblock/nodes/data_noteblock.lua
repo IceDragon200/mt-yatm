@@ -1,3 +1,6 @@
+local Cuboid = yatm_core.Cuboid
+local ng = Cuboid.new_fast_node_box
+
 local data_network = assert(yatm.data_network)
 
 -- Just like a mesecon noteblock, except triggered by data events
@@ -19,12 +22,12 @@ minetest.register_node("yatm_data_noteblock:data_noteblock", {
   node_box = {
     type = "fixed",
     fixed = {
-      yatm_core.Cuboid:new(0, 0, 0, 16, 5, 16):fast_node_box(),
-      yatm_core.Cuboid:new(2, 5, 2, 12,10, 12):fast_node_box(),
-      yatm_core.Cuboid:new( 0,14, 0, 16, 2, 2):fast_node_box(),
-      yatm_core.Cuboid:new( 0,14,14, 16, 2, 2):fast_node_box(),
-      yatm_core.Cuboid:new( 0,14, 0,  2, 2, 16):fast_node_box(),
-      yatm_core.Cuboid:new(14,14, 0,  2, 2, 16):fast_node_box(),
+      ng(0, 0, 0, 16, 5, 16),
+      ng(2, 5, 2, 12,10, 12),
+      ng( 0,14, 0, 16, 2, 2),
+      ng( 0,14,14, 16, 2, 2),
+      ng( 0,14, 0,  2, 2, 16),
+      ng(14,14, 0,  2, 2, 16),
     },
   },
 

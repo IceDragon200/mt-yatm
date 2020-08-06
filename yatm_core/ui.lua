@@ -3,7 +3,11 @@
 --
 -- I don't particularly enjoy messing with strings all day you know.
 --
-local Form = yatm_core.Class:extends()
+local iodata_to_string = assert(foundation.com.iodata_to_string)
+local string_starts_with = assert(foundation.com.string_starts_with)
+local table_intersperse = assert(foundation.com.table_intersperse)
+
+local Form = foundation.com.Class:extends("yatm.Form")
 
 local c = Form.instance_class
 
@@ -619,7 +623,7 @@ function c:to_formspec(as_iodata)
           if item.color then
             table.insert(result, {"#", item.color, item.text})
           else
-            if yatm_core.string_starts_with(item.text, "#") then
+            if string_starts_with(item.text, "#") then
               table.insert(result, {"#", escaped})
             else
               table.insert(result, escaped)
@@ -628,7 +632,7 @@ function c:to_formspec(as_iodata)
         end
       else
         item = tostring(item)
-        if yatm_core.string_starts_with(item, "#") then
+        if string_starts_with(item, "#") then
           table.insert(result, {"#", item})
         else
           table.insert(result, item)
@@ -745,7 +749,7 @@ function c:to_formspec(as_iodata)
     for key,value in pairs(self.table_options) do
       table.insert(options, {tostring(key), "=", tostring(value)})
     end
-    options = yatm_core.table_intersperse(options, ";")
+    options = table_intersperse(options, ";")
     table.insert(result, options)
     table.insert(result, "]")
   elseif self.kind == "table_columns" then
@@ -758,14 +762,14 @@ function c:to_formspec(as_iodata)
       for key,value in pairs(column_options) do
         table.insert(options, {tostring(key), "=", tostring(value)})
       end
-      options = yatm_core.table_intersperse(options, ",")
+      options = table_intersperse(options, ",")
       if #options > 0 then
         table.insert(columns, {column_type, ",", options})
       else
         table.insert(columns, column_type)
       end
     end
-    columns = yatm_core.table_intersperse(options, ";")
+    columns = table_intersperse(options, ";")
     table.insert(result, columns)
     table.insert(result, "]")
   end
@@ -790,7 +794,7 @@ function c:to_formspec(as_iodata)
   if as_iodata then
     return result
   else
-    return yatm_core.iodata_to_string(result)
+    return iodata_to_string(result)
   end
 end
 

@@ -1,6 +1,11 @@
 --
 --
 --
+local Cuboid = assert(foundation.com.Cuboid)
+local ng = assert(Cuboid.new_fast_node_box)
+local list_concat = assert(foundation.com.list_concat)
+local Directions = assert(foundation.com.Directions)
+
 local data_network = assert(yatm.data_network)
 
 local function data_cable_refresh_infotext(pos, node)
@@ -16,7 +21,7 @@ local function data_cable_after_place_node(pos, _placer, _itemstack, _pointed_th
 end
 
 local function data_cable_bracket_after_place_node(pos, placer, itemstack, pointed_thing)
-  yatm_core.facedir_wallmount_after_place_node(pos, placer, itemstack, pointed_thing)
+  Directions.facedir_wallmount_after_place_node(pos, placer, itemstack, pointed_thing)
   data_cable_after_place_node(pos, placer, itemstack, pointed_thing)
 end
 
@@ -38,132 +43,132 @@ if dye then
   colors = dye.dyes
 end
 
-colors = yatm_core.list_concat({{"multi", "Multi"}}, colors)
+colors = list_concat({{"multi", "Multi"}}, colors)
 
 local data_cable_nodebox = {
   type = "connected",
-  fixed          = yatm_core.Cuboid:new(5, 0, 5, 6, 2, 6):fast_node_box(),
-  connect_top    = yatm_core.Cuboid:new(5, 2, 5, 6,14, 6):fast_node_box(), -- y+
-  connect_bottom = yatm_core.Cuboid:new(0, 0, 0, 0, 0, 0):fast_node_box(), -- y-
-  connect_front  = yatm_core.Cuboid:new(5, 0, 0, 6, 2, 5):fast_node_box(), -- z-
-  connect_back   = yatm_core.Cuboid:new(5, 0,11, 6, 2, 5):fast_node_box(), -- z+
-  connect_left   = yatm_core.Cuboid:new(0, 0, 5, 5, 2, 6):fast_node_box(), -- x-
-  connect_right  = yatm_core.Cuboid:new(11,0, 5, 5, 2, 6):fast_node_box(), -- x+
+  fixed          = ng(5, 0, 5, 6, 2, 6),
+  connect_top    = ng(5, 2, 5, 6,14, 6), -- y+
+  connect_bottom = ng(0, 0, 0, 0, 0, 0), -- y-
+  connect_front  = ng(5, 0, 0, 6, 2, 5), -- z-
+  connect_back   = ng(5, 0,11, 6, 2, 5), -- z+
+  connect_left   = ng(0, 0, 5, 5, 2, 6), -- x-
+  connect_right  = ng(11,0, 5, 5, 2, 6), -- x+
 }
 
 local data_bus_nodebox = {
   type = "connected",
-  fixed          = yatm_core.Cuboid:new(4, 0, 4, 8, 4, 8):fast_node_box(),
-  connect_top    = yatm_core.Cuboid:new(5, 4, 5, 6,12, 6):fast_node_box(), -- y+
-  connect_bottom = yatm_core.Cuboid:new(3, 0, 3,10, 1,10):fast_node_box(), -- y-
-  connect_front  = yatm_core.Cuboid:new(5, 0, 0, 6, 2, 4):fast_node_box(), -- z-
-  connect_back   = yatm_core.Cuboid:new(5, 0,12, 6, 2, 4):fast_node_box(), -- z+
-  connect_left   = yatm_core.Cuboid:new(0, 0, 5, 4, 2, 6):fast_node_box(), -- x-
-  connect_right  = yatm_core.Cuboid:new(12,0, 5, 4, 2, 6):fast_node_box(), -- x+
+  fixed          = ng(4, 0, 4, 8, 4, 8),
+  connect_top    = ng(5, 4, 5, 6,12, 6), -- y+
+  connect_bottom = ng(3, 0, 3,10, 1,10), -- y-
+  connect_front  = ng(5, 0, 0, 6, 2, 4), -- z-
+  connect_back   = ng(5, 0,12, 6, 2, 4), -- z+
+  connect_left   = ng(0, 0, 5, 4, 2, 6), -- x-
+  connect_right  = ng(12,0, 5, 4, 2, 6), -- x+
 }
 
 local straight_bracket_cable_nodebox = {
   type = "fixed",
   fixed          = {
-    yatm_core.Cuboid:new( 5, 0, 0, 6, 2,16):fast_node_box(),
-    yatm_core.Cuboid:new( 4, 0, 1, 8, 3, 2):fast_node_box(),
-    yatm_core.Cuboid:new( 4, 0,13, 8, 3, 2):fast_node_box(),
+    ng( 5, 0, 0, 6, 2,16),
+    ng( 4, 0, 1, 8, 3, 2),
+    ng( 4, 0,13, 8, 3, 2),
   }
 }
 
 local corner_bracket_cable_nodebox = {
   type = "fixed",
   fixed          = {
-    yatm_core.Cuboid:new( 5, 0, 5, 6, 2,11):fast_node_box(),
-    yatm_core.Cuboid:new(11, 0, 5, 5, 2, 6):fast_node_box(),
-    yatm_core.Cuboid:new(13, 0, 4, 2, 3, 8):fast_node_box(),
-    yatm_core.Cuboid:new( 4, 0,13, 8, 3, 2):fast_node_box(),
+    ng( 5, 0, 5, 6, 2,11),
+    ng(11, 0, 5, 5, 2, 6),
+    ng(13, 0, 4, 2, 3, 8),
+    ng( 4, 0,13, 8, 3, 2),
   }
 }
 
 local tee_bracket_cable_nodebox = {
   type = "fixed",
   fixed          = {
-    yatm_core.Cuboid:new( 0, 0, 5,16, 2, 6):fast_node_box(),
-    yatm_core.Cuboid:new( 5, 0,11, 6, 2, 5):fast_node_box(),
+    ng( 0, 0, 5,16, 2, 6),
+    ng( 5, 0,11, 6, 2, 5),
 
-    yatm_core.Cuboid:new(13, 0, 4, 2, 3, 8):fast_node_box(),
-    yatm_core.Cuboid:new( 1, 0, 4, 2, 3, 8):fast_node_box(),
-    yatm_core.Cuboid:new( 4, 0,13, 8, 3, 2):fast_node_box(),
+    ng(13, 0, 4, 2, 3, 8),
+    ng( 1, 0, 4, 2, 3, 8),
+    ng( 4, 0,13, 8, 3, 2),
   }
 }
 
 local cross_bracket_cable_nodebox = {
   type = "fixed",
   fixed          = {
-    yatm_core.Cuboid:new( 5, 0, 0, 6, 2,16):fast_node_box(),
-    yatm_core.Cuboid:new( 0, 0, 5,16, 2, 6):fast_node_box(),
-    yatm_core.Cuboid:new(13, 0, 4, 2, 3, 8):fast_node_box(),
-    yatm_core.Cuboid:new( 1, 0, 4, 2, 3, 8):fast_node_box(),
-    yatm_core.Cuboid:new( 4, 0, 1, 8, 3, 2):fast_node_box(),
-    yatm_core.Cuboid:new( 4, 0,13, 8, 3, 2):fast_node_box(),
+    ng( 5, 0, 0, 6, 2,16),
+    ng( 0, 0, 5,16, 2, 6),
+    ng(13, 0, 4, 2, 3, 8),
+    ng( 1, 0, 4, 2, 3, 8),
+    ng( 4, 0, 1, 8, 3, 2),
+    ng( 4, 0,13, 8, 3, 2),
   }
 }
 
-local bus_cube = yatm_core.Cuboid:new( 4, 0, 4, 8, 4, 8):fast_node_box() -- Bus Box
+local bus_cube = ng( 4, 0, 4, 8, 4, 8) -- Bus Box
 local straight_bracket_bus_nodebox = {
   type = "fixed",
   fixed          = {
-    yatm_core.Cuboid:new( 5, 0, 0, 6, 2,16):fast_node_box(),
+    ng( 5, 0, 0, 6, 2,16),
     bus_cube,
     --
-    yatm_core.Cuboid:new( 4, 0, 1, 8, 3, 2):fast_node_box(),
-    yatm_core.Cuboid:new( 4, 0,13, 8, 3, 2):fast_node_box(),
+    ng( 4, 0, 1, 8, 3, 2),
+    ng( 4, 0,13, 8, 3, 2),
   }
 }
 
 local corner_bracket_bus_nodebox = {
   type = "fixed",
   fixed          = {
-    yatm_core.Cuboid:new( 5, 0, 5, 6, 2,11):fast_node_box(),
+    ng( 5, 0, 5, 6, 2,11),
     bus_cube,
 
-    yatm_core.Cuboid:new(11, 0, 5, 5, 2, 6):fast_node_box(),
-    yatm_core.Cuboid:new(13, 0, 4, 2, 3, 8):fast_node_box(),
-    yatm_core.Cuboid:new( 4, 0,13, 8, 3, 2):fast_node_box(),
+    ng(11, 0, 5, 5, 2, 6),
+    ng(13, 0, 4, 2, 3, 8),
+    ng( 4, 0,13, 8, 3, 2),
   }
 }
 
 local tee_bracket_bus_nodebox = {
   type = "fixed",
   fixed          = {
-    yatm_core.Cuboid:new( 0, 0, 5,16, 2, 6):fast_node_box(),
-    yatm_core.Cuboid:new( 5, 0,11, 6, 2, 5):fast_node_box(),
+    ng( 0, 0, 5,16, 2, 6),
+    ng( 5, 0,11, 6, 2, 5),
     bus_cube,
 
-    yatm_core.Cuboid:new(13, 0, 4, 2, 3, 8):fast_node_box(),
-    yatm_core.Cuboid:new( 1, 0, 4, 2, 3, 8):fast_node_box(),
-    yatm_core.Cuboid:new( 4, 0,13, 8, 3, 2):fast_node_box(),
+    ng(13, 0, 4, 2, 3, 8),
+    ng( 1, 0, 4, 2, 3, 8),
+    ng( 4, 0,13, 8, 3, 2),
   }
 }
 
 local cross_bracket_bus_nodebox = {
   type = "fixed",
   fixed          = {
-    yatm_core.Cuboid:new( 5, 0, 0, 6, 2,16):fast_node_box(),
-    yatm_core.Cuboid:new( 0, 0, 5,16, 2, 6):fast_node_box(),
+    ng( 5, 0, 0, 6, 2,16),
+    ng( 0, 0, 5,16, 2, 6),
     bus_cube,
 
-    yatm_core.Cuboid:new(13, 0, 4, 2, 3, 8):fast_node_box(),
-    yatm_core.Cuboid:new( 1, 0, 4, 2, 3, 8):fast_node_box(),
-    yatm_core.Cuboid:new( 4, 0, 1, 8, 3, 2):fast_node_box(),
-    yatm_core.Cuboid:new( 4, 0,13, 8, 3, 2):fast_node_box(),
+    ng(13, 0, 4, 2, 3, 8),
+    ng( 1, 0, 4, 2, 3, 8),
+    ng( 4, 0, 1, 8, 3, 2),
+    ng( 4, 0,13, 8, 3, 2),
   }
 }
 
 local riser_bracket_cable_nodebox = {
   type = "fixed",
   fixed = {
-    yatm_core.Cuboid:new( 5, 0, 0, 6, 2,16):fast_node_box(),
+    ng( 5, 0, 0, 6, 2,16),
 
-    yatm_core.Cuboid:new( 5, 0,14, 6,16, 2):fast_node_box(),
-    yatm_core.Cuboid:new( 4, 2,13, 8, 2, 3):fast_node_box(),
-    yatm_core.Cuboid:new( 4,13,13, 8, 2, 3):fast_node_box(),
+    ng( 5, 0,14, 6,16, 2),
+    ng( 4, 2,13, 8, 2, 3),
+    ng( 4,13,13, 8, 2, 3),
   },
 }
 
@@ -229,8 +234,8 @@ for _,color_pair in ipairs(colors) do
       color = color_basename,
       type = "mounted_cable",
       accessible_dirs = {
-        [yatm_core.D_NORTH] = true,
-        [yatm_core.D_SOUTH] = true,
+        [Directions.D_NORTH] = true,
+        [Directions.D_SOUTH] = true,
       }
     },
 
@@ -287,8 +292,8 @@ for _,color_pair in ipairs(colors) do
       color = color_basename,
       type = "mounted_cable",
       accessible_dirs = {
-        [yatm_core.D_EAST] = true,
-        [yatm_core.D_NORTH] = true,
+        [Directions.D_EAST] = true,
+        [Directions.D_NORTH] = true,
       }
     },
 
@@ -345,9 +350,9 @@ for _,color_pair in ipairs(colors) do
       color = color_basename,
       type = "mounted_cable",
       accessible_dirs = {
-        [yatm_core.D_WEST] = true,
-        [yatm_core.D_EAST] = true,
-        [yatm_core.D_NORTH] = true,
+        [Directions.D_WEST] = true,
+        [Directions.D_EAST] = true,
+        [Directions.D_NORTH] = true,
       }
     },
 
@@ -404,10 +409,10 @@ for _,color_pair in ipairs(colors) do
       color = color_basename,
       type = "mounted_cable",
       accessible_dirs = {
-        [yatm_core.D_WEST] = true,
-        [yatm_core.D_EAST] = true,
-        [yatm_core.D_NORTH] = true,
-        [yatm_core.D_SOUTH] = true,
+        [Directions.D_WEST] = true,
+        [Directions.D_EAST] = true,
+        [Directions.D_NORTH] = true,
+        [Directions.D_SOUTH] = true,
       }
     },
 
@@ -464,8 +469,8 @@ for _,color_pair in ipairs(colors) do
       color = color_basename,
       type = "mounted_cable",
       accessible_dirs = {
-        [yatm_core.D_UP] = true,
-        [yatm_core.D_SOUTH] = true,
+        [Directions.D_UP] = true,
+        [Directions.D_SOUTH] = true,
       }
     },
 
@@ -523,8 +528,8 @@ for _,color_pair in ipairs(colors) do
       color = color_basename,
       type = "mounted_bus",
       accessible_dirs = {
-        [yatm_core.D_NORTH] = true,
-        [yatm_core.D_SOUTH] = true,
+        [Directions.D_NORTH] = true,
+        [Directions.D_SOUTH] = true,
       }
     },
 
@@ -581,8 +586,8 @@ for _,color_pair in ipairs(colors) do
       color = color_basename,
       type = "mounted_bus",
       accessible_dirs = {
-        [yatm_core.D_EAST] = true,
-        [yatm_core.D_NORTH] = true,
+        [Directions.D_EAST] = true,
+        [Directions.D_NORTH] = true,
       }
     },
 
@@ -639,9 +644,9 @@ for _,color_pair in ipairs(colors) do
       color = color_basename,
       type = "mounted_bus",
       accessible_dirs = {
-        [yatm_core.D_WEST] = true,
-        [yatm_core.D_EAST] = true,
-        [yatm_core.D_NORTH] = true,
+        [Directions.D_WEST] = true,
+        [Directions.D_EAST] = true,
+        [Directions.D_NORTH] = true,
       }
     },
 
@@ -698,10 +703,10 @@ for _,color_pair in ipairs(colors) do
       color = color_basename,
       type = "mounted_bus",
       accessible_dirs = {
-        [yatm_core.D_WEST] = true,
-        [yatm_core.D_EAST] = true,
-        [yatm_core.D_NORTH] = true,
-        [yatm_core.D_SOUTH] = true,
+        [Directions.D_WEST] = true,
+        [Directions.D_EAST] = true,
+        [Directions.D_NORTH] = true,
+        [Directions.D_SOUTH] = true,
       }
     },
 

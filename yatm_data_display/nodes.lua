@@ -1,3 +1,6 @@
+local Cuboid = yatm_core.Cuboid
+local ng = Cuboid.new_fast_node_box
+
 local data_network = assert(yatm.data_network)
 
 local ASCII_TABLE = {}
@@ -69,7 +72,7 @@ yatm.register_stateful_node("yatm_data_display:ascii_display", {
   node_box = {
     type = "fixed",
     fixed = {
-      yatm_core.Cuboid:new(0, 0, 0, 16, 4, 16):fast_node_box(),
+      ng(0, 0, 0, 16, 4, 16),
     },
   },
 
@@ -78,7 +81,7 @@ yatm.register_stateful_node("yatm_data_display:ascii_display", {
     data_network:add_node(pos, node)
   end,
 
-  after_place_node = yatm_core.facedir_wallmount_after_place_node,
+  after_place_node = assert(foundation.com.Directions.facedir_wallmount_after_place_node),
 
   after_destruct = function (pos, node)
     data_network:remove_node(pos, node)

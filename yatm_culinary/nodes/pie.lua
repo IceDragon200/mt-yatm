@@ -1,3 +1,6 @@
+local Cuboid = assert(foundation.com.Cuboid)
+local ng = Cuboid.new_fast_node_box
+
 local function pie_on_rightclick(pos, node, clicker, itemstack, pointed_thing)
   local nodedef = minetest.registered_nodes[node.name]
 
@@ -14,8 +17,8 @@ end
 local pie_node_box = {
   type = "fixed",
   fixed = {
-    yatm_core.Cuboid:new( 2, 0,  2,  12, 5, 12):fast_node_box(),
-    yatm_core.Cuboid:new( 1, 3,  1,  14, 1, 14):fast_node_box(),
+    ng( 2, 0,  2,  12, 5, 12),
+    ng( 1, 3,  1,  14, 1, 14),
   }
 }
 
@@ -53,8 +56,8 @@ for i = 1,7 do
   local sliced_pie_node_box = {
     type = "fixed",
     fixed = {
-      yatm_core.Cuboid:new( 2, 0,  2,  12 * i / 8, 5, 12):fast_node_box(),
-      yatm_core.Cuboid:new( 1, 3,  1,  13 * i / 8, 1, 14):fast_node_box(),
+      ng( 2, 0,  2,  12 * i / 8, 5, 12),
+      ng( 1, 3,  1,  13 * i / 8, 1, 14),
     }
   }
 

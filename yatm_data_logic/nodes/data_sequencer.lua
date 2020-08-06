@@ -1,3 +1,6 @@
+local Cuboid = assert(foundation.com.Cuboid)
+local ng = Cuboid.new_fast_node_box
+local sounds = assert(yatm_core.sounds)
 local data_network = assert(yatm.data_network)
 
 minetest.register_node("yatm_data_logic:data_sequencer", {
@@ -18,8 +21,8 @@ minetest.register_node("yatm_data_logic:data_sequencer", {
   node_box = {
     type = "fixed",
     fixed = {
-      yatm_core.Cuboid:new(0, 0, 0, 16, 4, 16):fast_node_box(),
-      yatm_core.Cuboid:new(2, 4, 2, 12, 6, 12):fast_node_box(),
+      ng(0, 0, 0, 16, 4, 16),
+      ng(2, 4, 2, 12, 6, 12),
     },
   },
 
@@ -65,7 +68,7 @@ minetest.register_node("yatm_data_logic:data_sequencer", {
         -- emit the current data_seq
         if yatm_data_logic.emit_output_data(pos, "seq" .. (seq + 1)) then
           -- if any data was actually sent then make a beep sound
-          yatm_core.sounds:play("blip0", { pos = pos, max_hear_distance = 32 })
+          sounds:play("blip0", { pos = pos, max_hear_distance = 32 })
         end
 
         seq = (seq + 1) % 16

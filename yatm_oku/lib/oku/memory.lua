@@ -11,12 +11,9 @@ if not ffi then
   return
 end
 
-if not yatm_core.ByteBuf then
-  yatm.error("cannot serialize memory, need yatm_core.ByteBuf")
-  return
-end
+local ByteBuf = assert(foundation.com.ByteBuf)
 
-local Memory = yatm_core.Class:extends()
+local Memory = foundation.com.Class:extends("oku.Memory")
 local m = assert(Memory.instance_class)
 
 ffi.cdef[[
@@ -170,8 +167,6 @@ end
 --
 -- Binary Serialization
 --
-local ByteBuf = assert(yatm_core.ByteBuf, "memory needs ByteBuf for serialization")
-
 function m:bindump(stream)
   local bytes_written = 0
   if ffi.abi("le") then

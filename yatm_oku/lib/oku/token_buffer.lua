@@ -1,6 +1,9 @@
 --
 -- Token Buffer is a utility class for parsing tokens
 -- That is, list-like tables with the first element being the name of the token
+local table_copy = assert(foundation.com.table_copy)
+local list_slice = assert(foundation.com.list_slice)
+
 local function tokens_match(token, matcher)
   return token[1] == matcher
 end
@@ -31,7 +34,7 @@ local function match_tokens(tokens, start, stop, token_matchers)
   return matched
 end
 
-local TokenBuffer = yatm_core.Class:extends("TokenBuffer")
+local TokenBuffer = foundation.com.Class:extends("TokenBuffer")
 local ic = TokenBuffer.instance_class
 
 local function _check_readable(self)
@@ -58,7 +61,7 @@ function ic:isEOB()
 end
 
 function ic:to_list()
-  return yatm_core.table_copy(self.m_data)
+  return table_copy(self.m_data)
 end
 
 function ic:open(mode)
@@ -101,7 +104,7 @@ function ic:skip(token_name)
 end
 
 function ic:peek(count)
-  return yatm_core.list_slice(self.m_data, self.m_cursor, count)
+  return list_slice(self.m_data, self.m_cursor, count)
 end
 
 -- @doc Returns a list of the matched tokens, or nil if no match

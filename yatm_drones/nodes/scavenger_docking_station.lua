@@ -1,3 +1,5 @@
+local Cuboid = yatm_core.Cuboid
+local ng = Cuboid.new_fast_node_box
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
@@ -66,8 +68,8 @@ yatm.devices.register_stateful_network_device({
   node_box = {
     type = "fixed",
     fixed = {
-      yatm_core.Cuboid:new(0, 0, 0, 16, 1, 16):fast_node_box(),
-      yatm_core.Cuboid:new(0, 1,14, 16, 7,  2):fast_node_box(),
+      ng(0, 0, 0, 16, 1, 16),
+      ng(0, 1,14, 16, 7,  2),
     },
   },
   tiles = {
@@ -182,8 +184,8 @@ yatm.devices.register_stateful_network_device({
   node_box = {
     type = "fixed",
     fixed = {
-      yatm_core.Cuboid:new(0, 0, 0, 16, 1, 16):fast_node_box(),
-      yatm_core.Cuboid:new(0, 1,14, 16, 7,  2):fast_node_box(),
+      ng(0, 0, 0, 16, 1, 16),
+      ng(0, 1,14, 16, 7,  2),
     },
   },
   tiles = {

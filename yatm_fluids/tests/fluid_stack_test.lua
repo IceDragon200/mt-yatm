@@ -1,5 +1,5 @@
-local MetaRef = yatm_core.FakeMetaRef
-local Luna = assert(yatm_core.Luna)
+local MetaRef = assert(foundation.com.FakeMetaRef)
+local Luna = assert(foundation.com.Luna)
 
 local FluidStack = assert(yatm_fluids.FluidStack)
 local case = Luna:new("yatm_fluids.FluidStack")

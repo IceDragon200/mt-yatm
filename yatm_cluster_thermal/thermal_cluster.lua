@@ -1,7 +1,7 @@
-local is_table_empty = assert(yatm_core.is_table_empty)
-local table_keys = assert(yatm_core.table_keys)
-local table_length = assert(yatm_core.table_length)
-local DIR6_TO_VEC3 = assert(yatm_core.DIR6_TO_VEC3)
+local is_table_empty = assert(foundation.com.is_table_empty)
+local table_keys = assert(foundation.com.table_keys)
+local table_length = assert(foundation.com.table_length)
+local DIR6_TO_VEC3 = assert(foundation.com.Directions.DIR6_TO_VEC3)
 
 local ThermalCluster = yatm_clusters.SimpleCluster:extends("ThermalCluster")
 local ic = ThermalCluster.instance_class

@@ -1,12 +1,11 @@
-local ByteBuf = yatm_core.ByteBuf
+local ByteBuf = assert(foundation.com.ByteBuf)
 
-if not ByteBuf then
-  yatm.error("yatm_core.ByteBuf is not available, cannot create OKU state")
+local ffi = yatm_oku.ffi
+
+if not ffi then
+  minetest.log("error", "MOS6502 emulation requires ffi module")
   return
 end
-
-local bit = assert(yatm_oku.bit)
-local ffi = assert(yatm_oku.ffi)
 
 local oku_6502
 pcall(function ()

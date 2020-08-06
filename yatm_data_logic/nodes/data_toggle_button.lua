@@ -1,3 +1,6 @@
+local Cuboid = assert(foundation.com.Cuboid)
+local ng = Cuboid.new_fast_node_box
+local sounds = assert(yatm_core.sounds)
 local data_network = assert(yatm.data_network)
 
 yatm.register_stateful_node("yatm_data_logic:data_toggle_button", {
@@ -113,8 +116,8 @@ yatm.register_stateful_node("yatm_data_logic:data_toggle_button", {
     node_box = {
       type = "fixed",
       fixed = {
-        yatm_core.Cuboid:new(0, 0, 0, 16, 4, 16):fast_node_box(),
-        yatm_core.Cuboid:new(2, 4, 3,  6, 2, 10):fast_node_box(),
+        ng(0, 0, 0, 16, 4, 16),
+        ng(2, 4, 3,  6, 2, 10),
       },
     },
 
@@ -128,7 +131,7 @@ yatm.register_stateful_node("yatm_data_logic:data_toggle_button", {
     },
 
     on_rightclick = function (pos, node, clicker)
-      yatm_core.sounds:play("button_click", { pos = pos, max_hear_distance = 32 })
+      sounds:play("button_click", { pos = pos, max_hear_distance = 32 })
       node.name = "yatm_data_logic:data_toggle_button_right"
       minetest.swap_node(pos, node)
 
@@ -141,8 +144,8 @@ yatm.register_stateful_node("yatm_data_logic:data_toggle_button", {
     node_box = {
       type = "fixed",
       fixed = {
-        yatm_core.Cuboid:new(0, 0, 0, 16, 4, 16):fast_node_box(),
-        yatm_core.Cuboid:new(8, 4, 3,  6, 2, 10):fast_node_box(),
+        ng(0, 0, 0, 16, 4, 16),
+        ng(8, 4, 3,  6, 2, 10),
       },
     },
 
@@ -156,7 +159,7 @@ yatm.register_stateful_node("yatm_data_logic:data_toggle_button", {
     },
 
     on_rightclick = function (pos, node, clicker)
-      yatm_core.sounds:play("button_click", { pos = pos, max_hear_distance = 32 })
+      sounds:play("button_click", { pos = pos, max_hear_distance = 32 })
       node.name = "yatm_data_logic:data_toggle_button_left"
       minetest.swap_node(pos, node)
 

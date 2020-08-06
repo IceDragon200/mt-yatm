@@ -1,14 +1,13 @@
 --
 -- YATM Data Logic
 --
-yatm_data_logic = rawget(_G, "yatm_data_logic") or {}
-yatm_data_logic.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_data_logic", "1.0.0")
 
-dofile(yatm_data_logic.modpath .. "/common.lua")
+mod:require("common.lua")
 
-dofile(yatm_data_logic.modpath .. "/nodes.lua")
-dofile(yatm_data_logic.modpath .. "/items.lua")
+mod:require("nodes.lua")
+mod:require("items.lua")
 
-dofile(yatm_data_logic.modpath .. "/migrations.lua")
+mod:require("migrations.lua")
 
-dofile(yatm_data_logic.modpath .. "/tests.lua")
+mod:require("tests.lua")

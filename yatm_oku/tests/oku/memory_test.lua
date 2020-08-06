@@ -1,4 +1,4 @@
-local Luna = assert(yatm_core.Luna)
+local Luna = assert(foundation.com.Luna)
 if not yatm_oku.OKU then
   yatm.warn("Cannot test memory, OKU is not available\n")
   return

@@ -1,4 +1,5 @@
-local Luna = assert(yatm_core.Luna)
+local string_hex_escape = assert(foundation.com.string_hex_escape)
+local Luna = assert(foundation.com.Luna)
 
 do
   local m = yatm_oku.OKU.isa.MOS6502.Assembler
@@ -43,7 +44,7 @@ do
       t3:assert(okay)
       t3:assert_eq("", rest)
 
-      local blob = yatm_core.string_hex_escape(object, "all")
+      local blob = string_hex_escape(object, "all")
       print(dump(blob))
     end)
   end)

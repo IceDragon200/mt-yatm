@@ -3,7 +3,9 @@
 -- for 'brewing' recipes, these are recipes used by the kettle.
 -- The recipes themselves can be quite complicated.
 --
-local BrewingRegistry = yatm_core.Class:extends('yatm.brewery.BrewingRegistry')
+local table_bury = assert(foundation.com.table_bury)
+
+local BrewingRegistry = foundation.com.Class:extends('yatm.brewery.BrewingRegistry')
 local ic = BrewingRegistry.instance_class
 
 -- @type item_def :: {
@@ -55,16 +57,16 @@ function ic:register_brewing_recipe(recipe_def)
   self.recipes[recipe_id] = recipe_def
 
   -- index by fluid name and then by item name
-  yatm_core.table_bury(self.m_recipes_index,
+  table_bury(self.m_recipes_index,
                        {recipe_def.input.fluid.name, recipe_def.input.item.name},
                        recipe_id)
 
   if recipe_def.outputs.fluid then
-    yatm_core.table_bury(self.m_output_fluid_to_recipes, {recipe_def.output.fluid.name, recipe_id}, true)
+    table_bury(self.m_output_fluid_to_recipes, {recipe_def.output.fluid.name, recipe_id}, true)
   end
 
   if recipe_def.outputs.item then
-    yatm_core.table_bury(self.m_output_item_to_recipes, {recipe_def.output.item.name, recipe_id}, true)
+    table_bury(self.m_output_item_to_recipes, {recipe_def.output.item.name, recipe_id}, true)
   end
 
   return self

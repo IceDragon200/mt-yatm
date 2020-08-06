@@ -1,6 +1,12 @@
 -- TODO: Drive memory needs to be written back to floppy disk before being removed from inventory
 --
 --
+local Cuboid = assert(foundation.com.Cuboid)
+local ng = Cuboid.new_fast_node_box
+local random_string = assert(foundation.com.random_string)
+local random_string62 = assert(foundation.com.random_string62)
+local string_hex_unescape = assert(foundation.com.string_hex_unescape)
+local string_hex_escape = assert(foundation.com.string_hex_escape)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local data_network = assert(yatm.data_network)
@@ -60,7 +66,7 @@ local function floppy_disk_drive_on_construct(pos)
   data_network:add_node(pos, node)
   yatm.devices.device_on_construct(pos)
 
-  local secret = yatm_core.random_string(8)
+  local secret = random_string(8)
   meta:set_string("secret", "flpd." .. secret)
 
   yatm.computers:create_computer(pos, node, secret, {
@@ -149,7 +155,7 @@ yatm.devices.register_stateful_network_device({
   node_box = {
     type = "fixed",
     fixed = {
-      yatm_core.Cuboid:new(0, 0, 0, 16, 8, 16):fast_node_box(),
+      ng(0, 0, 0, 16, 8, 16),
     },
   },
 
@@ -178,7 +184,7 @@ yatm.devices.register_stateful_network_device({
 
     receive_pdu = function (self, pos, node, dir, port, value)
       local meta = minetest.get_meta(pos)
-      local blob = yatm_core.string_hex_unescape(value)
+      local blob = string_hex_unescape(value)
 
       local disk_size = get_floppy_disk_size(pos)
 
@@ -214,7 +220,7 @@ yatm.devices.register_stateful_network_device({
 
             local disk_stack = get_floppy_disk(pos)
             local disk_meta = disk_stack:get_meta()
-            disk_meta:set_string("data", yatm_core.string_hex_escape(disk_blob))
+            disk_meta:set_string("data", string_hex_escape(disk_blob))
           end
         end
       end
@@ -231,7 +237,7 @@ yatm.devices.register_stateful_network_device({
           local new_blob = computer.oku:r_memory_blob(seek_offset, length)
           meta:set_int("seek_offset", (seek_offset + length) % disk_size)
 
-          yatm_data_logic.emit_matrix_port_value(pos, "port", "data", yatm_core.string_hex_escape(new_blob))
+          yatm_data_logic.emit_matrix_port_value(pos, "port", "data", string_hex_escape(new_blob))
         end
       end
     end,
@@ -356,7 +362,7 @@ yatm.devices.register_stateful_network_device({
     local meta = minetest.get_meta(pos)
     local secret = meta:get_string("secret")
     if not secret then
-      secret = yatm_core.random_string62(8)
+      secret = random_string62(8)
       meta:set_string("secret", "flpd." .. secret)
     end
     yatm.computers:upsert_computer(pos, node, meta:get_string("secret"), {
@@ -389,7 +395,7 @@ yatm.devices.register_stateful_network_device({
       local node = minetest.get_node(pos)
       local meta = stack:get_meta()
       local data = meta:get_string("data")
-      local blob = yatm_core.string_hex_unescape(data)
+      local blob = string_hex_unescape(data)
 
       local computer = yatm.computers:get_computer(pos)
       computer.oku:fill_memory(0)

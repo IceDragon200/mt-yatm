@@ -1,4 +1,4 @@
-local BlastsSystem = yatm_core.Class:extends("BlastsSystem")
+local BlastsSystem = foundation.com.Class:extends("BlastsSystem")
 local ic = assert(BlastsSystem.instance_class)
 
 local mod_storage = yatm_blasts.mod_storage

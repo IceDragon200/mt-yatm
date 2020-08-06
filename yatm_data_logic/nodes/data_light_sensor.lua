@@ -1,3 +1,6 @@
+local Cuboid = assert(foundation.com.Cuboid)
+local ng = Cuboid.new_fast_node_box
+local string_hex_escape = assert(foundation.com.string_hex_escape)
 local data_network = assert(yatm.data_network)
 
 minetest.register_node("yatm_data_logic:data_light_sensor", {
@@ -18,9 +21,9 @@ minetest.register_node("yatm_data_logic:data_light_sensor", {
   node_box = {
     type = "fixed",
     fixed = {
-      yatm_core.Cuboid:new(0, 0, 0, 16, 4, 16):fast_node_box(),
-      yatm_core.Cuboid:new(3, 4, 3, 10, 1, 10):fast_node_box(),
-      yatm_core.Cuboid:new(4, 5, 4,  8, 1,  8):fast_node_box(),
+      ng(0, 0, 0, 16, 4, 16),
+      ng(3, 4, 3, 10, 1, 10),
+      ng(4, 5, 4,  8, 1,  8),
     },
   },
 
@@ -60,7 +63,7 @@ minetest.register_node("yatm_data_logic:data_light_sensor", {
 
         local light = minetest.get_node_light(pos) or 0
 
-        local output_data = yatm_core.string_hex_escape(string.char(light))
+        local output_data = string_hex_escape(string.char(light))
         yatm_data_logic.emit_output_data_value(pos, output_data)
 
         meta:set_int("last_light_level", light)

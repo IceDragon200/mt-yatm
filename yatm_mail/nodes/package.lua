@@ -3,6 +3,9 @@
 -- In addition they can be adorned with a ribbon and sealed to prevent anyone except the recipient
 -- from opening it.
 --
+local Cuboid = assert(foundation.com.Cuboid)
+local is_blank = assert(foundation.com.is_blank)
+
 function get_package_formspec(pos, user)
   local meta = minetest.get_meta(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
@@ -26,7 +29,7 @@ end
 local package_nodebox = {
   type = "fixed",
   fixed = {
-    yatm_core.Cuboid:new(1, 0, 1, 14, 8, 14):fast_node_box(),
+    Cuboid.new_fast_node_box(1, 0, 1, 14, 8, 14),
   },
 }
 
@@ -51,7 +54,7 @@ local function package_after_place_node(pos, placer, item_stack, pointed_thing)
   local new_inv = new_meta:get_inventory()
 
   local old_inv_list = old_meta:get_string("inventory_dump")
-  if not yatm_core.is_blank(old_inv_list) then
+  if not is_blank(old_inv_list) then
     local dumped = minetest.deserialize(old_inv_list)
     local list = new_inv:get_list("main")
     list = yatm_item_storage.InventorySerializer.deserialize_list(dumped, list)

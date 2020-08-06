@@ -1,3 +1,7 @@
+local list_concat = assert(foundation.com.list_concat)
+local is_blank = assert(foundation.com.is_blank)
+local FakeMetaRef = assert(foundation.com.FakeMetaRef)
+
 local colors = {
   {"white", "White"}
 }
@@ -7,7 +11,7 @@ if dye then
   colors = dye.dyes
 end
 
-colors = yatm_core.list_concat({{"default", "Default"}}, colors)
+colors = list_concat({{"default", "Default"}}, colors)
 
 local mailbox_nodebox  = {
   type = "fixed",
@@ -112,7 +116,7 @@ local function is_mailbox_open(pos)
   local is_open = true
   local inv = meta:get_inventory()
 
-  if not yatm_core.is_blank(lockable_pubkey) then
+  if not is_blank(lockable_pubkey) then
     -- if the mailbox has no pubkey for either a physical lock or digital chip lock
     -- then it's open by default
     local key_stack = inv:get_stack("access_key", 1)
@@ -123,7 +127,7 @@ local function is_mailbox_open(pos)
     return false
   end
 
-  if not yatm_core.is_blank(chipped_pubkey) then
+  if not is_blank(chipped_pubkey) then
     local card_stack = inv:get_stack("access_card", 1)
     is_open = yatm_security.is_stack_an_access_card_for_chipped_node(card_stack, pos)
   end
@@ -228,7 +232,7 @@ end
 local function mailbox_preserve_metadata(pos, oldnode, old_meta_table, drops)
   local stack = drops[1]
 
-  local old_meta = yatm_core.FakeMetaRef:new(old_meta_table)
+  local old_meta = FakeMetaRef:new(old_meta_table)
   local new_meta = stack:get_meta()
   yatm_security.copy_lockable_object_pubkey(old_meta, new_meta)
   yatm_security.copy_chipped_object(old_meta, new_meta)

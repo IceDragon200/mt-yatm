@@ -1,12 +1,14 @@
-local table_keys = assert(yatm_core.table_keys)
-local table_length = assert(yatm_core.table_length)
+local Trace = assert(foundation.com.Trace)
+local string_split = assert(foundation.com.string_split)
+local table_keys = assert(foundation.com.table_keys)
+local table_length = assert(foundation.com.table_length)
 
 minetest.register_chatcommand("yatm.networks", {
   params = "<command> <params>",
   description = "Issue various commands to yatm networks",
   func = function (player_name, param)
     minetest.log("action", "yatm.networks " .. param)
-    local params = yatm_core.string_split(param, ' ')
+    local params = string_split(param, ' ')
     if params[1] == "ls" then
       local network_ids = table_keys(Network.networks)
       minetest.chat_send_player(player_name, "Network IDs:" .. table.concat(network_ids, ', '))
@@ -38,9 +40,9 @@ yatm.clusters:register_node_event_handler('refresh_infotext', function (_cls, _c
     local nodedef = minetest.registered_nodes[node.name]
 
     if nodedef and nodedef.refresh_infotext then
-      local tracei = yatm_core.trace.new(node.name .. " refresh_infotext/2")
+      local tracei = Trace.new(node.name .. " refresh_infotext/2")
       nodedef.refresh_infotext(pos, node)
-      yatm_core.trace.span_end(tracei)
+      Trace.span_end(tracei)
     end
   end
 end)

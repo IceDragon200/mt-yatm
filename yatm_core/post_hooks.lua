@@ -1,14 +1,16 @@
 --
 -- Callbacks when everything has loaded
 --
+local string_starts_with = assert(foundation.com.string_starts_with)
+
 local function dump_nodes()
   -- Export yatm specific nodes for documentation purposes
   print("Exporting Nodes")
   local i = 0
   local result = {}
   for name, def in pairs(minetest.registered_nodes) do
-    if yatm_core.string_starts_with(name, "yatm_") or
-       yatm_core.string_starts_with(name, "harmonia_") then
+    if string_starts_with(name, "yatm_") or
+       string_starts_with(name, "harmonia_") then
       i = i + 1
 
       result[i] = minetest.write_json({
@@ -38,8 +40,8 @@ local function dump_craftitems()
   local result = {}
 
   for name, def in pairs(minetest.registered_craftitems) do
-    if yatm_core.string_starts_with(name, "yatm_") or
-       yatm_core.string_starts_with(name, "harmonia_") then
+    if string_starts_with(name, "yatm_") or
+       string_starts_with(name, "harmonia_") then
       i = i + 1
       result[i] = minetest.write_json({
         name = name,
@@ -63,8 +65,8 @@ local function dump_tools()
   local result = {}
 
   for name, def in pairs(minetest.registered_tools) do
-    if yatm_core.string_starts_with(name, "yatm_") or
-       yatm_core.string_starts_with(name, "harmonia_") then
+    if string_starts_with(name, "yatm_") or
+       string_starts_with(name, "harmonia_") then
       i = i + 1
       result[i] = minetest.write_json({
         name = name,

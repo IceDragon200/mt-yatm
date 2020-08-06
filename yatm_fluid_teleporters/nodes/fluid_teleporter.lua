@@ -4,6 +4,8 @@ take fluids into their internal inventory, and then teleport them to a connected
 
 Like all other wireless devices, it has it's own address scheme and registration process.
 ]]
+local is_blank = assert(foundation.com.is_blank)
+local Directions = assert(foundation.com.Directions)
 local cluster_devices = assert(yatm.cluster.devices)
 local SpacetimeNetwork = assert(yatm.spacetime.network)
 local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
@@ -58,7 +60,7 @@ function fluid_teleporter_yatm_network.work(pos, node, energy_available, work_ra
   local meta = minetest.get_meta(pos)
   local address = SpacetimeMeta.get_address(meta)
 
-  if not yatm_core.is_blank(address) then
+  if not is_blank(address) then
     local wildcard_stack = FluidStack.new_wildcard(1000)
     local fluid_stack = FluidMeta.drain_fluid(meta, "tank",
       wildcard_stack, fluid_interface.capacity, fluid_interface.capacity,
@@ -68,7 +70,7 @@ function fluid_teleporter_yatm_network.work(pos, node, energy_available, work_ra
       local remaining_stack = FluidStack.copy(fluid_stack)
 
       SpacetimeNetwork:each_member_in_group_by_address("fluid_receiver", address, function (sp_hash, member)
-        local filled_stack, error_message = FluidTanks.fill_fluid(member.pos, yatm_core.D_NONE, remaining_stack, true)
+        local filled_stack, error_message = FluidTanks.fill_fluid(member.pos, Directions.D_NONE, remaining_stack, true)
         if filled_stack and filled_stack.amount > 0 then
           remaining_stack.amount = remaining_stack.amount - filled_stack.amount
         end
@@ -115,7 +117,7 @@ local function fluid_teleporter_change_spacetime_address(pos, node, new_address)
   SpacetimeNetwork:maybe_update_node(pos, node)
 
   local nodedef = minetest.registered_nodes[node.name]
-  if yatm_core.is_blank(new_address) then
+  if is_blank(new_address) then
     node.name = fluid_teleporter_yatm_network.states.off
     minetest.swap_node(pos, node)
   else
