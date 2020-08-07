@@ -569,17 +569,21 @@ end
 
 function ic:reduce_clusters_of_group(group_name, acc, callback)
   local cluster_ids = self.m_group_clusters[group_name]
+  local should_continue
+  local cluster
+
   if cluster_ids then
     for cluster_id, _ in pairs(cluster_ids) do
-      local cluster = self.m_clusters[cluster_id]
+      cluster = self.m_clusters[cluster_id]
       if cluster then
-        local should_continue, acc = callback(cluster, acc)
+        should_continue, acc = callback(cluster, acc)
         if not should_continue then
           break
         end
       end
     end
   end
+
   return acc
 end
 

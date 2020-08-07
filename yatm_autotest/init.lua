@@ -16,40 +16,42 @@ function AutotestReporter:report(...)
 end
 
 local AutotestLuna = assert(foundation.com.Luna):extends()
-local ic = AutotestLuna.instance_class
+do
+  local ic = AutotestLuna.instance_class
 
-function ic:initialize(...)
-  ic._super.initialize(self, ...)
-  self.reporter = AutotestReporter
-end
-
-function ic:set_cuboid(cuboid, node)
-  local positions = {}
-  local y2 = cuboid.y + cuboid.h
-  local z2 = cuboid.z + cuboid.d
-  local x2 = cuboid.x + cuboid.w
-  for y = cuboid.y,y2 do
-    for z = cuboid.z,z2 do
-      for x = cuboid.x,x2 do
-        table.insert(positions, vector.new(x, y, z))
-      end
-    end
+  function ic:initialize(...)
+    ic._super.initialize(self, ...)
+    self.reporter = AutotestReporter
   end
 
-  minetest.bulk_set_node(positions, node)
-end
+  function ic:set_cuboid(cuboid, node)
+    local positions = {}
+    local y2 = cuboid.y + cuboid.h
+    local z2 = cuboid.z + cuboid.d
+    local x2 = cuboid.x + cuboid.w
+    for y = cuboid.y,y2 do
+      for z = cuboid.z,z2 do
+        for x = cuboid.x,x2 do
+          table.insert(positions, vector.new(x, y, z))
+        end
+      end
+    end
 
-function ic:clear_test_area()
-  minetest.chat_send_all("Clearing area 16x32x16 for next test")
-  self:set_cuboid(Cuboid:new(-8, 0, -8, 16, 32, 16), { name = "air" })
-end
+    minetest.bulk_set_node(positions, node)
+  end
 
-function ic:yield(...)
-  coroutine.yield(...)
-end
+  function ic:clear_test_area()
+    minetest.chat_send_all("Clearing area 16x32x16 for next test")
+    self:set_cuboid(Cuboid:new(-8, 0, -8, 16, 32, 16), { name = "air" })
+  end
 
-function ic:wait(time)
-  self:yield("wait", { time })
+  function ic:yield(...)
+    coroutine.yield(...)
+  end
+
+  function ic:wait(time)
+    self:yield("wait", { time })
+  end
 end
 
 --

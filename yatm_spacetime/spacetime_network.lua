@@ -13,7 +13,8 @@ function ic:initialize(description)
   self.m_members_by_group = {}
   self.m_members_by_block = {}
 
-  yatm.clusters:observe('on_block_expired', 'yatm_spacetime_network/block_unloader', function (block_id)
+  yatm.clusters:observe('on_block_expired',
+                        'yatm_spacetime_network/block_unloader', function (block_id)
     self:unload_block(block_id)
   end)
 end
@@ -26,7 +27,8 @@ function ic:register_device(groups, pos, address)
   local member_id = minetest.hash_node_position(pos)
 
   if self.m_members[member_id] then
-    error("multiple registrations detected, did you mean to use `update_device/2`?" .. minetest.pos_to_string(pos))
+    error("multiple registrations detected, did you mean to use `update_device/2`?" ..
+          minetest.pos_to_string(pos))
   else
     local node = minetest.get_node(pos)
     local block_id = yatm.clusters:mark_node_block(pos, node)
@@ -60,7 +62,8 @@ end
 
 function ic:update_device(groups, pos, new_address)
   assert(pos, "expected a valid position")
-  print(self.m_description, "update_device/3", dump(groups), minetest.pos_to_string(pos), dump(new_address))
+  print(self.m_description, "update_device/3", dump(groups),
+        minetest.pos_to_string(pos), dump(new_address))
   local hash = minetest.hash_node_position(pos)
   if self.m_members[hash] then
     self:unregister_device(pos)
@@ -76,7 +79,7 @@ function ic:maybe_register_node(pos, node)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef then
     local meta = minetest.get_meta(pos)
-    local address = yatm_spacetime.SpacetimeMeta.get_address(meta)
+    local address = SpacetimeMeta.get_address(meta)
     if nodedef.yatm_spacetime then
       local spacetime_groups = nodedef.yatm_spacetime.groups or {}
       if not is_blank(address) then
@@ -96,7 +99,7 @@ function ic:maybe_update_node(pos, node)
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef then
     local meta = minetest.get_meta(pos)
-    local address = yatm_spacetime.SpacetimeMeta.get_address(meta)
+    local address = SpacetimeMeta.get_address(meta)
     if nodedef.yatm_spacetime then
       local spacetime_groups = nodedef.yatm_spacetime.groups or {}
       return self:update_device(spacetime_groups, pos, address)

@@ -1,7 +1,6 @@
 local is_table_empty = assert(foundation.com.is_table_empty)
 local table_keys = assert(foundation.com.table_keys)
 local table_length = assert(foundation.com.table_length)
-local DIR6_TO_VEC3 = assert(foundation.com.Directions.DIR6_TO_VEC3)
 
 local DeviceCluster = yatm_clusters.SimpleCluster:extends("DeviceCluster")
 local ic = DeviceCluster.instance_class

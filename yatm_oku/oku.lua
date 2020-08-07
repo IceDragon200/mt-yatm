@@ -171,15 +171,16 @@ end
 --
 function ic:bindump(stream)
   local bytes_written = 0
+  local bw, err
   -- Write the magic bytes
-  local bw, err = ByteBuf.write(stream, "OKU2")
+  bw, err = ByteBuf.write(stream, "OKU2")
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
 
   -- Write the version
-  local bw, err = ByteBuf.w_u32(stream, 2)
+  bw, err = ByteBuf.w_u32(stream, 2)
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
@@ -187,7 +188,7 @@ function ic:bindump(stream)
 
   -- Write the label
   assert(self.label, 'label is missing')
-  local bw, err = ByteBuf.w_u8string(stream, self.label)
+  bw, err = ByteBuf.w_u8string(stream, self.label)
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
@@ -195,8 +196,7 @@ function ic:bindump(stream)
 
   -- Write the arch
   assert(self.arch, 'arch is missing')
-  local bytes_written = 0
-  local bw, err = ByteBuf.w_u8string(stream, self.arch)
+  bw, err = ByteBuf.w_u8string(stream, self.arch)
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
@@ -207,7 +207,7 @@ function ic:bindump(stream)
 
   --
   -- Memory
-  local bw, err = self:_bindump_memory(stream)
+  bw, err = self:_bindump_memory(stream)
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
@@ -215,7 +215,7 @@ function ic:bindump(stream)
 
   --
   -- ISA State
-  local bw, err = isa.bindump(self, self.isa_assigns, stream)
+  bw, err = isa.bindump(self, self.isa_assigns, stream)
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
@@ -228,6 +228,7 @@ function ic:binload(stream)
   self.isa_assigns = {}
   self.exec_counter = 0
   local bytes_read = 0
+  local br
   -- First thing is to read the magic bytes
   local mahou, br = ByteBuf.read(stream, 4)
   bytes_read = bytes_read + br

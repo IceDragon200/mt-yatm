@@ -1,8 +1,6 @@
 local is_table_empty = assert(foundation.com.is_table_empty)
 local table_keys = assert(foundation.com.table_keys)
 local table_merge = assert(foundation.com.table_merge)
-local table_bury = assert(foundation.com.table_bury)
-local table_length = assert(foundation.com.table_length)
 local DIR6_TO_VEC3 = assert(foundation.com.Directions.DIR6_TO_VEC3)
 
 local SimpleCluster = foundation.com.Class:extends("SimpleCluster")
@@ -80,7 +78,7 @@ end
 function ic:schedule_transition_node(pos, node, new_state)
   self:log('schedule_transition_node', minetest.pos_to_string(pos), node.name)
   local groups = self:get_node_groups(node)
-  yatm.clusters:schedule_node_event(CLUSTER_GROUP, 'transition_node', pos, node, { state = new_state })
+  yatm.clusters:schedule_node_event(self.m_cluster_group, 'transition_node', pos, node, { state = new_state })
 end
 
 function ic:schedule_load_node(pos, node)
@@ -117,7 +115,7 @@ function ic:handle_node_event(cls, generation_id, event, cluster_ids)
     self:_handle_remove_node(cls, generation_id, event, cluster_ids)
 
   elseif event.event_name == 'transition_node' then
-    self:_handle_transition_node(cls, generation_id, event, node_clusters)
+    self:_handle_transition_node(cls, generation_id, event, cluster_ids)
 
   else
     self:log("unhandled event event_name=" .. event.event_name)
@@ -270,51 +268,56 @@ function ic:mark_accessible_dirs(pos, node, accessible_dirs)
   return accessible_dirs
 end
 
-function ic:scan_for_branches(origin, node)
+function ic:scan_for_branches(scan_origin, _scan_node)
   local all_nodes = {}
   local branches = {}
   local hash_node_position = minetest.hash_node_position
 
+  local origin = scan_origin
   local g_branch_id = 0
   for dir6, vec3 in pairs(DIR6_TO_VEC3) do
     g_branch_id = g_branch_id + 1
+    origin = vector.add(origin, vec3)
+
     local branch_id = g_branch_id
-    local origin = vector.add(origin, vec3)
     local nodes = {}
     branches[branch_id] = nodes
 
     yatm.explore_nodes(origin, 0, function (pos, node, acc, accessible_dirs)
-      local node_id = hash_node_position(pos)
-      if nodes[node_id] then
+      local current_node_id = hash_node_position(pos)
+      if nodes[current_node_id] then
         return false, acc
       end
 
       local nodedef = minetest.registered_nodes[node.name]
       if nodedef then
         if nodedef.groups[self.m_node_group] then
-          if all_nodes[node_id] then
-            local other_branch_id = all_nodes[node_id]
+          if all_nodes[current_node_id] then
+            local other_branch_id = all_nodes[current_node_id]
             local other_branches = branches[other_branch_id]
 
             if nodes ~= other_branches then
               local new_nodes = {}
               table_merge(nodes, other_branches)
+
               for node_id,_ in pairs(nodes) do
                 all_nodes[node_id] = other_branch_id
                 new_nodes[node_id] = other_branch_id
               end
+
               for node_id,_ in pairs(other_branches) do
                 all_nodes[node_id] = other_branch_id
                 new_nodes[node_id] = other_branch_id
               end
+
               branches[other_branch_id] = new_nodes
               branches[branch_id] = nil
               branch_id = other_branch_id
               nodes = new_nodes
             end
           else
-            all_nodes[node_id] = branch_id
-            nodes[node_id] = branch_id
+            all_nodes[current_node_id] = branch_id
+            nodes[current_node_id] = branch_id
           end
 
           self:mark_accessible_dirs(pos, node, accessible_dirs)
@@ -335,7 +338,7 @@ end
 function ic:_handle_remove_node(cls, generation_id, event, _cluster_ids)
   self:log('_handle_remove_node', minetest.pos_to_string(event.pos))
   -- TODO:
-  local cluster_id =
+  local current_cluster_id =
     cls:reduce_node_clusters(event.pos, nil, function (cluster, acc)
       if cluster.groups[self.m_cluster_group] then
         return false, cluster.id
@@ -344,8 +347,8 @@ function ic:_handle_remove_node(cls, generation_id, event, _cluster_ids)
       end
     end)
 
-  if cluster_id then
-    cls:remove_node_from_cluster(cluster_id, event.pos, event.node)
+  if current_cluster_id then
+    cls:remove_node_from_cluster(current_cluster_id, event.pos, event.node)
   end
 
   local branches = self:scan_for_branches(event.pos, event.node)
@@ -397,7 +400,7 @@ end
 function ic:on_cluster_branch_changed(cls, generation_id, event, cluster)
 end
 
-function ic:_handle_transition_node(cls, generation_id, event, node_clusters)
+function ic:_handle_transition_node(cls, generation_id, event, _cluster_ids)
   local node = minetest.get_node(event.pos)
   local nodedef = minetest.registered_nodes[node.name]
   nodedef.transition_device_state(event.pos, node, event.params.state)

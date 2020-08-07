@@ -71,9 +71,11 @@ local function fluid_tank_drain_sync_2(pos, node)
         local npos = lowest_tank.pos
         local ndir = assert(lowest_tank.dir)
 
-        local filled_stack = FluidTanks.fill_fluid(npos, Directions.invert_dir(ndir), draining_stack, true)
-        if filled_stack and filled_stack.amount > 0 then
-          local used_stack = FluidTanks.drain_fluid(npos, Directions.D_NONE, filled_stack, true)
+        local low_filled_stack =
+          FluidTanks.fill_fluid(npos, Directions.invert_dir(ndir), draining_stack, true)
+
+        if low_filled_stack and low_filled_stack.amount > 0 then
+          local used_stack = FluidTanks.drain_fluid(npos, Directions.D_NONE, low_filled_stack, true)
           draining_stack.amount = draining_stack.amount - used_stack.amount
         else
           break

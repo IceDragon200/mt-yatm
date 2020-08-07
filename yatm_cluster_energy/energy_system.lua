@@ -4,7 +4,7 @@ local EnergyDevices = assert(yatm.energy.EnergyDevices)
 local EnergySystem = foundation.com.Class:extends("EnergySystem")
 local ic = EnergySystem.instance_class
 
-local LOG_GROUP = 'yatm.cluster.energy:energy_system'
+--local LOG_GROUP = 'yatm.cluster.energy:energy_system'
 
 function ic:initialize()
   ic._super.initialize(self)
@@ -13,13 +13,14 @@ end
 function ic:update(cls, cluster, dtime)
   local pot = Trace.new()
   local ot = Trace.span_start(pot, "cluster:" .. cluster.id)
+  local span
   --print(LOG_GROUP, "dtime=" .. dtime, "cluster_id=" .. cluster.id, "size=" .. cluster:size(), "updating energy")
 
   --print(cluster:inspect())
 
   -- Highest priority, produce energy
   -- It's up to the node how it wants to deal with the energy, whether it's buffered, or just burst
-  local span = Trace.span_start(ot, "energy_producer")
+  span = Trace.span_start(ot, "energy_producer")
   local energy_produced =
     cluster:reduce_nodes_of_groups("energy_producer", 0, function (node_entry, acc)
       local node = minetest.get_node_or_nil(node_entry.pos)
@@ -34,7 +35,7 @@ function ic:update(cls, cluster, dtime)
   -- Second highest priority, how much energy is stored in the network right now
   -- This is combined with the produced to determine how much is available
   -- The node is allowed to lie about it's contents, to cause energy trickle or gating
-  local span = Trace.span_start(ot, "energy_storage")
+  span = Trace.span_start(ot, "energy_storage")
   local energy_stored =
     cluster:reduce_nodes_of_groups("energy_storage", 0, function (node_entry, accumulated_energy_stored)
       local node = minetest.get_node_or_nil(node_entry.pos)
@@ -72,7 +73,7 @@ function ic:update(cls, cluster, dtime)
 
   --print(LOG_GROUP, "energy_consumed", energy_consumed)
 
-  local span = Trace.span_start(ot, "energy_storage")
+  span = Trace.span_start(ot, "energy_storage")
   local energy_storage_consumed = energy_consumed - energy_produced
   -- if we went over the produced, then the rest must be taken from the storage
   if energy_storage_consumed > 0 then
@@ -94,7 +95,7 @@ function ic:update(cls, cluster, dtime)
 
   -- how much extra energy is left, note the stored is subtracted from the available
   -- if it falls below 0 then there is no extra energy.
-  local span = Trace.span_start(ot, "energy_receiver")
+  span = Trace.span_start(ot, "energy_receiver")
   if energy_available > energy_stored then
     local energy_left = energy_available - energy_stored
 
@@ -114,7 +115,7 @@ function ic:update(cls, cluster, dtime)
   end
   Trace.span_end(span)
 
-  local span = Trace.span_start(ot, "has_update")
+  span = Trace.span_start(ot, "has_update")
   cluster:reduce_nodes_of_groups("has_update", 0, function (node_entry, acc)
     local pos = node_entry.pos
     local node = minetest.get_node_or_nil(pos)

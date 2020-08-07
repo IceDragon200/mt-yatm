@@ -8,8 +8,8 @@ local is_blank = assert(foundation.com.is_blank)
 local itemstack_inspect = assert(foundation.com.itemstack_inspect)
 
 --
--- `lockable` is used for any item or node that can be locked using a key, the locked item is created
--- using the locksmith's table.
+-- `lockable` is used for any item or node that can be locked using a key,
+-- the locked item is created using the locksmith's table.
 --
 local lockable_object_schema = MetaSchema:new("lockable_object", "", {
   -- Lockable objects have a public key, this ensures that the private key
@@ -21,8 +21,8 @@ local lockable_object_schema = MetaSchema:new("lockable_object", "", {
 })
 
 local lockable_key_schema = MetaSchema:new("lockable_key", "", {
-  -- Lockable Key objects have a private key, this will be used to generate the public key upon request
-  -- for matching.
+  -- Lockable Key objects have a private key, this will be used to generate the public
+  -- key upon request for matching.
   prvkey = {
     type = "string",
   },
@@ -59,7 +59,8 @@ yatm_security.chipped_object_schema = chipped_object_schema:compile(ACCESS_BASEN
 yatm_security.access_chip_schema = access_chip_schema:compile(ACCESS_BASENAME)
 yatm_security.access_card_schema = access_card_schema:compile(ACCESS_BASENAME)
 
--- Determines if the given item is a lock, locks are just boring single use items for the locksmith table.
+-- Determines if the given item is a lock, locks are just boring single use
+-- items for the locksmith table.
 function yatm_security.item_is_lock(item)
   if item then
     return Groups.has_group(item, "lockable_lock")
@@ -74,7 +75,8 @@ function yatm_security.item_is_access_card(item)
   return false
 end
 
--- Determines if the given item is a access chip, access chips are paired before hand using a programmer's table
+-- Determines if the given item is a access chip, access chips are paired
+-- before hand using a programmer's table
 function yatm_security.item_is_access_chip(item)
   if item then
     return Groups.has_group(item, "access_chip")
@@ -370,13 +372,15 @@ end
 function yatm_security.pair_lockables(key_stack, object_stack, prvkey)
   assert(key_stack, "expected a key stack")
   assert(object_stack, "expected an object stack")
-  local prvkey = prvkey or yatm_security.gen_prvkey()
+  prvkey = prvkey or yatm_security.gen_prvkey()
   local pubkey = yatm_security.prvkey_to_pubkey(prvkey)
   yatm_security.set_lockable_key_stack_prvkey(key_stack, prvkey)
   yatm_security.set_lockable_object_stack_pubkey(object_stack, pubkey)
 
   -- TODO: move this stuff elsewhere
-  set_itemstack_meta_description(object_stack, get_itemstack_description(object_stack) .. " [Locked]")
+  local description = get_itemstack_description(object_stack) .. " [Locked]"
+  set_itemstack_meta_description(object_stack, description)
+
   local key_description =
     get_itemstack_item_description(key_stack) ..
     "\nPaired with " ..
@@ -465,8 +469,8 @@ function yatm_security.is_access_card_for_chipped_stack(access_card_stack, chipp
   assert(access_card_stack, "expected an access_card_stack")
 
   -- And only access cards can be used to access something with an access chip installed
-  if yatm_security.is_stack_access_card(key_stack) then
-    if yatm_security.is_stack_chippable_object(lockable_stack) then
+  if yatm_security.is_stack_access_card(access_card_stack) then
+    if yatm_security.is_stack_chippable_object(chipped_stack) then
       local prvkey = yatm_security.get_access_card_stack_prvkey(access_card_stack)
       local pubkey = yatm_security.get_chipped_object_stack_pubkey(chipped_stack)
 

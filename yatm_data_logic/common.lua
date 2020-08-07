@@ -409,8 +409,8 @@ function yatm_data_logic.get_io_port_formspec(pos, meta, mode, options)
         if options.input_vector then
           local values = {}
 
-          for i = 1,options.input_vector do
-            values[i] = meta:get_int("input_" .. dir .. "_" .. i)
+          for input_index = 1,options.input_vector do
+            values[input_index] = meta:get_int("input_" .. dir .. "_" .. input_index)
           end
 
           default_value = minetest.formspec_escape(table.concat(values, ","))
@@ -432,8 +432,8 @@ function yatm_data_logic.get_io_port_formspec(pos, meta, mode, options)
         if options.output_vector then
           local values = {}
 
-          for i = 1,options.output_vector do
-            values[i] = meta:get_int("output_" .. dir .. "_" .. i)
+          for output_index = 1,options.output_vector do
+            values[output_index] = meta:get_int("output_" .. dir .. "_" .. output_index)
           end
 
           default_value = minetest.formspec_escape(table.concat(values, ","))

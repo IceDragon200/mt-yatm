@@ -39,7 +39,7 @@ function yatm_armoury.is_stack_firearm(stack)
 end
 
 function yatm_armoury.get_item_stack_calibre(item_stack)
-  local itemdef = a:get_definition()
+  local itemdef = item_stack:get_definition()
   if yatm_armoury.is_stack_firearm(item_stack) then
     return itemdef.firearm.calibre
   elseif yatm_armoury.is_stack_firearm(item_stack) then

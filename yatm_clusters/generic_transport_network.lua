@@ -122,10 +122,10 @@ function m:update_member(pos, node, is_register)
         if n.members_by_type[old_record.device_type] then
           n.members_by_type[old_record.device_type][node_id] = nil
         else
-          print(self.m_description, "WARN", "no members of type", network_id, old_record.device_type)
+          print(self.m_description, "WARN", "no members of type", old_network_id, old_record.device_type)
         end
       else
-        print(self.m_description, "ERROR", "network does not exist", network_id, minetest.pos_to_string(pos), node.name)
+        print(self.m_description, "ERROR", "network does not exist", old_network_id, minetest.pos_to_string(pos), node.name)
       end
     end
   end

@@ -177,7 +177,7 @@ function devices.worker_update(pos, node, dtime, ot)
     end
   end
 
-  local total_available = yatm.energy.get_energy(meta, devices.ENERGY_BUFFER_KEY)
+  total_available = yatm.energy.get_energy(meta, devices.ENERGY_BUFFER_KEY)
   if total_available == 0 then
     ym.on_network_state_changed(pos, node, "off")
   end

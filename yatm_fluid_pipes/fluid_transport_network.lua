@@ -19,12 +19,11 @@ local DIR6_TO_VEC3 = assert(foundation.com.Directions.DIR6_TO_VEC3)
 local is_table_empty = assert(foundation.com.is_table_empty)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidStack = assert(yatm.fluids.FluidStack)
-local FluidMeta = assert(yatm.fluids.FluidMeta)
 
 local FluidTransportNetwork = GenericTransportNetwork:extends()
 local m = assert(FluidTransportNetwork.instance_class)
 
-function inspect_node(pos, dir)
+local function inspect_node(pos, dir)
   assert(pos, "expected a position")
   assert(dir, "expected a direction")
   local node = minetest.get_node(pos)

@@ -16,9 +16,12 @@ function ic:register_sawing_recipe(name, input_item_stack, output_item_stacks, s
 
   local recipe = {
     id = recipe_id,
+    name = name,
     input_item_stack = input_item_stack,
     output_item_stacks = output_item_stacks,
-    sawdust_rate = sawdust_rate, -- how much sawdust is produced from this action, can be less than 1, it will build up in the sawmill instead.
+    -- how much sawdust is produced from this action,
+    -- can be less than 1, it will build up in the sawmill instead.
+    sawdust_rate = sawdust_rate,
   }
 
   self.m_recipes[recipe_id] = recipe

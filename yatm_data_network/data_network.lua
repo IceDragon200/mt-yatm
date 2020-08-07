@@ -449,7 +449,6 @@ function ic:_unmark_ready_to_receive_in_network(network_id, member_id, dir, loca
                 end
               end
             end
-            table_bury(network.ready_to_receive, {sub_network_id, global_port, member_id, dir}, state)
           end
         else
           self:log(member.node.name, "port out of range", local_port, "expected to be between 1 and " .. port_offset.range)
@@ -497,8 +496,8 @@ end
 
 function ic:_queue_refresh(base_pos, reason)
   self:log("queue_refresh", minetest.pos_to_string(base_pos), reason)
-  local hash = minetest.hash_node_position(base_pos)
-  self.m_queued_refreshes[hash] = {
+  local base_hash = minetest.hash_node_position(base_pos)
+  self.m_queued_refreshes[base_hash] = {
     pos = base_pos,
     cancelled = false,
   }
@@ -813,10 +812,10 @@ end
 
 function ic:refresh_from_pos(base_pos)
   --print("refresh_from_pos", minetest.pos_to_string(base_pos))
-  local member_id = minetest.hash_node_position(base_pos)
-  local member = self.m_members[member_id]
-  if member then
-    if member.resolution_id == self.m_resolution_id then
+  local origin_member_id = minetest.hash_node_position(base_pos)
+  local origin_member = self.m_members[origin_member_id]
+  if origin_member then
+    if origin_member.resolution_id == self.m_resolution_id then
       -- no need to refresh, we've already resolved from this position
       return
     end

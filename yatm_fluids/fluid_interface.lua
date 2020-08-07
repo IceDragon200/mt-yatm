@@ -62,14 +62,17 @@ local function default_simple_get_capacity(self, _pos, _dir)
   return self.capacity
 end
 
-function default_simple_replace(self, pos, dir, new_stack, commit)
+local function default_simple_replace(self, pos, dir, new_stack, commit)
   local allowed, reason = self:allow_replace(pos, dir, new_stack)
   if allowed then
     local meta = minetest.get_meta(pos)
-    local stack, new_stack = FluidMeta.set_fluid(meta,
+    local stack
+
+    stack, new_stack = FluidMeta.set_fluid(meta,
       self.tank_name,
       new_stack,
       commit)
+
     if commit then
       self:on_fluid_changed(pos, dir, new_stack)
     end
@@ -79,7 +82,7 @@ function default_simple_replace(self, pos, dir, new_stack, commit)
   end
 end
 
-function default_simple_fill(self, pos, dir, fluid_stack, commit)
+local function default_simple_fill(self, pos, dir, fluid_stack, commit)
   local allowed, reason = self:allow_fill(pos, dir, fluid_stack)
   if allowed then
     local meta = minetest.get_meta(pos)
@@ -96,7 +99,7 @@ function default_simple_fill(self, pos, dir, fluid_stack, commit)
   end
 end
 
-function default_simple_drain(self, pos, dir, fluid_stack, commit)
+local function default_simple_drain(self, pos, dir, fluid_stack, commit)
   local allowed, reason = self:allow_drain(pos, dir, fluid_stack)
   if allowed then
     local meta = minetest.get_meta(pos)

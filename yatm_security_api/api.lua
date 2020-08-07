@@ -23,7 +23,8 @@ local SecuritySlotSchema = foundation.com.MetaSchema:new("SecuritySlotSchema", "
 --                               player: ObjectRef,
 --                               slot_id: String,
 --                               slot_data: Table,
---                               data: Table) :: (yatm.security.AccessFlag, Function | nil | String),
+--                               data: Table) :: (yatm.security.AccessFlag,
+--                                                Function | nil | String),
 --   get_object_slot_data = function (self: SecurityFeatureDefinition,
 --                                    object: ObjectRef,
 --                                    slot_data: Table) :: (slot_data :: Table),
@@ -32,7 +33,8 @@ local SecuritySlotSchema = foundation.com.MetaSchema:new("SecuritySlotSchema", "
 --                                 player: ObjectRef,
 --                                 slot_id: String,
 --                                 slot_data: Table,
---                                 data: Table) :: (yatm.security.AccessFlag, Function | nil | String),
+--                                 data: Table) :: (yatm.security.AccessFlag,
+--                                                  Function | nil | String),
 -- }
 -- @spec { [name :: String] = SecurityFeatureDefinition }
 yatm.security.registered_security_features = {}
@@ -77,98 +79,114 @@ yatm.security.NEEDS_ACTION = 'NEEDS_ACTION'
 yatm.security.CONTINUE = 'CONTINUE'
 
 local SecurityTransaction = foundation.com.Class:extends()
-local ic = SecurityTransaction.instance_class
+do
+  local ic = SecurityTransaction.instance_class
 
-function ic:initialize(id, info, callback)
-  self.id = id
-  self.info = info
-  self.slot_index = 0
-  self.assigns = {}
-  self.held = false
-  self.callback = callback
+  function ic:initialize(id, info, callback)
+    self.id = id
+    self.info = info
+    self.slot_index = 0
+    self.assigns = {}
+    self.held = false
+    self.callback = callback
 
-  minetest.log("action", "New SecurityTransaction id=" .. id)
-end
-
-function ic:continue()
-  -- TODO: this entire function should likely be rewritten as a coroutine
-  if not self.held then
-    self.slot_index = self.slot_index + 1
+    minetest.log("action", "New SecurityTransaction id=" .. id)
   end
-  self.held = false
 
-  local slot_id = self.info.slot_ids[self.slot_index]
-  if slot_id then
-    local slot_data
-    local is_node = self.info.kind == "node"
-
-    if is_node then
-      slot_data = yatm.security.get_node_lock(self.info.pos, self.info.node)
-    elseif self.info.kind == "object" then
-      error("TODO: get security slot data for object")
+  function ic:continue()
+    -- TODO: this entire function should likely be rewritten as a coroutine
+    if not self.held then
+      self.slot_index = self.slot_index + 1
     end
+    self.held = false
 
-    if string_empty(slot_data.feature_name) then
-      return yatm.security.CONTINUE
-    else
-      local security_feature = yatm.security.get_security_feature(slot_data.feature_name)
+    local slot_id = self.info.slot_ids[self.slot_index]
+    if slot_id then
+      local slot_data
+      local is_node = self.info.kind == "node"
 
-      if security_feature then
-        local player = minetest.get_player_by_name(self.info.player_name)
+      if is_node then
+        slot_data = yatm.security.get_node_lock(self.info.pos, self.info.node)
+      elseif self.info.kind == "object" then
+        error("TODO: get security slot data for object")
+      end
 
-        if is_node then
-          local pos = self.info.pos
-          local node = self.info.node
-          if security_feature.get_node_slot_data then
-            -- (maybe) Retrieve additional slot data
-            slot_data = security_feature:get_node_slot_data(pos, node, slot_data)
-          end
-          local result, extra = security_feature:check_node_lock(pos, node, player, slot_id, slot_data, self.assigns)
-          if result == yatm.security.OK then
-            -- continue like normal
-            return yatm.security.CONTINUE
-          elseif result == yatm.security.REJECT then
-            -- extra is the reason
-            return yatm.security.REJECT, extra
-          elseif result == yatm.security.NEEDS_ACTION then
-            --
-            extra(pos, node, player, slot_id, slot_data, self.assigns, self:method("continue"))
-            self.held = true
-            return yatm.security.NEEDS_ACTION
+      if string_empty(slot_data.feature_name) then
+        return yatm.security.CONTINUE
+      else
+        local security_feature = yatm.security.get_security_feature(slot_data.feature_name)
+
+        if security_feature then
+          local player = minetest.get_player_by_name(self.info.player_name)
+
+          if is_node then
+            local pos = self.info.pos
+            local node = self.info.node
+
+            if security_feature.get_node_slot_data then
+              -- (maybe) Retrieve additional slot data
+              slot_data = security_feature:get_node_slot_data(pos, node, slot_data)
+            end
+
+            local result, extra =
+              security_feature:check_node_lock(
+                pos,
+                node,
+                player,
+                slot_id,
+                slot_data,
+                self.assigns
+              )
+
+            if result == yatm.security.OK then
+              -- continue like normal
+              return yatm.security.CONTINUE
+            elseif result == yatm.security.REJECT then
+              -- extra is the reason
+              return yatm.security.REJECT, extra
+            elseif result == yatm.security.NEEDS_ACTION then
+              --
+              extra(pos, node, player, slot_id, slot_data, self.assigns, self:method("continue"))
+              self.held = true
+              return yatm.security.NEEDS_ACTION
+            else
+              error("unxepected result from check_node_lock/6 node_name=" .. node.name)
+            end
           else
-            error("unxepected result from check_node_lock/6 node_name=" .. node.name)
+            local object = self.info.object
+            if security_feature.get_object_slot_data then
+              -- (maybe) Retrieve additional slot data
+              slot_data = security_feature:get_object_slot_data(object, slot_data)
+            end
+
+            local result, extra =
+              security_feature:check_object_lock(object, player, slot_id, slot_data, self.assigns)
+
+            if result == yatm.security.OK then
+              -- continue like normal
+              return yatm.security.CONTINUE
+            elseif result == yatm.security.REJECT then
+              -- extra is the reason
+              return yatm.security.REJECT, extra
+            elseif result == yatm.security.NEEDS_ACTION then
+              --
+              extra(object, slot_id, slot_data, self.assigns, self:method("continue"))
+              self.held = true
+              return yatm.security.NEEDS_ACTION
+            else
+              error("unxepected result from check_object_lock/5 object=" .. object.name)
+            end
           end
         else
-          local object = self.info.object
-          if security_feature.get_object_slot_data then
-            -- (maybe) Retrieve additional slot data
-            slot_data = security_feature:get_object_slot_data(object, slot_data)
-          end
-          local result, extra = security_feature:check_object_lock(object, player, slot_id, slot_data, self.assigns)
-          if result == yatm.security.OK then
-            -- continue like normal
-            return yatm.security.CONTINUE
-          elseif result == yatm.security.REJECT then
-            -- extra is the reason
-            return yatm.security.REJECT, extra
-          elseif result == yatm.security.NEEDS_ACTION then
-            --
-            extra(object, slot_id, slot_data, self.assigns, self:method("continue"))
-            self.held = true
-            return yatm.security.NEEDS_ACTION
-          else
-            error("unxepected result from check_object_lock/5 object=" .. object.name)
-          end
+          minetest.log("warning", "missing security_feature name=" .. slot_data.feature_name)
+          return yatm.security.CONTINUE
         end
-      else
-        minetest.log("warning", "missing security_feature name=" .. slot_data.feature_name)
-        return yatm.security.CONTINUE
       end
+    else
+      minetest.log("action", "Security Transaction completed id=" .. self.id)
+      self.callback()
+      return yatm.security.OK
     end
-  else
-    minetest.log("action", "Security Transaction completed id=" .. self.id)
-    self.callback()
-    return yatm.security.OK
   end
 end
 
@@ -178,25 +196,27 @@ end
 -- instead it handles assigning incrementing ids to them.
 --
 yatm.security.SecurityContext = foundation.com.Class:extends("SecurityContext")
-local ic = yatm.security.SecurityContext.instance_class
+do
+  local ic = yatm.security.SecurityContext.instance_class
 
-function ic:initialize()
-  self.g_transaction_id = 0
-end
+  function ic:initialize()
+    self.g_transaction_id = 0
+  end
 
--- Creates a new security transaction
--- The execution of the transaction will not be started automatically
---
--- Args:
--- * `info` - the security transaction data
--- * `callback` - the final callback that should be executed when the transaction is successful
---
--- @spec create_transaction(info: Table, callback: Function) :: SecurityTransaction
-function ic:create_transaction(info, callback)
-  self.g_transaction_id = self.g_transaction_id + 1
-  local transaction_id = self.g_transaction_id
-  local transaction = SecurityTransaction:new(transaction_id, info, callback)
-  return transaction
+  -- Creates a new security transaction
+  -- The execution of the transaction will not be started automatically
+  --
+  -- Args:
+  -- * `info` - the security transaction data
+  -- * `callback` - the final callback that should be executed when the transaction is successful
+  --
+  -- @spec create_transaction(info: Table, callback: Function) :: SecurityTransaction
+  function ic:create_transaction(info, callback)
+    self.g_transaction_id = self.g_transaction_id + 1
+    local transaction_id = self.g_transaction_id
+    local transaction = SecurityTransaction:new(transaction_id, info, callback)
+    return transaction
+  end
 end
 
 yatm.security.context = yatm.security.SecurityContext:new()
@@ -210,7 +230,8 @@ yatm.security.context = yatm.security.SecurityContext:new()
 --                                        slot_id: String,
 --                                        slot_data: Table,
 --                                        data: Table) :: (AccessFlag, Function | nil | String)
-function yatm.security.security_feature_check_node_lock(feature_name, pos, node, player, slot_id, slot_data, data)
+function yatm.security.security_feature_check_node_lock(feature_name, pos, node, player,
+                                                        slot_id, slot_data, data)
   local security_feature = yatm.security.registered_security_features[feature_name]
   assert(security_feature, "expected security_feature to exist")
   return security_feature:check_node_lock(pos, node, player, slot_id, slot_data, data)
@@ -223,7 +244,8 @@ end
 --                                          slot_id: String,
 --                                          slot_data: Table,
 --                                          data: Table) :: (AccessFlag, Function | nil | String)
-function yatm.security.security_feature_check_object_lock(feature_name, object, player, slot_id, slot_data, data)
+function yatm.security.security_feature_check_object_lock(feature_name, object, player,
+                                                          slot_id, slot_data, data)
   local security_feature = yatm.security.registered_security_features[feature_name]
   assert(security_feature, "expected security_feature to exist")
   return security_feature:check_object_lock(object, player, slot_id, slot_data, data)
@@ -255,16 +277,18 @@ end
 -- @spec get_object_slot_ids(object: ObjectRef) :: Table | nil
 function yatm.security.get_object_slot_ids(object)
   local lua_entity = object:get_luaentity()
+
   if lua_entity and lua_entity.security then
     local slot_ids = lua_entity.security.slot_ids
     if type(slot_ids) == "table" then
       return slot_ids
     elseif type(slot_ids) == "function" then
-      return slot_ids(pos, node)
+      return slot_ids(object)
     else
       error("expected slot_ids to be a table or function")
     end
   end
+
   return nil
 end
 
@@ -294,7 +318,7 @@ end
 function yatm.security.check_node_locks(pos, player, slot_ids, callback)
   local node = minetest.get_node_or_nil(pos)
   if node then
-    local slot_ids = slot_ids or yatm.security.get_node_slot_ids(pos, node)
+    slot_ids = slot_ids or yatm.security.get_node_slot_ids(pos, node)
 
     if slot_ids and not is_table_empty(slot_ids) then
       local security_transaction =
@@ -318,7 +342,7 @@ end
 --                          callback: Function) ::
 --         (AccessFlag, Function | nil | String, SecurityTransaction)
 function yatm.security.check_object_locks(object, player, slot_ids, callback)
-  local slot_ids = slot_ids or yatm.security.get_object_slot_ids(object)
+  slot_ids = slot_ids or yatm.security.get_object_slot_ids(object)
 
   if slot_ids and not is_table_empty(slot_ids) then
     local security_transaction =
@@ -340,7 +364,7 @@ end
 -- Retrieves the data for the specific lock
 --
 -- @spec get_node_lock(pos: Vector, node: NodeRef, slot_id: String) :: Table | nil
-function yatm.security.get_node_lock(pos, node, slot_id)
+function yatm.security.get_node_lock(pos, _node, slot_id)
   local meta = minetest.get_meta(pos)
   local slot_data = SecuritySlotSchema:get(meta, slot_id)
   return slot_data
