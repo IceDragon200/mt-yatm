@@ -6,6 +6,8 @@
   Like all other wireless devices, it has it's own address scheme and registration process.
 
 ]]
+local is_blank = assert(foundation.com.is_blank)
+local itemstack_inspect = assert(foundation.com.itemstack_inspect)
 local cluster_devices = assert(yatm.cluster.devices)
 local SpacetimeNetwork = assert(yatm.spacetime.network)
 local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
@@ -79,7 +81,7 @@ local function item_receiver_change_spacetime_address(pos, node, new_address)
   SpacetimeNetwork:maybe_update_node(pos, node)
 
   local nodedef = minetest.registered_nodes[node.name]
-  if yatm_core.is_blank(new_address) then
+  if is_blank(new_address) then
     node.name = item_receiver_yatm_network.states.off
     minetest.swap_node(pos, node)
   else
@@ -100,7 +102,7 @@ local function item_receiver_refresh_infotext(pos)
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "S.Address: " .. SpacetimeMeta.to_infotext(meta) .. "\n" ..
-    "Item: " .. yatm_core.itemstack_inspect(stack)
+    "Item: " .. itemstack_inspect(stack)
 
   meta:set_string("infotext", infotext)
 end

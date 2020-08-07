@@ -1,3 +1,5 @@
+local maybe_start_node_timer = assert(foundation.com.maybe_start_node_timer)
+local table_merge = assert(foundation.com.table_merge)
 local cluster_thermal = assert(yatm.cluster.thermal)
 
 local function mini_blast_furnace_refresh_infotext(pos)
@@ -71,7 +73,7 @@ yatm.register_stateful_node("yatm_foundry:mini_blast_furnace", {
           minetest.swap_node(pos, node)
         end
 
-        yatm_core.maybe_start_node_timer(pos, 1.0)
+        maybe_start_node_timer(pos, 1.0)
 
         yatm.queue_refresh_infotext(pos, node)
       end
@@ -89,7 +91,7 @@ yatm.register_stateful_node("yatm_foundry:mini_blast_furnace", {
     },
   },
   on = {
-    groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
+    groups = table_merge(groups, {not_in_creative_inventory = 1}),
     tiles = {
       "yatm_mini_blast_furnace_top.on.png",
       "yatm_mini_blast_furnace_bottom.on.png",

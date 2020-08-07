@@ -1,10 +1,10 @@
 --
 -- Cluster Discovery
 --
-local is_empty = yatm_core.is_table_empty
-local vector3 = yatm_core.vector3
-local DIR6_TO_VEC3 = yatm_core.DIR6_TO_VEC3
-local invert_dir = yatm_core.invert_dir
+local is_empty = assert(foundation.com.is_table_empty)
+local Vector3 = assert(foundation.com.Vector3)
+local DIR6_TO_VEC3 = assert(foundation.com.Directions.DIR6_TO_VEC3)
+local invert_dir = assert(foundation.com.Directions.invert_dir)
 
 function yatm_clusters.explore_nodes(origin, acc, reducer)
   local seen = {}
@@ -35,7 +35,7 @@ function yatm_clusters.explore_nodes(origin, acc, reducer)
           for dir,flag in pairs(accessible_dirs) do
             if flag and pos4.w ~= dir then
               local dirv3 = DIR6_TO_VEC3[dir]
-              local npos4 = vector3.add({}, pos4, dirv3)
+              local npos4 = Vector3.add({}, pos4, dirv3)
               npos4.w = invert_dir(dir)
               to_visit[hash_node_position(npos4)] = npos4
             end

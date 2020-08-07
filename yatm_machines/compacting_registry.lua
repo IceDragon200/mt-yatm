@@ -3,7 +3,7 @@
   The CompactingRegistry contains recipes for the compactors
 
 ]]
-local CompactingRegistry = yatm_core.Class:extends()
+local CompactingRegistry = foundation.com.Class:extends()
 local ic = CompactingRegistry.instance_class
 
 function ic:initialize()

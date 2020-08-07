@@ -1,3 +1,7 @@
+local string_hex_unescape = assert(foundation.com.string_hex_unescape)
+local is_table_empty = assert(foundation.com.is_table_empty)
+local list_last = assert(foundation.com.list_last)
+local Vector3 = assert(foundation.com.Vector3)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local data_network = assert(yatm.data_network)
@@ -23,7 +27,7 @@ local data_interface = {
   receive_pdu = function (self, pos, node, dir, port, value)
     local meta = minetest.get_meta(pos)
 
-    local str = yatm_core.string_hex_unescape(value)
+    local str = string_hex_unescape(value)
   end,
 
   get_programmer_formspec = function (self, pos, user, pointed_thing, assigns)
@@ -44,7 +48,7 @@ local data_interface = {
 
     local inputs_changed = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "io")
 
-    if not yatm_core.is_table_empty(inputs_changed) then
+    if not is_table_empty(inputs_changed) then
       yatm_data_logic.unmark_all_receive(assigns.pos)
       yatm_data_logic.mark_all_inputs_for_active_receive(assigns.pos)
     end
@@ -69,14 +73,14 @@ local function get_formspec(pos, user, assigns)
 end
 
 local function get_formspec_name(pos)
-  return "yatm_data_console_monitor:console_monitor:" .. yatm.vector3.to_string(pos)
+  return "yatm_data_console_monitor:console_monitor:" .. Vector3.to_string(pos)
 end
 
 local function append_history(meta, new_line)
   local history = meta:get_string("history")
-  local lines = yatm_core.string_split(history, "\n")
+  local lines = string_split(history, "\n")
   table.insert(lines, new_line)
-  lines = yatm_core.list_last(lines, 16)
+  lines = list_last(lines, 16)
   meta:set_string("history", table.concat(lines, "\n"))
 end
 

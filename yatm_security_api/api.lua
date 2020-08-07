@@ -1,6 +1,9 @@
+local string_empty = assert(foundation.com.string_empty)
+local is_table_empty = assert(foundation.com.is_table_empty)
+
 yatm.security = yatm.security or {}
 
-local SecuritySlotSchema = yatm.MetaSchema:new("SecuritySlotSchema", "", {
+local SecuritySlotSchema = foundation.com.MetaSchema:new("SecuritySlotSchema", "", {
   version = {
     type = "integer",
   },
@@ -73,7 +76,7 @@ yatm.security.NEEDS_ACTION = 'NEEDS_ACTION'
 -- The object requests that the caller continue calling the transaction
 yatm.security.CONTINUE = 'CONTINUE'
 
-local SecurityTransaction = yatm_core.Class:extends()
+local SecurityTransaction = foundation.com.Class:extends()
 local ic = SecurityTransaction.instance_class
 
 function ic:initialize(id, info, callback)
@@ -105,7 +108,7 @@ function ic:continue()
       error("TODO: get security slot data for object")
     end
 
-    if yatm_core.string_empty(slot_data.feature_name) then
+    if string_empty(slot_data.feature_name) then
       return yatm.security.CONTINUE
     else
       local security_feature = yatm.security.get_security_feature(slot_data.feature_name)
@@ -174,7 +177,7 @@ end
 -- It doesn't keep track of the transactions, as they don't really need to be kept track of
 -- instead it handles assigning incrementing ids to them.
 --
-yatm.security.SecurityContext = yatm_core.Class:extends()
+yatm.security.SecurityContext = foundation.com.Class:extends("SecurityContext")
 local ic = yatm.security.SecurityContext.instance_class
 
 function ic:initialize()
@@ -293,7 +296,7 @@ function yatm.security.check_node_locks(pos, player, slot_ids, callback)
   if node then
     local slot_ids = slot_ids or yatm.security.get_node_slot_ids(pos, node)
 
-    if slot_ids and not yatm_core.is_table_empty(slot_ids) then
+    if slot_ids and not is_table_empty(slot_ids) then
       local security_transaction =
         yatm.security.context:create_transaction({
           kind = "node",
@@ -317,7 +320,7 @@ end
 function yatm.security.check_object_locks(object, player, slot_ids, callback)
   local slot_ids = slot_ids or yatm.security.get_object_slot_ids(object)
 
-  if slot_ids and not yatm_core.is_table_empty(slot_ids) then
+  if slot_ids and not is_table_empty(slot_ids) then
     local security_transaction =
       yatm.security.context:create_transaction({
         kind = "object",

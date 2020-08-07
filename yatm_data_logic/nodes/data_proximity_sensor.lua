@@ -5,6 +5,7 @@
 --   It can be configured to detect or track entities with different criterias
 --
 --
+local Vector3 = assert(foundation.com.Vector3)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 
@@ -181,7 +182,7 @@ minetest.register_node("yatm_data_logic:data_proximity_sensor", {
       exists_str = "(Nothing)"
     end
     local infotext =
-      "Last Position: " .. yatm.vector3.to_string(vec) .. "\n" ..
+      "Last Position: " .. Vector3.to_string(vec) .. "\n" ..
       "Last HP: " .. meta:get_int("last_hp") .. "\n" ..
       "Last Entity: " .. exists_str .. meta:get_string("last_name") .. "\n" ..
       data_network:get_infotext(pos)

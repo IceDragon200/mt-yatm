@@ -11,6 +11,7 @@
 --
 local data_network = assert(yatm.data_network)
 
+local Vector3 = assert(foundation.com.Vector3)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local Directions = assert(foundation.com.Directions)
@@ -325,7 +326,7 @@ local data_interface = {
 }
 
 local function get_formspec_name(pos)
-  return "yatm_armoury_icbm:icbm_silo:" .. yatm.vector3.to_string(pos)
+  return "yatm_armoury_icbm:icbm_silo:" .. Vector3.to_string(pos)
 end
 
 local function get_formspec(pos, user, assigns)
@@ -463,7 +464,7 @@ local function refresh_infotext(pos, node)
 
   local infotext =
     "ICBM Silo\n" ..
-    "Offset: " .. yatm.vector3.to_string(yatm.vector3.new(offset_x, offset_y, offset_z)) .. "\n"
+    "Offset: " .. Vector3.to_string(Vector3.new(offset_x, offset_y, offset_z)) .. "\n"
 
   if fluid_interface then
     -- has fluid interface

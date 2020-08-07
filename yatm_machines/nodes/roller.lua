@@ -1,6 +1,11 @@
 --
 -- The Roller, or Metal Former, takes various metals or plates and forms them into other shapes.
 --
+local Directions = assert(foundation.com.Directions)
+local is_blank = assert(foundation.com.is_blank)
+local itemstack_is_blank = assert(foundation.com.itemstack_is_blank)
+local format_pretty_time = assert(foundation.com.format_pretty_time)
+local metaref_dec_float = assert(foundation.com.metaref_dec_float)
 local cluster_devices = assert(yatm.cluster.devices)
 local Energy = assert(yatm.energy)
 local ItemInterface = assert(yatm.items.ItemInterface)
@@ -33,7 +38,7 @@ function roller_refresh_infotext(pos)
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
-    "Time Remaining: " .. yatm_core.format_pretty_time(recipe_time) .. " / " .. yatm_core.format_pretty_time(recipe_time_max)
+    "Time Remaining: " .. format_pretty_time(recipe_time) .. " / " .. format_pretty_time(recipe_time_max)
 
   meta:set_string("infotext", infotext)
 end
@@ -66,9 +71,9 @@ function roller_yatm_network.work(pos, node, energy_available, work_rate, dtime,
 
   do
     local processing_stack = inv:get_stack("roller_processing", 1)
-    if yatm_core.itemstack_is_blank(processing_stack) then
+    if itemstack_is_blank(processing_stack) then
       local input_stack = inv:get_stack("roller_input", 1)
-      if not yatm_core.itemstack_is_blank(input_stack) then
+      if not itemstack_is_blank(input_stack) then
         local recipe = RollerRegistry:get_roller_recipe(input_stack)
         if recipe then
           local consumed_stack = input_stack:peek_item(recipe.required_count)
@@ -87,8 +92,8 @@ function roller_yatm_network.work(pos, node, energy_available, work_rate, dtime,
 
   do
     local processing_stack = inv:get_stack("roller_processing", 1)
-    if not yatm_core.itemstack_is_blank(processing_stack) then
-      if yatm_core.metaref_dec_float(meta, "recipe_time", dtime) <= 0 then
+    if not itemstack_is_blank(processing_stack) then
+      if metaref_dec_float(meta, "recipe_time", dtime) <= 0 then
         local recipe = RollerRegistry:get_roller_recipe(processing_stack)
         if recipe then
           if inv:room_for_item("roller_output", recipe.result) then
@@ -111,8 +116,8 @@ end
 
 local item_interface = ItemInterface.new_directional(function (self, pos, dir)
   local node = minetest.get_node(pos)
-  local new_dir = yatm_core.facedir_to_face(node.param2, dir)
-  if new_dir == yatm_core.D_UP or new_dir == yatm_core.D_DOWN then
+  local new_dir = Directions.facedir_to_face(node.param2, dir)
+  if new_dir == Directions.D_UP or new_dir == Directions.D_DOWN then
     return "roller_output"
   end
   return "roller_input"

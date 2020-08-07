@@ -5,7 +5,7 @@
   Distillation recipes have 2 outputs: a vapour and a distilled fluid
 
 ]]
-local DistillationRegistry = yatm_core.Class:extends("DistillationRegistry")
+local DistillationRegistry = foundation.com.Class:extends("DistillationRegistry")
 local ic = DistillationRegistry.instance_class
 
 function ic:initialize()

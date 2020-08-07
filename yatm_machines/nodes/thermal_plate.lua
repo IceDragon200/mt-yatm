@@ -1,3 +1,4 @@
+local Directions = assert(foundation.com.Directions)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
@@ -21,7 +22,7 @@ local thermal_plate_nodebox = {
 }
 
 local function thermal_plate_after_place_node(pos, placer, item_stack, pointed_thing)
-  yatm_core.facedir_wallmount_after_place_node(pos, placer, item_stack, pointed_thing)
+  Directions.facedir_wallmount_after_place_node(pos, placer, item_stack, pointed_thing)
   yatm.devices.device_after_place_node(pos, placer, item_stack, pointed_thing)
 end
 

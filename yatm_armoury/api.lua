@@ -1,3 +1,5 @@
+local Groups = assert(foundation.com.Groups)
+
 --
 -- Determines if the given stack is a form of ammunition
 --
@@ -6,7 +8,7 @@ function yatm_armoury.is_stack_cartridge(stack)
   if stack then
     local def = stack:get_definition()
     if def then
-      return yatm_core.groups.has_group(def, "cartridge")
+      return Groups.has_group(def, "cartridge")
     end
   end
   return false
@@ -20,7 +22,7 @@ function yatm_armoury.is_stack_magazine(stack)
   if stack then
     local def = stack:get_definition()
     if def then
-      return yatm_core.groups.has_group(def, "magazine")
+      return Groups.has_group(def, "magazine")
     end
   end
   return false
@@ -30,7 +32,7 @@ function yatm_armoury.is_stack_firearm(stack)
   if stack then
     local def = stack:get_definition()
     if def then
-      return yatm_core.groups.has_group(def, "firearm")
+      return Groups.has_group(def, "firearm")
     end
   end
   return false

@@ -57,7 +57,7 @@ function ic:update(cls, cluster, dtime)
     return true, acc + 1
   end)
 
-  trace.span_end(pot)
+  Trace.span_end(pot)
 end
 
 yatm_cluster_thermal.ThermalSystem = ThermalSystem

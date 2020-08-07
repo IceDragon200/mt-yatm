@@ -5,6 +5,7 @@
   Can also freeze some items, just be careful with glass.
 
 ]]
+local Directions = assert(foundation.com.Directions)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local freezing_registry = assert(yatm.freezing.freezing_registry)
@@ -17,9 +18,9 @@ local ItemInterface = assert(yatm.items.ItemInterface)
 local freezer_item_interface = ItemInterface.new_directional(function (self, pos, dir)
   local node = minetest.get_node(pos)
 
-  local new_dir = yatm_core.facedir_to_face(node.param2, dir)
-  if new_dir == yatm_core.D_UP or
-     new_dir == yatm_core.D_DOWN then
+  local new_dir = Directions.facedir_to_face(node.param2, dir)
+  if new_dir == Directions.D_UP or
+     new_dir == Directions.D_DOWN then
     return "output_items"
   else
     return "input_items"

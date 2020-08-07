@@ -1,3 +1,4 @@
+local Vector3 = assert(foundation.com.Vector3)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 
@@ -99,7 +100,7 @@ local function get_formspec(pos, user, assigns)
 end
 
 local function get_formspec_name(pos)
-  return "yatm_data_control:data_control_plane:" .. yatm.vector3.to_string(pos)
+  return "yatm_data_control:data_control_plane:" .. Vector3.to_string(pos)
 end
 
 local function check_pad_trigger(pad_id, meta, fields, assigns)

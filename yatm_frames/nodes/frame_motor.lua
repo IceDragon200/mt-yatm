@@ -1,3 +1,8 @@
+local table_key_of = assert(foundation.com.table_key_of)
+local string_hex_unescape = assert(foundation.com.string_hex_unescape)
+local is_table_empty = assert(foundation.com.is_table_empty)
+local Directions = assert(foundation.com.Directions)
+
 local function frame_reducer(pos, node, context, accessible_dirs)
   local node_id = minetest.hash_node_position(pos)
   local nodedef = minetest.registered_nodes[node.name]
@@ -17,10 +22,10 @@ local function frame_reducer(pos, node, context, accessible_dirs)
       frame_data.neighbours = {}
     end
 
-    for _,dir in ipairs(yatm_core.DIR6) do
+    for _,dir in ipairs(Directions.DIR6) do
       -- some sticky frames can be rotated, this will return the specified's face's new orientation.
-      local new_dir = yatm_core.facedir_to_face(node.param2, dir)
-      local sticky_vec3 = yatm_core.DIR6_TO_VEC3[new_dir]
+      local new_dir = Directions.facedir_to_face(node.param2, dir)
+      local sticky_vec3 = Directions.DIR6_TO_VEC3[new_dir]
       local sticky_pos = vector.add(pos, sticky_vec3)
 
       local sticky_node_id = minetest.hash_node_position(sticky_pos)
@@ -33,9 +38,9 @@ local function frame_reducer(pos, node, context, accessible_dirs)
         if sticky_nodedef and sticky_nodedef.groups.motor_frame_wire then
           -- wire prevents other frames from connecting together
           -- TODO: optimize the below
-          local inverted_sticky_dir = yatm_core.invert_dir(new_dir)
+          local inverted_sticky_dir = Directions.invert_dir(new_dir)
           for _,wire_dir in ipairs(sticky_nodedef.wired_faces) do
-            local new_wire_dir = yatm_core.facedir_to_face(sticky_node.param2, wire_dir)
+            local new_wire_dir = Directions.facedir_to_face(sticky_node.param2, wire_dir)
             if new_wire_dir == inverted_sticky_dir then
               accessible_dirs[new_dir] = false
               break
@@ -46,7 +51,7 @@ local function frame_reducer(pos, node, context, accessible_dirs)
         end
       end
 
-      if nodedef.sticky_faces and yatm_core.table_key_of(nodedef.sticky_faces, dir) then
+      if nodedef.sticky_faces and table_key_of(nodedef.sticky_faces, dir) then
         if sticky_node then
           if sticky_node.name == "air" then
             accessible_dirs[new_dir] = false
@@ -55,8 +60,8 @@ local function frame_reducer(pos, node, context, accessible_dirs)
               -- will drag it along like normal
             elseif sticky_nodedef.groups.frame_motor then
               -- check if it's connected to the top face
-              local roller_face = yatm_core.facedir_to_face(sticky_node.param2, yatm_core.D_UP)
-              local roller_vec3 = yatm_core.DIR6_TO_VEC3[roller_face]
+              local roller_face = Directions.facedir_to_face(sticky_node.param2, Directions.D_UP)
+              local roller_vec3 = Directions.DIR6_TO_VEC3[roller_face]
 
               local roller_pos = vector.add(sticky_pos, roller_vec3)
               if vector.equals(roller_pos, pos) then
@@ -84,7 +89,7 @@ local function frame_reducer(pos, node, context, accessible_dirs)
         end
       end
 
-      if nodedef.wired_faces and yatm_core.table_key_of(nodedef.wired_faces, dir) then
+      if nodedef.wired_faces and table_key_of(nodedef.wired_faces, dir) then
         print("is an attached wire face " .. minetest.pos_to_string(sticky_pos))
         accessible_dirs[new_dir] = false
       end
@@ -95,7 +100,7 @@ local function frame_reducer(pos, node, context, accessible_dirs)
 end
 
 local function can_move_nodes(nodes, dir)
-  local dir_vec3 = yatm_core.DIR6_TO_VEC3[dir]
+  local dir_vec3 = Directions.DIR6_TO_VEC3[dir]
 
   -- Time to check for collisions
   for node_id, pos in pairs(nodes) do
@@ -139,7 +144,7 @@ local function can_move_nodes(nodes, dir)
 end
 
 local function move_nodes(nodes, dir)
-  local dir_vec3 = yatm_core.DIR6_TO_VEC3[dir]
+  local dir_vec3 = Directions.DIR6_TO_VEC3[dir]
   local frozen_state = {}
 
   for node_id, pos in pairs(nodes) do
@@ -220,11 +225,11 @@ end
 
 local function motor_move_frame(pos, node)
   -- where is the motor face
-  local roller_face = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
+  local roller_face = Directions.facedir_to_face(node.param2, Directions.D_UP)
   -- what direction is the motor facing
-  local motor_direction = yatm_core.facedir_to_face(node.param2, yatm_core.D_SOUTH)
+  local motor_direction = Directions.facedir_to_face(node.param2, Directions.D_SOUTH)
 
-  local vec3 = yatm_core.DIR6_TO_VEC3[roller_face]
+  local vec3 = Directions.DIR6_TO_VEC3[roller_face]
 
   maybe_move_frame(vector.add(pos, vec3), motor_direction)
 end
@@ -421,10 +426,10 @@ if yatm_data_logic then
 
       receive_pdu = function (self, pos, node, dir, port, value)
         local meta = minetest.get_meta(pos)
-        local new_value = yatm_core.string_hex_unescape(value)
+        local new_value = string_hex_unescape(value)
 
         if node.name == "yatm_frames:frame_motor_data_off" then
-          if yatm_core.string_hex_unescape(meta:get_string("data_on")) == new_value then
+          if string_hex_unescape(meta:get_string("data_on")) == new_value then
             node.name = "yatm_frames:frame_motor_data_on"
             minetest.swap_node(pos, node)
             motor_move_frame(pos, node)
@@ -489,7 +494,7 @@ if yatm_data_logic then
 
         local inputs_changed = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "io")
 
-        if not yatm_core.is_table_empty(inputs_changed) then
+        if not is_table_empty(inputs_changed) then
           yatm_data_logic.unmark_all_receive(assigns.pos)
           yatm_data_logic.mark_all_inputs_for_active_receive(assigns.pos)
         end

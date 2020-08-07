@@ -5,7 +5,7 @@
 --
 local FluidStack = yatm_fluids.FluidStack
 
-local FluidInventory = yatm_core.Class:extends("FluidInventory")
+local FluidInventory = foundation.com.Class:extends("FluidInventory")
 local ic = FluidInventory.instance_class
 
 function ic:initialize(name)
@@ -166,7 +166,7 @@ end
 --
 --
 --
-local FluidInventoryRegistry = yatm_core.Class:extends("FluidInventoryRegistry")
+local FluidInventoryRegistry = foundation.com.Class:extends("FluidInventoryRegistry")
 local ic = FluidInventoryRegistry.instance_class
 
 function ic:initialize()

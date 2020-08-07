@@ -1,5 +1,5 @@
 local StringBuffer = assert(foundation.com.StringBuffer)
-local TokenBuffer = assert(foundation.com.TokenBuffer)
+local TokenBuffer = assert(yatm_oku.TokenBuffer)
 
 local Lexer = {}
 local m = Lexer

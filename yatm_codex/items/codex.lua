@@ -1,3 +1,5 @@
+local sounds = assert(yatm.sounds)
+
 local function get_codex_entry_formspec(user, assigns)
   local formspec =
     "size[8,9]" ..
@@ -105,7 +107,7 @@ local function receive_codex_fields(user, form_name, fields, assigns)
   end
 
   if fields.quit then
-    yatm_core.sounds:play("action_close", { to_player = user:get_player_name() })
+    sounds:play("action_close", { to_player = user:get_player_name() })
   end
 
   return true, get_codex_entry_formspec(user, assigns)
@@ -145,10 +147,10 @@ local function on_use_codex(itemstack, user, pointed_thing)
     end
 
     if codex_entry then
-      yatm_core.sounds:play("codex_entry")
+      sounds:play("codex_entry")
       show_codex_entry(user, codex_entry_id, codex_entry, { item_name = node.name })
     else
-      yatm_core.sounds:play("action_error", { to_player = user:get_player_name() })
+      sounds:play("action_error", { to_player = user:get_player_name() })
       if codex_entry_id then
         minetest.chat_send_player(user:get_player_name(), "Missing CODEX entry: " .. codex_entry_id)
       else
@@ -156,7 +158,7 @@ local function on_use_codex(itemstack, user, pointed_thing)
       end
     end
   else
-    yatm_core.sounds:play("action_error", { to_player = user:get_player_name() })
+    sounds:play("action_error", { to_player = user:get_player_name() })
     minetest.chat_send_player(user:get_player_name(), "Not a valid target")
   end
 end

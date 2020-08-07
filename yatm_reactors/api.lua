@@ -1,3 +1,5 @@
+local table_deep_merge = assert(foundation.com.table_deep_merge)
+local table_merge = assert(foundation.com.table_merge)
 local cluster_reactor = assert(yatm.cluster.reactor)
 local cluster_energy = yatm.cluster.energy
 local cluster_thermal = yatm.cluster.thermal
@@ -103,12 +105,12 @@ function yatm_reactors.register_stateful_reactor_node(base_node_def, overrides)
         ov = overrides[state]
       end
       ov = ov or {}
-      local node_def = yatm_core.table_deep_merge(base_node_def, ov)
-      local new_reactor_device = yatm_core.table_merge(node_def.reactor_device, {state = state})
+      local node_def = table_deep_merge(base_node_def, ov)
+      local new_reactor_device = table_merge(node_def.reactor_device, {state = state})
       node_def.reactor_device = new_reactor_device
 
       if node_def.reactor_device.default_state ~= state then
-        local groups = yatm_core.table_merge(node_def.groups, {not_in_creative_inventory = 1})
+        local groups = table_merge(node_def.groups, {not_in_creative_inventory = 1})
         node_def.groups = groups
       end
 

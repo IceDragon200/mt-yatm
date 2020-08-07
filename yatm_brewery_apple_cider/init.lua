@@ -1,6 +1,5 @@
-yatm_brewery_apple_cider = rawget(_G, "yatm_brewery_apple_cider") or {}
-yatm_brewery_apple_cider.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_brewery_apple_cider", "0.1.0")
 
-dofile(yatm_brewery_apple_cider.modpath .. "/fluids.lua")
-dofile(yatm_brewery_apple_cider.modpath .. "/recipes.lua")
+mod:require("fluids.lua")
+mod:require("recipes.lua")
 

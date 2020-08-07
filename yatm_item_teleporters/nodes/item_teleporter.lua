@@ -6,6 +6,10 @@
   Like all other wireless devices, it has it's own address scheme and registration process.
 
 ]]
+local Directions = assert(foundation.com.Directions)
+local is_blank = assert(foundation.com.is_blank)
+local itemstack_is_blank = assert(foundation.com.itemstack_is_blank)
+local itemstack_inspect = assert(foundation.com.itemstack_inspect)
 local cluster_devices = assert(yatm.cluster.devices)
 local SpacetimeNetwork = assert(yatm.spacetime.network)
 local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
@@ -25,7 +29,7 @@ local function item_teleporter_refresh_infotext(pos)
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "S.Address: " .. SpacetimeMeta.to_infotext(meta) .. "\n" ..
-    "Item: " .. yatm_core.itemstack_inspect(stack)
+    "Item: " .. itemstack_inspect(stack)
 
   meta:set_string("infotext", infotext)
 end
@@ -56,21 +60,21 @@ function item_teleporter_yatm_network.work(pos, node, available_energy, work_rat
   local meta = minetest.get_meta(pos)
   local address = SpacetimeMeta.get_address(meta)
 
-  if not yatm_core.is_blank(address) then
+  if not is_blank(address) then
     local inv = meta:get_inventory()
 
     local stack = inv:get_stack("main", 1)
 
-    if not yatm_core.itemstack_is_blank(stack) then
+    if not itemstack_is_blank(stack) then
       SpacetimeNetwork:each_member_in_group_by_address("item_receiver", address, function (sp_hash, member)
-        local remaining_stack, error_message = ItemDevice.insert_item(member.pos, yatm_core.D_NONE, stack, true)
+        local remaining_stack, error_message = ItemDevice.insert_item(member.pos, Directions.D_NONE, stack, true)
         if not error_message then
           -- TODO: improve upon this, it should check if the stack was
           --       was actually consumed
           energy_consumed = energy_consumed + 10
         end
         stack = remaining_stack
-        return not yatm_core.itemstack_is_blank(stack)
+        return not itemstack_is_blank(stack)
       end)
     end
 
@@ -117,7 +121,7 @@ local function item_teleporter_change_spacetime_address(pos, node, new_address)
   SpacetimeNetwork:maybe_update_node(pos, node)
 
   local nodedef = minetest.registered_nodes[node.name]
-  if yatm_core.is_blank(new_address) then
+  if is_blank(new_address) then
     node.name = item_teleporter_yatm_network.states.off
     minetest.swap_node(pos, node)
   else

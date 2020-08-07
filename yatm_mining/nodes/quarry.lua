@@ -1,3 +1,4 @@
+local Directions = assert(foundation.com.Directions)
 local ItemInterface = assert(yatm.items.ItemInterface)
 
 local quarry_item_interface = ItemInterface.new_simple("main")
@@ -62,13 +63,13 @@ function quarry_yatm_network.work(pos, node, available_energy, work_rate, dtime,
   end
 
   -- determine coords matrix
-  local north_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_NORTH)
-  local east_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_EAST)
-  local down_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_DOWN)
+  local north_dir = Directions.facedir_to_face(node.param2, Directions.D_NORTH)
+  local east_dir = Directions.facedir_to_face(node.param2, Directions.D_EAST)
+  local down_dir = Directions.facedir_to_face(node.param2, Directions.D_DOWN)
 
-  local nv = yatm_core.DIR6_TO_VEC3[north_dir]
-  local ev = yatm_core.DIR6_TO_VEC3[east_dir]
-  local dv = yatm_core.DIR6_TO_VEC3[down_dir]
+  local nv = Directions.DIR6_TO_VEC3[north_dir]
+  local ev = Directions.DIR6_TO_VEC3[east_dir]
+  local dv = Directions.DIR6_TO_VEC3[down_dir]
 
   local new_nv = vector.multiply(nv, cz)
   local new_ev = vector.multiply(ev, cx)

@@ -3,6 +3,7 @@
   Condensers turn gases into liquids, primarily steam back into water.
 
 ]]
+local Directions = assert(foundation.com.Directions)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
@@ -46,14 +47,14 @@ local capacity = 16000
 
 local function get_fluid_tank_name(_self, pos, dir)
   local node = minetest.get_node(pos)
-  local new_dir = yatm_core.facedir_to_face(node.param2, dir)
-  if new_dir == yatm_core.D_DOWN then
+  local new_dir = Directions.facedir_to_face(node.param2, dir)
+  if new_dir == Directions.D_DOWN then
     return "water_tank", capacity
-  elseif new_dir == yatm_core.D_UP or
-         new_dir == yatm_core.D_EAST or
-         new_dir == yatm_core.D_WEST or
-         new_dir == yatm_core.D_NORTH or
-         new_dir == yatm_core.D_SOUTH then
+  elseif new_dir == Directions.D_UP or
+         new_dir == Directions.D_EAST or
+         new_dir == Directions.D_WEST or
+         new_dir == Directions.D_NORTH or
+         new_dir == Directions.D_SOUTH then
     return "steam_tank", capacity
   end
   return nil, nil

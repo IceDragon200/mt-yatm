@@ -1,15 +1,15 @@
 --[[
 The SmeltingRegistry contains recipes for the smelter
 ]]
-local SmeltingRegistry = yatm_core.Class:extends()
+local SmeltingRegistry = foundation.com.Class:extends("SmeltingRegistry")
 
-local m = assert(SmeltingRegistry.instance_class)
+local ic = assert(SmeltingRegistry.instance_class)
 
-function m:initialize()
+function ic:initialize()
   self.recipes = {}
 end
 
-function m:register_smelting_recipe(name, source_item_stack, results, duration)
+function ic:register_smelting_recipe(name, source_item_stack, results, duration)
   local item_stack_name = source_item_stack:get_name()
   self.recipes[item_stack_name] = {
     name = name,
@@ -20,7 +20,7 @@ function m:register_smelting_recipe(name, source_item_stack, results, duration)
   return self
 end
 
-function m:get_smelting_recipe(item_stack)
+function ic:get_smelting_recipe(item_stack)
   local item_stack_name = item_stack:get_name()
   local recipe = self.recipes[item_stack_name]
   if recipe then

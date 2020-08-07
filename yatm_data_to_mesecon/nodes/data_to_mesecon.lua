@@ -1,14 +1,16 @@
-local Cuboid = yatm_core.Cuboid
+local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
-
+local Directions = assert(foundation.com.Directions)
+local is_table_empty = assert(foundation.com.is_table_empty)
+local string_hex_unescape = assert(foundation.com.string_hex_unescape)
 local data_network = assert(yatm.data_network)
 
 local function mesecon_rules(node)
   local result = {}
   local i = 1
-  for _, dir in ipairs(yatm_core.DIR4) do
-    local new_dir = yatm_core.facedir_to_face(node.param2, dir)
-    result[i] = yatm_core.DIR6_TO_VEC3[new_dir]
+  for _, dir in ipairs(Directions.DIR4) do
+    local new_dir = Directions.facedir_to_face(node.param2, dir)
+    result[i] = Directions.DIR6_TO_VEC3[new_dir]
     i = i + 1
   end
   return result
@@ -62,16 +64,16 @@ yatm.register_stateful_node("yatm_data_to_mesecon:data_to_mesecon", {
 
     receive_pdu = function (self, pos, node, dir, port, value)
       local meta = minetest.get_meta(pos)
-      local new_value = yatm_core.string_hex_unescape(value)
+      local new_value = string_hex_unescape(value)
 
       if node.name == "yatm_data_to_mesecon:data_to_mesecon_off" then
-        if yatm_core.string_hex_unescape(meta:get_string("data_on")) == new_value then
+        if string_hex_unescape(meta:get_string("data_on")) == new_value then
           node.name = "yatm_data_to_mesecon:data_to_mesecon_on"
           minetest.swap_node(pos, node)
           mesecon.receptor_on(pos, mesecon_rules(node))
         end
       elseif node.name == "yatm_data_to_mesecon:data_to_mesecon_on" then
-        if yatm_core.string_hex_unescape(meta:get_string("data_off")) == new_value then
+        if string_hex_unescape(meta:get_string("data_off")) == new_value then
           node.name = "yatm_data_to_mesecon:data_to_mesecon_off"
           minetest.swap_node(pos, node)
           mesecon.receptor_off(pos, mesecon_rules(node))
@@ -129,7 +131,7 @@ yatm.register_stateful_node("yatm_data_to_mesecon:data_to_mesecon", {
 
       local inputs_changed = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "i")
 
-      if not yatm_core.is_table_empty(inputs_changed) then
+      if not is_table_empty(inputs_changed) then
         yatm_data_logic.unmark_all_receive(assigns.pos)
         yatm_data_logic.mark_all_inputs_for_active_receive(assigns.pos)
       end

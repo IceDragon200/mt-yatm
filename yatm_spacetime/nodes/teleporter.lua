@@ -1,3 +1,9 @@
+local FakeMetaRef = assert(foundation.com.FakeMetaRef)
+local list_sample = assert(foundation.com.list_sample)
+local table_keys = assert(foundation.com.table_keys)
+local is_blank = assert(foundation.com.is_blank)
+local is_table_empty = assert(foundation.com.is_table_empty)
+local Directions = assert(foundation.com.Directions)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
@@ -36,18 +42,21 @@ local teleporter_yatm_network = {
 
 local function find_all_connected_relays(pos, collected)
   local to_visit = {
-    vector.add(pos, yatm_core.V3_NORTH),
-    vector.add(pos, yatm_core.V3_EAST),
-    vector.add(pos, yatm_core.V3_SOUTH),
-    vector.add(pos, yatm_core.V3_WEST),
-    vector.add(pos, yatm_core.V3_DOWN),
-    vector.add(pos, yatm_core.V3_UP),
+    vector.add(pos, Directions.V3_NORTH),
+    vector.add(pos, Directions.V3_EAST),
+    vector.add(pos, Directions.V3_SOUTH),
+    vector.add(pos, Directions.V3_WEST),
+    vector.add(pos, Directions.V3_DOWN),
+    vector.add(pos, Directions.V3_UP),
   }
+
   local visited = {}
+
   for hash,vpos in pairs(collected) do
     visited[hash] = vpos
   end
-  while not yatm_core.is_table_empty(to_visit) do
+
+  while not is_table_empty(to_visit) do
     local old_to_visit = to_visit
     to_visit = {}
 
@@ -61,12 +70,12 @@ local function find_all_connected_relays(pos, collected)
           if nodedef then
             if nodedef.groups.teleporter_relay then
               collected[vhash] = vpos
-              table.insert(to_visit, vector.add(vpos, yatm_core.V3_NORTH))
-              table.insert(to_visit, vector.add(vpos, yatm_core.V3_EAST))
-              table.insert(to_visit, vector.add(vpos, yatm_core.V3_SOUTH))
-              table.insert(to_visit, vector.add(vpos, yatm_core.V3_WEST))
-              table.insert(to_visit, vector.add(vpos, yatm_core.V3_DOWN))
-              table.insert(to_visit, vector.add(vpos, yatm_core.V3_UP))
+              table.insert(to_visit, vector.add(vpos, Directions.V3_NORTH))
+              table.insert(to_visit, vector.add(vpos, Directions.V3_EAST))
+              table.insert(to_visit, vector.add(vpos, Directions.V3_SOUTH))
+              table.insert(to_visit, vector.add(vpos, Directions.V3_WEST))
+              table.insert(to_visit, vector.add(vpos, Directions.V3_DOWN))
+              table.insert(to_visit, vector.add(vpos, Directions.V3_UP))
             end
           end
         end
@@ -79,7 +88,7 @@ end
 local function maybe_teleport_all_players_on_teleporter(pos, node)
   local meta = minetest.get_meta(pos)
   local address = SpacetimeMeta.get_address(meta)
-  if not yatm_core.is_blank(address) then
+  if not is_blank(address) then
     local hash = minetest.hash_node_position(pos)
     local positions = {}
 
@@ -91,16 +100,16 @@ local function maybe_teleport_all_players_on_teleporter(pos, node)
     end)
 
     print(dump(positions))
-    if yatm_core.is_table_empty(positions) then
+    if is_table_empty(positions) then
       print(minetest.pos_to_string(pos), address, "No target positions!")
     else
       local all_sources = find_all_connected_relays(pos, { [hash] = pos })
-      local hashes = yatm_core.table_keys(positions)
+      local hashes = table_keys(positions)
       for _,source_pos in pairs(all_sources) do
         local objects = minetest.get_objects_inside_radius(source_pos, 1)
         for _,object in ipairs(objects) do
           if object:is_player() then
-            local h = yatm_core.list_sample(hashes)
+            local h = list_sample(hashes)
             local target_pos = positions[h]
             object:set_pos(target_pos)
           end
@@ -157,7 +166,7 @@ end
 local function teleporter_preserve_metadata(pos, oldnode, old_meta_table, drops)
   local stack = drops[1]
 
-  local old_meta = yatm_core.FakeMetaRef:new(old_meta_table)
+  local old_meta = FakeMetaRef:new(old_meta_table)
   local new_meta = stack:get_meta()
   SpacetimeMeta.copy_address(old_meta, new_meta)
 end
@@ -169,7 +178,7 @@ local function teleporter_change_spacetime_address(pos, node, new_address)
   Network:maybe_update_node(pos, node)
 
   local nodedef = minetest.registered_nodes[node.name]
-  if yatm_core.is_blank(new_address) then
+  if is_blank(new_address) then
     node.name = nodedef.yatm_network.states.inactive
     minetest.swap_node(pos, node)
   else

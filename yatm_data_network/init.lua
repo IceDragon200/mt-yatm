@@ -1,11 +1,10 @@
 --
 -- YATM Data Network
 --
-yatm_data_network = rawget(_G, "yatm_data_network") or {}
-yatm_data_network.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_data_network", "1.0.0")
 
-dofile(yatm_data_network.modpath .. "/data_network.lua")
+mod:require("data_network.lua")
 
-dofile(yatm_data_network.modpath .. "/api.lua")
+mod:require("api.lua")
 
-dofile(yatm_data_network.modpath .. "/nodes.lua")
+mod:require("nodes.lua")

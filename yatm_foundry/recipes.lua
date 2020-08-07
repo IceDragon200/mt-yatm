@@ -1,4 +1,4 @@
-local tns = assert(yatm_core.time_network_seconds)
+local tns = assert(foundation.com.time_network_seconds)
 local FluidStack = assert(yatm.fluids.FluidStack)
 
 --

@@ -1,3 +1,6 @@
+local Groups = assert(foundation.com.Groups)
+local Directions = assert(foundation.com.Directions)
+local table_merge = assert(foundation.com.table_merge)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
@@ -32,14 +35,14 @@ local WATER_TANK = "water_tank"
 local STEAM_TANK = "steam_tank"
 local function get_fluid_tank_name(_self, pos, dir)
   local node = minetest.get_node(pos)
-  local new_dir = yatm_core.facedir_to_face(node.param2, dir)
+  local new_dir = Directions.facedir_to_face(node.param2, dir)
 
-  if new_dir == yatm_core.D_DOWN then
+  if new_dir == Directions.D_DOWN then
     return WATER_TANK, capacity
-  elseif new_dir == yatm_core.D_EAST or
-         new_dir == yatm_core.D_WEST or
-         new_dir == yatm_core.D_NORTH or
-         new_dir == yatm_core.D_SOUTH then
+  elseif new_dir == Directions.D_EAST or
+         new_dir == Directions.D_WEST or
+         new_dir == Directions.D_NORTH or
+         new_dir == Directions.D_SOUTH then
     return STEAM_TANK, capacity
   end
   return nil, nil
@@ -102,15 +105,15 @@ end
 function steam_turbine_yatm_network.update(pos, node, ot)
   local need_refresh = false
 
-  for _, dir in ipairs(yatm_core.DIR4) do
-    local new_dir = yatm_core.facedir_to_face(node.param2, dir)
+  for _, dir in ipairs(Directions.DIR4) do
+    local new_dir = Directions.facedir_to_face(node.param2, dir)
 
-    local npos = vector.add(pos, yatm_core.DIR6_TO_VEC3[new_dir])
+    local npos = vector.add(pos, Directions.DIR6_TO_VEC3[new_dir])
     local nnode = minetest.get_node(npos)
     local nnodedef = minetest.registered_nodes[nnode.name]
     if nnodedef then
-      if yatm_core.groups.get_item(nnodedef, "fluid_tank") then
-        local target_dir = yatm_core.invert_dir(new_dir)
+      if Groups.get_item(nnodedef, "fluid_tank") then
+        local target_dir = Directions.invert_dir(new_dir)
         local stack = FluidTanks.drain_fluid(npos, target_dir, FluidStack.new("group:steam", 200), false)
         if stack then
           local filled_stack = FluidTanks.fill_fluid(pos, new_dir, stack, true)
@@ -132,13 +135,13 @@ function steam_turbine_yatm_network.update(pos, node, ot)
       capacity, capacity, false)
     -- Was any water drained?
     if stack then
-      local tank_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_DOWN)
-      local tank_pos = vector.add(pos, yatm_core.DIR6_TO_VEC3[tank_dir])
+      local tank_dir = Directions.facedir_to_face(node.param2, Directions.D_DOWN)
+      local tank_pos = vector.add(pos, Directions.DIR6_TO_VEC3[tank_dir])
       local tank_node = minetest.get_node(tank_pos)
       local tank_nodedef = minetest.registered_nodes[tank_node.name]
       if tank_nodedef then
-        if yatm_core.groups.get_item(tank_nodedef, "fluid_tank") then
-          local drained_stack, new_amount = FluidTanks.fill_fluid(tank_pos, yatm_core.invert_dir(tank_dir), stack, true)
+        if Groups.get_item(tank_nodedef, "fluid_tank") then
+          local drained_stack, new_amount = FluidTanks.fill_fluid(tank_pos, Directions.invert_dir(tank_dir), stack, true)
           if drained_stack and drained_stack.amount > 0 then
             FluidMeta.drain_fluid(meta,
               WATER_TANK,
@@ -163,8 +166,6 @@ local groups = {
   fluid_interface_out = 1,
   yatm_energy_device = 1,
 }
-
-local table_merge = assert(yatm_core.table_merge)
 
 yatm.devices.register_stateful_network_device({
   basename = "yatm_machines:steam_turbine",

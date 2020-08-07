@@ -1,6 +1,7 @@
 --
 -- Various DSCS Monitors
 --
+local table_merge = assert(foundation.com.table_merge)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
@@ -57,7 +58,7 @@ yatm.devices.register_stateful_network_device({
 
   description = "Monitor (crafting)",
 
-  groups = yatm_core.table_merge(groups, {}),
+  groups = table_merge(groups, {}),
 
   drop = monitor_crafting_yatm_network.states.off,
 
@@ -130,7 +131,7 @@ yatm.devices.register_stateful_network_device({
 
   description = "Monitor (ele)",
 
-  groups = yatm_core.table_merge(groups, {}),
+  groups = table_merge(groups, {}),
 
   drop = monitor_ele_yatm_network.states.off,
 

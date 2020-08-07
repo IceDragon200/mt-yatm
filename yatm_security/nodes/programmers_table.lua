@@ -7,6 +7,10 @@ if not yatm_machines then
   return
 end
 
+local Groups = assert(foundation.com.Groups)
+local string_hex_encode = assert(foundation.com.string_hex_encode)
+local random_string62 = assert(foundation.com.random_string62)
+local sounds = assert(yatm_core.sounds)
 local data_network = assert(yatm.data_network)
 local cluster_energy = assert(yatm.cluster.energy)
 local cluster_devices = assert(yatm.cluster.devices)
@@ -103,13 +107,13 @@ local function handle_receive_fields(user, formname, fields, assigns)
 
         if okay then
           minetest.log("action", "Assembly completed")
-          yatm_core.sounds:play("compile_success", { pos = pos, max_hear_distance = 32 })
-          local blob_hex = yatm_core.string_hex_encode(blob)
+          sounds:play("compile_success", { pos = pos, max_hear_distance = 32 })
+          local blob_hex = string_hex_encode(blob)
           meta:set_string("assembly_binary", blob_hex)
           meta:set_string("assembly_error", "")
         else
           minetest.log("action", "Assembly failed ", blob)
-          yatm_core.sounds:play("action_error", { pos = pos, max_hear_distance = 32 })
+          sounds:play("action_error", { pos = pos, max_hear_distance = 32 })
           meta:set_string("assembly_binary", "")
           meta:set_string("assembly_error", blob)
         end
@@ -121,7 +125,7 @@ local function handle_receive_fields(user, formname, fields, assigns)
 
   if fields["commit"] then
     if meta:get_float("processing_time") > 0 then
-      yatm_core.sounds:play("action_error", { to_player = user:get_player_name(), max_hear_distance = 32 })
+      sounds:play("action_error", { to_player = user:get_player_name(), max_hear_distance = 32 })
     else
       local inv = meta:get_inventory()
 
@@ -234,14 +238,14 @@ yatm.devices.register_stateful_network_device({
             inv:set_list("output_items", output_items)
             inv:set_list("processing_items", {})
 
-            yatm_core.sounds:play("action_completed", { pos = pos, max_hear_distance = 32 })
+            sounds:play("action_completed", { pos = pos, max_hear_distance = 32 })
           end
         end
 
         -- 100 units per item per second
         return 100 * processing_count * (org_proc_time - proc_time)
       elseif org_proc_time > 0 then
-        yatm_core.sounds:play("long_error", { pos = pos, max_hear_distance = 32 })
+        sounds:play("long_error", { pos = pos, max_hear_distance = 32 })
         meta:set_float("processing_time", 0)
       end
 
@@ -267,7 +271,7 @@ yatm.devices.register_stateful_network_device({
     local node = minetest.get_node(pos)
     local meta = minetest.get_meta(pos)
 
-    meta:set_string("prog_data", yatm_core.random_string62(16))
+    meta:set_string("prog_data", random_string62(16))
 
     local inv = meta:get_inventory()
 
@@ -347,7 +351,7 @@ yatm.devices.register_stateful_network_device({
 
   allow_metadata_inventory_put = function(pos, listname, index, stack, player)
     if listname == "input_items" then
-      if yatm_core.groups.item_has_group(stack:get_name(), "table_programmable") then
+      if Groups.item_has_group(stack:get_name(), "table_programmable") then
         return 1
       end
     end

@@ -1,13 +1,12 @@
-yatm_reactors = rawget(_G, "yatm_reactors") or {}
-yatm_reactors.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_reactors", "0.1.0")
 
-dofile(yatm_reactors.modpath .. "/reactor_cluster.lua")
-dofile(yatm_reactors.modpath .. "/reactor_system.lua")
-dofile(yatm_reactors.modpath .. "/hooks.lua")
-dofile(yatm_reactors.modpath .. "/api.lua")
+mod:require("reactor_cluster.lua")
+mod:require("reactor_system.lua")
+mod:require("hooks.lua")
+mod:require("api.lua")
 
-dofile(yatm_reactors.modpath .. "/nodes.lua")
+mod:require("nodes.lua")
 
-dofile(yatm_reactors.modpath .. "/migrations.lua")
+mod:require("migrations.lua")
 
---dofile(yatm_reactors.modpath .. "/tests.lua")
+--mod:require("tests.lua")

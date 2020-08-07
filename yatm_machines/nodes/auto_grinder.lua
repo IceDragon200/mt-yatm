@@ -1,3 +1,7 @@
+local Directions = assert(foundation.com.Directions)
+local is_blank = assert(foundation.com.is_blank)
+local itemstack_split = assert(foundation.com.itemstack_split)
+local format_pretty_time = assert(foundation.com.format_pretty_time)
 local cluster_devices = assert(yatm.cluster.devices)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local Energy = assert(yatm.energy)
@@ -47,8 +51,8 @@ local auto_grinder_yatm_network = {
 local item_interface =
   ItemInterface.new_directional(function (self, pos, dir)
     local node = minetest.get_node(pos)
-    local new_dir = yatm_core.facedir_to_face(node.param2, dir)
-    if new_dir == yatm_core.D_UP or new_dir == yatm_core.D_DOWN then
+    local new_dir = Directions.facedir_to_face(node.param2, dir)
+    if new_dir == Directions.D_UP or new_dir == Directions.D_DOWN then
       return "grinder_input"
     end
     return "grinder_output"
@@ -60,7 +64,7 @@ function auto_grinder_yatm_network.work(pos, node, energy_available, work_rate, 
 
   local consumed = 0
 
-  if yatm_core.is_blank(meta:get_string("active_recipe")) then
+  if is_blank(meta:get_string("active_recipe")) then
     -- check for recipe
     local input_stack = inv:get_stack("grinder_input", 1)
     local recipe = grinding_registry:find_grinding_recipe(input_stack)
@@ -69,7 +73,7 @@ function auto_grinder_yatm_network.work(pos, node, energy_available, work_rate, 
       meta:set_string("active_recipe", recipe.name)
       meta:set_float("duration", recipe.duration)
       meta:set_float("work_time", recipe.duration)
-      local processing_stack, rest = yatm_core.itemstack_split(input_stack, 1)
+      local processing_stack, rest = itemstack_split(input_stack, 1)
       inv:add_item("grinder_processing", processing_stack)
       inv:set_stack("grinder_input", 1, rest)
 
@@ -143,7 +147,7 @@ local function auto_grinder_refresh_infotext(pos)
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "Recipe: " .. recipe_name .. "\n" ..
-    "Time: " .. yatm_core.format_pretty_time(work_time) .. " / " .. yatm_core.format_pretty_time(duration)
+    "Time: " .. format_pretty_time(work_time) .. " / " .. format_pretty_time(duration)
 
   meta:set_string("infotext", infotext)
 end

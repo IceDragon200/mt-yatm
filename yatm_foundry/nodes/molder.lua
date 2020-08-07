@@ -5,6 +5,12 @@ Reason? Balance, otherwise you could just abuse the poor thing for all your mold
 
 That or just make it god awful slow at it's job.
 ]]
+local Directions = assert(foundation.com.Directions)
+local format_pretty_time = assert(foundation.com.format_pretty_time)
+local maybe_start_node_timer = assert(foundation.com.maybe_start_node_timer)
+local itemstack_is_blank = assert(foundation.com.itemstack_is_blank)
+local itemstack_copy = assert(foundation.com.itemstack_copy)
+local table_merge = assert(foundation.com.table_merge)
 local cluster_thermal = assert(yatm.cluster.thermal)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidStack = assert(yatm.fluids.FluidStack)
@@ -52,8 +58,8 @@ fluid_interface.allow_drain = fluid_interface.allow_replace
 
 local item_interface = ItemInterface.new_directional(function (self, pos, dir)
   local node = minetest.get_node(pos)
-  local new_dir = yatm_core.facedir_to_face(node.param2, dir)
-  if new_dir == yatm_core.D_UP or new_dir == yatm_core.D_DOWN then
+  local new_dir = Directions.facedir_to_face(node.param2, dir)
+  if new_dir == Directions.D_UP or new_dir == Directions.D_DOWN then
     return "mold_slot"
   end
   return "output_slot"
@@ -76,13 +82,13 @@ local function molder_refresh_infotext(pos)
     "Recipe: " .. recipe_name .. "\n" ..
     "Molten Tank: " .. FluidStack.pretty_format(molten_tank_fluid_stack, fluid_interface.capacity) .. "\n" ..
     "Molding Tank: " .. FluidStack.pretty_format(molding_tank_fluid_stack, fluid_interface.capacity) .. "\n" ..
-    "Time Remaining: " .. yatm_core.format_pretty_time(recipe_time) .. " / " .. yatm_core.format_pretty_time(recipe_time_max)
+    "Time Remaining: " .. format_pretty_time(recipe_time) .. " / " .. format_pretty_time(recipe_time_max)
 
   meta:set_string("infotext", infotext)
 end
 
 local function molder_on_rightclick(pos, node, user)
-  yatm_core.maybe_start_node_timer(pos, 1.0)
+  maybe_start_node_timer(pos, 1.0)
   minetest.show_formspec(
     user:get_player_name(),
     "yatm_foundry:molder",
@@ -102,7 +108,7 @@ local function molder_on_timer(pos, dtime)
     if not FluidStack.presence(molding_fluid) then
       local mold_item_stack = inv:get_stack("mold_slot",  1)
 
-      if not yatm_core.itemstack_is_blank(mold_item_stack) then
+      if not itemstack_is_blank(mold_item_stack) then
         local molten_fluid = FluidMeta.get_fluid_stack(meta, "molten_tank")
         local recipe = MoldingRegistry:get_molding_recipe(mold_item_stack, molten_fluid)
         if recipe then
@@ -138,7 +144,7 @@ local function molder_on_timer(pos, dtime)
           local drained_fluid = FluidMeta.drain_fluid(meta, "molding_tank", recipe.molten_fluid, TANK_CAPACITY, TANK_CAPACITY, false)
           if drained_fluid and drained_fluid.amount == recipe.molten_fluid.amount then
             local drained_fluid = FluidMeta.drain_fluid(meta, "molding_tank", recipe.molten_fluid, TANK_CAPACITY, TANK_CAPACITY, true)
-            local result = yatm_core.itemstack_copy(recipe.result_item_stack)
+            local result = itemstack_copy(recipe.result_item_stack)
             --print("drained fluid from molten tank", minetest.pos_to_string(pos), FluidStack.pretty_format(drained_fluid))
             inv:add_item("output_slot", result)
             inv:add_item("mold_slot", mold_item_stack)
@@ -244,7 +250,7 @@ yatm.register_stateful_node("yatm_foundry:molder", {
           minetest.swap_node(pos, node)
         end
 
-        yatm_core.maybe_start_node_timer(pos, 1.0)
+        maybe_start_node_timer(pos, 1.0)
 
         yatm.queue_refresh_infotext(pos, node)
       end
@@ -263,7 +269,7 @@ yatm.register_stateful_node("yatm_foundry:molder", {
   },
 
   on = {
-    groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
+    groups = table_merge(groups, {not_in_creative_inventory = 1}),
 
     tiles = {
       "yatm_molder_top.on.png",

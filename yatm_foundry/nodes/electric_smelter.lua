@@ -1,3 +1,8 @@
+local Directions = assert(foundation.com.Directions)
+local itemstack_is_blank = assert(foundation.com.itemstack_is_blank)
+local itemstack_copy = assert(foundation.com.itemstack_copy)
+local format_pretty_time = assert(foundation.com.format_pretty_time)
+local metaref_dec_float = assert(foundation.com.metaref_dec_float)
 local cluster_devices = assert(yatm.cluster.devices)
 local Energy = assert(yatm.energy)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
@@ -78,7 +83,7 @@ function electric_smelter_refresh_infotext(pos)
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "Molten Tank: " .. FluidStack.pretty_format(molten_tank_fluid_stack, fluid_interface.capacity) .. "\n" ..
-    "Time Remaining: " .. yatm_core.format_pretty_time(recipe_time) .. " / " .. yatm_core.format_pretty_time(recipe_time_max)
+    "Time Remaining: " .. format_pretty_time(recipe_time) .. " / " .. format_pretty_time(recipe_time_max)
 
   meta:set_string("infotext", infotext)
 end
@@ -89,16 +94,16 @@ function electric_smelter_yatm_network.work(pos, node, available_energy, work_ra
   local inv = meta:get_inventory()
 
   local processing_item_stack = inv:get_stack("processing_slot",  1)
-  if yatm_core.itemstack_is_blank(processing_item_stack) then
+  if itemstack_is_blank(processing_item_stack) then
     local input_item_stack = inv:get_stack("input_slot",  1)
 
-    if not yatm_core.itemstack_is_blank(input_item_stack) then
+    if not itemstack_is_blank(input_item_stack) then
       local recipe = SmeltingRegistry:get_smelting_recipe(input_item_stack)
       if recipe then
         meta:set_float("recipe_time", recipe.duration)
         meta:set_float("recipe_time_max", recipe.duration)
 
-        local processing_item_stack = yatm_core.itemstack_copy(recipe.source_item_stack)
+        local processing_item_stack = itemstack_copy(recipe.source_item_stack)
         inv:add_item("processing_slot", processing_item_stack)
         inv:remove_item("input_slot", processing_item_stack)
       end
@@ -106,8 +111,8 @@ function electric_smelter_yatm_network.work(pos, node, available_energy, work_ra
   end
 
   local processing_item_stack = inv:get_stack("processing_slot",  1)
-  if not yatm_core.itemstack_is_blank(processing_item_stack) then
-    if yatm_core.metaref_dec_float(meta, "recipe_time", dtime) <= 0 then
+  if not itemstack_is_blank(processing_item_stack) then
+    if metaref_dec_float(meta, "recipe_time", dtime) <= 0 then
       local recipe = SmeltingRegistry:get_smelting_recipe(processing_item_stack)
       if recipe then
         local result_fluid_stack = recipe.results[1]

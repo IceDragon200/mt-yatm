@@ -1,3 +1,5 @@
+local Groups = assert(foundation.com.Groups)
+local Directions = assert(foundation.com.Directions)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local FluidStack = assert(yatm.fluids.FluidStack)
@@ -33,8 +35,8 @@ local WATER_TANK = "water_tank"
 
 local function get_fluid_tank_name(self, pos, dir)
   local node = minetest.get_node(pos)
-  local new_dir = yatm_core.facedir_to_face(node.param2, dir)
-  if new_dir == yatm_core.D_UP then
+  local new_dir = Directions.facedir_to_face(node.param2, dir)
+  if new_dir == Directions.D_UP then
     return STEAM_TANK, self.capacity
   else
     return WATER_TANK, self.capacity
@@ -71,15 +73,15 @@ function boiler_yatm_network.work(pos, node, available_energy, work_rate, dtime,
   local meta = minetest.get_meta(pos)
   yatm.devices.set_idle(meta, 1)
   -- Drain water from adjacent tanks
-  for _, dir in ipairs(yatm_core.DIR4) do
-    local water_tank_dir = yatm_core.facedir_to_face(node.param2, dir)
+  for _, dir in ipairs(Directions.DIR4) do
+    local water_tank_dir = Directions.facedir_to_face(node.param2, dir)
 
-    local water_tank_pos = vector.add(pos, yatm_core.DIR6_TO_VEC3[water_tank_dir])
+    local water_tank_pos = vector.add(pos, Directions.DIR6_TO_VEC3[water_tank_dir])
     local water_tank_node = minetest.get_node(water_tank_pos)
     local water_tank_nodedef = minetest.registered_nodes[water_tank_node.name]
     if water_tank_nodedef then
-      if yatm_core.groups.get_item(water_tank_nodedef, "fluid_tank") then
-        local target_dir = yatm_core.invert_dir(water_tank_dir)
+      if Groups.get_item(water_tank_nodedef, "fluid_tank") then
+        local target_dir = Directions.invert_dir(water_tank_dir)
         local stack = FluidTanks.drain_fluid(water_tank_pos,
           target_dir,
           FluidStack.new("group:water", 1000), false)
@@ -102,11 +104,14 @@ function boiler_yatm_network.work(pos, node, available_energy, work_rate, dtime,
       WATER_TANK,
       FluidStack.new("group:water", 50),
       fluid_interface.bandwidth, fluid_interface.capacity, false)
+
     if stack then
+      -- TODO: yatm_core:steam should not be hardcoded
       local filled_stack = FluidMeta.fill_fluid(meta,
         STEAM_TANK,
         FluidStack.set_name(stack, "yatm_core:steam"),
         fluid_interface.bandwidth, fluid_interface.capacity, true)
+
       if filled_stack and filled_stack.amount > 0 then
         FluidMeta.drain_fluid(meta,
           WATER_TANK,
@@ -125,14 +130,14 @@ function boiler_yatm_network.work(pos, node, available_energy, work_rate, dtime,
       fluid_interface.capacity, fluid_interface.capacity, false)
 
     if stack then
-      local steam_tank_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
-      local steam_tank_pos = vector.add(pos, yatm_core.DIR6_TO_VEC3[steam_tank_dir])
+      local steam_tank_dir = Directions.facedir_to_face(node.param2, Directions.D_UP)
+      local steam_tank_pos = vector.add(pos, Directions.DIR6_TO_VEC3[steam_tank_dir])
       local steam_tank_node = minetest.get_node(steam_tank_pos)
       local steam_tank_nodedef = minetest.registered_nodes[steam_tank_node.name]
 
       if steam_tank_nodedef then
         local filled_stack = FluidTanks.fill_fluid(steam_tank_pos,
-          yatm_core.invert_dir(steam_tank_dir), stack, true)
+          Directions.invert_dir(steam_tank_dir), stack, true)
         if filled_stack and filled_stack.amount > 0 then
           FluidTanks.drain_fluid(pos, steam_tank_dir, filled_stack, true)
           energy_consumed = energy_consumed + 1

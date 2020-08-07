@@ -1,4 +1,6 @@
-local Cuboid = yatm_core.Cuboid
+local string_hex_unescape = assert(foundation.com.string_hex_unescape)
+local is_table_empty = assert(foundation.com.is_table_empty)
+local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 
 local data_network = assert(yatm.data_network)
@@ -62,7 +64,7 @@ minetest.register_node("yatm_data_noteblock:data_noteblock", {
     receive_pdu = function (self, pos, node, dir, local_port, value)
       --print("receive_pdu", minetest.pos_to_string(pos), node.name, dir, local_port, dump(value))
       local meta = minetest.get_meta(pos)
-      local payload = yatm_core.string_hex_unescape(value)
+      local payload = string_hex_unescape(value)
       local key = string.byte(payload, 1)
       if key then
         key = key + meta:get_int("offset")
@@ -113,7 +115,7 @@ minetest.register_node("yatm_data_noteblock:data_noteblock", {
 
       local inputs_changed = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "i")
 
-      if not yatm_core.is_table_empty(inputs_changed) then
+      if not is_table_empty(inputs_changed) then
         yatm_data_logic.unmark_all_receive(assigns.pos)
         yatm_data_logic.mark_all_inputs_for_active_receive(assigns.pos)
       end

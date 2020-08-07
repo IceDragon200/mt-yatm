@@ -59,7 +59,7 @@ function yatm.codex.fill_cuboid(cuboid, node)
   minetest.bulk_set_node(positions, node)
 end
 
-local vector2 = yatm_core.vector2
+local Vector2 = assert(foundation.com.Vector2)
 
 local function place_layer(origin, palette, dim, layer)
   for y = 0,(dim.y - 1) do
@@ -94,7 +94,7 @@ function yatm.codex.place_node_image(origin, palette, image)
 
   image.order = image.order or "bottom_up"
 
-  local dim = vector2.new(image.width, image.height)
+  local dim = Vector2.new(image.width, image.height)
 
   -- order affects the layers rendering order
   if image.order == "top_down" then

@@ -1,10 +1,12 @@
+local is_blank = assert(foundation.com.is_blank)
+
 local InventorySerializer = {}
 
 function InventorySerializer.description(dumped_list)
   local count = dumped_list.size
   local used = 0
   for key,item_stack in pairs(dumped_list.data) do
-    if not yatm_core.is_blank(item_stack.name) and item_stack.count > 0 then
+    if not is_blank(item_stack.name) and item_stack.count > 0 then
       used = used + 1
     end
   end

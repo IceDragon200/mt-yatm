@@ -1,3 +1,4 @@
+local is_blank = assert(foundation.com.is_blank)
 local ItemInterface = assert(yatm.items.ItemInterface)
 
 function get_ammo_can_formspec(pos, user)
@@ -77,7 +78,7 @@ minetest.register_node("yatm_armoury:ammo_can", {
     local new_inv = new_meta:get_inventory()
 
     local old_inv_list = old_meta:get_string("inventory_dump")
-    if not yatm_core.is_blank(old_inv_list) then
+    if not is_blank(old_inv_list) then
       local dumped = minetest.deserialize(old_inv_list)
       local list = new_inv:get_list("main")
       list = yatm_item_storage.InventorySerializer.deserialize_list(dumped, list)

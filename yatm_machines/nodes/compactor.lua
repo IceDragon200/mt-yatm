@@ -1,3 +1,4 @@
+local Directions = assert(foundation.com.Directions)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
@@ -170,8 +171,8 @@ end
 local compactor_item_interface =
   ItemInterface.new_directional(function (self, pos, dir)
     local node = minetest.get_node(pos)
-    local new_dir = yatm_core.facedir_to_face(node.param2, dir)
-    if new_dir == yatm_core.D_UP or new_dir == yatm_core.D_DOWN then
+    local new_dir = Directions.facedir_to_face(node.param2, dir)
+    if new_dir == Directions.D_UP or new_dir == Directions.D_DOWN then
       return "output_items"
     end
     return "input_items"

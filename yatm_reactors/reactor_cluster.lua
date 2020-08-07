@@ -1,7 +1,9 @@
-local is_table_empty = assert(yatm_core.is_table_empty)
-local table_keys = assert(yatm_core.table_keys)
-local table_length = assert(yatm_core.table_length)
-local DIR6_TO_VEC3 = assert(yatm_core.DIR6_TO_VEC3)
+local is_table_empty = assert(foundation.com.is_table_empty)
+local table_keys = assert(foundation.com.table_keys)
+local table_length = assert(foundation.com.table_length)
+local Directions = assert(foundation.com.Directions)
+local facedir_to_face = assert(Directions.facedir_to_face)
+local DIR6_TO_VEC3 = assert(Directions.DIR6_TO_VEC3)
 
 local ReactorCluster = yatm_clusters.SimpleCluster:extends("ReactorCluster")
 local ic = ReactorCluster.instance_class
@@ -95,7 +97,7 @@ local function linear_explore(size_limit, origin, cluster, dir)
           break
         end
 
-        local next_pos = vector.add(pos, yatm_core.DIR6_TO_VEC3[dir])
+        local next_pos = vector.add(pos, DIR6_TO_VEC3[dir])
 
         next_pos.l = (pos.l or 0) + 1
 
@@ -152,8 +154,8 @@ local function lateral_explore(size_limit, origin, cluster, left_dir, right_dir)
             end
           end
 
-          local left = vector.add(pos, yatm_core.DIR6_TO_VEC3[left_dir])
-          local right = vector.add(pos, yatm_core.DIR6_TO_VEC3[right_dir])
+          local left = vector.add(pos, DIR6_TO_VEC3[left_dir])
+          local right = vector.add(pos, DIR6_TO_VEC3[right_dir])
 
           left.l = (pos.l or 0) + 1
           left.w = -1
@@ -203,25 +205,25 @@ function ic:verify_reactor_structure(cls, generation_id, event, cluster)
 
   -- Grab all the directions for the reactor controller
   -- the SOUTH face is always the 'front' (the face that you preceive to be the front)
-  local north_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_NORTH)
+  local north_dir = facedir_to_face(node.param2, Directions.D_NORTH)
   -- The NORTH face is the 'back'
-  local south_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_SOUTH)
+  local south_dir = facedir_to_face(node.param2, Directions.D_SOUTH)
   -- the other sides
-  local east_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_EAST)
-  local west_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_WEST)
-  local up_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
-  local down_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_DOWN)
+  local east_dir = facedir_to_face(node.param2, Directions.D_EAST)
+  local west_dir = facedir_to_face(node.param2, Directions.D_WEST)
+  local up_dir = facedir_to_face(node.param2, Directions.D_UP)
+  local down_dir = facedir_to_face(node.param2, Directions.D_DOWN)
 
   -- The first rule is, a reactor controller MUST be sorrounded by
   -- 'structure' reactor nodes, that is glass, panels or casings.
   -- You can use all glass for your reactor, if you'd like, I ain't complaining!
   -- Also the north face must be 'empty', well coolant is allowed, but otherwise EMPTY.
-  local east_struct = cluster:get_node_group(vector.add(origin, yatm_core.DIR6_TO_VEC3[east_dir]), 'structure')
-  local west_struct = cluster:get_node_group(vector.add(origin, yatm_core.DIR6_TO_VEC3[west_dir]), 'structure')
-  local up_struct = cluster:get_node_group(vector.add(origin, yatm_core.DIR6_TO_VEC3[up_dir]), 'structure')
-  local down_struct = cluster:get_node_group(vector.add(origin, yatm_core.DIR6_TO_VEC3[down_dir]), 'structure')
+  local east_struct = cluster:get_node_group(vector.add(origin, DIR6_TO_VEC3[east_dir]), 'structure')
+  local west_struct = cluster:get_node_group(vector.add(origin, DIR6_TO_VEC3[west_dir]), 'structure')
+  local up_struct = cluster:get_node_group(vector.add(origin, DIR6_TO_VEC3[up_dir]), 'structure')
+  local down_struct = cluster:get_node_group(vector.add(origin, DIR6_TO_VEC3[down_dir]), 'structure')
 
-  local north_node = minetest.get_node(vector.add(origin, yatm_core.DIR6_TO_VEC3[north_dir]))
+  local north_node = minetest.get_node(vector.add(origin, DIR6_TO_VEC3[north_dir]))
 
   local north_has_air_or_coolant =
     north_node.name == 'air' or

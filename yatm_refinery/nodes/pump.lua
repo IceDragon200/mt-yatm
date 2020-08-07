@@ -1,3 +1,4 @@
+local Directions = assert(foundation.com.Directions)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local FluidStack = assert(yatm.fluids.FluidStack)
@@ -37,7 +38,7 @@ end
 local old_fill = fluid_interface.fill
 function fluid_interface:fill(pos, dir, fluid_stack, commit)
   local node = minetest.get_node(pos)
-  local pump_in_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_DOWN)
+  local pump_in_dir = Directions.facedir_to_face(node.param2, Directions.D_DOWN)
   if dir == pump_in_dir then
     return old_fill(self, pos, dir, fluid_stack, commit)
   else
@@ -65,8 +66,8 @@ function pump_yatm_network.work(pos, node, energy_available, work_rate, dtime, o
   local meta = minetest.get_meta(pos)
   local nodedef = minetest.registered_nodes[node.name]
 
-  local pump_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_DOWN)
-  local target_pos = vector.add(pos, yatm_core.DIR6_TO_VEC3[pump_dir])
+  local pump_dir = Directions.facedir_to_face(node.param2, Directions.D_DOWN)
+  local target_pos = vector.add(pos, Directions.DIR6_TO_VEC3[pump_dir])
   local target_node = minetest.get_node(target_pos)
   local fluid_name = FluidRegistry.item_name_to_fluid_name(target_node.name)
 
@@ -77,7 +78,7 @@ function pump_yatm_network.work(pos, node, energy_available, work_rate, dtime, o
       minetest.remove_node(target_pos)
     end
   else
-    local inverted_dir = yatm_core.invert_dir(pump_dir)
+    local inverted_dir = Directions.invert_dir(pump_dir)
     local drained_stack = FluidTanks.drain_fluid(target_pos, inverted_dir, FluidStack.new_wildcard(1000), false)
     if drained_stack and drained_stack.amount > 0 then
       local existing = FluidTanks.get_fluid(pos, pump_dir)
@@ -93,14 +94,14 @@ function pump_yatm_network.work(pos, node, energy_available, work_rate, dtime, o
   end
 
   do
-    local new_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
-    local target_pos = vector.add(pos, yatm_core.DIR6_TO_VEC3[new_dir])
+    local new_dir = Directions.facedir_to_face(node.param2, Directions.D_UP)
+    local target_pos = vector.add(pos, Directions.DIR6_TO_VEC3[new_dir])
     local stack = FluidMeta.drain_fluid(meta,
       "tank",
       FluidStack.new_wildcard(1000),
       fluid_interface.capacity, fluid_interface.capacity, false)
     if stack and stack.amount > 0 then
-      local target_dir = yatm_core.invert_dir(new_dir)
+      local target_dir = Directions.invert_dir(new_dir)
       local filled_stack = FluidTanks.fill_fluid(target_pos, target_dir, stack, true)
       if filled_stack and filled_stack.amount > 0 then
         energy_consumed = energy_consumed + math.floor(100 * filled_stack.amount / 1000)

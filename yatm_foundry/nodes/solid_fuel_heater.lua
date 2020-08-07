@@ -1,3 +1,8 @@
+local table_merge = assert(foundation.com.table_merge)
+local itemstack_inspect = assert(foundation.com.itemstack_inspect)
+local format_pretty_time = assert(foundation.com.format_pretty_time)
+local maybe_start_node_timer = assert(foundation.com.maybe_start_node_timer)
+local inspect_axis = assert(foundation.com.Directions.inspect_axis)
 local cluster_thermal = assert(yatm.cluster.thermal)
 local ItemInterface = assert(yatm.items.ItemInterface)
 
@@ -61,7 +66,7 @@ local function solid_fuel_heater_allow_metadata_inventory_put(pos, listname, ind
 end
 
 local function solid_fuel_heater_on_metadata_inventory_put(pos, listname, index, item_stack, player)
-  yatm_core.maybe_start_node_timer(pos, 1.0)
+  maybe_start_node_timer(pos, 1.0)
 end
 
 local function solid_fuel_heater_node_timer(pos, elapsed)
@@ -127,21 +132,21 @@ local function solid_fuel_heater_refresh_infotext(pos)
     cluster_thermal:get_node_infotext(pos) .. "\n" ..
     -- TODO: pull the max heat from configuration
     "Heat: " .. heat .. " / 3600" .. "\n" ..
-    "Fuel Time: " .. yatm_core.format_pretty_time(fuel_time) .. " / " .. yatm_core.format_pretty_time(fuel_time_max)
+    "Fuel Time: " .. format_pretty_time(fuel_time) .. " / " .. format_pretty_time(fuel_time_max)
   )
 end
 
 local solid_fuel_heater_item_interface = ItemInterface.new_simple("fuel_slot")
 
 function solid_fuel_heater_item_interface:on_insert_item(pos, dir, item_stack)
-  yatm_core.maybe_start_node_timer(pos, 1.0)
+  maybe_start_node_timer(pos, 1.0)
 end
 
 function solid_fuel_heater_item_interface:allow_insert_item(pos, dir, item_stack)
   if is_item_solid_fuel(item_stack) then
     return true
   else
-    print("Cannot insert", minetest.pos_to_string(pos), yatm_core.inspect_axis(dir), yatm_core.itemstack_inspect(item_stack))
+    print("Cannot insert", minetest.pos_to_string(pos), inspect_axis(dir), itemstack_inspect(item_stack))
     return false, "item is not solid fuel"
   end
 end
@@ -215,7 +220,7 @@ yatm.register_stateful_node("yatm_foundry:solid_fuel_heater", {
   },
 
   on = {
-    groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
+    groups = table_merge(groups, {not_in_creative_inventory = 1}),
 
     tiles = {
       "yatm_solid_fuel_heater_top.on.png",

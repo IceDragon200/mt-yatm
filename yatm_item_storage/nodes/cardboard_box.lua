@@ -1,3 +1,4 @@
+local is_blank = assert(foundation.com.is_blank)
 local ItemInterface = assert(yatm.items.ItemInterface)
 
 function get_cardboard_box_formspec(pos, user)
@@ -39,7 +40,7 @@ local function cardboard_box_after_place_node(pos, placer, item_stack, pointed_t
   local new_inv = new_meta:get_inventory()
 
   local old_inv_list = old_meta:get_string("inventory_dump")
-  if not yatm_core.is_blank(old_inv_list) then
+  if not is_blank(old_inv_list) then
     local dumped = minetest.deserialize(old_inv_list)
     local list = new_inv:get_list("main")
     list = yatm_item_storage.InventorySerializer.deserialize_list(dumped, list)

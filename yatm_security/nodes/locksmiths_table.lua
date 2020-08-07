@@ -1,3 +1,8 @@
+local is_blank = assert(foundation.com.is_blank)
+local itemstack_is_blank = assert(foundation.com.itemstack_is_blank)
+local set_itemstack_meta_description = assert(foundation.com.set_itemstack_meta_description)
+local get_itemstack_description = assert(foundation.com.get_itemstack_description)
+
 local table_nodebox = {
   type = "fixed",
   fixed = {
@@ -141,7 +146,7 @@ end
 local function valid_for_slot(listname, stack)
   if listname == "item_lockable" then
     if yatm_security.is_stack_lockable_object(stack) then
-      if yatm_core.is_blank(yatm_security.get_lockable_object_stack_pubkey(stack)) then
+      if is_blank(yatm_security.get_lockable_object_stack_pubkey(stack)) then
         return 1
       end
     end
@@ -161,7 +166,7 @@ local function valid_for_slot(listname, stack)
 
   elseif listname == "item_chippable" then
     if yatm_security.is_stack_chippable_object(stack) then
-      if yatm_core.is_blank(yatm_security.get_chipped_object_stack_pubkey(stack)) then
+      if is_blank(yatm_security.get_chipped_object_stack_pubkey(stack)) then
         return 1
       end
     end
@@ -213,8 +218,8 @@ local function can_use_results_slot(inv)
   local result2 = inv:get_stack("item_result", 2)
 
   -- Either both slots MUST be empty, or both MUST be occupied
-  return (yatm_core.itemstack_is_blank(result1) and yatm_core.itemstack_is_blank(result1)) or
-         (not yatm_core.itemstack_is_blank(result1) and not yatm_core.itemstack_is_blank(result1))
+  return (itemstack_is_blank(result1) and itemstack_is_blank(result1)) or
+         (not itemstack_is_blank(result1) and not itemstack_is_blank(result1))
 end
 
 local function maybe_craft_lockable(pos)
@@ -229,7 +234,7 @@ local function maybe_craft_lockable(pos)
     if yatm_security.is_stack_lockable_lock(lock) then
       -- lockable style lock installtion
       if  yatm_security.is_stack_lockable_object(lockable) and
-          yatm_core.is_blank(yatm_security.get_lockable_object_stack_pubkey(lockable)) and
+          is_blank(yatm_security.get_lockable_object_stack_pubkey(lockable)) and
           yatm_security.is_stack_lockable_blank_key(key) then
         local new_lockable_stack = lockable:peek_item(1)
         local new_key_stack = key:peek_item(1)
@@ -258,7 +263,7 @@ local function maybe_craft_chipped(pos)
   if yatm_security.is_stack_access_chip(chip) then
     -- access chip based installation
     if yatm_security.is_stack_chippable_object(chippable) and
-       yatm_core.is_blank(yatm_security.get_chipped_object_stack_pubkey(chippable)) then
+       is_blank(yatm_security.get_chipped_object_stack_pubkey(chippable)) then
       -- chipped installation doesn't require a key/access card
       -- it's expected that the chip was already programmed beforehand
       -- if not, then you're kinda screwed.
@@ -297,7 +302,7 @@ local function maybe_consume_lockable_ingredients(pos, taken_index)
   local b = inv:get_stack("item_result", other_index)
 
   -- if only one result was removed and the other still exists, consume the ingredients
-  if yatm_core.itemstack_is_blank(a) and not yatm_core.itemstack_is_blank(b) then
+  if itemstack_is_blank(a) and not itemstack_is_blank(b) then
     inv:set_stack("item_lockable", 1, nil)
     inv:set_stack("item_lock", 1, nil)
     inv:set_stack("item_key", 1, nil)
@@ -324,7 +329,7 @@ local function maybe_craft_duplicate_key(pos)
     local itemdef = assert(minetest.registered_items[dup_stack:get_name()])
     dup_stack:set_name(assert(itemdef.key_states.toothed))
     yatm_security.copy_lockable_key_stack_key(src, dup_stack)
-    yatm_core.set_itemstack_meta_description(dup_stack, yatm_core.get_itemstack_description(src))
+    set_itemstack_meta_description(dup_stack, get_itemstack_description(src))
 
     inv:set_stack("item_dupkey_result", 1, dup_stack)
   else

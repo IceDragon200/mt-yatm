@@ -3,7 +3,7 @@
   The GrindingRegistry contains recipes for the grinders
 
 ]]
-local GrindingRegistry = yatm_core.Class:extends()
+local GrindingRegistry = foundation.com.Class:extends("GrindingRegistry")
 local ic = GrindingRegistry.instance_class
 
 function ic:initialize()

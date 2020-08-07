@@ -3,7 +3,7 @@
 --
 local energy = {}
 
-energy.schema = yatm_core.MetaSchema:new("energy", "", {
+energy.schema = foundation.com.MetaSchema:new("energy", "", {
   energy = {
     type = "integer",
   },

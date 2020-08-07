@@ -1,13 +1,12 @@
 --
 -- YATM Bees
 --
-yatm_bees = rawget(_G, "yatm_bees") or {}
-yatm_bees.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_bees", "1.0.0")
 
-dofile(yatm_bees.modpath .. "/api.lua")
+mod:require("api.lua")
 
-dofile(yatm_bees.modpath .. "/fluids.lua")
-dofile(yatm_bees.modpath .. "/nodes.lua")
-dofile(yatm_bees.modpath .. "/items.lua")
+mod:require("fluids.lua")
+mod:require("nodes.lua")
+mod:require("items.lua")
 
-dofile(yatm_bees.modpath .. "/migrations.lua")
+mod:require("migrations.lua")

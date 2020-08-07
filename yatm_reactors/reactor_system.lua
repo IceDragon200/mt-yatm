@@ -1,4 +1,4 @@
-local ReactorSystem = yatm_core.Class:extends("ReactorSystem")
+local ReactorSystem = foundation.com.Class:extends("ReactorSystem")
 local ic = ReactorSystem.instance_class
 
 function ic:initialize()

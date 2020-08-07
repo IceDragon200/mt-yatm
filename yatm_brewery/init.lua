@@ -1,12 +1,11 @@
-yatm_brewery = rawget(_G, "yatm_brewery") or {}
-yatm_brewery.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_brewery", "0.1.0")
 
-dofile(yatm_brewery.modpath .. "/registries.lua")
+mod:require("registries.lua")
 
-dofile(yatm_brewery.modpath .. "/api.lua")
+mod:require("api.lua")
 
-dofile(yatm_brewery.modpath .. "/nodes.lua")
-dofile(yatm_brewery.modpath .. "/items.lua")
-dofile(yatm_brewery.modpath .. "/fluids.lua")
+mod:require("nodes.lua")
+mod:require("items.lua")
+mod:require("fluids.lua")
 
-dofile(yatm_brewery.modpath .. "/tests.lua")
+mod:require("tests.lua")

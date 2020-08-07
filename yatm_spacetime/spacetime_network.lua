@@ -1,6 +1,9 @@
+local is_blank = assert(foundation.com.is_blank)
+local is_table_empty = assert(foundation.com.is_table_empty)
+
 local SpacetimeMeta = assert(yatm_spacetime.SpacetimeMeta)
 
-local SpacetimeNetwork = yatm_core.Class:extends("SpacetimeNetwork")
+local SpacetimeNetwork = foundation.com.Class:extends("SpacetimeNetwork")
 local ic = SpacetimeNetwork.instance_class
 
 function ic:initialize(description)
@@ -76,7 +79,7 @@ function ic:maybe_register_node(pos, node)
     local address = yatm_spacetime.SpacetimeMeta.get_address(meta)
     if nodedef.yatm_spacetime then
       local spacetime_groups = nodedef.yatm_spacetime.groups or {}
-      if not yatm_core.is_blank(address) then
+      if not is_blank(address) then
         return self:register_device(spacetime_groups, pos, address)
       else
         return false
@@ -117,14 +120,14 @@ function ic:unregister_device(pos)
   if entry then
     if self.m_members_by_block[entry.block_id] then
       self.m_members_by_block[entry.block_id][member_id] = nil
-      if yatm_core.is_table_empty(self.m_members_by_block[entry.block_id]) then
+      if is_table_empty(self.m_members_by_block[entry.block_id]) then
         self.m_members_by_block[entry.block_id] = nil
       end
     end
 
     if self.m_members_by_address[entry.address] then
       self.m_members_by_address[entry.address][member_id] = nil
-      if yatm_core.is_table_empty(self.m_members_by_address[entry.address]) then
+      if is_table_empty(self.m_members_by_address[entry.address]) then
         self.m_members_by_address[entry.address] = nil
       end
     end
@@ -132,7 +135,7 @@ function ic:unregister_device(pos)
     for group_name,_ in pairs(entry.groups) do
       if self.m_members_by_group[group_name] then
         self.m_members_by_group[group_name][member_id] = nil
-        if yatm_core.is_table_empty(self.m_members_by_group[group_name]) then
+        if is_table_empty(self.m_members_by_group[group_name]) then
           self.m_members_by_group[group_name] = nil
         end
       end

@@ -5,12 +5,11 @@
   Offers weapons, armor and other items geared towards fights
 
 ]]
-yatm_armoury = rawget(_G, "yatm_armoury") or {}
-yatm_armoury.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_armoury", "0.1.0")
 
-dofile(yatm_armoury.modpath .. "/api.lua")
+mod:require("api.lua")
 
-dofile(yatm_armoury.modpath .. "/nodes.lua")
-dofile(yatm_armoury.modpath .. "/items.lua")
+mod:require("nodes.lua")
+mod:require("items.lua")
 
-dofile(yatm_armoury.modpath .. "/recipes.lua")
+mod:require("recipes.lua")

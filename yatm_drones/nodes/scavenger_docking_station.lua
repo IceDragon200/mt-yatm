@@ -1,5 +1,6 @@
-local Cuboid = yatm_core.Cuboid
+local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
+local Directions = assert(foundation.com.Directions)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
@@ -122,10 +123,10 @@ end
 
 function dropoff_station_item_interface:insert_item(pos, dir, item_stack, commit)
   local remaining = item_stack
-  if dir == yatm_core.D_NONE then
-    for dir6, vec3 in pairs(yatm_core.DIR6_TO_VEC3) do
+  if dir == Directions.D_NONE then
+    for dir6, vec3 in pairs(Directions.DIR6_TO_VEC3) do
       local npos = vector.add(pos, vec3)
-      remaining = ItemDevice.insert_item(npos, yatm_core.invert_dir(dir6), remaining, commit)
+      remaining = ItemDevice.insert_item(npos, Directions.invert_dir(dir6), remaining, commit)
       if remaining then
         if remaining:is_empty() then
           return remaining

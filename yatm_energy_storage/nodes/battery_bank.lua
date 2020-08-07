@@ -2,6 +2,7 @@
 -- The battery bank acts as a both an energy storage unit and battery charger!
 -- Charge up any batteries
 --
+local Groups = assert(foundation.com.Groups)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
@@ -251,7 +252,7 @@ end
 
 local function allow_metadata_inventory_put(pos, listname, index, stack, player)
   if listname == "batteries" then
-    if yatm_core.groups.has_group(stack:get_definition(), "battery") then
+    if Groups.has_group(stack:get_definition(), "battery") then
       return 1
     end
   end

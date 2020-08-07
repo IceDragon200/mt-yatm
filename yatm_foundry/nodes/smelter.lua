@@ -1,3 +1,8 @@
+local table_merge = assert(foundation.com.table_merge)
+local maybe_start_node_timer = assert(foundation.com.maybe_start_node_timer)
+local format_pretty_time = assert(foundation.com.format_pretty_time)
+local itemstack_is_blank = assert(foundation.com.itemstack_is_blank)
+local itemstack_copy = assert(foundation.com.itemstack_copy)
 local cluster_thermal = assert(yatm.cluster.thermal)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidStack = assert(yatm.fluids.FluidStack)
@@ -55,7 +60,7 @@ local function smelter_refresh_infotext(pos)
     cluster_thermal:get_node_infotext(pos) .. "\n" ..
     "Heat: " .. heat .. "\n" ..
     "Molten Tank: " .. FluidStack.pretty_format(molten_tank_fluid_stack, fluid_interface.capacity) .. "\n" ..
-    "Time Remaining: " .. yatm_core.format_pretty_time(recipe_time) .. " / " .. yatm_core.format_pretty_time(recipe_time_max)
+    "Time Remaining: " .. format_pretty_time(recipe_time) .. " / " .. format_pretty_time(recipe_time_max)
   )
 end
 
@@ -77,16 +82,16 @@ local function smelter_on_timer(pos, dtime)
     local inv = meta:get_inventory()
 
     local processing_item_stack = inv:get_stack("processing_slot",  1)
-    if yatm_core.itemstack_is_blank(processing_item_stack) then
+    if itemstack_is_blank(processing_item_stack) then
       local input_item_stack = inv:get_stack("input_slot",  1)
 
-      if not yatm_core.itemstack_is_blank(input_item_stack) then
+      if not itemstack_is_blank(input_item_stack) then
         local recipe = SmeltingRegistry:get_smelting_recipe(input_item_stack)
         if recipe then
           meta:set_float("recipe_time", recipe.duration)
           meta:set_float("recipe_time_max", recipe.duration)
 
-          local processing_item_stack = yatm_core.itemstack_copy(recipe.source_item_stack)
+          local processing_item_stack = itemstack_copy(recipe.source_item_stack)
           inv:add_item("processing_slot", processing_item_stack)
           inv:remove_item("input_slot", processing_item_stack)
         end
@@ -94,7 +99,7 @@ local function smelter_on_timer(pos, dtime)
     end
 
     local processing_item_stack = inv:get_stack("processing_slot",  1)
-    if not yatm_core.itemstack_is_blank(processing_item_stack) then
+    if not itemstack_is_blank(processing_item_stack) then
       local applyable_dtime = math.min(available_heat / 5.0, dtime)
       meta:set_float("heat", math.max(available_heat - 5 * applyable_dtime, 0))
 
@@ -186,7 +191,7 @@ yatm.register_stateful_node("yatm_foundry:smelter", {
           minetest.swap_node(pos, node)
         end
 
-        yatm_core.maybe_start_node_timer(pos, 1.0)
+        maybe_start_node_timer(pos, 1.0)
         yatm.queue_refresh_infotext(pos, node)
       end
     end,
@@ -204,7 +209,7 @@ yatm.register_stateful_node("yatm_foundry:smelter", {
   },
 
   on = {
-    groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
+    groups = table_merge(groups, {not_in_creative_inventory = 1}),
 
     tiles = {
       "yatm_smelter_top.on.png",

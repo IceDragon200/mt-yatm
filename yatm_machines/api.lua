@@ -1,3 +1,6 @@
+local Trace = assert(foundation.com.Trace)
+local table_merge = assert(foundation.com.table_merge)
+local table_deep_merge = assert(foundation.com.table_deep_merge)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 
@@ -93,7 +96,7 @@ end
 -- @spec devices.device_passive_consume_energy(vector3.t, Node.t, non_neg_integer, float, TraceContext)
 --
 function devices.device_passive_consume_energy(pos, node, total_available, dtime, ot)
-  local span = yatm_core.trace.span_start(ot, "device_passive_consume_energy")
+  local span = Trace.span_start(ot, "device_passive_consume_energy")
   local consumed = 0
   local nodedef = minetest.registered_nodes[node.name]
   local energy = nodedef.yatm_network.energy
@@ -121,7 +124,7 @@ function devices.device_passive_consume_energy(pos, node, total_available, dtime
   end
 
   --print("CONSUMED", pos.x, pos.y, pos.z, node.name, "CONSUMED", consumed, "GIVEN", total_available)
-  yatm_core.trace.span_end(span)
+  Trace.span_end(span)
 
   return consumed
 end
@@ -336,12 +339,12 @@ function devices.register_stateful_network_device(base_node_def, overrides)
         ov = overrides[state]
       end
       ov = ov or {}
-      local node_def = yatm_core.table_deep_merge(base_node_def, ov)
-      local new_yatm_network = yatm_core.table_merge(node_def.yatm_network, {state = state})
+      local node_def = table_deep_merge(base_node_def, ov)
+      local new_yatm_network = table_merge(node_def.yatm_network, {state = state})
       node_def.yatm_network = new_yatm_network
 
       if node_def.yatm_network.default_state ~= state then
-        local groups = yatm_core.table_merge(node_def.groups, {not_in_creative_inventory = 1})
+        local groups = table_merge(node_def.groups, {not_in_creative_inventory = 1})
         node_def.groups = groups
       end
 

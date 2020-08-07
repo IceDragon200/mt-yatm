@@ -1,6 +1,7 @@
 --
 -- Various functions and components used for fluid tanks
 --
+local Directions = assert(foundation.com.Directions)
 local FluidStack = assert(yatm_fluids.FluidStack)
 local FluidInterface = assert(yatm_fluids.FluidInterface)
 local FluidTanks = assert(yatm_fluids.FluidTanks)
@@ -42,7 +43,7 @@ function fluid_tank_fluid_interface:fill(pos, dir, fluid_stack, commit)
   end
 
   if left_stack.amount > 0 then
-    local new_pos = vector.add(pos, yatm_core.V3_UP)
+    local new_pos = vector.add(pos, Directions.V3_UP)
     local new_node = minetest.get_node(new_pos)
     if minetest.get_item_group(new_node.name, "fluid_tank") > 0 then
       local used_stack2 = FluidTanks.fill_fluid(new_pos, dir, left_stack, commit)

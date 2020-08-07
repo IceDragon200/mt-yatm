@@ -1,3 +1,5 @@
+local FakeMetaRef = assert(foundation.com.FakeMetaRef)
+
 local m = yatm_spacetime.SpacetimeMeta
 local Luna = assert(foundation.com.Luna)
 
@@ -5,7 +7,7 @@ local case = Luna:new("yatm_spacetime.SpacetimeMeta")
 
 case:describe("get_address/2", function (t2)
   t2:test("can retrieve an address given a metaref", function (t3)
-    local meta = yatm_core.FakeMetaRef:new({
+    local meta = FakeMetaRef:new({
       spaddr_address = "this_is_my_address",
     })
 
@@ -15,7 +17,7 @@ end)
 
 case:describe("set_address/2", function (t2)
   t2:test("can set an address in a meta", function (t3)
-    local meta = yatm_core.FakeMetaRef:new({
+    local meta = FakeMetaRef:new({
       spaddr_address = "this_is_my_address",
     })
 

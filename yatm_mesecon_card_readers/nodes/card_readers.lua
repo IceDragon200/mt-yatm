@@ -1,4 +1,7 @@
-local Cuboid = yatm_core.Cuboid
+local is_blank = assert(foundation.com.is_blank)
+local Groups = assert(foundation.com.Groups)
+local FakeMetaRef = assert(foundation.com.FakeMetaRef)
+local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 
 local reader_node_box = {
@@ -19,7 +22,7 @@ end
 local function card_reader_preserve_metadata(pos, oldnode, old_meta_table, drops)
   local stack = drops[1]
 
-  local old_meta = yatm_core.FakeMetaRef:new(old_meta_table)
+  local old_meta = FakeMetaRef:new(old_meta_table)
   local new_meta = stack:get_meta()
 
   yatm_security.copy_chipped_object(old_meta, new_meta)
@@ -48,7 +51,7 @@ local function reader_on_rightclick(pos, node, clicker, itemstack, pointed_thing
   if access_card:is_empty() then
     if not itemstack:is_empty() then
       local item = itemstack:get_definition()
-      if yatm_core.groups.has_group(item, 'access_card') then
+      if Groups.has_group(item, 'access_card') then
         local leftover = inv:add_item("access_card_slot", itemstack)
         if leftover:is_empty() then
           -- take the access card away from player
@@ -149,7 +152,7 @@ yatm.register_stateful_node("yatm_mesecon_card_readers:mesecon_card_reader", {
       else
         -- if the swiper isn't chipped, ANY access card with a key should work
         local prvkey = yatm_security.get_access_card_stack_prvkey(access_card)
-        if yatm_core.is_blank(prvkey) then
+        if is_blank(prvkey) then
           new_node.name = "yatm_mesecon_card_readers:mesecon_card_reader_error"
         else
           new_node.name = "yatm_mesecon_card_readers:mesecon_card_reader_on"

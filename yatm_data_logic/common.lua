@@ -72,8 +72,8 @@ function yatm_data_logic.encode_varuint(value, length)
   local j = 0
   for i = 1,length do
     j = j + 1
-    result[j] = string.char(now % 0xFF)
-    now = math.floor(now / 255)
+    result[j] = string.char(now % 256)
+    now = math.floor(now / 256)
   end
   return table.concat(result)
 end

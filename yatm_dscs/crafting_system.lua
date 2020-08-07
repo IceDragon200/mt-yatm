@@ -1,18 +1,19 @@
 --
 --
 --
-local CraftingSystem = yatm_core.Class:extends("YATM.DSCS.CraftingSystem")
+local path_join = assert(foundation.com.path_join)
+local CraftingSystem = foundation.com.Class:extends("YATM.DSCS.CraftingSystem")
 local ic = CraftingSystem.instance_class
 
 function ic:initialize()
-  self.m_root_dir = yatm_core.path_join(minetest.get_worldpath(), "/yatm/dscs")
+  self.m_root_dir = path_join(minetest.get_worldpath(), "/yatm/dscs")
   minetest.mkdir(self.m_root_dir)
 end
 
 function ic:persist_network_inventory_state(network)
   network:reduce_group_members("dscs_inventory_controller", 0, function (pos, node, acc)
     local basename = string.format("inv-controller-%08x.bin", minetest.hash_node_position(pos))
-    local filename = yatm_core.path_join(self.m_root_dir, basename)
+    local filename = path_join(self.m_root_dir, basename)
     minetest.safe_file_write(filename)
     return true, acc + 1
   end)

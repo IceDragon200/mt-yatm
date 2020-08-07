@@ -1,6 +1,8 @@
 -- AMS - Azeros Munitions Standards
 -- It's based on the NATO standard, so it should be easy to pick up.
 -- The Azeros is a fictional organization.
+local table_merge = assert(foundation.com.table_merge)
+
 yatm_armoury.ammunition_classes = {}
 yatm_armoury.calibre_classes = {}
 
@@ -17,7 +19,7 @@ function yatm_armoury:get_ammunition_class_by_code(code)
 end
 
 function yatm_armoury:update_ammunition_class(code, params)
-  yatm_armoury.ammunition_classes[code] = yatm_core.table_merge(yatm_armoury.ammunition_classes[code], params)
+  yatm_armoury.ammunition_classes[code] = table_merge(yatm_armoury.ammunition_classes[code], params)
   return yatm_armoury.ammunition_classes[code]
 end
 
@@ -27,7 +29,7 @@ function yatm_armoury:register_ammunition_class(mod_name, params)
   local variant_name = params.name
   local variant_groups = params.groups
 
-  self.ammunition_classes[variant_code] = yatm_core.table_merge(params, {
+  self.ammunition_classes[variant_code] = table_merge(params, {
     code = variant_code,
     basename = variant_basename,
     name = variant_name,
@@ -45,7 +47,7 @@ function yatm_armoury:register_ammunition_class(mod_name, params)
   })
   local ammo_def = self.ammunition_classes[variant_code]
 
-  local groups = yatm_core.table_merge({cartridge = 1}, variant_groups)
+  local groups = table_merge({cartridge = 1}, variant_groups)
 
   minetest.register_craftitem(ammo_def.calibres["9x19mm"], {
     basename = mod_name .. ":ammo_9x19mm",

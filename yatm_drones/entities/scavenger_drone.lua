@@ -1,5 +1,7 @@
-local Cuboid = yatm_core.Cuboid
+local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
+local Groups = assert(foundation.com.Groups)
+local Directions = assert(foundation.com.Directions)
 local Energy = assert(yatm.energy)
 local invbat = assert(yatm.energy.inventory_batteries)
 
@@ -19,11 +21,11 @@ local function create_inventory(self)
       allow_put = function(inv, listname, index, stack, player)
         local item = stack:get_definition()
         if listname == "upgrades" then
-          if yatm_core.groups.has_group(item, "drone_upgrade") then
+          if Groups.has_group(item, "drone_upgrade") then
             return 1
           end
         elseif listname == "batteries" then
-          if yatm_core.groups.has_group(item, "battery") then
+          if Groups.has_group(item, "battery") then
             return 1
           end
         elseif listname == "main" then
@@ -151,7 +153,7 @@ local function hq_find_dropoff_station(self, prty, search_radius)
         else
           local node = minetest.get_node(closest_dropoff)
 
-          if not yatm_core.groups.item_has_group(node.name, "scavenger_dropoff_station") then
+          if not Groups.item_has_group(node.name, "scavenger_dropoff_station") then
             closest_dropoff = nil
           end
         end
@@ -209,7 +211,7 @@ local function hq_find_docking_station(self, prty, search_radius, can_move)
       if closest_dock then
         local node = minetest.get_node(closest_dock)
 
-        if not yatm_core.groups.item_has_group(node.name, "scavenger_docking_station") then
+        if not Groups.item_has_group(node.name, "scavenger_docking_station") then
           closest_dock = nil
         end
       end
@@ -269,7 +271,7 @@ local function drone_logic(self)
       if closest_dock then
         local node = minetest.get_node(closest_dock)
 
-        if yatm_core.groups.item_has_group(node.name, "scavenger_docking_station") then
+        if Groups.item_has_group(node.name, "scavenger_docking_station") then
           local nodedef = minetest.registered_nodes[node.name]
           nodedef.yatm_network.charge_drone(closest_dock, node, self)
           self:change_state("charging")
@@ -308,7 +310,7 @@ local function drone_logic(self)
               if closest_dropoff then
                 local node = minetest.get_node(closest_dropoff)
 
-                if yatm_core.groups.item_has_group(node.name, "scavenger_dropoff_station") then
+                if Groups.item_has_group(node.name, "scavenger_dropoff_station") then
                   local main_list = inv:get_list("main")
 
                   local new_list = {}
@@ -316,7 +318,7 @@ local function drone_logic(self)
                     if item:is_empty() then
                       new_list[i] = item
                     else
-                      local remaining = yatm.items.ItemDevice.insert_item(closest_dropoff, yatm_core.D_NONE, item, true)
+                      local remaining = yatm.items.ItemDevice.insert_item(closest_dropoff, Directions.D_NONE, item, true)
                       if remaining then
                         new_list[i] = remaining
                       else
@@ -488,11 +490,11 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
       if not stack:is_empty() then
         local item = stack:get_definition()
 
-        if yatm_core.groups.has_group(item, "speed_upgrade") then
+        if Groups.has_group(item, "speed_upgrade") then
           max_speed = max_speed + 1
-        elseif yatm_core.groups.has_group(item, "jump_upgrade") then
+        elseif Groups.has_group(item, "jump_upgrade") then
           jump_height = jump_height + 0.5
-        elseif yatm_core.groups.has_group(item, "vacuum_upgrade") then
+        elseif Groups.has_group(item, "vacuum_upgrade") then
           vacuum_range = vacuum_range + 2.0
         end
       end

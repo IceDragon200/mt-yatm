@@ -1,6 +1,8 @@
 --
 -- Thermal Boilers are an alternative to the electric boiler, using the thermal system instead.
 --
+local Directions = assert(foundation.com.Directions)
+local maybe_start_node_timer = assert(foundation.com.maybe_start_node_timer)
 local cluster_thermal = yatm.cluster.thermal
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
@@ -18,8 +20,8 @@ local WATER_TANK = "water_tank"
 
 local function get_fluid_tank_name(self, pos, dir)
   local node = minetest.get_node(pos)
-  local new_dir = yatm_core.facedir_to_face(node.param2, dir)
-  if new_dir == yatm_core.D_UP then
+  local new_dir = Directions.facedir_to_face(node.param2, dir)
+  if new_dir == Directions.D_UP then
     return STEAM_TANK, self.capacity
   else
     return WATER_TANK, self.capacity
@@ -115,7 +117,7 @@ yatm.register_stateful_node("yatm_refinery:thermal_boiler", {
           minetest.swap_node(pos, node)
         end
 
-        yatm_core.maybe_start_node_timer(pos, 1.0)
+        maybe_start_node_timer(pos, 1.0)
         yatm.queue_refresh_infotext(pos, node)
       end
     end,

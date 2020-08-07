@@ -6,17 +6,16 @@
 
   FROST explosions only target nodes that are below air, instantly freezing them given enough strength.
 ]]
-yatm_blasts_frost = rawget(_G, "yatm_blasts_frost") or {}
-yatm_blasts_frost.modpath = minetest.get_modpath(minetest.get_current_modname())
+foundation.new_module("yatm_blasts_frost", "0.1.0")
 
-local groups = yatm_core.groups
+local Groups = assert(foundation.com.Groups)
 
 local function handle_freezable_node_at(pos, assigns)
   local freezable_node = minetest.get_node_or_nil(pos)
   if freezable_node then
     local freezable_nodedef = minetest.registered_nodes[freezable_node.name]
 
-    if groups.has_group(freezable_nodedef, "freezable") then
+    if Groups.has_group(freezable_nodedef, "freezable") then
       if freezable_nodedef then
         if freezable_nodedef.on_freeze then
           freezable_nodedef.on_freeze(p, freezable_node, assigns.strength)
@@ -32,7 +31,7 @@ local function handle_freezable_node_at(pos, assigns)
           end
         end
       end
-    elseif groups.has_group(freezable_nodedef, "water") then
+    elseif Groups.has_group(freezable_nodedef, "water") then
       local new_node = { name = "default:ice" }
       minetest.set_node(pos, new_node)
     end

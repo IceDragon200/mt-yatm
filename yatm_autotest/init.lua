@@ -1,8 +1,10 @@
 --
 -- YATM Autotest
 --
-yatm_autotest = rawget(_G, "yatm_autotest") or {}
-yatm_autotest.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_autotest", "0.0.0")
+
+local Cuboid = assert(foundation.com.Cuboid)
+local table_copy = assert(foundation.com.table_copy)
 
 --
 -- Autotest Luna
@@ -39,7 +41,7 @@ end
 
 function ic:clear_test_area()
   minetest.chat_send_all("Clearing area 16x32x16 for next test")
-  self:set_cuboid(yatm_core.Cuboid:new(-8, 0, -8, 16, 32, 16), { name = "air" })
+  self:set_cuboid(Cuboid:new(-8, 0, -8, 16, 32, 16), { name = "air" })
 end
 
 function ic:yield(...)
@@ -53,7 +55,7 @@ end
 --
 -- Autotest
 --
-local Autotest = yatm_core.Class:extends()
+local Autotest = foundation.com.Class:extends("Autotest")
 local ic = Autotest.instance_class
 
 function ic:initialize()
@@ -75,7 +77,7 @@ end
 function ic:run_suites()
   local autotest = self
   return coroutine.create(function ()
-    local active_suites = yatm_core.table_copy(autotest.suites)
+    local active_suites = table_copy(autotest.suites)
 
     for _,suite in pairs(active_suites) do
       minetest.chat_send_all("Running autotest suite: " .. suite.name)

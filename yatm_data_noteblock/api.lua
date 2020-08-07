@@ -1,3 +1,6 @@
+local Groups = assert(foundation.com.Groups)
+local Directions = assert(foundation.com.Directions)
+
 yatm.noteblock = yatm.noteblock or {}
 
 -- This is for no other purpose but reference
@@ -179,45 +182,45 @@ local function play_instrument(pos, name, key, velo)
 end
 
 function yatm.noteblock.play_note(pos, node, key, velo)
-  local new_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_DOWN)
-  local tone_node_pos = vector.add(pos, yatm_core.DIR6_TO_VEC3[new_dir])
+  local new_dir = Directions.facedir_to_face(node.param2, Directions.D_DOWN)
+  local tone_node_pos = vector.add(pos, Directions.DIR6_TO_VEC3[new_dir])
   local tone_node = minetest.get_node(tone_node_pos)
 
-  --print("noteblock_play_audio", minetest.pos_to_string(tone_node_pos), tone_node.name, dump(yatm_core.groups.get_item_groups(tone_node.name)))
+  --print("noteblock_play_audio", minetest.pos_to_string(tone_node_pos), tone_node.name, dump(Groups.get_item_groups(tone_node.name)))
 
-  if yatm_core.groups.item_has_group(tone_node.name, "plastic_block") then
+  if Groups.item_has_group(tone_node.name, "plastic_block") then
     play_instrument(pos, "voc", key, velo)
 
-  elseif yatm_core.groups.item_has_group(tone_node.name, "wood") then
+  elseif Groups.item_has_group(tone_node.name, "wood") then
     play_instrument(pos, "bass", key, velo)
 
-  elseif yatm_core.groups.item_has_group(tone_node.name, "sand") or
-         yatm_core.groups.item_has_group(tone_node.name, "gravel") then
+  elseif Groups.item_has_group(tone_node.name, "sand") or
+         Groups.item_has_group(tone_node.name, "gravel") then
     play_instrument(pos, "snaredrum", key, velo)
 
   elseif tone_node.name == "default:glass" or
-         yatm_core.groups.item_has_group(tone_node.name, "glass") then
+         Groups.item_has_group(tone_node.name, "glass") then
     play_instrument(pos, "hihatclosed", key, velo)
 
-  elseif yatm_core.groups.item_has_group(tone_node.name, "wool") then
+  elseif Groups.item_has_group(tone_node.name, "wool") then
     play_instrument(pos, "guitar", key, velo)
 
   elseif tone_node.name == "default:clay" or
-         yatm_core.groups.item_has_group(tone_node.name, "clay") then
+         Groups.item_has_group(tone_node.name, "clay") then
     play_instrument(pos, "flute", key, velo)
 
-  elseif yatm_core.groups.item_has_group(tone_node.name, "carbon_steel") then
+  elseif Groups.item_has_group(tone_node.name, "carbon_steel") then
     play_instrument(pos, "melodicdrum", key, velo)
 
   elseif tone_node.name == "default:stone" or
          tone_node.name == "default:cobble" or
          tone_node.name == "default:desert_stone" or
          tone_node.name == "default:desert_cobble" or
-         yatm_core.groups.item_has_group(tone_node.name, "stone") then
+         Groups.item_has_group(tone_node.name, "stone") then
     play_instrument(pos, "kickdrum", key, velo)
 
   elseif tone_node.name == "default:diamondblock" or
-         yatm_core.groups.item_has_group(tone_node.name, "quartz") then
+         Groups.item_has_group(tone_node.name, "quartz") then
     play_instrument(pos, "pulse25p", key, velo)
 
   else

@@ -5,13 +5,12 @@
   Provides long range missiles
 
 ]]
-yatm_armoury_icbm = rawget(_G, "yatm_armoury_icbm") or {}
-yatm_armoury_icbm.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_armoury_icbm", "0.1.0")
 
-dofile(yatm_armoury_icbm.modpath .. "/api.lua")
+mod:require("api.lua")
 
-dofile(yatm_armoury_icbm.modpath .. "/nodes.lua")
-dofile(yatm_armoury_icbm.modpath .. "/items.lua")
-dofile(yatm_armoury_icbm.modpath .. "/entities.lua")
+mod:require("nodes.lua")
+mod:require("items.lua")
+mod:require("entities.lua")
 
-dofile(yatm_armoury_icbm.modpath .. "/recipes.lua")
+mod:require("recipes.lua")

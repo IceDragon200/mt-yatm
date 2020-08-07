@@ -1,6 +1,6 @@
-local Groups = assert(yatm_core.groups)
+local Groups = assert(foundation.com.Groups)
 
-local RollingRegistry = yatm_core.Class:extends("RollingRegistry")
+local RollingRegistry = foundation.com.Class:extends("RollingRegistry")
 local ic = RollingRegistry.instance_class
 
 function ic:initialize()

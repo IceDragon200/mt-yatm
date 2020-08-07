@@ -1,3 +1,5 @@
+local facedir_wallmount_after_place_node = assert(foundation.com.Directions.facedir_wallmount_after_place_node)
+
 local colors = {
   {"white", "White"}
 }
@@ -82,7 +84,7 @@ for _,pair in ipairs(colors) do
       node_box = plate_nodebox,
       dye_color = color_basename,
 
-      after_place_node = yatm_core.facedir_wallmount_after_place_node,
+      after_place_node = facedir_wallmount_after_place_node,
     })
 
     --[[

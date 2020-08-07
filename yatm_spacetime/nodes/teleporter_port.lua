@@ -1,3 +1,4 @@
+local FakeMetaRef = assert(foundation.com.FakeMetaRef)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
@@ -52,7 +53,7 @@ end
 local function teleporter_port_preserve_metadata(pos, oldnode, old_meta_table, drops)
   local stack = drops[1]
 
-  local old_meta = yatm_core.FakeMetaRef:new(old_meta_table)
+  local old_meta = FakeMetaRef:new(old_meta_table)
   local new_meta = stack:get_meta()
   SpacetimeMeta.copy_address(old_meta, new_meta)
 end

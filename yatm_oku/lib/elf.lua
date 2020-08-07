@@ -3,6 +3,7 @@
 --
 local ByteBuf = assert(foundation.com.ByteBuf)
 
+assert(foundation.com.binary_types)
 local Enum = assert(foundation.com.binary_types.Enum)
 local BitFlags = assert(foundation.com.binary_types.BitFlags)
 local BinSchema = assert(foundation.com.BinSchema)

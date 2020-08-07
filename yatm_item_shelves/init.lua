@@ -1,11 +1,10 @@
---[[
-YATM Item Shelves
-]]
-yatm_item_shelves = rawget(_G, "yatm_item_shelves") or {}
-yatm_item_shelves.modpath = minetest.get_modpath(minetest.get_current_modname())
+--
+-- YATM Item Shelves
+--
+local mod = foundation.new_module("yatm_item_shelves", "1.0.0")
 
-dofile(yatm_item_shelves.modpath .. "/api.lua")
+mod:require("api.lua")
 
-dofile(yatm_item_shelves.modpath .. "/nodes.lua")
+mod:require("nodes.lua")
 
-dofile(yatm_item_shelves.modpath .. "/tests.lua")
+mod:require("tests.lua")

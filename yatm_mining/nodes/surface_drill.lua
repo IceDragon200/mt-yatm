@@ -1,3 +1,5 @@
+local Directions = assert(foundation.com.Directions)
+
 local surface_drill_yatm_network = {
   kind = "machine",
   groups = {
@@ -20,9 +22,9 @@ local surface_drill_yatm_network = {
 }
 
 local function update_bit(pos, node)
-  local new_face = yatm_core.facedir_to_face(node.param2, yatm_core.D_DOWN)
+  local new_face = Directions.facedir_to_face(node.param2, Directions.D_DOWN)
   assert(new_face)
-  local mine_dirv3 = yatm_core.DIR6_TO_VEC3[new_face]
+  local mine_dirv3 = Directions.DIR6_TO_VEC3[new_face]
   local mine_pos = pos
   local bit_node = {
     name = "yatm_mining:surface_drill_bit",
@@ -56,9 +58,9 @@ end
 function surface_drill_yatm_network.work(pos, node, energy_available, work_rate, dtime, _ot)
   local meta = minetest.get_meta(pos)
   local timer = meta:get_int("work_timer")
-  local new_face = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
+  local new_face = Directions.facedir_to_face(node.param2, Directions.D_UP)
   assert(new_face)
-  local up_dirv3 = yatm_core.DIR6_TO_VEC3[new_face]
+  local up_dirv3 = Directions.DIR6_TO_VEC3[new_face]
   local decr = 1
   local ext_pos = pos
   -- Count all the attached extensions

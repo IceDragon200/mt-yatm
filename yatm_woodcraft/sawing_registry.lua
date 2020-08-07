@@ -1,4 +1,4 @@
-local SawingRegistry = yatm_core.Class:extends("SawingRegistry")
+local SawingRegistry = foundation.com.Class:extends("SawingRegistry")
 local ic = SawingRegistry.instance_class
 
 function ic:initialize()

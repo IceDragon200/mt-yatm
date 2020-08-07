@@ -1,3 +1,5 @@
+local Groups = assert(foundation.com.Groups)
+
 yatm.dscs = yatm.dscs or {}
 
 function yatm.dscs.get_drive_capacity(item_stack)
@@ -76,17 +78,17 @@ function yatm.dscs.load_inventory_list_from_drive(item_stack)
 end
 
 function yatm.dscs.is_item_stack_inventory_drive(item_stack)
-  return yatm_core.groups.has_group(item_stack:get_definition(), "inventory_drive")
+  return Groups.has_group(item_stack:get_definition(), "inventory_drive")
 end
 
 function yatm.dscs.is_item_stack_ele_drive(item_stack)
-  return yatm_core.groups.has_group(item_stack:get_definition(), "ele_drive")
+  return Groups.has_group(item_stack:get_definition(), "ele_drive")
 end
 
 function yatm.dscs.is_item_stack_fluid_drive(item_stack)
-  return yatm_core.groups.has_group(item_stack:get_definition(), "fluid_drive")
+  return Groups.has_group(item_stack:get_definition(), "fluid_drive")
 end
 
 function yatm.dscs.is_item_stack_item_drive(item_stack)
-  return yatm_core.groups.has_group(item_stack:get_definition(), "item_drive")
+  return Groups.has_group(item_stack:get_definition(), "item_drive")
 end

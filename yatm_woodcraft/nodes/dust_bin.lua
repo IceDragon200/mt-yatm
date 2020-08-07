@@ -2,8 +2,10 @@
 -- Dust bins attach to any sawmill, or milling tool and collects the fallen dust
 --
 -- For now it only connects to the sawmill
-local Cuboid = yatm_core.Cuboid
+local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
+local Groups = assert(foundation.com.Groups)
+local table_merge = assert(foundation.com.table_merge)
 
 local ItemInterface = assert(yatm.items.ItemInterface)
 local ItemDevice = assert(yatm.items.ItemDevice)
@@ -12,7 +14,7 @@ local dust_bin_item_interface = ItemInterface.new_simple("main")
 
 function dust_bin_item_interface:allow_insert_item(pos, dir, item_stack)
   local def = item_stack:get_definition()
-  return yatm_core.groups.has_group(def, "dust")
+  return Groups.has_group(def, "dust")
 end
 
 function dust_bin_item_interface:on_insert_item(pos, dir, item_stack)
@@ -53,17 +55,17 @@ end
 local function dust_bin_on_rightclick(pos, node, clicker, item_stack, _pointed_thing)
   if item_stack:is_empty() then
     -- extract any item from self, we don't care, just give us something
-    local saw_dust = ItemDevice.extract_item(pos, yatm_core.D_UP, 1, true)
+    local saw_dust = ItemDevice.extract_item(pos, Directions.D_UP, 1, true)
     if saw_dust then
       clicker:get_inventory():add_item("main", saw_dust)
     end
   else
     -- But if you have something in hand
     local def = item_stack:get_definition()
-    if yatm_core.groups.has_group(def, "dust") then
+    if Groups.has_group(def, "dust") then
       -- It's dust, we can place it in the bin
       local stack = item_stack:peek_item(1)
-      local remaining = ItemDevice.insert_item(pos, yatm_core.D_UP, stack, true)
+      local remaining = ItemDevice.insert_item(pos, Directions.D_UP, stack, true)
       if remaining and remaining:is_empty() then
         item_stack:take_item(1)
       end
@@ -98,7 +100,7 @@ yatm.register_stateful_node("yatm_woodcraft:dust_bin", {
   on_rightclick = dust_bin_on_rightclick,
 }, {
   empty = {
-    groups = yatm_core.table_merge(groups, { empty_dust_bin = 1 }),
+    groups = table_merge(groups, { empty_dust_bin = 1 }),
 
     tiles = {
       "yatm_dust_bin_top.png",
@@ -123,7 +125,7 @@ yatm.register_stateful_node("yatm_woodcraft:dust_bin", {
   },
 
   sawdust = {
-    groups = yatm_core.table_merge(groups, { not_in_creative_inventory = 1 }),
+    groups = table_merge(groups, { not_in_creative_inventory = 1 }),
 
     tiles = {
       "yatm_dust_bin_top.png^(yatm_sawdust_base.png^[mask:yatm_dust_bin_top.mask.png)",

@@ -3,7 +3,7 @@ local FluidStack = assert(yatm.fluids.FluidStack)
 --
 -- Item recipe
 --
-local FreezingItemRecipe = yatm_core.Class:extends("FreezingItemRecipe")
+local FreezingItemRecipe = foundation.com.Class:extends("FreezingItemRecipe")
 local ic = FreezingItemRecipe.instance_class
 
 function ic:initialize(opts)
@@ -19,7 +19,7 @@ end
 --
 -- Fluid recipe
 --
-local FreezingFluidRecipe = yatm_core.Class:extends("FreezingFluidRecipe")
+local FreezingFluidRecipe = foundation.com.Class:extends("FreezingFluidRecipe")
 local ic = FreezingFluidRecipe.instance_class
 
 function ic:initialize(opts)
@@ -35,7 +35,7 @@ end
 --
 -- Registry
 --
-local FreezingRegistry = yatm_core.Class:extends("FreezingRegistry")
+local FreezingRegistry = foundation.com.Class:extends("FreezingRegistry")
 local ic = FreezingRegistry.instance_class
 
 function ic:initialize()

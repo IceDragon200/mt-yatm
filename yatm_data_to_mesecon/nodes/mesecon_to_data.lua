@@ -1,4 +1,5 @@
-local Cuboid = yatm_core.Cuboid
+local Directions = assert(foundation.com.Directions)
+local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 
 local data_network = assert(yatm.data_network)
@@ -6,9 +7,9 @@ local data_network = assert(yatm.data_network)
 local function mesecon_rules(node)
   local result = {}
   local i = 1
-  for _, dir in ipairs(yatm_core.DIR4) do
-    local new_dir = yatm_core.facedir_to_face(node.param2, dir)
-    result[i] = yatm_core.DIR6_TO_VEC3[new_dir]
+  for _, dir in ipairs(Directions.DIR4) do
+    local new_dir = Directions.facedir_to_face(node.param2, dir)
+    result[i] = Directions.DIR6_TO_VEC3[new_dir]
     i = i + 1
   end
   return result

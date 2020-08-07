@@ -1,3 +1,4 @@
+local Directions = assert(foundation.com.Directions)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local FluidRegistry = assert(yatm.fluids.FluidRegistry)
@@ -42,10 +43,10 @@ local DISTILLED_TANK = "distilled_tank"
 
 local function get_fluid_tank_name(self, pos, dir)
   local node = minetest.get_node(pos)
-  local new_dir = yatm_core.facedir_to_face(node.param2, dir)
-  if new_dir == yatm_core.D_UP then
+  local new_dir = Directions.facedir_to_face(node.param2, dir)
+  if new_dir == Directions.D_UP then
     return OUTPUT_STEAM_TANK, self.capacity
-  elseif new_dir == yatm_core.D_DOWN then
+  elseif new_dir == Directions.D_DOWN then
     return INPUT_STEAM_TANK, self.capacity
   else
     return DISTILLED_TANK, self.capacity
@@ -137,13 +138,13 @@ function distillation_unit_yatm_network.work(pos, node, available_energy, work_r
   end
 
   do -- output new vapour
-    local output_tank_dir = yatm_core.facedir_to_face(node.param2, yatm_core.D_UP)
-    local output_tank_pos = vector.add(pos, yatm_core.DIR6_TO_VEC3[output_tank_dir])
+    local output_tank_dir = Directions.facedir_to_face(node.param2, Directions.D_UP)
+    local output_tank_pos = vector.add(pos, Directions.DIR6_TO_VEC3[output_tank_dir])
 
     local fs = FluidExchange.transfer_from_meta_to_tank(
       meta, { tank_name = OUTPUT_STEAM_TANK, capacity = fluid_interface.capacity, bandwidth = fluid_interface.capacity },
       FluidStack.new_wildcard(100),
-      output_tank_pos, yatm_core.invert_dir(output_tank_dir),
+      output_tank_pos, Directions.invert_dir(output_tank_dir),
       true
     )
 
@@ -153,14 +154,14 @@ function distillation_unit_yatm_network.work(pos, node, available_energy, work_r
   end
 
   do -- output distilled fluids
-    for _,dir_code in pairs(yatm_core.DIR4) do
-      local output_tank_dir = yatm_core.facedir_to_face(node.param2, dir_code)
-      local output_tank_pos = vector.add(pos, yatm_core.DIR6_TO_VEC3[output_tank_dir])
+    for _,dir_code in pairs(Directions.DIR4) do
+      local output_tank_dir = Directions.facedir_to_face(node.param2, dir_code)
+      local output_tank_pos = vector.add(pos, Directions.DIR6_TO_VEC3[output_tank_dir])
 
       local fs = FluidExchange.transfer_from_meta_to_tank(
         meta, { tank_name = DISTILLED_TANK, capacity = fluid_interface.capacity, bandwidth = fluid_interface.capacity },
         FluidStack.new_wildcard(100),
-        output_tank_pos, yatm_core.invert_dir(output_tank_dir),
+        output_tank_pos, Directions.invert_dir(output_tank_dir),
         true
       )
 

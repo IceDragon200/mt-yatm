@@ -1,3 +1,5 @@
+local itemstack_inspect = assert(foundation.com.itemstack_inspect)
+local itemstack_is_blank = assert(foundation.com.itemstack_is_blank)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
@@ -52,7 +54,7 @@ function item_replicator_refresh_infotext(pos)
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     cluster_energy:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
-    "Replicating: " .. yatm_core.itemstack_inspect(stack)
+    "Replicating: " .. itemstack_inspect(stack)
 
   meta:set_string("infotext", infotext)
 end
@@ -64,7 +66,7 @@ function item_replicator_yatm_network.work(pos, node, energy_available, work_rat
   local inv = meta:get_inventory()
 
   local stack = inv:get_stack("input_slot", 1)
-  if not yatm_core.itemstack_is_blank(stack) then
+  if not itemstack_is_blank(stack) then
     local replicate_stack = stack:peek_item(1)
     if inv:room_for_item("output_slot", replicate_stack) then
       inv:add_item("output_slot", replicate_stack)
@@ -72,7 +74,7 @@ function item_replicator_yatm_network.work(pos, node, energy_available, work_rat
       yatm.queue_refresh_infotext(pos, node)
     else
       yatm.devices.set_idle(meta, 1)
-      --print("WARN", minetest.pos_to_string(pos), "No room for stack in output", yatm_core.itemstack_inspect(replicate_stack))
+      --print("WARN", minetest.pos_to_string(pos), "No room for stack in output", itemstack_inspect(replicate_stack))
     end
   else
     yatm.devices.set_idle(meta, 1)

@@ -1,51 +1,53 @@
+local Directions = assert(foundation.com.Directions)
+local Groups = assert(foundation.com.Groups)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidStack = assert(yatm.fluids.FluidStack)
 
 local function fluid_tank_drain_sync(pos, node)
-  local draining_stack = FluidTanks.drain_fluid(pos, yatm_core.D_NONE,
+  local draining_stack = FluidTanks.drain_fluid(pos, Directions.D_NONE,
     FluidStack.new_wildcard(yatm_fluids.fluid_tank_fluid_interface.bandwidth), false)
 
   if draining_stack and draining_stack.amount > 0 then
-    local below_pos = vector.add(pos, yatm_core.V3_DOWN)
-    local filled_stack = FluidTanks.fill_fluid(below_pos, yatm_core.D_UP, draining_stack, true)
+    local below_pos = vector.add(pos, Directions.V3_DOWN)
+    local filled_stack = FluidTanks.fill_fluid(below_pos, Directions.D_UP, draining_stack, true)
 
     if filled_stack and filled_stack.amount > 0 then
-      local used_stack = FluidTanks.drain_fluid(pos, yatm_core.D_NONE, filled_stack, true)
+      local used_stack = FluidTanks.drain_fluid(pos, Directions.D_NONE, filled_stack, true)
     end
   end
 end
 
 local function fluid_tank_drain_sync_2(pos, node)
   --
-  local draining_stack = FluidTanks.drain_fluid(pos, yatm_core.D_NONE,
+  local draining_stack = FluidTanks.drain_fluid(pos, Directions.D_NONE,
     FluidStack.new_wildcard(yatm_fluids.fluid_tank_fluid_interface.bandwidth), false)
 
   if draining_stack and draining_stack.amount > 0 then
     -- First up, drain down. yep, drain DOWN.
     -- Down has the usual behaviour, just try to fill whatever is down there.
-    local below_pos = vector.add(pos, yatm_core.V3_DOWN)
-    local filled_stack = FluidTanks.fill_fluid(below_pos, yatm_core.D_UP, draining_stack, true)
+    local below_pos = vector.add(pos, Directions.V3_DOWN)
+    local filled_stack = FluidTanks.fill_fluid(below_pos, Directions.D_UP, draining_stack, true)
 
     if filled_stack and filled_stack.amount > 0 then
-      local used_stack = FluidTanks.drain_fluid(pos, yatm_core.D_NONE, filled_stack, true)
+      local used_stack = FluidTanks.drain_fluid(pos, Directions.D_NONE, filled_stack, true)
       draining_stack.amount = draining_stack.amount - used_stack.amount
     end
 
-    local item_has_group = yatm_core.groups.item_has_group
+    local item_has_group = Groups.item_has_group
     -- Do we have anything left?
     while draining_stack and draining_stack.amount > 0 do
       local touched_any = false
 
       local lowest_tank
 
-      for dir, vpos in pairs(yatm_core.DIR4_TO_VEC3) do
-        local current_fluid = FluidTanks.get_fluid(pos, yatm_core.D_NONE)
+      for dir, vpos in pairs(Directions.DIR4_TO_VEC3) do
+        local current_fluid = FluidTanks.get_fluid(pos, Directions.D_NONE)
 
         local npos = vector.add(pos, vpos)
         local nnode = minetest.get_node(npos)
 
         if item_has_group(nnode.name, "fluid_tank") then
-          local other_fluid = FluidTanks.get_fluid(npos, yatm_core.D_NONE)
+          local other_fluid = FluidTanks.get_fluid(npos, Directions.D_NONE)
 
           if FluidStack.same_fluid_or_replacable_by(other_fluid, current_fluid) then
             if not other_fluid or current_fluid.amount > other_fluid.amount then
@@ -69,9 +71,9 @@ local function fluid_tank_drain_sync_2(pos, node)
         local npos = lowest_tank.pos
         local ndir = assert(lowest_tank.dir)
 
-        local filled_stack = FluidTanks.fill_fluid(npos, yatm_core.invert_dir(ndir), draining_stack, true)
+        local filled_stack = FluidTanks.fill_fluid(npos, Directions.invert_dir(ndir), draining_stack, true)
         if filled_stack and filled_stack.amount > 0 then
-          local used_stack = FluidTanks.drain_fluid(npos, yatm_core.D_NONE, filled_stack, true)
+          local used_stack = FluidTanks.drain_fluid(npos, Directions.D_NONE, filled_stack, true)
           draining_stack.amount = draining_stack.amount - used_stack.amount
         else
           break

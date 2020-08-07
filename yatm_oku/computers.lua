@@ -18,7 +18,14 @@ local path_join = assert(foundation.com.path_join)
 local Trace = assert(foundation.com.Trace)
 
 -- Pick a buffer module, prefer binary or string, as it's faster
-local Buffer = foundation.com.BinaryBuffer or foundation.com.StringBuffer
+local Buffer
+if foundation.com.BinaryBuffer then
+  yatm.info("using BinaryBuffer as primary buffer for computers")
+  Buffer = assert(foundation.com.BinaryBuffer)
+else
+  yatm.info("using StringBuffer as primary buffer for computers")
+  Buffer = assert(foundation.com.StringBuffer)
+end
 
 local Computers = foundation.com.Class:extends("ComputersService")
 local ic = assert(Computers.instance_class)

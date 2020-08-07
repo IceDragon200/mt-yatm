@@ -7,7 +7,7 @@
   Note currently vapour > fluid is a 1:1 mapping, both back and forth, this may change in the future, if I feel so inclined.
 
 ]]
-local VapourRegistry = yatm_core.Class:extends("VapourRegistry")
+local VapourRegistry = foundation.com.Class:extends("VapourRegistry")
 local ic = VapourRegistry.instance_class
 
 function ic:initialize()

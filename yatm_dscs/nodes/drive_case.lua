@@ -5,6 +5,7 @@
   Actually that gives me an idea, a drive rack!
 
 ]]
+local Vector3 = assert(foundation.com.Vector3)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
@@ -139,7 +140,7 @@ local function on_metadata_inventory_move(pos, from_list, from_index, to_list, t
 end
 
 local function get_fluid_inventory_name(pos, index)
-  return "yatm_dscs:drive_case_fluid_drive_contents_" .. index .. "_" .. yatm_core.vector3.to_string(pos, "_")
+  return "yatm_dscs:drive_case_fluid_drive_contents_" .. index .. "_" .. Vector3.to_string(pos, "_")
 end
 
 local function on_metadata_inventory_put(pos, listname, index, stack, player)

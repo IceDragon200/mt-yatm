@@ -1,3 +1,5 @@
+local is_blank = assert(foundation.com.is_blank)
+local Groups = assert(foundation.com.Groups)
 local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
 
 local function address_tool_on_place(itemstack, placer, pointed_thing)
@@ -6,11 +8,11 @@ local function address_tool_on_place(itemstack, placer, pointed_thing)
     local node = minetest.get_node(pos)
     local nodedef = minetest.registered_nodes[node.name]
     if nodedef then
-      if yatm_core.groups.get_item(nodedef, "addressable_spacetime_device") then
+      if Groups.get_item(nodedef, "addressable_spacetime_device") then
         local meta = minetest.get_meta(pos)
         local address = SpacetimeMeta.copy_address(meta, itemstack:get_meta())
         if placer and placer:is_player() then
-          if yatm_core.is_blank(address) then
+          if is_blank(address) then
             itemstack:get_meta():set_string("description", nil)
             minetest.chat_send_player(placer:get_player_name(), "Blank Address!")
           else
@@ -37,7 +39,7 @@ local function address_tool_on_use(itemstack, user, pointed_thing)
     local node = minetest.get_node(pos)
     local nodedef = minetest.registered_nodes[node.name]
     if nodedef then
-      if yatm_core.groups.get_item(nodedef, "addressable_spacetime_device") then
+      if Groups.get_item(nodedef, "addressable_spacetime_device") then
         local address = nil
         local new_address = SpacetimeMeta.get_address(itemstack:get_meta())
         if nodedef.change_spacetime_address then
@@ -46,7 +48,7 @@ local function address_tool_on_use(itemstack, user, pointed_thing)
           address = yatm_spacetime.default_change_spacetime_address(pos, node, new_address)
         end
         if user and user:is_player() then
-          if yatm_core.is_blank(address) then
+          if is_blank(address) then
             minetest.chat_send_player(user:get_player_name(), "Address Cleared!")
           else
             minetest.chat_send_player(user:get_player_name(), "Address Pasted!")

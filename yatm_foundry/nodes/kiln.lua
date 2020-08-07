@@ -1,3 +1,5 @@
+local table_merge = assert(foundation.com.table_merge)
+local maybe_start_node_timer = assert(foundation.com.maybe_start_node_timer)
 local cluster_thermal = assert(yatm.cluster.thermal)
 
 local function kiln_refresh_infotext(pos)
@@ -70,7 +72,7 @@ yatm.register_stateful_node("yatm_foundry:kiln", {
           minetest.swap_node(pos, node)
         end
 
-        yatm_core.maybe_start_node_timer(pos, 1.0)
+        maybe_start_node_timer(pos, 1.0)
         yatm.queue_refresh_infotext(pos, node)
       end
     end,
@@ -87,7 +89,7 @@ yatm.register_stateful_node("yatm_foundry:kiln", {
     },
   },
   on = {
-    groups = yatm_core.table_merge(groups, {not_in_creative_inventory = 1}),
+    groups = table_merge(groups, {not_in_creative_inventory = 1}),
 
     tiles = {
       "yatm_kiln_top.on.png",

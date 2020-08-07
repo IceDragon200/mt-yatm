@@ -1,4 +1,3 @@
-yatm_reactions = rawget(_G, "yatm_reactions") or {}
-yatm_reactions.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_reactions", "0.1.0")
 
-dofile(yatm_reactions.modpath .. "/reactions.lua")
+mod:require("reactions.lua")

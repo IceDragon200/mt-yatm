@@ -6,10 +6,12 @@ if not yatm_machines then
   return
 end
 
+local Directions = assert(foundation.com.Directions)
+
 local chemical_injector_item_interface =
   ItemInterface.new_directional(function (self, pos, dir)
     local node = minetest.get_node(pos)
-    local new_dir = yatm_core.facedir_to_face(node.param2, dir)
+    local new_dir = Directions.facedir_to_face(node.param2, dir)
 
     return "ammo_items"
   end)
@@ -41,7 +43,7 @@ yatm.devices.register_stateful_network_device({
 
   basename = "yatm_armoury:chemical_injector",
 
-  description =  "Chemical Injector",
+  description = "Chemical Injector",
 
   groups = {
     cracky = 1,

@@ -1,4 +1,5 @@
 local Directions = assert(foundation.com.Directions)
+local Vector3 = assert(foundation.com.Vector3)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 
@@ -130,7 +131,7 @@ minetest.register_entity("yatm_armoury_icbm:icbm", {
     local infotext =
       "Origin: " .. minetest.pos_to_string(self.origin_pos) .. "\n" ..
       "Target: " .. minetest.pos_to_string(self.target_pos) .. "\n" ..
-      "Velocity: " .. yatm.vector3.to_string(self.object:get_velocity()) .. "\n" ..
+      "Velocity: " .. Vector3.to_string(self.object:get_velocity()) .. "\n" ..
       "Stage: " .. (self.stage or "")
 
     self.object:set_properties({
@@ -174,8 +175,8 @@ minetest.register_entity("yatm_armoury_icbm:icbm", {
         self.stage = "ascent"
         self:refresh_infotext()
       else
-        local velocity = yatm.vector3.zero()
-        yatm.vector3.mul(velocity, vector.multiply(self.origin_dir, dtime), 300)
+        local velocity = Vector3.zero()
+        Vector3.mul(velocity, vector.multiply(self.origin_dir, dtime), 300)
         self:refresh_infotext()
         self.object:set_velocity(velocity)
       end
@@ -312,10 +313,10 @@ minetest.register_entity("yatm_armoury_icbm:icbm", {
 
   launch_icbm = function (self)
     -- what position is considered the 'exit' position, where it can transition into the next stage?
-    local exit_pos = yatm.vector3.new(0, 0, 0)
-    yatm.vector3.add(exit_pos, exit_pos, self.origin_dir) -- first we add the origin's direction
-    yatm.vector3.mul(exit_pos, exit_pos, self.guide_length + 6) -- next multiply that direction by the guide length + 6 (4 is the estimated length of the missle, plus 2 for additional clearance)
-    yatm.vector3.add(exit_pos, exit_pos, self.origin_pos) -- finally add the origin position (i.e. the silo position) to obtain the exit position
+    local exit_pos = Vector3.new(0, 0, 0)
+    Vector3.add(exit_pos, exit_pos, self.origin_dir) -- first we add the origin's direction
+    Vector3.mul(exit_pos, exit_pos, self.guide_length + 6) -- next multiply that direction by the guide length + 6 (4 is the estimated length of the missle, plus 2 for additional clearance)
+    Vector3.add(exit_pos, exit_pos, self.origin_pos) -- finally add the origin position (i.e. the silo position) to obtain the exit position
 
     self.exit_pos = exit_pos
 
