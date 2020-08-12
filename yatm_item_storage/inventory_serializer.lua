@@ -14,19 +14,22 @@ function InventorySerializer.description(dumped_list)
 end
 
 function InventorySerializer.serialize_item_stack(item_stack)
-  local name = item_stack:get_name()
+  local item_name = item_stack:get_name()
   local count = item_stack:get_count()
   local wear = item_stack:get_wear()
   local meta = item_stack:get_meta():to_table()
   local inventory = {}
+
   if meta.inventory then
     for name,list in pairs(meta.inventory) do
       inventory[name] = InventorySerializer.serialize(list)
     end
   end
+
   meta.inventory = inventory
+
   return {
-    name = name,
+    name = item_name,
     count = count,
     wear = wear,
     meta = meta,
@@ -34,11 +37,13 @@ function InventorySerializer.serialize_item_stack(item_stack)
 end
 
 function InventorySerializer.serialize(list)
-  local list = list or {}
+  list = list or {}
+
   local result = {
     size = #list,
     data = {},
   }
+
   for key,item_stack in pairs(list) do
     result.data[key] = InventorySerializer.serialize_item_stack(item_stack)
   end

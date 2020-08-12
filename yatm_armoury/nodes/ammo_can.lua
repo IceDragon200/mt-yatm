@@ -10,8 +10,8 @@ function get_ammo_can_formspec(pos, user)
     "list[current_player;main;2,4.85;8,1;]" ..
     "list[current_player;main;2,6.08;8,3;8]" ..
     "listring[nodemeta:" .. spos .. ";main]" ..
-    "listring[current_player;main]" ..
-    default.get_hotbar_bg(2,4.85)
+    "listring[current_player;main]"
+
   return formspec
 end
 
@@ -105,8 +105,8 @@ minetest.register_node("yatm_armoury:ammo_can", {
 
   on_blast = function (pos)
     local drops = {}
-    default.get_inventory_drops(pos, "main", drops)
-    drops[#drops+1] = "default:" .. name
+    drops[1] = "default:" .. name
+    foundation.com.get_inventory_drops(pos, "main", drops)
     minetest.remove_node(pos)
     return drops
   end,

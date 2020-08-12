@@ -1,12 +1,12 @@
 yatm.blasting = {
-  BlastingRegistry = assert(yatm_foundry.BlastingRegistry),
+  blasting_registry = assert(yatm_foundry.blasting_registry),
 }
 yatm.smelting = {
-  SmeltingRegistry = assert(yatm_foundry.SmeltingRegistry),
+  smelting_registry = assert(yatm_foundry.smelting_registry),
 }
 yatm.kiln = {
-  KilnRegistry = assert(yatm_foundry.KilnRegistry),
+  kiln_registry = assert(yatm_foundry.kiln_registry),
 }
 yatm.molding = {
-  MoldingRegistry = assert(yatm_foundry.MoldingRegistry),
+  molding_registry = assert(yatm_foundry.molding_registry),
 }

@@ -37,8 +37,7 @@ local function get_battery_bank_formspec(pos, user)
     "list[current_player;main;0,6.08;8,3;8]" ..
     "listring[nodemeta:" .. spos .. ";batteries]" ..
     "listring[current_player;main]" ..
-    "dropdown[4,0.5;4,1;mode;none,i,o,io;" .. (mode_to_index[mode] or 1) .. "]" ..
-    default.get_hotbar_bg(0,4.85)
+    "dropdown[4,0.5;4,1;mode;none,i,o,io;" .. (mode_to_index[mode] or 1) .. "]"
 
   return formspec
 end

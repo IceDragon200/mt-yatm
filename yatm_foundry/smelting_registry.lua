@@ -31,4 +31,4 @@ function ic:get_smelting_recipe(item_stack)
   return nil
 end
 
-yatm_foundry.SmeltingRegistry = SmeltingRegistry:new()
+yatm_foundry.smelting_registry = SmeltingRegistry:new()

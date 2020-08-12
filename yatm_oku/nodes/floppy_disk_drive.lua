@@ -33,8 +33,7 @@ local function get_floppy_disk_drive_formspec(pos, user)
     "list[current_player;main;0,4.85;8,1;]" ..
     "list[current_player;main;0,6.08;8,3;8]" ..
     "listring[current_player;main]" ..
-    "listring[nodemeta:" .. spos .. ";floppy_disk]" ..
-    default.get_hotbar_bg(0,4.85)
+    "listring[nodemeta:" .. spos .. ";floppy_disk]"
 
   return formspec
 end

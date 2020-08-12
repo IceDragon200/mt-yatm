@@ -24,8 +24,8 @@ local function get_roller_formspec(pos, user)
     "listring[nodemeta:" .. spos .. ";roller_input]" ..
     "listring[current_player;main]" ..
     "listring[nodemeta:" .. spos .. ";roller_output]" ..
-    "listring[current_player;main]" ..
-    default.get_hotbar_bg(0,4.85)
+    "listring[current_player;main]"
+
   return formspec
 end
 

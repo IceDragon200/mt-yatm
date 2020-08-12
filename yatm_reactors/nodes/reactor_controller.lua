@@ -25,8 +25,7 @@ local function get_reactor_controller_formspec(pos, node, user)
   formspec =
     formspec ..
     "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]" ..
-    default.get_hotbar_bg(0,4.85)
+    "list[current_player;main;0,6.08;8,3;8]"
 
   return formspec
 end

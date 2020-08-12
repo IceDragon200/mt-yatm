@@ -25,8 +25,7 @@ local function get_fluid_sensor_formspec(pos, user)
     "field[0.5,2.5;4,1;fluid_test_port;Fluid Test Port;" .. meta:get_int("fluid_test_port") .. "]" ..
     "field[4.5,2.5;4,1;empty_test_port;EMpty Test Port;" .. meta:get_int("empty_test_port") .. "]" ..
     "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]" ..
-    default.get_hotbar_bg(0,4.85)
+    "list[current_player;main;0,6.08;8,3;8]"
 
   return formspec
 end

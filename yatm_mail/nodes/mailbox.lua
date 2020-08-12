@@ -92,8 +92,7 @@ local function mailbox_get_formspec(pos, is_unlocked)
   formspec =
     formspec ..
     "list[current_player;main;0,5.85;8,1;]" ..
-    "list[current_player;main;0,7.08;8,3;8]" ..
-    default.get_hotbar_bg(0, 5.85)
+    "list[current_player;main;0,7.08;8,3;8]"
 
   return formspec
 end

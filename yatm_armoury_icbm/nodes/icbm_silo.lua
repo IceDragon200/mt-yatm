@@ -362,8 +362,7 @@ local function get_formspec(pos, user, assigns)
     "listring[nodemeta:" .. spos .. ";shell_slot]" ..
     "listring[current_player;main]" ..
     "listring[nodemeta:" .. spos .. ";warhead_slot]" ..
-    "listring[current_player;main]" ..
-    default.get_hotbar_bg(0,4.85)
+    "listring[current_player;main]"
 
   formspec =
     formspec ..

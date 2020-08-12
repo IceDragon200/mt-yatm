@@ -21,7 +21,17 @@ globals = {
       -- Entities
       add_entity = {},
       register_entity = {},
+      get_objects_inside_radius = {},
 
+      -- Player
+      get_player_by_name = {},
+      get_player_information = {},
+
+      -- Formspec
+      show_formspec = {},
+      register_on_player_receive_fields = {},
+
+      -- node and items
       get_current_modname = {},
       get_item_group = {},
       get_meta = {},
@@ -30,6 +40,7 @@ globals = {
       get_node = {},
       get_node_or_nil = {},
       hash_node_position = {},
+      get_position_from_hash = {},
       log = {},
       pos_to_string = {},
       register_abm = {},
@@ -41,9 +52,12 @@ globals = {
       register_on_shutdown = {},
       register_tool = {},
       swap_node = {},
-
+      bulk_set_node = {},
+      add_node = {},
       --
       raycast = {},
+
+      facedir_to_dir = {},
 
       -- serialization functions
       deserialize = {},
@@ -84,7 +98,9 @@ globals = {
 
       -- blasting module
       blasting = {
-
+        fields = {
+          blasting_registry = {},
+        },
       },
 
       -- computers service
@@ -94,12 +110,47 @@ globals = {
         },
       },
 
+      compacting = {
+        fields = {
+          compacting_registry = {},
+        },
+      },
+
       -- individual clusters
       cluster = {
         fields = {
-          reactor = {},
-          energy = {},
-          thermal = {},
+          devices = {
+
+          },
+
+          reactor = {
+            fields = {
+              -- instance method
+              method = {},
+
+              register_system = {},
+
+              schedule_load_node = {},
+            },
+          },
+          energy = {
+            fields = {
+              schedule_add_node = {},
+
+              schedule_remove_node = {},
+
+              schedule_update_node = {},
+            }
+          },
+          thermal = {
+            fields = {
+              schedule_add_node = {},
+
+              schedule_remove_node = {},
+
+              schedule_update_node = {},
+            }
+          },
         },
       },
 
@@ -110,6 +161,35 @@ globals = {
           mark_node_block = {},
           schedule_node_event = {},
           reduce_node_clusters = {},
+
+          register_node_event_handler = {},
+        },
+      },
+
+      -- codex
+      codex = {
+        fields = {
+          registered_entries = {
+            other_fields = true,
+          },
+
+          register_entry = {},
+          get_entry = {},
+
+          register_demo = {},
+          get_demo = {},
+          registered_demos = {},
+
+          place_node_image = {},
+
+          fill_cuboid = {},
+        }
+      },
+
+      -- condensation module
+      condensing = {
+        fields = {
+          condensing_registry = {},
         },
       },
 
@@ -124,14 +204,24 @@ globals = {
 
       -- energy module
       energy = {
-
+        fields = {
+          receive_energy = {},
+          get_energy = {},
+          consume_energy = {},
+        }
       },
 
       -- fluids module
       fluids = {
         fields = {
           FluidStack = {},
+          FluidTanks = {},
+          fluid_transport_cluster = {},
         },
+      },
+
+      freezing = {
+        freezing_registry = {},
       },
 
       icbm = {
@@ -141,15 +231,106 @@ globals = {
       mail = {},
 
       -- molding module
-      molding = {},
+      molding = {
+        fields = {
+          molding_registry = {},
+        }
+      },
 
-      -- security module
-      security = {},
+      -- reinfery module
+      refinery = {
+        fields = {
+          vapour_registry = {},
+          distillation_registry = {},
+        }
+      },
+
+      rolling = {
+        rolling_registry = {},
+      },
 
       -- sawing module
       sawing = {
         fields = {
           sawing_registry = {},
+        },
+      },
+
+      -- security module
+      security = {
+        fields = {
+          -- constants
+          NOTHING = {},
+          OK = {},
+          REJECT = {},
+          NEEDS_ACTION = {},
+          CONTINUE = {},
+
+          -- classes
+          SecurityContext = {
+            fields = {
+              instance_class = {
+                fields = {
+                  initialize = {},
+                  create_transaction = {},
+                }
+              },
+
+              new = {},
+            },
+          },
+
+          -- registration table
+          registered_security_features = {
+            other_fields = true,
+          },
+
+          -- object instances
+          context = {
+            fields = {
+              create_transaction = {},
+            }
+          },
+
+          -- functions
+          register_security_feature = {},
+          unregister_security_feature = {},
+          get_security_feature = {},
+          has_node_lock = {},
+          has_node_locks = {},
+          get_node_lock = {},
+          get_node_locks = {},
+          get_node_slot_ids = {},
+          check_node_locks = {},
+          get_object_lock = {},
+          has_object_lock = {},
+          has_object_locks = {},
+          get_object_slot_ids = {},
+          check_object_locks = {},
+        }
+      },
+
+      shelves = {
+        fields = {
+          -- constants
+          PRESET_SCALES = {},
+
+          clear_entities = {},
+
+          shelf_on_construct = {},
+          shelf_on_destruct = {},
+          shelf_after_destruct = {},
+          shelf_on_dig = {},
+          --
+          shelf_refresh = {},
+          --
+          shelf_on_metadata_inventory_move = {},
+          shelf_on_metadata_inventory_put = {},
+          shelf_on_metadata_inventory_take = {},
+          --
+          shelf_on_rightclick = {},
+          --
+          shelf_on_blast = {},
         },
       },
 

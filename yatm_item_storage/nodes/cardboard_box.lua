@@ -11,8 +11,8 @@ function get_cardboard_box_formspec(pos, user)
     "list[current_player;main;0,4.85;8,1;]" ..
     "list[current_player;main;0,6.08;8,3;8]" ..
     "listring[nodemeta:" .. spos .. ";main]" ..
-    "listring[current_player;main]" ..
-    default.get_hotbar_bg(0,4.85)
+    "listring[current_player;main]"
+
   return formspec
 end
 
@@ -26,8 +26,8 @@ function get_super_cardboard_box_formspec(pos, user)
     "list[current_player;main;0,4.85;8,1;]" ..
     "list[current_player;main;0,6.08;8,3;8]" ..
     "listring[nodemeta:" .. spos .. ";main]" ..
-    "listring[current_player;main]" ..
-    default.get_hotbar_bg(0,4.85)
+    "listring[current_player;main]"
+
   return formspec
 end
 
@@ -67,7 +67,7 @@ end
 
 local function cardboard_box_on_blast(pos)
   local drops = {}
-  default.get_inventory_drops(pos, "main", drops)
+  foundation.com.get_inventory_drops(pos, "main", drops)
   drops[#drops+1] = "default:" .. name
   minetest.remove_node(pos)
   return drops

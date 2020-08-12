@@ -13,8 +13,7 @@ local function stonecutters_table_get_formspec(pos, user)
   local formspec =
     "size[8,9]" ..
     yatm.formspec_bg_for_player(user:get_player_name(), "machine") ..
-    "label[0,0;Stonecutters' Table]" ..
-    default.get_hotbar_bg(0, 4.25)
+    "label[0,0;Stonecutters' Table]"
 
   return formspec
 end

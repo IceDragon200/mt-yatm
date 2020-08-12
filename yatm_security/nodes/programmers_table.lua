@@ -48,8 +48,7 @@ local function get_formspec(pos, user, assigns)
       "listring[nodemeta:" .. spos .. ";input_items]" ..
       "listring[current_player;main]" ..
       "listring[nodemeta:" .. spos .. ";output_items]" ..
-      "listring[current_player;main]" ..
-      default.get_hotbar_bg(2,6.85)
+      "listring[current_player;main]"
   elseif assigns.tab == 2 then
     -- 6502 Assembler
     formspec =
@@ -59,8 +58,7 @@ local function get_formspec(pos, user, assigns)
       "textarea[0.25,6;9,2;;Error;" .. minetest.formspec_escape(meta:get_string("assembly_error")) .. "]" ..
       "button[9,6;3,1;assemble;Assemble]" ..
       "list[current_player;main;2,6.85;8,1;]" ..
-      "list[current_player;main;2,8.08;8,3;8]" ..
-      default.get_hotbar_bg(2,6.85)
+      "list[current_player;main;2,8.08;8,3;8]"
   end
 
   return formspec

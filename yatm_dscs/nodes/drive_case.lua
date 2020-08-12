@@ -25,8 +25,8 @@ local function get_drive_case_formspec(pos, user, _assigns)
     "list[current_player;main;0,4.85;8,1;]" ..
     "list[current_player;main;0,6.08;8,3;8]" ..
     "listring[nodemeta:" .. spos .. ";drive_bay]" ..
-    "listring[current_player;main]" ..
-    default.get_hotbar_bg(0,4.85)
+    "listring[current_player;main]"
+
   return formspec
 end
 

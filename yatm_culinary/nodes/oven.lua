@@ -19,8 +19,7 @@ local function get_oven_formspec(pos, user)
     "listring[nodemeta:" .. spos .. ";input_slot]" ..
     "listring[current_player;main]" ..
     "listring[nodemeta:" .. spos .. ";output_slot]" ..
-    "listring[current_player;main]" ..
-    default.get_hotbar_bg(0,4.85)
+    "listring[current_player;main]"
 
   return formspec
 end

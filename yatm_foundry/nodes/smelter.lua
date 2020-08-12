@@ -8,7 +8,7 @@ local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local ItemInterface = assert(yatm.items.ItemInterface)
-local SmeltingRegistry = assert(yatm.smelting.SmeltingRegistry)
+local smelting_registry = assert(yatm.smelting.smelting_registry)
 
 local function get_smelter_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
@@ -20,8 +20,8 @@ local function get_smelter_formspec(pos, user)
     "list[current_player;main;0,4.85;8,1;]" ..
     "list[current_player;main;0,6.08;8,3;8]" ..
     "listring[nodemeta:" .. spos .. ";input_slot]" ..
-    "listring[current_player;main]" ..
-    default.get_hotbar_bg(0,4.85)
+    "listring[current_player;main]"
+
   return formspec
 end
 
@@ -86,7 +86,7 @@ local function smelter_on_timer(pos, dtime)
       local input_item_stack = inv:get_stack("input_slot",  1)
 
       if not itemstack_is_blank(input_item_stack) then
-        local recipe = SmeltingRegistry:get_smelting_recipe(input_item_stack)
+        local recipe = smelting_registry:get_smelting_recipe(input_item_stack)
         if recipe then
           meta:set_float("recipe_time", recipe.duration)
           meta:set_float("recipe_time_max", recipe.duration)
@@ -107,7 +107,7 @@ local function smelter_on_timer(pos, dtime)
       recipe_time = math.max(recipe_time - applyable_dtime, 0)
       meta:set_float("recipe_time", recipe_time)
       if recipe_time == 0 then
-        local recipe = SmeltingRegistry:get_smelting_recipe(processing_item_stack)
+        local recipe = smelting_registry:get_smelting_recipe(processing_item_stack)
         if recipe then
           local result_fluid_stack = recipe.results[1]
           if FluidMeta.room_for_fluid(meta, "molten_tank", result_fluid_stack, TANK_CAPACITY, TANK_CAPACITY) then

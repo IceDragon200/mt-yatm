@@ -24,8 +24,7 @@ local function barrel_get_formspec(pos, user)
     yatm.formspec_bg_for_player(user:get_player_name(), "wood") ..
     "list[nodemeta:" .. spos .. ";culture_slot;1,1;1,1]" ..
     "list[current_player;main;1,4.85;8,1;]" ..
-    "list[current_player;main;1,6.08;8,3;8]" ..
-    default.get_hotbar_bg(1,4.85)
+    "list[current_player;main;1,6.08;8,3;8]"
 
   return formspec
 end

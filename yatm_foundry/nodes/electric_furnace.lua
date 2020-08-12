@@ -8,8 +8,7 @@ local function get_electric_furnace_formspec(pos, user)
     "size[8,9]" ..
     yatm.formspec_bg_for_player(user:get_player_name(), "machine_heated") ..
     "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]" ..
-    default.get_hotbar_bg(0,4.85)
+    "list[current_player;main;0,6.08;8,3;8]"
 
   return formspec
 end

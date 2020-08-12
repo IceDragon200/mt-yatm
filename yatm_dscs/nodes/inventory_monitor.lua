@@ -26,10 +26,10 @@ local function get_formspec(pos, user, assigns)
     "tabheader[0,0;tab;Items,Fluids;" .. assigns.tab .. "]" ..
     --"list[nodemeta:" .. spos .. ";drive_bay;0,0.3;2,4;]" ..
     "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]" ..
+    "list[current_player;main;0,6.08;8,3;8]"
     --"listring[nodemeta:" .. spos .. ";drive_bay]" ..
     --"listring[current_player;main]" ..
-    default.get_hotbar_bg(0,4.85)
+
   return formspec
 end
 

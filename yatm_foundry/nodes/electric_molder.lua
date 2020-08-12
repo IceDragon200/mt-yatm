@@ -8,7 +8,7 @@ local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local ItemInterface = assert(yatm.items.ItemInterface)
-local MoldingRegistry = assert(yatm.molding.MoldingRegistry)
+local molding_registry = assert(yatm.molding.molding_registry)
 
 local function get_electric_molder_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
@@ -23,8 +23,7 @@ local function get_electric_molder_formspec(pos, user)
     "listring[nodemeta:" .. spos .. ";mold_slot]" ..
     "listring[current_player;main]" ..
     "listring[nodemeta:" .. spos .. ";output_slot]" ..
-    "listring[current_player;main]" ..
-    default.get_hotbar_bg(0,4.85)
+    "listring[current_player;main]"
 
   return formspec
 end
@@ -114,7 +113,7 @@ function electric_molder_yatm_network.work(pos, node, available_energy, work_rat
 
     if not itemstack_is_blank(mold_item_stack) then
       local molten_fluid = FluidMeta.get_fluid_stack(meta, "molten_tank")
-      local recipe = MoldingRegistry:get_molding_recipe(mold_item_stack, molten_fluid)
+      local recipe = molding_registry:get_molding_recipe(mold_item_stack, molten_fluid)
       if recipe then
         local drained_fluid = FluidMeta.drain_fluid(meta, "molten_tank", recipe.molten_fluid, TANK_CAPACITY, TANK_CAPACITY, false)
         if FluidMeta.room_for_fluid(meta, "molding_tank", drained_fluid, TANK_CAPACITY, TANK_CAPACITY) then
@@ -141,7 +140,7 @@ function electric_molder_yatm_network.work(pos, node, available_energy, work_rat
     meta:set_float("recipe_time", recipe_time)
     if recipe_time == 0 then
       local mold_item_stack = inv:get_stack("molding_slot",  1)
-      local recipe = MoldingRegistry:get_molding_recipe(mold_item_stack, molding_fluid)
+      local recipe = molding_registry:get_molding_recipe(mold_item_stack, molding_fluid)
 
       if recipe and inv:room_for_item("output_slot", recipe.result_item_stack) then
         local drained_fluid = FluidMeta.drain_fluid(meta, "molding_tank", recipe.molten_fluid, TANK_CAPACITY, TANK_CAPACITY, false)

@@ -105,9 +105,6 @@ local function get_bee_box_formspec(pos, user)
       "listring[current_player;main]"
   end
 
-  formspec = formspec ..
-    default.get_hotbar_bg(1,4.85)
-
   return formspec
 end
 

@@ -197,8 +197,7 @@ local data_interface = {
         "list[current_player;main;1,6.85;8,1;]" ..
         "list[current_player;main;1,8.08;8,3;8]" ..
         "listring[nodemeta:" .. spos .. ";pads]" ..
-        "listring[current_player;main]" ..
-        default.get_hotbar_bg(1, 6.85)
+        "listring[current_player;main]"
 
     elseif assigns.tab == 3 then
       formspec =

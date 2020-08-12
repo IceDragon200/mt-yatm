@@ -408,8 +408,7 @@ local function get_scavenger_drone_formspec(self, user)
     "listring[detached:" .. self.inventory_name .. ";upgrades]" ..
     "listring[current_player;main]" ..
     "listring[detached:" .. self.inventory_name .. ";batteries]" ..
-    "listring[current_player;main]" ..
-    default.get_hotbar_bg(2,4.85)
+    "listring[current_player;main]"
 
   return formspec
 end

@@ -91,8 +91,7 @@ local function get_formspec(self, user, assigns)
   formspec =
     formspec ..
     "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]" ..
-    default.get_hotbar_bg(0,4.85)
+    "list[current_player;main;0,6.08;8,3;8]"
 
   formspec =
     formspec ..

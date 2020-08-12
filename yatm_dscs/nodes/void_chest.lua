@@ -49,8 +49,7 @@ local function get_void_chest_formspec(pos, user, assigns)
     "list[current_player;main;0.5,5.85;8,1;]" ..
     "list[current_player;main;0.5,7.08;8,3;8]" ..
     "listring[nodemeta:" .. spos .. ";drive_slot]" ..
-    "listring[current_player;main]" ..
-    default.get_hotbar_bg(0.5,5.85)
+    "listring[current_player;main]"
 
   if capacity > 0 then
     formspec =

@@ -20,8 +20,8 @@ local function get_auto_grinder_formspec(pos, user)
     "listring[nodemeta:" .. spos .. ";grinder_input]" ..
     "listring[current_player;main]" ..
     "listring[nodemeta:" .. spos .. ";grinder_output]" ..
-    "listring[current_player;main]" ..
-    default.get_hotbar_bg(0,4.85)
+    "listring[current_player;main]"
+
   return formspec
 end
 

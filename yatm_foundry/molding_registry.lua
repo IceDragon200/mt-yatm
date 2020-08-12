@@ -40,4 +40,4 @@ function m:get_molding_recipe(mold_item_stack, molten_fluid)
   return nil
 end
 
-yatm_foundry.MoldingRegistry = MoldingRegistry:new()
+yatm_foundry.molding_registry = MoldingRegistry:new()

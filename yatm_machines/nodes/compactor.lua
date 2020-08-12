@@ -19,8 +19,8 @@ local function get_compactor_formspec(pos, user)
     "listring[nodemeta:" .. spos .. ";input_items]" ..
     "listring[current_player;main]" ..
     "listring[nodemeta:" .. spos .. ";output_items]" ..
-    "listring[current_player;main]" ..
-    default.get_hotbar_bg(0,4.85)
+    "listring[current_player;main]"
+
   return formspec
 end
 
