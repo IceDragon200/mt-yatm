@@ -34,8 +34,8 @@ yatm.cluster_tool.register_cluster_tool_render(CLUSTER_GROUP, function (data, fo
 
   local cols = 4
   local colsize = render_state.w / cols
-  local item_size = colsize * 0.60
-  local label_size = colsize - item_size
+  local item_size = colsize * 0.6
+  local label_size = colsize * 0.6
   local i = 0
 
   for node_name, count in pairs(registered_nodes_with_count) do

@@ -457,8 +457,8 @@ do
 
     local cols = 4
     local colsize = render_state.w / cols
-    local item_size = colsize * 0.75
-    local label_size = colsize - item_size
+    local item_size = colsize * 0.6
+    local label_size = colsize * 0.6
     local i = 0
 
     for node_name, count in pairs(registered_nodes_with_count) do

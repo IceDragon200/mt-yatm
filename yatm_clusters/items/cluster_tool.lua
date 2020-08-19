@@ -3,7 +3,7 @@ local cluster_tool = assert(yatm.cluster_tool)
 local sounds = assert(yatm.sounds)
 
 local function get_cluster_summary_formspec(user, assigns)
-  local w = 9
+  local w = 12
   local formspec =
     "formspec_version[2]" ..
     "size[" .. w .. ",9]" ..
@@ -18,8 +18,8 @@ local function get_cluster_summary_formspec(user, assigns)
     formspec =
       formspec ..
       "scrollbaroptions[]" ..
-      "scrollbar[8,0.5;0.5,8;vertical;cluster_scrollbar]" ..
-      "scroll_container[0.5,0.5;8,8;cluster_scrollbar;vertical;]"
+      "scrollbar[" .. (w-0.5) .. ",0.5;0.5,8;vertical;cluster_scrollbar;]" ..
+      "scroll_container[0.0,0.5;"..(w-1)..",8;cluster_scrollbar;vertical;]"
 
     local func = cluster_tool.render_functions[assigns.page]
 
