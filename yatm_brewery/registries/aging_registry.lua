@@ -1,3 +1,6 @@
+--
+-- The AgingRegistry contains recipes for an aging barrel
+--
 local AgingRegistry = foundation.com.Class:extends('yatm.brewery.AgingRegistry')
 local ic = AgingRegistry.instance_class
 

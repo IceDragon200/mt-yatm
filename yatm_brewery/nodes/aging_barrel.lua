@@ -1,3 +1,8 @@
+--
+-- The Aging or fermenting barrel is a fluid barrel responsible for transforming fluids
+-- into other fluids normally with a catalyst item.
+-- Aging recipes tend to be fairly slow to process, but work on large quantities of fluids.
+--
 local list_concat = assert(foundation.com.list_concat)
 local Directions = assert(foundation.com.Directions)
 local aging_registry = assert(yatm.brewing.aging_registry)
@@ -19,6 +24,9 @@ local barrel_nodebox = {
 local function barrel_get_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
+  -- TODO: display fluid bar
+  --       as of this writing, YATM doesn't ever show it's fluids actually...
+
   local formspec =
     "size[8,9]" ..
     yatm.formspec_bg_for_player(user:get_player_name(), "wood") ..
@@ -30,18 +38,19 @@ local function barrel_get_formspec(pos, user)
 end
 
 local function barrel_on_timer(pos, dt)
-  -- loop
+  -- TODO: process the aging recipe here
   return true
 end
 
 local function barrel_on_construct(pos)
-  local node = minetest.get_node(pos)
-  yatm.queue_refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
 
   local inv = meta:get_inventory()
-
+  -- accepts one culture or catalyst item
   inv:set_size("culture_slot", 1)
+
+  local node = minetest.get_node(pos)
+  yatm.queue_refresh_infotext(pos, node)
 end
 
 local function barrel_on_destruct(pos)
@@ -53,6 +62,7 @@ local function barrel_refresh_infotext(pos, node)
   node = node or minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
   local stack = FluidTanks.get_fluid(pos, Directions.D_NONE)
+
   if stack and stack.amount > 0 then
     meta:set_string("infotext",
       "Brewing Barrel: " ..
@@ -80,7 +90,6 @@ end
 
 local barrel_item_interface = ItemInterface.new_simple("culture_slot")
 
-
 local function on_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
   minetest.get_node_timer(pos):start(1.0)
 end
@@ -93,7 +102,8 @@ local function on_metadata_inventory_take(pos, listname, index, stack, player)
   minetest.get_node_timer(pos):start(1.0)
 end
 
-
+-- Normally the side and lid of the barrel is dyed, this is mostly for identification.
+-- By default only the white and default (i.e. no dye) variant is available.
 local colors = {
   {"white", "White"}
 }
@@ -103,6 +113,7 @@ if dye then
   colors = dye.dyes
 end
 
+-- Add the 'default' case for barrels, barrels can either be dyed or not.
 colors = list_concat({{"default", "Default"}}, colors)
 
 for _,pair in ipairs(colors) do
