@@ -195,22 +195,27 @@ function ic:on_pre_block_expired(block)
   end)
 end
 
-yatm.cluster.devices = DeviceCluster:new(CLUSTER_GROUP)
+do
+  yatm.cluster.DeviceCluster = DeviceCluster
+  yatm.cluster.devices = DeviceCluster:new(CLUSTER_GROUP)
 
-yatm.clusters:register_node_event_handler(CLUSTER_GROUP, yatm.cluster.devices:method('handle_node_event'))
-yatm.clusters:observe('pre_block_expired', 'yatm_cluster_devices:pre_block_expired', yatm.cluster.devices:method('on_pre_block_expired'))
-yatm.clusters:observe('terminate', 'yatm_cluster_devices:terminate', yatm.cluster.devices:method('terminate'))
+  yatm.clusters:register_node_event_handler(CLUSTER_GROUP, yatm.cluster.devices:method('handle_node_event'))
+  yatm.clusters:observe('pre_block_expired', 'yatm_cluster_devices:pre_block_expired', yatm.cluster.devices:method('on_pre_block_expired'))
+  yatm.clusters:observe('terminate', 'yatm_cluster_devices:terminate', yatm.cluster.devices:method('terminate'))
 
-minetest.register_lbm({
-  name = "yatm_cluster_devices:cluster_device_lbm",
+  yatm.cluster_tool.register_cluster_tool_render(CLUSTER_GROUP, yatm.cluster.devices:method("cluster_tool_render"))
 
-  nodenames = {
-    "group:yatm_cluster_device",
-  },
+  minetest.register_lbm({
+    name = "yatm_cluster_devices:cluster_device_lbm",
 
-  run_at_every_load = true,
+    nodenames = {
+      "group:yatm_cluster_device",
+    },
 
-  action = function (pos, node)
-    yatm.cluster.devices:schedule_load_node(pos, node)
-  end,
-})
+    run_at_every_load = true,
+
+    action = function (pos, node)
+      yatm.cluster.devices:schedule_load_node(pos, node)
+    end,
+  })
+end
