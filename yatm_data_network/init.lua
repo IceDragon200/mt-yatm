@@ -8,3 +8,5 @@ mod:require("data_network.lua")
 mod:require("api.lua")
 
 mod:require("nodes.lua")
+
+mod:require("hooks.lua")

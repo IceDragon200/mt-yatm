@@ -2,6 +2,26 @@
 -- The DATA network is a form of node cluster which keeps track of
 -- DATA nodes and handles the event passing.
 --
+-- DATA processing is repeated up to 16 times per tick, this simulates somewhat of realtime
+-- communication between nodes, allowing them to queue responses or reactions to events.
+--
+-- Unlike most other clusters, the DATA network is not a active member of the 'clusters'
+-- system, therefore it will not show up when using reduce_node_clusters and it's other members.
+--
+-- DATA networks have a root network_id and then 6 sub network ids: one for each direction.
+-- The root network_id behaves like any other normal cluster, the sub networks are where the
+-- DATA system really works, sub nets divide a single node into 6 different branches or subnets
+-- Normally identified by color AND direction (since it's possible to just use the same color
+-- everywhere).
+-- This is one of the main reasons why it is not registered as a normal cluster.
+--
+-- A network is formed from 3 main components:
+--   * A DATA Device - the device is the object that does the real work this can be anything
+--                     ranging from a simple arithmetic unit, to a sensor
+--   * A DATA Cable  - allows forming the network over a distance, they can connect together
+--   * A DATA Bus    - a data bus is a cable affixed with a bus controller that allows cables to
+--                     connect to a device, otherwise the cable cannot interact with the device.
+
 local is_table_empty = assert(foundation.com.is_table_empty)
 local table_equals = assert(foundation.com.table_equals)
 local table_copy = assert(foundation.com.table_copy)
@@ -34,6 +54,11 @@ DataNetwork.COLOR_RANGE = {
 }
 
 function ic:initialize()
+  self.terminated = false
+  self.terminate_reason = false
+
+  self.m_cluster_symbol_id = foundation.com.Symbols:symbol_to_id('yatm_data')
+
   self.m_counter = 0
   self.m_queued_refreshes = {}
   self.m_networks = {}
@@ -43,9 +68,9 @@ function ic:initialize()
   self.m_block_members = {}
   self.m_resolution_id = 0
 
-  yatm.clusters:observe('on_block_expired', 'yatm_data_network/block_unloader', function (block_id)
-    self:unload_block(block_id)
-  end)
+  yatm.clusters:observe('on_block_expired', -- event
+                        'yatm_data_network/block_unloader', -- this service's id
+                        self:method("unload_block"))
 end
 
 function ic:init()
@@ -53,14 +78,16 @@ function ic:init()
   self:log("initialized")
 end
 
-function ic:terminate()
+function ic:terminate(reason)
   --
-  self:log("terminating")
+  self:log("terminating", reason)
   -- release everything
   self.m_queued_refreshes = {}
   self.m_networks = {}
   self.m_members = {}
   self.m_members_by_group = {}
+  self.terminated = true
+  self.terminate_reason = reason
   self:log("terminated")
 end
 
@@ -179,24 +206,48 @@ function ic:mark_ready_to_receive(pos, dir, local_port, state)
   return self
 end
 
-function ic:get_network_id(pos)
+function ic:get_member(member_id)
+  return self.m_members[member_id]
+end
+
+function ic:get_member_at_pos(pos)
   local member_id = minetest.hash_node_position(pos)
-  local member = self.m_members[member_id]
+  return self:get_member(member_id)
+end
+
+-- Retrieves the root network id at the specified location
+-- Will return nil if there is no data network at the location
+function ic:get_network_id(pos)
+  local member = self:get_member_at_pos(pos)
   if member then
     return member.network_id
   end
   return nil
 end
 
-function ic:get_attached_colors(pos)
-  local member_id = minetest.hash_node_position(pos)
-  local member = self.m_members[member_id]
-  if member then
-    return member.attached_colors
+-- Retrieve a network at the specified position
+function ic:get_network_at_pos(pos)
+  local network_id = self:get_network_id(pos)
+  if network_id then
+    return self.m_networks[network_id]
   end
   return nil
 end
 
+-- Retrieves all the attached colors the table is indexed by the foundation Direction codes
+-- The value is the color of that specified direction, a direction will return nil if it is not
+-- connected.
+function ic:get_attached_colors(pos)
+  local member = self:get_member_at_pos(pos)
+  if member then
+    return member.attached_colors_by_dir
+  end
+  return nil
+end
+
+--
+-- Retrieve the color for the specified direction.
+--
 function ic:get_attached_color(pos, dir)
   assert(pos, "expected a position")
   local attached_colors = self:get_attached_colors(pos)
@@ -206,10 +257,12 @@ function ic:get_attached_color(pos, dir)
   return nil
 end
 
+--
+-- Retrieves all the sub network ids at specified location
+--
 function ic:get_sub_network_ids(pos)
   assert(pos, "expected a position")
-  local member_id = minetest.hash_node_position(pos)
-  local member = self.m_members[member_id]
+  local member = self:get_member_at_pos(pos)
   if member then
     return member.sub_network_ids
   end
@@ -245,9 +298,7 @@ function ic:get_sub_network_ids_by_color(pos, expected_color)
 end
 
 function ic:get_data_interface(pos)
-  local hash = minetest.hash_node_position(pos)
-
-  local member = self.m_members[hash]
+  local member = self:get_member_at_pos(pos)
   if member then
     local node = minetest.get_node_or_nil(member.pos)
     if node then
@@ -267,7 +318,7 @@ function ic:cancel_queued_refresh(pos)
   return self
 end
 
--- @spec add_node(Vector3.t, Node.t) :: DataNetwork.t
+-- @spec :add_node(Vector3, NodeRef) :: self
 function ic:add_node(pos, node)
   self:log("add_node", minetest.pos_to_string(pos), node.name)
   local member_id = minetest.hash_node_position(pos)
@@ -293,7 +344,7 @@ function ic:add_node(pos, node)
     node = node,
     network_id = nil,
     groups = dnd.groups or {},
-    attached_colors = {},
+    attached_color_by_dir = {},
     sub_network_ids = {},
   }
 
@@ -310,9 +361,14 @@ function ic:add_node(pos, node)
   return self
 end
 
--- @spec update_member(Vector3.t, Node.t) :: DataNetwork.t
+-- Call this function when the physical node has changed in order to keep the
+-- information up to date, an example would be after a minetest.swap_node call.
+--
+-- @spec :update_member(Vector3, NodeRef, Boolean) :: self
 function ic:update_member(pos, node, force_refresh)
-  self:log("update_member/3 pos=" .. minetest.pos_to_string(pos) .. " name=" .. node.name .. " force_refresh=" .. dump(force_refresh))
+  self:log("update_member/3 pos=" .. minetest.pos_to_string(pos) ..
+                         " name=" .. node.name ..
+                         " force_refresh=" .. dump(force_refresh))
   local member_id = minetest.hash_node_position(pos)
   local member = self.m_members[member_id]
   if member then
@@ -350,6 +406,9 @@ function ic:update_member(pos, node, force_refresh)
   return self
 end
 
+-- If the node is already registered this function will call update_member, if it then add_node.
+--
+-- @spec :upsert_member(Vector3, NodeRef, Boolean) :: self
 function ic:upsert_member(pos, node, force_refresh)
   self:log("upsert_member", minetest.pos_to_string(pos), node.name)
   local member_id = minetest.hash_node_position(pos)
@@ -361,7 +420,7 @@ function ic:upsert_member(pos, node, force_refresh)
   end
 end
 
--- @spec unregister_member(Vector3.t, Node.t | nil) :: DataNetwork.t
+-- @spec :unregister_member(Vector3, NodeRef | nil) :: self
 function ic:unregister_member(pos, node)
   self:log("unregister_member/2", "is deprecated please use remove_node/2 instead")
   return self:remove_node(pos, node)
@@ -380,7 +439,7 @@ function ic:_send_value_to_network(network_id, member_id, dir, local_port, value
   local network = self.m_networks[network_id]
   if network then
     local member = self.m_members[member_id]
-    local color = member.attached_colors[dir]
+    local color = member.attached_colors_by_dir[dir]
     if color then
       local port_offset = DataNetwork.COLOR_RANGE[color]
 
@@ -393,7 +452,8 @@ function ic:_send_value_to_network(network_id, member_id, dir, local_port, value
           table_bury(network.ready_to_send, {sub_network_id, global_port, member_id, dir}, value)
         end
       else
-        self:log(member.node.name, "port out of range", local_port, "expected to be between 1 and " .. port_offset.range)
+        self:log(member.node.name, "port out of range",
+                 local_port, "expected to be between 1 and " .. port_offset.range)
       end
     else
       --print("WARN: ", member.node.name, "does not have an attached color; cannot send")
@@ -419,8 +479,8 @@ function ic:_unmark_ready_to_receive_in_network(network_id, member_id, dir, loca
         end
       end
     else
-      if member.attached_colors[dir] then
-        local port_offset = DataNetwork.COLOR_RANGE[member.attached_colors[dir]]
+      if member.attached_colors_by_dir[dir] then
+        local port_offset = DataNetwork.COLOR_RANGE[member.attached_colors_by_dir[dir]]
 
         if local_port >= 1 and local_port <= port_offset.range then
           local global_port = port_offset.offset + local_port
@@ -465,8 +525,8 @@ function ic:_mark_ready_to_receive_in_network(network_id, member_id, dir, local_
   local network = self.m_networks[network_id]
   if network then
     local member = self.m_members[member_id]
-    if member.attached_colors[dir] then
-      local port_offset = DataNetwork.COLOR_RANGE[member.attached_colors[dir]]
+    if member.attached_colors_by_dir[dir] then
+      local port_offset = DataNetwork.COLOR_RANGE[member.attached_colors_by_dir[dir]]
 
       if local_port >= 1 and local_port <= port_offset.range then
         local global_port = port_offset.offset + local_port
@@ -486,6 +546,8 @@ function ic:_mark_ready_to_receive_in_network(network_id, member_id, dir, local_
   return self
 end
 
+-- Generates a pseodo 4 segment, colon seperated ID, each segment is a base32 encoded value.
+-- Don't even try to decode it, it's actually just a random string...
 function ic:generate_network_id()
   local result = {}
   for i = 1,4 do
@@ -501,6 +563,7 @@ function ic:_queue_refresh(base_pos, reason)
     pos = base_pos,
     cancelled = false,
   }
+
   for dir,v3 in pairs(Directions.DIR6_TO_VEC3) do
     local pos = vector.add(base_pos, v3)
     local hash = minetest.hash_node_position(pos)
@@ -593,6 +656,10 @@ function ic:_internal_remove_node(pos, node)
   return self
 end
 
+--
+-- Clusters observation hook when a block is unloaded, triggers the removal of members from
+-- parts of the network or complete shutdown of some parts.
+--
 function ic:unload_block(block_id)
   local member_ids = self.m_block_members[block_id]
 
@@ -609,6 +676,9 @@ function ic:unload_block(block_id)
   end
 end
 
+--
+-- Removes a network, with no craps given, please don't use this unless you know what you're doing.
+--
 function ic:remove_network(network_id)
   -- I hope you weren't expecting something spectacular.
   self.m_networks[network_id] = nil
@@ -616,8 +686,13 @@ function ic:remove_network(network_id)
 end
 
 function ic:handle_network_dispatch(network, dt)
-  if not is_table_empty(network.ready_to_send) and
-     not is_table_empty(network.ready_to_receive) then
+  local attempts = 0
+  while not is_table_empty(network.ready_to_send) and
+        not is_table_empty(network.ready_to_receive) do
+    if attempts > 16 then
+      break
+    end
+    attempts = attempts + 1
 
     local old_ready_to_send = network.ready_to_send
     local old_ready_to_receive = network.ready_to_receive
@@ -665,7 +740,7 @@ function ic:handle_network_dispatch(network, dt)
                         local nodedef = minetest.registered_nodes[receiver_node.name]
 
                         if nodedef.data_interface then
-                          local local_port = self:net_port_to_local_port(port, receiver.attached_colors[receiver_dir])
+                          local local_port = self:net_port_to_local_port(port, receiver.attached_colors_by_dir[receiver_dir])
                           nodedef.data_interface:receive_pdu(receiver.pos,
                                                              receiver_node,
                                                              receiver_dir,
@@ -913,7 +988,7 @@ function ic:refresh_from_pos(base_pos)
       member_entry.groups = dnd.groups or {}
       member_entry.resolution_id = self.m_resolution_id
       member_entry.network_id = network.id
-      member_entry.attached_colors = table_copy(member_entry.attached_colors) or {}
+      member_entry.attached_colors_by_dir = table_copy(member_entry.attached_colors_by_dir) or {}
       member_entry.sub_network_id = nil
       member_entry.sub_network_ids = {}
 
@@ -954,7 +1029,7 @@ function ic:refresh_from_pos(base_pos)
               -- each cable color has a maximum of 16 ports (1-16)
               -- the exception to this rule is the `multi`, which allows 256 (1-256)
               -- when a value is emitted on the network, it is adjusted by its color
-              member.attached_colors[dir] = other_member.color
+              member.attached_colors_by_dir[dir] = other_member.color
               break
             end
           end
@@ -1071,7 +1146,7 @@ function ic:_build_sub_network(network, origin_pos)
           if other_member and other_member.type == "device" then
             sub_network.devices[hash] = true
             local new_dir = Directions.invert_dir(dir)
-            other_member.attached_colors[new_dir] = member.color
+            other_member.attached_colors_by_dir[new_dir] = member.color
             other_member.sub_network_ids[new_dir] = sub_network_id
           end
         end
@@ -1088,7 +1163,7 @@ function ic:_build_sub_network(network, origin_pos)
           if other_member and other_member.type == "device" then
             sub_network.devices[hash] = true
             local inverted_dir = Directions.invert_dir(dir)
-            other_member.attached_colors[inverted_dir] = member.color
+            other_member.attached_colors_by_dir[inverted_dir] = member.color
             other_member.sub_network_ids[inverted_dir] = sub_network_id
           end
         end
@@ -1097,13 +1172,19 @@ function ic:_build_sub_network(network, origin_pos)
   end
 end
 
+-- An instance
 local data_network = DataNetwork:new()
 
 do
+  -- the usual hooks
+  -- initialization
   minetest.register_on_mods_loaded(data_network:method("init"))
+  -- update
   minetest.register_globalstep(data_network:method("update"))
+  -- termination
   minetest.register_on_shutdown(data_network:method("terminate"))
 
+  -- hook into the lbm to reload members of the cluster
   minetest.register_lbm({
     name = "yatm_data_network:data_network_reload_lbm",
     nodenames = {
@@ -1125,5 +1206,7 @@ do
   })
 end
 
+-- the class
 yatm_data_network.DataNetwork = DataNetwork
+-- the instance
 yatm_data_network.data_network = data_network
