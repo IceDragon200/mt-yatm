@@ -1,3 +1,18 @@
+yatm.codex.register_entry("yatm_data_logic:data_pulser", {
+  pages = {
+    {
+      heading_item = {
+        context = true,
+        default = "yatm_data_logic:data_pulser",
+      },
+      heading = "DATA Pulser",
+      lines = {
+        "Emits a DATA signal ever interval, the interval can be configured as a fraction of a second.",
+      }
+    }
+  }
+})
+
 yatm.codex.register_entry("yatm_data_logic:data_arith_identity", {
   pages = {
     {

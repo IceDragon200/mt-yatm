@@ -3,73 +3,76 @@
 --
 -- Provides CODEX entries for YATM mods
 --
-yatm_codex_entries = rawget(_G, "yatm_codex_entries") or {}
-yatm_codex_entries.modpath = minetest.get_modpath(minetest.get_current_modname())
+yatm_codex_entries = foundation.new_module("yatm_codex_entries", "1.0.0")
 
-if yatm_armoury then
-  dofile(yatm_codex_entries.modpath .. "/entries/yatm_armoury.lua")
-end
+local modules = {
+  -- YATM
+  "yatm_armoury",
+  "yatm_armoury_icbm",
+  "yatm_autotest",
+  "yatm_bees",
+  "yatm_blasts",
+  "yatm_blasts_emp",
+  "yatm_blasts_frost",
+  "yatm_brewery",
+  "yatm_brewery_apple_cider",
+  "yatm_cables",
+  "yatm_cluster_devices",
+  "yatm_cluster_energy",
+  "yatm_clusters",
+  "yatm_cluster_thermal",
+  "yatm_codex",
+  "yatm_core",
+  "yatm_culinary",
+  "yatm_data_card_readers",
+  "yatm_data_console_monitor",
+  "yatm_data_control",
+  "yatm_data_display",
+  "yatm_data_fluid_sensor",
+  "yatm_data_logic",
+  "yatm_data_network",
+  "yatm_data_noteblock",
+  "yatm_data_to_mesecon",
+  "yatm_decor",
+  "yatm_drones",
+  "yatm_dscs",
+  "yatm_energy_storage",
+  "yatm_energy_storage_array",
+  "yatm_fluid_pipes",
+  "yatm_fluid_pipe_valves",
+  "yatm_fluids",
+  "yatm_fluid_teleporters",
+  "yatm_foundry",
+  "yatm_frames",
+  "yatm_item_ducts",
+  "yatm_item_shelves",
+  "yatm_item_storage",
+  "yatm_item_teleporters",
+  "yatm_machines",
+  "yatm_mail",
+  "yatm_mesecon_buttons",
+  "yatm_mesecon_card_readers",
+  "yatm_mesecon_hubs",
+  "yatm_mesecon_locks",
+  "yatm_mesecon_sequencer",
+  "yatm_mining",
+  "yatm_oku",
+  "yatm_overhead_rails",
+  "yatm_papercraft",
+  "yatm_plastics",
+  "yatm_rails",
+  "yatm_reactions",
+  "yatm_reactors",
+  "yatm_refinery",
+  "yatm_security",
+  "yatm_security_api",
+  "yatm_solar_energy",
+  "yatm_spacetime",
+  "yatm_woodcraft",
+}
 
-if yatm_armoury_icbm then
-  dofile(yatm_codex_entries.modpath .. "/entries/yatm_armoury_icbm.lua")
-end
-
-if yatm_data_control then
-  dofile(yatm_codex_entries.modpath .. "/entries/yatm_data_control.lua")
-end
-
-if yatm_data_logic then
-  dofile(yatm_codex_entries.modpath .. "/entries/yatm_data_logic.lua")
-end
-
-if yatm_data_network then
-  dofile(yatm_codex_entries.modpath .. "/entries/yatm_data_network.lua")
-end
-
-if yatm_data_noteblock then
-  dofile(yatm_codex_entries.modpath .. "/entries/yatm_data_noteblock.lua")
-end
-
-if yatm_drones then
-  dofile(yatm_codex_entries.modpath .. "/entries/yatm_drones.lua")
-end
-
-if yatm_dscs then
-  dofile(yatm_codex_entries.modpath .. "/entries/yatm_dscs.lua")
-end
-
-if yatm_energy_storage_array then
-  dofile(yatm_codex_entries.modpath .. "/entries/yatm_energy_storage_array.lua")
-end
-
-if yatm_fluid_pipe_valves then
-  dofile(yatm_codex_entries.modpath .. "/entries/yatm_fluid_pipe_valves.lua")
-end
-
-if yatm_fluid_pipes then
-  dofile(yatm_codex_entries.modpath .. "/entries/yatm_fluid_pipes.lua")
-end
-
-if yatm_fluid_teleporters then
-  dofile(yatm_codex_entries.modpath .. "/entries/yatm_fluid_teleporters.lua")
-end
-
-if yatm_foundry then
-  dofile(yatm_codex_entries.modpath .. "/entries/yatm_foundry.lua")
-end
-
-if yatm_frames then
-  dofile(yatm_codex_entries.modpath .. "/entries/yatm_frames.lua")
-end
-
-if yatm_item_ducts then
-  dofile(yatm_codex_entries.modpath .. "/entries/yatm_item_ducts.lua")
-end
-
-if yatm_item_teleporters then
-  dofile(yatm_codex_entries.modpath .. "/entries/yatm_item_teleporters.lua")
-end
-
-if yatm_mail then
-  dofile(yatm_codex_entries.modpath .. "/entries/yatm_mail.lua")
+for _, module_name in ipairs(modules) do
+  if minetest.global_exists(module_name) then
+    yatm_codex_entries:require("entries/" .. module_name .. ".lua")
+  end
 end
