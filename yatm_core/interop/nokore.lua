@@ -1,7 +1,7 @@
-print("yatm is running in a nokore environment, checking this isn't a false positive")
+minetest.log("info", "yatm is running in a nokore environment, checking this isn't a false positive")
 
-if nokore._version then
-  print("appears to be a legit nokore environment version=" .. nokore._version)
+if nokore.VERSION then
+  minetest.log("info", "appears to be a legit nokore environment version=" .. nokore.VERSION)
   local node_sounds = assert(yatm_core.node_sounds)
   -- do stuff
   node_sounds:register("base", {
@@ -63,6 +63,6 @@ if nokore._version then
     }
   })
 else
-  print("false positive nokore environment bailing, just to be safe")
+  minetest.log("error", "false positive nokore environment bailing, just to be safe")
   return
 end
