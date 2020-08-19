@@ -12,4 +12,5 @@ end
 function m:register_drying_recipe()
 end
 
-yatm_foundry.KilnRegistry = KilnRegistry:new()
+yatm_foundry.KilnRegistry = KilnRegistry
+yatm_foundry.kiln_registry = KilnRegistry:new()

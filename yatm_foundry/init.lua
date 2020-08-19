@@ -8,22 +8,21 @@ other metal processing nodes.
 If you're looking for stone processing, check yatm_stonecraft.
 If you're looking for wood processing, check yatm_woodcraft.
 ]]
-yatm_foundry = rawget(_G, "yatm_foundry") or {}
-yatm_foundry.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_foundry", "1.0.0")
 
-dofile(yatm_foundry.modpath .. "/kiln_registry.lua")
-dofile(yatm_foundry.modpath .. "/blasting_registry.lua")
-dofile(yatm_foundry.modpath .. "/smelting_registry.lua")
-dofile(yatm_foundry.modpath .. "/molding_registry.lua")
+mod:require("kiln_registry.lua")
+mod:require("blasting_registry.lua")
+mod:require("smelting_registry.lua")
+mod:require("molding_registry.lua")
 
-dofile(yatm_foundry.modpath .. "/api.lua")
+mod:require("api.lua")
 
-dofile(yatm_foundry.modpath .. "/nodes.lua")
-dofile(yatm_foundry.modpath .. "/items.lua")
-dofile(yatm_foundry.modpath .. "/fluids.lua")
+mod:require("nodes.lua")
+mod:require("items.lua")
+mod:require("fluids.lua")
 
-dofile(yatm_foundry.modpath .. "/recipes.lua")
+mod:require("recipes.lua")
 
-dofile(yatm_foundry.modpath .. "/migrations.lua")
+mod:require("migrations.lua")
 
-dofile(yatm_foundry.modpath .. "/tests.lua")
+mod:require("tests.lua")

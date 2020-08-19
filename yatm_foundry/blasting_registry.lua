@@ -1,7 +1,7 @@
---[[
-The BlastingRegistry contains recipes for the blast furnaces
-]]
-local BlastingRegistry = yatm_core.Class:extends()
+--
+-- The BlastingRegistry contains recipes for the blast furnaces
+--
+local BlastingRegistry = foundation.com.Class:extends("BlastingRegistry")
 
 local m = assert(BlastingRegistry.instance_class)
 
@@ -13,4 +13,5 @@ function m:register_blasting_recipe()
   return self
 end
 
-yatm_foundry.BlastingRegistry = BlastingRegistry:new()
+yatm_foundry.BlastingRegistry = BlastingRegistry
+yatm_foundry.blasting_registry = BlastingRegistry:new()

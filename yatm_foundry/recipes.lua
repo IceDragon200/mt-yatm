@@ -98,8 +98,8 @@ end
 --
 -- Blasting Recipes
 --
-local BlastingRegistry = assert(yatm.blasting.BlastingRegistry)
+local blasting_registry = assert(yatm.blasting.blasting_registry)
 do
-  local r = BlastingRegistry:method("register_blasting_recipe")
+  local r = blasting_registry:method("register_blasting_recipe")
   --r()
 end
