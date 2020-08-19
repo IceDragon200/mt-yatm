@@ -3,11 +3,10 @@
 --
 -- Provides in game documentation and analysis of various nodes in YATM.
 --
-yatm_codex = rawget(_G, "yatm_codex") or {}
-yatm_codex.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_codex", "1.0.0")
 
-dofile(yatm_codex.modpath .. "/api.lua")
+mod:require("api.lua")
 
-dofile(yatm_codex.modpath .. "/items.lua")
+mod:require("items.lua")
 
-dofile(yatm_codex.modpath .. "/sounds.lua")
+mod:require("sounds.lua")

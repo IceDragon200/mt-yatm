@@ -9,8 +9,8 @@ local function get_codex_entry_formspec(user, assigns)
 
   if page.heading_item then
     local item_name
-    local ty = type(page.heading_item)
-    if ty == "table" then
+    local heading_type = type(page.heading_item)
+    if heading_type == "table" then
       if page.heading_item.context then
         item_name = assigns.context.item_name
       end
@@ -18,7 +18,7 @@ local function get_codex_entry_formspec(user, assigns)
       if not item_name then
         item_name = page.heading_item.default
       end
-    elseif ty == "string" then
+    elseif heading_type == "string" then
       item_name = page.heading_item
     else
       item_name = "air"
@@ -174,7 +174,7 @@ local function construct_demo(user, pos, demo, itemstack, pointed_thing)
 end
 
 minetest.register_tool("yatm_codex:codex", {
-  description = "CODEX",
+  description = "CODEX\nLeft-Click to check information on a node if available",
 
   groups = {
     codex = 1,
@@ -191,7 +191,7 @@ minetest.register_tool("yatm_codex:codex", {
 })
 
 minetest.register_tool("yatm_codex:codex_deploy", {
-  description = "CODEX [Deployment Mode]",
+  description = "CODEX [Deployment Mode]\nLeft-Click to check information on a node if available\nRight-Click to place demo",
 
   groups = {
     codex = 1,
