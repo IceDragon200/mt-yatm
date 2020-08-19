@@ -2,6 +2,20 @@ local Trace = assert(foundation.com.Trace)
 local string_split = assert(foundation.com.string_split)
 local table_keys = assert(foundation.com.table_keys)
 local table_length = assert(foundation.com.table_length)
+local is_table_empty = assert(foundation.com.is_table_empty)
+local clusters = assert(yatm.clusters)
+local Symbols = assert(foundation.com.Symbols)
+
+-- Allows the cluster tool to lookup normal clusters
+yatm.cluster_tool.register_cluster_tool_lookup('yatm_clusters/standard', function (pos, state)
+  return clusters:reduce_node_clusters(pos, state, function (cluster, acc)
+    if cluster.groups.cluster_symbol_id then
+      local symbol = Symbols:maybe_id_to_symbol(cluster.groups.cluster_symbol_id)
+      acc[symbol] = cluster
+    end
+    return true, acc
+  end)
+end)
 
 minetest.register_chatcommand("yatm.networks", {
   params = "<command> <params>",

@@ -15,6 +15,37 @@ yatm.explore_nodes = assert(yatm_clusters.explore_nodes)
 --
 yatm.clusters = assert(yatm_clusters.clusters)
 
+local clusters = assert(yatm.clusters)
+local is_table_empty = assert(foundation.com.is_table_empty)
+
+local cluster_tool = {
+  lookup_functions = {},
+  render_functions = {},
+}
+
+function cluster_tool.register_cluster_tool_render(name, callback)
+  if cluster_tool.render_functions[name] then
+    error("cluster_tool lookup of id=" .. id .. " already exist!")
+  end
+  cluster_tool.render_functions[name] = callback
+end
+
+function cluster_tool.register_cluster_tool_lookup(id, callback)
+  if cluster_tool.lookup_functions[id] then
+    error("cluster_tool lookup of id=" .. id .. " already exist!")
+  end
+  cluster_tool.lookup_functions[id] = callback
+end
+
+function cluster_tool.lookup_clusters(pos, state)
+  for _id, func in pairs(cluster_tool.lookup_functions) do
+    func(pos, state)
+  end
+  return state
+end
+
+yatm.cluster_tool = cluster_tool
+
 yatm.cluster = yatm.cluster or {}
 
 --
@@ -22,3 +53,4 @@ yatm.cluster = yatm.cluster or {}
 --
 yatm.transport = yatm.transport or {}
 yatm.transport.GenericTransportNetwork = assert(yatm_clusters.GenericTransportNetwork)
+

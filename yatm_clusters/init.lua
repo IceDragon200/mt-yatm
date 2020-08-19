@@ -3,17 +3,27 @@
 --
 -- Handles node registration and general house keeping of node clusters.
 --
-yatm_clusters = rawget(_G, "yatm_clusters") or {}
-yatm_clusters.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_clusters", "1.0.0")
 
 -- Networks
-dofile(yatm_clusters.modpath .. "/clusters.lua")
-dofile(yatm_clusters.modpath .. "/node_tracing.lua")
-dofile(yatm_clusters.modpath .. "/generic_transport_network.lua")
-dofile(yatm_clusters.modpath .. "/simple_cluster.lua")
+mod:require("clusters.lua")
+mod:require("node_tracing.lua")
 
-dofile(yatm_clusters.modpath .. "/util/infotext.lua")
+-- Utils
+mod:require("util/infotext.lua")
 
-dofile(yatm_clusters.modpath .. "/api.lua")
+-- Some network implementations
+mod:require("generic_transport_network.lua")
 
-dofile(yatm_clusters.modpath .. "/hooks.lua")
+-- API
+mod:require("api.lua")
+
+mod:require("simple_cluster.lua")
+
+-- Items
+mod:require("items/cluster_tool.lua")
+
+
+-- Hooks
+mod:require("hooks.lua")
+
