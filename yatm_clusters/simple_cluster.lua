@@ -293,7 +293,8 @@ do
           if self:is_compatible_colors(color, other_color) then
             -- okay
           else
-            --print("dir is inaccesible, not a compatible color", minetest.pos_to_string(npos), nnode.name, dump(color), dump(other_color))
+            --print("dir is inaccesible, not a compatible color",
+            --      minetest.pos_to_string(npos), nnode.name, dump(color), dump(other_color))
             accessible_dirs[dir6] = false
           end
         else
@@ -440,14 +441,34 @@ do
   end
 
   function ic:_handle_transition_node(cls, generation_id, event, _cluster_ids)
-    local node = minetest.get_node(event.pos)
-    local nodedef = minetest.registered_nodes[node.name]
-    nodedef.transition_device_state(event.pos, node, event.params.state)
+    local node = minetest.get_node_or_nil(event.pos)
+    if node then
+      local nodedef = minetest.registered_nodes[node.name]
+      if nodedef.transition_device_state then
+        nodedef.transition_device_state(event.pos, node, event.params.state)
+      else
+        self.log("_handle_transition_node",
+                 "WARN: nodedef does not have transition_device_state node_name=" .. node.name)
+      end
+    else
+      self.log("_handle_transition_node",
+               "WARN: node does not exist pos=" .. minetest.pos_to_string(event.pos))
+    end
   end
 
   --
   -- Helper function for rendering cluster members in the cluster tool
   --
+  -- Usage:
+  --   yatm.cluster_tool.register_cluster_tool_render(
+  --     CLUSTER_GROUP,
+  --     simple_cluster_instance:method("cluster_tool_render")
+  --   )
+  --
+  -- Args:
+  -- * `cluster` - a Clusters.Cluster instance
+  -- * `formspec` - the formspec from the cluster tool render process
+  -- * `render_state` - state map containing the cluster information
   function ic:cluster_tool_render(cluster, formspec, render_state)
     local registered_nodes_with_count =
       cluster:reduce_nodes({}, function (node_entry, acc)
