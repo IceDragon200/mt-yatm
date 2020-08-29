@@ -1,22 +1,18 @@
 --
 -- Helper module for building MOS6502 instruction binaries
 --
-local ByteEncoder = yatm.ByteEncoder
-
-if not ByteEncoder then
-  minetest.log("warning", "Memory module requires yatm.ByteEncoder")
-  return
-end
+local ByteEncoder = assert(yatm.ByteEncoder)
+local BELE = assert(ByteEncoder.LE)
 
 local Builder = {}
 local m = Builder
 
 local function imm(val)
-  return ByteEncoder:e_i8(val)
+  return BELE:e_i8(val)
 end
 
 local function abs(addr)
-  return ByteEncoder:e_u16(addr)
+  return BELE:e_u16(addr)
 end
 
 -- BRK impl      // case 0x00:
