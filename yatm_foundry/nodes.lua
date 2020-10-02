@@ -3,6 +3,7 @@ yatm_foundry:require("nodes/concrete_wall.lua")
 yatm_foundry:require("nodes/retaining_wall.lua")
 yatm_foundry:require("nodes/carbon_steel_block.lua")
 yatm_foundry:require("nodes/carbon_steel_chest.lua")
+yatm_foundry:require("nodes/carbon_steel_lantern.lua")
 
 yatm_foundry:require("nodes/electric_heater.lua")
 yatm_foundry:require("nodes/electric_furnace.lua")
