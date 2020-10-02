@@ -4,5 +4,5 @@ minetest.register_craftitem("yatm_solar_energy:photovoltaic_cell", {
     photovoltaic_cell = 1,
   },
 
-  inventory_image = "yatm_solar_panel.top.on.png",
+  inventory_image = "yatm_photovoltaic_cell.png",
 })
