@@ -7,6 +7,29 @@ if dye then
   colors = dye.dyes
 end
 
+-- Default style
+--[[local lantern_nodebox = {
+  type = "fixed",
+  fixed = {
+    -- Default
+    {-4/16,-8/16,-4/16,4/16,2/16,4/16}, -- Base Body
+    {-3/16, 2/16,-3/16,3/16,4/16,3/16},
+    {-2/16, 4/16,-2/16,2/16,7/16,2/16},
+  }
+}]]
+
+-- Fancy style
+local fancy_lantern_nodebox = {
+  type = "fixed",
+  fixed = {
+    -- Default
+    {-4/16,-8/16,-4/16,4/16,-7/16,4/16}, -- Base Plate
+    {-4/16, 1/16,-4/16,4/16,2/16,4/16}, -- Upper Plate
+    {-3/16,-7/16,-3/16,3/16,4/16,3/16}, -- Core
+    {-2/16, 4/16,-2/16,2/16,7/16,2/16}, -- Top Knob
+  }
+}
+
 for _,pair in ipairs(colors) do
   local color_basename = pair[1]
   local color_name = pair[2]
@@ -29,14 +52,7 @@ for _,pair in ipairs(colors) do
     light_source = minetest.LIGHT_MAX,
 
     drawtype = "nodebox",
-    node_box = {
-      type = "fixed",
-      fixed = {
-        {-4/16,-8/16,-4/16,4/16,2/16,4/16},
-        {-3/16, 2/16,-3/16,3/16,4/16,3/16},
-        {-2/16, 4/16,-2/16,2/16,7/16,2/16},
-      }
-    },
+    node_box = fancy_lantern_nodebox,
     tiles = {
       "yatm_carbon_steel_lanterns_" .. color_basename .. "_top.png",
       "yatm_carbon_steel_lanterns_" .. color_basename .. "_bottom.png",
