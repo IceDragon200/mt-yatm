@@ -3,32 +3,6 @@ local ng = Cuboid.new_fast_node_box
 
 local wood_types = {}
 
--- Minetest Game's default
-if rawget(_G, "default") then
-  wood_types = {
-    oak_wood    = {
-      name = "Apple Tree",
-      tile = "default_tree.png",
-    },
-    jungle_wood = {
-      name = "Jungle Tree",
-      tile = "default_jungletree.png",
-    },
-    pine_wood   = {
-      name = "Pine Tree",
-      tile = "default_pine_tree.png",
-    },
-    acacia_wood = {
-      name = "Acacia Tree",
-      tile = "default_acacia_tree.png",
-    },
-    aspen_wood  = {
-      name = "Aspen Tree",
-      tile = "default_aspen_tree.png",
-    },
-  }
-end
-
 -- Nokore World Tree *
 
 if rawget(_G, "nokore_world_tree_acacia") then
@@ -95,7 +69,7 @@ if rawget(_G, "nokore_world_tree_willow") then
 end
 
 for wood_basename, wood_config in pairs(wood_types) do
-  minetest.register_node("yatm_woodcraft:" .. wood_basename .. "_bark", {
+  minetest.register_node(":yatm_woodcraft:" .. wood_basename .. "_bark", {
     basename = "yatm_woodcraft:wood_bark",
     base_description = "Tree Bark",
 

@@ -1,30 +1,5 @@
 local wood_types = {}
 
-if rawget(_G, "default") then
-  wood_types = {
-    oak_wood    = {
-      name = "Apple Wood",
-      default_basename = "oak",
-    },
-    jungle_wood = {
-      name = "Jungle Wood",
-      default_basename = "jungle",
-    },
-    pine_wood   = {
-      name = "Pine Wood",
-      default_basename = "pine",
-    },
-    acacia_wood = {
-      name = "Acacia Wood",
-      default_basename = "acacia",
-    },
-    aspen_wood  = {
-      name = "Aspen Wood",
-      default_basename = "aspen",
-    },
-  }
-end
-
 -- Nokore World Tree *
 
 if rawget(_G, "nokore_world_tree_acacia") then
@@ -91,7 +66,7 @@ if rawget(_G, "nokore_world_tree_willow") then
 end
 
 for wood_basename, wood_config in pairs(wood_types) do
-  minetest.register_node("yatm_woodcraft:" .. wood_basename .. "_core", {
+  minetest.register_node(":yatm_woodcraft:" .. wood_basename .. "_core", {
     basename = "yatm_woodcraft:wood_core",
     base_description = "Tree Core",
 
@@ -103,12 +78,12 @@ for wood_basename, wood_config in pairs(wood_types) do
     },
 
     tiles = {
-      "yatm_wood_core_" .. wood_config.default_basename .. ".top.png",
-      "yatm_wood_core_" .. wood_config.default_basename .. ".top.png",
-      "yatm_wood_core_" .. wood_config.default_basename .. ".side.png",
-      "yatm_wood_core_" .. wood_config.default_basename .. ".side.png",
-      "yatm_wood_core_" .. wood_config.default_basename .. ".side.png",
-      "yatm_wood_core_" .. wood_config.default_basename .. ".side.png",
+      "yatm_wood_core_nokore_" .. wood_config.default_basename .. ".top.png",
+      "yatm_wood_core_nokore_" .. wood_config.default_basename .. ".top.png",
+      "yatm_wood_core_nokore_" .. wood_config.default_basename .. ".side.png",
+      "yatm_wood_core_nokore_" .. wood_config.default_basename .. ".side.png",
+      "yatm_wood_core_nokore_" .. wood_config.default_basename .. ".side.png",
+      "yatm_wood_core_nokore_" .. wood_config.default_basename .. ".side.png",
     },
 
     paramtype = "none",
