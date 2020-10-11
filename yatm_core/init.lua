@@ -15,7 +15,6 @@ yatm_core.Class = foundation.com.Class
 
 -- Utility
 mod:require("changeset.lua")
-mod:require("ui.lua")
 -- Networks
 mod:require("measurable.lua") -- similar to energy, but has a name field too
 -- Nodes and Items
