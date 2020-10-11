@@ -17,6 +17,17 @@ yatm.Vector3 = foundation.com.Vector3
 yatm.Vector4 = foundation.com.Vector4
 yatm.Cuboid = foundation.com.Cuboid
 
+if rawget(_G, "nokore_player_inv") then
+  function yatm.get_player_hotbar_size(_player)
+    return nokore_player_inv.player_hotbar_size
+  end
+else
+  function yatm.get_player_hotbar_size(_player)
+    -- minetest game's default size
+    return 8
+  end
+end
+
 function yatm.register_stateful_node(basename, base, states)
   for name, changes in pairs(states) do
     local nodedef = table_merge(base, changes)
