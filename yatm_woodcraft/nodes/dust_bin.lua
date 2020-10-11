@@ -6,6 +6,7 @@ local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local Groups = assert(foundation.com.Groups)
 local table_merge = assert(foundation.com.table_merge)
+local Directions = assert(foundation.com.Directions)
 
 local ItemInterface = assert(yatm.items.ItemInterface)
 local ItemDevice = assert(yatm.items.ItemDevice)
