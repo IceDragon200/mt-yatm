@@ -3,7 +3,7 @@
 --
 -- Provides CODEX entries for YATM mods
 --
-yatm_codex_entries = foundation.new_module("yatm_codex_entries", "1.0.0")
+local mod = foundation.new_module("yatm_codex_entries", "1.0.0")
 
 local modules = {
   -- YATM
@@ -73,6 +73,9 @@ local modules = {
 
 for _, module_name in ipairs(modules) do
   if minetest.global_exists(module_name) then
-    yatm_codex_entries:require("entries/" .. module_name .. ".lua")
+    mod:require("entries/" .. module_name .. ".lua")
+    print("yatm_codex_entries", "loaded module entries", module_name)
+  else
+    print("yatm_codex_entries", "module unavailable", module_name)
   end
 end
