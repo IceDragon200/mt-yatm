@@ -88,6 +88,7 @@ local groups = {
 yatm.devices.register_stateful_network_device({
   basename = "yatm_dscs:digitizer",
 
+  codex_entry_id = "yatm_dscs:digitizer",
   description = "Digitizer",
 
   groups = groups,

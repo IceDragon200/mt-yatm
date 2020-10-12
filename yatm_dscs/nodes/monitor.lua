@@ -56,6 +56,7 @@ local monitor_crafting_yatm_network = {
 yatm.devices.register_stateful_network_device({
   basename = "yatm_dscs:monitor_crafting",
 
+  codex_entry_id = "yatm_dscs:monitor_crafting",
   description = "Monitor (crafting)",
 
   groups = table_merge(groups, {}),
@@ -129,6 +130,7 @@ local monitor_ele_yatm_network = {
 yatm.devices.register_stateful_network_device({
   basename = "yatm_dscs:monitor_ele",
 
+  codex_entry_id = "yatm_dscs:monitor_ele",
   description = "Monitor (ele)",
 
   groups = table_merge(groups, {}),

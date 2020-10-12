@@ -48,6 +48,8 @@ local groups = {
 yatm.devices.register_stateful_network_device({
   basename = "yatm_dscs:compute_module",
 
+  codex_entry_id = "yatm_dscs:compute_module",
+
   description = "Assembler Compute Module",
 
   groups = groups,

@@ -239,6 +239,7 @@ end
 yatm.devices.register_stateful_network_device({
   basename = "yatm_dscs:drive_case",
 
+  codex_entry_id = "yatm_dscs:drive_case",
   description = "Drive Case",
 
   groups = {

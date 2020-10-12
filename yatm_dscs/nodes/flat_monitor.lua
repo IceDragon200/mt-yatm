@@ -47,6 +47,7 @@ local monitor_crafting_yatm_network = {
 yatm.devices.register_stateful_network_device({
   basename = "yatm_dscs:flat_monitor_crafting",
 
+  codex_entry_id = "yatm_dscs:flat_monitor",
   description = "Flat Monitor (crafting)",
 
   groups = groups,

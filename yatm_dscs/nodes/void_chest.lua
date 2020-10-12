@@ -221,6 +221,7 @@ end
 yatm.devices.register_stateful_network_device({
   basename = "yatm_dscs:void_chest",
 
+  codex_entry_id = "yatm_dscs:void_chest",
   description = "Void Chest\nInstall a Item Drive to access it's contents.",
 
   groups = groups,

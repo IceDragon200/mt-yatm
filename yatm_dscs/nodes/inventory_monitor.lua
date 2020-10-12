@@ -91,6 +91,7 @@ local monitor_inventory_yatm_network = {
 yatm.devices.register_stateful_network_device({
   basename = "yatm_dscs:monitor_ele",
 
+  codex_entry_id = "yatm_dscs:inventory_monitor",
   description = "Monitor (inventory)",
 
   groups = groups,
@@ -171,6 +172,7 @@ local flat_monitor_inventory_yatm_network = {
 yatm.devices.register_stateful_network_device({
   basename = "yatm_dscs:flat_monitor_inventory",
 
+  codex_entry_id = "yatm_dscs:monitor_inventory",
   description = "Flat Monitor (inventory)",
 
   groups = groups,

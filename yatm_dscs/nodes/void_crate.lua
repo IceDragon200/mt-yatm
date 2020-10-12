@@ -49,6 +49,9 @@ local groups = {
 yatm.devices.register_stateful_network_device({
   basename = "yatm_dscs:void_crate",
 
+  codex_entry_id = "yatm_dscs:void_crate",
+
+  base_description = "Void Crate",
   description = "Void Crate\nInstall a fluid drive to access it's contents.",
 
   groups = groups,
