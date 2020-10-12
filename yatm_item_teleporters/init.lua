@@ -3,4 +3,4 @@
 --
 local mod = foundation.new_module("yatm_item_teleporters", "1.0.0")
 
-mod:reuqire("nodes.lua")
+mod:require("nodes.lua")
