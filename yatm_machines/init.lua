@@ -21,16 +21,15 @@ work_rate_energy_threshold :: integer
 startup_energy_threshold :: integer
   if the device is offline, how much energy does it require to go online?
 ]]
-yatm_machines = rawget(_G, "yatm_machines") or {}
-yatm_machines.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_machines", "2.0.0")
 
-dofile(yatm_machines.modpath .. "/compacting_registry.lua")
-dofile(yatm_machines.modpath .. "/condensing_registry.lua")
-dofile(yatm_machines.modpath .. "/freezing_registry.lua")
-dofile(yatm_machines.modpath .. "/grinding_registry.lua")
-dofile(yatm_machines.modpath .. "/rolling_registry.lua")
+mod:require("compacting_registry.lua")
+mod:require("condensing_registry.lua")
+mod:require("freezing_registry.lua")
+mod:require("grinding_registry.lua")
+mod:require("rolling_registry.lua")
 
-dofile(yatm_machines.modpath .. "/api.lua")
-dofile(yatm_machines.modpath .. "/nodes.lua")
+mod:require("api.lua")
+mod:require("nodes.lua")
 
-dofile(yatm_machines.modpath .. "/recipes.lua")
+mod:require("recipes.lua")

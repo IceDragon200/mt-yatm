@@ -1,12 +1,11 @@
-yatm_refinery = rawget(_G, "yatm_refinery") or {}
-yatm_refinery.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_refinery", "1.0.0")
 
-dofile(yatm_refinery.modpath .. "/vapour_registry.lua")
-dofile(yatm_refinery.modpath .. "/distillation_registry.lua")
+mod:require("vapour_registry.lua")
+mod:require("distillation_registry.lua")
 
-dofile(yatm_refinery.modpath .. "/api.lua")
+mod:require("api.lua")
 
-dofile(yatm_refinery.modpath .. "/fluids.lua")
-dofile(yatm_refinery.modpath .. "/nodes.lua")
+mod:require("fluids.lua")
+mod:require("nodes.lua")
 
-dofile(yatm_refinery.modpath .. "/recipes.lua")
+mod:require("recipes.lua")

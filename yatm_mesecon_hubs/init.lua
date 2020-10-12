@@ -1,14 +1,13 @@
 --
 -- YATM Mesecon Hubs
 --
-yatm_mesecon_hubs = rawget(_G, "yatm_mesecon_hubs") or {}
-yatm_mesecon_hubs.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_mesecon_hubs", "1.0.0")
 
-dofile(yatm_mesecon_hubs.modpath .. "/network_meta.lua")
-dofile(yatm_mesecon_hubs.modpath .. "/wireless_network.lua")
-dofile(yatm_mesecon_hubs.modpath .. "/api.lua")
+mod:require("network_meta.lua")
+mod:require("wireless_network.lua")
+mod:require("api.lua")
 
-dofile(yatm_mesecon_hubs.modpath .. "/nodes.lua")
-dofile(yatm_mesecon_hubs.modpath .. "/items.lua")
+mod:require("nodes.lua")
+mod:require("items.lua")
 
-dofile(yatm_mesecon_hubs.modpath .. "/tests.lua")
+mod:require("tests.lua")

@@ -1,7 +1,6 @@
 --
 -- YATM Culinary
 --
-yatm_culinary = rawget(_G, "yatm_culinary") or {}
-yatm_culinary.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_culinary", "1.0.0")
 
-dofile(yatm_culinary.modpath .. "/nodes.lua")
+mod:require("nodes.lua")

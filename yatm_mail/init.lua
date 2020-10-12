@@ -2,9 +2,8 @@
 -- YATM Mail, offers simple mailboxes for dropping off letters and packages.
 -- And yes, it also provides the letters and packages.
 --
-yatm_mail = rawget(_G, "yatm_mail") or {}
-yatm_mail.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_mail", "1.0.0")
 
-dofile(yatm_mail.modpath .. "/nodes.lua")
-dofile(yatm_mail.modpath .. "/items.lua")
-dofile(yatm_mail.modpath .. "/api.lua")
+mod:require("nodes.lua")
+mod:require("items.lua")
+mod:require("api.lua")

@@ -1,10 +1,9 @@
 --
 -- YATM Security
 --
-yatm_security = rawget(_G, "yatm_security") or {}
-yatm_security.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_security", "1.0.0")
 
-dofile(yatm_security.modpath .. "/util.lua")
+mod:require("util.lua")
 
-dofile(yatm_security.modpath .. "/items.lua")
-dofile(yatm_security.modpath .. "/nodes.lua")
+mod:require("items.lua")
+mod:require("nodes.lua")

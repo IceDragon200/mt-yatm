@@ -1,7 +1,6 @@
 --[[
 YATM Mesecon Buttons
 ]]
-yatm_mesecon_buttons = rawget(_G, "yatm_mesecon_buttons") or {}
-yatm_mesecon_buttons.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_mesecon_buttons", "1.0.0")
 
-dofile(yatm_mesecon_buttons.modpath .. "/nodes.lua")
+mod:require("nodes.lua")

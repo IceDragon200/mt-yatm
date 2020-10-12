@@ -1,7 +1,6 @@
 --
 -- YATM Fluid Pipe Valves
 --
-yatm_fluid_pipe_valves = rawget(_G, "yatm_fluid_pipe_valves") or {}
-yatm_fluid_pipe_valves.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_fluid_pipe_valves", "1.0.0")
 
-dofile(yatm_fluid_pipe_valves.modpath .. "/nodes.lua")
+mod:require("nodes.lua")

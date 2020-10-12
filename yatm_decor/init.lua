@@ -1,7 +1,6 @@
 --
 -- YATM Decor
 --
-yatm_decor = rawget(_G, "yatm_decor") or {}
-yatm_decor.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_decor", "1.0.0")
 
-dofile(yatm_decor.modpath .. "/nodes.lua")
+mod:require("nodes.lua")

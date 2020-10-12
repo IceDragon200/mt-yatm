@@ -1,15 +1,14 @@
 --[[
 YATM Item Storage
 ]]
-yatm_item_storage = rawget(_G, "yatm_item_storage") or {}
-yatm_item_storage.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_item_storage", "1.0.0")
 
-dofile(yatm_item_storage.modpath .. "/item_interface.lua")
-dofile(yatm_item_storage.modpath .. "/inventory_serializer.lua")
-dofile(yatm_item_storage.modpath .. "/item_device.lua")
+mod:require("item_interface.lua")
+mod:require("inventory_serializer.lua")
+mod:require("item_device.lua")
 
-dofile(yatm_item_storage.modpath .. "/api.lua")
+mod:require("api.lua")
 
-dofile(yatm_item_storage.modpath .. "/nodes.lua")
+mod:require("nodes.lua")
 
-dofile(yatm_item_storage.modpath .. "/tests.lua")
+mod:require("tests.lua")

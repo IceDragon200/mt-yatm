@@ -1,9 +1,8 @@
 --
 -- YATM Data Console Monitor
 --
-yatm_data_console_monitor = rawget(_G, "yatm_data_console_monitor") or {}
-yatm_data_console_monitor.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_data_console_monitor", "0.2.0")
 
-dofile(yatm_data_console_monitor.modpath .. "/nodes.lua")
+mod:require("nodes.lua")
 
-dofile(yatm_data_console_monitor.modpath .. "/migrations.lua")
+mod:require("migrations.lua")

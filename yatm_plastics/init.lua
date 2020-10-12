@@ -1,7 +1,6 @@
 --
 -- YATM Plastics
 --
-yatm_plastics = rawget(_G, "yatm_plastics") or {}
-yatm_plastics.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_plastics", "0.2.0")
 
-dofile(yatm_plastics.modpath .. "/nodes.lua")
+mod:require("nodes.lua")

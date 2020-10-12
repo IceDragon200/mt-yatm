@@ -1,9 +1,8 @@
-yatm_solar_energy = rawget(_G, "yatm_solar_energy") or {}
-yatm_solar_energy.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_solar_energy", "0.2.0")
 
-dofile(yatm_solar_energy.modpath .. "/api.lua")
+mod:require("api.lua")
 
-dofile(yatm_solar_energy.modpath .. "/nodes.lua")
-dofile(yatm_solar_energy.modpath .. "/items.lua")
+mod:require("nodes.lua")
+mod:require("items.lua")
 
-dofile(yatm_solar_energy.modpath .. "/recipes.lua")
+mod:require("recipes.lua")

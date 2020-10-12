@@ -1,4 +1,3 @@
-yatm_energy_storage_array = rawget(_G, "yatm_energy_storage_array") or {}
-yatm_energy_storage_array.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_energy_storage_array", "1.0.0")
 
-dofile(yatm_energy_storage_array.modpath .. "/nodes.lua")
+mod:require("nodes.lua")

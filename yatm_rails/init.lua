@@ -1,13 +1,12 @@
 --
 -- YATM Rails
 --
-yatm_rails = rawget(_G, "yatm_rails") or {}
-yatm_rails.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_rails", "0.0.1")
 
-dofile(yatm_rails.modpath .. "/api.lua")
+mod:require("api.lua")
 
-dofile(yatm_rails.modpath .. "/entities.lua")
-dofile(yatm_rails.modpath .. "/nodes.lua")
-dofile(yatm_rails.modpath .. "/items.lua")
+mod:require("entities.lua")
+mod:require("nodes.lua")
+mod:require("items.lua")
 
-dofile(yatm_rails.modpath .. "/tests.lua")
+mod:require("tests.lua")

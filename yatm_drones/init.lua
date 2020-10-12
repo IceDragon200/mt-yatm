@@ -1,9 +1,8 @@
 --
 --
 --
-yatm_drones = rawget(_G, "yatm_drones") or {}
-yatm_drones.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_drones", "1.0.0")
 
-dofile(yatm_drones.modpath .. "/entities.lua")
-dofile(yatm_drones.modpath .. "/items.lua")
-dofile(yatm_drones.modpath .. "/nodes.lua")
+mod:require("entities.lua")
+mod:require("items.lua")
+mod:require("nodes.lua")

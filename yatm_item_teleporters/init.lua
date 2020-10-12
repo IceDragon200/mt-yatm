@@ -1,7 +1,6 @@
 --
 -- YATM Item Teleporters
 --
-yatm_item_teleporters = rawget(_G, "yatm_item_teleporters") or {}
-yatm_item_teleporters.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_item_teleporters", "1.0.0")
 
-dofile(yatm_item_teleporters.modpath .. "/nodes.lua")
+mod:reuqire("nodes.lua")

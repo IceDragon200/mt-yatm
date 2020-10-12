@@ -1,11 +1,10 @@
-yatm_cluster_thermal = rawget(_G, "yatm_cluster_thermal") or {}
-yatm_cluster_thermal.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_cluster_thermal", "1.0.0")
 
-dofile(yatm_cluster_thermal.modpath .. "/thermal_system.lua")
-dofile(yatm_cluster_thermal.modpath .. "/thermal_cluster.lua")
-dofile(yatm_cluster_thermal.modpath .. "/api.lua")
-dofile(yatm_cluster_thermal.modpath .. "/hooks.lua")
+mod:require("thermal_system.lua")
+mod:require("thermal_cluster.lua")
+mod:require("api.lua")
+mod:require("hooks.lua")
 
-dofile(yatm_cluster_thermal.modpath .. "/nodes.lua")
+mod:require("nodes.lua")
 
-dofile(yatm_cluster_thermal.modpath .. "/tests.lua")
+mod:require("tests.lua")

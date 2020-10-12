@@ -1,11 +1,10 @@
-yatm_energy_storage = rawget(_G, "yatm_energy_storage") or {}
-yatm_energy_storage.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_energy_storage", "1.0.0")
 
-dofile(yatm_energy_storage.modpath .. "/inventory_batteries.lua")
+mod:require("inventory_batteries.lua")
 
-dofile(yatm_energy_storage.modpath .. "/api.lua")
+mod:require("api.lua")
 
-dofile(yatm_energy_storage.modpath .. "/items.lua")
-dofile(yatm_energy_storage.modpath .. "/nodes.lua")
+mod:require("items.lua")
+mod:require("nodes.lua")
 
-dofile(yatm_energy_storage.modpath .. "/migrations.lua")
+mod:require("migrations.lua")

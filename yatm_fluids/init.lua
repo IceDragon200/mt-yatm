@@ -1,24 +1,23 @@
-yatm_fluids = rawget(_G, "yatm_fluids") or {}
-yatm_fluids.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_fluids", "1.0.0")
 
-dofile(yatm_fluids.modpath .. "/fluid_registry.lua")
-dofile(yatm_fluids.modpath .. "/utils.lua")
-dofile(yatm_fluids.modpath .. "/fluid_stack.lua")
-dofile(yatm_fluids.modpath .. "/fluid_meta.lua")
-dofile(yatm_fluids.modpath .. "/fluid_interface.lua")
-dofile(yatm_fluids.modpath .. "/fluid_tanks.lua")
-dofile(yatm_fluids.modpath .. "/fluid_exchange.lua")
-dofile(yatm_fluids.modpath .. "/fluid_inventory.lua")
+mod:require("fluid_registry.lua")
+mod:require("utils.lua")
+mod:require("fluid_stack.lua")
+mod:require("fluid_meta.lua")
+mod:require("fluid_interface.lua")
+mod:require("fluid_tanks.lua")
+mod:require("fluid_exchange.lua")
+mod:require("fluid_inventory.lua")
 
-dofile(yatm_fluids.modpath .. "/api.lua")
-dofile(yatm_fluids.modpath .. "/hooks.lua")
+mod:require("api.lua")
+mod:require("hooks.lua")
 
-dofile(yatm_fluids.modpath .. "/fluid_tank_functions.lua")
+mod:require("fluid_tank_functions.lua")
 
-dofile(yatm_fluids.modpath .. "/fluids.lua")
-dofile(yatm_fluids.modpath .. "/nodes.lua")
-dofile(yatm_fluids.modpath .. "/items.lua")
+mod:require("fluids.lua")
+mod:require("nodes.lua")
+mod:require("items.lua")
 
-dofile(yatm_fluids.modpath .. "/tests.lua")
+mod:require("tests.lua")
 
-dofile(yatm_fluids.modpath .. "/migrations.lua")
+mod:require("migrations.lua")

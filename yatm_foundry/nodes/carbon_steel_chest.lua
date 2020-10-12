@@ -16,6 +16,8 @@ for _,pair in ipairs(colors) do
   local color_name = pair[2]
 
   nokore_chest:register_chest("yatm_foundry:chest_carbon_steel_" .. color_basename, {
+    codex_entry_id = "yatm_foundry:chest_carbon_steel",
+
     description = yatm_foundry.S(color_name .. " Carbon Steel Chest"),
 
     groups = {

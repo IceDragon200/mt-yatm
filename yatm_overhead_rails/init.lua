@@ -3,9 +3,8 @@
   Overhead Rails
 
 ]]
-yatm_overhead_rails = rawget(_G, "yatm_overhead_rails") or {}
-yatm_overhead_rails.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_overhead_rails")
 
-dofile(yatm_overhead_rails.modpath .. "/nodes.lua")
-dofile(yatm_overhead_rails.modpath .. "/items.lua")
-dofile(yatm_overhead_rails.modpath .. "/entities.lua")
+mod:require("nodes.lua")
+mod:require("items.lua")
+mod:require("entities.lua")

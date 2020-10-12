@@ -1,8 +1,7 @@
 --
 -- YATM Cables
 --
-yatm_cables = rawget(_G, "yatm_cables") or {}
-yatm_cables.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_cables", "1.0.0")
 
-dofile(yatm_cables.modpath .. "/nodes.lua")
-dofile(yatm_cables.modpath .. "/api.lua")
+mod:require("nodes.lua")
+mod:require("api.lua")

@@ -11,12 +11,12 @@ minetest.register_node("yatm_core:face_debug", {
     "yatm_face_debug_zp.png", -- +Z
     "yatm_face_debug_zm.png"  -- -Z
   },
+  use_texture_alpha = false,
 
   paramtype = "none",
   paramtype2 = "facedir",
 
   is_ground_content = false,
-
 })
 
 minetest.register_node("yatm_core:grid_block", {
@@ -27,6 +27,7 @@ minetest.register_node("yatm_core:grid_block", {
   tiles = {
     "yatm_grid.png",
   },
+  use_texture_alpha = true,
 
   paramtype = "light",
   paramtype2 = "facedir",

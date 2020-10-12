@@ -1,15 +1,14 @@
 --
 -- YATM DSCS (Digital Storage Crafting System)
 --
-yatm_dscs = rawget(_G, "yatm_dscs") or {}
-yatm_dscs.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_dscs", "0.2.0")
 
-dofile(yatm_dscs.modpath .. "/crafting_system.lua")
+mod:require("crafting_system.lua")
 
-dofile(yatm_dscs.modpath .. "/api.lua")
-dofile(yatm_dscs.modpath .. "/hooks.lua")
+mod:require("api.lua")
+mod:require("hooks.lua")
 
-dofile(yatm_dscs.modpath .. "/nodes.lua")
-dofile(yatm_dscs.modpath .. "/items.lua")
+mod:require("nodes.lua")
+mod:require("items.lua")
 
-dofile(yatm_dscs.modpath .. "/migrations.lua")
+mod:require("migrations.lua")

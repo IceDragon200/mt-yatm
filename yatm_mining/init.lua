@@ -1,13 +1,12 @@
 --
 -- Mining is focused on automated mining tools, such as the surface drill and quarry.
 --
-yatm_mining = rawget(_G, "yatm_mining") or {}
-yatm_mining.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_mining", "1.0.0")
 
-dofile(yatm_mining.modpath .. "/api.lua")
+mod:require("api.lua")
 
-dofile(yatm_mining.modpath .. "/nodes.lua")
+mod:require("nodes.lua")
 
-dofile(yatm_mining.modpath .. "/migrations.lua")
+mod:require("migrations.lua")
 
-dofile(yatm_mining.modpath .. "/tests.lua")
+mod:require("tests.lua")

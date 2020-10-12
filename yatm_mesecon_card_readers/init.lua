@@ -1,10 +1,9 @@
 --
 -- YATM Mesecon Card Readers
 --
-yatm_mesecon_card_readers = rawget(_G, "yatm_mesecon_card_readers") or {}
-yatm_mesecon_card_readers.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_mesecon_card_readers", "1.0.0")
 
-dofile(yatm_mesecon_card_readers.modpath .. "/items.lua")
-dofile(yatm_mesecon_card_readers.modpath .. "/nodes.lua")
+mod("items.lua")
+mod("nodes.lua")
 
-dofile(yatm_mesecon_card_readers.modpath .. "/migrations.lua")
+mod("migrations.lua")

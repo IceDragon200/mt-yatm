@@ -1,11 +1,10 @@
 --
 -- YATM Security API
 --
-yatm_security_api = rawget(_G, "yatm_security_api") or {}
-yatm_security_api.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_security_api", "0.0.1")
 
-dofile(yatm_security_api.modpath .. "/api.lua")
+mod:require("api.lua")
 
-dofile(yatm_security_api.modpath .. "/security_features.lua")
+mod:require("security_features.lua")
 
-dofile(yatm_security_api.modpath .. "/tests.lua")
+mod:require("tests.lua")

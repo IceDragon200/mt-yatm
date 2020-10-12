@@ -1,12 +1,11 @@
 --
 -- YATM Frames
 --
-yatm_frames = rawget(_G, "yatm_frames") or {}
-yatm_frames.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("yatm_frames", "1.0.0")
 
-dofile(yatm_frames.modpath .. "/api.lua")
+mod:require("api.lua")
 
-dofile(yatm_frames.modpath .. "/nodes.lua")
-dofile(yatm_frames.modpath .. "/items.lua")
+mod:require("nodes.lua")
+mod:require("items.lua")
 
-dofile(yatm_frames.modpath .. "/tests.lua")
+mod:require("tests.lua")
