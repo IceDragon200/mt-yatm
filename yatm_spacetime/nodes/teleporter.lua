@@ -121,17 +121,32 @@ local function maybe_teleport_all_players_on_teleporter(pos, node)
   end
 end
 
+local default_rules = {
+  {x =  0, y =  0, z = -1},
+  {x =  1, y =  0, z =  0},
+  {x = -1, y =  0, z =  0},
+  {x =  0, y =  0, z =  1},
+  {x =  1, y =  1, z =  0},
+  {x =  1, y = -1, z =  0},
+  {x = -1, y =  1, z =  0},
+  {x = -1, y = -1, z =  0},
+  {x =  0, y =  1, z =  1},
+  {x =  0, y = -1, z =  1},
+  {x =  0, y =  1, z = -1},
+  {x =  0, y = -1, z = -1},
+}
+
 -- Dummy mesecons to force the device to connect to mesecon regardless of it's state
 local teleporter_mesecons = {
   effector = {
-    rules = mesecon.rules.default,
+    rules = default_rules,
   },
 }
 
 -- This is the mesecon entry used when the teleporter is on
 local teleporter_on_mesecons = {
   effector = {
-    rules = mesecon.rules.default,
+    rules = default_rules,
 
     action_on = function (pos, node)
       maybe_teleport_all_players_on_teleporter(pos, node)
@@ -151,7 +166,9 @@ local function teleporter_after_place_node(pos, placer, itemstack, pointed_thing
 
   yatm.devices.device_after_place_node(pos, placer, itemstack, pointed_thing)
 
-  minetest.after(0, mesecon.on_placenode, pos, node)
+  if rawget("_G", "mesecon") then
+    minetest.after(0, mesecon.on_placenode, pos, node)
+  end
 end
 
 local function teleporter_on_destruct(pos)
