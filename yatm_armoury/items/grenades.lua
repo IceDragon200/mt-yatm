@@ -10,7 +10,7 @@ minetest.register_tool("yatm_armoury:grenade_lemonade", {
 })
 
 minetest.register_tool("yatm_armoury:grenade_chemical", {
-  description = "Chemical Grenade\nCaution: May or may contain, harmful substances, up to you.",
+  description = "Chemical Grenade\nCaution: May or may not contain, harmful substances, up to you.",
 
   groups = {
     grenade = 1,
