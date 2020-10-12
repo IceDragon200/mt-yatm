@@ -41,6 +41,21 @@ local valve_nodebox = {
   connect_right  = {-size, -size, -size, 0.5,   size, size}, -- x+
 }
 
+local valve_mesecon_rules = {
+  {x =  0, y =  0, z = -1},
+  {x =  1, y =  0, z =  0},
+  {x = -1, y =  0, z =  0},
+  {x =  0, y =  0, z =  1},
+  {x =  1, y =  1, z =  0},
+  {x =  1, y = -1, z =  0},
+  {x = -1, y =  1, z =  0},
+  {x = -1, y = -1, z =  0},
+  {x =  0, y =  1, z =  1},
+  {x =  0, y = -1, z =  1},
+  {x =  0, y =  1, z = -1},
+  {x =  0, y = -1, z = -1},
+}
+
 local basename = "yatm_fluid_pipe_valves:valve_fluid_pipe"
 for _,color_pair in ipairs(colors) do
   local color_basename = color_pair[1]
@@ -107,7 +122,7 @@ for _,color_pair in ipairs(colors) do
 
     mesecons = {
       effector = {
-        rules = mesecon.rules.default,
+        rules = valve_mesecon_rules,
 
         action_on = function (pos, node)
           node.name = node_name .. "_on"
@@ -154,7 +169,7 @@ for _,color_pair in ipairs(colors) do
 
     mesecons = {
       effector = {
-        rules = mesecon.rules.default,
+        rules = valve_mesecon_rules,
 
         action_off = function (pos, node)
           node.name = node_name .. "_off"
