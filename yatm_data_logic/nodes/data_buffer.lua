@@ -66,7 +66,7 @@ minetest.register_node("yatm_data_logic:data_buffer", {
       local meta = minetest.get_meta(pos)
 
       local formspec =
-        "size[8,9]" ..
+        yatm_data_logic.layout_formspec() ..
         yatm.formspec_bg_for_player(user:get_player_name(), "module") ..
         "label[0,0;Port Configuration]" ..
         yatm_data_logic.get_io_port_formspec(pos, meta, "io")

@@ -2,6 +2,7 @@ local Directions = assert(foundation.com.Directions)
 local list_map = assert(foundation.com.list_map)
 local string_split = assert(foundation.com.string_split)
 local data_network = assert(yatm.data_network)
+local bit = assert(foundation.com.bit)
 
 yatm_data_logic.INTERVAL_LIST = {
   {
@@ -64,6 +65,10 @@ end
 yatm_data_logic.INTERVAL_STRING = table.concat(list_map(yatm_data_logic.INTERVAL_LIST, function (item)
   return item.value
 end), ",")
+
+local function toggle_bit(value, pos)
+  return bit.bxor(value, bit.lshift(1, pos))
+end
 
 -- @spec yatm_data_logic.encode_varuint(value: Integer, length: Integer) :: String
 function yatm_data_logic.encode_varuint(value, length)
@@ -287,181 +292,6 @@ function yatm_data_logic.emit_value(pos, local_port, value)
   return did_output
 end
 
---
--- @type options :: {
---   width = float,
---   sections = [
---     {
---        name = string, -- lower case string will be prefixed on the port names
---        label = string, -- descriptive label of the section
---        cols = integer, -- how many colunms are allowed in this section
---        port_count = integer, -- how many ports does this section have
---        port_names = [string], -- the port names
---        port_labels = [string], -- the descriptive labels of each port
---     }
---   ]
--- }
--- @spec yatm_data_logic.get_port_matrix_formspec(vector, MetaRef, options)
-function yatm_data_logic.get_port_matrix_formspec(pos, meta, options)
-  options = options or {}
-  local sub_network_ids = data_network:get_sub_network_ids(pos)
-  local attached_colors = data_network:get_attached_colors(pos)
-
-  local col_width = options.width or 8
-  local i = 1
-
-  local formspec = ""
-
-  -- 0.5 is the border size (0.25 on each side)
-  local sections_width = (col_width - 0.5) / #options.sections
-
-  for _, dir in ipairs(Directions.DIR6) do
-    local sub_network_id = sub_network_ids[dir]
-    if sub_network_id then
-      local name = minetest.formspec_escape(Directions.dir_to_string(dir) .. " - " ..
-                                            (attached_colors[dir] or "N/A") .. " - " ..
-                                            sub_network_id)
-
-      formspec =
-        formspec ..
-        "label[0.25," .. i .. ";" .. minetest.formspec_escape(name) .. "]"
-
-      i = i + 1
-
-      local max_section_y = 0
-
-      for section_index, section in ipairs(options.sections) do
-        local section_y = i
-        local section_x = 0.25 + sections_width * (section_index - 1)
-
-        if section.label then
-          formspec =
-            formspec ..
-            "label[" .. section_x .. "," .. section_y .. ";" .. minetest.formspec_escape(section.label) .. "]"
-
-          section_y = section_y + 1
-        end
-
-        local section_col_width = sections_width / section.cols
-
-        for port_id = 1, section.port_count do
-          local x = section_x + ((port_id - 1) % section.cols) * section_col_width
-          local y = section_y + math.floor((port_id - 1) / section.cols)
-
-          local field_name = section.name .. "_" .. dir .. "_" .. (section.port_names[port_id] or port_id)
-          local field_label = section.port_labels[port_id] or field_name
-
-          formspec =
-            formspec ..
-            "field[" .. x .. "," .. y ..
-                   ";" .. section_col_width .. ",1;" .. field_name ..
-                   ";" .. minetest.formspec_escape(field_label) ..
-                   ";" .. meta:get_int(field_name) .. "]"
-        end
-
-        max_section_y = math.max(max_section_y, section_y)
-      end
-
-      i = max_section_y + 1
-    end
-  end
-
-  return formspec
-end
-
-function yatm_data_logic.get_io_port_formspec(pos, meta, mode, options)
-  options = options or {}
-  mode = mode or "io"
-  local sub_network_ids = data_network:get_sub_network_ids(pos)
-  local attached_colors = data_network:get_attached_colors(pos)
-
-  local col_width = options.width or 8
-
-  if mode == "io" then
-    col_width = math.floor(col_width / 2)
-  end
-
-  local inputs =
-    "label[0,1;Inputs]"
-
-  local outputs
-  local output_x = 0
-  if mode == "io" then
-    outputs = "label[" .. col_width .. ",1;Outputs]"
-    output_x = col_width
-  elseif mode == "o" then
-    outputs = "label[0,1;Outputs]"
-  end
-
-  local i = 2
-
-  for _, dir in ipairs(Directions.DIR6) do
-    if sub_network_ids[dir] then
-      local sub_network_id = sub_network_ids[dir]
-
-      local name = Directions.dir_to_string(dir) .. " - " ..
-                   (attached_colors[dir] or "N/A") .. " - " ..
-                   sub_network_id
-
-      if mode == "io" or mode == "i" then
-        local default_value
-        -- if input is vector, then pull multiple values instead
-        if options.input_vector then
-          local values = {}
-
-          for input_index = 1,options.input_vector do
-            values[input_index] = meta:get_int("input_" .. dir .. "_" .. input_index)
-          end
-
-          default_value = minetest.formspec_escape(table.concat(values, ","))
-        else
-          default_value = meta:get_int("input_" .. dir)
-        end
-
-        inputs =
-          inputs ..
-          "field[0.25," .. i ..
-                 ";" .. col_width .. ",1;input_" .. dir ..
-                 ";" .. name ..
-                 ";" .. default_value .. "]"
-      end
-
-      if mode == "io" or mode == "o" then
-        local default_value
-        -- if output is vector, then pull multiple values instead
-        if options.output_vector then
-          local values = {}
-
-          for output_index = 1,options.output_vector do
-            values[output_index] = meta:get_int("output_" .. dir .. "_" .. output_index)
-          end
-
-          default_value = minetest.formspec_escape(table.concat(values, ","))
-        else
-          default_value = meta:get_int("output_" .. dir)
-        end
-
-        outputs =
-          outputs ..
-          "field[" .. (output_x + 0.25) ..  "," .. i ..
-                 ";" .. col_width .. ",1;output_" .. dir ..
-                 ";" .. name ..
-                 ";" .. default_value .. "]"
-      end
-
-      i = i + 1
-    end
-  end
-
-  if mode == "io" then
-    return inputs .. outputs
-  elseif mode == "o" then
-    return outputs
-  elseif mode == "i" then
-    return inputs
-  end
-end
-
 local function set_vector(meta, basename, dir, value, vector, changed)
   local items = string_split(value, ",")
 
@@ -496,32 +326,65 @@ function yatm_data_logic.handle_io_port_fields(pos, fields, meta, mode, options)
   local inputs_changed = {}
   local outputs_changed = {}
 
+  local has_input = mode == "io" or mode == "i"
+  local has_output = mode == "io" or mode == "o"
+
   for _, dir in ipairs(Directions.DIR6) do
     local input_value = fields["input_" .. dir]
     local output_value = fields["output_" .. dir]
 
-    if input_value and (mode == "io" or mode == "i") then
-      if options.input_vector then
-        set_vector(meta, "input", dir, input_value, options.input_vector, inputs_changed)
+    if has_input then
+      if input_value then
+        if options.input_vector then
+          set_vector(meta, "input", dir, input_value, options.input_vector, inputs_changed)
+        else
+          input_value = tonumber(input_value)
+          local old_input_value = meta:get_int("input_" .. dir)
+          if input_value ~= old_input_value then
+            inputs_changed[dir] = {input_value, old_input_value}
+            meta:set_int("input_" .. dir, input_value)
+          end
+        end
       else
-        input_value = tonumber(input_value)
-        local old_input_value = meta:get_int("input_" .. dir)
-        if input_value ~= old_input_value then
-          inputs_changed[dir] = {input_value, old_input_value}
-          meta:set_int("input_" .. dir, input_value)
+        for i=1,8 do
+          local input_bit = fields["input_"..dir.."_bit_"..i]
+          if input_bit then
+            local old_input_value = meta:get_int("input_" .. dir)
+            input_value = toggle_bit(old_input_value, i-1)
+
+            if input_value ~= old_input_value then
+              inputs_changed[dir] = {input_value, old_input_value}
+              meta:set_int("input_" .. dir, input_value)
+            end
+          end
         end
       end
     end
 
-    if output_value and (mode == "io" or mode == "o") then
-      if options.output_vector then
-        set_vector(meta, "output", dir, output_value, options.output_vector, outputs_changed)
+    if has_output then
+      if output_value then
+        if options.output_vector then
+          set_vector(meta, "output", dir, output_value, options.output_vector, outputs_changed)
+        else
+          output_value = tonumber(output_value)
+          local old_output_value = meta:get_int("output_" .. dir)
+          if output_value ~= old_output_value then
+            outputs_changed[dir] = {output_value, old_output_value}
+            meta:set_int("output_" .. dir, output_value)
+          end
+        end
       else
-        output_value = tonumber(output_value)
-        local old_output_value = meta:get_int("output_" .. dir)
-        if output_value ~= old_output_value then
-          outputs_changed[dir] = {output_value, old_output_value}
-          meta:set_int("output_" .. dir, output_value)
+        for i=1,8 do
+          local output_bit = fields["output_"..dir.."_bit_"..i]
+          if output_bit then
+            local old_output_value = meta:get_int("output_" .. dir)
+            output_value = toggle_bit(old_output_value, i-1)
+
+            if output_value ~= old_output_value then
+              outputs_changed[dir] = {output_value, old_output_value}
+              meta:set_int("output_" .. dir, output_value)
+            end
+          end
         end
       end
     end

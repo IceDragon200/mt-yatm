@@ -91,8 +91,7 @@ local function get_formspec(pos, user, assigns)
   assigns.scale = 10 / assigns.width
 
   local formspec =
-    "formspec_version[2]" ..
-    "size[12,12]" ..
+    yatm_data_logic.layout_formspec() ..
     yatm.formspec_bg_for_player(user:get_player_name(), "module") ..
     render_pads(inv, meta, assigns)
 

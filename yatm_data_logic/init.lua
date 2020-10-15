@@ -3,6 +3,7 @@
 --
 local mod = foundation.new_module("yatm_data_logic", "1.1.0")
 
+mod:require("formspec.lua")
 mod:require("common.lua")
 
 mod:require("nodes.lua")

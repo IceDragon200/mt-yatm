@@ -2,6 +2,8 @@ local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local sounds = assert(yatm_core.sounds)
 local data_network = assert(yatm.data_network)
+local is_table_empty = assert(foundation.com.is_table_empty)
+local fspec = assert(foundation.com.formspec.api)
 
 local function on_node_pulsed(pos, node)
   local nodedef = minetest.registered_nodes[node.name]
@@ -102,7 +104,7 @@ yatm.register_stateful_node("yatm_data_logic:data_pulser", {
       assigns.tab = assigns.tab or 1
 
       local formspec =
-        "size[8,9]" ..
+        yatm_data_logic.layout_formspec() ..
         yatm.formspec_bg_for_player(user:get_player_name(), "module") ..
         "tabheader[0,0;tab;Ports,Data;" .. assigns.tab .. "]"
 
@@ -150,7 +152,11 @@ yatm.register_stateful_node("yatm_data_logic:data_pulser", {
         end
       end
 
-      yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "o")
+      local _ic, ochg = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "o")
+
+      if not is_table_empty(ochg) then
+        needs_refresh = true
+      end
 
       if fields["data_pulse"] then
         meta:set_string("data_pulse", fields["data_pulse"])

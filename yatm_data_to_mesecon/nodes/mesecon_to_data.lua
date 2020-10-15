@@ -1,4 +1,5 @@
 local Directions = assert(foundation.com.Directions)
+local is_table_empty = assert(foundation.com.is_table_empty)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 
@@ -63,7 +64,7 @@ yatm.register_stateful_node("yatm_data_to_mesecon:mesecon_to_data", {
       local meta = minetest.get_meta(pos)
       assigns.tab = assigns.tab or 1
       local formspec =
-        "size[8,9]" ..
+        yatm_data_logic.layout_formspec() ..
         yatm.formspec_bg_for_player(user:get_player_name(), "module") ..
         "tabheader[0,0;tab;Ports,Data;" .. assigns.tab .. "]"
 
@@ -104,7 +105,11 @@ yatm.register_stateful_node("yatm_data_to_mesecon:mesecon_to_data", {
         end
       end
 
-      yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "o")
+      local _ichg, ochg = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "o")
+
+      if not is_table_empty(ochg) then
+        needs_refresh = true
+      end
 
       if fields["data_off"] then
         meta:set_string("data_off", fields["data_off"])

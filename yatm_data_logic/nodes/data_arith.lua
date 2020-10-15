@@ -95,7 +95,7 @@ local data_interface = {
     assigns.tab = assigns.tab or 1
 
     local formspec =
-      "size[8,9]" ..
+      yatm_data_logic.layout_formspec() ..
       yatm.formspec_bg_for_player(user:get_player_name(), "module") ..
       "tabheader[0,0;tab;Ports,Data;" .. assigns.tab .. "]"
 
@@ -104,7 +104,7 @@ local data_interface = {
         formspec ..
         "label[0,0;Port Configuration]" ..
         yatm_data_logic.get_port_matrix_formspec(pos, meta, {
-          width = 8,
+          width = 12,
           sections = {
             {
               name = "port",
@@ -122,7 +122,7 @@ local data_interface = {
         formspec ..
         "label[0,0;Data Configuration]" ..
         "label[0,1;Operands]" ..
-        "field[0.25,2;8,1;operands;Operands;" .. minetest.formspec_escape(meta:get_string("operands")) .. "]"
+        "field[0.25,2;11.5,1;operands;Operands;" .. minetest.formspec_escape(meta:get_string("operands")) .. "]"
     end
 
     return formspec

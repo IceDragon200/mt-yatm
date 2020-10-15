@@ -34,7 +34,7 @@ yatm.register_stateful_node("yatm_data_logic:data_toggle_button", {
       local meta = minetest.get_meta(pos)
       assigns.tab = assigns.tab or 1
       local formspec =
-        "size[8,9]" ..
+        yatm_data_logic.layout_formspec() ..
         yatm.formspec_bg_for_player(user:get_player_name(), "module") ..
         "tabheader[0,0;tab;Ports,Data;" .. assigns.tab .. "]"
 

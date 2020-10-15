@@ -117,7 +117,7 @@ minetest.register_node("yatm_data_logic:data_memory", {
       assigns.tab = assigns.tab or 1
 
       local formspec =
-        "size[8,9]" ..
+        yatm_data_logic.layout_formspec() ..
         yatm.formspec_bg_for_player(user:get_player_name(), "module") ..
         "tabheader[0,0;tab;Ports,Data;" .. assigns.tab .. "]"
 
@@ -126,7 +126,7 @@ minetest.register_node("yatm_data_logic:data_memory", {
           formspec ..
           "label[0,0;Port Configuration]" ..
           yatm_data_logic.get_port_matrix_formspec(pos, meta, {
-            width = 8,
+            width = 12,
             sections = {
               {
                 name = "port",

@@ -110,7 +110,7 @@ minetest.register_node("yatm_data_logic:data_clock", {
       assigns.tab = assigns.tab or 1
 
       local formspec =
-        "size[8,9]" ..
+        yatm_data_logic.layout_formspec() ..
         yatm.formspec_bg_for_player(user:get_player_name(), "module")
 
       if assigns.tab == 1 then

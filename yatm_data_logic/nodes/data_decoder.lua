@@ -10,7 +10,8 @@ local string_hex_decode = assert(foundation.com.string_hex_decode)
 local string_pad_trailing = assert(foundation.com.string_pad_trailing)
 local is_table_empty = assert(foundation.com.is_table_empty)
 local data_network = assert(yatm.data_network)
-local ByteDecoder = yatm.ByteDecoder
+local ByteDecoder = assert(yatm.ByteDecoder)
+local fspec = assert(foundation.com.formspec.api)
 
 -- Decoders use vectorized outputs
 local VECTOR_CONFIG = {
@@ -194,8 +195,9 @@ minetest.register_node("yatm_data_logic:data_decoder", {
       --
       local meta = minetest.get_meta(pos)
       assigns.tab = assigns.tab or 1
+
       local formspec =
-        "size[8,9]" ..
+        yatm_data_logic.layout_formspec() ..
         yatm.formspec_bg_for_player(user:get_player_name(), "module") ..
         "tabheader[0,0;tab;Ports,Data;" .. assigns.tab .. "]"
 
