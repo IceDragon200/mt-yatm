@@ -1,14 +1,20 @@
 local is_blank = assert(foundation.com.is_blank)
 local ItemInterface = assert(yatm.items.ItemInterface)
+local fspec = assert(foundation.com.formspec.api)
 
-function get_ammo_can_formspec(pos, user)
+function get_ammo_can_formspec(pos, entity)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+
+  local hotbar_size = yatm.get_player_hotbar_size(entity)
+
+  local w = math.max(12, hotbar_size)
+  local h = 10
+
   local formspec =
-    "size[12,9]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "default") ..
-    "list[nodemeta:" .. spos .. ";main;0,0.3;12,4;]" ..
-    "list[current_player;main;2,4.85;8,1;]" ..
-    "list[current_player;main;2,6.08;8,3;8]" ..
+    fspec.size(w, h) ..
+    yatm.formspec_bg_for_player(entity:get_player_name(), "default") ..
+    fspec.list("nodemeta:"..spos, "main", (w - 12) / 2, 0.3, 12, 4) ..
+    yatm.player_inventory_lists_fragment(entity, (w - hotbar_size) / 2, 5.85) ..
     "listring[nodemeta:" .. spos .. ";main]" ..
     "listring[current_player;main]"
 

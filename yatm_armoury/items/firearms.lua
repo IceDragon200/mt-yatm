@@ -42,7 +42,7 @@
 -- 'gl'  Grenade Launcher
 --
 
--- firearms are designed on a 24x24 grid, the Sallos HG is the reference point
+-- firearms were designed on a 24x24 grid, the Sallos HG is the reference point
 local function make_visual_scale(res)
   local a = res / 24
   return { x = a, y = a, z = 1 }

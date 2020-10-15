@@ -7,6 +7,7 @@ if not yatm_machines then
 end
 
 local Directions = assert(foundation.com.Directions)
+local ItemInterface = assert(yatm.items.ItemInterface)
 
 local chemical_injector_item_interface =
   ItemInterface.new_directional(function (self, pos, dir)
@@ -37,6 +38,10 @@ local chemical_injector_yatm_network = {
     startup_threshold = 500,
   },
 }
+
+function chemical_injector_yatm_network.work()
+  -- TODO
+end
 
 yatm.devices.register_stateful_network_device({
   codex_entry_id = "yatm_armoury:chemical_injector",
