@@ -1,9 +1,12 @@
 local sounds = assert(yatm.sounds)
+local fspec = assert(foundation.com.formspec.api)
 
-local function get_codex_entry_formspec(user, assigns)
+local function get_codex_entry_formspec(entity, assigns)
+  local w = yatm.get_player_hotbar_size(entity)
+  local h = 10
   local formspec =
-    "size[8,9]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "codex")
+    fspec.size(w, h) ..
+    yatm.formspec_bg_for_player(entity:get_player_name(), "codex")
 
   local page = assert(assigns.codex_entry.pages[assigns.page_id])
 
@@ -28,21 +31,21 @@ local function get_codex_entry_formspec(user, assigns)
       formspec ..
       -- For the love of code, WTF, last time I put the grid before it, it appeared above it!
       -- this gives the illusion of a grid around the item
-      "item_image[0,0;1.5,1.5;yatm_core:grid_block]" ..
-      "item_image[0,0;1.5,1.5;" .. item_name .. "]" ..
+      "item_image[0,0.25;1.5,1.5;yatm_core:grid_block]" ..
+      "item_image[0,0.25;1.5,1.5;" .. item_name .. "]" ..
       ""
   end
 
   if page.heading then
+    local x = 0
+
     if page.heading_item then
-      formspec =
-        formspec ..
-        "label[1.5,0.5;" .. page.heading .. "]"
-    else
-      formspec =
-        formspec ..
-        "label[0,0.5;" .. page.heading .. "]"
+      x = 1.5
     end
+
+    formspec =
+      formspec ..
+      fspec.label(x, 0.5, page.heading)
   end
 
   local y = 1.5
@@ -50,7 +53,7 @@ local function get_codex_entry_formspec(user, assigns)
   local dy = y
   if page.lines then
     for i, line in ipairs(page.lines) do
-      dy = y + (i - 1) * 1.2
+      dy = y + (i - 1) * 1.0
       formspec =
         formspec ..
         -- For 5.1.x
@@ -60,7 +63,8 @@ local function get_codex_entry_formspec(user, assigns)
         --   But in all honestly it's like the inventory based sizing doesn't even apply to hypertext...
         -- As of 5.2.0-1db3d252
         --   Elements seem to behave like normal now, instead of the weird line spacing they had before.
-        "hypertext[0.125," .. dy .. ";8,1.2;line" .. i .. ";" .. minetest.formspec_escape(line) .. "]"
+        -- As of 5.4.0 back to the weird
+        fspec.hypertext(0.25, dy, w, 1.2, "line"..i, line)
     end
   end
 
@@ -70,7 +74,7 @@ local function get_codex_entry_formspec(user, assigns)
       dy = y + (i) * 0.2
       formspec =
         formspec ..
-        "button[0.125," .. dy .. ";8,1;demo;" .. minetest.formspec_escape(demo_name) .. "]"
+        fspec.button(0.125, dy, w - 0.25, 1, "demo", demo_name)
     end
   end
 
@@ -78,13 +82,13 @@ local function get_codex_entry_formspec(user, assigns)
     if assigns.page_id > 1 then
       formspec =
         formspec ..
-        "button[0,8;2,1;prev_page;<]"
+        fspec.button(0.125, h - 1, 2, 1, "prev_page", "<")
     end
 
     if assigns.page_id < assigns.page_count then
       formspec =
         formspec ..
-        "button[6,8;2,1;next_page;>]"
+        fspec.button(w - 0.25, h - 1, 2, 1, "next_page", ">")
     end
   end
 
