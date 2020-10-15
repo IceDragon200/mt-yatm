@@ -166,7 +166,7 @@ local function teleporter_after_place_node(pos, placer, itemstack, pointed_thing
 
   yatm.devices.device_after_place_node(pos, placer, itemstack, pointed_thing)
 
-  if rawget("_G", "mesecon") then
+  if rawget(_G, "mesecon") then
     minetest.after(0, mesecon.on_placenode, pos, node)
   end
 end
