@@ -1,6 +1,7 @@
 local list_concat = assert(foundation.com.list_concat)
 local is_blank = assert(foundation.com.is_blank)
 local FakeMetaRef = assert(foundation.com.FakeMetaRef)
+local fspec = assert(foundation.com.formspec.api)
 
 local colors = {
   {"white", "White"}
@@ -39,8 +40,11 @@ local function mailbox_get_formspec(pos, is_unlocked)
     bg = yatm.bg.default
   end
 
+  local w = yatm.get_player_hotbar_size(entity)
+  local h = 10
+
   local formspec =
-    "size[8,9]" ..
+    fspec.size(w, h) ..
     bg ..
     "label[0,0;Mailbox]"
 
@@ -60,14 +64,14 @@ local function mailbox_get_formspec(pos, is_unlocked)
 
   formspec =
     formspec ..
-    "list[nodemeta:" .. spos .. ";dropoff;3,0.5;4,1;]" ..
+    fspec.list("nodemeta:"..spos, "dropoff", w - 4, 0.5, 4, 1) ..
     "listring[nodemeta:" .. spos .. ";dropoff]" ..
     "listring[current_player;main]"
 
   if is_unlocked then
     formspec =
       formspec ..
-      "list[nodemeta:" .. spos .. ";inbox;0,2.0;8,2;]"
+      fspec.list("nodemeta:"..spos, "inbox", 0, 2, w, 2)
 
     if yatm_security.is_lockable_node(pos) then
       formspec =
@@ -91,8 +95,7 @@ local function mailbox_get_formspec(pos, is_unlocked)
 
   formspec =
     formspec ..
-    "list[current_player;main;0,5.85;8,1;]" ..
-    "list[current_player;main;0,7.08;8,3;8]"
+    yatm.player_inventory_lists_fragment(entity, 0, 5.85)
 
   return formspec
 end

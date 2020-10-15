@@ -5,20 +5,23 @@
 --
 local Cuboid = assert(foundation.com.Cuboid)
 local is_blank = assert(foundation.com.is_blank)
+local fspec = assert(foundation.com.formspec.api)
 
-function get_package_formspec(pos, user)
+function get_package_formspec(pos, entity)
   local meta = minetest.get_meta(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
+  local w = yatm.get_player_hotbar_size(entity)
+  local h = 10
+
   local formspec =
-    "size[8,9]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "wood") ..
+    fspec.size(w, h) ..
+    yatm.formspec_bg_for_player(entity:get_player_name(), "wood") ..
     "label[0,0;Package]" ..
     "list[nodemeta:" .. spos .. ";main;0,0.5;3,3;]" ..
-    "field[4,1;4,1;addressed_from;From;" .. meta:get_string("addressed_from") .. "]" ..
-    "field[4,3;4,1;addressed_to;To;" .. meta:get_string("addressed_to") .. "]" ..
-    "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]" ..
+    fspec.field_area(4, 1, w - 4, 1, "addressed_from", "From", meta:get_string("addressed_from")) ..
+    fspec.field_area(4, 3, w - 4, 1, "addressed_to", "To", meta:get_string("addressed_to")) ..
+    yatm.player_inventory_lists_fragment(entity, 0, 5.85) ..
     "listring[nodemeta:" .. spos .. ";main]" ..
     "listring[current_player;main]"
 
