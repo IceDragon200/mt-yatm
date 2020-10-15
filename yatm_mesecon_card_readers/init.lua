@@ -3,7 +3,7 @@
 --
 local mod = foundation.new_module("yatm_mesecon_card_readers", "1.0.0")
 
-mod("items.lua")
-mod("nodes.lua")
+mod:require("items.lua")
+mod:require("nodes.lua")
 
-mod("migrations.lua")
+mod:require("migrations.lua")
