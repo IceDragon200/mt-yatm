@@ -5,12 +5,13 @@
 local Energy = assert(yatm.energy)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
+local fspec = assert(foundation.com.formspec.api)
 
 local function get_formspec_name(pos)
   return "yatm_dscs:void_chest:" .. minetest.pos_to_string(pos)
 end
 
-local function get_void_chest_formspec(pos, user, assigns)
+local function get_void_chest_formspec(pos, entity, assigns)
   local meta = minetest.get_meta(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local inv = meta:get_inventory()
@@ -24,46 +25,52 @@ local function get_void_chest_formspec(pos, user, assigns)
     label = stack:get_meta():get_string("drive_label")
   end
 
-  local formspec =
-    "size[9,10]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "dscs")
+  local cols = yatm.get_player_hotbar_size(entity)
+  local rows = 4
 
-  local row_count = math.ceil(capacity / 32)
+  local w = yatm.get_player_hotbar_size(entity)
+  local h = 10
+
+  local page_size = rows * cols
+
+  local formspec =
+    fspec.size(w, h) ..
+    yatm.formspec_bg_for_player(entity:get_player_name(), "dscs")
+
+  local row_count = math.ceil(capacity / page_size)
   assigns.drive_contents_offset = math.min(math.max(assigns.drive_contents_offset, 0), row_count - 1)
-  local row_offset = assigns.drive_contents_offset * 32
+  local row_offset = assigns.drive_contents_offset * page_size
 
   formspec =
     formspec ..
-    "label[0,0;Void Chest]" ..
-    "list[nodemeta:" .. spos .. ";drive_slot;0,0.5;1,1;]"
+    fspec.label(0, 0, "Void Chest") ..
+    fspec.list("nodemeta:"..spos, "drive_slot", 0, 0.5, 1, 1)
 
   if capacity > 0 then
     formspec =
       formspec ..
-      "field[1.25,1;7,1;drive_label;Drive Label;" .. minetest.formspec_escape(label) ..  "]" ..
-      "list[nodemeta:" .. spos .. ";drive_contents;0,1.5;8,4;" .. row_offset .. "]"
+      fspec.field_area(1.25, 1, w - 1, 1, "drive_label", "Drive Label", label) ..
+      fspec.list("nodemeta:"..spos, "drive_contents", 0, 1.5, cols, rows, row_offset)
   end
 
   formspec =
     formspec ..
-    "list[current_player;main;0.5,5.85;8,1;]" ..
-    "list[current_player;main;0.5,7.08;8,3;8]" ..
-    "listring[nodemeta:" .. spos .. ";drive_slot]" ..
-    "listring[current_player;main]"
+    yatm.player_inventory_lists_fragment(entity, 0, 5.85) ..
+    fspec.list_ring("current_player", "main")
 
   if capacity > 0 then
     formspec =
       formspec ..
-      "listring[nodemeta:" .. spos .. ";drive_contents]" ..
-      "listring[current_player;main]"
+      fspec.list_ring("nodemeta:"..spos, "drive_contents") ..
+      fspec.list_ring("current_player", "main")
   end
 
   if row_count > 1 then
     formspec =
       formspec ..
-      "button[8,1.5;1,1;up;Up]" ..
-      "label[8,3.5;" .. (assigns.drive_contents_offset + 1) .. "/" .. row_count .. "]" ..
-      "button[8,4.5;1,1;down;Down]"
+      fspec.button(w - 1, 1.5, 1, 1, "up", "Up") ..
+      fspec.label(w - 1, 3.5, (assigns.drive_contents_offset + 1) .. "/" .. row_count) ..
+      fspec.button(w - 1, 4.5, 1, 1, "down", "Down")
   end
 
   return formspec

@@ -44,6 +44,12 @@ local monitor_crafting_yatm_network = {
   },
 }
 
+local groups = {
+  cracky = 1,
+  monitor = 1,
+  crafting_monitor = 1,
+}
+
 yatm.devices.register_stateful_network_device({
   basename = "yatm_dscs:flat_monitor_crafting",
 
