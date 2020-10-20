@@ -11,7 +11,7 @@ local function get_formspec_name(pos)
   return "yatm_dscs:void_chest:" .. minetest.pos_to_string(pos)
 end
 
-local function get_void_chest_formspec(pos, entity, assigns)
+local function get_void_chest_formspec(pos, player_name, assigns)
   local meta = minetest.get_meta(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local inv = meta:get_inventory()
@@ -25,6 +25,8 @@ local function get_void_chest_formspec(pos, entity, assigns)
     label = stack:get_meta():get_string("drive_label")
   end
 
+  local entity = nil
+
   local cols = yatm.get_player_hotbar_size(entity)
   local rows = 4
 
@@ -35,7 +37,7 @@ local function get_void_chest_formspec(pos, entity, assigns)
 
   local formspec =
     fspec.size(w, h) ..
-    yatm.formspec_bg_for_player(entity:get_player_name(), "dscs")
+    yatm.formspec_bg_for_player(player_name, "dscs")
 
   local row_count = math.ceil(capacity / page_size)
   assigns.drive_contents_offset = math.min(math.max(assigns.drive_contents_offset, 0), row_count - 1)
@@ -78,8 +80,8 @@ end
 
 local function refresh_formspec(pos, player)
   minetest.after(0, function ()
-    yatm_core.refresh_player_formspec(player, get_formspec_name(pos), function (ply, assigns)
-      return get_void_chest_formspec(assigns.pos, ply, assigns)
+    yatm_core.refresh_player_formspec(player, get_formspec_name(pos), function (player_name, assigns)
+      return get_void_chest_formspec(assigns.pos, player_name, assigns)
     end)
   end)
 end

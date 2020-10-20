@@ -11,8 +11,8 @@ end
 
 local function refresh_formspec(pos, player)
   minetest.after(0, function ()
-    yatm_core.refresh_player_formspec(player, get_formspec_name(pos), function (ply, assigns)
-      return get_void_crate_formspec(assigns.pos, ply, assigns)
+    yatm_core.refresh_player_formspec(player, get_formspec_name(pos), function (player_name, assigns)
+      return get_void_crate_formspec(assigns.pos, player_name, assigns)
     end)
   end)
 end
