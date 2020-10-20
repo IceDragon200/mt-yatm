@@ -316,16 +316,12 @@ yatm.devices.register_stateful_network_device({
   on_rightclick = function (pos, node, user, item_stack, pointed_thing)
     local formspec_name = "yatm_security:programmers_table:" .. minetest.pos_to_string(pos)
     local assigns = { pos = pos, node = node }
+    local formspec = get_formspec(pos, user, assigns)
 
-    yatm_core.bind_on_player_receive_fields(user, formspec_name,
-                                            assigns,
-                                            handle_receive_fields)
-
-    minetest.show_formspec(
-      user:get_player_name(),
-      formspec_name,
-      get_formspec(pos, user, assigns)
-    )
+    yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
+      state = assigns,
+      on_receive_fields = receive_fields
+    })
   end,
 
   allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)

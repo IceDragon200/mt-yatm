@@ -24,10 +24,11 @@ local mode_to_index = {
   io = 4
 }
 
-local function get_battery_bank_formspec(pos, user)
+local function get_battery_bank_formspec(pos, user, assigns)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local meta = minetest.get_meta(pos)
   local mode = meta:get_string("mode")
+
   local formspec =
     "size[8,9]" ..
     yatm.formspec_bg_for_player(user:get_player_name(), "machine") ..
@@ -213,15 +214,13 @@ end
 
 local function battery_bank_on_rightclick(pos, node, user)
   local formspec_name = "yatm_energy_storage:battery_bank:" .. minetest.pos_to_string(pos)
-  yatm_core.bind_on_player_receive_fields(user, formspec_name,
-                                          { pos = pos, node = node },
-                                          battery_bank_on_receive_fields)
+  local assigns = { pos = pos, node = node }
+  local formspec = get_battery_bank_formspec(pos, user, assigns)
 
-  minetest.show_formspec(
-    user:get_player_name(),
-    formspec_name,
-    get_battery_bank_formspec(pos, user)
-  )
+  yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
+    state = assigns,
+    on_receive_fields = receive_fields
+  })
 end
 
 local function battery_bank_on_dig(pos, node, digger)

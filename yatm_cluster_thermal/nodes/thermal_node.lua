@@ -85,15 +85,10 @@ yatm.register_stateful_node("yatm_cluster_thermal:thermal_node", {
     local formspec = get_thermal_node_formspec(pos, user, assigns)
     local formspec_name = "yatm_cluster_thermal:thermal_node:" .. minetest.pos_to_string(pos)
 
-    yatm_core.bind_on_player_receive_fields(user, formspec_name,
-                                            assigns,
-                                            receive_fields)
-
-    minetest.show_formspec(
-      user:get_player_name(),
-      formspec_name,
-      formspec
-    )
+    yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
+      state = assigns,
+      on_receive_fields = receive_fields
+    })
   end,
 
   thermal_interface = {

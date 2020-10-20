@@ -149,15 +149,10 @@ minetest.register_entity("yatm_armoury_icbm:icbm", {
       local formspec = get_formspec(self, user, assigns)
       local formspec_name = "yatm_armoury_icbm:icbm"
 
-      yatm_core.bind_on_player_receive_fields(user, formspec_name,
-                                              assigns,
-                                              receive_fields)
-
-      minetest.show_formspec(
-        user:get_player_name(),
-        "yatm_drones:scavenger_drone",
-        formspec
-      )
+      yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
+        state = assigns,
+        on_receive_fields = receive_fields,
+      })
     end
   end,
 

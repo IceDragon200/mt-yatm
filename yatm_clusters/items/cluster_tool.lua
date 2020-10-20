@@ -50,11 +50,10 @@ local function show_cluster_summary(user, state)
   local formspec = get_cluster_summary_formspec(user, assigns)
   local formspec_name = "yatm_clusters:cluster_summary"
 
-  yatm_core.bind_on_player_receive_fields(user, formspec_name,
-                                          assigns,
-                                          receive_cluster_summary_fields)
-
-  minetest.show_formspec(user:get_player_name(), formspec_name, formspec)
+  yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
+    state = assigns,
+    on_receive_fields = receive_cluster_summary_fields
+  })
 end
 
 yatm_clusters:register_tool("cluster_tool", {

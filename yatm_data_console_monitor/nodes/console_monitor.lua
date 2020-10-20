@@ -61,7 +61,7 @@ local function get_formspec(pos, user, assigns)
   local meta = minetest.get_meta(pos)
 
   local formspec =
-    "formspec_version[2]" ..
+    "formspec_version[3]" ..
     "size[12,12]" ..
     yatm.formspec_bg_for_player(user:get_player_name(), "display") ..
     "textarea[0.5,1;11,9;;History;" .. minetest.formspec_escape(meta:get_string("history")) .. "]" ..
@@ -112,15 +112,10 @@ local function on_rightclick(pos, node, user, itemstack, pointed_thing)
   local formspec = get_formspec(pos, user, assigns)
   local formspec_name = get_formspec_name(pos)
 
-  yatm_core.bind_on_player_receive_fields(user, formspec_name,
-                                          assigns,
-                                          receive_fields)
-
-  minetest.show_formspec(
-    user:get_player_name(),
-    formspec_name,
-    formspec
-  )
+  yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
+    state = assigns,
+    on_receive_fields = receive_fields
+  })
 end
 
 local flat_monitor_nodebox = {

@@ -402,11 +402,10 @@ minetest.register_node("yatm_security:locksmiths_table_wood", {
 
     local formspec_name = "yatm_security:locksmiths_table:" .. minetest.pos_to_string(pos)
 
-    yatm_core.bind_on_player_receive_fields(user, formspec_name,
-                                            assigns,
-                                            on_player_receive_fields)
-
-    minetest.show_formspec(user:get_player_name(), formspec_name, formspec)
+    yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
+      state = assigns,
+      on_receive_fields = on_player_receive_fields
+    })
   end,
 
   allow_metadata_inventory_move = locksmiths_table_allow_metadata_inventory_move,

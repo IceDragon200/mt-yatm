@@ -257,13 +257,11 @@ minetest.register_node("yatm_data_fluid_sensor:fluid_sensor", {
 
   on_rightclick = function (pos, node, user)
     local formspec_name = "yatm_data_fluid_sensor:fluid_sensor:" .. minetest.pos_to_string(pos)
-    yatm_core.bind_on_player_receive_fields(user, formspec_name,
-                                            { pos = pos, node = node },
-                                            fluid_sensor_on_receive_fields)
-    minetest.show_formspec(
-      user:get_player_name(),
-      formspec_name,
-      get_fluid_sensor_formspec(pos, user)
-    )
+    local formspec = get_fluid_sensor_formspec(pos, user)
+
+    yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
+      state = { pos = pos, node = node },
+      on_receive_fields = fluid_sensor_on_receive_fields
+    })
   end,
 })

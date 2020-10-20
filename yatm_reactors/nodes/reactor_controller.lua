@@ -49,14 +49,13 @@ end
 
 local function reactor_controller_on_rightclick(pos, node, user)
   local formspec_name = "yatm_reactors:reactor_controller:" .. minetest.pos_to_string(pos)
-  yatm_core.bind_on_player_receive_fields(user, formspec_name,
-                                          { pos = pos, node = node },
-                                          reactor_controller_on_receive_fields)
-  minetest.show_formspec(
-    user:get_player_name(),
-    formspec_name,
-    get_reactor_controller_formspec(pos, node, user)
-  )
+  local assigns = { pos = pos, node = node }
+  local formspec = get_reactor_controller_formspec(pos, node, user, assigns)
+
+  yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
+    state = assigns,
+    on_receive_fields = reactor_controller_on_receive_fields
+  })
 end
 
 local reactor_controller_reactor_device = {

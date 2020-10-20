@@ -126,11 +126,10 @@ local function show_codex_entry(user, codex_entry_id, codex_entry, context)
   local formspec = get_codex_entry_formspec(user, assigns)
   local formspec_name = "yatm_codex:codex"
 
-  yatm_core.bind_on_player_receive_fields(user, formspec_name,
-                                          assigns,
-                                          receive_codex_fields)
-
-  minetest.show_formspec(user:get_player_name(), formspec_name, formspec)
+  yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
+    state = assigns,
+    on_receive_fields = receive_codex_fields
+  })
 end
 
 local function on_use_codex(itemstack, user, pointed_thing)

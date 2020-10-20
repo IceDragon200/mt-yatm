@@ -22,13 +22,12 @@ minetest.register_tool("yatm_data_logic:data_programmer", {
           local formspec = di:get_programmer_formspec(pos, user, pointed_thing, assigns)
           local formspec_name = "yatm_data_logic:programmer:" .. minetest.pos_to_string(pos)
 
-          yatm_core.bind_on_player_receive_fields(user, formspec_name,
-                                                  assigns,
-                                                  function (...)
-                                                    return di:receive_programmer_fields(...)
-                                                  end)
-
-          minetest.show_formspec(user:get_player_name(), formspec_name, formspec)
+          yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
+            state = assigns,
+            on_receive_fields = function (...)
+              return di:receive_programmer_fields(...)
+            end
+          })
         else
           minetest.chat_send_player(user:get_player_name(), "This node cannot be programmed")
         end
