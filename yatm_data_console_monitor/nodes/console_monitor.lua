@@ -1,4 +1,5 @@
 local string_hex_unescape = assert(foundation.com.string_hex_unescape)
+local string_split = assert(foundation.com.string_split)
 local is_table_empty = assert(foundation.com.is_table_empty)
 local list_last = assert(foundation.com.list_last)
 local Vector3 = assert(foundation.com.Vector3)
@@ -6,6 +7,14 @@ local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local data_network = assert(yatm.data_network)
 local Energy = assert(yatm.energy)
+
+local function append_history(meta, new_line)
+  local history = meta:get_string("history")
+  local lines = string_split(history, "\n")
+  table.insert(lines, new_line)
+  lines = list_last(lines, 16)
+  meta:set_string("history", table.concat(lines, "\n"))
+end
 
 local function refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
@@ -19,6 +28,25 @@ local function refresh_infotext(pos, node)
   meta:set_string("infotext", infotext)
 end
 
+local function get_formspec_name(pos)
+  return "yatm_data_console_monitor:console_monitor:" .. Vector3.to_string(pos)
+end
+
+local function get_formspec(pos, player_name, assigns)
+  local meta = minetest.get_meta(pos)
+
+  local formspec =
+    "formspec_version[3]" ..
+    "size[12,12]" ..
+    yatm.formspec_bg_for_player(player_name, "display") ..
+    "textarea[0.5,1;11,9;;History;" .. minetest.formspec_escape(meta:get_string("history")) .. "]" ..
+    "field[0.5,10.5;11,1;console_input;;]" ..
+    "field_close_on_enter[console_input;false]" ..
+    ""
+
+  return formspec
+end
+
 local data_interface = {
   on_load = function (self, pos, node)
     yatm_data_logic.mark_all_inputs_for_active_receive(pos)
@@ -28,6 +56,12 @@ local data_interface = {
     local meta = minetest.get_meta(pos)
 
     local str = string_hex_unescape(value)
+
+    append_history(meta, str)
+
+    yatm_core.refresh_formspecs(get_formspec_name(pos), function (player_name, assigns)
+      return get_formspec(pos, player_name, assigns)
+    end)
   end,
 
   get_programmer_formspec = function (self, pos, user, pointed_thing, assigns)
@@ -46,43 +80,28 @@ local data_interface = {
   receive_programmer_fields = function (self, player, form_name, fields, assigns)
     local meta = minetest.get_meta(assigns.pos)
 
-    local inputs_changed = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "io")
+    local ichg, ochg = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "io")
 
-    if not is_table_empty(inputs_changed) then
+    local needs_refresh = false
+
+    if not is_table_empty(ochg) then
+      needs_refresh = true
+    end
+
+    if not is_table_empty(ichg) then
+      needs_refresh = true
       yatm_data_logic.unmark_all_receive(assigns.pos)
       yatm_data_logic.mark_all_inputs_for_active_receive(assigns.pos)
     end
 
-    return true
+    if needs_refresh then
+      local formspec = self:get_programmer_formspec(assigns.pos, player, nil, assigns)
+      return true, formspec
+    else
+      return true
+    end
   end,
 }
-
-local function get_formspec(pos, user, assigns)
-  local meta = minetest.get_meta(pos)
-
-  local formspec =
-    "formspec_version[3]" ..
-    "size[12,12]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "display") ..
-    "textarea[0.5,1;11,9;;History;" .. minetest.formspec_escape(meta:get_string("history")) .. "]" ..
-    "field[0.5,10.5;11,1;console_input;;]" ..
-    "field_close_on_enter[console_input;false]" ..
-    ""
-
-  return formspec
-end
-
-local function get_formspec_name(pos)
-  return "yatm_data_console_monitor:console_monitor:" .. Vector3.to_string(pos)
-end
-
-local function append_history(meta, new_line)
-  local history = meta:get_string("history")
-  local lines = string_split(history, "\n")
-  table.insert(lines, new_line)
-  lines = list_last(lines, 16)
-  meta:set_string("history", table.concat(lines, "\n"))
-end
 
 local function receive_fields(player, form_name, fields, assigns)
   local meta = minetest.get_meta(assigns.pos)
@@ -101,7 +120,7 @@ local function receive_fields(player, form_name, fields, assigns)
   end
 
   if needs_refresh then
-    return true, get_formspec(assigns.pos, player, assigns)
+    return true, get_formspec(assigns.pos, player:get_player_name(), assigns)
   else
     return true
   end
@@ -109,7 +128,7 @@ end
 
 local function on_rightclick(pos, node, user, itemstack, pointed_thing)
   local assigns = { pos = pos, node = node }
-  local formspec = get_formspec(pos, user, assigns)
+  local formspec = get_formspec(pos, user:get_player_name(), assigns)
   local formspec_name = get_formspec_name(pos)
 
   yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
