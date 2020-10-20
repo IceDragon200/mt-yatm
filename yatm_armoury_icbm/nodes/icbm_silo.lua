@@ -329,7 +329,7 @@ local function get_formspec_name(pos)
   return "yatm_armoury_icbm:icbm_silo:" .. Vector3.to_string(pos)
 end
 
-local function get_formspec(pos, user, assigns)
+local function get_formspec(pos, player_name, assigns)
   local meta = minetest.get_meta(pos)
   local inv = meta:get_inventory()
 
@@ -337,7 +337,7 @@ local function get_formspec(pos, user, assigns)
 
   local formspec =
     "size[8,9]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "machine_radioactive")
+    yatm.formspec_bg_for_player(player_name, "machine_radioactive")
 
   formspec =
     formspec ..
@@ -402,8 +402,8 @@ end
 
 local function refresh_formspec(pos, player)
   minetest.after(0, function ()
-    yatm_core.refresh_player_formspec(player, get_formspec_name(pos), function (ply, assigns)
-      return get_drive_case_formspec(assigns.pos, ply, assigns)
+    yatm_core.refresh_player_formspec(player, get_formspec_name(pos), function (player_name, assigns)
+      return get_formspec(assigns.pos, player_name, assigns)
     end)
   end)
 end
