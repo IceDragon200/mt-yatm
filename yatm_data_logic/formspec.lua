@@ -40,7 +40,10 @@ local BUTTONS_BY_BIT = {
   }
 }
 
-yatm_data_logic.FORMSPEC_SIZE = {w = 12, h = 12}
+-- The formspec should be able to fit 2 columns of 8 bit buttons
+-- That requires (8+1)*2, where 1 is the item_image used to identify the port color,
+-- 8 is the width of the buttons
+yatm_data_logic.FORMSPEC_SIZE = {w = 20, h = 15}
 
 function yatm_data_logic.layout_formspec(w, h)
   local formspec =
@@ -146,15 +149,16 @@ function yatm_data_logic.get_io_port_formspec(pos, meta, mode, options)
   end
 
   local inputs =
-    "label[0,1;Inputs]"
+    fspec.label(0, 0.5, "Inputs")
 
   local outputs
   local output_x = 0
+
   if mode == "io" then
-    outputs = "label[" .. col_width .. ",1;Outputs]"
+    outputs = fspec.label(col_width, 0.5, "Outputs")
     output_x = col_width
   elseif mode == "o" then
-    outputs = "label[0,1;Outputs]"
+    outputs = fspec.label(0, 0.5, "Outputs")
   end
 
   local row = 2
@@ -162,10 +166,13 @@ function yatm_data_logic.get_io_port_formspec(pos, meta, mode, options)
   local show_input = mode == "io" or mode == "i"
   local show_output = mode == "io" or mode == "o"
 
-  local item_size = 2
+  local item_size = 1
 
   for _, dir in ipairs(Directions.DIR6) do
     if sub_network_ids[dir] then
+      local dircode = Directions.dir_to_code(dir):lower()
+      local border_image_name = "yatm_item_border_"..dircode..".png"
+
       local sub_network_id = sub_network_ids[dir]
 
       local item_name
@@ -202,7 +209,8 @@ function yatm_data_logic.get_io_port_formspec(pos, meta, mode, options)
           inputs =
             inputs ..
             fspec.item_image(0, row-1, item_size, item_size, item_name) ..
-            yatm_data_logic.render_8bit_buttons_formspec(button_x, row, col_width - item_size, 1, "input_"..dir, default_value)
+            fspec.image(0, row-1, item_size, item_size, border_image_name) ..
+            yatm_data_logic.render_8bit_buttons_formspec(button_x, row-1, 1, 1, "input_"..dir, default_value)
         end
       end
 
@@ -232,7 +240,8 @@ function yatm_data_logic.get_io_port_formspec(pos, meta, mode, options)
           outputs =
             outputs ..
             fspec.item_image(output_x, row-1, item_size, item_size, item_name) ..
-            yatm_data_logic.render_8bit_buttons_formspec(button_x, row, col_width - item_size, 1, "output_"..dir, default_value)
+            fspec.image(output_x, row-1, item_size, item_size, border_image_name) ..
+            yatm_data_logic.render_8bit_buttons_formspec(button_x, row-1, 1, 1, "output_"..dir, default_value)
         end
       end
 
@@ -249,10 +258,8 @@ function yatm_data_logic.get_io_port_formspec(pos, meta, mode, options)
   end
 end
 
-function yatm_data_logic.render_8bit_buttons_formspec(x, y, w, _h, field_prefix, value)
+function yatm_data_logic.render_8bit_buttons_formspec(x, y, w, h, field_prefix, value)
   local formspec = ""
-
-  local button_size = w / 8
 
   local rolling_value = value
 
@@ -269,11 +276,11 @@ function yatm_data_logic.render_8bit_buttons_formspec(x, y, w, _h, field_prefix,
       texture_name, texture_name_alt = texture_name_alt, texture_name
     end
 
-    local button_x = x + w - i * button_size
+    local button_x = x + 8 - i * w
 
     formspec =
       formspec ..
-      fspec.image_button(button_x, y, button_size, button_size,
+      fspec.image_button(button_x, y, w, h,
                          texture_name,
                          field_prefix.."_bit_"..i,
                          bit, -- name

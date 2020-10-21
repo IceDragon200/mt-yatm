@@ -3,6 +3,7 @@ local ng = Cuboid.new_fast_node_box
 local Groups = assert(foundation.com.Groups)
 local FakeMetaRef = assert(foundation.com.FakeMetaRef)
 local is_blank = assert(foundation.com.is_blank)
+local is_table_empty = assert(foundation.com.is_table_empty)
 local data_network = assert(yatm.data_network)
 
 local swiper_node_box = {
@@ -103,7 +104,7 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_swiper", {
       local meta = minetest.get_meta(pos)
 
       local formspec =
-        "size[8,9]" ..
+        yatm_data_logic.layout_formspec() ..
         yatm.formspec_bg_for_player(user:get_player_name(), "data") ..
         "label[0,0;Port Configuration]" ..
         yatm_data_logic.get_io_port_formspec(pos, meta, "o")
@@ -114,9 +115,19 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_swiper", {
     receive_programmer_fields = function (self, player, form_name, fields, assigns)
       local meta = minetest.get_meta(assigns.pos)
 
-      yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "o")
+      local ichg, ochg = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "o")
 
-      return true
+      local needs_refresh = false
+
+      if not is_table_empty(ochg) then
+        needs_refresh = true
+      end
+
+      if not is_table_empty(ichg) then
+        needs_refresh = true
+      end
+
+      return true, needs_refresh
     end,
   },
 

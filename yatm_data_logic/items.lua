@@ -1,5 +1,25 @@
+local sounds = assert(yatm.sounds)
 local Groups = assert(foundation.com.Groups)
 local data_network = assert(yatm.data_network)
+
+local function on_receive_fields(player, form_name, fields, assigns)
+  local di = assigns.interface
+
+  local keep_bubbling, formspec_or_refresh =
+    di:receive_programmer_fields(player, form_name, fields, assigns)
+
+  local formspec = formspec_or_refresh
+
+  if type(formspec_or_refresh) == "boolean" and formspec_or_refresh then
+    formspec = di:get_programmer_formspec(assigns.pos, player, assigns.pointed_thing, assigns)
+  end
+
+  if fields.quit then
+    sounds:play("action_close", { to_player = player:get_player_name() })
+  end
+
+  return keep_bubbling, formspec
+end
 
 minetest.register_tool("yatm_data_logic:data_programmer", {
   description = "Data Programmer\nRight-click on programmable DATA device.",
@@ -18,15 +38,21 @@ minetest.register_tool("yatm_data_logic:data_programmer", {
       if Groups.get_item(nodedef, "data_programmable") then
         local di = data_network:get_data_interface(pos)
         if di then
-          local assigns = { pos = pos, node = node }
+          local formname = "yatm_data_logic:programmer:" .. minetest.pos_to_string(pos)
+          local assigns = {
+            pos = pos,
+            node = node,
+            interface = di,
+            formname = formname,
+            pointed_thing = pointed_thing,
+          }
           local formspec = di:get_programmer_formspec(pos, user, pointed_thing, assigns)
-          local formspec_name = "yatm_data_logic:programmer:" .. minetest.pos_to_string(pos)
 
-          yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
+          sounds:play("action_open", { to_player = user:get_player_name() })
+
+          yatm_core.show_bound_formspec(user:get_player_name(), formname, formspec, {
             state = assigns,
-            on_receive_fields = function (...)
-              return di:receive_programmer_fields(...)
-            end
+            on_receive_fields = on_receive_fields,
           })
         else
           minetest.chat_send_player(user:get_player_name(), "This node cannot be programmed")

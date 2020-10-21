@@ -150,7 +150,7 @@ local function on_use_codex(itemstack, user, pointed_thing)
     end
 
     if codex_entry then
-      sounds:play("codex_entry")
+      sounds:play("codex_entry", { to_player = user:get_player_name() })
       show_codex_entry(user, codex_entry_id, codex_entry, { item_name = node.name })
     else
       sounds:play("action_error", { to_player = user:get_player_name() })

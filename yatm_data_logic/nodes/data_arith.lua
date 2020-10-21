@@ -141,7 +141,7 @@ local data_interface = {
       end
     end
 
-    local inputs_changed =
+    local ports_changed =
       yatm_data_logic.handle_port_matrix_fields(assigns.pos, fields, meta, {
         sections = {
           {
@@ -152,7 +152,8 @@ local data_interface = {
         }
       })
 
-    if not is_table_empty(inputs_changed) then
+    if not is_table_empty(ports_changed) then
+      needs_refresh = true
       yatm_data_logic.unmark_all_receive(assigns.pos)
 
       yatm_data_logic.bind_matrix_ports(assigns.pos, "port", "reset", "active")
@@ -189,12 +190,7 @@ local data_interface = {
       end
     end
 
-    if needs_refresh then
-      local formspec = self:get_programmer_formspec(assigns.pos, player, nil, assigns)
-      return true, formspec
-    else
-      return true
-    end
+    return true, needs_refresh
   end,
 }
 

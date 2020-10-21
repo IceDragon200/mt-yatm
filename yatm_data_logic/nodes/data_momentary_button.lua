@@ -1,4 +1,5 @@
 local Cuboid = assert(foundation.com.Cuboid)
+local is_table_empty = assert(foundation.com.is_table_empty)
 local ng = Cuboid.new_fast_node_box
 local sounds = yatm_core.sounds
 local data_network = assert(yatm.data_network)
@@ -79,7 +80,11 @@ yatm.register_stateful_node("yatm_data_logic:data_momentary_button", {
         end
       end
 
-      yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "o")
+      local _ichg, ochg = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "o")
+
+      if not is_table_empty(ochg) then
+        needs_refresh = true
+      end
 
       if fields["data_trigger"] then
         meta:set_string("data_trigger", fields["data_trigger"])
@@ -89,12 +94,7 @@ yatm.register_stateful_node("yatm_data_logic:data_momentary_button", {
         meta:set_string("data_release", fields["data_release"])
       end
 
-      if needs_refresh then
-        local formspec = self:get_programmer_formspec(assigns.pos, player, nil, assigns)
-        return true, formspec
-      else
-        return true
-      end
+      return true, needs_refresh
     end,
   },
 

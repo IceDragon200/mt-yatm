@@ -316,12 +316,7 @@ local data_interface = {
       meta:set_string("launch_code", fields["launch_code"])
     end
 
-    if needs_refresh then
-      local formspec = self:get_programmer_formspec(assigns.pos, player, nil, assigns)
-      return true, formspec
-    else
-      return true
-    end
+    return true, needs_refresh
   end,
 }
 

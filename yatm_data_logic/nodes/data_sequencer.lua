@@ -1,4 +1,5 @@
 local Cuboid = assert(foundation.com.Cuboid)
+local is_table_empty = assert(foundation.com.is_table_empty)
 local ng = Cuboid.new_fast_node_box
 local sounds = assert(yatm_core.sounds)
 local data_network = assert(yatm.data_network)
@@ -153,7 +154,11 @@ minetest.register_node("yatm_data_logic:data_sequencer", {
         end
       end
 
-      yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "o")
+      local _ichg, ochg = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "o")
+
+      if not is_table_empty(ochg) then
+        needs_refresh = true
+      end
 
       for i = 1,16 do
         local seq_data = fields["data_seq" .. i]
@@ -166,12 +171,7 @@ minetest.register_node("yatm_data_logic:data_sequencer", {
         meta:set_string("interval_option", fields["interval_option"])
       end
 
-      if needs_refresh then
-        local formspec = self:get_programmer_formspec(assigns.pos, player, nil, assigns)
-        return true, formspec
-      else
-        return true
-      end
+      return true, needs_refresh
     end,
   },
 

@@ -94,12 +94,7 @@ local data_interface = {
       yatm_data_logic.mark_all_inputs_for_active_receive(assigns.pos)
     end
 
-    if needs_refresh then
-      local formspec = self:get_programmer_formspec(assigns.pos, player, nil, assigns)
-      return true, formspec
-    else
-      return true
-    end
+    return true, needs_refresh
   end,
 }
 

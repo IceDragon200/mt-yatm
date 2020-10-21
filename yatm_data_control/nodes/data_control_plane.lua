@@ -304,12 +304,7 @@ local data_interface = {
       end
     end
 
-    if needs_refresh then
-      local formspec = self:get_programmer_formspec(assigns.pos, player, nil, assigns)
-      return true, formspec
-    else
-      return true
-    end
+    return true, needs_refresh
   end,
 }
 

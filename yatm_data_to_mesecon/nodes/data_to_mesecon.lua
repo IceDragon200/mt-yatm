@@ -132,6 +132,7 @@ yatm.register_stateful_node("yatm_data_to_mesecon:data_to_mesecon", {
       local inputs_changed = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "i")
 
       if not is_table_empty(inputs_changed) then
+        needs_refresh = true
         yatm_data_logic.unmark_all_receive(assigns.pos)
         yatm_data_logic.mark_all_inputs_for_active_receive(assigns.pos)
       end
@@ -144,12 +145,7 @@ yatm.register_stateful_node("yatm_data_to_mesecon:data_to_mesecon", {
         meta:set_string("data_on", fields["data_on"])
       end
 
-      if needs_refresh then
-        local formspec = self:get_programmer_formspec(assigns.pos, player, nil, assigns)
-        return true, formspec
-      else
-        return true
-      end
+      return true, needs_refresh
     end,
   },
 

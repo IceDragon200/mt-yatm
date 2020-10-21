@@ -199,14 +199,10 @@ minetest.register_node("yatm_data_logic:data_memory", {
         yatm_data_logic.bind_matrix_ports(assigns.pos, "port", "read", "active")
         yatm_data_logic.bind_matrix_ports(assigns.pos, "port", "write", "active")
         yatm_data_logic.bind_matrix_ports(assigns.pos, "port", "address", "active")
+        needs_refresh = true
       end
 
-      if needs_refresh then
-        local formspec = self:get_programmer_formspec(assigns.pos, player, nil, assigns)
-        return true, formspec
-      else
-        return true
-      end
+      return true, needs_refresh
     end,
   },
 

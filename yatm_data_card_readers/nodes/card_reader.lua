@@ -153,7 +153,7 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_reader", {
       local meta = minetest.get_meta(pos)
 
       local formspec =
-        "size[8,9]" ..
+        yatm_data_logic.layout_formspec() ..
         yatm.formspec_bg_for_player(user:get_player_name(), "data") ..
         "label[0,0;Port Configuration]" ..
         yatm_data_logic.get_io_port_formspec(pos, meta, "io")
@@ -164,14 +164,21 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_reader", {
     receive_programmer_fields = function (self, player, form_name, fields, assigns)
       local meta = minetest.get_meta(assigns.pos)
 
-      local inputs_changed = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "io")
+      local ichg, ochg = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "io")
 
-      if not is_table_empty(inputs_changed) then
+      local needs_refresh = false
+
+      if not is_table_empty(ochg) then
+        needs_refresh = true
+      end
+
+      if not is_table_empty(ichg) then
+        needs_refresh = true
         yatm_data_logic.unmark_all_receive(assigns.pos)
         yatm_data_logic.mark_all_inputs_for_active_receive(assigns.pos)
       end
 
-      return true
+      return true, needs_refresh
     end,
   },
 

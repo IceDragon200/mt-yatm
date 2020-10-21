@@ -1,5 +1,6 @@
-local Cuboid = foundation.com.Cuboid
-local ng = Cuboid.new_fast_node_box
+local Cuboid = assert(foundation.com.Cuboid)
+local is_table_empty = assert(foundation.com.is_table_empty)
+local ng = assert(Cuboid.new_fast_node_box)
 local string_hex_escape = assert(foundation.com.string_hex_escape)
 local data_network = assert(yatm.data_network)
 
@@ -131,6 +132,8 @@ minetest.register_node("yatm_data_logic:data_clock", {
     receive_programmer_fields = function (self, player, form_name, fields, assigns)
       local meta = minetest.get_meta(assigns.pos)
 
+      local needs_refresh = false
+
       if fields["tab"] then
         local tab = tonumber(fields["tab"])
         if tab ~= assigns.tab then
@@ -139,7 +142,11 @@ minetest.register_node("yatm_data_logic:data_clock", {
         end
       end
 
-      yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "o")
+      local _ichg, ochg = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "o")
+
+      if not is_table_empty(ochg) then
+        needs_refresh = true
+      end
 
       if fields["precision"] then
         local precision = math.max(math.min(tonumber(fields["precision"]), 4), 1)
@@ -151,12 +158,7 @@ minetest.register_node("yatm_data_logic:data_clock", {
         end
       end
 
-      if needs_refresh then
-        local formspec = self:get_programmer_formspec(assigns.pos, player, nil, assigns)
-        return true, formspec
-      else
-        return true
-      end
+      return true, needs_refresh
     end,
   },
 

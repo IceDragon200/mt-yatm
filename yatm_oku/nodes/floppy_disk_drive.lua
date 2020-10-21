@@ -310,6 +310,8 @@ yatm.devices.register_stateful_network_device({
         })
 
       if sections_changed.port then
+        needs_refresh = true
+
         if sections_changed.port.data then
           -- this is an output port
         end
@@ -329,12 +331,7 @@ yatm.devices.register_stateful_network_device({
         end
       end
 
-      if needs_refresh then
-        local formspec = self:get_programmer_formspec(assigns.pos, player, nil, assigns)
-        return true, formspec
-      else
-        return true
-      end
+      return true, needs_refresh
     end,
   },
 

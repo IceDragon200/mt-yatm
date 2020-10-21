@@ -1,4 +1,5 @@
 local Cuboid = assert(foundation.com.Cuboid)
+local is_table_empty = assert(foundation.com.is_table_empty)
 local ng = Cuboid.new_fast_node_box
 local string_hex_escape = assert(foundation.com.string_hex_escape)
 local data_network = assert(yatm.data_network)
@@ -96,9 +97,15 @@ minetest.register_node("yatm_data_logic:data_node_sensor", {
     receive_programmer_fields = function (self, player, form_name, fields, assigns)
       local meta = minetest.get_meta(assigns.pos)
 
-      yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "o")
+      local needs_refresh = false
 
-      return true
+      local _ichg, ochg = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "o")
+
+      if not is_table_empty(ochg) then
+        needs_refresh = true
+      end
+
+      return true, needs_refresh
     end,
   },
 

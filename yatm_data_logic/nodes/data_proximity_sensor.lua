@@ -154,6 +154,8 @@ minetest.register_node("yatm_data_logic:data_proximity_sensor", {
     receive_programmer_fields = function (self, player, form_name, fields, assigns)
       local meta = minetest.get_meta(assigns.pos)
 
+      local needs_refresh = true
+
       yatm_data_logic.handle_port_matrix_fields(assigns.pos, fields, meta, {
         sections = {
           {
@@ -164,7 +166,7 @@ minetest.register_node("yatm_data_logic:data_proximity_sensor", {
         }
       })
 
-      return true
+      return true, needs_refresh
     end,
   },
 

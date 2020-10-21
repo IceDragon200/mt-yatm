@@ -166,12 +166,7 @@ yatm.register_stateful_node("yatm_data_logic:data_pulser", {
         meta:set_string("interval_option", fields["interval_option"])
       end
 
-      if needs_refresh then
-        local formspec = self:get_programmer_formspec(assigns.pos, player, nil, assigns)
-        return true, formspec
-      else
-        return true
-      end
+      return true, needs_refresh
     end,
   },
 

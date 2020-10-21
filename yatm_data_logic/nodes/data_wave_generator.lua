@@ -60,6 +60,9 @@ mod:register_node("data_wave_generator", {
     end,
 
     receive_programmer_fields = function (self, player, form_name, fields, assigns)
+      if not is_table_empty(ochg) then
+        needs_refresh = true
+      end
     end,
   },
 })
