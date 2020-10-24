@@ -1,12 +1,13 @@
 local Vector3 = assert(foundation.com.Vector3)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
+local fspec = assert(foundation.com.formspec.api)
 
 local data_network = assert(yatm.data_network)
 
 local function render_pads(inv, meta, assigns)
   local formspec =
-    "label[0.5,0.75;Pads]"
+    fpsec.label(0.5, 0.75, "Pads")
 
   local list = inv:get_list("pads")
 
