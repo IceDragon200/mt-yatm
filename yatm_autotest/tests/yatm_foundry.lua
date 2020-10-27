@@ -16,15 +16,6 @@ end)
 suite:describe("Concrete", function (t1)
   t1:setup(t1:method("clear_test_area"))
 
-  local colors = {
-    {"white", "White"}
-  }
-
-  -- If the dye module is available, use the colors from there instead.
-  if dye then
-    colors = dye.dyes
-  end
-
   local variants =
     {"bare",
      "dotted",
@@ -36,8 +27,8 @@ suite:describe("Concrete", function (t1)
      "rosy"}
 
   for _,variant_basename in ipairs(variants) do
-    for _,color_pair in ipairs(colors) do
-      local color_basename = color_pair[1]
+    for _,row in ipairs(yatm.colors) do
+      local color_basename = row.name
 
       t1:test("can place a " .. variant_basename .. " concrete block " .. color_basename, function (t2)
         local pos = vector.new(0, 0, 0)

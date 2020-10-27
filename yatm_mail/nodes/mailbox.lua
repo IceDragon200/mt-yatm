@@ -3,17 +3,6 @@ local is_blank = assert(foundation.com.is_blank)
 local FakeMetaRef = assert(foundation.com.FakeMetaRef)
 local fspec = assert(foundation.com.formspec.api)
 
-local colors = {
-  {"white", "White"}
-}
-
--- If the dye module is available, use the colors from there instead.
-if dye then
-  colors = dye.dyes
-end
-
-colors = list_concat({{"default", "Default"}}, colors)
-
 local mailbox_nodebox  = {
   type = "fixed",
   fixed = {
@@ -258,9 +247,9 @@ local function mailbox_after_place_node(pos, _placer, itemstack, _pointed_thing)
   mailbox_configure_formspec(pos, new_meta)
 end
 
-for _,pair in ipairs(colors) do
-  local basename = pair[1]
-  local name = pair[2]
+for _,row in ipairs(yatm.colors_with_default) do
+  local basename = row.name
+  local name = row.description
 
   local mailbox_basename = "yatm_mail:mailbox_wood_" .. basename
   minetest.register_node(mailbox_basename, {

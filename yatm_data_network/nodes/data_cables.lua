@@ -34,17 +34,6 @@ local function data_cable_after_destruct(pos, old_node)
   data_network:unregister_member(pos, old_node)
 end
 
-local colors = {
-  {"white", "White"}
-}
-
--- If the dye module is available, use the colors from there instead.
-if dye then
-  colors = dye.dyes
-end
-
-colors = list_concat({{"multi", "Multi"}}, colors)
-
 local data_cable_nodebox = {
   type = "connected",
   fixed          = ng(5, 0, 5, 6, 2, 6),
@@ -185,9 +174,10 @@ local function on_rotate(pos, node, user, mode, new_param2)
   return true
 end
 
-for _,color_pair in ipairs(colors) do
-  local color_basename = color_pair[1]
-  local color_name = color_pair[2]
+local colors = list_concat({{name = "multi", description = "Multi"}}, yatm.colors)
+for _,row in ipairs(colors) do
+  local color_basename = row.name
+  local color_name = row.description
 
   local node_name = "yatm_data_network:data_cable_bracket_straight_" .. color_basename
 

@@ -5,15 +5,6 @@ local table_merge = assert(foundation.com.table_merge)
 
 local button_after_place_node = assert(Directions.facedir_wallmount_after_place_node)
 
-local colors = {
-  {"white", "White"}
-}
-
--- If the dye module is available, use the colors from there instead.
-if dye then
-  colors = dye.dyes
-end
-
 -- Buttons affect everything below and adjacent to them, however, they do not affect what's directly in front of the button!
 local button_dirs = {
   Directions.D_DOWN,
@@ -42,9 +33,9 @@ local mesecon_button_nodebox = {
   }
 }
 
-for _,color in pairs(colors) do
-  local color_basename = color[1]
-  local color_name = color[2]
+for _,row in ipairs(yatm.colors) do
+  local color_basename = row.name
+  local color_name = row.description
 
   local groups = {
     cracky = 1,

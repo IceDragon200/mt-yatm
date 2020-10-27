@@ -2,18 +2,9 @@ if not foundation.is_module_present("nokore_chest") then
   return
 end
 
-local colors = {
-  {"white", "White"}
-}
-
--- If the dye module is available, use the colors from there instead.
-if dye then
-  colors = dye.dyes
-end
-
-for _,pair in ipairs(colors) do
-  local color_basename = pair[1]
-  local color_name = pair[2]
+for _,row in ipairs(yatm.colors) do
+  local color_basename = row.name
+  local color_name = row.description
 
   nokore_chest:register_chest("yatm_foundry:chest_carbon_steel_" .. color_basename, {
     codex_entry_id = "yatm_foundry:chest_carbon_steel",

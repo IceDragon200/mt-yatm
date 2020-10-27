@@ -1,12 +1,3 @@
-local colors = {
-  {"white", "White"}
-}
-
--- If the dye module is available, use the colors from there instead.
-if dye then
-  colors = dye.dyes
-end
-
 -- Default style
 --[[local lantern_nodebox = {
   type = "fixed",
@@ -30,9 +21,9 @@ local fancy_lantern_nodebox = {
   }
 }
 
-for _,pair in ipairs(colors) do
-  local color_basename = pair[1]
-  local color_name = pair[2]
+for _,row in ipairs(yatm.colors) do
+  local color_basename = row.name
+  local color_name = row.description
 
   minetest.register_node("yatm_foundry:lantern_carbon_steel_" .. color_basename, {
     base_description = "Carbon Steel Lantern",

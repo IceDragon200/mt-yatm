@@ -1,15 +1,6 @@
 local Cuboid = yatm_core.Cuboid
 local ng = Cuboid.new_fast_node_box
 
-local colors = {
-  {"white", "White"}
-}
-
--- If the dye module is available, use the colors from there instead.
-if dye then
-  colors = dye.dyes
-end
-
 local retaining_wall_nodebox = {
   type = "fixed",
   fixed = {
@@ -61,9 +52,9 @@ local retaining_wall_corner_collision_box = {
   }
 }
 
-for _,pair in ipairs(colors) do
-  local color_basename = pair[1]
-  local color_name = pair[2]
+for _,row in ipairs(yatm.colors) do
+  local color_basename = row.name
+  local color_name = row.description
 
   minetest.register_node("yatm_foundry:concrete_retaining_wall_" .. color_basename, {
     basename = "yatm_foundry:retaining_wall",

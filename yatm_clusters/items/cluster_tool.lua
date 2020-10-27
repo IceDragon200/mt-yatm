@@ -1,12 +1,14 @@
 local is_table_empty = assert(foundation.com.is_table_empty)
 local cluster_tool = assert(yatm.cluster_tool)
 local sounds = assert(yatm.sounds)
+local fspec = assert(foundation.com.formspec.api)
 
 local function get_cluster_summary_formspec(user, assigns)
-  local w = 12
+  local w = 20
+  local h = 15
   local formspec =
-    "formspec_version[2]" ..
-    "size[" .. w .. ",9]" ..
+    "formspec_version[3]" ..
+    fspec.size(w, h) ..
     yatm.formspec_bg_for_player(user:get_player_name(), "default")
 
   if not assigns.page then
@@ -18,29 +20,29 @@ local function get_cluster_summary_formspec(user, assigns)
     formspec =
       formspec ..
       "scrollbaroptions[]" ..
-      "scrollbar[" .. (w-0.5) .. ",0.5;0.5,8;vertical;cluster_scrollbar;]" ..
-      "scroll_container[0.0,0.5;"..(w-1)..",8;cluster_scrollbar;vertical;]"
+      fspec.scrollbar(w-1.5, 0.5, 1, h-1, "vertical", "cluster_scrollbar") ..
+      fspec.scroll_container(0.5, 0.5, w-2, h, "cluster_scrollbar", "vertical")
 
     local func = cluster_tool.render_functions[assigns.page]
 
     if func then
       local item = assigns.state[assigns.page]
-      formspec = func(item, formspec, { w = w })
+      formspec = func(item, formspec, { w = w - 2 })
       if not formspec then
         error("expected render function " .. assigns.page .. " to return a formspec")
       end
     end
 
-    formspec =
-      formspec ..
-      "scroll_container_end[]"
+    formspec = formspec .. fspec.scroll_container_end()
   end
 
   return formspec
 end
 
 local function receive_cluster_summary_fields(user, form_name, fields, assigns)
-  return true, get_cluster_summary_formspec(user, assigns)
+  local formspec = false
+  --formspec = get_cluster_summary_formspec(user, assigns)
+  return true, formspec
 end
 
 local function show_cluster_summary(user, state)

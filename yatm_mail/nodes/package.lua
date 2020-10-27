@@ -143,23 +143,14 @@ minetest.register_node("yatm_mail:package", {
   on_rightclick = package_on_rightclick,
 })
 
-local colors = {
-  {"white", "White"}
-}
-
--- If the dye module is available, use the colors from there instead.
-if dye then
-  colors = dye.dyes
-end
-
 -- Packages with Ribbons!
-for _,color_pair in ipairs(colors) do
-  color_basename = color_pair[1]
-  color_name = color_pair[2]
+for _,row in ipairs(yatm.colors) do
+  local basename = row.name
+  local name = row.description
 
-  minetest.register_node("yatm_mail:package_with_ribbon_" .. color_basename, {
+  minetest.register_node("yatm_mail:package_with_ribbon_" .. basename, {
     basename = "yatm_mail:package_with_ribbon",
-    description = "Package (" .. color_name .. " Ribbon)",
+    description = "Package (" .. name .. " Ribbon)",
 
     codex_entry_id = "yatm_mail:package",
 
@@ -172,12 +163,12 @@ for _,color_pair in ipairs(colors) do
     stack_max = 1,
 
     tiles = {
-      "yatm_package_" .. color_basename .. "_top.ribbon.png",
-      "yatm_package_" .. color_basename .. "_bottom.ribbon.png",
-      "yatm_package_" .. color_basename .. "_side.ribbon.png",
-      "yatm_package_" .. color_basename .. "_side.ribbon.png",
-      "yatm_package_" .. color_basename .. "_side.ribbon.png",
-      "yatm_package_" .. color_basename .. "_side.ribbon.png",
+      "yatm_package_" .. basename .. "_top.ribbon.png",
+      "yatm_package_" .. basename .. "_bottom.ribbon.png",
+      "yatm_package_" .. basename .. "_side.ribbon.png",
+      "yatm_package_" .. basename .. "_side.ribbon.png",
+      "yatm_package_" .. basename .. "_side.ribbon.png",
+      "yatm_package_" .. basename .. "_side.ribbon.png",
     },
 
     paramtype = "light",

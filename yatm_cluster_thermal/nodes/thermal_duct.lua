@@ -26,6 +26,8 @@ yatm.register_stateful_node("yatm_cluster_thermal:thermal_duct", {
     "group:heatable_device",
   },
 
+  paramtype = "light",
+
   drawtype = "nodebox",
   node_box = {
     type = "connected",

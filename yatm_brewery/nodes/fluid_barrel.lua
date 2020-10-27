@@ -48,20 +48,9 @@ function barrel_fluid_interface:on_fluid_changed(pos, dir, _fluid_stack)
   yatm.queue_refresh_infotext(pos, node)
 end
 
-local colors = {
-  {"white", "White"}
-}
-
--- If the dye module is available, use the colors from there instead.
-if dye then
-  colors = dye.dyes
-end
-
-colors = list_concat({{"default", "Default"}}, colors)
-
-for _,pair in ipairs(colors) do
-  local color_basename = pair[1]
-  local color_name = pair[2]
+for _,row in ipairs(yatm.colors_with_default) do
+  local color_basename = row.name
+  local color_name = row.description
 
   minetest.register_node("yatm_brewery:fluid_barrel_wood_" .. color_basename, {
     basename = "yatm_brewery:fluid_barrel_wood",

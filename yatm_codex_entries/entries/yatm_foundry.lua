@@ -8,15 +8,7 @@ yatm.codex.register_demo("yatm_foundry:concrete_showcase", {
   end,
 
   build = function (self, pos, assigns)
-    local colors = {
-      {"white", "White"}
-    }
-
-    -- If the dye module is available, use the colors from there instead.
-    if dye then
-      colors = dye.dyes
-    end
-
+    local colors = yatm.colors
     local variants = {
       "bare",
       "dotted",
@@ -41,10 +33,11 @@ yatm.codex.register_demo("yatm_foundry:concrete_showcase", {
     local h = #variants
     local x = 0
     local w = #colors
+
     for _, variant in ipairs(variants) do
       x = 0
-      for _, color_pair in ipairs(colors) do
-        local palette_key = variant .. "_" .. color_pair[1]
+      for _, row in ipairs(colors) do
+        local palette_key = variant .. "_" .. row.name
         palette[palette_key] = { name = "yatm_foundry:concrete_" .. palette_key }
         layer[1 + x + y * w] = palette_key
         x = x + 1

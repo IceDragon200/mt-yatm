@@ -1,16 +1,5 @@
 local list_concat = assert(foundation.com.list_concat)
 
-local colors = {
-  {"white", "White"}
-}
-
--- If the dye module is available, use the colors from there instead.
-if dye then
-  colors = dye.dyes
-end
-
-colors = list_concat({{"default", "Default"}}, colors)
-
 local materials = {
   {"carbon_steel", "Carbon Steel"},
   {"iron", "Iron"},
@@ -20,9 +9,10 @@ local materials = {
 for _,material_pair in ipairs(materials) do
   local material_basename = material_pair[1]
   local material_name = material_pair[2]
-  for _,color_pair in ipairs(colors) do
-    local color_basename = color_pair[1]
-    local color_name = color_pair[2]
+
+  for _,row in ipairs(yatm.colors_with_default) do
+    local color_basename = row.name
+    local color_name = row.description
 
     local key_states = {
       blank = "yatm_security:key_blank_" .. material_basename .. "_" .. color_basename,

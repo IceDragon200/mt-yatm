@@ -2,17 +2,6 @@ local list_concat = assert(foundation.com.list_concat)
 local table_merge = assert(foundation.com.table_merge)
 local fluid_transport_cluster = assert(yatm.fluids.fluid_transport_cluster)
 
-local colors = {
-  {"white", "White"}
-}
-
--- If the dye module is available, use the colors from there instead.
-if dye then
-  colors = dye.dyes
-end
-
-colors = list_concat({{"default", "Default"}}, colors)
-
 local function pipe_after_place_node(pos, _placer, _itemstack, _pointed_thing)
   local node = minetest.get_node(pos)
   fluid_transport_cluster:register_member(pos, node)
@@ -57,9 +46,9 @@ local valve_mesecon_rules = {
 }
 
 local basename = "yatm_fluid_pipe_valves:valve_fluid_pipe"
-for _,color_pair in ipairs(colors) do
-  local color_basename = color_pair[1]
-  local color_name = color_pair[2]
+for _,row in ipairs(yatm.colors_with_default) do
+  local color_basename = row.name
+  local color_name = row.description
 
   local colored_group_name = "valve_fluid_pipe_" .. color_basename
   local groups = {

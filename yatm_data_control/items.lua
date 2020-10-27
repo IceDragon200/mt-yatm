@@ -1,19 +1,8 @@
 local table_concat = assert(foundation.com.table_concat)
 
-local colors = {
-  {"default", "default"}
-}
-
--- If the dye module is available, use the colors from there instead.
-if dye then
-  colors = table_concat(colors, dye.dyes)
-else
-  print("yatm_data_control", "dye is not available, lamps will only be available in white")
-end
-
-for _,pair in ipairs(colors) do
-  local basename = pair[1]
-  local display_name = pair[2]
+for _,row in ipairs(yatm.colors_with_default) do
+  local basename = row.name
+  local display_name = row.description
 
   minetest.register_craftitem("yatm_data_control:control_button_" .. basename, {
     basename = "yatm_data_control:control_button",

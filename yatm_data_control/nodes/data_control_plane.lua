@@ -7,7 +7,7 @@ local data_network = assert(yatm.data_network)
 
 local function render_pads(inv, meta, assigns)
   local formspec =
-    fpsec.label(0.5, 0.75, "Pads")
+    fspec.label(0.5, 0.75, "Pads")
 
   local list = inv:get_list("pads")
 

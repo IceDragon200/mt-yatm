@@ -11,23 +11,12 @@ local function duct_after_destruct(pos, _old_node)
   ItemTransportNetwork:unregister_member(pos)
 end
 
-local colors = {
-  {"white", "White"}
-}
-
--- If the dye module is available, use the colors from there instead.
-if dye then
-  colors = dye.dyes
-end
-
-colors = list_concat({{"default", "Default"}}, colors)
-
 local fsize = (6 / 16.0) / 2
 local size = (6 / 16.0) / 2
 
-for _,color_pair in ipairs(colors) do
-  local color_basename = color_pair[1]
-  local color_name = color_pair[2]
+for _,row in ipairs(yatm.colors_with_default) do
+  local color_basename = row.name
+  local color_name = row.description
 
   local colored_group_name = "transporter_item_duct_" .. color_basename
   local groups = { cracky = 1, item_network_device = 1, transporter_item_duct = 1, [colored_group_name] = 1 }

@@ -7,32 +7,23 @@ end
 -- Their corresponding lock is formed from an Access Chip
 -- Unlike Keys and Locks however, they must be paired before hand in a 'Programmer's Table'
 --
-local colors = {
-  {"white", "White"}
-}
+for _,row in ipairs(yatm.colors) do
+  local basename = row.name
+  local name = row.description
 
--- If the dye module is available, use the colors from there instead.
-if dye then
-  colors = dye.dyes
-end
-
-for _,color in pairs(colors) do
-  local color_basename = color[1]
-  local color_name = color[2]
-
-  minetest.register_craftitem("yatm_security:access_card_" .. color_basename, {
+  minetest.register_craftitem("yatm_security:access_card_" .. basename, {
     basename = "yatm_security:access_card",
     base_description = "Access Card",
 
-    description = "Access Card [" .. color_name .. "]",
+    description = "Access Card [" .. name .. "]",
 
     groups = {
       access_card = 1,
       table_programmable = 1,
     },
 
-    inventory_image = "yatm_access_cards_" .. color_basename .. "_common.png",
-    dye_color = color_basename,
+    inventory_image = "yatm_access_cards_" .. basename .. "_common.png",
+    dye_color = basename,
 
     stack_max = 1,
 

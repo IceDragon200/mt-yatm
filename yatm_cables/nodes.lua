@@ -442,18 +442,9 @@ yatm_cables.register_cable({
 }, 4 * SIXTEENTH)
 
 do
-  local colors = {
-    {"white", "White"}
-  }
-
-  -- If the dye module is available, use the colors from there instead.
-  if dye then
-    colors = dye.dyes
-  end
-
-  for _,color_pair in ipairs(colors) do
-    local color_basename = color_pair[1]
-    local color_name = color_pair[2]
+  for _,row in ipairs(yatm.colors_with_default) do
+    local color_basename = row.name
+    local color_name = row.description
 
     local colored_group_name = "copper_cable_" .. color_basename
     local groups = {

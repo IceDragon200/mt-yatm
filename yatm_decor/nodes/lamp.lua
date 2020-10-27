@@ -23,17 +23,6 @@ local small_lamp_node_box = {
   }
 }
 
-local colors = {
-  {"white", "White"}
-}
-
--- If the dye module is available, use the colors from there instead.
-if dye then
-  colors = dye.dyes
-else
-  print("yatm_decor", "dye is not available, lamps will only be available in white")
-end
-
 -- Fixes the orientation of the lamp after it was placed
 -- aka. don't mess around with the cray-cray place_node code
 local lamp_after_place_node = function (pos, placer, itemstack, pointed_thing)
@@ -93,9 +82,9 @@ local states = {
 }
 
 for _,default_state in ipairs(states) do
-  for _,pair in ipairs(colors) do
-    local basename = pair[1]
-    local name = pair[2]
+  for _,row in ipairs(yatm.colors) do
+    local basename = row.name
+    local name = row.description
     local basename_postfix = "_d" .. default_state
 
 

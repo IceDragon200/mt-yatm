@@ -1,14 +1,5 @@
 local facedir_wallmount_after_place_node = assert(foundation.com.Directions.facedir_wallmount_after_place_node)
 
-local colors = {
-  {"white", "White"}
-}
-
--- If the dye module is available, use the colors from there instead.
-if dye then
-  colors = dye.dyes
-end
-
 local slab_nodebox = {
   type = "fixed",
   fixed = {-0.5, -0.5, -0.5, 0.5, 0, 0.5},
@@ -34,9 +25,10 @@ local variants = {
   {"pillar2", "Pillar (Alt)"}, -- Another pillar like pattern
 }
 
-for _,pair in ipairs(colors) do
-  local color_basename = pair[1]
-  local color_name = pair[2]
+for _,row in ipairs(yatm.colors) do
+  local color_basename = row.name
+  local color_name = row.description
+
   for _,variant_pair in ipairs(variants) do
     local variant_basename = variant_pair[1]
     local variant_name = variant_pair[2]

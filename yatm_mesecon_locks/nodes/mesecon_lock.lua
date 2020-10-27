@@ -2,15 +2,6 @@ local Directions = assert(foundation.com.Directions)
 local FakeMetaRef = assert(foundation.com.FakeMetaRef)
 local table_merge = assert(foundation.com.table_merge)
 
-local colors = {
-  {"white", "White"}
-}
-
--- If the dye module is available, use the colors from there instead.
-if dye then
-  colors = dye.dyes
-end
-
 local lock_dirs = {
   assert(Directions.D_DOWN),
   assert(Directions.D_NORTH),
@@ -56,9 +47,9 @@ local node_box = {
   }
 }
 
-for _,color in pairs(colors) do
-  local color_basename = color[1]
-  local color_name = color[2]
+for _,row in ipairs(yatm.colors) do
+  local color_basename = row.name
+  local color_name = row.description
 
   local groups = {
     cracky = 1,

@@ -108,17 +108,9 @@ local colors = {
   {"white", "White"}
 }
 
--- If the dye module is available, use the colors from there instead.
-if dye then
-  colors = dye.dyes
-end
-
--- Add the 'default' case for barrels, barrels can either be dyed or not.
-colors = list_concat({{"default", "Default"}}, colors)
-
-for _,pair in ipairs(colors) do
-  local color_basename = pair[1]
-  local color_name = pair[2]
+for _,row in ipairs(yatm.colors_with_default) do
+  local color_basename = row.name
+  local color_name = row.description
 
   local node_name = "yatm_brewery:aging_barrel_wood_" .. color_basename
   minetest.register_node(node_name, {
