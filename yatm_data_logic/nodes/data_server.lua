@@ -1,12 +1,7 @@
-local Vector3 = assert(foundation.com.Vector3)
-local Cuboid = assert(foundation.com.Cuboid)
-local ng = Cuboid.new_fast_node_box
-
 local data_network = assert(yatm.data_network)
-local ByteEncoder = assert(yatm.ByteEncoder)
 
-minetest.register_node("yatm_data_logic:data_router", {
-  description = "DATA Router\nInspects input payloads and routes them based on leading bytes.",
+minetest.register_node("yatm_data_logic:data_server", {
+  description = "DATA Server\nSupports a CALL/RESPONSE format for payloads.",
 
   codex_entry_id = "yatm_data_logic:data_router",
 
@@ -23,22 +18,21 @@ minetest.register_node("yatm_data_logic:data_router", {
   node_box = {
     type = "fixed",
     fixed = {
-      ng(0, 0, 0, 16,  4, 16), -- base
-      ng(4, 4, 4, 8, 7, 8), -- core
-      ng(3, 4, 3, 4, 8, 4), -- pillar
-      ng(3, 4, 9, 4, 8, 4), -- pillar
-      ng(9, 4, 3, 4, 8, 4), -- pillar
-      ng(9, 4, 9, 4, 8, 4), -- pillar
-    },
+      {-0.4375, -0.5, -0.4375, 0.4375, 0.3125, 0.4375}, -- InnerCore
+      {-0.5, 0.3125, -0.5, 0.5, 0.5, 0.5}, -- Rack4
+      {-0.5, 0.0625, -0.5, 0.5, 0.25, 0.5}, -- Rack3
+      {-0.5, -0.1875, -0.5, 0.5, 0, 0.5}, -- Rack2
+      {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5}, -- Rack1
+    }
   },
 
   tiles = {
-    "yatm_data_router_top.png",
-    "yatm_data_router_bottom.png",
-    "yatm_data_router_side.png",
-    "yatm_data_router_side.png",
-    "yatm_data_router_side.png",
-    "yatm_data_router_side.png",
+    "yatm_data_server_top.png",
+    "yatm_data_server_bottom.png",
+    "yatm_data_server_side.png",
+    "yatm_data_server_side.png",
+    "yatm_data_server_back.png",
+    "yatm_data_server_front.png",
   },
 
   on_construct = function (pos)

@@ -340,7 +340,7 @@ function yatm_data_logic.handle_io_port_fields(pos, fields, meta, mode, options)
         else
           input_value = tonumber(input_value)
           local old_input_value = meta:get_int("input_" .. dir)
-          if input_value ~= old_input_value then
+          if input_value and input_value ~= old_input_value then
             inputs_changed[dir] = {input_value, old_input_value}
             meta:set_int("input_" .. dir, input_value)
           end
@@ -368,7 +368,7 @@ function yatm_data_logic.handle_io_port_fields(pos, fields, meta, mode, options)
         else
           output_value = tonumber(output_value)
           local old_output_value = meta:get_int("output_" .. dir)
-          if output_value ~= old_output_value then
+          if output_value and output_value ~= old_output_value then
             outputs_changed[dir] = {output_value, old_output_value}
             meta:set_int("output_" .. dir, output_value)
           end
@@ -405,7 +405,7 @@ function yatm_data_logic.handle_port_matrix_fields(pos, fields, meta, options)
           local old_value = meta:get_int(field_name)
           local value = tonumber(fields[field_name])
 
-          if old_value ~= value then
+          if value and old_value ~= value then
             meta:set_int(field_name, value)
             if not result[section.name] then
               result[section.name] = {}

@@ -28,8 +28,9 @@ mod:register_node("data_wave_generator", {
   node_box = {
     type = "fixed",
     fixed = {
-      ng(0, 0, 0, 16, 4, 16),
-      ng(8, 4, 3,  6, 2, 10),
+      ng(0, 0, 0, 16, 4, 16), -- base
+      ng(5, 4, 5,  6,10,  6), -- core
+      ng(3, 8, 3, 10, 4, 10), -- head
     },
   },
 
