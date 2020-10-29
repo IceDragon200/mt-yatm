@@ -3,6 +3,51 @@ local is_table_empty = assert(foundation.com.is_table_empty)
 local ng = Cuboid.new_fast_node_box
 local sounds = assert(yatm_core.sounds)
 local data_network = assert(yatm.data_network)
+local fspec = assert(foundation.com.formspec.api)
+
+local function create_token_inventory(user)
+  local name = foundation.com.make_string_ref("ydlds")
+
+  local inv =
+    minetest.create_detached_inventory(name, {
+      allow_move = function (inv, from_list, from_index, to_list, to_index, count, player)
+        print("allow_move", "from_list", from_list, "to_list", to_list)
+
+        return 0
+      end,
+
+      allow_put = function (inv, listname, index, stack, player)
+        return 0
+      end,
+
+      allow_take = function (inv, listname, index, stack, player)
+        return -1
+      end,
+
+      on_move = function (inv, from_list, from_index, to_list, to_index, count, player)
+        print("on_move", "from_list", from_list, "to_list", to_list)
+        --
+      end,
+
+      on_put = function (inv, listname, index, stack, player)
+        --
+      end,
+
+      on_take = function (inv, listname, index, stack, player)
+        --
+      end,
+    }, user:get_player_name())
+
+  inv:set_size("main", #yatm.colors+1)
+
+  for _,row in ipairs(yatm.colors) do
+    local stack = ItemStack("yatm_data_logic:token_"..row.name.." 1")
+
+    inv:add_item("main", stack)
+  end
+
+  return name
+end
 
 minetest.register_node("yatm_data_logic:data_sequencer", {
   description = "Data Sequencer",
@@ -88,9 +133,18 @@ minetest.register_node("yatm_data_logic:data_sequencer", {
 
     on_load = function (self, pos, node)
       -- sequencers don't need to bind listeners of any sorts
+      local meta = minetest.get_meta(pos)
+
+      local inv = meta:get_inventory()
+
+      inv:set_size("sequence", 64)
     end,
 
     receive_pdu = function (self, pos, node, dir, port, value)
+    end,
+
+    on_programmer_formspec_quit = function (self, pos, user, assigns)
+      minetest.remove_detached_inventory(assigns.token_inventory_name)
     end,
 
     get_programmer_formspec = function (self, pos, user, pointed_thing, assigns)
@@ -98,15 +152,21 @@ minetest.register_node("yatm_data_logic:data_sequencer", {
       local meta = minetest.get_meta(pos)
       assigns.tab = assigns.tab or 1
 
+      if not assigns.initialized then
+        assigns.token_inventory_name = create_token_inventory(user)
+
+        assigns.initialized = true
+      end
+
       local formspec =
         yatm_data_logic.layout_formspec() ..
         yatm.formspec_bg_for_player(user:get_player_name(), "module") ..
-        "tabheader[0,0;tab;Ports,Data;" .. assigns.tab .. "]"
+        fspec.tabheader(0, 0, nil, nil, "tab", {"Ports", "Data", "Sequence"}, assigns.tab)
 
       if assigns.tab == 1 then
         formspec =
           formspec ..
-          "label[0,0;Port Configuration]"
+          "label[0.5,0.75;Port Configuration]"
 
         local io_formspec = yatm_data_logic.get_io_port_formspec(pos, meta, "o")
 
@@ -123,19 +183,33 @@ minetest.register_node("yatm_data_logic:data_sequencer", {
 
         formspec =
           formspec ..
-          "label[0,0;Data Configuration]" ..
-          "label[0,0.5;Interval (Seconds)]" ..
-          "dropdown[0.25,1;8,1;interval_option;" .. yatm_data_logic.INTERVAL_STRING .. ";" .. interval_id .. "]"
+          fspec.label(0.5, 0.75, "Data Configuration") ..
+          fspec.label(0.5, 1.25, "Interval (Seconds)") ..
+          "dropdown[0.5,2;8,1;interval_option;" .. yatm_data_logic.INTERVAL_STRING .. ";" .. interval_id .. "]"
 
-        for i = 1,16 do
-          local x = ((i - 1) % 2) * 4
-          local y = math.floor((i - 1) / 2)
-          formspec = formspec .. "field[" .. (0.25 + x) .. "," .. (2.5 + y) ..
-                                        ";4,1;data_seq" .. i ..
-                                        ";Sequence " .. i ..
-                                        ";" .. minetest.formspec_escape(meta:get_string("data_seq" .. i)) ..
-                                        "]"
+      elseif assigns.tab == 3 then
+        formspec =
+          formspec ..
+          fspec.label(0.5, 0.75, "Sequence") ..
+          fspec.list("detached:"..assigns.token_inventory_name, "main", 0.5, 1.5, 1, 8) ..
+          fspec.list("detached:"..assigns.token_inventory_name, "main", 5.5, 1.5, 1, 8, 8)
+
+        for c = 0,15 do
+          local i = c + 1
+          local x = math.floor(c / 8)
+          local y = c % 8
+          formspec =
+            formspec ..
+            fspec.field_area(2 + x * 4.75, 1.5 + y * 1.25, 3, 1,
+                             "data_seq"..i, "",
+                             meta:get_string("data_seq" .. i))
         end
+
+        local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+        formspec =
+          formspec ..
+          fspec.list("nodemeta:"..spos, "sequence", 10, 1.5, 8, 8)
+
       end
 
       return formspec

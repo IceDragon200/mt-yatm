@@ -21,6 +21,14 @@ local function on_receive_fields(player, form_name, fields, assigns)
   return keep_bubbling, formspec
 end
 
+local function on_formspec_quit(player, form_name, assigns)
+  local di = assigns.interface
+
+  if di.on_programmer_formspec_quit then
+    di:on_programmer_formspec_quit(assigns.pos, player, assigns)
+  end
+end
+
 minetest.register_tool("yatm_data_logic:data_programmer", {
   description = "Data Programmer\nRight-click on programmable DATA device.",
 
@@ -53,6 +61,7 @@ minetest.register_tool("yatm_data_logic:data_programmer", {
           yatm_core.show_bound_formspec(user:get_player_name(), formname, formspec, {
             state = assigns,
             on_receive_fields = on_receive_fields,
+            on_quit = on_formspec_quit,
           })
         else
           minetest.chat_send_player(user:get_player_name(), "This node cannot be programmed")
