@@ -16,8 +16,8 @@ local function render_pads(inv, meta, assigns)
 
   local bd = ";" .. bw .. "," .. bh
 
-  local xoffset = (12 - assigns.width * assigns.scale) / 2
-  local yoffset = (12 - assigns.height * assigns.scale) / 2
+  local xoffset = (yatm_data_logic.FORMSPEC_SIZE.w - assigns.width * assigns.scale) / 2
+  local yoffset = (yatm_data_logic.FORMSPEC_SIZE.h - assigns.height * assigns.scale) / 2
 
   for y = 0,(assigns.height - 1) do
     local dy = yoffset + y * assigns.scale
@@ -41,6 +41,18 @@ local function render_pads(inv, meta, assigns)
                             ";" ..
                             ";true;false;" ..
                             minetest.formspec_escape("yatm_button.base.48px.png^" .. spec.images["on"]) .. "]"
+          elseif spec.type == "rotary_button" then
+            local state_id = meta:get_int("pad_state_" .. i)
+
+            formspec =
+              formspec ..
+              "image_button[" .. dx .. "," .. dy ..
+                            bd .. ";" ..
+                            minetest.formspec_escape("yatm_button.base.48px.png^" .. spec.images[state_id]) ..
+                            ";pad_rotate_" .. i ..
+                            ";" ..
+                            ";true;false;" ..
+                            minetest.formspec_escape("yatm_button.base.48px.png^" .. spec.images[state_id]) .. "]"
           elseif spec.type == "switch2" then
             -- 2 state switch
             local state_id = meta:get_int("pad_state_" .. i)
@@ -53,11 +65,11 @@ local function render_pads(inv, meta, assigns)
               formspec ..
               "image_button[" .. dx .. "," .. dy ..
                             bd .. ";" ..
-                            minetest.formspec_escape("yatm_button.base.48px.png^yatm_button.base.switch.48px.png^" .. spec.images[state]) ..
+                            minetest.formspec_escape("yatm_button.base.48px.png^" .. spec.images[state]) ..
                             ";pad_toggle_" .. i ..
                             ";" ..
                             ";true;false;" ..
-                            minetest.formspec_escape("yatm_button.base.48px.png^yatm_button.base.switch.48px.png^" .. spec.images[state]) .. "]"
+                            minetest.formspec_escape("yatm_button.base.48px.png^" .. spec.images[state]) .. "]"
           else
             formspec =
               formspec ..
@@ -132,6 +144,21 @@ local function check_pad_trigger(pad_id, meta, fields, assigns)
     end
   end
 
+  local pad_rotate = fields["pad_rotate_" .. pad_id]
+  if pad_rotate then
+    local state = meta:get_int("pad_state_" .. pad_id)
+    state = (state + 1) % 4
+
+    meta:set_int("pad_state_" .. pad_id, state)
+    needs_refresh = true
+
+    local port = meta:get_int("pad_port_" .. pad_id)
+    local value = meta:get_string("pad_state_value_" .. pad_id .. "_" .. state)
+    if port > 0 then
+      yatm_data_logic.emit_value(assigns.pos, port, value)
+    end
+  end
+
   return needs_refresh
 end
 
@@ -169,20 +196,25 @@ local data_interface = {
     local meta = minetest.get_meta(pos)
     local inv = meta:get_inventory()
 
+    local dim = yatm_data_logic.FORMSPEC_SIZE
+
     assigns.tab = assigns.tab or 1
     assigns.width = nodedef.control_panel.width
     assigns.height = nodedef.control_panel.height
     assigns.size = assigns.width * assigns.height
-    assigns.scale = 10 / assigns.width
+    assigns.scale = (math.min(dim.w, dim.h) - 2) / assigns.width
 
-    local xoffset = (12 - assigns.width * assigns.scale) / 2
-    local yoffset = (12 - assigns.height * assigns.scale) / 2
+    local xoffset = (dim.w - assigns.width * assigns.scale) / 2
+    local yoffset = (dim.h - assigns.height * assigns.scale) / 2
 
     local formspec =
-      "formspec_version[2]" ..
-      "size[12,12]" ..
+      yatm_data_logic.layout_formspec() ..
       yatm.formspec_bg_for_player(user:get_player_name(), "module") ..
       "tabheader[0,0;tab;Pads,Pads Setup,Ports,Data;" .. assigns.tab .. "]"
+
+    -- cell width
+    local cw = (dim.w - 1) / assigns.width
+    local ch = math.min((dim.h - 2) / assigns.height, 1)
 
     if assigns.tab == 1 then
       formspec =
@@ -205,16 +237,17 @@ local data_interface = {
         "label[0.5,0.75;Ports]"
 
       for y = 0,(assigns.height - 1) do
-        local dy = yoffset + 0.5 + y * assigns.scale
+        local dy = 2 + (dim.h - 2) * y / assigns.height
+
         for x = 0,(assigns.width - 1) do
-          local dx = xoffset + x * assigns.scale
+          local dx = 0.5 + (dim.w - 1) * x / assigns.width
 
           local i = 1 + y * assigns.width + x
 
           formspec =
             formspec ..
             "field[" .. dx .. "," .. dy ..
-                   ";" .. assigns.scale .. ",0.8" ..
+                   ";" .. cw .. ",1" ..
                    ";pad_port_" .. i ..
                    ";P" .. i ..
                    ";" .. meta:get_int("pad_port_" .. i) .. "]"
@@ -226,10 +259,13 @@ local data_interface = {
         formspec ..
         "label[0.5,0.75;Data]"
 
-      for y = 0,(assigns.height - 1) do
-        local dy = yoffset + 0.5 + y * assigns.scale
-        for x = 0,(assigns.width - 1) do
-          local dx = xoffset + x * assigns.scale
+      local y2 = assigns.height - 1
+      local x2 = assigns.width - 1
+
+      for y = 0,y2 do
+        local dy = 2 + (dim.h - 2) * y / assigns.height
+        for x = 0,x2 do
+          local dx = 0.5 + (dim.w - 1) * x / assigns.width
 
           local i = 1 + y * assigns.width + x
 
@@ -246,20 +282,42 @@ local data_interface = {
                 formspec =
                   formspec ..
                   "field[" .. dx .. "," .. dy ..
-                         ";2.5,1" ..
+                         ";"..cw..","..ch..
                          ";pad_state_value_" .. i .. "_1" ..
                          ";T" .. i ..
                          ";" .. minetest.formspec_escape(meta:get_string("pad_state_value_" .. i .. "_1")) .. "]"
+
+              elseif spec.type == "rotary_button" then
+                local rotary_cw = cw / 2
+                local rotary_ch = ch / 2
+
+                formspec =
+                  formspec ..
+                  "label["..dx..","..(dy-0.25)..";T"..i.."]"
+
+                for state_id = 0,3 do
+                  formspec =
+                    formspec ..
+                    "field[" .. (rotary_cw * (state_id % 2) + dx) .. "," .. dy + math.floor(state_id / 2) * rotary_ch ..
+                           ";"..rotary_cw..","..rotary_ch..
+                           ";pad_state_value_" .. i .. "_" .. state_id ..
+                           ";" ..
+                           ";" .. minetest.formspec_escape(meta:get_string("pad_state_value_" .. i .. "_" .. state_id)) .. "]"
+                end
+
               elseif spec.type == "switch2" then
+                local switch_cw = cw / 2
+                local switch_ch = ch
+
                 formspec =
                   formspec ..
                   "field[" .. dx .. "," .. dy ..
-                         ";1.125,1" ..
+                         ";"..switch_cw..","..switch_ch..
                          ";pad_state_value_" .. i .. "_0" ..
                          ";L" .. i ..
                          ";" .. minetest.formspec_escape(meta:get_string("pad_state_value_" .. i .. "_0")) .. "]" ..
-                  "field[" .. (1.25 + dx) .. "," .. dy ..
-                         ";1.125,1" ..
+                  "field[" .. (switch_cw + dx) .. "," .. dy ..
+                         ";"..switch_cw..","..switch_ch..
                          ";pad_state_value_" .. i .. "_1" ..
                          ";R" .. i ..
                          ";" .. minetest.formspec_escape(meta:get_string("pad_state_value_" .. i .. "_1")) .. "]"
@@ -292,7 +350,7 @@ local data_interface = {
         meta:set_string("pad_port_" .. pad_id, new_pad_port)
       end
 
-      for state_id = 0,1 do
+      for state_id = 0,3 do
         local field_name = "pad_state_value_" .. pad_id .. "_" .. state_id
         local new_pad_value = fields[field_name]
         if new_pad_value then
