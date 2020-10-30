@@ -1,6 +1,6 @@
---[[
-The fluid registry
-]]
+--
+-- The fluid registry
+--
 local Measurable = assert(yatm.Measurable)
 local Groups = assert(foundation.com.Groups)
 local table_merge = assert(foundation.com.table_merge)
@@ -28,8 +28,8 @@ function FluidRegistry.register_fluid_bucket(bucket_name, bucket_def)
   assert(bucket_def.nodes)
   if bucket then
     bucket.register_liquid(
-      assert(bucket_def.nodes[1]),
-      assert(bucket_def.nodes[2]),
+      assert(bucket_def.nodes.source),
+      assert(bucket_def.nodes.flowing),
       bucket_name,
       assert(bucket_def.texture),
       (bucket_def.description or bucket_name),
@@ -208,7 +208,6 @@ function FluidRegistry.register_fluid_nodes(basename, def)
 end
 
 function FluidRegistry.register(modname, fluid_basename, definition)
-  -- Don't ask, it's a tribute to my cat
   local fluid_name = modname .. ":" .. fluid_basename
   local node_basename = fluid_name
   local bucket_name = modname .. ":bucket_" .. fluid_basename
@@ -251,12 +250,14 @@ function FluidRegistry.register(modname, fluid_basename, definition)
     }
     if fluid_def.nodes then
       bucket_def.nodes = {
-        fluid_def.nodes.source,
-        fluid_def.nodes.flowing,
+        source = fluid_def.nodes.source,
+        flowing = fluid_def.nodes.flowing,
       }
     end
 
     assert(type(bucket_def.groups) == "table", "groups are expected to be tables (" .. bucket_name .. ")")
+
+    bucket_def.groups.fluid_bucket = 1
   end
 
   local fluid_tank_def = nil
@@ -267,21 +268,23 @@ function FluidRegistry.register(modname, fluid_basename, definition)
     }
   end
 
-  print("FluidRegistry", "register", "registering fluid", fluid_name)
+  --print("FluidRegistry", "register", "registering fluid", fluid_name)
   FluidRegistry.register_fluid(fluid_name, fluid_def)
   if fluid_node_def then
     if not definition.nodes.dont_register then
-      print("FluidRegistry", "register", "registering fluid nodes", fluid_name, node_basename)
+      --print("FluidRegistry", "register", "registering fluid nodes", fluid_name, node_basename)
       FluidRegistry.register_fluid_nodes(node_basename, fluid_node_def)
     end
   end
+
   if bucket_def then
     print("FluidRegistry", "register", "registering fluid bucket", fluid_name, bucket_name)
     FluidRegistry.register_fluid_bucket(bucket_name, bucket_def)
   end
+
   if fluid_tank_def then
     local tank_modname = definition.fluid_tank.modname or modname
-    print("FluidRegistry", "register", "registering fluid tank", fluid_name, modname)
+    --print("FluidRegistry", "register", "registering fluid tank", fluid_name, modname)
     FluidRegistry.register_fluid_tank(tank_modname, fluid_name, fluid_tank_def)
   end
 end
@@ -294,9 +297,9 @@ function FluidRegistry.normalize_fluid_name(fluid_name)
   return FluidRegistry.aliases[fluid_name] or fluid_name
 end
 
---[[
-@spec FluidRegistry.item_name_to_fluid_name(String.t) :: String.t | nil
-]]
+--
+-- @spec FluidRegistry.item_name_to_fluid_name(String.t) :: String.t | nil
+--
 function FluidRegistry.item_name_to_fluid_name(item_name)
   return FluidRegistry.m_item_name_to_fluid_name[item_name]
 end

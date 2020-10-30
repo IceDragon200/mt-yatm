@@ -1,3 +1,6 @@
+--
+-- Utility module for operating on MetaRef's regarding fluids
+--
 local FluidUtil = assert(yatm_fluids.Utils)
 local FluidRegistry = assert(yatm_fluids.FluidRegistry)
 local FluidStack = assert(yatm_fluids.FluidStack)

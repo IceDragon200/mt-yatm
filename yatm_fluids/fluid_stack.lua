@@ -1,6 +1,6 @@
---[[
-Simple utility module for dealing with stacks of fluids
-]]
+--
+-- Simple utility module for dealing with stacks of fluids
+--
 local FluidRegistry = assert(yatm_fluids.FluidRegistry)
 local FluidUtils = assert(yatm_fluids.Utils)
 local FluidStack = {}
