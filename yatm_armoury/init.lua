@@ -9,6 +9,7 @@ local mod = foundation.new_module("yatm_armoury", "0.1.0")
 
 mod:require("api.lua")
 
+mod:require("entities.lua")
 mod:require("nodes.lua")
 mod:require("items.lua")
 

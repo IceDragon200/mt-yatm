@@ -1,6 +1,7 @@
 local is_blank = assert(foundation.com.is_blank)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local fspec = assert(foundation.com.formspec.api)
+local is_stack_cartridge = assert(yatm_armoury.is_stack_cartridge)
 
 function get_ammo_can_formspec(pos, entity)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
@@ -24,7 +25,7 @@ end
 local item_interface = ItemInterface.new_simple("main")
 
 function item_interface:allow_insert_item(pos, dir, item_stack)
-  return yatm_armoury.is_stack_ammunition(item_stack)
+  return is_stack_cartridge(item_stack)
 end
 
 minetest.register_node("yatm_armoury:ammo_can", {
@@ -131,7 +132,7 @@ minetest.register_node("yatm_armoury:ammo_can", {
 
   allow_metadata_inventory_put = function (pos, listname, index, stack, player)
     if listname == "main" then
-      if yatm_armoury.is_stack_ammunition(stack) then
+      if is_stack_cartridge(stack) then
         return stack:get_count()
       end
     end
