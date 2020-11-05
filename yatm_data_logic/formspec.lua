@@ -1,6 +1,7 @@
 --
 -- DATA formspec components
 --
+local DataNetwork = assert(yatm.DataNetwork)
 local data_network = assert(yatm.data_network)
 local Directions = assert(foundation.com.Directions)
 local fspec = assert(foundation.com.formspec.api)
@@ -148,20 +149,25 @@ function yatm_data_logic.get_io_port_formspec(pos, meta, mode, options)
     col_width = math.floor(col_width / 2)
   end
 
+  local dx = options.x or 0
+  local dy = options.y or 0.5
+
   local inputs =
-    fspec.label(0, 0.5, "Inputs")
+    fspec.label(dx, dy, "Inputs")
 
   local outputs
-  local output_x = 0
+  local output_dx = dx
 
   if mode == "io" then
-    outputs = fspec.label(col_width, 0.5, "Outputs")
-    output_x = col_width
+    outputs = fspec.label(dx + col_width, dy, "Outputs")
+    output_dx = dx + col_width
   elseif mode == "o" then
-    outputs = fspec.label(0, 0.5, "Outputs")
+    outputs = fspec.label(dx, dy, "Outputs")
   end
 
-  local row = 2
+  dy = dy + 0.5
+
+  local row = 0
 
   local show_input = mode == "io" or mode == "i"
   local show_output = mode == "io" or mode == "o"
@@ -177,8 +183,15 @@ function yatm_data_logic.get_io_port_formspec(pos, meta, mode, options)
 
       local item_name
       local color = attached_colors[dir]
+      local bits = 8
+
       if color then
         item_name = "yatm_data_network:data_cable_bus_" .. color
+        local range = DataNetwork.COLOR_RANGE[color].range
+
+        if range == DataNetwork.PORT_RANGE then
+          bits = 4
+        end
       end
 
       local label = Directions.dir_to_string(dir) .. " - " .. sub_network_id
@@ -197,20 +210,20 @@ function yatm_data_logic.get_io_port_formspec(pos, meta, mode, options)
 
           inputs =
             inputs ..
-            "field[0.25," .. i ..
-                   ";" .. col_width .. ",1;input_" .. dir ..
-                   ";" .. label ..
-                   ";" .. default_value .. "]"
+            fspec.field_area(dx, dy + row, col_width, 1,
+                             "input_"..dir,
+                             label,
+                             default_value)
         else
           default_value = meta:get_int("input_" .. dir)
 
-          local button_x = item_size
+          local button_x = dx + item_size
 
           inputs =
             inputs ..
-            fspec.item_image(0, row-1, item_size, item_size, item_name) ..
-            fspec.image(0, row-1, item_size, item_size, border_image_name) ..
-            yatm_data_logic.render_8bit_buttons_formspec(button_x, row-1, 1, 1, "input_"..dir, default_value)
+            fspec.item_image(dx, dy + row, item_size, item_size, item_name) ..
+            fspec.image(dx, dy + row, item_size, item_size, border_image_name) ..
+            yatm_data_logic.render_multibit_buttons_formspec(button_x, dy + row, 1, 1, bits, "input_"..dir, default_value)
         end
       end
 
@@ -228,20 +241,19 @@ function yatm_data_logic.get_io_port_formspec(pos, meta, mode, options)
 
           outputs =
             outputs ..
-            "field[" .. (output_x + 0.25) ..  "," .. row ..
-                   ";" .. col_width .. ",1;output_" .. dir ..
-                   ";" .. label ..
-                   ";" .. default_value .. "]"
+            fspec.field_area(output_dx, dy + row, col_width, 1,
+                             "output_"..dir, label,
+                             default_value)
         else
           default_value = meta:get_int("output_" .. dir)
 
-          local button_x = output_x + item_size
+          local button_x = output_dx + item_size
 
           outputs =
             outputs ..
-            fspec.item_image(output_x, row-1, item_size, item_size, item_name) ..
-            fspec.image(output_x, row-1, item_size, item_size, border_image_name) ..
-            yatm_data_logic.render_8bit_buttons_formspec(button_x, row-1, 1, 1, "output_"..dir, default_value)
+            fspec.item_image(output_dx, dy + row, item_size, item_size, item_name) ..
+            fspec.image(output_dx, dy + row, item_size, item_size, border_image_name) ..
+            yatm_data_logic.render_multibit_buttons_formspec(button_x, dy + row, 1, 1, bits, "output_"..dir, default_value)
         end
       end
 
@@ -249,21 +261,28 @@ function yatm_data_logic.get_io_port_formspec(pos, meta, mode, options)
     end
   end
 
+  local r = {
+    x = dx,
+    y = dy + row,
+    w = width,
+    h = row + 1
+  }
+
   if mode == "io" then
-    return inputs .. outputs
+    return inputs .. outputs, r
   elseif mode == "o" then
-    return outputs
+    return outputs, r
   elseif mode == "i" then
-    return inputs
+    return inputs, r
   end
 end
 
-function yatm_data_logic.render_8bit_buttons_formspec(x, y, w, h, field_prefix, value)
+function yatm_data_logic.render_multibit_buttons_formspec(x, y, w, h, length, field_prefix, value)
   local formspec = ""
 
   local rolling_value = value
 
-  for i=1,8 do
+  for i=1,length do
     local bit = rolling_value % 2
     rolling_value = math.floor(rolling_value / 2)
 
@@ -276,7 +295,7 @@ function yatm_data_logic.render_8bit_buttons_formspec(x, y, w, h, field_prefix, 
       texture_name, texture_name_alt = texture_name_alt, texture_name
     end
 
-    local button_x = x + 8 - i * w
+    local button_x = x + length - i * w
 
     formspec =
       formspec ..

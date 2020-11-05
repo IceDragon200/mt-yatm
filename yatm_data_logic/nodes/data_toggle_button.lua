@@ -30,68 +30,75 @@ yatm.register_stateful_node("yatm_data_logic:data_toggle_button", {
       --
     end,
 
-    get_programmer_formspec = function (self, pos, user, pointed_thing, assigns)
-      --
-      local meta = minetest.get_meta(pos)
-      assigns.tab = assigns.tab or 1
-      local formspec =
-        yatm_data_logic.layout_formspec() ..
-        yatm.formspec_bg_for_player(user:get_player_name(), "module") ..
-        "tabheader[0,0;tab;Ports,Data;" .. assigns.tab .. "]"
+    get_programmer_formspec = {
+      default_tab = "ports",
+      tabs = {
+        {
+          tab_id = "ports",
+          title = "Ports",
+          header = "Port Configuration",
+          render = {
+            {
+              component = "io_ports",
+              mode = "o",
+            }
+          },
+        },
+        {
+          tab_id = "data",
+          title = "Data",
+          header = "Data Configuration",
+          render = {
+            {
+              component = "row",
+              items = {
+                {
+                  component = "field",
+                  label = "Data (Left/0)",
+                  name = "data_left",
+                  type = "string",
+                  meta = true,
+                },
+                {
+                  component = "field",
+                  label = "Data (Right/1)",
+                  name = "data_right",
+                  type = "string",
+                  meta = true,
+                }
+              }
+            }
+          }
+        }
+      }
+    },
 
-      if assigns.tab == 1 then
-        formspec =
-          formspec ..
-          "label[0,0;Port Configuration]"
-
-        local io_formspec = yatm_data_logic.get_io_port_formspec(pos, meta, "o")
-
-        formspec =
-          formspec ..
-          io_formspec
-
-      elseif assigns.tab == 2 then
-        formspec =
-          formspec ..
-          "label[0,0;Data Configuration]" ..
-          "label[0,1;Left (0)]" ..
-          "field[0.25,2;4,1;data_left;Data;" .. minetest.formspec_escape(meta:get_string("data_left")) .. "]" ..
-          "label[4,1;Right (1)]" ..
-          "field[4.25,2;4,1;data_right;Data;" .. minetest.formspec_escape(meta:get_string("data_right")) .. "]"
-      end
-
-      return formspec
-    end,
-
-    receive_programmer_fields = function (self, player, form_name, fields, assigns)
-      local meta = minetest.get_meta(assigns.pos)
-
-      local needs_refresh = false
-
-      if fields["tab"] then
-        local tab = tonumber(fields["tab"])
-        if tab ~= assigns.tab then
-          assigns.tab = tab
-          needs_refresh = true
-        end
-      end
-
-      local _ichg, ochg = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "o")
-
-      if not is_table_empty(ochg) then
-        needs_refresh = true
-      end
-
-      if fields["data_left"] then
-        meta:set_string("data_left", fields["data_left"])
-      end
-
-      if fields["data_right"] then
-        meta:set_string("data_right", fields["data_right"])
-      end
-
-      return true, needs_refresh
-    end,
+    receive_programmer_fields = {
+      tabbed = true, -- notify the solver that tabs are in use
+      tabs = {
+        {
+          components = {
+            {component = "io_ports", mode = "o"}
+          }
+        },
+        {
+          components = {
+            {
+              component = "field",
+              name = "data_left",
+              type = "string",
+              meta = true,
+            },
+            {
+              component = "field",
+              name = "data_right",
+              type = "string",
+              meta = true,
+            }
+          }
+        }
+      }
+    }
   },
 
   refresh_infotext = function (pos)
