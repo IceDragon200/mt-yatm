@@ -8,36 +8,36 @@ local fspec = assert(foundation.com.formspec.api)
 local BUTTONS_BY_BIT = {
   {
     bit = 1,
-    color = "black",
+    color = "red",
   },
   {
     bit = 2,
-    color = "white",
-  },
-  {
-    bit = 3,
-    color = "magenta",
-  },
-  {
-    bit = 4,
-    color = "yellow",
-  },
-  {
-    bit = 5,
-    color = "cyan",
-  },
-  {
-    bit = 6,
-    color = "blue",
-  },
-  {
-    bit = 7,
     color = "green",
   },
   {
+    bit = 3,
+    color = "blue",
+  },
+  {
+    bit = 4,
+    color = "cyan",
+  },
+  {
+    bit = 5,
+    color = "yellow",
+  },
+  {
+    bit = 6,
+    color = "magenta",
+  },
+  {
+    bit = 7,
+    color = "white",
+  },
+  {
     bit = 8,
-    color = "red",
-  }
+    color = "black",
+  },
 }
 
 -- The formspec should be able to fit 2 columns of 8 bit buttons
