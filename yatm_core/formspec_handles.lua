@@ -3,8 +3,9 @@ local is_table_empty = assert(foundation.com.is_table_empty)
 local bindings = {}
 
 function yatm_core.show_bound_formspec(player_name, formname, formspec, options)
-  assert(type(player_name), "expected a player name")
-  assert(type(formname), "expected a formname")
+  assert(type(player_name) == "string", "expected a player name")
+  assert(type(formname) == "string", "expected a formname")
+  assert(type(formspec) == "string", "expected a formspec")
   assert(type(options) == "table", "expected options to be a table")
 
   yatm_core.bind_on_player_receive_fields(player_name, formname, options)
@@ -12,8 +13,8 @@ function yatm_core.show_bound_formspec(player_name, formname, formspec, options)
 end
 
 function yatm_core.bind_on_player_receive_fields(player_name, formname, options)
-  assert(type(player_name), "expected a player name")
-  assert(type(formname), "expected a formname")
+  assert(type(player_name) == "string", "expected a player name")
+  assert(type(formname) == "string", "expected a formname")
   assert(type(options) == "table", "expected options to be a table")
 
   if not bindings[player_name] then
