@@ -59,68 +59,75 @@ yatm.register_stateful_node("yatm_data_to_mesecon:mesecon_to_data", {
       --
     end,
 
-    get_programmer_formspec = function (self, pos, user, pointed_thing, assigns)
-      --
-      local meta = minetest.get_meta(pos)
-      assigns.tab = assigns.tab or 1
-      local formspec =
-        yatm_data_logic.layout_formspec() ..
-        yatm.formspec_bg_for_player(user:get_player_name(), "module") ..
-        "tabheader[0,0;tab;Ports,Data;" .. assigns.tab .. "]"
+    get_programmer_formspec = {
+      default_tab = "ports",
+      tabs = {
+        {
+          tab_id = "ports",
+          title = "Ports",
+          header = "Port Configuration",
+          render = {
+            {
+              component = "io_ports",
+              mode = "o",
+            }
+          },
+        },
+        {
+          tab_id = "data",
+          title = "Data",
+          header = "Data Configuration",
+          render = {
+            {
+              component = "row",
+              items = {
+                {
+                  component = "field",
+                  label = "Data (ON)",
+                  name = "data_on",
+                  type = "string",
+                  meta = true,
+                },
+                {
+                  component = "field",
+                  label = "Data (OFF)",
+                  name = "data_off",
+                  type = "string",
+                  meta = true,
+                }
+              }
+            }
+          }
+        }
+      }
+    },
 
-      if assigns.tab == 1 then
-        formspec =
-          formspec ..
-          "label[0,0;Port Configuration]"
-
-        local io_formspec = yatm_data_logic.get_io_port_formspec(pos, meta, "o")
-
-        formspec =
-          formspec ..
-          io_formspec
-
-      elseif assigns.tab == 2 then
-        formspec =
-          formspec ..
-          "label[0,0;Data Configuration]" ..
-          "label[0,1;Off (When triggered OFF)]" ..
-          "field[0.25,2;4,4;data_off;Data;" .. minetest.formspec_escape(meta:get_string("data_off")) .. "]" ..
-          "label[4,1;On (When triggered ON)]" ..
-          "field[4.25,2;4,4;data_on;Data;" .. minetest.formspec_escape(meta:get_string("data_on")) .. "]"
-      end
-
-      return formspec
-    end,
-
-    receive_programmer_fields = function (self, player, form_name, fields, assigns)
-      local meta = minetest.get_meta(assigns.pos)
-
-      local needs_refresh = false
-
-      if fields["tab"] then
-        local tab = tonumber(fields["tab"])
-        if tab ~= assigns.tab then
-          assigns.tab = tab
-          needs_refresh = true
-        end
-      end
-
-      local _ichg, ochg = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "o")
-
-      if not is_table_empty(ochg) then
-        needs_refresh = true
-      end
-
-      if fields["data_off"] then
-        meta:set_string("data_off", fields["data_off"])
-      end
-
-      if fields["data_on"] then
-        meta:set_string("data_on", fields["data_on"])
-      end
-
-      return true, needs_refresh
-    end,
+    receive_programmer_fields = {
+      tabbed = true, -- notify the solver that tabs are in use
+      tabs = {
+        {
+          components = {
+            {component = "io_ports", mode = "o"}
+          }
+        },
+        {
+          components = {
+            {
+              component = "field",
+              name = "data_on",
+              type = "string",
+              meta = true,
+            },
+            {
+              component = "field",
+              name = "data_off",
+              type = "string",
+              meta = true,
+            }
+          }
+        }
+      }
+    },
   },
 
   refresh_infotext = function (pos)

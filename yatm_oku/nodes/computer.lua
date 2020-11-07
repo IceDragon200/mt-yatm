@@ -81,15 +81,48 @@ local function computer_after_destruct(pos, old_node)
   yatm.devices.device_after_destruct(pos, old_node)
 end
 
-local computer_data_interface = {}
+local computer_data_interface = {
+  on_load = function (self, pos, node)
+  end,
 
-function computer_data_interface.on_load(self, pos, node)
-  --
-end
+  receive_pdu = function (self, pos, node, dir, port, value)
+  end,
 
-function computer_data_interface.receive_pdu(self, pos, node, dir, port, value)
-  --
-end
+  get_programmer_formspec = {
+    default_tab = "ports",
+    tabs = {
+      {
+        tab_id = "ports",
+        title = "Ports",
+        header = "Port Configuration",
+        render = {
+          {
+            component = "io_ports",
+            mode = "io",
+            input_vector = 16,
+            output_vector = 16,
+          }
+        },
+      },
+    }
+  },
+
+  receive_programmer_fields = {
+    tabbed = true, -- notify the solver that tabs are in use
+    tabs = {
+      {
+        components = {
+          {
+            component = "io_ports",
+            mode = "io",
+            input_vector = 16,
+            output_vector = 16,
+          }
+        }
+      },
+    }
+  }
+}
 
 local computer_yatm_network = {
   kind = "machine",
@@ -125,6 +158,7 @@ local groups = {
   yatm_network_device = 1,
   yatm_energy_device = 1,
   yatm_computer = 1,
+  data_programmable = 1,
 }
 
 yatm.devices.register_stateful_network_device({

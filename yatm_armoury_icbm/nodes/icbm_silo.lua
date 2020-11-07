@@ -219,105 +219,126 @@ local data_interface = {
     --meta:get_int("armed_port")
   end,
 
-  get_programmer_formspec = function (self, pos, user, pointed_thing, assigns)
-    --
-    local meta = minetest.get_meta(pos)
+  get_programmer_formspec = {
+    default_tab = "ports",
+    tabs = {
+      {
+        tab_id = "ports",
+        title = "Ports",
+        header = "Port Configuration",
+        render = {
+          {
+            component = "row",
+            items = {
+              {
+                component = "col",
+                items = {
+                  {
+                    component = "label",
+                    label = "Inputs",
+                  },
+                  {
+                    component = "port",
+                    name = "offset_x_port",
+                  },
+                  {
+                    component = "port",
+                    name = "offset_y_port",
+                  },
+                  {
+                    component = "port",
+                    name = "offset_z_port",
+                  },
+                  {
+                    component = "port",
+                    name = "launch_port",
+                  },
+                  {
+                    component = "port",
+                    name = "arming_port",
+                  },
+                  {
+                    component = "port",
+                    name = "probing_port",
+                  },
+                }
+              },
+              {
+                component = "col",
+                items = {
+                  {
+                    component = "label",
+                    label = "Outputs",
+                  },
+                  {
+                    component = "port",
+                    name = "error_port",
+                  },
+                  {
+                    component = "port",
+                    name = "launched_port",
+                  },
+                  {
+                    component = "port",
+                    name = "armed_port",
+                  },
+                }
+              }
+            },
+          },
+        },
+      },
+      {
+        tab_id = "data",
+        title = "Data",
+        header = "Data Configuration",
+        render = {
+          {
+            component = "field",
+            label = "Launch Code",
+            name = "launch_code",
+            type = "string",
+            meta = true,
+          }
+        },
+      }
+    }
+  },
 
-    assigns.tab = assigns.tab or 1
-
-    local fe = minetest.formspec_escape
-
-    local formspec =
-      "size[8,9]" ..
-      yatm.formspec_bg_for_player(user:get_player_name(), "data") ..
-      "tabheader[0,0;tab;Ports,Data;" .. assigns.tab .. "]"
-
-    if assigns.tab == 1 then
-      formspec =
-        formspec ..
-        "label[0,0;Port Configuration]"
-
-      formspec =
-        formspec ..
-        "label[0,0.5;Inputs]" ..
-        "field[0.25,1;4,1;offset_x_port;X-offset Port;" .. fe(meta:get_int("offset_x_port")) .. "]" ..
-        "field[0.25,2;4,1;offset_y_port;Y-offset Port;" .. fe(meta:get_int("offset_y_port")) .. "]" ..
-        "field[0.25,3;4,1;offset_z_port;Z-offset Port;" .. fe(meta:get_int("offset_z_port")) .. "]" ..
-        "field[0.25,4;4,1;launch_port;Launch Port;" .. fe(meta:get_int("launch_port")) .. "]" ..
-        "field[0.25,5;4,1;arming_port;Arming Port;" .. fe(meta:get_int("arming_port")) .. "]" ..
-        "field[0.25,6;4,1;probing_port;Probing Port;" .. fe(meta:get_int("probing_port")) .. "]" ..
-        "label[4,1;Outputs]" ..
-        "field[4.25,1;4,1;error_port;Error Port;" .. fe(meta:get_int("error_port")) .. "]" ..
-        "field[4.25,2;4,1;launched_port;Launched Port;" .. fe(meta:get_int("launched_port")) .. "]" ..
-        "field[4.25,3;4,1;armed_port;Armed Port;" .. fe(meta:get_int("armed_port")) .. "]" ..
-        ""
-
-    elseif assigns.tab == 2 then
-      formspec =
-        formspec ..
-        "label[0,0;Data Configuration]" ..
-        "label[0,0.5;Codes]" ..
-        "field[0.25,1;8,1;launch_code;Launch Code;" .. fe(meta:get_string("launch_code")) .. "]"
-    end
-
-    return formspec
-  end,
-
-  receive_programmer_fields = function (self, player, form_name, fields, assigns)
-    local meta = minetest.get_meta(assigns.pos)
-
-    local needs_refresh = false
-
-    if fields["tab"] then
-      local tab = tonumber(fields["tab"])
-      if tab ~= assigns.tab then
-        assigns.tab = tab
-        needs_refresh = true
-      end
-    end
-
-    if fields["offset_x_port"] then
-      rebind_input_port(assigns.pos, "offset_x_port", tonumber(fields["offset_x_port"]))
-    end
-
-    if fields["offset_y_port"] then
-      rebind_input_port(assigns.pos, "offset_y_port", tonumber(fields["offset_y_port"]))
-    end
-
-    if fields["offset_z_port"] then
-      rebind_input_port(assigns.pos, "offset_z_port", tonumber(fields["offset_z_port"]))
-    end
-
-    if fields["launch_port"] then
-      rebind_input_port(assigns.pos, "launch_port", tonumber(fields["launch_port"]))
-    end
-
-    if fields["arming_port"] then
-      rebind_input_port(assigns.pos, "arming_port", tonumber(fields["arming_port"]))
-    end
-
-    if fields["probing_port"] then
-      rebind_input_port(assigns.pos, "probing_port", tonumber(fields["probing_port"]))
-    end
-
-    if fields["error_port"] then
-      rebind_input_port(assigns.pos, "error_port", tonumber(fields["error_port"]))
-    end
-
-    if fields["launched_port"] then
-      rebind_input_port(assigns.pos, "launched_port", tonumber(fields["launched_port"]))
-    end
-
-    if fields["armed_port"] then
-      rebind_input_port(assigns.pos, "armed_port", tonumber(fields["armed_port"]))
-    end
-
-    if fields["launch_code"] then
-      meta:set_string("launch_code", fields["launch_code"])
-    end
-
-    return true, needs_refresh
-  end,
+  receive_programmer_fields = {
+    tabbed = true, -- notify the solver that tabs are in use
+    tabs = {
+      {
+        components = {
+          {component = "port", name = "offset_x_port", meta = true, rebind = "input", bind_mode = "active"},
+          {component = "port", name = "offset_y_port", meta = true, rebind = "input", bind_mode = "active"},
+          {component = "port", name = "offset_z_port", meta = true, rebind = "input", bind_mode = "active"},
+          {component = "port", name = "launch_port", meta = true, rebind = "input", bind_mode = "active"},
+          {component = "port", name = "arming_port", meta = true, rebind = "input", bind_mode = "active"},
+          {component = "port", name = "probing_port", meta = true, rebind = "input", bind_mode = "active"},
+          {component = "port", name = "error_port", meta = true},
+          {component = "port", name = "launched_port", meta = true},
+          {component = "port", name = "armed_port", meta = true},
+        }
+      },
+      {
+        components = {
+          {
+            component = "field",
+            name = "data_on",
+            type = "string",
+            meta = true,
+          },
+          {
+            component = "field",
+            name = "data_off",
+            type = "string",
+            meta = true,
+          }
+        }
+      }
+    }
+  }
 }
 
 local function get_formspec_name(pos)

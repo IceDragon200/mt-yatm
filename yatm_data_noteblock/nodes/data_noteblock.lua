@@ -73,66 +73,75 @@ minetest.register_node("yatm_data_noteblock:data_noteblock", {
       end
     end,
 
-    get_programmer_formspec = function (self, pos, user, pointed_thing, assigns)
-      --
-      local meta = minetest.get_meta(pos)
-      assigns.tab = assigns.tab or 1
+    get_programmer_formspec = {
+      default_tab = "ports",
+      tabs = {
+        {
+          tab_id = "ports",
+          title = "Ports",
+          header = "Port Configuration",
+          render = {
+            {
+              component = "io_ports",
+              mode = "i",
+            }
+          },
+        },
+        {
+          tab_id = "data",
+          title = "Data",
+          header = "Data Configuration",
+          render = {
+            {
+              component = "row",
+              items = {
+                {
+                  component = "field",
+                  label = "Offset",
+                  name = "offset",
+                  type = "integer",
+                  meta = true,
+                },
+                {
+                  component = "field",
+                  label = "Damper",
+                  name = "damper",
+                  type = "integer",
+                  meta = true,
+                }
+              }
+            }
+          }
+        }
+      }
+    },
 
-      local formspec =
-        yatm_data_logic.layout_formspec() ..
-        yatm.formspec_bg_for_player(user:get_player_name(), "module") ..
-        "tabheader[0,0;tab;Ports,Data;" .. assigns.tab .. "]"
-
-      if assigns.tab == 1 then
-        formspec =
-          formspec ..
-          "label[0,0;Port Configuration]" ..
-          yatm_data_logic.get_io_port_formspec(pos, meta, "i")
-
-      elseif assigns.tab == 2 then
-        formspec =
-          formspec ..
-          "label[0,0;Data Configuration]" ..
-          "field[0.25,1;8,1;offset;Note Offset;" .. meta:get_int("offset") .. "]" ..
-          "field[0.25,2;8,1;damper;Damper;" .. meta:get_int("damper") .. "]"
-      end
-
-      return formspec
-    end,
-
-    receive_programmer_fields = function (self, player, form_name, fields, assigns)
-      local meta = minetest.get_meta(assigns.pos)
-
-      local needs_refresh = false
-
-      if fields["tab"] then
-        local tab = tonumber(fields["tab"])
-        if tab ~= assigns.tab then
-          assigns.tab = tab
-          needs_refresh = true
-        end
-      end
-
-      local inputs_changed = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "i")
-
-      if not is_table_empty(inputs_changed) then
-        needs_refresh = true
-        yatm_data_logic.unmark_all_receive(assigns.pos)
-        yatm_data_logic.mark_all_inputs_for_active_receive(assigns.pos)
-      end
-
-      if fields["offset"] then
-        local offset = math.floor(tonumber(fields["offset"]))
-        meta:set_int("offset", offset)
-      end
-
-      if fields["damper"] then
-        local damper = math.floor(tonumber(fields["damper"]))
-        meta:set_int("damper", damper)
-      end
-
-      return true, needs_refresh
-    end,
+    receive_programmer_fields = {
+      tabbed = true, -- notify the solver that tabs are in use
+      tabs = {
+        {
+          components = {
+            {component = "io_ports", mode = "o"}
+          }
+        },
+        {
+          components = {
+            {
+              component = "field",
+              name = "offset",
+              type = "integer",
+              meta = true,
+            },
+            {
+              component = "field",
+              name = "damper",
+              type = "integer",
+              meta = true,
+            }
+          }
+        }
+      }
+    },
   },
 
   refresh_infotext = function (pos)

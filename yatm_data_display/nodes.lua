@@ -119,37 +119,37 @@ yatm.register_stateful_node("yatm_data_display:ascii_display", {
       end
     end,
 
-    get_programmer_formspec = function (self, pos, user, pointed_thing, assigns)
-      --
-      local meta = minetest.get_meta(pos)
 
-      local formspec =
-        yatm_data_logic.layout_formspec() ..
-        yatm.formspec_bg_for_player(user:get_player_name(), "display") ..
-        "label[0,0;Port Configuration]" ..
-        yatm_data_logic.get_io_port_formspec(pos, meta, "i")
+  get_programmer_formspec = {
+    default_tab = "ports",
+    tabs = {
+      {
+        tab_id = "ports",
+        title = "Ports",
+        header = "Port Configuration",
+        render = {
+          {
+            component = "io_ports",
+            mode = "i",
+          }
+        },
+      },
+    }
+  },
 
-      return formspec
-    end,
-
-    receive_programmer_fields = function (self, player, form_name, fields, assigns)
-      local meta = minetest.get_meta(assigns.pos)
-
-      local ichg, ochg = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "i")
-      local needs_refresh = false
-
-      if not is_table_empty(ochg) then
-        needs_refresh = true
-      end
-
-      if not is_table_empty(ichg) then
-        needs_refresh = true
-        yatm_data_logic.unmark_all_receive(assigns.pos)
-        yatm_data_logic.mark_all_inputs_for_active_receive(assigns.pos)
-      end
-
-      return true, needs_refresh
-    end,
+  receive_programmer_fields = {
+    tabbed = true, -- notify the solver that tabs are in use
+    tabs = {
+      {
+        components = {
+          {
+            component = "io_ports",
+            mode = "i",
+          }
+        }
+      },
+    }
+  }
   },
 
   refresh_infotext = function (pos)
