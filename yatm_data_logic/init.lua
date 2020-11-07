@@ -1,7 +1,7 @@
 --
 -- YATM Data Logic
 --
-local mod = foundation.new_module("yatm_data_logic", "1.1.0")
+local mod = foundation.new_module("yatm_data_logic", "2.0.0")
 
 mod:require("formspec.lua")
 mod:require("common.lua")

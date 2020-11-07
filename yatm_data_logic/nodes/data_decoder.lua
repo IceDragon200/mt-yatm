@@ -191,84 +191,81 @@ minetest.register_node("yatm_data_logic:data_decoder", {
       emit_last_value(pos, node)
     end,
 
-    get_programmer_formspec = function (self, pos, user, pointed_thing, assigns)
-      --
-      local meta = minetest.get_meta(pos)
-      assigns.tab = assigns.tab or 1
+    get_programmer_formspec = {
+      default_tab = "ports",
+      tabs = {
+        {
+          tab_id = "ports",
+          title = "Ports",
+          header = "Port Configuration",
+          render = {
+            {
+              component = "io_ports",
+              mode = "io",
+            }
+          },
+        },
+        {
+          tab_id = "data",
+          title = "Data",
+          header = "Data Configuration",
+          render = {
+            {
+              component = "row",
+              items = {
+                {
+                  component = "dropdown",
+                  label = "Decode Format",
+                  name = "decode_format",
+                  type = "string",
+                  meta = true,
+                  items = DECODE_FORMATS,
+                  index = DECODE_FORMATS_TO_INDEX,
+                },
+                {
+                  component = "dropdown",
+                  label = "Input Format",
+                  name = "input_format",
+                  type = "string",
+                  meta = true,
+                  items = INPUT_FORMATS,
+                  index = INPUT_FORMATS_TO_INDEX,
+                }
+              }
+            }
+          }
+        }
+      }
+    },
 
-      local formspec =
-        yatm_data_logic.layout_formspec() ..
-        yatm.formspec_bg_for_player(user:get_player_name(), "module") ..
-        "tabheader[0,0;tab;Ports,Data;" .. assigns.tab .. "]"
-
-      if assigns.tab == 1 then
-        formspec =
-          formspec ..
-          "label[0,0;Port Configuration]" ..
-          yatm_data_logic.get_io_port_formspec(pos, meta, "io", VECTOR_CONFIG)
-      elseif assigns.tab == 2 then
-        formspec =
-          formspec ..
-          "label[0,0;Data Configuration]" ..
-          "dropdown[0.25,1;8,1;decode_format" ..
-            ";" .. table.concat(DECODE_FORMATS, ",") ..
-            ";" .. (DECODE_FORMATS_TO_INDEX[meta:get_string("decode_format")] or 1) ..
-          "]" ..
-          "dropdown[0.25,2;8,1;input_format" ..
-            ";" .. table.concat(INPUT_FORMATS, ",") ..
-            ";" .. (INPUT_FORMATS_TO_INDEX[meta:get_string("input_format")] or 1) ..
-          "]"
-      end
-
-      return formspec
-    end,
-
-    receive_programmer_fields = function (self, player, form_name, fields, assigns)
-      local meta = minetest.get_meta(assigns.pos)
-
-      local needs_refresh = false
-
-      if fields["tab"] then
-        local tab = tonumber(fields["tab"])
-        if tab ~= assigns.tab then
-          assigns.tab = tab
-          needs_refresh = true
-        end
-      end
-
-      local ichg, ochg = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "io", VECTOR_CONFIG)
-
-      if not is_table_empty(ochg) then
-        needs_refresh = true
-      end
-
-      if not is_table_empty(ichg) then
-        yatm_data_logic.unmark_all_receive(assigns.pos)
-        yatm_data_logic.mark_all_inputs_for_active_receive(assigns.pos)
-      end
-
-      local input_format = fields["input_format"]
-      if input_format then
-        --print("receive_fields", "input_format", dump(input_format))
-        if INPUT_FORMATS_TO_INDEX[input_format] then
-          meta:set_string("input_format", input_format)
-        else
-          print("invalid input format " .. dump(input_format))
-        end
-      end
-
-      local decode_format = fields["decode_format"]
-      if decode_format then
-        --print("receive_fields", "decode_format", dump(decode_format))
-        if DECODE_FORMATS_TO_INDEX[decode_format] then
-          meta:set_string("decode_format", decode_format)
-        else
-          print("invalid decode format " .. dump(decode_format))
-        end
-      end
-
-      return true, needs_refresh
-    end,
+    receive_programmer_fields = {
+      tabbed = true, -- notify the solver that tabs are in use
+      tabs = {
+        {
+          components = {
+            {component = "io_ports", mode = "o"}
+          }
+        },
+        {
+          components = {
+            {
+              component = "dropdown",
+              name = "decode_format",
+              type = "string",
+              meta = true,
+              index = DECODE_FORMATS_TO_INDEX,
+            },
+            {
+              component = "dropdown",
+              name = "input_format",
+              type = "string",
+              meta = true,
+              index = INPUT_FORMATS_TO_INDEX,
+            }
+          }
+        }
+      }
+    }
   },
 
   refresh_infotext = function (pos)

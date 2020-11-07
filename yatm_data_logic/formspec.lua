@@ -150,22 +150,20 @@ function yatm_data_logic.get_io_port_formspec(pos, meta, mode, options)
   end
 
   local dx = options.x or 0
-  local dy = options.y or 0.5
+  local dy = options.y or 0
 
   local inputs =
-    fspec.label(dx, dy, "Inputs")
+    fspec.label(dx, dy-0.25, "Inputs")
 
   local outputs
   local output_dx = dx
 
   if mode == "io" then
-    outputs = fspec.label(dx + col_width, dy, "Outputs")
+    outputs = fspec.label(dx + col_width, dy-0.25, "Outputs")
     output_dx = dx + col_width
   elseif mode == "o" then
-    outputs = fspec.label(dx, dy, "Outputs")
+    outputs = fspec.label(dx, dy-0.25, "Outputs")
   end
-
-  dy = dy + 0.5
 
   local row = 0
 
@@ -173,6 +171,7 @@ function yatm_data_logic.get_io_port_formspec(pos, meta, mode, options)
   local show_output = mode == "io" or mode == "o"
 
   local item_size = 1
+  local y = dy + row * 2
 
   for _, dir in ipairs(Directions.DIR6) do
     if sub_network_ids[dir] then
@@ -197,73 +196,71 @@ function yatm_data_logic.get_io_port_formspec(pos, meta, mode, options)
       local label = Directions.dir_to_string(dir) .. " - " .. sub_network_id
 
       if show_input then
-        local default_value
+        local input_field_name = "input_"..dir
+
+        local button_x = dx + item_size
+
+        inputs =
+          inputs ..
+          fspec.item_image(dx, y, item_size, item_size, item_name) ..
+          fspec.image(dx, y, item_size, item_size, border_image_name)
+
         -- if input is vector, then pull multiple values instead
         if options.input_vector then
-          local values = {}
-
-          for input_index = 1,options.input_vector do
-            values[input_index] = meta:get_int("input_" .. dir .. "_" .. input_index)
-          end
-
-          default_value = minetest.formspec_escape(table.concat(values, ","))
-
-          inputs =
-            inputs ..
-            fspec.field_area(dx, dy + row, col_width, 1,
-                             "input_"..dir,
-                             label,
-                             default_value)
+          outputs =
+            outputs ..
+            yatm_data_logic.render_io_port_vector(
+              button_x, y, col_width-item_size, 1,
+              bits, options.input_vector, input_field_name, label,
+              meta
+            )
         else
-          default_value = meta:get_int("input_" .. dir)
-
-          local button_x = dx + item_size
+          local default_value = meta:get_int(input_field_name)
 
           inputs =
             inputs ..
-            fspec.item_image(dx, dy + row, item_size, item_size, item_name) ..
-            fspec.image(dx, dy + row, item_size, item_size, border_image_name) ..
-            yatm_data_logic.render_multibit_buttons_formspec(button_x, dy + row, 1, 1, bits, "input_"..dir, default_value)
+            yatm_data_logic.render_multibit_buttons_formspec(
+              button_x, y, 1, 1, bits, input_field_name, default_value)
         end
       end
 
       if show_output then
-        local default_value
+        local output_field_name = "output_"..dir
+
+        local button_x = output_dx + item_size
+
+        outputs =
+          outputs ..
+          fspec.item_image(output_dx, y, item_size, item_size, item_name) ..
+          fspec.image(output_dx, y, item_size, item_size, border_image_name)
+
         -- if output is vector, then pull multiple values instead
         if options.output_vector then
-          local values = {}
-
-          for output_index = 1,options.output_vector do
-            values[output_index] = meta:get_int("output_" .. dir .. "_" .. output_index)
-          end
-
-          default_value = minetest.formspec_escape(table.concat(values, ","))
-
           outputs =
             outputs ..
-            fspec.field_area(output_dx, dy + row, col_width, 1,
-                             "output_"..dir, label,
-                             default_value)
+            yatm_data_logic.render_io_port_vector(
+              button_x, y, col_width-item_size, 1,
+              bits, options.output_vector, output_field_name, label,
+              meta
+            )
         else
-          default_value = meta:get_int("output_" .. dir)
-
-          local button_x = output_dx + item_size
+          local default_value = meta:get_int(output_field_name)
 
           outputs =
             outputs ..
-            fspec.item_image(output_dx, dy + row, item_size, item_size, item_name) ..
-            fspec.image(output_dx, dy + row, item_size, item_size, border_image_name) ..
-            yatm_data_logic.render_multibit_buttons_formspec(button_x, dy + row, 1, 1, bits, "output_"..dir, default_value)
+            yatm_data_logic.render_multibit_buttons_formspec(
+              button_x, y, 1, 1, bits, output_field_name, default_value)
         end
       end
 
       row = row + 1
+      y = dy + row * 2
     end
   end
 
   local r = {
     x = dx,
-    y = dy + row,
+    y = y,
     w = width,
     h = row + 1
   }
@@ -275,6 +272,63 @@ function yatm_data_logic.get_io_port_formspec(pos, meta, mode, options)
   elseif mode == "i" then
     return inputs, r
   end
+end
+
+function yatm_data_logic.render_io_port_vector(x, y, w, h, bit_count, vector_length, port_prefix, label, meta)
+  local single_field = false
+
+  local formspec = ""
+
+  if single_field then
+    local values = {}
+
+    for index = 1,vector_length do
+      values[index] = meta:get_int(port_prefix .. "_" .. index)
+    end
+
+    local vector_value = table.concat(values, ",")
+
+    formspec =
+      formspec ..
+      fspec.field_area(x, y, w, h,
+                       port_prefix, label,
+                       default_value)
+  else
+    local selected_port_index = meta:get_int(port_prefix.."_selected_port")
+    selected_port_index = math.max(math.min(selected_port_index, vector_length), 1)
+
+    local default_value = meta:get_int(port_prefix.."_"..selected_port_index)
+
+    local texture_name = "yatm_small_colored_button_white.off.png"
+    local texture_name_alt = "yatm_small_colored_button_white.on.png"
+
+    local cw = w/vector_length
+
+    formspec =
+      formspec ..
+      yatm_data_logic.render_multibit_buttons_formspec(
+        x, y, 1, 1, bit_count, port_prefix.."_"..selected_port_index, default_value)
+
+    for index = 1,vector_length do
+      local is_selected = selected_port_index == index
+      local a, b = texture_name, texture_name_alt
+      if is_selected then
+        a, b = b, a
+      end
+
+      formspec =
+        formspec ..
+        fspec.image_button(x + (index-1) * cw, y+1, cw, h/2,
+                           a,
+                           port_prefix.."_selected_port",
+                           tostring(index), -- name
+                           true, -- Noclip
+                           false,
+                           b)
+    end
+  end
+
+  return formspec
 end
 
 function yatm_data_logic.render_multibit_buttons_formspec(x, y, w, h, length, field_prefix, value)

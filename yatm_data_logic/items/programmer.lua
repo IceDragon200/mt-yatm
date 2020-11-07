@@ -5,73 +5,170 @@ local fspec = assert(foundation.com.formspec.api)
 local Rect = assert(foundation.com.Rect)
 local is_table_empty = assert(foundation.com.is_table_empty)
 
-local function render_component(row, rect, pos, player, pointed_thing, assigns)
-  if row.component == "io_ports" then
-    local options = {
-      x = rect.x,
-      y = rect.y,
-      width = rect.w,
-    }
+local render_component
 
+local function get_value(row, pos)
+  local value = ""
+  if row.meta then
     local meta = minetest.get_meta(pos)
+    if row.type == "integer" then
+      value = tostring(meta:get_int(row.name))
+    else
+      value = meta:get_string(row.name)
+    end
+  end
+  return value
+end
 
-    local formspec, r = yatm_data_logic.get_io_port_formspec(pos, meta, row.mode, options)
+local function render_port(row, rect, pos, player, pointed_thing, assigns)
+  local formspec = ""
 
-    r.x = rect.x
-    r.w = rect.w
-    r.h = rect.h - r.h
+  local options = {
+    x = rect.x,
+    y = rect.y,
+    width = rect.w,
+  }
 
-    return formspec, r
+  local meta = minetest.get_meta(pos)
+
+  --local formspec, r = yatm_data_logic.get_io_port_formspec(pos, meta, row.mode, options)
+
+  --r.x = rect.x
+  --r.w = rect.w
+  --r.h = rect.h - r.h
+
+  return formspec, rect
+end
+
+local function render_io_ports(row, rect, pos, player, pointed_thing, assigns)
+  local options = {
+    x = rect.x,
+    y = rect.y,
+    width = rect.w,
+    input_vector = row.input_vector,
+    output_vector = row.output_vector,
+  }
+
+  local meta = minetest.get_meta(pos)
+
+  local formspec, r = yatm_data_logic.get_io_port_formspec(pos, meta, row.mode, options)
+
+  r.x = rect.x
+  r.w = rect.w
+  r.h = rect.h - r.h
+
+  return formspec, r
+end
+
+local function render_col(row, rect, pos, player, pointed_thing, assigns)
+  local count = #row.items
+
+  local r = Rect.copy(rect)
+
+  local y = r.y
+  r.h = r.h / count
+
+  local formspec = ""
+  for index, item in ipairs(row.items) do
+    r.y = rect.y + r.h * (index - 1)
+    local frag, new_r =
+      render_component(item, r, pos, player, pointed_thing, assigns)
+
+    formspec = formspec .. frag
+  end
+
+  return formspec, rect
+end
+
+local function render_row(row, rect, pos, player, pointed_thing, assigns)
+  local count = #row.items
+
+  local r = Rect.copy(rect)
+
+  local y = r.y
+  r.w = r.w / count
+
+  local formspec = ""
+  for index, item in ipairs(row.items) do
+    r.x = rect.x + r.w * (index - 1)
+    local frag, new_r =
+      render_component(item, r, pos, player, pointed_thing, assigns)
+
+    if new_r and new_r.y > y then
+      y = r.y
+    end
+    formspec = formspec .. frag
+  end
+
+  r.x = rect.x
+  r.y = y
+  r.w = rect.w
+  r.h = rect.h - r.y - rect.y
+
+  return formspec, r
+end
+
+local function render_field(row, rect, pos, player, pointed_thing, assigns)
+  local r = Rect.copy(rect)
+
+  local value = get_value(row, pos)
+
+  local formspec =
+    fspec.field_area(r.x, r.y, r.w, 1,
+                     row.name,
+                     row.label or row.name,
+                     minetest.formspec_escape(tostring(value)))
+
+  r.y = r.y + 1
+  r.h = r.h - 1
+
+  return formspec, r
+end
+
+local function render_dropdown(row, rect, pos, player, pointed_thing, assigns)
+  local r = Rect.copy(rect)
+
+  local value = get_value(row, pos)
+  local items = row.items
+
+  local formspec =
+    fspec.label(r.x, r.y-0.25, row.label) ..
+    fspec.dropdown(r.x, r.y, r.w, 1, row.name, items, row.index[value] or 0)
+
+  r.y = r.y + 1
+  r.h = r.h - 1
+
+  return formspec, r
+end
+
+local function render_label(row, rect, pos, player, pointed_thing, assigns)
+  local formspec = fspec.label(rect.x, rect.y-0.25, row.label)
+
+  return formspec, rect
+end
+
+render_component = function (row, rect, pos, player, pointed_thing, assigns)
+  if row.component == "port" then
+    return render_port(row, rect, pos, player, pointed_thing, assigns)
+
+  elseif row.component == "io_ports" then
+    return render_io_ports(row, rect, pos, player, pointed_thing, assigns)
+
+  elseif row.component == "col" then
+    return render_col(row, rect, pos, player, pointed_thing, assigns)
+
   elseif row.component == "row" then
-    local count = #row.items
+    return render_row(row, rect, pos, player, pointed_thing, assigns)
 
-    local r = Rect.copy(rect)
-
-    local y = r.y
-    r.w = r.w / count
-
-    local formspec = ""
-    for index, item in ipairs(row.items) do
-      r.x = rect.x + r.w * (index - 1)
-      local frag, new_r =
-        render_component(item, r, pos, player, pointed_thing, assigns)
-
-      if new_r and new_r.y > y then
-        y = r.y
-      end
-      formspec = formspec .. frag
-    end
-
-    r.x = rect.x
-    r.y = y
-    r.w = rect.w
-    r.h = rect.h - r.y - rect.y
-
-    return formspec, r
   elseif row.component == "field" then
-    local r = Rect.copy(rect)
+    return render_field(row, rect, pos, player, pointed_thing, assigns)
 
-    local value = ""
+  elseif row.component == "dropdown" then
+    return render_dropdown(row, rect, pos, player, pointed_thing, assigns)
 
-    if row.meta then
-      local meta = minetest.get_meta(pos)
-      if row.type == "integer" then
-        value = tostring(meta:get_int(row.name))
-      else
-        value = meta:get_string(row.name)
-      end
-    end
+  elseif row.component == "label" then
+    return render_label(row, rect, pos, player, pointed_thing, assigns)
 
-    local formspec =
-      fspec.field_area(r.x, r.y, r.w, 1,
-                       row.name,
-                       row.label or row.name,
-                       minetest.formspec_escape(value))
-
-    r.y = r.y + 1
-    r.h = r.h - 1
-
-    return formspec, r
   else
     error("unexpected component " .. row.component)
   end
@@ -87,8 +184,8 @@ local function render_tab(tab, rect, pos, player, pointed_thing, assigns)
       formspec ..
       fspec.label(r.x, r.y, tab.header)
 
-    r.y = r.y + 0.5
-    r.h = r.h - 0.5
+    r.y = r.y + 1
+    r.h = r.h - 1
   end
 
   local t = type(tab.render)
@@ -208,27 +305,43 @@ local function on_receive_fields(player, form_name, fields, assigns)
       end
     end
 
+    local inputs_changed = false
+    local outputs_changed = false
+
     if spec.tabs then
       local tab = spec.tabs[assigns.tab_index]
       if tab then
         for _, component in ipairs(tab.components) do
           if component.component == "io_ports" then
-            local ichg, ochg =
-              yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, component.mode)
+            local options = {
+              input_vector = component.input_vector,
+              output_vector = component.output_vector,
+            }
 
-            if ichg and not is_table_empty(ichg) then
-              formspec_or_refresh = true
-            end
+            local any_changes, changes =
+              yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, component.mode, options)
 
-            if ochg and not is_table_empty(ochg) then
-              formspec_or_refresh = true
+            for _dir, prefixes in pairs(changes) do
+              for prefix, _ in pairs(prefixes) do
+                if prefix == "input" then
+                  inputs_changed = true
+                elseif prefix == "output" then
+                  outputs_changed = true
+                end
+              end
             end
           elseif component.component == "field" then
             local value = fields[component.name]
             if value then
               if component.meta then
                 if component.type == "integer" then
-                  meta:set_int(component.name, tonumber(value))
+                  local new_value = tonumber(value)
+                  if new_value then
+                    if component.cast then
+                      new_value = component.cast(new_value, assigns)
+                    end
+                    meta:set_int(component.name, math.floor(new_value))
+                  end
                 else
                   meta:set_string(component.name, value)
                 end
@@ -237,6 +350,15 @@ local function on_receive_fields(player, form_name, fields, assigns)
           end
         end
       end
+    end
+
+    if inputs_changed or outputs_changed then
+      formspec_or_refresh = true
+    end
+
+    if inputs_changed then
+      yatm_data_logic.unmark_all_receive(assigns.pos)
+      yatm_data_logic.mark_all_inputs_for_active_receive(assigns.pos)
     end
   end
 

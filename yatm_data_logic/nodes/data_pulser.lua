@@ -87,6 +87,7 @@ yatm.register_stateful_node("yatm_data_logic:data_pulser", {
         end
         time = time + duration
       end
+
       meta:set_float("time", time)
     end,
 
@@ -98,76 +99,78 @@ yatm.register_stateful_node("yatm_data_logic:data_pulser", {
       --
     end,
 
-    get_programmer_formspec = function (self, pos, user, pointed_thing, assigns)
-      --
-      local meta = minetest.get_meta(pos)
-      assigns.tab = assigns.tab or 1
+    get_programmer_formspec = {
+      default_tab = "ports",
+      tabs = {
+        {
+          tab_id = "ports",
+          title = "Ports",
+          header = "Port Configuration",
+          render = {
+            {
+              component = "io_ports",
+              mode = "o",
+            }
+          },
+        },
+        {
+          tab_id = "data",
+          title = "Data",
+          header = "Data Configuration",
+          render = {
+            {
+              component = "row",
+              items = {
+                {
+                  component = "dropdown",
+                  label = "Interval",
+                  name = "interval_option",
+                  type = "string",
+                  meta = true,
+                  items = yatm_data_logic.INTERVAL_ITEMS,
+                  index = yatm_data_logic.INTERVAL_TO_INDEX,
+                },
+                {
+                  component = "field",
+                  label = "Data on Pulse",
+                  name = "data_pulse",
+                  type = "string",
+                  meta = true,
+                }
+              }
+            }
+          }
+        }
+      }
+    },
 
-      local formspec =
-        yatm_data_logic.layout_formspec() ..
-        yatm.formspec_bg_for_player(user:get_player_name(), "module") ..
-        "tabheader[0,0;tab;Ports,Data;" .. assigns.tab .. "]"
-
-      if assigns.tab == 1 then
-        formspec =
-          formspec ..
-          "label[0,0;Port Configuration]"
-
-        local io_formspec = yatm_data_logic.get_io_port_formspec(pos, meta, "o")
-
-        formspec =
-          formspec ..
-          io_formspec
-
-      elseif assigns.tab == 2 then
-        local data_pulse = meta:get_string("data_pulse") or ""
-
-        local interval_id = 1
-        local interval = yatm_data_logic.INTERVALS[meta:get_string("interval_option")]
-        if interval then
-          interval_id = interval.id
-        end
-
-        formspec =
-          formspec ..
-          "label[0,0;Data Configuration]" ..
-          "dropdown[0.25,1;8,1;interval_option;" .. yatm_data_logic.INTERVAL_STRING .. ";" .. interval_id .. "]" ..
-          "label[0,2;On Trigger]" ..
-          "field[0.25,3;8,1;data_pulse;Data;" .. minetest.formspec_escape(data_pulse) .. "]"
-      end
-
-      return formspec
-    end,
-
-    receive_programmer_fields = function (self, player, form_name, fields, assigns)
-      local meta = minetest.get_meta(assigns.pos)
-
-      local needs_refresh = false
-
-      if fields["tab"] then
-        local tab = tonumber(fields["tab"])
-        if tab ~= assigns.tab then
-          assigns.tab = tab
-          needs_refresh = true
-        end
-      end
-
-      local _ic, ochg = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "o")
-
-      if not is_table_empty(ochg) then
-        needs_refresh = true
-      end
-
-      if fields["data_pulse"] then
-        meta:set_string("data_pulse", fields["data_pulse"])
-      end
-
-      if fields["interval_option"] then
-        meta:set_string("interval_option", fields["interval_option"])
-      end
-
-      return true, needs_refresh
-    end,
+    receive_programmer_fields = {
+      tabbed = true, -- notify the solver that tabs are in use
+      tabs = {
+        {
+          components = {
+            {component = "io_ports", mode = "o"}
+          }
+        },
+        {
+          components = {
+            {
+              component = "dropdown",
+              name = "interval_option",
+              type = "string",
+              meta = true,
+              index = yatm_data_logic.INTERVAL_TO_INDEX,
+            },
+            {
+              component = "field",
+              name = "data_pulse",
+              type = "string",
+              meta = true,
+            }
+          }
+        }
+      }
+    }
   },
 
   refresh_infotext = function (pos)

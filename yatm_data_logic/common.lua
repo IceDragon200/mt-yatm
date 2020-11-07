@@ -3,6 +3,9 @@ local list_map = assert(foundation.com.list_map)
 local string_split = assert(foundation.com.string_split)
 local data_network = assert(yatm.data_network)
 local bit = assert(foundation.com.bit)
+local is_table_empty = assert(foundation.com.is_table_empty)
+
+local NO_SETTINGS = {}
 
 yatm_data_logic.INTERVAL_LIST = {
   {
@@ -60,6 +63,16 @@ yatm_data_logic.INTERVAL_LIST = {
 yatm_data_logic.INTERVALS = {}
 for _, item in ipairs(yatm_data_logic.INTERVAL_LIST) do
   yatm_data_logic.INTERVALS[item.value] = item
+end
+
+yatm_data_logic.INTERVAL_TO_INDEX = {}
+for index, item in ipairs(yatm_data_logic.INTERVAL_LIST) do
+  yatm_data_logic.INTERVAL_TO_INDEX[item.value] = index
+end
+
+yatm_data_logic.INTERVAL_ITEMS = {}
+for index, item in ipairs(yatm_data_logic.INTERVAL_LIST) do
+  yatm_data_logic.INTERVAL_ITEMS[index] = item.value
 end
 
 yatm_data_logic.INTERVAL_STRING = table.concat(list_map(yatm_data_logic.INTERVAL_LIST, function (item)
@@ -309,6 +322,114 @@ local function set_vector(meta, basename, dir, value, vector, changed)
   end
 end
 
+function yatm_data_logic.handle_prefix_port(pos, fields, meta, prefix, settings)
+  local any_change = false
+  local changes = {}
+
+  local vector_size = settings.vector_size
+
+  local selected_port_name = prefix.."_selected_port"
+
+  local selected_port = fields[selected_port_name]
+  if selected_port then
+    selected_port = tonumber(selected_port)
+    local old_selected_port = meta:get_int(selected_port_name)
+    if old_selected_port ~= selected_port then
+      meta:set_int(selected_port_name, selected_port)
+      changes.old_selected_port = old_selected_port
+      changes.selected_port = selected_port
+      any_change = true
+    end
+  end
+
+  -- the plain fixed value
+  local value = fields[prefix]
+
+  if value then
+    -- is the field a vector?
+    if vector_size then
+      set_vector(meta, prefix, value, vector_size, changes)
+    else
+      value = tonumber(value)
+      local old_value = meta:get_int(prefix)
+      if value and value ~= old_value then
+        meta:set_int(prefix, value)
+        changes.old_value = old_value
+        changes.value = value
+        any_change = true
+      end
+    end
+  else
+    if vector_size then
+      for i = 1,vector_size do
+
+      end
+    else
+      local prefix_bit = prefix.."_bit_"
+      local old_value = meta:get_int(prefix)
+      local value = old_value
+
+      for i=1,8 do
+        local fbit = fields[prefix_bit..i]
+        if fbit then
+          value = toggle_bit(value, i-1)
+        end
+      end
+
+      if value ~= old_value then
+        meta:set_int(prefix, value)
+        changes.value = value
+        changes.old_value = old_value
+      end
+    end
+  end
+
+  return any_change, changes
+end
+
+function yatm_data_logic.handle_prefix_ports(pos, fields, meta, prefixes)
+  local changes = {}
+  local any_change = false
+  for prefix, settings in pairs(prefixes) do
+    local _any_change, new_changes = yatm_data_logic.handle_prefix_port(pos, fields, meta, prefix, settings)
+
+    if not is_table_empty(new_changes) then
+      changes[prefix] = new_changes
+      any_change = true
+    end
+  end
+
+  return any_change, changes
+end
+
+function yatm_data_logic.handle_directional_prefix_ports(pos, fields, meta, prefixes)
+  assert(pos, "expected a position")
+  --local sub_network_ids = data_network:get_sub_network_ids(pos)
+  --local attached_colors = data_network:get_attached_colors(pos)
+
+  local changes = {}
+  local any_change = false
+
+  for _, dir in ipairs(Directions.DIR6) do
+    local dir_changes = {}
+    for prefix, settings in pairs(prefixes) do
+      local _any_change, new_changes = yatm_data_logic.handle_prefix_port(pos, fields, meta, prefix.."_"..dir, settings)
+
+      if not is_table_empty(new_changes) then
+        dir_changes[prefix] = new_changes
+        any_change = true
+      end
+    end
+
+    if not is_table_empty(dir_changes) then
+      changes[dir] = dir_changes
+      any_change = true
+    end
+  end
+
+  return any_change, changes
+end
+
 --
 -- Options:
 --   input_vector :: integer - tells the function that any values obtained are a vector
@@ -316,81 +437,29 @@ end
 --   output_vector :: integer - tells the function that any values obtained are a vector
 --                              and should be assigned to multiple fields in the meta
 function yatm_data_logic.handle_io_port_fields(pos, fields, meta, mode, options)
-  options = options or {}
-  -- TODO: lint port values using these
-  assert(pos, "expected a position")
-  local sub_network_ids = data_network:get_sub_network_ids(pos)
-  local attached_colors = data_network:get_attached_colors(pos)
+  local prefixes = {}
 
-  -- Ports tab
-  local inputs_changed = {}
-  local outputs_changed = {}
-
-  local has_input = mode == "io" or mode == "i"
-  local has_output = mode == "io" or mode == "o"
-
-  for _, dir in ipairs(Directions.DIR6) do
-    local input_value = fields["input_" .. dir]
-    local output_value = fields["output_" .. dir]
-
-    if has_input then
-      if input_value then
-        if options.input_vector then
-          set_vector(meta, "input", dir, input_value, options.input_vector, inputs_changed)
-        else
-          input_value = tonumber(input_value)
-          local old_input_value = meta:get_int("input_" .. dir)
-          if input_value and input_value ~= old_input_value then
-            inputs_changed[dir] = {input_value, old_input_value}
-            meta:set_int("input_" .. dir, input_value)
-          end
-        end
-      else
-        for i=1,8 do
-          local input_bit = fields["input_"..dir.."_bit_"..i]
-          if input_bit then
-            local old_input_value = meta:get_int("input_" .. dir)
-            input_value = toggle_bit(old_input_value, i-1)
-
-            if input_value ~= old_input_value then
-              inputs_changed[dir] = {input_value, old_input_value}
-              meta:set_int("input_" .. dir, input_value)
-            end
-          end
-        end
-      end
-    end
-
-    if has_output then
-      if output_value then
-        if options.output_vector then
-          set_vector(meta, "output", dir, output_value, options.output_vector, outputs_changed)
-        else
-          output_value = tonumber(output_value)
-          local old_output_value = meta:get_int("output_" .. dir)
-          if output_value and output_value ~= old_output_value then
-            outputs_changed[dir] = {output_value, old_output_value}
-            meta:set_int("output_" .. dir, output_value)
-          end
-        end
-      else
-        for i=1,8 do
-          local output_bit = fields["output_"..dir.."_bit_"..i]
-          if output_bit then
-            local old_output_value = meta:get_int("output_" .. dir)
-            output_value = toggle_bit(old_output_value, i-1)
-
-            if output_value ~= old_output_value then
-              outputs_changed[dir] = {output_value, old_output_value}
-              meta:set_int("output_" .. dir, output_value)
-            end
-          end
-        end
-      end
+  if mode == "io" or mode == "i" then
+    if options then
+      prefixes.input = {
+        vector_size = options.input_vector
+      }
+    else
+      prefixes.input = NO_SETTINGS
     end
   end
 
-  return inputs_changed, outputs_changed
+  if mode == "io" or mode == "o" then
+    if options then
+      prefixes.output = {
+        vector_size = options.output_vector
+      }
+    else
+      prefixes.output = NO_SETTINGS
+    end
+  end
+
+  return yatm_data_logic.handle_directional_prefix_ports(pos, fields, meta, prefixes)
 end
 
 function yatm_data_logic.handle_port_matrix_fields(pos, fields, meta, options)

@@ -105,61 +105,65 @@ minetest.register_node("yatm_data_logic:data_clock", {
       --
     end,
 
-    get_programmer_formspec = function (self, pos, user, pointed_thing, assigns)
-      --
-      local meta = minetest.get_meta(pos)
-      assigns.tab = assigns.tab or 1
+    get_programmer_formspec = {
+      default_tab = "ports",
+      tabs = {
+        {
+          tab_id = "ports",
+          title = "Ports",
+          header = "Port Configuration",
+          render = {
+            {
+              component = "io_ports",
+              mode = "o",
+            }
+          },
+        },
+        {
+          tab_id = "data",
+          title = "Data",
+          header = "Data Configuration",
+          render = {
+            {
+              component = "row",
+              items = {
+                {
+                  component = "field",
+                  label = "Precision",
+                  name = "precision",
+                  type = "integer",
+                  meta = true,
+                }
+              }
+            }
+          }
+        }
+      }
+    },
 
-      local formspec =
-        yatm_data_logic.layout_formspec() ..
-        yatm.formspec_bg_for_player(user:get_player_name(), "module")
-
-      if assigns.tab == 1 then
-        formspec =
-          formspec ..
-          "label[0,0;Port Configuration]" ..
-          yatm_data_logic.get_io_port_formspec(pos, meta, "o")
-      elseif assigns.tab == 2 then
-        formspec =
-          formspec ..
-          "label[0,0;Data Configuration]" ..
-          "field[0.5,1;8,1;precision;Byte Count;" .. meta:get_int("precision") .. "]"
-      end
-
-      return formspec
-    end,
-
-    receive_programmer_fields = function (self, player, form_name, fields, assigns)
-      local meta = minetest.get_meta(assigns.pos)
-
-      local needs_refresh = false
-
-      if fields["tab"] then
-        local tab = tonumber(fields["tab"])
-        if tab ~= assigns.tab then
-          assigns.tab = tab
-          needs_refresh = true
-        end
-      end
-
-      local _ichg, ochg = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "o")
-
-      if not is_table_empty(ochg) then
-        needs_refresh = true
-      end
-
-      if fields["precision"] then
-        local precision = math.max(math.min(tonumber(fields["precision"]), 4), 1)
-
-        local old_precision = meta:get_int("precision")
-        if old_precision ~= precision then
-          meta:set_int("precision", precision)
-          needs_refresh = true
-        end
-      end
-
-      return true, needs_refresh
-    end,
+    receive_programmer_fields = {
+      tabbed = true, -- notify the solver that tabs are in use
+      tabs = {
+        {
+          components = {
+            {component = "io_ports", mode = "o"}
+          }
+        },
+        {
+          components = {
+            {
+              component = "field",
+              name = "precision",
+              type = "integer",
+              meta = true,
+              cast = function (value, _assigns)
+                return math.max(math.min(value, 4), 1)
+              end,
+            },
+          }
+        }
+      }
+    }
   },
 
   refresh_infotext = function (pos)
