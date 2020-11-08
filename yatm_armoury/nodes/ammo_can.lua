@@ -2,6 +2,7 @@ local is_blank = assert(foundation.com.is_blank)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local fspec = assert(foundation.com.formspec.api)
 local is_stack_cartridge = assert(yatm_armoury.is_stack_cartridge)
+local InventorySerializer = assert(foundation.com.InventorySerializer)
 
 function get_ammo_can_formspec(pos, entity)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
@@ -88,7 +89,7 @@ minetest.register_node("yatm_armoury:ammo_can", {
     if not is_blank(old_inv_list) then
       local dumped = minetest.deserialize(old_inv_list)
       local list = new_inv:get_list("main")
-      list = yatm.items.InventorySerializer.deserialize_list(dumped, list)
+      list = InventorySerializer.deserialize_list(dumped, list)
       new_inv:set_list("main", list)
     end
   end,
@@ -102,11 +103,11 @@ minetest.register_node("yatm_armoury:ammo_can", {
     local old_inv = old_meta:get_inventory()
     local list = old_inv:get_list("main")
 
-    local dumped = yatm.items.InventorySerializer.serialize(list)
+    local dumped = InventorySerializer.serialize(list)
 
     --print("preserve_metadata", dump(dumped))
     new_meta:set_string("inventory_dump", minetest.serialize(dumped))
-    local description = "Ammo Can (" .. yatm.items.InventorySerializer.description(dumped) .. ")"
+    local description = "Ammo Can (" .. InventorySerializer.description(dumped) .. ")"
     new_meta:set_string("description", description)
   end,
 
