@@ -68,7 +68,7 @@ local function restore_inventory(self, dump)
   for list_name, dumped_list in pairs(dump.data) do
     local list = inv:get_list(list_name)
     assert(list, "expected list to exist name=" .. list_name)
-    list = yatm_item_storage.InventorySerializer.deserialize_list(dumped_list, list)
+    list = yatm.items.InventorySerializer.deserialize_list(dumped_list, list)
     inv:set_list(list_name, list)
   end
 end
@@ -88,7 +88,7 @@ local function dump_inventory(self)
   local result = {}
 
   for list_name, list in pairs(lists) do
-    result[list_name] = yatm_item_storage.InventorySerializer.serialize(list)
+    result[list_name] = yatm.items.InventorySerializer.serialize(list)
   end
 
   return { version = 1, data = result }
