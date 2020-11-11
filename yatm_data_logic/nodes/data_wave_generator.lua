@@ -57,13 +57,32 @@ mod:register_node("data_wave_generator", {
       --
     end,
 
-    get_programmer_formspec = function (self, pos, user, pointed_thing, assigns)
-    end,
+    get_programmer_formspec = {
+      default_tab = "ports",
+      tabs = {
+        {
+          tab_id = "ports",
+          title = "Ports",
+          header = "Port Configuration",
+          render = {
+            {
+              component = "io_ports",
+              mode = "o",
+            }
+          },
+        },
+      }
+    },
 
-    receive_programmer_fields = function (self, player, form_name, fields, assigns)
-      if not is_table_empty(ochg) then
-        needs_refresh = true
-      end
-    end,
+    receive_programmer_fields = {
+      tabbed = true, -- notify the solver that tabs are in use
+      tabs = {
+        {
+          components = {
+            {component = "io_ports", mode = "o"}
+          }
+        },
+      }
+    },
   },
 })
