@@ -7,7 +7,11 @@ for _,row in ipairs(yatm.colors) do
   local color_name = row.description
 
   nokore_chest:register_chest("yatm_foundry:chest_carbon_steel_" .. color_basename, {
+    basename = "yatm_foundry:chest_carbon_steel",
+
     codex_entry_id = "yatm_foundry:chest_carbon_steel",
+
+    base_description = yatm_foundry.S("Carbon Steel Chest"),
 
     description = yatm_foundry.S(color_name .. " Carbon Steel Chest"),
 
