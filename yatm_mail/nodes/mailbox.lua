@@ -254,9 +254,9 @@ for _,row in ipairs(yatm.colors_with_default) do
   local mailbox_basename = "yatm_mail:mailbox_wood_" .. basename
   minetest.register_node(mailbox_basename, {
     basename = "yatm_mail:mailbox_wood",
-    base_description = "Wood Mailbox",
+    base_description = yatm_mail.S("Wood Mailbox"),
 
-    description = "Wood Mailbox [" .. name .. "]",
+    description = yatm_mail.S("Wood Mailbox [" .. name .. "]"),
 
     codex_entry_id = "yatm_mail:mailbox",
 
@@ -306,9 +306,9 @@ for _,row in ipairs(yatm.colors_with_default) do
   local mailbox_basename = "yatm_mail:mailbox_metal_" .. basename
   minetest.register_node(mailbox_basename, {
     basename = "yatm_mail:mailbox_metal",
-    base_description = "Metal Mailbox",
+    base_description = yatm_mail.S("Metal Mailbox"),
 
-    description = "Metal Mailbox [" .. name .. "]",
+    description = yatm_mail.S("Metal Mailbox [" .. name .. "]"),
 
     codex_entry_id = "yatm_mail:mailbox",
 

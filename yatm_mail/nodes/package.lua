@@ -111,7 +111,7 @@ end
 -- Plain package
 minetest.register_node("yatm_mail:package", {
   basename = "yatm_mail:package",
-  description = "Package",
+  description = yatm_mail.S("Package"),
 
   codex_entry_id = "yatm_mail:package",
 
@@ -150,7 +150,9 @@ for _,row in ipairs(yatm.colors) do
 
   minetest.register_node("yatm_mail:package_with_ribbon_" .. basename, {
     basename = "yatm_mail:package_with_ribbon",
-    description = "Package (" .. name .. " Ribbon)",
+
+    base_description = yatm_mail.S("Package (Ribbon)"),
+    description = yatm_mail.S("Package (" .. name .. " Ribbon)"),
 
     codex_entry_id = "yatm_mail:package",
 
