@@ -57,7 +57,7 @@ local function update_fuel_rod(pos, node, state, dtime)
   -- todo consume fuel rod
 end
 
-for _, variant in ipairs({"uranium", "plutonium", "radium"}) do
+for _, variant in ipairs({"uranium", "plutonium", "radium", "redranium"}) do
   local fuel_rod_reactor_device = {
     kind = "machine",
 

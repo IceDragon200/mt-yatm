@@ -8,6 +8,8 @@ yatm.clusters:observe('terminate', 'yatm_cluster_reactor:terminate', yatm.cluste
 yatm_reactors.reactor_system = yatm_reactors.ReactorSystem:new()
 yatm.cluster.reactor:register_system("yatm_cluster_reactor:reactor_logic", yatm_reactors.reactor_system:method("update"))
 
+yatm.cluster_tool.register_cluster_tool_render(CLUSTER_GROUP, yatm.cluster.reactor:method("cluster_tool_render"))
+
 minetest.register_lbm({
   name = "yatm_reactors:cluster_device_lbm",
 

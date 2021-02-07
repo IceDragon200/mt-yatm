@@ -28,6 +28,7 @@ function ic:update(cls, cluster, dtime)
           heat = 0,
           energy = 0,
         }
+
         cluster:reduce_nodes_of_groups({"fuel_rod"}, context, update_fuel_rod)
       end
     end
