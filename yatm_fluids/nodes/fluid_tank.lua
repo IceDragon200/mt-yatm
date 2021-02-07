@@ -25,6 +25,9 @@ minetest.register_node("yatm_fluids:fluid_tank", {
     fluid_interface_in = 1,
     fluid_interface_out = 1,
   },
+
+  connects_to = {"group:fluid_tank"},
+
   tiles = fluid_tank_tiles,
 
   special_tiles = {
@@ -48,7 +51,8 @@ minetest.register_node("yatm_fluids:fluid_tank", {
 
   fluid_interface = assert(yatm_fluids.fluid_tank_fluid_interface),
 
-  connects_to = {"group:fluid_tank"},
+  on_rightclick = function (pos, node, clicker, itemstack, pointed_thing)
+  end,
 })
 
 local steel_tank_fluid_interface = table_copy(yatm_fluids.fluid_tank_fluid_interface)
