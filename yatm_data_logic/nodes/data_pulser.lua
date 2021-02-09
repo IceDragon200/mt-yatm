@@ -128,7 +128,7 @@ yatm.register_stateful_node("yatm_data_logic:data_pulser", {
                   type = "string",
                   meta = true,
                   items = yatm_data_logic.INTERVAL_ITEMS,
-                  index = yatm_data_logic.INTERVAL_TO_INDEX,
+                  index = yatm_data_logic.INTERVAL_NAME_TO_INDEX,
                 },
                 {
                   component = "field",
@@ -159,7 +159,7 @@ yatm.register_stateful_node("yatm_data_logic:data_pulser", {
               name = "interval_option",
               type = "string",
               meta = true,
-              index = yatm_data_logic.INTERVAL_TO_INDEX,
+              index = yatm_data_logic.INTERVAL_NAME_TO_INDEX,
             },
             {
               component = "field",

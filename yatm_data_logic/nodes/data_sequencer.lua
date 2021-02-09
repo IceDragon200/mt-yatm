@@ -141,112 +141,107 @@ minetest.register_node("yatm_data_logic:data_sequencer", {
     end,
 
     receive_pdu = function (self, pos, node, dir, port, value)
+      --
     end,
 
     on_programmer_formspec_quit = function (self, pos, user, assigns)
       minetest.remove_detached_inventory(assigns.token_inventory_name)
     end,
 
-    get_programmer_formspec = function (self, pos, user, pointed_thing, assigns)
-      --
-      local meta = minetest.get_meta(pos)
-      assigns.tab = assigns.tab or 1
+    get_programmer_formspec = {
+      default_tab = "ports",
+      tabs = {
+        {
+          tab_id = "ports",
+          title = "Ports",
+          header = "Port Configuration",
+          render = {
+            {
+              component = "io_ports",
+              mode = "o",
+            }
+          },
+        },
+        {
+          tab_id = "data",
+          title = "Data",
+          header = "Data Configuration",
+          render = {
+            {
+              component = "row",
+              items = {
+                {
+                  component = "dropdown",
+                  label = "Interval (Seconds)",
+                  name = "interval_option",
+                  items = yatm_data_logic.INTERVAL_ITEMS,
+                  index = yatm_data_logic.INTERVAL_NAME_TO_INDEX,
+                  type = "string",
+                  meta = true,
+                },
+              }
+            }
+          }
+        },
+        {
+          tab_id = "sequence",
+          title = "Sequence",
+          header = "Sequence",
+          render = function (rect, pos, player, pointed_thing, assigns)
+            if not assigns.initialized then
+              assigns.token_inventory_name = create_token_inventory(user)
 
-      if not assigns.initialized then
-        assigns.token_inventory_name = create_token_inventory(user)
+              assigns.initialized = true
+            end
 
-        assigns.initialized = true
-      end
+            local blob =
+              fspec.list("detached:"..assigns.token_inventory_name, "main", 0.5, 1.5, 1, 8) ..
+              fspec.list("detached:"..assigns.token_inventory_name, "main", 5.5, 1.5, 1, 8, 8)
 
-      local formspec =
-        yatm_data_logic.layout_formspec() ..
-        yatm.formspec_bg_for_player(user:get_player_name(), "module") ..
-        fspec.tabheader(0, 0, nil, nil, "tab", {"Ports", "Data", "Sequence"}, assigns.tab)
+            for c = 0,15 do
+              local i = c + 1
+              local x = math.floor(c / 8)
+              local y = c % 8
+              formspec =
+                formspec ..
+                fspec.field_area(2 + x * 4.75, 1.5 + y * 1.25, 3, 1,
+                                 "data_seq"..i, "",
+                                 meta:get_string("data_seq" .. i))
+            end
 
-      if assigns.tab == 1 then
-        formspec =
-          formspec ..
-          "label[0.5,0.75;Port Configuration]"
+            local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+            formspec =
+              formspec ..
+              fspec.list("nodemeta:"..spos, "sequence", 10, 1.5, 8, 8)
+            return blob, rect
+          end
+        }
+      }
+    },
 
-        local io_formspec = yatm_data_logic.get_io_port_formspec(pos, meta, "o")
-
-        formspec =
-          formspec ..
-          io_formspec
-
-      elseif assigns.tab == 2 then
-        local interval_id = 1
-        local interval = yatm_data_logic.INTERVALS[meta:get_string("interval_option")]
-        if interval then
-          interval_id = interval.id
-        end
-
-        formspec =
-          formspec ..
-          fspec.label(0.5, 0.75, "Data Configuration") ..
-          fspec.label(0.5, 1.25, "Interval (Seconds)") ..
-          "dropdown[0.5,2;8,1;interval_option;" .. yatm_data_logic.INTERVAL_STRING .. ";" .. interval_id .. "]"
-
-      elseif assigns.tab == 3 then
-        formspec =
-          formspec ..
-          fspec.label(0.5, 0.75, "Sequence") ..
-          fspec.list("detached:"..assigns.token_inventory_name, "main", 0.5, 1.5, 1, 8) ..
-          fspec.list("detached:"..assigns.token_inventory_name, "main", 5.5, 1.5, 1, 8, 8)
-
-        for c = 0,15 do
-          local i = c + 1
-          local x = math.floor(c / 8)
-          local y = c % 8
-          formspec =
-            formspec ..
-            fspec.field_area(2 + x * 4.75, 1.5 + y * 1.25, 3, 1,
-                             "data_seq"..i, "",
-                             meta:get_string("data_seq" .. i))
-        end
-
-        local spos = pos.x .. "," .. pos.y .. "," .. pos.z
-        formspec =
-          formspec ..
-          fspec.list("nodemeta:"..spos, "sequence", 10, 1.5, 8, 8)
-
-      end
-
-      return formspec
-    end,
-
-    receive_programmer_fields = function (self, player, form_name, fields, assigns)
-      local meta = minetest.get_meta(assigns.pos)
-
-      local needs_refresh = false
-
-      if fields["tab"] then
-        local tab = tonumber(fields["tab"])
-        if tab ~= assigns.tab then
-          assigns.tab = tab
-          needs_refresh = true
-        end
-      end
-
-      local _ichg, ochg = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "o")
-
-      if not is_table_empty(ochg) then
-        needs_refresh = true
-      end
-
-      for i = 1,16 do
-        local seq_data = fields["data_seq" .. i]
-        if seq_data then
-          meta:set_string("data_seq" .. i, seq_data)
-        end
-      end
-
-      if fields["interval_option"] then
-        meta:set_string("interval_option", fields["interval_option"])
-      end
-
-      return true, needs_refresh
-    end,
+    receive_programmer_fields = {
+      tabbed = true, -- notify the solver that tabs are in use
+      tabs = {
+        {
+          components = {
+            {component = "io_ports", mode = "o"}
+          }
+        },
+        {
+          components = {
+            {
+              component = "field",
+              name = "interval_option",
+              type = "string",
+              meta = true,
+            }
+          }
+        },
+        {
+          components = {}
+        }
+      }
+    }
   },
 
   refresh_infotext = function (pos)

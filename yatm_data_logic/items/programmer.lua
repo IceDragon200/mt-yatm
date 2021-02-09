@@ -310,7 +310,7 @@ local function on_receive_fields(player, form_name, fields, assigns)
 
     if spec.tabs then
       local tab = spec.tabs[assigns.tab_index]
-      if tab then
+      if tab and tab.components then
         for _, component in ipairs(tab.components) do
           if component.component == "io_ports" then
             local options = {

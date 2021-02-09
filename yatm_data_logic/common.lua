@@ -65,9 +65,9 @@ for _, item in ipairs(yatm_data_logic.INTERVAL_LIST) do
   yatm_data_logic.INTERVALS[item.value] = item
 end
 
-yatm_data_logic.INTERVAL_TO_INDEX = {}
+yatm_data_logic.INTERVAL_NAME_TO_INDEX = {}
 for index, item in ipairs(yatm_data_logic.INTERVAL_LIST) do
-  yatm_data_logic.INTERVAL_TO_INDEX[item.value] = index
+  yatm_data_logic.INTERVAL_NAME_TO_INDEX[item.value] = index
 end
 
 yatm_data_logic.INTERVAL_ITEMS = {}
