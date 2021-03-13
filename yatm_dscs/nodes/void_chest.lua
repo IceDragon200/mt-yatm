@@ -281,7 +281,7 @@ yatm.devices.register_stateful_network_device({
 
   on_rightclick = function (pos, node, user, item_stack, pointed_thing)
     local assigns = { pos = pos, node = node }
-    local formspec = get_void_chest_formspec(pos, user, assigns)
+    local formspec = get_void_chest_formspec(pos, user:get_player_name(), assigns)
     local formspec_name = get_formspec_name(pos)
 
     yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
