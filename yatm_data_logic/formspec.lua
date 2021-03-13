@@ -351,12 +351,15 @@ function yatm_data_logic.render_multibit_buttons_formspec(x, y, w, h, length, fi
 
     local button_x = x + length - i * w
 
+    --local name = bit
+    local name = ''
+
     formspec =
       formspec ..
       fspec.image_button(button_x, y, w, h,
                          texture_name,
                          field_prefix.."_bit_"..i,
-                         bit, -- name
+                         name, -- name
                          true, -- Noclip
                          false,
                          texture_name_alt)
