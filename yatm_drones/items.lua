@@ -46,11 +46,37 @@ minetest.register_craftitem("yatm_drones:drone_upgrade_vacuum", {
   base_description = "Drone Upgrade",
   basename = "yatm_drones:drone_upgrade",
 
-  description = "Drone Upgrade - Vacuum",
+  description = "Drone Upgrade - Vacuum\nExtends the pickup range of the drone",
   inventory_image = "yatm_drone_upgrade_vacuum.png",
 
   groups = {
     drone_upgrade = 1,
     vacuum_upgrade = 1,
+  },
+})
+
+minetest.register_craftitem("yatm_drones:drone_upgrade_efficiency", {
+  base_description = "Drone Upgrade",
+  basename = "yatm_drones:drone_upgrade",
+
+  description = "Drone Upgrade - Efficiency\nReduces energy consumption",
+  inventory_image = "yatm_drone_upgrade_efficiency.png",
+
+  groups = {
+    drone_upgrade = 1,
+    efficiency_upgrade = 1,
+  },
+})
+
+minetest.register_craftitem("yatm_drones:drone_upgrade_solar_charge", {
+  base_description = "Drone Upgrade",
+  basename = "yatm_drones:drone_upgrade",
+
+  description = "Drone Upgrade - Solar Charge\nDrones can charge their batteries during the day.",
+  inventory_image = "yatm_drone_upgrade_solar_charge.png",
+
+  groups = {
+    drone_upgrade = 1,
+    solar_charge_upgrade = 1,
   },
 })

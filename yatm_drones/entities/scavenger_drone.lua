@@ -258,10 +258,30 @@ end
 local function hq_return_to_docking_station(self, prty)
 end
 
+-- How much energy does a drone consume per second while active
+local ENERGY_PER_SECOND = 20
+
 local function drone_logic(self)
+  do
+    -- TODO: should also check light levels
+    local solar_charge_rate = self.solar_charge_rate or 0.0
+
+    if solar_charge_rate > 0 then
+      local tod = minetest.get_timeofday()
+
+      if tod < 0.25 or tod >= 0.80 then
+        -- night
+      else
+        -- day
+        self.energy.receive_energy(self, solar_charge_rate * ENERGY_PER_SECOND * self.dtime)
+      end
+    end
+  end
+
   if not mobkit.recall(self, "charging") then
     -- It not charging, lose energy like normal
-    self.energy.consume_energy(self, 20 * self.dtime)
+    local energy_rate = self.energy_rate or 1.0
+    self.energy.consume_energy(self, energy_rate * ENERGY_PER_SECOND * self.dtime)
   end
 
   if mobkit.timer(self, 1) then
@@ -430,8 +450,10 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
   buoyancy = 1,
   max_hp = 1,
   max_speed = 5,
-  jump_height = 0.3, -- it really shouldn't be jumping
+  solar_charge_rate = 0.0, -- during the daytime, the rate of energy recovery
+  jump_height = 0.5, -- it really shouldn't be jumping
   vacuum_range = 1.0,
+  energy_rate = 1.0,
   view_range = view_range,
   static_save = true,
 
@@ -476,8 +498,10 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
 
   refresh_upgrades = function (self)
     local max_speed = 5
-    local jump_height = 0.25
+    local jump_height = 0.5
     local vacuum_range = 1.0
+    local energy_rate = 1.0
+    local solar_charge_rate = 0.0
 
     local inv = self:get_inventory()
 
@@ -495,6 +519,10 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
           jump_height = jump_height + 0.5
         elseif Groups.has_group(item, "vacuum_upgrade") then
           vacuum_range = vacuum_range + 2.0
+        elseif Groups.has_group(item, "efficiency_upgrade") then
+          vacuum_range = energy_rate - 0.25
+        elseif Groups.has_group(item, "solar_charge_upgrade") then
+          solar_charge_rate = solar_charge_rate + 0.25
         end
       end
     end
