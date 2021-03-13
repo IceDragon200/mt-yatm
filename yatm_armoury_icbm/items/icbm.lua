@@ -26,7 +26,7 @@ minetest.register_craftitem("yatm_armoury_icbm:icbm_nuclear_warhead", {
 
   icbm_warhead_type = "nuclear",
 
-  inventory_image = "yatm_icbm_nuclear_warhead.png",
+  inventory_image = "yatm_icbm_warheads_nuclear.png",
 })
 
 -- Load any fluid into the warhead, when detonated it will cause an associated effect.
@@ -42,7 +42,7 @@ if yatm_fluids then
 
     icbm_warhead_type = "chemical",
 
-    inventory_image = "yatm_icbm_chemical_warhead.png",
+    inventory_image = "yatm_icbm_warheads_chemical.png",
   })
 end
 
@@ -57,7 +57,7 @@ minetest.register_craftitem("yatm_armoury_icbm:icbm_incendiary_warhead", {
 
   icbm_warhead_type = "incendiary",
 
-  inventory_image = "yatm_icbm_incendiary_warhead.png",
+  inventory_image = "yatm_icbm_warheads_incendiary.png",
 })
 
 -- Explosive, deals explosive damage
@@ -71,7 +71,7 @@ minetest.register_craftitem("yatm_armoury_icbm:icbm_explosive_warhead", {
 
   icbm_warhead_type = "explosive",
 
-  inventory_image = "yatm_icbm_explosive_warhead.png",
+  inventory_image = "yatm_icbm_warheads_standard.png",
 })
 
 -- High-Explosive, deals explosive damage
@@ -85,7 +85,7 @@ minetest.register_craftitem("yatm_armoury_icbm:icbm_he_warhead", {
 
   icbm_warhead_type = "high_explosive",
 
-  inventory_image = "yatm_icbm_high_explosive_warhead.png",
+  inventory_image = "yatm_icbm_warheads_he.png",
 })
 
 -- Capsule warhead
@@ -100,7 +100,7 @@ minetest.register_craftitem("yatm_armoury_icbm:icbm_capsule_warhead", {
 
   icbm_warhead_type = "capsule",
 
-  inventory_image = "yatm_icbm_capsule_warhead.png",
+  inventory_image = "yatm_icbm_warheads_capsule.png",
 })
 
 if yatm_blasts_frost then
@@ -115,7 +115,7 @@ if yatm_blasts_frost then
 
     icbm_warhead_type = "frost",
 
-    inventory_image = "yatm_icbm_frost_warhead.png",
+    inventory_image = "yatm_icbm_warheads_frost.png",
   })
 end
 
@@ -131,6 +131,6 @@ if yatm_blasts_emp then
 
     icbm_warhead_type = "emp",
 
-    inventory_image = "yatm_icbm_emp_warhead.png",
+    inventory_image = "yatm_icbm_warheads_emp.png",
   })
 end
