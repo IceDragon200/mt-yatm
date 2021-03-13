@@ -341,8 +341,8 @@ function yatm_data_logic.render_multibit_buttons_formspec(x, y, w, h, length, fi
     rolling_value = math.floor(rolling_value / 2)
 
     local button_spec = BUTTONS_BY_BIT[i]
-    local texture_name = "yatm_small_colored_button_" .. button_spec.color .. ".off.png"
-    local texture_name_alt = "yatm_small_colored_button_" .. button_spec.color .. ".on.png"
+    local texture_name = "yatm_wide_switch_" .. button_spec.color .. ".down.png"
+    local texture_name_alt = "yatm_wide_switch_" .. button_spec.color .. ".up.png"
 
     -- flip the texture states if the bit is set
     if bit == 1 then

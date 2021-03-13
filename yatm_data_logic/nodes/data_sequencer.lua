@@ -133,8 +133,12 @@ minetest.register_node("yatm_data_logic:data_sequencer", {
 
     on_load = function (self, pos, node)
       -- sequencers don't need to bind listeners of any sorts
+
       local meta = minetest.get_meta(pos)
 
+      local _old_version = meta:get_int("version")
+
+      meta:set_int("version", 2)
       local inv = meta:get_inventory()
 
       inv:set_size("sequence", 64)
@@ -145,7 +149,9 @@ minetest.register_node("yatm_data_logic:data_sequencer", {
     end,
 
     on_programmer_formspec_quit = function (self, pos, user, assigns)
-      minetest.remove_detached_inventory(assigns.token_inventory_name)
+      if assigns.token_inventory_name then
+        minetest.remove_detached_inventory(assigns.token_inventory_name)
+      end
     end,
 
     get_programmer_formspec = {
@@ -189,10 +195,12 @@ minetest.register_node("yatm_data_logic:data_sequencer", {
           header = "Sequence",
           render = function (rect, pos, player, pointed_thing, assigns)
             if not assigns.initialized then
-              assigns.token_inventory_name = create_token_inventory(user)
+              assigns.token_inventory_name = create_token_inventory(player)
 
               assigns.initialized = true
             end
+
+            local meta = minetest.get_meta(pos)
 
             local blob =
               fspec.list("detached:"..assigns.token_inventory_name, "main", 0.5, 1.5, 1, 8) ..
@@ -202,17 +210,18 @@ minetest.register_node("yatm_data_logic:data_sequencer", {
               local i = c + 1
               local x = math.floor(c / 8)
               local y = c % 8
-              formspec =
-                formspec ..
+              blob =
+                blob ..
                 fspec.field_area(2 + x * 4.75, 1.5 + y * 1.25, 3, 1,
                                  "data_seq"..i, "",
                                  meta:get_string("data_seq" .. i))
             end
 
             local spos = pos.x .. "," .. pos.y .. "," .. pos.z
-            formspec =
-              formspec ..
+            blob =
+              blob ..
               fspec.list("nodemeta:"..spos, "sequence", 10, 1.5, 8, 8)
+
             return blob, rect
           end
         }
