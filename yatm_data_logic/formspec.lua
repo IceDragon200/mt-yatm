@@ -346,7 +346,9 @@ function yatm_data_logic.render_multibit_buttons_formspec(x, y, w, h, length, fi
 
     -- flip the texture states if the bit is set
     if bit == 1 then
-      texture_name, texture_name_alt = texture_name_alt, texture_name
+      texture_name = texture_name_alt
+    else
+      texture_name_alt = texture_name
     end
 
     local button_x = x + length - i * w

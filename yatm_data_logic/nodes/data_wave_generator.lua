@@ -10,6 +10,19 @@ local data_network = assert(yatm.data_network)
 
 local mod = yatm_data_logic
 
+local WAVE_SHAPES = {
+  "sine",
+  "square",
+  "triangle",
+  "saw",
+}
+
+local WAVE_SHAPES_INDEX = {}
+
+for index,name in ipairs(WAVE_SHAPES) do
+  WAVE_SHAPES_INDEX[name] = index
+end
+
 mod:register_node("data_wave_generator", {
   description = mod.S("DATA Wave Generator"),
 
@@ -71,6 +84,22 @@ mod:register_node("data_wave_generator", {
             }
           },
         },
+        {
+          tab_id = "data",
+          title = "Data",
+          header = "Data Configuration",
+          render = {
+            {
+              component = "dropdown",
+              label = "Wave Shape",
+              name = "wave_shape",
+              type = "string",
+              items = WAVE_SHAPES,
+              index = WAVE_SHAPES_INDEX,
+              meta = true,
+            }
+          }
+        }
       }
     },
 
@@ -82,6 +111,16 @@ mod:register_node("data_wave_generator", {
             {component = "io_ports", mode = "o"}
           }
         },
+        {
+          components = {
+            {
+              component = "field",
+              name = "wave_shape",
+              type = "string",
+              meta = true,
+            },
+          }
+        }
       }
     },
   },

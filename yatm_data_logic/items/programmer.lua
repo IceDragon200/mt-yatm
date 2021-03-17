@@ -342,11 +342,18 @@ local function on_receive_fields(player, form_name, fields, assigns)
                     end
                     meta:set_int(component.name, math.floor(new_value))
                   end
-                else
+                elseif component.type == "string" then
                   meta:set_string(component.name, value)
+                else
+                  minetest.log("warning", "unexpected component type (got " .. component.type .. ")")
                 end
+              else
+                -- if meta flag is not set, then the component must handle this value itself
+                component:set(assigns.pos, meta, value)
               end
             end
+          else
+            minetest.log("warning", "unsupported receive field gcomponent=" .. component.component)
           end
         end
       end

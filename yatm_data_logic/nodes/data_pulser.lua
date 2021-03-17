@@ -155,11 +155,10 @@ yatm.register_stateful_node("yatm_data_logic:data_pulser", {
         {
           components = {
             {
-              component = "dropdown",
+              component = "field",
               name = "interval_option",
               type = "string",
               meta = true,
-              index = yatm_data_logic.INTERVAL_NAME_TO_INDEX,
             },
             {
               component = "field",
