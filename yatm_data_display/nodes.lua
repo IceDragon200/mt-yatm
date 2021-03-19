@@ -17,12 +17,16 @@ for i = 33,95 do
 end
 
 for i = 97,122 do
+  -- remap lower case to uppercase
   ASCII_TABLE[i] = i - 32
 end
 
+-- the remaining characters that can be mapped
 ASCII_TABLE[123] = 123
 ASCII_TABLE[124] = 124
 ASCII_TABLE[125] = 125
+
+-- everything else will be whitespace
 
 local states = {}
 
@@ -119,37 +123,36 @@ yatm.register_stateful_node("yatm_data_display:ascii_display", {
       end
     end,
 
+    get_programmer_formspec = {
+      default_tab = "ports",
+      tabs = {
+        {
+          tab_id = "ports",
+          title = "Ports",
+          header = "Port Configuration",
+          render = {
+            {
+              component = "io_ports",
+              mode = "i",
+            }
+          },
+        },
+      }
+    },
 
-  get_programmer_formspec = {
-    default_tab = "ports",
-    tabs = {
-      {
-        tab_id = "ports",
-        title = "Ports",
-        header = "Port Configuration",
-        render = {
-          {
-            component = "io_ports",
-            mode = "i",
+    receive_programmer_fields = {
+      tabbed = true, -- notify the solver that tabs are in use
+      tabs = {
+        {
+          components = {
+            {
+              component = "io_ports",
+              mode = "i",
+            }
           }
         },
       },
-    }
-  },
-
-  receive_programmer_fields = {
-    tabbed = true, -- notify the solver that tabs are in use
-    tabs = {
-      {
-        components = {
-          {
-            component = "io_ports",
-            mode = "i",
-          }
-        }
-      },
-    }
-  }
+    },
   },
 
   refresh_infotext = function (pos)
@@ -164,3 +167,6 @@ yatm.register_stateful_node("yatm_data_display:ascii_display", {
     meta:set_string("infotext", infotext)
   end,
 }, states)
+
+-- trash the old states, we don't need it anymore
+states = nil
