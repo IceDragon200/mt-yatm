@@ -174,11 +174,10 @@ function yatm_data_logic.get_io_port_formspec(pos, meta, mode, options)
   local y = dy + row * 2
 
   for _, dir in ipairs(Directions.DIR6) do
-    if sub_network_ids[dir] then
+    local sub_network_id = sub_network_ids[dir]
+    if sub_network_id then
       local dircode = Directions.dir_to_code(dir):lower()
       local border_image_name = "yatm_item_border_"..dircode..".png"
-
-      local sub_network_id = sub_network_ids[dir]
 
       local item_name
       local color = attached_colors[dir]
@@ -186,6 +185,7 @@ function yatm_data_logic.get_io_port_formspec(pos, meta, mode, options)
 
       if color then
         item_name = "yatm_data_network:data_cable_bus_" .. color
+        --item_name = "yatm_data_network:data_cable_bus_bracket_cross_" .. color
         local range = DataNetwork.COLOR_RANGE[color].range
 
         if range == DataNetwork.PORT_RANGE then

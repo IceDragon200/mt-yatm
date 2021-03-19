@@ -86,6 +86,7 @@ local function render_row(row, rect, pos, player, pointed_thing, assigns)
   local r = Rect.copy(rect)
 
   local y = r.y
+  local h = r.h
   r.w = r.w / count
 
   local formspec = ""
@@ -94,16 +95,22 @@ local function render_row(row, rect, pos, player, pointed_thing, assigns)
     local frag, new_r =
       render_component(item, r, pos, player, pointed_thing, assigns)
 
-    if new_r and new_r.y > y then
-      y = r.y
+    if new_r then
+      if new_r.y > y then
+        y = new_r.y
+      end
+      if new_r.h > h then
+        h = new_r.h
+      end
     end
+
     formspec = formspec .. frag
   end
 
   r.x = rect.x
   r.y = y
   r.w = rect.w
-  r.h = rect.h - r.y - rect.y
+  r.h = rect.h - h
 
   return formspec, r
 end
@@ -168,6 +175,9 @@ render_component = function (row, rect, pos, player, pointed_thing, assigns)
 
   elseif row.component == "label" then
     return render_label(row, rect, pos, player, pointed_thing, assigns)
+
+  elseif row.component == "render" then
+    return row:render(rect, pos, player, pointed_thing, assigns)
 
   else
     error("unexpected component " .. row.component)
@@ -291,6 +301,7 @@ local function on_receive_fields(player, form_name, fields, assigns)
     keep_bubbling, formspec_or_refresh =
       di:receive_programmer_fields(player, form_name, fields, assigns)
   elseif t == "table" then
+    print("receive_programmer_fields/table", dump(fields))
     local meta = minetest.get_meta(assigns.pos)
 
     local spec = di.receive_programmer_fields
@@ -344,13 +355,20 @@ local function on_receive_fields(player, form_name, fields, assigns)
                   end
                 elseif component.type == "string" then
                   meta:set_string(component.name, value)
-                else
+                elseif component.type then
                   minetest.log("warning", "unexpected component type (got " .. component.type .. ")")
+                else
+                  minetest.log("warning", "missing component type")
                 end
               else
                 -- if meta flag is not set, then the component must handle this value itself
-                component:set(assigns.pos, meta, value)
+                component:set(assigns.pos, meta, value, assigns)
               end
+            end
+          elseif component.component == "handle" then
+            local should_refresh = component:handle(assigns.pos, meta, fields, assigns)
+            if should_refresh then
+              formspec_or_refresh = true
             end
           else
             minetest.log("warning", "unsupported receive field gcomponent=" .. component.component)

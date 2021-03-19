@@ -3,7 +3,8 @@
 --
 -- Each type has 2 modes:
 --   Normal mode - input streams are treated as single numbers and will be affected by overflows
---   Vector mode - input streams are vectors, each byte in the stream is a single number and overflow is treated as a loop around
+--   Vector mode - input streams are vectors, each byte in the stream is a single
+--                 number and overflow is treated as a loop around
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local string_hex_unescape = assert(foundation.com.string_hex_unescape)
@@ -12,8 +13,58 @@ local string_split = assert(foundation.com.string_split)
 local table_merge = assert(foundation.com.table_merge)
 local table_copy = assert(foundation.com.table_copy)
 local is_table_empty = assert(foundation.com.is_table_empty)
+local list_get_next = assert(foundation.com.list_get_next)
 local Directions = assert(foundation.com.Directions)
 local data_network = assert(yatm.data_network)
+local fspec = assert(foundation.com.formspec.api)
+local data_math = assert(yatm_data_logic.data_math)
+
+local OPERAND_NAMES = {"A", "B"}
+local OPERATORS = {
+  "identity",
+  "add",
+  "subtract",
+  "multiply",
+  "divide",
+  "modulo",
+  "max",
+  "min",
+}
+
+local OPERATOR_SYMBOL = {
+  identity = ".",
+  add = "+",
+  subtract = "-",
+  multiply = "*",
+  divide = "/",
+  modulo = "%",
+  max = "mx",
+  min = "mn",
+}
+
+local OPERATOR_NODES_LIST = {}
+local OPERATOR_VECTOR_NODES_LIST = {}
+local OPERATOR_NODE_TO_STAMP = {}
+local NODE_NAME_TO_OPERATOR = {}
+
+local CONFIG = {
+  -- determines how long a number can be in bytes this affects normal operations
+  byte_size = 16,
+  -- the maximum number of elements expected in a vector type
+  vector_size = 16,
+  -- how many bytes does each element in the vector occupy
+  vector_element_byte_size = 1,
+}
+
+for index,operator_name in ipairs(OPERATORS) do
+  OPERATOR_NODES_LIST[index] = "yatm_data_logic:data_arith_" .. operator_name
+  OPERATOR_VECTOR_NODES_LIST[index] = "yatm_data_logic:data_arith_" .. operator_name .. "_vector"
+  OPERATOR_NODE_TO_STAMP[OPERATOR_NODES_LIST[index]] = "yatm_data_arith_stamps_" .. operator_name .. ".png"
+  OPERATOR_NODE_TO_STAMP[OPERATOR_VECTOR_NODES_LIST[index]] = "yatm_data_arith_stamps_" .. operator_name .. ".png"
+
+  NODE_NAME_TO_OPERATOR[OPERATOR_NODES_LIST[index]] = operator_name
+  NODE_NAME_TO_OPERATOR[OPERATOR_VECTOR_NODES_LIST[index]] = operator_name
+end
 
 local function get_input_value(meta, dir)
   return meta:get_string("input_value_" .. dir)
@@ -41,41 +92,30 @@ local function get_input_values(pos)
   return result
 end
 
+local function get_operand_value(meta, place)
+  local operand_name = meta:get_string("operand_" .. place)
+  if operand_name == "B" then
+    return meta:get_string("operand_b_value")
+  else
+    return meta:get_string("operand_a_value")
+  end
+end
+
 local data_interface = {
   on_load = function (self, pos, node)
-    yatm_data_logic.bind_matrix_ports(pos, "port", "reset", "active")
-    yatm_data_logic.bind_matrix_ports(pos, "port", "input", "active")
-    yatm_data_logic.bind_matrix_ports(pos, "port", "exec", "active")
+    yatm_data_logic.mark_all_inputs_for_active_receive(pos)
   end,
 
   receive_pdu = function (self, pos, node, dir, port, value)
     local meta = minetest.get_meta(pos)
 
-    local should_exec = false
     local needs_refresh = false
-
-    local reset_port = yatm_data_logic.get_matrix_port(pos, "port", "reset", dir)
-    if reset_port == port then
-      set_input_value(meta, dir, "\0")
-      needs_refresh = true
-    end
-
-    local input_port = yatm_data_logic.get_matrix_port(pos, "port", "input", dir)
-    if input_port == port then
-      set_input_value(meta, dir, value)
-      needs_refresh = true
-    end
-
-    local exec_port = yatm_data_logic.get_matrix_port(pos, "port", "exec", dir)
-    if exec_port == port then
-      should_exec = true
-    end
+    local should_exec = false
 
     if should_exec then
-      local result = get_input_values(pos)
-      local ops = meta:get_string("operands")
-      local operands = string_split(ops)
-      local new_value = self:operate(pos, node, result, operands)
+      local left = get_operand_value(meta, "left")
+      local right = get_operand_value(meta, "right")
+      local new_value = self:calculate(pos, node, left, right)
 
       if meta:get_string("last_value") ~= new_value then
         meta:set_string("last_value", new_value)
@@ -88,129 +128,164 @@ local data_interface = {
     end
   end,
 
-  get_programmer_formspec = function (self, pos, user, pointed_thing, assigns)
-    --
-    local meta = minetest.get_meta(pos)
-
-    assigns.tab = assigns.tab or 1
-
-    local formspec =
-      yatm_data_logic.layout_formspec() ..
-      yatm.formspec_bg_for_player(user:get_player_name(), "module") ..
-      "tabheader[0,0;tab;Ports,Data;" .. assigns.tab .. "]"
-
-    if assigns.tab == 1 then
-      formspec =
-        formspec ..
-        "label[0,0;Port Configuration]" ..
-        yatm_data_logic.get_port_matrix_formspec(pos, meta, {
-          width = 12,
-          sections = {
-            {
-              name = "port",
-              label = "Ports",
-              cols = 4,
-              port_count = 4,
-              port_names = {"input", "output", "exec", "reset"},
-              port_labels = {"Input", "Output", "Exec", "Reset"},
-            }
-          }
-        })
-
-    elseif assigns.tab == 2 then
-      formspec =
-        formspec ..
-        "label[0,0;Data Configuration]" ..
-        "label[0,1;Operands]" ..
-        "field[0.25,2;11.5,1;operands;Operands;" .. minetest.formspec_escape(meta:get_string("operands")) .. "]"
-    end
-
-    return formspec
-  end,
-
-  receive_programmer_fields = function (self, player, form_name, fields, assigns)
-    local meta = minetest.get_meta(assigns.pos)
-
-    local needs_refresh = false
-
-    if fields["tab"] then
-      local tab = tonumber(fields["tab"])
-      if tab ~= assigns.tab then
-        assigns.tab = tab
-        needs_refresh = true
-      end
-    end
-
-    local ports_changed =
-      yatm_data_logic.handle_port_matrix_fields(assigns.pos, fields, meta, {
-        sections = {
+  get_programmer_formspec = {
+    default_tab = "ports",
+    tabs = {
+      {
+        tab_id = "ports",
+        title = "Ports",
+        header = "Port Configuration",
+        render = {
           {
-            name = "port",
-            port_count = 4,
-            port_names = {"input", "output", "exec", "reset"},
+            component = "io_ports",
+            mode = "io",
+          }
+        },
+      },
+      {
+        tab_id = "data",
+        title = "Data",
+        header = "Data Configuration",
+        render = {
+          {
+            component = "row",
+            items = {
+              {
+                component = "field",
+                type = "string",
+                label = "Operand A Value",
+                name = "operand_a_value",
+                meta = true,
+              },
+              {
+                component = "field",
+                type = "string",
+                label = "Operand B Value",
+                name = "operand_b_value",
+                meta = true,
+              },
+            },
+          },
+          {
+            component = "render",
+            render = function (self, rect, pos, player, pointed_thing, assigns)
+              local meta = minetest.get_meta(pos)
+              local node = minetest.get_node(pos)
+
+              local operator_image = OPERATOR_NODE_TO_STAMP[node.name]
+
+              local image_a = "yatm_data_arith_stamps_a.png"
+              local image_b = "yatm_data_arith_stamps_b.png"
+
+              local operand_left_image
+              local operand_right_image
+
+              local current_operand_left = meta:get_string("operand_left")
+              local current_operand_right = meta:get_string("operand_right")
+
+              if current_operand_left == "B" then
+                operand_left_image = image_b
+              else
+                operand_left_image = image_a
+              end
+
+              if current_operand_right == "B" then
+                operand_right_image = image_b
+              else
+                operand_right_image = image_a
+              end
+
+              local formspec = ""
+
+              formspec =
+                formspec ..
+                fspec.label(rect.x, rect.y+0.5, "Operation Config")
+
+              rect.y = rect.y + 0.75
+              rect.h = rect.h - 0.75
+
+              formspec =
+                formspec ..
+                fspec.image_button(rect.x, rect.y, 1, 1,
+                  operand_left_image, "operand_left_change", "", false, false, operand_left_image) ..
+                fspec.image_button(rect.x + 1, rect.y, 1, 1,
+                  operator_image, "operator_change", "", false, false, operator_image) ..
+                fspec.image_button(rect.x + 2, rect.y, 1, 1,
+                  operand_right_image, "operand_right_change", "", false, false, operand_right_image) ..
+                fspec.image(rect.x + 3, rect.y, 1, 1, "yatm_data_arith_stamps_down_equal.png") ..
+                fspec.image(rect.x + 4, rect.y, 1, 1, "yatm_data_arith_stamps_down_c.png")
+
+              rect.y = rect.y + 1
+              rect.h = rect.h - 1
+
+              return formspec, rect
+            end,
+          },
+        },
+      },
+    },
+  },
+
+  receive_programmer_fields = {
+    tabbed = true,
+    tabs = {
+      {
+        components = {
+          {
+            component = "io_ports",
+            mode = "io",
+          },
+        },
+      },
+      {
+        components = {
+          {
+            component = "field",
+            name = "operand_a_value",
+            type = "string",
+            meta = true,
+          },
+          {
+            component = "field",
+            name = "operand_b_value",
+            type = "string",
+            meta = true,
+          },
+          {
+            component = "handle",
+            handle = function (_self, pos, meta, fields, assigns)
+              local should_refresh = false
+              if fields["operand_left_change"] then
+                meta:set_string("operand_left", list_get_next(OPERAND_NAMES, meta:get_string("operand_left")))
+                should_refresh = true
+              end
+
+              if fields["operand_right_change"] then
+                meta:set_string("operand_right", list_get_next(OPERAND_NAMES, meta:get_string("operand_right")))
+                should_refresh = true
+              end
+
+              if fields["operator_change"] then
+                local node = minetest.get_node(pos)
+
+                local next_node = list_get_next(OPERATOR_NODES_LIST, node.name)
+
+                if next_node then
+                  node.name = next_node
+
+                  minetest.swap_node(pos, node)
+                end
+                should_refresh = true
+              end
+
+              return should_refresh
+            end,
           }
         }
-      })
-
-    if not is_table_empty(ports_changed) then
-      needs_refresh = true
-      yatm_data_logic.unmark_all_receive(assigns.pos)
-
-      yatm_data_logic.bind_matrix_ports(assigns.pos, "port", "reset", "active")
-      yatm_data_logic.bind_matrix_ports(assigns.pos, "port", "input", "active")
-      yatm_data_logic.bind_matrix_ports(assigns.pos, "port", "exec", "active")
-    end
-
-    if fields["operands"] then
-      local operands = fields["operands"]
-      local result = {}
-
-      for i = 1,#operands do
-        local char = string.sub(operands, i, i)
-
-        if char == "N" or char == "n" then
-          table.insert(result, "N")
-        elseif char == "E" or char == "e" then
-          table.insert(result, "E")
-        elseif char == "S" or char == "s" then
-          table.insert(result, "S")
-        elseif char == "W" or char == "w" then
-          table.insert(result, "W")
-        elseif char == "U" or char == "u" then
-          table.insert(result, "U")
-        elseif char == "D" or char == "d" then
-          table.insert(result, "D")
-        end
-      end
-
-      result = table.concat(result)
-      meta:set_string("operands", result)
-      if result ~= operands then
-        needs_refresh = true
-      end
-    end
-
-    return true, needs_refresh
-  end,
+      }
+    }
+  },
 }
-
-local function perform_borrow(accumulator, i)
-  --accumulator[i] = accumulator[i] + 1
-  local j = 1
-  while accumulator[i + j] <= 0 and j <= 16 do
-    j = j + 1
-    if not accumulator[i + j] then
-      accumulator[i + j] = 254
-      break
-    end
-  end
-  while j > 1 do
-    j = j - 1
-    accumulator[i + j] = accumulator[i + j] + 254
-  end
-  j = j - 1
-  accumulator[i + j] = accumulator[i + j] + 255
-end
 
 yatm.register_stateful_node("yatm_data_logic:data_arith", {
   base_description = "Data Arithmetic",
@@ -237,7 +312,6 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
     local meta = minetest.get_meta(pos)
     local node = minetest.get_node(pos)
 
-    meta:set_string("operands", "NESWUD")
     data_network:add_node(pos, node)
   end,
 
@@ -254,15 +328,12 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
     local meta = minetest.get_meta(pos)
     local node = minetest.get_node(pos)
     local nodedef = minetest.registered_nodes[node.name]
-
-    local result = get_input_values(pos)
-    local ops = meta:get_string("operands")
-    local operands = string_split(ops)
+    local operator = OPERATOR_SYMBOL[NODE_NAME_TO_OPERATOR[node.name]]
 
     local infotext =
       string_split(nodedef.description, "\n")[1] .. "\n" ..
       "Last Output: " .. meta:get_string("last_value") .. "\n" ..
-      "Operands: " .. ops .. "\n" ..
+      "Operation: " .. meta:get_string("operand_left") .. " " .. operator .. " " ..  meta:get_string("operand_right") .. "\n" ..
       data_network:get_infotext(pos)
 
     meta:set_string("infotext", infotext)
@@ -286,16 +357,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
     },
 
     data_interface = table_merge(data_interface, {
-      operate = function (self, pos, node, values, operands)
-        local identity = {}
-
-        for dir, value in pairs(values) do
-          if #value > 0 then
-            local result = string_hex_escape(value)
-            yatm_data_logic.emit_matrix_port_value(pos, "port", "output", result)
-            return result
-          end
-        end
+      calculate = function (self, pos, node, left, right)
+        return data_math.identity(left, right, CONFIG)
       end,
     }),
   },
@@ -315,32 +378,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
     },
 
     data_interface = table_merge(data_interface, {
-      operate = function (self, pos, node, values, operands)
-        local accumulator = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-        local carry = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-
-        for i = 1,16 do
-          for dir, value in pairs(values) do
-            local byte = string.byte(value, i) or 0
-
-            accumulator[i] = accumulator[i] + byte + carry[i]
-            carry[i] = 0
-            if accumulator[i] > 255 then
-              carry[i + 1] = math.floor(accumulator[i] / 256)
-            end
-            accumulator[i] = accumulator[i] % 256
-          end
-        end
-
-        local result = {}
-        for i = 1,16 do
-          result[i] = string.char(accumulator[i])
-        end
-        local value = table.concat(result)
-        value = string_hex_escape(value)
-        yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
-
-        return value
+      calculate = function (self, pos, node, left, right)
+        return data_math.add(left, right, CONFIG)
       end,
     }),
   },
@@ -360,35 +399,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
     },
 
     data_interface = table_merge(data_interface, {
-      operate = function (self, pos, node, origin_values, operands)
-        local values = table_copy(origin_values)
-        local accumulator = {}
-
-        for _, dir_code in ipairs(operands) do
-          local value = values[Directions.STRING1_TO_DIR[dir_code]]
-          for i = 1,16 do
-            local byte = string.byte(value, i) or 0
-
-            if accumulator[i] then
-              accumulator[i] = accumulator[i] - byte
-              if accumulator[i] < 0 then
-                perform_borrow(accumulator, i)
-              end
-            else
-              accumulator[i] = byte
-            end
-          end
-        end
-
-        local result = {}
-        for i = 1,16 do
-          result[i] = string.char(accumulator[i])
-        end
-        local value = table.concat(result)
-        value = string_hex_escape(value)
-        yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
-
-        return value
+      calculate = function (self, pos, node, left, right)
+        return data_math.subtract(left, right, CONFIG)
       end,
     }),
   },
@@ -408,32 +420,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
     },
 
     data_interface = table_merge(data_interface, {
-      operate = function (self, pos, node, values, operands)
-        local accumulator = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-        local carry = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-
-        for i = 1,16 do
-          for dir, value in pairs(values) do
-            local byte = string.byte(value, i) or 0
-
-            accumulator[i] = accumulator[i] * byte + carry[i]
-            carry[i] = 0
-            if accumulator[i] > 255 then
-              carry[i + 1] = math.floor(accumulator[i] / 256)
-            end
-            accumulator[i] = accumulator[i] % 256
-          end
-        end
-
-        local result = {}
-        for i = 1,16 do
-          result[i] = string.char(accumulator[i])
-        end
-        local value = table.concat(result)
-        value = string_hex_escape(value)
-        yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
-
-        return value
+      calculate = function (self, pos, node, left, right)
+        return data_math.multiply(left, right, CONFIG)
       end,
     }),
   },
@@ -453,43 +441,29 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
     },
 
     data_interface = table_merge(data_interface, {
-      operate = function (self, pos, node, values, operands)
-        local accumulator = {}
+      calculate = function (self, pos, node, left, right)
+        return data_math.divide(left, right, CONFIG)
+      end,
+    }),
+  },
 
-        for _, dir_code in ipairs(operands) do
-          for i = 1,16 do
-            local value = values[Directions.STRING1_TO_DIR[dir_code]]
-            local byte = string.byte(value, i) or 0
+  modulo = {
+    description = "Data Arithmetic [Modulo]\nModulo Arithmetic",
 
-            if accumulator[i] then
-              if byte == 0 then
-                accumulator[i] = 255
-              else
-                if accumulator < byte then
-                  perform_borrow(accumulator, i)
-                end
-                accumulator[i] = accumulator[i] / byte
-                carry[i] = 0
-                if accumulator[i] > 255 then
-                  carry[i + 1] = math.floor(accumulator[i] / 256)
-                end
-                accumulator[i] = accumulator[i] % 256
-              end
-            else
-              accumulator[i] = byte
-            end
-          end
-        end
+    codex_entry_id = "yatm_data_logic:data_arith_modulo",
 
-        local result = {}
-        for i = 1,16 do
-          result[i] = string.char(accumulator[i])
-        end
-        local value = table.concat(result)
-        value = string_hex_escape(value)
-        yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
+    tiles = {
+      "yatm_data_arith_top.modulo.png",
+      "yatm_data_arith_bottom.png",
+      "yatm_data_arith_side.png",
+      "yatm_data_arith_side.png",
+      "yatm_data_arith_side.png",
+      "yatm_data_arith_side.png",
+    },
 
-        return value
+    data_interface = table_merge(data_interface, {
+      calculate = function (self, pos, node, left, right)
+        return data_math.modulo(left, right, CONFIG)
       end,
     }),
   },
@@ -509,23 +483,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
     },
 
     data_interface = table_merge(data_interface, {
-      operate = function (self, pos, node, values, operands)
-        local accumulator
-
-        for dir, value in pairs(values) do
-          if accumulator then
-            if accumulator < value then
-              accumulator = value
-            end
-          else
-            accumulator = value
-          end
-        end
-
-        value = string_hex_escape(accumulator)
-        yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
-
-        return value
+      calculate = function (self, pos, node, left, right)
+        return data_math.max(left, right, CONFIG)
       end,
     }),
   },
@@ -545,23 +504,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
     },
 
     data_interface = table_merge(data_interface, {
-      operate = function (self, pos, node, values, operands)
-        local accumulator
-
-        for dir, value in pairs(values) do
-          if accumulator then
-            if accumulator > value then
-              accumulator = value
-            end
-          else
-            accumulator = value
-          end
-        end
-
-        value = string_hex_escape(accumulator)
-        yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
-
-        return value
+      calculate = function (self, pos, node, left, right)
+        return data_math.min(left, right, CONFIG)
       end,
     }),
   },
@@ -583,23 +527,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
     },
 
     data_interface = table_merge(data_interface, {
-      operate = function (self, pos, node, values, operands)
-        local identity = {}
-
-        for dir, value in pairs(values) do
-          for i = 1,16 do
-            identity[i] = identity[i] or string.sub(value, i, i)
-          end
-        end
-
-        for i = 1,16 do
-          identity[i] = identity[i] or " "
-        end
-
-        local value = table.concat(identity)
-        yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
-
-        return value
+      calculate = function (self, pos, node, left, right)
+        return data_math.identity_vector(left, right, CONFIG)
       end,
     }),
   },
@@ -619,26 +548,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
     },
 
     data_interface = table_merge(data_interface, {
-      operate = function (self, pos, node, values, operands)
-        local accumulator = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-
-        for i = 1,16 do
-          for dir, value in pairs(values) do
-            local byte = string.byte(value, i) or 0
-
-            accumulator[i] = (accumulator[i] + byte) % 256
-          end
-        end
-
-        local result = {}
-        for i = 1,16 do
-          result[i] = string.char(accumulator[i])
-        end
-        local value = table.concat(result)
-        value = string_hex_escape(value)
-        yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
-
-        return value
+      calculate = function (self, pos, node, left, right)
+        return data_math.add_vector(left, right, CONFIG)
       end,
     }),
   },
@@ -658,26 +569,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
     },
 
     data_interface = table_merge(data_interface, {
-      operate = function (self, pos, node, values, operands)
-        local accumulator = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-
-        for i = 1,16 do
-          for dir, value in pairs(values) do
-            local byte = string.byte(value, i) or 0
-
-            accumulator[i] = (accumulator[i] - byte) % 256
-          end
-        end
-
-        local result = {}
-        for i = 1,16 do
-          result[i] = string.char(accumulator[i])
-        end
-        local value = table.concat(result)
-        value = string_hex_escape(value)
-        yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
-
-        return value
+      calculate = function (self, pos, node, left, right)
+        return data_math.subtract_vector(left, right, CONFIG)
       end,
     }),
   },
@@ -697,26 +590,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
     },
 
     data_interface = table_merge(data_interface, {
-      operate = function (self, pos, node, values, operands)
-        local accumulator = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-
-        for i = 1,16 do
-          for dir, value in pairs(values) do
-            local byte = string.byte(value, i) or 0
-
-            accumulator[i] = (accumulator[i] * byte) % 256
-          end
-        end
-
-        local result = {}
-        for i = 1,16 do
-          result[i] = string.char(accumulator[i])
-        end
-        local value = table.concat(result)
-        value = string_hex_escape(value)
-        yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
-
-        return value
+      calculate = function (self, pos, node, left, right)
+        return data_math.multiply_vector(left, right, CONFIG)
       end,
     }),
   },
@@ -736,30 +611,29 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
     },
 
     data_interface = table_merge(data_interface, {
-      operate = function (self, pos, node, values, operands)
-        local accumulator = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+      calculate = function (self, pos, node, left, right)
+        return data_math.divide_vector(left, right, CONFIG)
+      end,
+    }),
+  },
 
-        for i = 1,16 do
-          for dir, value in pairs(values) do
-            local byte = string.byte(value, i) or 0
+  modulo_vector = {
+    description = "Data Arithmetic [Modulo Vector]\nModulo input data",
 
-            if byte == 0 then
-              accumulator[i] = 255 -- simulate some infinite condition without crashing
-            else
-              accumulator[i] = (accumulator[i] / byte) % 256
-            end
-          end
-        end
+    codex_entry_id = "yatm_data_logic:data_arith_modulo_vector",
 
-        local result = {}
-        for i = 1,16 do
-          result[i] = string.char(accumulator[i])
-        end
-        local value = table.concat(result)
-        value = string_hex_escape(value)
-        yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
+    tiles = {
+      "yatm_data_arith_top.modulo.vector.png",
+      "yatm_data_arith_bottom.png",
+      "yatm_data_arith_side.png",
+      "yatm_data_arith_side.png",
+      "yatm_data_arith_side.png",
+      "yatm_data_arith_side.png",
+    },
 
-        return value
+    data_interface = table_merge(data_interface, {
+      calculate = function (self, pos, node, left, right)
+        return data_math.modulo_vector(left, right, CONFIG)
       end,
     }),
   },
@@ -779,32 +653,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
     },
 
     data_interface = table_merge(data_interface, {
-      operate = function (self, pos, node, values, operands)
-        local accumulator = {}
-
-        for i = 1,16 do
-          for dir, value in pairs(values) do
-            local byte = string.byte(value, i) or 0
-
-            if accumulator[i] then
-              if byte > accumulator[i] then
-                accumulator[i] = byte
-              end
-            else
-              accumulator[i] = byte
-            end
-          end
-        end
-
-        local result = {}
-        for i = 1,16 do
-          result[i] = string.char(accumulator[i])
-        end
-        local value = table.concat(result)
-        value = string_hex_escape(value)
-        yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
-
-        return value
+      calculate = function (self, pos, node, left, right)
+        return data_math.max_vector(left, right, CONFIG)
       end,
     }),
   },
@@ -824,32 +674,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
     },
 
     data_interface = table_merge(data_interface, {
-      operate = function (self, pos, node, values, operands)
-        local accumulator = {}
-
-        for i = 1,16 do
-          for dir, value in pairs(values) do
-            local byte = string.byte(value, i) or 0
-
-            if accumulator[i] then
-              if byte < accumulator[i] then
-                accumulator[i] = byte
-              end
-            else
-              accumulator[i] = byte
-            end
-          end
-        end
-
-        local result = {}
-        for i = 1,16 do
-          result[i] = string.char(accumulator[i])
-        end
-        local value = table.concat(result)
-        value = string_hex_escape(value)
-        yatm_data_logic.emit_matrix_port_value(pos, "port", "output", value)
-
-        return value
+      calculate = function (self, pos, node, left, right)
+        return data_math.min_vector(left, right, CONFIG)
       end,
     }),
   },

@@ -1,3 +1,4 @@
+local mod = yatm_data_logic
 local Cuboid = assert(foundation.com.Cuboid)
 local is_table_empty = assert(foundation.com.is_table_empty)
 local ng = Cuboid.new_fast_node_box
@@ -5,7 +6,7 @@ local sounds = assert(yatm_core.sounds)
 local data_network = assert(yatm.data_network)
 
 yatm.register_stateful_node("yatm_data_logic:data_toggle_button", {
-  description = "Data Toggle Button",
+  description = mod.S("DATA Toggle Button"),
 
   codex_entry_id = "yatm_data_logic:data_toggle_button",
 
