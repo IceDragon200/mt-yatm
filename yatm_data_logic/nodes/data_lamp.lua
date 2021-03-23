@@ -7,6 +7,8 @@ local data_network = assert(yatm.data_network)
 
 local lamp_levels = {}
 
+local lamp_sounds = yatm.node_sounds:build("glass")
+
 for i = 0,13 do
   local digits = foundation.com.string_pad_leading(tostring(i), 2, "0")
 
@@ -31,10 +33,13 @@ for i = 0,13 do
 
     groups = groups,
 
+    sound = lamp_sounds,
     light_source = i,
 
     paramtype = "light",
     paramtype2 = "facedir",
+
+    drops = "yatm_data_logic:data_levelled_lamp_00",
 
     drawtype = "nodebox",
     node_box = {

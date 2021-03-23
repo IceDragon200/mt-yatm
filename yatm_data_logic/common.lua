@@ -9,52 +9,70 @@ local NO_SETTINGS = {}
 
 yatm_data_logic.INTERVAL_LIST = {
   {
-    id = 1,
+    value = "60",
+    duration = 60.0,
+  },
+  {
+    value = "30",
+    duration = 30.0,
+  },
+  {
+    value = "15",
+    duration = 15.0,
+  },
+  {
+    value = "10",
+    duration = 10.0,
+  },
+  {
+    value = "5",
+    duration = 5.0,
+  },
+  {
+    value = "4",
+    duration = 4.0,
+  },
+  {
+    value = "2",
+    duration = 2.0,
+  },
+  {
     value = "1",
     duration = 1.0,
   },
   {
-    id = 2,
     value = "1/2",
     duration = 1/2,
   },
   {
-    id = 3,
     value = "1/3",
     duration = 1/3,
   },
   {
-    id = 4,
     value = "1/4",
     duration = 1/4,
   },
   {
-    id = 5,
     value = "1/5",
     duration = 1/5,
   },
   {
-    id = 6,
     value = "1/6",
     duration = 1/6,
   },
   {
-    id = 7,
     value = "1/8",
     duration = 1/8,
   },
   {
-    id = 8,
     value = "1/10",
     duration = 1/10,
   },
   {
-    id = 9,
     value = "1/12",
     duration = 1/12,
   },
   {
-    id = 10,
     value = "1/16",
     duration = 1/16,
   }

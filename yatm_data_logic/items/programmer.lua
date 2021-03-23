@@ -319,6 +319,8 @@ local function on_receive_fields(player, form_name, fields, assigns)
     local inputs_changed = false
     local outputs_changed = false
 
+    local any_fields_changed = false
+
     if spec.tabs then
       local tab = spec.tabs[assigns.tab_index]
       if tab and tab.components then
@@ -349,12 +351,25 @@ local function on_receive_fields(player, form_name, fields, assigns)
                   local new_value = tonumber(value)
                   if new_value then
                     if component.cast then
-                      new_value = component.cast(new_value, assigns)
+                      new_value = component:cast(new_value, assigns)
                     end
-                    meta:set_int(component.name, math.floor(new_value))
+                    new_value = math.floor(new_value)
+                    meta:set_int(component.name, new_value)
+                    any_fields_changed = true
+                    if component.on_change then
+                      component:on_change(assigns.pos, meta, new_value, assigns)
+                    end
                   end
                 elseif component.type == "string" then
-                  meta:set_string(component.name, value)
+                  local new_value = value
+                  if component.cast then
+                    new_value = component:cast(new_value, assigns)
+                  end
+                  meta:set_string(component.name, new_value)
+                  any_fields_changed = true
+                  if component.on_change then
+                    component:on_change(assigns.pos, meta, new_value, assigns)
+                  end
                 elseif component.type then
                   minetest.log("warning", "unexpected component type (got " .. component.type .. ")")
                 else
@@ -363,6 +378,7 @@ local function on_receive_fields(player, form_name, fields, assigns)
               else
                 -- if meta flag is not set, then the component must handle this value itself
                 component:set(assigns.pos, meta, value, assigns)
+                any_fields_changed = true
               end
             end
           elseif component.component == "handle" then
@@ -373,6 +389,12 @@ local function on_receive_fields(player, form_name, fields, assigns)
           else
             minetest.log("warning", "unsupported receive field gcomponent=" .. component.component)
           end
+        end
+      end
+
+      if any_fields_changed then
+        if tab.on_fields_change then
+          tab:on_fields_change(assigns.pos, meta, assigns)
         end
       end
     end

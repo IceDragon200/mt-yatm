@@ -46,6 +46,9 @@ local OPERATOR_NODES_LIST = {}
 local OPERATOR_VECTOR_NODES_LIST = {}
 local OPERATOR_NODE_TO_STAMP = {}
 local NODE_NAME_TO_OPERATOR = {}
+local NODE_NAME_TO_NORMAL_OPERATOR = {}
+local NODE_NAME_TO_VECTOR_OPERATOR = {}
+local OPERATOR_TO_NODE_NAMES = {}
 
 local CONFIG = {
   -- determines how long a number can be in bytes this affects normal operations
@@ -64,6 +67,13 @@ for index,operator_name in ipairs(OPERATORS) do
 
   NODE_NAME_TO_OPERATOR[OPERATOR_NODES_LIST[index]] = operator_name
   NODE_NAME_TO_OPERATOR[OPERATOR_VECTOR_NODES_LIST[index]] = operator_name
+  NODE_NAME_TO_NORMAL_OPERATOR[OPERATOR_NODES_LIST[index]] = operator_name
+  NODE_NAME_TO_VECTOR_OPERATOR[OPERATOR_VECTOR_NODES_LIST[index]] = operator_name
+
+  OPERATOR_TO_NODE_NAMES[operator_name] = {
+    normal = OPERATOR_NODES_LIST[index],
+    vector = OPERATOR_VECTOR_NODES_LIST[index],
+  }
 end
 
 local function get_input_value(meta, dir)
@@ -180,6 +190,12 @@ local data_interface = {
               local operand_left_image
               local operand_right_image
 
+              local vector_image = "yatm_data_arith_stamps_blank.png"
+
+              if NODE_NAME_TO_VECTOR_OPERATOR[node.name] then
+                vector_image = "yatm_data_arith_stamps_vector_blank.png"
+              end
+
               local current_operand_left = meta:get_string("operand_left")
               local current_operand_right = meta:get_string("operand_right")
 
@@ -207,13 +223,15 @@ local data_interface = {
               formspec =
                 formspec ..
                 fspec.image_button(rect.x, rect.y, 1, 1,
-                  operand_left_image, "operand_left_change", "", false, false, operand_left_image) ..
+                  vector_image, "vector_mode_change", "", false, false, vector_image) ..
                 fspec.image_button(rect.x + 1, rect.y, 1, 1,
-                  operator_image, "operator_change", "", false, false, operator_image) ..
+                  operand_left_image, "operand_left_change", "", false, false, operand_left_image) ..
                 fspec.image_button(rect.x + 2, rect.y, 1, 1,
+                  operator_image, "operator_change", "", false, false, operator_image) ..
+                fspec.image_button(rect.x + 3, rect.y, 1, 1,
                   operand_right_image, "operand_right_change", "", false, false, operand_right_image) ..
-                fspec.image(rect.x + 3, rect.y, 1, 1, "yatm_data_arith_stamps_down_equal.png") ..
-                fspec.image(rect.x + 4, rect.y, 1, 1, "yatm_data_arith_stamps_down_c.png")
+                fspec.image(rect.x + 4, rect.y, 1, 1, "yatm_data_arith_stamps_down_equal.png") ..
+                fspec.image(rect.x + 5, rect.y, 1, 1, "yatm_data_arith_stamps_down_c.png")
 
               rect.y = rect.y + 1
               rect.h = rect.h - 1
@@ -255,6 +273,27 @@ local data_interface = {
             component = "handle",
             handle = function (_self, pos, meta, fields, assigns)
               local should_refresh = false
+              if fields["vector_mode_change"] then
+                local node = minetest.get_node(pos)
+
+                local operator_name = NODE_NAME_TO_OPERATOR[node.name]
+                if operator_name then
+                  local data = OPERATOR_TO_NODE_NAMES[operator_name]
+
+                  if data then
+                    if data.normal == node.name then
+                      node.name = data.vector
+                      minetest.swap_node(pos, node)
+                      should_refresh = true
+                    elseif data.vector == node.name then
+                      node.name = data.normal
+                      minetest.swap_node(pos, node)
+                      should_refresh = true
+                    end
+                  end
+                end
+              end
+
               if fields["operand_left_change"] then
                 meta:set_string("operand_left", list_get_next(OPERAND_NAMES, meta:get_string("operand_left")))
                 should_refresh = true

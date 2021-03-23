@@ -86,4 +86,12 @@ minetest.register_node("yatm_data_logic:data_router", {
       return true, needs_refresh
     end,
   },
+
+  refresh_infotext = function (pos)
+    local meta = minetest.get_meta(pos)
+    local infotext =
+      data_network:get_infotext(pos)
+
+    meta:set_string("infotext", infotext)
+  end,
 })

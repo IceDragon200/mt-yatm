@@ -4,9 +4,11 @@
 -- Wave generators take a clock pulse (usually a mesecon or data pdu)
 -- And then outputs a value based on it's configured wave function
 -- The generator can be further configured with the scale, format, and length of the wave
+local Waves = assert(foundation.com.Waves)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local data_network = assert(yatm.data_network)
+local string_hex_escape = assert(foundation.com.string_hex_escape)
 
 local mod = yatm_data_logic
 
@@ -58,12 +60,45 @@ mod:register_node("data_wave_generator", {
 
   data_network_device = {
     type = "device",
-    groups = {},
+    groups = {
+      updatable = 1,
+    },
   },
   data_interface = {
+    update = function (self, pos, node, dtime)
+      local meta = minetest.get_meta(pos)
+
+      local time = meta:get_float("time")
+      local interval_option = meta:get_string("interval_option")
+      local wave_shape = meta:get_string("wave_shape")
+      local interval = yatm_data_logic.INTERVALS[interval_option]
+      local duration = 1
+
+      if interval then
+        duration = interval.duration
+      end
+
+      -- increment the elapsed with the delta time
+      time = (time + dtime) % duration
+
+      local norm = time / duration
+      local func = Waves[wave_shape]
+      if func then
+        local val = (func(norm) + 1) / 2
+        local pulse_value = math.min(math.max(math.floor(val * 255), 0), 255)
+        local esc = string_hex_escape(string.char(pulse_value))
+        meta:set_string("data_pulse_value", esc)
+        if yatm_data_logic.emit_output_data(pos, "pulse_value") then
+          --
+        end
+        yatm.queue_refresh_infotext(pos, node)
+      end
+
+      meta:set_float("time", time)
+    end,
+
     on_load = function (self, pos, node)
-      -- rebind all inputs
-      yatm_data_logic.mark_all_inputs_for_active_receive(pos)
+      -- no inputs to bind
     end,
 
     receive_pdu = function (self, pos, node, dir, port, value)
@@ -97,7 +132,16 @@ mod:register_node("data_wave_generator", {
               items = WAVE_SHAPES,
               index = WAVE_SHAPES_INDEX,
               meta = true,
-            }
+            },
+            {
+              component = "dropdown",
+              label = "Interval (Seconds)",
+              name = "interval_option",
+              type = "string",
+              items = yatm_data_logic.INTERVAL_ITEMS,
+              index = yatm_data_logic.INTERVAL_NAME_TO_INDEX,
+              meta = true,
+            },
           }
         }
       }
@@ -119,9 +163,31 @@ mod:register_node("data_wave_generator", {
               type = "string",
               meta = true,
             },
-          }
+            {
+              component = "field",
+              name = "interval_option",
+              type = "string",
+              meta = true,
+            },
+          },
+          on_fields_change = function (self, pos, _meta, _assigns)
+            local node = minetest.get_node(pos)
+            yatm.queue_refresh_infotext(pos, node)
+          end,
         }
       }
     },
   },
+
+  refresh_infotext = function (pos)
+    local meta = minetest.get_meta(pos)
+    local infotext =
+      "Wave Shape: " .. meta:get_string("wave_shape") .. "\n" ..
+      "Interval: " .. meta:get_string("interval_option") .. "\n" ..
+      "Pulse Data: " .. meta:get_string("data_pulse_value") .. "\n" ..
+      "Time: " .. math.floor(meta:get_float("time")) .. "\n" ..
+      data_network:get_infotext(pos)
+
+    meta:set_string("infotext", infotext)
+  end,
 })

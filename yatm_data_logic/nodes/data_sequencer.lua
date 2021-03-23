@@ -109,7 +109,7 @@ minetest.register_node("yatm_data_logic:data_sequencer", {
 
       local time = meta:get_float("time")
       time = time - dtime
-      if time <= 0 then
+      while time <= 0 do
         local seq = meta:get_int("seq")
         -- emit the current data_seq
         if yatm_data_logic.emit_output_data(pos, "seq" .. (seq + 1)) then

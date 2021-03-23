@@ -4,6 +4,19 @@
 -- This operates on little-endian encoded byte vectors
 local data_math = {}
 
+-- Retrieves the value at the specific index
+--
+-- @spec elem(String | Table, Integer) :: Integer | nil
+local function elem(object, index)
+  if type(object) == "string" then
+    return string.byte(object, index)
+  elseif type(object) == "table" then
+    return object[index]
+  else
+    error("unexpected object")
+  end
+end
+
 function data_math.new_number(leading, config, padding)
   assert(type(config) == "table", "expected config table")
   local result = leading or ""
@@ -22,13 +35,9 @@ function data_math.new_vector(value, size)
     for i = 1,size do
       result[i] = 0
     end
-  elseif type(value) == "string" then
-    for i = 1,size do
-      result[i] = string.byte(value, i) or 0
-    end
   else
     for i = 1,size do
-      result[i] = value[i] or 0
+      result[i] = elem(value, i) or 0
     end
   end
 
@@ -52,8 +61,8 @@ function data_math.identity(left, right, config)
   assert(type(config) == "table")
 
   for i = 1,config.byte_size do
-    local lb = string.byte(left, i) or 0
-    local rb = string.byte(right, i) or 0
+    local lb = elem(left, i) or 0
+    local rb = elem(right, i) or 0
 
     if lb > 0 then
       return data_math.new_number(left, config)
@@ -71,8 +80,8 @@ function data_math.add(left, right, config)
   local carry = data_math.new_vector(nil, config.byte_size)
 
   for i = 1,config.byte_size do
-    local lb = string.byte(left, i) or 0
-    local rb = string.byte(right, i) or 0
+    local lb = elem(left, i) or 0
+    local rb = elem(right, i) or 0
 
     accumulator[i] = accumulator[i] + lb + rb + carry[i]
 
@@ -96,7 +105,7 @@ function data_math.subtract(left, right, config)
   local accumulator = data_math.new_vector(left, config.byte_size)
 
   for i = 1,config.byte_size do
-    local byte = string.byte(right, i) or 0
+    local byte = elem(right, i) or 0
     accumulator[i] = accumulator[i] - byte
     if accumulator[i] < 0 then
       data_math.perform_borrow(accumulator, i, config)
@@ -117,12 +126,12 @@ function data_math.multiply(left, right, config)
   local carry = 0
 
   for i = 1,config.byte_size do
-    local lb = string.byte(left, i) or 0
+    local lb = elem(left, i) or 0
     carry = 0
     for j = 1,config.byte_size do
       local acc_index = ((i - 1) + j) % config.byte_size
 
-      local rb = string.byte(right, j) or 0
+      local rb = elem(right, j) or 0
 
       local value = lb * rb
       value = (accumulator[acc_index] or 0) + value + carry
@@ -146,7 +155,7 @@ function data_math.divide(left, right, config)
   local carry = data_math.new_vector(nil, config.byte_size)
 
   for i = 1,config.byte_size do
-    local byte = string.byte(right, i) or 0
+    local byte = elem(right, i) or 0
 
     if byte == 0 then
       -- division by zero immediately maxes out every value in the accumulator
@@ -189,8 +198,8 @@ end
 function data_math.max(left, right, config)
   assert(type(config) == "table")
   for i = 1,config.byte_size do
-    local lb = string.byte(left, 1 + config.byte_size - i) or 0
-    local rb = string.byte(right, 1 + config.byte_size - i) or 0
+    local lb = elem(left, 1 + config.byte_size - i) or 0
+    local rb = elem(right, 1 + config.byte_size - i) or 0
 
     if rb > lb then
       return data_math.new_number(right, config)
@@ -205,8 +214,8 @@ end
 function data_math.min(left, right, config)
   assert(type(config) == "table")
   for i = 1,config.byte_size do
-    local lb = string.byte(left, 1 + config.byte_size - i) or 0
-    local rb = string.byte(right, 1 + config.byte_size - i) or 0
+    local lb = elem(left, 1 + config.byte_size - i) or 0
+    local rb = elem(right, 1 + config.byte_size - i) or 0
 
     if rb < lb then
       return data_math.new_number(right, config)
@@ -223,8 +232,8 @@ function data_math.identity_vector(left, right, config)
   local identity = data_math.new_vector(nil, config.vector_size)
 
   for i = 1,config.vector_size do
-    local lb = string.sub(left, i, i)
-    local rb = string.sub(rb, i, i)
+    local lb = elem(left, i)
+    local rb = elem(right, i)
     if lb and lb > 0 then
       identity[i] = lb
     elseif rb and rb > 0 then
@@ -244,18 +253,16 @@ end
 
 function data_math.add_vector(left, right, config)
   assert(type(config) == "table")
-  local accumulator = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+  local accumulator = data_math.new_vector(left, config.vector_size)
 
-  for i = 1,16 do
-    for dir, value in pairs(values) do
-      local byte = string.byte(value, i) or 0
+  for i = 1,config.vector_size do
+    local byte = elem(right, i) or 0
 
-      accumulator[i] = (accumulator[i] + byte) % 256
-    end
+    accumulator[i] = (accumulator[i] + byte) % 256
   end
 
   local result = {}
-  for i = 1,16 do
+  for i = 1,config.vector_size do
     result[i] = string.char(accumulator[i])
   end
 
@@ -264,18 +271,16 @@ end
 
 function data_math.subtract_vector(left, right, config)
   assert(type(config) == "table")
-  local accumulator = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+  local accumulator = data_math.new_vector(left, config.vector_size)
 
-  for i = 1,16 do
-    for dir, value in pairs(values) do
-      local byte = string.byte(value, i) or 0
+  for i = 1,config.vector_size do
+    local byte = elem(right, i) or 0
 
-      accumulator[i] = (accumulator[i] - byte) % 256
-    end
+    accumulator[i] = (accumulator[i] - byte) % 256
   end
 
   local result = {}
-  for i = 1,16 do
+  for i = 1,config.vector_size do
     result[i] = string.char(accumulator[i])
   end
 
@@ -284,18 +289,16 @@ end
 
 function data_math.multiply_vector(left, right, config)
   assert(type(config) == "table")
-  local accumulator = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+  local accumulator = data_math.new_vector(left, config.vector_size)
 
-  for i = 1,16 do
-    for dir, value in pairs(values) do
-      local byte = string.byte(value, i) or 0
+  for i = 1,config.vector_size do
+    local byte = elem(right, i) or 0
 
-      accumulator[i] = (accumulator[i] * byte) % 256
-    end
+    accumulator[i] = (accumulator[i] * byte) % 256
   end
 
   local result = {}
-  for i = 1,16 do
+  for i = 1,config.vector_size do
     result[i] = string.char(accumulator[i])
   end
 
@@ -304,22 +307,42 @@ end
 
 function data_math.divide_vector(left, right, config)
   assert(type(config) == "table")
-  local accumulator = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+  local accumulator = data_math.new_vector(left, config.vector_size)
 
-  for i = 1,16 do
-    for dir, value in pairs(values) do
-      local byte = string.byte(value, i) or 0
+  for i = 1,config.vector_size do
+    local byte = elem(right, i) or 0
 
-      if byte == 0 then
-        accumulator[i] = 255 -- simulate some infinite condition without crashing
-      else
-        accumulator[i] = (accumulator[i] / byte) % 256
-      end
+    if byte == 0 then
+      accumulator[i] = 255 -- simulate some infinite condition without crashing
+    else
+      accumulator[i] = math.floor(accumulator[i] / byte) % 256
     end
   end
 
   local result = {}
-  for i = 1,16 do
+  for i = 1,config.vector_size do
+    result[i] = string.char(accumulator[i])
+  end
+
+  return table.concat(result)
+end
+
+function data_math.modulo_vector(left, right, config)
+  assert(type(config) == "table")
+  local accumulator = data_math.new_vector(left, config.vector_size)
+
+  for i = 1,config.vector_size do
+    local byte = elem(right, i) or 0
+
+    if byte == 0 then
+      accumulator[i] = 255 -- simulate some infinite condition without crashing
+    else
+      accumulator[i] = math.floor(accumulator[i] % byte) % 256
+    end
+  end
+
+  local result = {}
+  for i = 1,config.vector_size do
     result[i] = string.char(accumulator[i])
   end
 
@@ -328,24 +351,18 @@ end
 
 function data_math.max_vector(left, right, config)
   assert(type(config) == "table")
-  local accumulator = {}
+  local accumulator = data_math.new_vector(left, config.vector_size)
 
-  for i = 1,16 do
-    for dir, value in pairs(values) do
-      local byte = string.byte(value, i) or 0
+  for i = 1,config.vector_size do
+    local byte = elem(right, i) or 0
 
-      if accumulator[i] then
-        if byte > accumulator[i] then
-          accumulator[i] = byte
-        end
-      else
-        accumulator[i] = byte
-      end
+    if byte > accumulator[i] then
+      accumulator[i] = byte
     end
   end
 
   local result = {}
-  for i = 1,16 do
+  for i = 1,config.vector_size do
     result[i] = string.char(accumulator[i])
   end
 
@@ -354,24 +371,18 @@ end
 
 function data_math.min_vector(left, right, config)
   assert(type(config) == "table")
-  local accumulator = {}
+  local accumulator = data_math.new_vector(left, config.vector_size)
 
-  for i = 1,16 do
-    for dir, value in pairs(values) do
-      local byte = string.byte(value, i) or 0
+  for i = 1,config.vector_size do
+    local byte = elem(right, i) or 0
 
-      if accumulator[i] then
-        if byte < accumulator[i] then
-          accumulator[i] = byte
-        end
-      else
-        accumulator[i] = byte
-      end
+    if byte < accumulator[i] then
+      accumulator[i] = byte
     end
   end
 
   local result = {}
-  for i = 1,16 do
+  for i = 1,config.vector_size do
     result[i] = string.char(accumulator[i])
   end
 

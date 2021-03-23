@@ -156,7 +156,7 @@ minetest.register_node("yatm_data_logic:data_clock", {
               name = "precision",
               type = "integer",
               meta = true,
-              cast = function (value, _assigns)
+              cast = function (self, value, _assigns)
                 return math.max(math.min(value, 4), 1)
               end,
             },
