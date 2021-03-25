@@ -1,5 +1,9 @@
 -- Your normal yeast
 minetest.register_craftitem("yatm_brewery:yeast_brewers", {
+  basename = "yatm_brewery:yeast",
+
+  base_description = "Yeast",
+
   description = "Brewer's Yeast",
 
   groups = {
@@ -12,6 +16,10 @@ minetest.register_craftitem("yatm_brewery:yeast_brewers", {
 
 -- Wine!
 minetest.register_craftitem("yatm_brewery:yeast_bayanus", {
+  basename = "yatm_brewery:yeast",
+
+  base_description = "Yeast",
+
   description = "Bayanus Yeast",
 
   groups = {
@@ -24,6 +32,10 @@ minetest.register_craftitem("yatm_brewery:yeast_bayanus", {
 
 -- Spicy!
 minetest.register_craftitem("yatm_brewery:yeast_scarlet", {
+  basename = "yatm_brewery:yeast",
+
+  base_description = "Yeast",
+
   description = "Scarlet Yeast",
 
   groups = {
@@ -36,6 +48,10 @@ minetest.register_craftitem("yatm_brewery:yeast_scarlet", {
 
 -- Magical properties, quite frankly, it's weird.
 minetest.register_craftitem("yatm_brewery:yeast_umbral", {
+  basename = "yatm_brewery:yeast",
+
+  base_description = "Yeast",
+
   description = "Umbral Yeast",
 
   groups = {
