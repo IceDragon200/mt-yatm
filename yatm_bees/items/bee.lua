@@ -48,6 +48,8 @@ for _,variant_pair in ipairs(variants) do
 
     minetest.register_craftitem("yatm_bees:bee_" .. variant_basename .. "_" .. color_basename, {
       basename = "yatm_bees:bee_" .. variant_basename,
+      base_description = variant_name .. " Bee",
+
       description = variant_name .. " Bee (" .. color_name .. ")",
 
       groups = {
