@@ -17,6 +17,10 @@ minetest.register_craftitem("yatm_armoury_icbm:icbm_shell", {
 -- Nuclear Warhead, deals a lot of damage on impact, but also causes radiation damage
 -- rendering the area radioactive for a period
 minetest.register_craftitem("yatm_armoury_icbm:icbm_nuclear_warhead", {
+  basename = "yatm_armoury_icbm:icbm_warhead",
+
+  base_description = "ICBM Warhead",
+
   description = "ICBM Nuclear Warhead",
 
   groups = {
@@ -33,6 +37,10 @@ minetest.register_craftitem("yatm_armoury_icbm:icbm_nuclear_warhead", {
 --
 if yatm_fluids then
   minetest.register_craftitem("yatm_armoury_icbm:icbm_chemical_warhead", {
+    basename = "yatm_armoury_icbm:icbm_warhead",
+
+    base_description = "ICBM Warhead",
+
     description = "ICBM Chemical Warhead",
 
     groups = {
@@ -48,6 +56,10 @@ end
 
 -- Sets fire to the area when detonated
 minetest.register_craftitem("yatm_armoury_icbm:icbm_incendiary_warhead", {
+  basename = "yatm_armoury_icbm:icbm_warhead",
+
+  base_description = "ICBM Warhead",
+
   description = "ICBM Incendiary Warhead",
 
   groups = {
@@ -62,6 +74,10 @@ minetest.register_craftitem("yatm_armoury_icbm:icbm_incendiary_warhead", {
 
 -- Explosive, deals explosive damage
 minetest.register_craftitem("yatm_armoury_icbm:icbm_explosive_warhead", {
+  basename = "yatm_armoury_icbm:icbm_warhead",
+
+  base_description = "ICBM Warhead",
+
   description = "ICBM Explosive Warhead",
 
   groups = {
@@ -76,6 +92,10 @@ minetest.register_craftitem("yatm_armoury_icbm:icbm_explosive_warhead", {
 
 -- High-Explosive, deals explosive damage
 minetest.register_craftitem("yatm_armoury_icbm:icbm_he_warhead", {
+  basename = "yatm_armoury_icbm:icbm_warhead",
+
+  base_description = "ICBM Warhead",
+
   description = "ICBM HE Warhead",
 
   groups = {
@@ -91,6 +111,10 @@ minetest.register_craftitem("yatm_armoury_icbm:icbm_he_warhead", {
 -- Capsule warhead
 -- Doesn't detontate, but offers inventory space
 minetest.register_craftitem("yatm_armoury_icbm:icbm_capsule_warhead", {
+  basename = "yatm_armoury_icbm:icbm_warhead",
+
+  base_description = "ICBM Warhead",
+
   description = "ICBM Capsule Warhead",
 
   groups = {
@@ -106,6 +130,10 @@ minetest.register_craftitem("yatm_armoury_icbm:icbm_capsule_warhead", {
 if yatm_blasts_frost then
   -- Freezes area on detontation
   minetest.register_craftitem("yatm_armoury_icbm:icbm_frost_warhead", {
+    basename = "yatm_armoury_icbm:icbm_warhead",
+
+    base_description = "ICBM Warhead",
+
     description = "ICBM FROST Warhead",
 
     groups = {
@@ -122,6 +150,10 @@ end
 if yatm_blasts_emp then
   -- Disrupts electrical equipment in area
   minetest.register_craftitem("yatm_armoury_icbm:icbm_emp_warhead", {
+    basename = "yatm_armoury_icbm:icbm_warhead",
+
+    base_description = "ICBM Warhead",
+
     description = "ICBM EMP Warhead",
 
     groups = {
