@@ -38,6 +38,7 @@ for _,row in ipairs(yatm.colors_with_default) do
   minetest.register_node(node_name, {
     basename = "yatm_item_ducts:transporter_item_duct",
 
+    base_description = "Transporter Item Duct",
     description = "Transporter Item Duct (" .. color_name .. ")",
 
     codex_entry_id = "yatm_item_ducts:transporter_item_duct",
