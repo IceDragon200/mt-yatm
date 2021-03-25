@@ -12,7 +12,7 @@ for _,pair in ipairs(variants) do
   local name = pair[2]
 
   mod:register_craftitem("nuclear_pellet_"..basename, {
-    basename = "nuclear_pellet",
+    basename = "yatm_reactor:nuclear_pellet",
     base_description = mod.S("Nuclear Pellet"),
 
     description = mod.S("Nuclear Pellet ("..name..")"),
@@ -26,7 +26,7 @@ for _,pair in ipairs(variants) do
   })
 
   mod:register_craftitem("nuclear_pellet_depleted_"..basename, {
-    basename = "nuclear_pellet_depleted",
+    basename = "yatm_reactor:nuclear_pellet_depleted",
     base_description = mod.S("Nuclear Pellet [Depleted]"),
 
     description = mod.S("Nuclear Pellet [Depleted] ("..name..")"),
