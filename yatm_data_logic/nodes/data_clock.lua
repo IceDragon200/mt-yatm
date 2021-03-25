@@ -9,7 +9,7 @@ local function scale_value(value, range)
 end
 
 minetest.register_node("yatm_data_logic:data_clock", {
-  description = "Data Clock\nReports the current time of day ranging from 0 to 255 every second",
+  description = "DATA Clock\nReports the current time of day ranging from 0 to 255 every second",
 
   codex_entry_id = "yatm_data_logic:data_clock",
 

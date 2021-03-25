@@ -11,7 +11,7 @@ end
 local data_network = assert(yatm.data_network)
 
 minetest.register_node("yatm_data_logic:data_thermal_sensor", {
-  description = "Thermal Sensor\nConnects to an existing thermal duct and samples temperature readings.",
+  description = "DATA Thermal Sensor\nConnects to an existing thermal duct and samples temperature readings.",
 
   codex_entry_id = "yatm_data_logic:data_thermal_sensor",
 

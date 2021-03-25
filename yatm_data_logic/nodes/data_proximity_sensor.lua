@@ -16,7 +16,7 @@ local ByteEncoder = assert(yatm.ByteEncoder)
 local BELE = assert(ByteEncoder.LE)
 
 minetest.register_node("yatm_data_logic:data_proximity_sensor", {
-  description = "Proximity Sensor\nDetects nearby entities.",
+  description = "DATA Proximity Sensor\nDetects nearby entities.",
 
   codex_entry_id = "yatm_data_logic:data_proximity_sensor",
 

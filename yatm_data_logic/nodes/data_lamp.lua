@@ -26,8 +26,10 @@ for i = 0,13 do
   end
 
   minetest.register_node(name, {
-    base_description = "Data Levelled Lamp",
-    description = "Data Levelled Lamp (" .. i .. ")",
+    basename = "yatm_data_logic:data_levelled_lamp",
+
+    base_description = "DATA Levelled Lamp",
+    description = "DATA Levelled Lamp (" .. i .. ")",
 
     codex_entry_id = "yatm_data_logic:data_levelled_lamp",
 

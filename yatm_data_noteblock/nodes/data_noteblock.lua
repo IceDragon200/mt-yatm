@@ -1,3 +1,4 @@
+local mod = yatm_data_noteblock
 local string_hex_unescape = assert(foundation.com.string_hex_unescape)
 local is_table_empty = assert(foundation.com.is_table_empty)
 local Cuboid = assert(foundation.com.Cuboid)
@@ -6,8 +7,8 @@ local ng = Cuboid.new_fast_node_box
 local data_network = assert(yatm.data_network)
 
 -- Just like a mesecon noteblock, except triggered by data events
-minetest.register_node("yatm_data_noteblock:data_noteblock", {
-  description = "Data Note Block",
+mod:register_node("data_noteblock", {
+  description = mod.S("DATA Note Block"),
 
   codex_entry_id = "yatm_data_noteblock:data_noteblock",
 

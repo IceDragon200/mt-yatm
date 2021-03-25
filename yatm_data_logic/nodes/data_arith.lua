@@ -327,7 +327,7 @@ local data_interface = {
 }
 
 yatm.register_stateful_node("yatm_data_logic:data_arith", {
-  base_description = "Data Arithmetic",
+  base_description = "DATA Arithmetic",
 
   groups = {
     cracky = 1,
@@ -382,7 +382,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   -- Normal Mode
   --
   identity = {
-    description = "Data Arithmetic [Identity]\nReturns data unchanged, it may replace any missing entries with other data from inputs",
+    description = "DATA Arithmetic [Identity]\nReturns data unchanged, it may replace any missing entries with other data from inputs",
 
     codex_entry_id = "yatm_data_logic:data_arith_identity",
 
@@ -424,7 +424,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   },
 
   subtract = {
-    description = "Data Arithmetic [Subtraction]\nSubtracts input data",
+    description = "DATA Arithmetic [Subtraction]\nSubtracts input data",
 
     codex_entry_id = "yatm_data_logic:data_arith_subtract",
 
@@ -445,7 +445,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   },
 
   multiply = {
-    description = "Data Arithmetic [Multiplication]\nMultiplies input data",
+    description = "DATA Arithmetic [Multiplication]\nMultiplies input data",
 
     codex_entry_id = "yatm_data_logic:data_arith_multiply",
 
@@ -466,7 +466,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   },
 
   divide = {
-    description = "Data Arithmetic [Division]\nDivide Arithmetic",
+    description = "DATA Arithmetic [Division]\nDivide Arithmetic",
 
     codex_entry_id = "yatm_data_logic:data_arith_divide",
 
@@ -487,7 +487,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   },
 
   modulo = {
-    description = "Data Arithmetic [Modulo]\nModulo Arithmetic",
+    description = "DATA Arithmetic [Modulo]\nModulo Arithmetic",
 
     codex_entry_id = "yatm_data_logic:data_arith_modulo",
 
@@ -508,7 +508,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   },
 
   max = {
-    description = "Data Arithmetic [Max]",
+    description = "DATA Arithmetic [Max]",
 
     codex_entry_id = "yatm_data_logic:data_arith_max",
 
@@ -529,7 +529,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   },
 
   min = {
-    description = "Data Arithmetic [Min]",
+    description = "DATA Arithmetic [Min]",
 
     codex_entry_id = "yatm_data_logic:data_arith_min",
 
@@ -552,7 +552,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   -- Vector Mode
   --
   identity_vector = {
-    description = "Data Arithmetic [Identity Vector]\nReturns data unchanged",
+    description = "DATA Arithmetic [Identity Vector]\nReturns data unchanged",
 
     codex_entry_id = "yatm_data_logic:data_arith_identity_vector",
 
@@ -573,7 +573,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   },
 
   add_vector = {
-    description = "Data Arithmetic [Addition Vector]\nAdds all input data",
+    description = "DATA Arithmetic [Addition Vector]\nAdds all input data",
 
     codex_entry_id = "yatm_data_logic:data_arith_add_vector",
 
@@ -594,7 +594,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   },
 
   subtract_vector = {
-    description = "Data Arithmetic [Subtraction Vector]\nSubtracts input data",
+    description = "DATA Arithmetic [Subtraction Vector]\nSubtracts input data",
 
     codex_entry_id = "yatm_data_logic:data_arith_subtract_vector",
 
@@ -615,7 +615,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   },
 
   multiply_vector = {
-    description = "Data Arithmetic [Multiplication Vector]\nMultiply input data",
+    description = "DATA Arithmetic [Multiplication Vector]\nMultiply input data",
 
     codex_entry_id = "yatm_data_logic:data_arith_multiply_vector",
 
@@ -636,7 +636,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   },
 
   divide_vector = {
-    description = "Data Arithmetic [Division Vector]\nDivide input data",
+    description = "DATA Arithmetic [Division Vector]\nDivide input data",
 
     codex_entry_id = "yatm_data_logic:data_arith_divide_vector",
 
@@ -657,7 +657,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   },
 
   modulo_vector = {
-    description = "Data Arithmetic [Modulo Vector]\nModulo input data",
+    description = "DATA Arithmetic [Modulo Vector]\nModulo input data",
 
     codex_entry_id = "yatm_data_logic:data_arith_modulo_vector",
 
@@ -678,7 +678,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   },
 
   max_vector = {
-    description = "Data Arithmetic [Max Vector]\nPick largest input data",
+    description = "DATA Arithmetic [Max Vector]\nPick largest input data",
 
     codex_entry_id = "yatm_data_logic:data_arith_max_vector",
 
@@ -699,7 +699,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   },
 
   min_vector = {
-    description = "Data Arithmetic [Min Vector]\nPick smallest input data",
+    description = "DATA Arithmetic [Min Vector]\nPick smallest input data",
 
     codex_entry_id = "yatm_data_logic:data_arith_min_vector",
 

@@ -5,7 +5,7 @@ local string_hex_escape = assert(foundation.com.string_hex_escape)
 local data_network = assert(yatm.data_network)
 
 minetest.register_node("yatm_data_logic:data_node_sensor", {
-  description = "Node Sensor\nReports various parameters about a neighbour node.",
+  description = "DATA Node Sensor\nReports various parameters about a neighbour node.",
 
   codex_entry_id = "yatm_data_logic:data_node_sensor",
 

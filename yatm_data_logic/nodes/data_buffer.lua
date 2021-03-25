@@ -4,7 +4,7 @@ local is_table_empty = assert(foundation.com.is_table_empty)
 local data_network = assert(yatm.data_network)
 
 minetest.register_node("yatm_data_logic:data_buffer", {
-  description = "Data Buffer",
+  description = "DATA Buffer",
 
   codex_entry_id = "yatm_data_logic:data_buffer",
 

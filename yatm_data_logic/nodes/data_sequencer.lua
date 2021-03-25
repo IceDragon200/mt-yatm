@@ -50,7 +50,7 @@ local function create_token_inventory(user)
 end
 
 minetest.register_node("yatm_data_logic:data_sequencer", {
-  description = "Data Sequencer",
+  description = "DATA Sequencer",
 
   codex_entry_id = "yatm_data_logic:data_sequencer",
 

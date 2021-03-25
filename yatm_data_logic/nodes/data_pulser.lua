@@ -22,7 +22,7 @@ end
 
 yatm.register_stateful_node("yatm_data_logic:data_pulser", {
   basename = "yatm_data_logic:data_pulser",
-  description = "Data Pulser",
+  description = "DATA Pulser",
 
   codex_entry_id = "yatm_data_logic:data_pulser",
 

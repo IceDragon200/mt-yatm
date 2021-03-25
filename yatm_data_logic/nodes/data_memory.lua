@@ -29,7 +29,7 @@ local function set_memory_blob(meta, memory)
 end
 
 minetest.register_node("yatm_data_logic:data_memory", {
-  description = "Data Memory",
+  description = "DATA Memory",
 
   codex_entry_id = "yatm_data_logic:data_memory",
 

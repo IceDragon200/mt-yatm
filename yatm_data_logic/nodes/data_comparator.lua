@@ -171,7 +171,7 @@ local data_interface = {
 }
 
 yatm.register_stateful_node("yatm_data_logic:data_comparator", {
-  base_description = "Data Comparator",
+  base_description = "DATA Comparator",
 
   groups = {
     cracky = 1,
@@ -221,7 +221,7 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
   -- Normal Mode
   --
   equal_to = {
-    description = "Data Comparator [Equal To]",
+    description = "DATA Comparator [Equal To]",
 
     codex_entry_id = "yatm_data_logic:data_comparator_equal_to",
 
@@ -242,7 +242,7 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
   },
 
   not_equal_to = {
-    description = "Data Comparator [Not Equal To]",
+    description = "DATA Comparator [Not Equal To]",
 
     codex_entry_id = "yatm_data_logic:data_comparator_not_equal_to",
 
@@ -263,7 +263,7 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
   },
 
   greater_than = {
-    description = "Data Comparator [Greater Than]",
+    description = "DATA Comparator [Greater Than]",
 
     codex_entry_id = "yatm_data_logic:data_comparator_greater_than",
 
@@ -284,7 +284,7 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
   },
 
   greater_than_or_equal_to = {
-    description = "Data Comparator [Greater Than or Equal To]",
+    description = "DATA Comparator [Greater Than or Equal To]",
 
     codex_entry_id = "yatm_data_logic:data_comparator_greater_than_or_equal_to",
 
@@ -305,7 +305,7 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
   },
 
   less_than = {
-    description = "Data Comparator [Less Than]",
+    description = "DATA Comparator [Less Than]",
 
     codex_entry_id = "yatm_data_logic:data_comparator_less_than",
 
@@ -326,7 +326,7 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
   },
 
   less_than_or_equal_to = {
-    description = "Data Comparator [Less Than or Equal To]",
+    description = "DATA Comparator [Less Than or Equal To]",
 
     codex_entry_id = "yatm_data_logic:data_comparator_less_than_or_equal_to",
 

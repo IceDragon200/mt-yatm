@@ -134,7 +134,7 @@ local function emit_last_value(pos, node)
 end
 
 minetest.register_node("yatm_data_logic:data_decoder", {
-  description = "Data Decoder\nUsed to transform raw bytes into other formats",
+  description = "DATA Decoder\nUsed to transform raw bytes into other formats",
 
   codex_entry_id = "yatm_data_logic:data_decoder",
 
