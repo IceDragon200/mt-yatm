@@ -12,6 +12,7 @@ local function dump_nodes()
     i = i + 1
 
     result[i] = minetest.write_json({
+      codex_entry_id = def.codex_entry_id,
       name = name,
       basename = def.basename or name,
       base_description = def.base_description,
@@ -23,6 +24,7 @@ local function dump_nodes()
       node_box = def.node_box,
       paramtype = def.paramtype,
       paramtype2 = def.paramtype2,
+      sounds = def.sounds,
     })
   end
 
@@ -39,6 +41,7 @@ local function dump_craftitems()
   for name, def in pairs(minetest.registered_craftitems) do
     i = i + 1
     result[i] = minetest.write_json({
+      codex_entry_id = def.codex_entry_id,
       name = name,
       basename = def.basename or name,
       base_description = def.base_description,
@@ -61,6 +64,7 @@ local function dump_tools()
   for name, def in pairs(minetest.registered_tools) do
     i = i + 1
     result[i] = minetest.write_json({
+      codex_entry_id = def.codex_entry_id,
       name = name,
       basename = def.basename or name,
       base_description = def.base_description,
