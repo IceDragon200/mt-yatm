@@ -116,6 +116,7 @@ for _,row in ipairs(yatm.colors) do
 
   minetest.register_node(on_name, {
     basename = "yatm_mesecon_locks:mesecon_lock",
+    base_description = "Mesecon Lock",
 
     description = description,
 
