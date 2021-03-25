@@ -52,6 +52,8 @@ for _,row in ipairs(yatm.colors) do
   minetest.register_node(off_name, {
     basename = "yatm_mesecon_buttons:mesecon_toggle_button",
 
+    base_description = "Mesecon Toggle Button",
+
     description = description,
 
     drop = off_name,
@@ -99,6 +101,8 @@ for _,row in ipairs(yatm.colors) do
 
   minetest.register_node(on_name, {
     basename = "yatm_mesecon_buttons:mesecon_toggle_button",
+
+    base_description = "Mesecon Toggle Button",
 
     description = description,
 
