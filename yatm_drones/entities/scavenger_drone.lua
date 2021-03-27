@@ -434,7 +434,7 @@ local function get_scavenger_drone_formspec(self, user)
 end
 
 minetest.register_entity("yatm_drones:scavenger_drone", {
-  --initial_properties = {
+  initial_properties = {
     physical = true,
     collide_with_objects = true,
     visual = "mesh",
@@ -442,7 +442,7 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
     collisionbox = ng(2, 0, 2, 12, 6, 12),
     mesh = "scavenger_drone.b3d",
     textures = {"yatm_scavenger_drone.off.png"},
-  --},
+  },
 
   weight = 100,
   stepheight = 0.3,
