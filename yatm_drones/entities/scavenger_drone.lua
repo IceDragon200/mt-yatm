@@ -502,6 +502,8 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
     local vacuum_range = 1.0
     local energy_rate = 1.0
     local solar_charge_rate = 0.0
+    local teleport_range = 0
+    local voodoo_range = 0
 
     local inv = self:get_inventory()
 
@@ -520,9 +522,13 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
         elseif Groups.has_group(item, "vacuum_upgrade") then
           vacuum_range = vacuum_range + 2.0
         elseif Groups.has_group(item, "efficiency_upgrade") then
-          vacuum_range = energy_rate - 0.25
+          energy_rate = energy_rate - 0.25
         elseif Groups.has_group(item, "solar_charge_upgrade") then
           solar_charge_rate = solar_charge_rate + 0.25
+        elseif Groups.has_group(item, "teleportation_upgrade") then
+          teleport_range = teleport_range + 16
+        elseif Groups.has_group(item, "voodoo_upgrade") then
+          voodoo_range = voodoo_range + 8
         end
       end
     end
@@ -531,6 +537,10 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
       max_speed = max_speed,
       jump_height = jump_height,
       vacuum_range = vacuum_range,
+      energy_rate = energy_rate,
+      solar_charge_rate = solar_charge_rate,
+      teleport_range = teleport_range,
+      voodoo_range = voodoo_range,
     })
   end,
 
