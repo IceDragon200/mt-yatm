@@ -1,4 +1,3 @@
-dofile(yatm_overhead_rails.modpath .. "/entities/docking_chest.lua")
-dofile(yatm_overhead_rails.modpath .. "/entities/docking_cell.lua")
-dofile(yatm_overhead_rails.modpath .. "/entities/overhead_rail_arm.lua")
-dofile(yatm_overhead_rails.modpath .. "/entities/overhead_rail_hook.lua")
+yatm_overhead_rails:require("entities/docking_crate.lua")
+yatm_overhead_rails:require("entities/overhead_rail_arm.lua")
+yatm_overhead_rails:require("entities/overhead_rail_hook.lua")
