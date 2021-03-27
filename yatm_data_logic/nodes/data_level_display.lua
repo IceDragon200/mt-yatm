@@ -198,8 +198,6 @@ yatm.register_stateful_node("yatm_data_logic:data_level_display", {
         local max_level = max_reach * 63
         local level = math.max(math.min(math.floor(byte * max_level / 255), max_level), 0)
 
-        print(byte, level, max_level)
-
         local p = vector.new(pos)
         local i = 0
         while i < max_reach do
