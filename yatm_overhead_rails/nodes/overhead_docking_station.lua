@@ -10,7 +10,9 @@ local FluidMeta = yatm.fluids.FluidMeta
 
 local ItemInterface = yatm.items.ItemInterface
 
-local cluster_energy = assert(yatm.cluster.energy)
+local Energy = yatm.energy
+local cluster_energy = yatm.cluster.energy
+local cluster_devices = yatm.cluster.devices
 local cluster_thermal = yatm.cluster.thermal
 local data_network = yatm.data_network
 
@@ -40,6 +42,12 @@ local function refresh_infotext(pos)
       cluster_energy:get_node_infotext(pos) .. "\n"
   end
 
+  if cluster_devices then
+    infotext =
+      infotext ..
+      cluster_devices:get_node_infotext(pos) .. "\n"
+  end
+
   meta:set_string("infotext", infotext)
 end
 
@@ -47,12 +55,19 @@ local function on_construct(pos)
   local meta = minetest.get_meta(pos)
   local node = minetest.get_node(pos)
 
+  local inv = meta:get_inventory()
+  inv:set_size("main", 4*4)
+
   if data_network then
     data_network:add_node(pos, node)
   end
 
   if cluster_energy then
     cluster_energy:schedule_add_node(pos, node)
+  end
+
+  if cluster_devices then
+    cluster_devices:schedule_add_node(pos, node)
   end
 
   if cluster_thermal then
@@ -69,9 +84,18 @@ local function after_destruct(pos, node)
     cluster_energy:schedule_remove_node(pos, node)
   end
 
+  if cluster_devices then
+    cluster_devices:schedule_add_node(pos, node)
+  end
+
   if cluster_thermal then
     cluster_thermal:schedule_remove_node(pos, node)
   end
+end
+
+local function transition_device_state(pos, node, state)
+  --
+  yatm.queue_refresh_infotext(pos, node)
 end
 
 local data_network_device
@@ -92,35 +116,20 @@ if data_network then
   }
 end
 
--- TODO: Fluid Interface
---       It uses multiple tanks in the interface
---       4 tanks to be specific, each containing 1 type of fluid
---       Each tank can store up 1000 units of fluid, for a total of
---       4000
 local fluid_interface
 
 if FluidInterface then
-  fluid_interface = FluidInterface.new()
-
-  function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-    local node = minetest.get_node(pos)
-    yatm.queue_refresh_infotext(pos, node)
-  end
-
-  function fluid_interface:allow_replace(pos, dir, fluid_stack)
-    --
-  end
-
-  fluid_interface.allow_fill = fluid_interface.allow_replace
-  fluid_interface.allow_drain = fluid_interface.allow_replace
+  fluid_interface = FluidInterface.new_simple("tank", 4000)
 end
 
 local item_interface
 if ItemInterface then
-  item_interface = ItemInterface.new_simple("crate_contents")
+  item_interface = ItemInterface.new_simple("main")
 end
 
 local yatm_network
+local ENERGY_CAPACITY = 4000
+local ENERGY_BANDWIDTH = 1000
 if cluster_energy then
   yatm_network = {
     kind = "energy_storage",
@@ -131,7 +140,22 @@ if cluster_energy then
       energy_receiver = 1,
     },
     energy = {
-      capacity = 4000,
+      capacity = ENERGY_CAPACITY,
+
+      get_usable_stored_energy = function (pos, node, dtime, ot)
+        local meta = minetest.get_meta(pos)
+        return Energy.get_energy(meta, "ebuffer")
+      end,
+
+      use_stored_energy = function (pos, node, amount_to_consume, dtime, ot)
+        local meta = minetest.get_meta(pos)
+        return Energy.consume_energy(meta, "ebuffer", amount_to_consume, ENERGY_BANDWIDTH, ENERGY_CAPACITY, true)
+      end,
+
+      receive_energy = function (pos, node, energy_left, dtime, ot)
+        local meta = minetest.get_meta(pos)
+        return Energy.receive_energy(meta, "ebuffer", energy_left, ENERGY_BANDWIDTH, ENERGY_CAPACITY)
+      end,
     }
   }
 end
@@ -153,6 +177,8 @@ local groups = {
   item_interface_out = 1,
   -- energy cluster
   yatm_energy_device = 1,
+  yatm_cluster_energy = 1,
+  yatm_cluster_device = 1,
   -- thermal cluster
   heatable_device = 1,
   yatm_cluster_thermal = 1,
@@ -199,6 +225,8 @@ minetest.register_node("yatm_overhead_rails:overhead_docking_station", {
   item_interface = item_interface,
 
   yatm_network = yatm_network,
+
+  transition_device_state = transition_device_state,
 })
 
 yatm.register_stateful_node("yatm_overhead_rails:overhead_docking_station", {
@@ -229,7 +257,9 @@ yatm.register_stateful_node("yatm_overhead_rails:overhead_docking_station", {
   fluid_interface = fluid_interface,
   item_interface = item_interface,
 
-  yatm_network = machine_network,
+  yatm_network = yatm_network,
+
+  transition_device_state = transition_device_state,
 }, {
   blank = {
     description = mod.S("Docking Station [Empty]"),
