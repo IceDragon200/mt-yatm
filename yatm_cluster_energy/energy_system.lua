@@ -1,3 +1,7 @@
+--
+-- System module that runs under the energy cluster to resolve the energy generation and
+-- distribution.
+--
 local Trace = assert(foundation.com.Trace)
 local EnergyDevices = assert(yatm.energy.EnergyDevices)
 
@@ -26,7 +30,10 @@ function ic:update(cls, cluster, dtime)
       local node = minetest.get_node_or_nil(node_entry.pos)
       --print(LOG_GROUP, "produce energy", node_entry.pos.x, node_entry.pos.y, node_entry.pos.z, node.name)
       if node then
-        acc = acc + EnergyDevices.produce_energy(node_entry.pos, node, dtime, span)
+        local amount_produced = EnergyDevices.produce_energy(node_entry.pos, node, dtime, span)
+        if amount_produced then
+          acc = acc + produced
+        end
       end
       return true, acc
     end)
@@ -40,8 +47,11 @@ function ic:update(cls, cluster, dtime)
     cluster:reduce_nodes_of_groups("energy_storage", 0, function (node_entry, accumulated_energy_stored)
       local node = minetest.get_node_or_nil(node_entry.pos)
       if node then
-        accumulated_energy_stored = accumulated_energy_stored +
-                                    EnergyDevices.get_usable_stored_energy(node_entry.pos, node, dtime, span)
+        local amount_stored = EnergyDevices.get_usable_stored_energy(node_entry.pos, node, dtime, span)
+
+        if amount_stored then
+          accumulated_energy_stored = accumulated_energy_stored + amount_stored
+        end
       end
       return true, accumulated_energy_stored
     end)
@@ -59,10 +69,10 @@ function ic:update(cls, cluster, dtime)
       local node = minetest.get_node_or_nil(node_entry.pos)
 
       if node then
-        local consumed = EnergyDevices.consume_energy(node_entry.pos, node, energy_available, dtime, span)
-        if consumed then
-          energy_available = energy_available - consumed
-          acc = acc + consumed
+        local amount_consumed = EnergyDevices.consume_energy(node_entry.pos, node, energy_available, dtime, span)
+        if amount_consumed then
+          energy_available = energy_available - amount_consumed
+          acc = acc + amount_consumed
         end
       end
 
