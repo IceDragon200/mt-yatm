@@ -19,7 +19,7 @@ local function get_cluster_summary_formspec(user, assigns)
   if assigns.page then
     formspec =
       formspec ..
-      "scrollbaroptions[]" ..
+      --fspec.scrollbar_options({}) ..
       fspec.scrollbar(w-1.5, 0.5, 1, h-1, "vertical", "cluster_scrollbar") ..
       fspec.scroll_container(0.5, 0.5, w-2, h, "cluster_scrollbar", "vertical")
 

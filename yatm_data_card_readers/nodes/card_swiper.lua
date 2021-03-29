@@ -132,6 +132,8 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_swiper", {
   },
 
   refresh_infotext = card_swiper_refresh_infotext,
+
+  use_texture_alpha = "opaque",
 }, {
   off = {
     tiles = {

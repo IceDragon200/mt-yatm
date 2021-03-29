@@ -89,6 +89,7 @@ for _,row in ipairs(yatm.colors) do
       "yatm_mesecon_lock_" .. color_basename .. "_side.off.png",
       "yatm_mesecon_lock_" .. color_basename .. "_side.off.png",
     },
+    use_texture_alpha = "opaque",
     drawtype = "nodebox",
     node_box = node_box,
 
@@ -144,6 +145,7 @@ for _,row in ipairs(yatm.colors) do
       "yatm_mesecon_lock_" .. color_basename .. "_side.on.png",
       "yatm_mesecon_lock_" .. color_basename .. "_side.on.png",
     },
+    use_texture_alpha = "opaque",
 
     mesecons = {
       receptor = {

@@ -107,6 +107,8 @@ for interval,duration in pairs(INTERVALS) do
       drop = drop,
 
       tiles = tiles,
+      use_texture_alpha = "opaque",
+
       paramtype = "light",
       paramtype2 = "facedir",
       drawtype = "nodebox",

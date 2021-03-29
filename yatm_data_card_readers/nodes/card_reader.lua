@@ -191,6 +191,8 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_reader", {
 
   preserve_metadata = data_card_reader_preserve_metadata,
   after_place_node = data_card_reader_after_place_node,
+
+  use_texture_alpha = "opaque",
 }, {
   off = {
     tiles = {
