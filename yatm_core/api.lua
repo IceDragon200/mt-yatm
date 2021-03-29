@@ -56,27 +56,39 @@ else
 end
 
 function yatm.register_stateful_node(basename, base, states)
+  local result = {}
   for name, changes in pairs(states) do
     local nodedef = table_merge(base, changes)
     nodedef.basename = nodedef.basename or basename
-    minetest.register_node(basename .. "_" .. name, nodedef)
+    local node_name = basename .. "_" .. name
+    minetest.register_node(node_name, nodedef)
+    result[name] = {node_name, nodedef}
   end
+  return result
 end
 
 function yatm.register_stateful_tool(basename, base, states)
+  local result = {}
   for name, changes in pairs(states) do
     local tooldef = table_merge(base, changes)
     tooldef.basename = tooldef.basename or basename
-    minetest.register_tool(basename .. "_" .. name, tooldef)
+    local tool_name = basename .. "_" .. name
+    minetest.register_tool(tool_name, tooldef)
+    result[name] = {tool_name, nodedef}
   end
+  return result
 end
 
 function yatm.register_stateful_craftitem(basename, base, states)
+  local result = {}
   for name, changes in pairs(states) do
     local craftitemdef = table_merge(base, changes)
     craftitemdef.basename = craftitemdef.basename or basename
-    minetest.register_craftitem(basename .. "_" .. name, craftitemdef)
+    local craftitem_name = basename .. "_" .. name
+    minetest.register_craftitem(craftitem_name, craftitemdef)
+    result[name] = {craftitem_name, nodedef}
   end
+  return result
 end
 
 yatm.colors = {
@@ -148,6 +160,8 @@ yatm.bg9.cardboard = yatm.bg.base .. bg9 .. "yatm_gui_formbg_cardboard.9s.png;" 
 yatm.bg9.dscs = yatm.bg.base .. bg9 .. "yatm_gui_formbg_dscs.9s.png;" .. auto_clip .. ";32]"
 
 function yatm.formspec_bg_for_player(player_name, background_name)
+  assert(type(player_name) == "string", "expected player_name as string")
+
   local info = minetest.get_player_information(player_name)
 
   if info.formspec_version then
