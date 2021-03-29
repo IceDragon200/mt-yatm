@@ -22,6 +22,8 @@ local groups = {
 yatm.register_stateful_node("yatm_overhead_rails:docking_crate", {
   base_description = mod.S("Docking Crate"),
 
+  stack_max = 1,
+
   drawtype = "nodebox",
   node_box = {
     type = "fixed",
@@ -32,7 +34,7 @@ yatm.register_stateful_node("yatm_overhead_rails:docking_crate", {
 
   paramtype = "light",
 
-
+  crate_spec = {},
 }, {
   -- By default the empty crate has no inventories at all, but implements
   -- ALL the docking station interfaces, once it gains some kind of content
@@ -52,6 +54,10 @@ yatm.register_stateful_node("yatm_overhead_rails:docking_crate", {
       "yatm_docking_crate_side_blank.png",
       "yatm_docking_crate_side_blank.png",
     },
+
+    crate_spec = {
+      type = "empty",
+    },
   },
 
   fluid = {
@@ -68,6 +74,10 @@ yatm.register_stateful_node("yatm_overhead_rails:docking_crate", {
       "yatm_docking_crate_side_fluid.png",
       "yatm_docking_crate_side_fluid.png",
       "yatm_docking_crate_side_fluid.png",
+    },
+
+    crate_spec = {
+      type = "fluid",
     },
   },
 
@@ -86,6 +96,10 @@ yatm.register_stateful_node("yatm_overhead_rails:docking_crate", {
       "yatm_docking_crate_side_ele.png",
       "yatm_docking_crate_side_ele.png",
     },
+
+    crate_spec = {
+      type = "ele",
+    },
   },
 
   energy = {
@@ -102,6 +116,10 @@ yatm.register_stateful_node("yatm_overhead_rails:docking_crate", {
       "yatm_docking_crate_side_energy.png",
       "yatm_docking_crate_side_energy.png",
       "yatm_docking_crate_side_energy.png",
+    },
+
+    crate_spec = {
+      type = "energy",
     },
   },
 
@@ -120,6 +138,10 @@ yatm.register_stateful_node("yatm_overhead_rails:docking_crate", {
       "yatm_docking_crate_side_items.png",
       "yatm_docking_crate_side_items.png",
     },
+
+    crate_spec = {
+      type = "items",
+    },
   },
 
   heat = {
@@ -136,6 +158,10 @@ yatm.register_stateful_node("yatm_overhead_rails:docking_crate", {
       "yatm_docking_crate_side_heat.png",
       "yatm_docking_crate_side_heat.png",
       "yatm_docking_crate_side_heat.png",
+    },
+
+    crate_spec = {
+      type = "heat",
     },
   },
 })

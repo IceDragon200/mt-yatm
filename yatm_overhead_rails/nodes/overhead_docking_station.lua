@@ -1,6 +1,7 @@
 local mod = yatm_overhead_rails
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = assert(Cuboid.new_fast_node_box)
+local Groups = assert(foundation.com.Groups)
 local string_split = assert(foundation.com.string_split)
 local table_merge = assert(foundation.com.table_merge)
 
@@ -119,7 +120,7 @@ end
 local fluid_interface
 
 if FluidInterface then
-  fluid_interface = FluidInterface.new_simple("tank", 4000)
+  fluid_interface = FluidInterface.new_simple("buffer_tank", 4000)
 end
 
 local item_interface
@@ -184,6 +185,24 @@ local groups = {
   yatm_cluster_thermal = 1,
 }
 
+local CRATE_TYPE_TO_DOCKING_STATION = {
+  empty = "yatm_overhead_rails:overhead_docking_station_blank",
+  energy = "yatm_overhead_rails:overhead_docking_station_energy",
+  ele = "yatm_overhead_rails:overhead_docking_station_ele",
+  fluid = "yatm_overhead_rails:overhead_docking_station_fluid",
+  heat = "yatm_overhead_rails:overhead_docking_station_heat",
+  items = "yatm_overhead_rails:overhead_docking_station_item",
+}
+
+local CRATE_TYPE_TO_DOCKING_CRATE = {
+  empty = "yatm_overhead_rails:docking_crate_blank",
+  energy = "yatm_overhead_rails:docking_crate_energy",
+  ele = "yatm_overhead_rails:docking_crate_ele",
+  fluid = "yatm_overhead_rails:docking_crate_fluid",
+  heat = "yatm_overhead_rails:docking_crate_heat",
+  items = "yatm_overhead_rails:docking_crate_item",
+}
+
 minetest.register_node("yatm_overhead_rails:overhead_docking_station", {
   basename = "yatm_overhead_rails:overhead_docking_station",
 
@@ -227,6 +246,35 @@ minetest.register_node("yatm_overhead_rails:overhead_docking_station", {
   yatm_network = yatm_network,
 
   transition_device_state = transition_device_state,
+
+  on_rightclick = function (pos, node, clicker, itemstack, pointed_thing)
+    local itemdef = itemstack:get_definition()
+
+    if Groups.has_group(itemdef, "docking_crate") then
+      -- item is a kind of docking crate
+      if itemdef.crate_spec and itemdef.crate_spec.type then
+        local docking_station_name = CRATE_TYPE_TO_DOCKING_STATION[itemdef.crate_spec.type]
+
+        if docking_station_name then
+          local new_node = {
+            name = docking_station_name,
+            param1 = node.param1,
+            param2 = node.param2,
+          }
+          local nodedef = minetest.registered_nodes[new_node.name]
+          if nodedef.docking_station_spec and nodedef.docking_station_spec.load_from_itemstack then
+            local stack = itemstack:take_item(1)
+            minetest.swap_node(pos, new_node)
+            nodedef.docking_station_spec.load_from_itemstack(pos, new_node, stack)
+          end
+        else
+          -- TODO: alert user about this issue
+        end
+      else
+        -- TODO: alert user that they can't add this crate
+      end
+    end
+  end,
 })
 
 yatm.register_stateful_node("yatm_overhead_rails:overhead_docking_station", {
@@ -260,6 +308,15 @@ yatm.register_stateful_node("yatm_overhead_rails:overhead_docking_station", {
   yatm_network = yatm_network,
 
   transition_device_state = transition_device_state,
+
+  on_rightclick = on_rightclick,
+
+  can_dig = function (_pos, _player)
+    -- cannot dig up a docking station with a crate on it
+    return false
+  end,
+
+  crate_spec = {},
 }, {
   blank = {
     description = mod.S("Docking Station [Empty]"),
@@ -275,6 +332,16 @@ yatm.register_stateful_node("yatm_overhead_rails:overhead_docking_station", {
       "yatm_overhead_docking_station_side.blank.wcrate.png",
       "yatm_overhead_docking_station_side.blank.wcrate.png",
     },
+
+    crate_spec = {
+      type = "empty",
+    },
+
+    docking_station_spec = {
+      load_from_itemstack = function (pos, node, stack)
+        -- blank crates don't have to do anything with the itemstack on reload
+      end,
+    },
   },
 
   ele = {
@@ -287,6 +354,18 @@ yatm.register_stateful_node("yatm_overhead_rails:overhead_docking_station", {
       "yatm_overhead_docking_station_side.ele.wcrate.png",
       "yatm_overhead_docking_station_side.ele.wcrate.png",
       "yatm_overhead_docking_station_side.ele.wcrate.png",
+    },
+
+    crate_spec = {
+      type = "ele",
+    },
+
+    docking_station_spec = {
+      load_from_itemstack = function (pos, node, stack)
+        -- elemental crates should load any elemental information
+        -- but this isn't implemented yet, so...
+        minetest.log("warning", "TODO: load_from_itemstack for elemental type crates")
+      end,
     },
   },
 
@@ -303,6 +382,20 @@ yatm.register_stateful_node("yatm_overhead_rails:overhead_docking_station", {
       "yatm_overhead_docking_station_side.energy.wcrate.png",
       "yatm_overhead_docking_station_side.energy.wcrate.png",
     },
+
+    crate_spec = {
+      type = "energy",
+    },
+
+    docking_station_spec = {
+      load_from_itemstack = function (pos, node, stack)
+        local meta = minetest.get_meta(pos)
+
+        local stack_meta = stack:get_meta()
+
+        Energy.set_energy(meta, "ebuffer", stack_meta:get_int("stored_energy"))
+      end,
+    },
   },
 
   fluid = {
@@ -317,6 +410,20 @@ yatm.register_stateful_node("yatm_overhead_rails:overhead_docking_station", {
       "yatm_overhead_docking_station_side.fluid.wcrate.png",
       "yatm_overhead_docking_station_side.fluid.wcrate.png",
       "yatm_overhead_docking_station_side.fluid.wcrate.png",
+    },
+
+    crate_spec = {
+      type = "fluid",
+    },
+
+    docking_station_spec = {
+      load_from_itemstack = function (pos, node, stack)
+        local meta = minetest.get_meta(pos)
+
+        local stack_meta = stack:get_meta()
+
+        FluidMeta.set_fluid(meta, "buffer_tank", FluidMeta.get_fluid_stack(stack_meta, "stored_fluid"))
+      end,
     },
   },
 
@@ -333,6 +440,20 @@ yatm.register_stateful_node("yatm_overhead_rails:overhead_docking_station", {
       "yatm_overhead_docking_station_side.heat.wcrate.png",
       "yatm_overhead_docking_station_side.heat.wcrate.png",
     },
+
+    crate_spec = {
+      type = "heat",
+    },
+
+    docking_station_spec = {
+      load_from_itemstack = function (pos, node, stack)
+        local meta = minetest.get_meta(pos)
+
+        local stack_meta = stack:get_meta()
+
+        minetest.log("warning", "TODO: load_from_itemstack with heat crate")
+      end,
+    },
   },
 
   item = {
@@ -347,6 +468,10 @@ yatm.register_stateful_node("yatm_overhead_rails:overhead_docking_station", {
       "yatm_overhead_docking_station_side.items.wcrate.png",
       "yatm_overhead_docking_station_side.items.wcrate.png",
       "yatm_overhead_docking_station_side.items.wcrate.png",
+    },
+
+    crate_spec = {
+      type = "items",
     },
   },
 })
