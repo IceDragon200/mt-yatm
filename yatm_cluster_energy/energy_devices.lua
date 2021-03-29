@@ -1,5 +1,6 @@
 --
--- The unforgiving energy interface, if you didn't define the functions properly, this WILL BLOW UP IN YOUR FACE.
+-- The unforgiving energy interface, if you didn't define the functions properly,
+-- this WILL BLOW UP IN YOUR FACE.
 --
 -- The energy system operates on four main groups of nodes:
 -- * `energy_producer`
