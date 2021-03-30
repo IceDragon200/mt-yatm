@@ -5,7 +5,7 @@ local FluidStack = assert(yatm.fluids.FluidStack)
 
 local function fluid_tank_drain_sync(pos, node)
   local draining_stack = FluidTanks.drain_fluid(pos, Directions.D_NONE,
-    FluidStack.new_wildcard(yatm_fluids.fluid_tank_fluid_interface.bandwidth), false)
+    FluidStack.new_wildcard(yatm_fluids.fluid_tank_fluid_interface._private.bandwidth), false)
 
   if draining_stack and draining_stack.amount > 0 then
     local below_pos = vector.add(pos, Directions.V3_DOWN)
@@ -20,7 +20,7 @@ end
 local function fluid_tank_drain_sync_2(pos, node)
   --
   local draining_stack = FluidTanks.drain_fluid(pos, Directions.D_NONE,
-    FluidStack.new_wildcard(yatm_fluids.fluid_tank_fluid_interface.bandwidth), false)
+    FluidStack.new_wildcard(yatm_fluids.fluid_tank_fluid_interface._private.bandwidth), false)
 
   if draining_stack and draining_stack.amount > 0 then
     -- First up, drain down. yep, drain DOWN.

@@ -29,7 +29,7 @@ local function fluid_teleporter_refresh_infotext(pos)
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "S.Address: " .. SpacetimeMeta.to_infotext(meta) .. "\n" ..
-    "Tank: " .. FluidMeta.to_infotext(meta, "tank", fluid_interface.capacity)
+    "Tank: " .. FluidMeta.to_infotext(meta, "tank", fluid_interface:get_capacity(pos, 0))
 
   meta:set_string("infotext", infotext)
 end
@@ -62,8 +62,9 @@ function fluid_teleporter_yatm_network.work(pos, node, energy_available, work_ra
 
   if not is_blank(address) then
     local wildcard_stack = FluidStack.new_wildcard(1000)
+    local capacity = fluid_interface:get_capacity(pos, 0)
     local fluid_stack = FluidMeta.drain_fluid(meta, "tank",
-      wildcard_stack, fluid_interface.capacity, fluid_interface.capacity,
+      wildcard_stack, capacity, capacity,
       false)
 
     if fluid_stack and fluid_stack.amount > 0 then
@@ -78,7 +79,7 @@ function fluid_teleporter_yatm_network.work(pos, node, energy_available, work_ra
       end)
 
       local drained_stack = FluidStack.set_amount(fluid_stack, fluid_stack.amount - remaining_stack.amount)
-      local actual_drained = FluidMeta.drain_fluid(meta, "tank", drained_stack, fluid_interface.capacity, fluid_interface.capacity, true)
+      local actual_drained = FluidMeta.drain_fluid(meta, "tank", drained_stack, capacity, capacity, true)
       if actual_drained and actual_drained.amount > 0 then
         energy_consumed = energy_consumed + actual_drained.amount / 10
         yatm.queue_refresh_infotext(pos, node)

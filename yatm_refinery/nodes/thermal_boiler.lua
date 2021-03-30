@@ -30,8 +30,8 @@ local function get_fluid_tank_name(self, pos, dir)
 end
 
 local fluid_interface = FluidInterface.new_directional(get_fluid_tank_name)
-fluid_interface.capacity = 16000
-fluid_interface.bandwidth = fluid_interface.capacity
+fluid_interface._private.capacity = 16000
+fluid_interface._private.bandwidth = fluid_interface._private.capacity
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
   local node = minetest.get_node(pos)
@@ -45,11 +45,13 @@ local function boiler_refresh_infotext(pos)
 
   local heat = math.floor(meta:get_float("heat"))
 
+  local capacity = fluid_interface._private.capacity
+
   local infotext =
     cluster_thermal:get_node_infotext(pos) .. "\n" ..
     "Heat: " .. heat .. "\n" ..
-    "Steam Tank: <" .. FluidStack.pretty_format(steam_fluid_stack, fluid_interface.capacity) .. ">\n" ..
-    "Water Tank: <" .. FluidStack.pretty_format(water_fluid_stack, fluid_interface.capacity) .. ">"
+    "Steam Tank: <" .. FluidStack.pretty_format(steam_fluid_stack, capacity) .. ">\n" ..
+    "Water Tank: <" .. FluidStack.pretty_format(water_fluid_stack, capacity) .. ">"
 
   meta:set_string("infotext", infotext)
 end

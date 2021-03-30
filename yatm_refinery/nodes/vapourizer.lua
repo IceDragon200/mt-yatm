@@ -49,8 +49,8 @@ local function get_fluid_tank_name(self, pos, dir)
 end
 
 local fluid_interface = FluidInterface.new_directional(get_fluid_tank_name)
-fluid_interface.capacity = 16000
-fluid_interface.bandwidth = fluid_interface.capacity
+fluid_interface._private.capacity = 16000
+fluid_interface._private.bandwidth = fluid_interface._private.capacity
 
 function fluid_interface:allow_fill(pos, dir, fluid_stack)
   local tank_name = get_fluid_tank_name(self, pos, dir)
@@ -80,7 +80,7 @@ function vapourizer_yatm_network.work(pos, node, available_energy, work_rate, dt
     local fs = FluidExchange.transfer_from_tank_to_meta(
       input_tank_pos, Directions.invert_dir(input_tank_dir),
       FluidStack.new_wildcard(1000),
-      meta, { tank_name = FLUID_TANK, capacity = fluid_interface.capacity, bandwidth = fluid_interface.bandwidth },
+      meta, { tank_name = FLUID_TANK, capacity = fluid_interface._private.capacity, bandwidth = fluid_interface._private.bandwidth },
       true
     )
 
@@ -98,10 +98,10 @@ function vapourizer_yatm_network.work(pos, node, available_energy, work_rate, dt
       local vapour_stack = FluidStack.new(recipe.vapour_name, math.min(fluid_stack.amount, 100))
       fluid_stack.amount = vapour_stack.amount
       if fluid_stack.amount > 0 then
-        local filled_stack = FluidMeta.fill_fluid(meta, VAPOUR_TANK, vapour_stack, fluid_interface.capacity, fluid_interface.capacity, true)
+        local filled_stack = FluidMeta.fill_fluid(meta, VAPOUR_TANK, vapour_stack, fluid_interface._private.capacity, fluid_interface._private.capacity, true)
         if filled_stack and filled_stack.amount > 0 then
           fluid_stack.amount = filled_stack.amount
-          local drained_stack = FluidMeta.drain_fluid(meta, FLUID_TANK, fluid_stack, fluid_interface.capacity, fluid_interface.capacity, true)
+          local drained_stack = FluidMeta.drain_fluid(meta, FLUID_TANK, fluid_stack, fluid_interface._private.capacity, fluid_interface._private.capacity, true)
           need_refresh = true
           energy_consumed = energy_consumed + math.max(math.floor(drained_stack.amount / 100), 1)
         end
@@ -128,8 +128,8 @@ function vapourizer_yatm_network.work(pos, node, available_energy, work_rate, dt
           meta,
           {
             tank_name = VAPOUR_TANK,
-            capacity = fluid_interface.capacity,
-            bandwidth = fluid_interface.capacity
+            capacity = fluid_interface._private.capacity,
+            bandwidth = fluid_interface._private.capacity
           },
           FluidStack.new_wildcard(100),
           output_tank_pos, Directions.invert_dir(output_tank_dir),
@@ -159,8 +159,8 @@ function vapourizer_refresh_infotext(pos)
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     cluster_energy:get_node_infotext(pos) .. " (" .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. " E)" .. "\n" ..
-    "Vapour Tank: " .. FluidStack.pretty_format(vapour_fluid_stack, fluid_interface.capacity) .. "\n" ..
-    "Fluid Tank: " .. FluidStack.pretty_format(fluid_stack, fluid_interface.capacity)
+    "Vapour Tank: " .. FluidStack.pretty_format(vapour_fluid_stack, fluid_interface._private.capacity) .. "\n" ..
+    "Fluid Tank: " .. FluidStack.pretty_format(fluid_stack, fluid_interface._private.capacity)
 
   meta:set_string("infotext", infotext)
 end

@@ -65,11 +65,12 @@ function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, 
   if fluid_stack and fluid_stack.amount > 0 then
     local fluid = FluidRegistry.get_fluid(fluid_stack.name)
     if fluid then
+      local capacity = fluid_interface._private.capacity
       fluid_stack.amount = 20
       -- TODO: a FluidFuelRegistry
       if fluid.groups.crude_oil then
         -- Crude is absolutely terrible energy wise
-        local consumed_stack = FluidMeta.drain_fluid(meta, "tank", fluid_stack, fluid_interface.capacity, fluid_interface.capacity, should_commit)
+        local consumed_stack = FluidMeta.drain_fluid(meta, "tank", fluid_stack, capacity, capacity, should_commit)
         if consumed_stack and consumed_stack.amount > 0 then
           energy_produced = energy_produced + consumed_stack.amount * 5
           need_refresh = should_commit
@@ -77,7 +78,7 @@ function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, 
         end
       elseif fluid.groups.heavy_oil then
         -- Heavy oil doesn't produce much energy, but it lasts a bit longer
-        local consumed_stack = FluidMeta.drain_fluid(meta, "tank", fluid_stack, fluid_interface.capacity, fluid_interface.capacity, should_commit)
+        local consumed_stack = FluidMeta.drain_fluid(meta, "tank", fluid_stack, capacity, capacity, should_commit)
         if consumed_stack and consumed_stack.amount > 0 then
           energy_produced = energy_produced + consumed_stack.amount * 10
           need_refresh = should_commit
@@ -85,7 +86,7 @@ function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, 
         end
       elseif fluid.groups.light_oil then
         -- Light oil produces more energy at the saem fluid cost
-        local consumed_stack = FluidMeta.drain_fluid(meta, "tank", fluid_stack, fluid_interface.capacity, fluid_interface.capacity, should_commit)
+        local consumed_stack = FluidMeta.drain_fluid(meta, "tank", fluid_stack, capacity, capacity, should_commit)
         if consumed_stack and consumed_stack.amount > 0 then
           energy_produced = energy_produced + consumed_stack.amount  * 15
           need_refresh = should_commit
@@ -118,11 +119,12 @@ function combustion_engine_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
 
   local tank_fluid_stack = FluidMeta.get_fluid_stack(meta, "tank")
+  local capacity = fluid_interface._private.capacity
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     cluster_energy:get_node_infotext(pos) .. "\n" ..
-    "Tank: " .. FluidStack.pretty_format(tank_fluid_stack, fluid_interface.capacity) .. "\n" ..
+    "Tank: " .. FluidStack.pretty_format(tank_fluid_stack, capacity) .. "\n" ..
     "Last Energy Produced: " .. meta:get_int("last_energy_produced")
 
   meta:set_string("infotext", infotext)

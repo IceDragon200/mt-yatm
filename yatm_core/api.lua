@@ -74,7 +74,7 @@ function yatm.register_stateful_tool(basename, base, states)
     tooldef.basename = tooldef.basename or basename
     local tool_name = basename .. "_" .. name
     minetest.register_tool(tool_name, tooldef)
-    result[name] = {tool_name, nodedef}
+    result[name] = {tool_name, tooldef}
   end
   return result
 end
@@ -86,7 +86,7 @@ function yatm.register_stateful_craftitem(basename, base, states)
     craftitemdef.basename = craftitemdef.basename or basename
     local craftitem_name = basename .. "_" .. name
     minetest.register_craftitem(craftitem_name, craftitemdef)
-    result[name] = {craftitem_name, nodedef}
+    result[name] = {craftitem_name, craftitemdef}
   end
   return result
 end

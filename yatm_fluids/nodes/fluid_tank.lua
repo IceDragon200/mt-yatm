@@ -57,7 +57,7 @@ minetest.register_node("yatm_fluids:fluid_tank", {
 
 local steel_tank_fluid_interface = table_copy(yatm_fluids.fluid_tank_fluid_interface)
 
-steel_tank_fluid_interface.capacity = 32000
+steel_tank_fluid_interface._private.capacity = 32000
 
 function steel_tank_fluid_interface:on_fluid_changed(pos, dir, new_stack)
   local node = minetest.get_node(pos)
@@ -66,13 +66,15 @@ end
 
 function steel_fluid_tank_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
+  local node = minetest.get_node(pos)
   local fluid_interface = FluidTanks.get_fluid_interface(pos)
 
   local fluid_stack = FluidMeta.get_fluid_stack(meta, "tank")
   if FluidStack.is_empty(fluid_stack) then
     meta:set_string("infotext", "Tank <EMPTY>")
   else
-    meta:set_string("infotext", "Tank <" .. FluidStack.to_string(fluid_stack, fluid_interface.capacity) .. ">")
+    local capacity = fluid_interface:get_capacity(pos, 0)
+    meta:set_string("infotext", "Tank <" .. FluidStack.to_string(fluid_stack, capacity) .. ">")
   end
 end
 

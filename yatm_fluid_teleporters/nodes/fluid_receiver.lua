@@ -94,7 +94,7 @@ local function teleporter_refresh_infotext(pos)
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "S.Address: " .. SpacetimeMeta.to_infotext(meta) .. "\n" ..
-    "Tank: " .. FluidMeta.to_infotext(meta, "tank", fluid_interface.capacity)
+    "Tank: " .. FluidMeta.to_infotext(meta, "tank", fluid_interface:get_capacity(pos, 0))
 
   meta:set_string("infotext", infotext)
 end

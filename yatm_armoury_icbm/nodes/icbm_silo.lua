@@ -485,7 +485,7 @@ local function refresh_infotext(pos, node)
     -- has fluid interface
     infotext =
       infotext ..
-      "Tank: " .. yatm.fluids.FluidMeta.to_infotext(meta, "tank", fluid_interface.capacity) .. "\n"
+      "Tank: " .. yatm.fluids.FluidMeta.to_infotext(meta, "tank", fluid_interface:get_capacity(pos, 0)) .. "\n"
   end
 
   if item_interface then

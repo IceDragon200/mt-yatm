@@ -9,7 +9,7 @@ local FluidRegistry = assert(yatm_fluids.FluidRegistry)
 local FluidMeta = assert(yatm_fluids.FluidMeta)
 
 local fluid_tank_fluid_interface = FluidInterface.new_simple("tank", 16000)
-fluid_tank_fluid_interface.bandwidth = assert(fluid_tank_fluid_interface.capacity)
+fluid_tank_fluid_interface._private.bandwidth = assert(fluid_tank_fluid_interface._private.capacity)
 
 function fluid_tank_fluid_interface:on_fluid_changed(pos, dir, new_stack)
   local node = minetest.get_node(pos)
@@ -66,12 +66,13 @@ function yatm_fluids.fluid_tank_refresh_infotext(pos)
     end
     meta:set_string("infotext", "Tank <EMPTY>")
   else
-    local level = math.floor(63 * fluid_stack.amount / fluid_interface.capacity)
+    local capacity = fluid_interface:get_capacity(pos, 0)
+    local level = math.floor(63 * fluid_stack.amount / capacity)
     if node.param2 ~= level then
       node.param2 = level
       minetest.swap_node(pos, node)
     end
-    meta:set_string("infotext", "Tank <" .. FluidStack.to_string(fluid_stack, fluid_interface.capacity) .. ">")
+    meta:set_string("infotext", "Tank <" .. FluidStack.to_string(fluid_stack, capacity) .. ">")
   end
 end
 

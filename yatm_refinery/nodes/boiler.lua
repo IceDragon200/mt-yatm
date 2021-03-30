@@ -45,8 +45,8 @@ local function get_fluid_tank_name(self, pos, dir)
 end
 
 local fluid_interface = FluidInterface.new_directional(get_fluid_tank_name)
-fluid_interface.capacity = 16000
-fluid_interface.bandwidth = fluid_interface.capacity
+fluid_interface._private.capacity = 16000
+fluid_interface._private.bandwidth = fluid_interface._private.capacity
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
   local node = minetest.get_node(pos)
@@ -62,8 +62,8 @@ local function boiler_refresh_infotext(pos)
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     cluster_energy:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
-    "Steam Tank: <" .. FluidStack.pretty_format(steam_fluid_stack, fluid_interface.capacity) .. ">\n" ..
-    "Water Tank: <" .. FluidStack.pretty_format(water_fluid_stack, fluid_interface.capacity) .. ">"
+    "Steam Tank: <" .. FluidStack.pretty_format(steam_fluid_stack, fluid_interface._private.capacity) .. ">\n" ..
+    "Water Tank: <" .. FluidStack.pretty_format(water_fluid_stack, fluid_interface._private.capacity) .. ">"
 
   meta:set_string("infotext", infotext)
 end
@@ -103,20 +103,20 @@ function boiler_yatm_network.work(pos, node, available_energy, work_rate, dtime,
     local stack = FluidMeta.drain_fluid(meta,
       WATER_TANK,
       FluidStack.new("group:water", 50),
-      fluid_interface.bandwidth, fluid_interface.capacity, false)
+      fluid_interface._private.bandwidth, fluid_interface._private.capacity, false)
 
     if stack then
       -- TODO: yatm_core:steam should not be hardcoded
       local filled_stack = FluidMeta.fill_fluid(meta,
         STEAM_TANK,
         FluidStack.set_name(stack, "yatm_core:steam"),
-        fluid_interface.bandwidth, fluid_interface.capacity, true)
+        fluid_interface._private.bandwidth, fluid_interface._private.capacity, true)
 
       if filled_stack and filled_stack.amount > 0 then
         FluidMeta.drain_fluid(meta,
           WATER_TANK,
           FluidStack.set_amount(stack, filled_stack.amount),
-          fluid_interface.bandwidth, fluid_interface.capacity, true)
+          fluid_interface._private.bandwidth, fluid_interface._private.capacity, true)
         energy_consumed = energy_consumed + filled_stack.amount
       end
     end
@@ -127,7 +127,7 @@ function boiler_yatm_network.work(pos, node, available_energy, work_rate, dtime,
     local stack, _new_stack = FluidMeta.drain_fluid(meta,
       STEAM_TANK,
       FluidStack.new("group:steam", 1000),
-      fluid_interface.capacity, fluid_interface.capacity, false)
+      fluid_interface._private.capacity, fluid_interface._private.capacity, false)
 
     if stack then
       local steam_tank_dir = Directions.facedir_to_face(node.param2, Directions.D_UP)

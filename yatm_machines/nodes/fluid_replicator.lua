@@ -25,15 +25,18 @@ local fluid_replicator_yatm_network = {
   },
 }
 
+local TANK_NAME = "tank"
 local fluid_interface = {
-  tank_name = "tank",
-  capacity = 16000,
+  _private = {
+    tank_name = TANK_NAME,
+    capacity = 16000,
+  }
 }
 
 function fluid_interface:get(pos, dir)
   local meta = minetest.get_meta(pos)
   local stack = FluidMeta.get_fluid_stack(meta, self.tank_name)
-  stack.amount = capacity
+  stack.amount = self._private.capacity
   return stack
 end
 
@@ -48,10 +51,11 @@ end
 
 function fluid_interface:fill(pos, dir, new_stack, commit)
   local meta = minetest.get_meta(pos)
+  local capacity = self._private.capacity
   local stack, new_stack = FluidMeta.fill_fluid(meta,
     self.tank_name,
     FluidStack.set_amount(new_stack, capacity),
-    self.capacity, self.capacity, commit)
+    capacity, capacity, commit)
   if commit then
     self:on_fluid_changed(pos, dir, new_stack)
   end
@@ -60,10 +64,11 @@ end
 
 function fluid_interface:drain(pos, dir, new_stack, commit)
   local meta = minetest.get_meta(pos)
+  local capacity = self._private.capacity
   local stack, new_stack = FluidMeta.drain_fluid(meta,
     self.tank_name,
-    FluidStack.set_amount(new_stack, self.capacity),
-    self.capacity, self.capacity, false)
+    FluidStack.set_amount(new_stack, capacity),
+    capacity, capacity, false)
   if commit then
     self:on_fluid_changed(pos, dir, new_stack)
   end
@@ -73,13 +78,14 @@ end
 function fluid_replicator_yatm_network.work(pos, node, energy_available, work_rate, dtime, ot)
   local energy_consumed = 0
   local meta = minetest.get_meta(pos)
+  local capacity = fluid_interface._private.capacity
   -- Drain fluid from replicator into any adjacent fluid interface
   for _, dir in ipairs(Directions.DIR6) do
     local target_pos = vector.add(pos, Directions.DIR6_TO_VEC3[dir])
     local stack = FluidMeta.drain_fluid(meta,
-      fluid_interface.tank_name,
-      FluidStack.new_wildcard(fluid_interface.capacity),
-      fluid_interface.capacity, fluid_interface.capacity, false)
+      TANK_NAME,
+      FluidStack.new_wildcard(capacity),
+      capacity, capacity, false)
 
     if stack then
       stack.amount = capacity

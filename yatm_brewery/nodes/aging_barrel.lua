@@ -70,7 +70,7 @@ local function barrel_refresh_infotext(pos, node)
       " " ..
       stack.amount ..
       " / " ..
-      nodedef.fluid_interface.capacity
+      nodedef.fluid_interface:get_capacity(pos, 0)
     )
   else
     meta:set_string("infotext", "Barrel: Empty")

@@ -78,6 +78,7 @@ for _,row in ipairs(yatm.colors) do
       "yatm_retaining_wall_" .. color_basename .. "_front.png^[transformFX",
       "yatm_retaining_wall_" .. color_basename .. "_front.png",
     },
+    use_texture_alpha = "opaque",
 
     collision_box = {
       type = "fixed",
@@ -127,6 +128,7 @@ for _,row in ipairs(yatm.colors) do
       "yatm_retaining_wall_" .. color_basename .. "_front.png^[transformFX",
       "yatm_retaining_wall_" .. color_basename .. "_front.png",
     },
+    use_texture_alpha = "opaque",
 
     is_ground_content = false,
 

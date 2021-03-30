@@ -55,8 +55,8 @@ local function get_fluid_tank_name(self, pos, dir)
 end
 
 local fluid_interface = FluidInterface.new_directional(get_fluid_tank_name)
-fluid_interface.capacity = 16000
-fluid_interface.bandwidth = fluid_interface.capacity
+fluid_interface._private.capacity = 16000
+fluid_interface._private.bandwidth = fluid_interface._private.capacity
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
   local node = minetest.get_node(pos)
@@ -105,8 +105,10 @@ function distillation_unit_yatm_network.work(pos, node, available_energy, work_r
 
       -- Since the distillation unit has to deal with multiple fluids, the filling is not committed but instead done as a kind of transaction
       -- Where we simulate adding the fluid
-      local used_distilled_stack, new_distilled_stack = FluidMeta.fill_fluid(meta, DISTILLED_TANK, distilled_fluid_stack, fluid_interface.capacity, fluid_interface.capacity, false)
-      local used_output_stack, new_output_stack = FluidMeta.fill_fluid(meta, OUTPUT_STEAM_TANK, output_vapour_fluid_stack, fluid_interface.capacity, fluid_interface.capacity, false)
+      local used_distilled_stack, new_distilled_stack =
+        FluidMeta.fill_fluid(meta, DISTILLED_TANK, distilled_fluid_stack, fluid_interface._private.capacity, fluid_interface._private.capacity, false)
+      local used_output_stack, new_output_stack =
+        FluidMeta.fill_fluid(meta, OUTPUT_STEAM_TANK, output_vapour_fluid_stack, fluid_interface._private.capacity, fluid_interface._private.capacity, false)
 
       if used_output_stack and used_distilled_stack then
         -- All the fluid must be used
@@ -142,7 +144,7 @@ function distillation_unit_yatm_network.work(pos, node, available_energy, work_r
     local output_tank_pos = vector.add(pos, Directions.DIR6_TO_VEC3[output_tank_dir])
 
     local fs = FluidExchange.transfer_from_meta_to_tank(
-      meta, { tank_name = OUTPUT_STEAM_TANK, capacity = fluid_interface.capacity, bandwidth = fluid_interface.capacity },
+      meta, { tank_name = OUTPUT_STEAM_TANK, capacity = fluid_interface._private.capacity, bandwidth = fluid_interface._private.capacity },
       FluidStack.new_wildcard(100),
       output_tank_pos, Directions.invert_dir(output_tank_dir),
       true
@@ -159,7 +161,7 @@ function distillation_unit_yatm_network.work(pos, node, available_energy, work_r
       local output_tank_pos = vector.add(pos, Directions.DIR6_TO_VEC3[output_tank_dir])
 
       local fs = FluidExchange.transfer_from_meta_to_tank(
-        meta, { tank_name = DISTILLED_TANK, capacity = fluid_interface.capacity, bandwidth = fluid_interface.capacity },
+        meta, { tank_name = DISTILLED_TANK, capacity = fluid_interface._private.capacity, bandwidth = fluid_interface._private.capacity },
         FluidStack.new_wildcard(100),
         output_tank_pos, Directions.invert_dir(output_tank_dir),
         true
@@ -195,12 +197,14 @@ function distillation_unit_refresh_infotext(pos)
     infotext = infotext .. " (" .. error_text .. ")"
   end
 
+  local capacity = fluid_interface._private.capacity
+
   infotext =
     infotext .. "\n" ..
     cluster_energy:get_node_infotext(pos) .. "(" .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. " E)" .. "\n" ..
-    "I.Steam Tank: " .. FluidStack.pretty_format(input_steam_fluid_stack, fluid_interface.capacity) .. "\n" ..
-    "O.Steam Tank: " .. FluidStack.pretty_format(output_steam_fluid_stack, fluid_interface.capacity) .. "\n" ..
-    "Distilled Tank: " .. FluidStack.pretty_format(distilled_fluid_stack, fluid_interface.capacity)
+    "I.Steam Tank: " .. FluidStack.pretty_format(input_steam_fluid_stack, capacity) .. "\n" ..
+    "O.Steam Tank: " .. FluidStack.pretty_format(output_steam_fluid_stack, capacity) .. "\n" ..
+    "Distilled Tank: " .. FluidStack.pretty_format(distilled_fluid_stack, capacity)
 
   meta:set_string("infotext", infotext)
 end

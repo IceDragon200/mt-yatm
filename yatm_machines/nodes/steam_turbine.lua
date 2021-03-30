@@ -49,7 +49,7 @@ local function get_fluid_tank_name(_self, pos, dir)
 end
 
 local fluid_interface = FluidInterface.new_directional(get_fluid_tank_name)
-fluid_interface.capacity = capacity
+fluid_interface._private.capacity = capacity
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
   local node = minetest.get_node(pos)
@@ -65,8 +65,8 @@ function steam_turbine_refresh_infotext(pos)
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     cluster_energy:get_node_infotext(pos) .. "\n" ..
-    "Water Tank: " .. FluidStack.pretty_format(water_tank_fluid_stack, fluid_interface.capacity) .. "\n" ..
-    "Steam Tank: " .. FluidStack.pretty_format(steam_tank_fluid_stack, fluid_interface.capacity)
+    "Water Tank: " .. FluidStack.pretty_format(water_tank_fluid_stack, capacity) .. "\n" ..
+    "Steam Tank: " .. FluidStack.pretty_format(steam_tank_fluid_stack, capacity)
 
   meta:set_string("infotext", infotext)
 end

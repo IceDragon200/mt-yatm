@@ -59,7 +59,7 @@ local function smelter_refresh_infotext(pos)
   meta:set_string("infotext",
     cluster_thermal:get_node_infotext(pos) .. "\n" ..
     "Heat: " .. heat .. "\n" ..
-    "Molten Tank: " .. FluidStack.pretty_format(molten_tank_fluid_stack, fluid_interface.capacity) .. "\n" ..
+    "Molten Tank: " .. FluidStack.pretty_format(molten_tank_fluid_stack, fluid_interface._private.capacity) .. "\n" ..
     "Time Remaining: " .. format_pretty_time(recipe_time) .. " / " .. format_pretty_time(recipe_time_max)
   )
 end

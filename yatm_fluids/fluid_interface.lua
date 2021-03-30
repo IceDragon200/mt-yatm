@@ -43,6 +43,7 @@ end
 
 function FluidInterface.new()
   local fluid_interface = {
+    _private = {},
     on_fluid_changed = default_on_fluid_changed,
     allow_replace = default_allow_replace,
     allow_fill = default_allow_fill,
@@ -54,12 +55,12 @@ end
 
 local function default_simple_get(self, pos, dir)
   local meta = minetest.get_meta(pos)
-  local stack = FluidMeta.get_fluid_stack(meta, self.tank_name)
+  local stack = FluidMeta.get_fluid_stack(meta, self._private.tank_name)
   return stack
 end
 
 local function default_simple_get_capacity(self, _pos, _dir)
-  return self.capacity
+  return self._private.capacity
 end
 
 local function default_simple_replace(self, pos, dir, new_stack, commit)
@@ -69,7 +70,7 @@ local function default_simple_replace(self, pos, dir, new_stack, commit)
     local stack
 
     stack, new_stack = FluidMeta.set_fluid(meta,
-      self.tank_name,
+      self._private.tank_name,
       new_stack,
       commit)
 
@@ -87,9 +88,9 @@ local function default_simple_fill(self, pos, dir, fluid_stack, commit)
   if allowed then
     local meta = minetest.get_meta(pos)
     local stack, new_stack = FluidMeta.fill_fluid(meta,
-      self.tank_name,
+      self._private.tank_name,
       fluid_stack,
-      self.bandwidth, self.capacity, commit)
+      self._private.bandwidth, self:get_capacity(pos, dir), commit)
     if commit then
       self:on_fluid_changed(pos, dir, new_stack)
     end
@@ -104,9 +105,9 @@ local function default_simple_drain(self, pos, dir, fluid_stack, commit)
   if allowed then
     local meta = minetest.get_meta(pos)
     local stack, new_stack = FluidMeta.drain_fluid(meta,
-      self.tank_name,
+      self._private.tank_name,
       fluid_stack,
-      self.bandwidth, self.capacity, commit)
+      self._private.bandwidth, self:get_capacity(pos, dir), commit)
     if commit then
       self:on_fluid_changed(pos, dir, new_stack)
     end
@@ -121,9 +122,11 @@ function FluidInterface.new_simple(tank_name, capacity)
   assert(capacity, "expecetd a capacity")
   local fluid_interface = FluidInterface.new()
 
-  fluid_interface.capacity = capacity
-  fluid_interface.bandwidth = capacity
-  fluid_interface.tank_name = tank_name
+  fluid_interface._private = {
+    capacity = capacity,
+    bandwidth = capacity,
+    tank_name = tank_name,
+  }
 
   fluid_interface.get = default_simple_get
   fluid_interface.get_capacity = default_simple_get_capacity
@@ -217,6 +220,7 @@ end
 
 function FluidInterface.new_directional(get_fluid_tank_name)
   local fluid_interface = FluidInterface.new()
+  fluid_interface._private = {}
   fluid_interface.get_fluid_tank_name = get_fluid_tank_name
   fluid_interface.on_fluid_changed = default_on_fluid_changed
 

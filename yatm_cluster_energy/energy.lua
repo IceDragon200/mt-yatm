@@ -41,9 +41,9 @@ function energy.get_energy_throughput(meta, key, bandwidth)
   return math.min(energy.get_energy(meta, key), bandwidth)
 end
 
-function energy.set_energy(meta, key, energy)
+function energy.set_energy(meta, key, amount)
   assert(meta, "expected a metaref")
-  energy.schema:set_field(meta, key, "energy", math.max(energy, 0))
+  energy.schema:set_field(meta, key, "energy", math.max(amount, 0))
 end
 
 function energy.increase_energy(meta, key, amount, commit)

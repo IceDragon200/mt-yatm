@@ -28,7 +28,8 @@ local pump_yatm_network = {
   }
 }
 
-local fluid_interface = yatm.fluids.FluidInterface.new_simple("tank", 16000)
+local TANK_NAME = "tank"
+local fluid_interface = yatm.fluids.FluidInterface.new_simple(TANK_NAME, 16000)
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
   local node = minetest.get_node(pos)
@@ -50,13 +51,15 @@ local function pump_refresh_infotext(pos)
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
   local meta = minetest.get_meta(pos)
-  local fluid_stack = FluidMeta.get_fluid_stack(meta, nodedef.fluid_interface.tank_name)
+  local fluid_stack = FluidMeta.get_fluid_stack(meta, TANK_NAME)
+
+  local capacity = fluid_interface._private.capacity
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     cluster_energy:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
-    "Tank: " .. FluidStack.pretty_format(fluid_stack, fluid_interface.capacity)
+    "Tank: " .. FluidStack.pretty_format(fluid_stack, capacity)
 
   meta:set_string("infotext", infotext)
 end
@@ -71,8 +74,10 @@ function pump_yatm_network.work(pos, node, energy_available, work_rate, dtime, o
   local target_node = minetest.get_node(target_pos)
   local fluid_name = FluidRegistry.item_name_to_fluid_name(target_node.name)
 
+  local capacity = nodedef.fluid_interface._private.capacity
+
   if fluid_name then
-    local used_stack = FluidMeta.fill_fluid(meta, "tank", FluidStack.new(fluid_name, 1000), nodedef.fluid_interface.capacity, nodedef.fluid_interface.capacity, true)
+    local used_stack = FluidMeta.fill_fluid(meta, "tank", FluidStack.new(fluid_name, 1000), capacity, capacity, true)
     if used_stack and used_stack.amount > 0 then
       energy_consumed = energy_consumed + math.floor(100 * used_stack.amount / 1000)
       minetest.remove_node(target_pos)
@@ -82,7 +87,7 @@ function pump_yatm_network.work(pos, node, energy_available, work_rate, dtime, o
     local drained_stack = FluidTanks.drain_fluid(target_pos, inverted_dir, FluidStack.new_wildcard(1000), false)
     if drained_stack and drained_stack.amount > 0 then
       local existing = FluidTanks.get_fluid(pos, pump_dir)
-      local filled_stack = FluidMeta.fill_fluid(meta, "tank", drained_stack, nodedef.fluid_interface.capacity, nodedef.fluid_interface.capacity, true)
+      local filled_stack = FluidMeta.fill_fluid(meta, "tank", drained_stack, capacity, capacity, true)
 
       if filled_stack and filled_stack.amount > 0 then
         FluidTanks.drain_fluid(target_pos,
@@ -99,7 +104,8 @@ function pump_yatm_network.work(pos, node, energy_available, work_rate, dtime, o
     local stack = FluidMeta.drain_fluid(meta,
       "tank",
       FluidStack.new_wildcard(1000),
-      fluid_interface.capacity, fluid_interface.capacity, false)
+      capacity, capacity, false)
+
     if stack and stack.amount > 0 then
       local target_dir = Directions.invert_dir(new_dir)
       local filled_stack = FluidTanks.fill_fluid(target_pos, target_dir, stack, true)
@@ -108,7 +114,7 @@ function pump_yatm_network.work(pos, node, energy_available, work_rate, dtime, o
         FluidMeta.drain_fluid(meta,
           "tank",
           filled_stack,
-          fluid_interface.capacity, fluid_interface.capacity, true)
+          capacity, capacity, true)
       end
     end
   end

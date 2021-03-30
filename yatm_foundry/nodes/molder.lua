@@ -76,12 +76,14 @@ local function molder_refresh_infotext(pos)
   local recipe_time = meta:get_float("recipe_time")
   local recipe_time_max = meta:get_float("recipe_time_max")
 
+  local capacity = fluid_interface:get_capacity(pos, 0)
+
   local infotext =
     cluster_thermal:get_node_infotext(pos) .. "\n" ..
     "Heat: " .. heat .. "\n" ..
     "Recipe: " .. recipe_name .. "\n" ..
-    "Molten Tank: " .. FluidStack.pretty_format(molten_tank_fluid_stack, fluid_interface.capacity) .. "\n" ..
-    "Molding Tank: " .. FluidStack.pretty_format(molding_tank_fluid_stack, fluid_interface.capacity) .. "\n" ..
+    "Molten Tank: " .. FluidStack.pretty_format(molten_tank_fluid_stack, capacity) .. "\n" ..
+    "Molding Tank: " .. FluidStack.pretty_format(molding_tank_fluid_stack, capacity) .. "\n" ..
     "Time Remaining: " .. format_pretty_time(recipe_time) .. " / " .. format_pretty_time(recipe_time_max)
 
   meta:set_string("infotext", infotext)

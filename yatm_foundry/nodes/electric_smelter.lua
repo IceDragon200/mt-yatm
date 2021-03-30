@@ -74,15 +74,18 @@ local item_interface = ItemInterface.new_simple("input_slot")
 
 function electric_smelter_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
+  local node = minetest.get_node(pos)
 
   local molten_tank_fluid_stack = FluidMeta.get_fluid_stack(meta, "molten_tank")
   local recipe_time = meta:get_float("recipe_time")
   local recipe_time_max = meta:get_float("recipe_time_max")
 
+  local capacity = fluid_interface:get_capacity(pos, 0)
+
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
-    "Molten Tank: " .. FluidStack.pretty_format(molten_tank_fluid_stack, fluid_interface.capacity) .. "\n" ..
+    "Molten Tank: " .. FluidStack.pretty_format(molten_tank_fluid_stack, capacity) .. "\n" ..
     "Time Remaining: " .. format_pretty_time(recipe_time) .. " / " .. format_pretty_time(recipe_time_max)
 
   meta:set_string("infotext", infotext)
