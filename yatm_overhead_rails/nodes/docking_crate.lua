@@ -63,6 +63,7 @@ yatm.register_stateful_node("yatm_overhead_rails:docking_crate", {
   fluid = {
     groups = table_merge(groups, {
       docking_crate_fluids = 1,
+      not_in_creative_inventory = 1,
     }),
 
     description = mod.S("Docking Crate [Fluid]"),
@@ -84,6 +85,7 @@ yatm.register_stateful_node("yatm_overhead_rails:docking_crate", {
   ele = {
     groups = table_merge(groups, {
       docking_crate_elemental = 1,
+      not_in_creative_inventory = 1,
     }),
 
     description = mod.S("Docking Crate [Element]"),
@@ -105,6 +107,7 @@ yatm.register_stateful_node("yatm_overhead_rails:docking_crate", {
   energy = {
     groups = table_merge(groups, {
       docking_crate_energy = 1,
+      not_in_creative_inventory = 1,
     }),
 
     description = mod.S("Docking Crate [Energy]"),
@@ -126,6 +129,7 @@ yatm.register_stateful_node("yatm_overhead_rails:docking_crate", {
   items = {
     groups = table_merge(groups, {
       docking_crate_items = 1,
+      not_in_creative_inventory = 1,
     }),
 
     description = mod.S("Docking Crate [Item]"),
@@ -147,6 +151,7 @@ yatm.register_stateful_node("yatm_overhead_rails:docking_crate", {
   heat = {
     groups = table_merge(groups, {
       docking_crate_heat = 1,
+      not_in_creative_inventory = 1,
     }),
 
     description = mod.S("Docking Crate [Heat]"),
