@@ -1,3 +1,6 @@
+--
+-- The Cluster Tool is a simple tool for viewing and debugging various YATM clusters.
+--
 local is_table_empty = assert(foundation.com.is_table_empty)
 local cluster_tool = assert(yatm.cluster_tool)
 local sounds = assert(yatm.sounds)
@@ -59,7 +62,7 @@ local function show_cluster_summary(user, state)
 end
 
 yatm_clusters:register_tool("cluster_tool", {
-  description = "YATM Cluster Tool\nRight-Click any device to view associated clusters.",
+  description = "YATM Cluster Debug Tool\nRight-Click any device to view associated clusters for debugging.",
 
   groups = {
     cluster_tool = 1,
