@@ -26,7 +26,7 @@ function ItemDevice.room_for_item(pos, dir, item_stack)
         --print("ItemDevice.room_for_item/3", minetest.pos_to_string(pos), yatm_core.inspect_axis(dir), yatm_core.itemstack_inspect(item_stack))
         return nodedef.item_interface:room_for_item(pos, dir, item_stack)
       else
-        return nil, "no insert_item/3"
+        return nil, "no room_for_item/3"
       end
     else
       return nil, "no item_interface"
