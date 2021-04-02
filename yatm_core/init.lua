@@ -17,11 +17,6 @@ yatm_core.Class = foundation.com.Class
 mod:require("changeset.lua")
 -- Networks
 mod:require("measurable.lua") -- similar to energy, but has a name field too
--- Nodes and Items
-mod:require("nodes.lua")
-mod:require("items.lua")
--- Recipes
-mod:require("recipes.lua")
 
 -- Formspec Handle system
 mod:require("formspec_handles.lua")
@@ -32,6 +27,13 @@ mod.node_sounds = assert(foundation.com.node_sounds)
 
 -- API
 mod:require("api.lua")
+
+-- Nodes and Items
+mod:require("nodes.lua")
+mod:require("items.lua")
+-- Recipes
+mod:require("recipes.lua")
+
 -- Post Load Hooks
 mod:require("post_hooks.lua")
 
