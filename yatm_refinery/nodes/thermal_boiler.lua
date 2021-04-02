@@ -9,6 +9,7 @@ local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidUtils = assert(yatm.fluids.Utils)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
+local table_merge = assert(foundation.com.table_merge)
 
 if not cluster_thermal then
   minetest.log("warning", "thermal cluster is not available, skipping thermal boiler")
@@ -17,21 +18,33 @@ end
 
 local STEAM_TANK = "steam_tank"
 local WATER_TANK = "water_tank"
+local FLUID_CAPACITY = 16000
 
 local function get_fluid_tank_name(self, pos, dir)
   local node = minetest.get_node(pos)
   local new_dir = Directions.facedir_to_face(node.param2, dir)
   if new_dir == Directions.D_UP then
-    return STEAM_TANK, self.capacity
-  else
-    return WATER_TANK, self.capacity
+    return STEAM_TANK, FLUID_CAPACITY
   end
-  return nil, nil
+  return WATER_TANK, FLUID_CAPACITY
 end
 
 local fluid_interface = FluidInterface.new_directional(get_fluid_tank_name)
-fluid_interface._private.capacity = 16000
+fluid_interface._private.capacity = FLUID_CAPACITY
 fluid_interface._private.bandwidth = fluid_interface._private.capacity
+
+function fluid_interface:allow_drain(pos, dir, fluid_stack)
+  return true
+end
+
+function fluid_interface:allow_fill(pos, dir, fluid_stack)
+  local node = minetest.get_node(pos)
+  local new_dir = Directions.facedir_to_face(node.param2, dir)
+  if new_dir == Directions.D_UP then
+    return false
+  end
+  return true
+end
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
   local node = minetest.get_node(pos)
@@ -45,13 +58,11 @@ local function boiler_refresh_infotext(pos)
 
   local heat = math.floor(meta:get_float("heat"))
 
-  local capacity = fluid_interface._private.capacity
-
   local infotext =
     cluster_thermal:get_node_infotext(pos) .. "\n" ..
     "Heat: " .. heat .. "\n" ..
-    "Steam Tank: <" .. FluidStack.pretty_format(steam_fluid_stack, capacity) .. ">\n" ..
-    "Water Tank: <" .. FluidStack.pretty_format(water_fluid_stack, capacity) .. ">"
+    "Steam Tank: <" .. FluidStack.pretty_format(steam_fluid_stack, FLUID_CAPACITY) .. ">\n" ..
+    "Water Tank: <" .. FluidStack.pretty_format(water_fluid_stack, FLUID_CAPACITY) .. ">"
 
   meta:set_string("infotext", infotext)
 end
@@ -74,17 +85,21 @@ local function on_timer(pos, elapsed)
   return true
 end
 
+local groups = {
+  cracky = 1,
+  yatm_cluster_thermal = 1,
+  heatable_device = 1,
+  fluid_interface_in = 1,
+  fluid_interface_out = 1,
+}
+
 yatm.register_stateful_node("yatm_refinery:thermal_boiler", {
   base_description = "Thermal Boiler",
   description = "Thermal Boiler",
 
   drop = "yatm_refinery:thermal_boiler_off",
 
-  groups = {
-    cracky = 1,
-    yatm_cluster_thermal = 1,
-    heatable_device = 1,
-  },
+  groups = groups,
 
   paramtype = "none",
   paramtype2 = "facedir",
@@ -137,12 +152,9 @@ yatm.register_stateful_node("yatm_refinery:thermal_boiler", {
   },
 
   on = {
-    groups = {
-      cracky = 1,
+    groups = table_merge(groups, {
       not_in_creative_inventory = 1,
-      heatable_device = 1,
-      yatm_cluster_thermal = 1,
-    },
+    }),
 
     tiles = {
       "yatm_thermal_boiler_top.on.png",
