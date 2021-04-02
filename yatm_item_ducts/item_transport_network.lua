@@ -68,6 +68,9 @@ function m:update_inserter_duct(network, inserter_hash, inserter, items_availabl
   local new_items_available = items_available
   for dir, v3 in pairs(DIR6_TO_VEC3) do
     if is_table_empty(new_items_available) then
+      if network.debug then
+        print(self.m_description, "no_more_items")
+      end
       break
     end
 
@@ -77,13 +80,18 @@ function m:update_inserter_duct(network, inserter_hash, inserter, items_availabl
     local old_items_available = new_items_available
     new_items_available = {}
 
+    local err
+
     for extractor_hash, old_entries in pairs(old_items_available) do
       local new_entries = {}
 
       for entry_hash, entry in pairs(old_entries) do
         local stack = entry.stack:peek_item(1)
 
-        if ItemDevice.room_for_item(target_pos, insert_dir, stack) then
+        local has_room
+        has_room, err = ItemDevice.room_for_item(target_pos, insert_dir, stack)
+
+        if has_room then
           local remaining, err = ItemDevice.insert_item(target_pos, insert_dir, stack, true)
           if err then
             if network.debug then
@@ -115,6 +123,9 @@ function m:update_inserter_duct(network, inserter_hash, inserter, items_availabl
             end
           end
         else
+          if network.debug then
+            print(self.m_description, "no room for item", err, minetest.pos_to_string(target_pos), inspect_axis(insert_dir))
+          end
           new_entries[entry_hash] = entry
         end
       end
@@ -154,6 +165,10 @@ function m:update_network(network, counter, delta)
         end
         if self:check_network_member(inserter, network) then
           items_available = self:update_inserter_duct(network, inserter_hash, inserter, items_available)
+        else
+          if network.debug then
+            print(self.m_description, network.id, "member pairage error")
+          end
         end
       end
     end
