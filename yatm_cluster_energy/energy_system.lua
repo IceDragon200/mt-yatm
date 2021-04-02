@@ -32,7 +32,7 @@ function ic:update(cls, cluster, dtime)
       if node then
         local amount_produced = EnergyDevices.produce_energy(node_entry.pos, node, dtime, span)
         if amount_produced then
-          acc = acc + produced
+          acc = acc + amount_produced
         end
       end
       return true, acc
