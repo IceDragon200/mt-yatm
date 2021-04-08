@@ -43,7 +43,7 @@ function fluid_interface:fill(pos, dir, fluid_stack, commit)
   if dir == pump_in_dir then
     return old_fill(self, pos, dir, fluid_stack, commit)
   else
-    return nil
+    return nil, "incorrect pumping direction"
   end
 end
 
@@ -77,12 +77,14 @@ function pump_yatm_network.work(pos, node, energy_available, work_rate, dtime, o
   local capacity = nodedef.fluid_interface._private.capacity
 
   if fluid_name then
+    -- try filling internal tank with fluid from node
     local used_stack = FluidMeta.fill_fluid(meta, "tank", FluidStack.new(fluid_name, 1000), capacity, capacity, true)
     if used_stack and used_stack.amount > 0 then
       energy_consumed = energy_consumed + math.floor(100 * used_stack.amount / 1000)
       minetest.remove_node(target_pos)
     end
   else
+    -- try extracting fluid from connected node
     local inverted_dir = Directions.invert_dir(pump_dir)
     local drained_stack = FluidTanks.drain_fluid(target_pos, inverted_dir, FluidStack.new_wildcard(1000), false)
     if drained_stack and drained_stack.amount > 0 then
