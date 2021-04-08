@@ -84,7 +84,7 @@ function boiler_yatm_network.work(pos, node, available_energy, work_rate, dtime,
         local target_dir = Directions.invert_dir(water_tank_dir)
         local stack = FluidTanks.drain_fluid(water_tank_pos,
           target_dir,
-          FluidStack.new("group:water", 1000), false)
+          FluidStack.new("group:water", math.floor(1000 * dtime)), false)
         if stack then
           local filled_stack = FluidTanks.fill_fluid(pos, water_tank_dir, stack, true)
           if filled_stack and filled_stack.amount > 0 then
@@ -102,7 +102,7 @@ function boiler_yatm_network.work(pos, node, available_energy, work_rate, dtime,
   do
     local stack = FluidMeta.drain_fluid(meta,
       WATER_TANK,
-      FluidStack.new("group:water", 50),
+      FluidStack.new("group:water", math.floor(500 * dtime)),
       fluid_interface._private.bandwidth, fluid_interface._private.capacity, false)
 
     if stack then
@@ -126,7 +126,7 @@ function boiler_yatm_network.work(pos, node, available_energy, work_rate, dtime,
   do
     local stack, _new_stack = FluidMeta.drain_fluid(meta,
       STEAM_TANK,
-      FluidStack.new("group:steam", 1000),
+      FluidStack.new("group:steam", math.floor(1000 * dtime)),
       fluid_interface._private.capacity, fluid_interface._private.capacity, false)
 
     if stack then
