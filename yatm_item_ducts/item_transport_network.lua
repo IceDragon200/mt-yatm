@@ -175,7 +175,7 @@ function m:update_network(network, counter, delta)
   end
 end
 
-yatm_item_ducts.ItemTransportNetwork = ItemTransportNetwork:new({
+yatm_item_ducts.item_transport_network = ItemTransportNetwork:new({
   description = "Item Transport Network",
   abbr = "itn",
   node_interface_name = "item_transport_device",
@@ -183,7 +183,7 @@ yatm_item_ducts.ItemTransportNetwork = ItemTransportNetwork:new({
 
 do
   minetest.register_globalstep(function (delta)
-    yatm_item_ducts.ItemTransportNetwork:update(delta)
+    yatm_item_ducts.item_transport_network:update(delta)
   end)
 
   minetest.register_lbm({
@@ -193,7 +193,7 @@ do
     },
     run_at_every_load = true,
     action = function (pos, node)
-      yatm_item_ducts.ItemTransportNetwork:register_member(pos, node)
+      yatm_item_ducts.item_transport_network:register_member(pos, node)
     end
   })
 end

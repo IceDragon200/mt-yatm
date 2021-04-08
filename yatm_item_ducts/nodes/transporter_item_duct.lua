@@ -1,14 +1,14 @@
 local list_concat = assert(foundation.com.list_concat)
 
-local ItemTransportNetwork = assert(yatm.item_transport.ItemTransportNetwork)
+local item_transport_network = assert(yatm.item_transport.item_transport_network)
 
 local function duct_after_place_node(pos, _placer, _itemstack, _pointed_thing)
   local node = minetest.get_node(pos)
-  ItemTransportNetwork:register_member(pos, node)
+  item_transport_network:register_member(pos, node)
 end
 
 local function duct_after_destruct(pos, _old_node)
-  ItemTransportNetwork:unregister_member(pos)
+  item_transport_network:unregister_member(pos)
 end
 
 local fsize = (6 / 16.0) / 2

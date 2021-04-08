@@ -1,1 +1,1 @@
-yatm.fluids.fluid_transport_cluster = yatm_fluid_pipes.fluid_transport_cluster
+yatm.fluids.fluid_transport_network = assert(yatm_fluid_pipes.fluid_transport_network)

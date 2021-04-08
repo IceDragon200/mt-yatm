@@ -56,7 +56,10 @@ end
 local function default_simple_get(self, pos, dir)
   local meta = minetest.get_meta(pos)
   local stack = FluidMeta.get_fluid_stack(meta, self._private.tank_name)
-  return stack
+  if stack then
+    return stack
+  end
+  return nil, "nothing"
 end
 
 local function default_simple_get_capacity(self, _pos, _dir)
@@ -78,9 +81,8 @@ local function default_simple_replace(self, pos, dir, new_stack, commit)
       self:on_fluid_changed(pos, dir, new_stack)
     end
     return stack
-  else
-    return nil, reason
   end
+  return nil, reason
 end
 
 local function default_simple_fill(self, pos, dir, fluid_stack, commit)
@@ -95,9 +97,8 @@ local function default_simple_fill(self, pos, dir, fluid_stack, commit)
       self:on_fluid_changed(pos, dir, new_stack)
     end
     return stack
-  else
-    return nil, reason
   end
+  return nil, reason
 end
 
 local function default_simple_drain(self, pos, dir, fluid_stack, commit)
@@ -112,9 +113,8 @@ local function default_simple_drain(self, pos, dir, fluid_stack, commit)
       self:on_fluid_changed(pos, dir, new_stack)
     end
     return stack
-  else
-    return nil, reason
   end
+  return nil, reason
 end
 
 function FluidInterface.new_simple(tank_name, capacity)
@@ -144,7 +144,7 @@ local function default_directional_get(self, pos, dir, _node)
     local stack = FluidMeta.get_fluid_stack(meta, tank_name)
     return stack
   end
-  return nil
+  return nil, "nothing"
 end
 
 local function default_directional_get_capacity(self, pos, dir, _node)
@@ -153,7 +153,7 @@ local function default_directional_get_capacity(self, pos, dir, _node)
   if tank_name then
     return capacity
   end
-  return nil
+  return nil, "no capacity"
 end
 
 local function default_directional_replace(self, pos, dir, fluid_stack, commit)
@@ -171,9 +171,9 @@ local function default_directional_replace(self, pos, dir, fluid_stack, commit)
       end
       return stack
     end
-  else
-    return nil, reason
+    return nil, "no tank"
   end
+  return nil, reason
 end
 
 local function default_directional_fill(self, pos, dir, fluid_stack, commit)
@@ -190,12 +190,10 @@ local function default_directional_fill(self, pos, dir, fluid_stack, commit)
         self:on_fluid_changed(pos, dir, new_stack)
       end
       return stack
-    else
-      return nil, "no tank"
     end
-  else
-    return nil, reason
+    return nil, "no tank"
   end
+  return nil, reason
 end
 
 local function default_directional_drain(self, pos, dir, fluid_stack, commit)
@@ -211,9 +209,8 @@ local function default_directional_drain(self, pos, dir, fluid_stack, commit)
         self:on_fluid_changed(pos, dir, new_stack)
       end
       return stack
-    else
-      return nil, "no tank"
     end
+    return nil, "no tank"
   end
   return nil
 end

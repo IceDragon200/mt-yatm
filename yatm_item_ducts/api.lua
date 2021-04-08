@@ -1,3 +1,3 @@
 yatm.item_transport = {
-  ItemTransportNetwork = assert(yatm_item_ducts.ItemTransportNetwork),
+  item_transport_network = assert(yatm_item_ducts.item_transport_network),
 }
