@@ -41,9 +41,12 @@ function fluid_interface:allow_fill(pos, dir, fluid_stack)
   local node = minetest.get_node(pos)
   local new_dir = Directions.facedir_to_face(node.param2, dir)
   if new_dir == Directions.D_UP then
-    return false
+    return false, "no filling from top"
   end
-  return true
+  if FluidStack.is_member_of_group(fluid_stack, "water") then
+    return true
+  end
+  return false, "expected fluid to be in water group"
 end
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
@@ -61,8 +64,8 @@ local function boiler_refresh_infotext(pos)
   local infotext =
     cluster_thermal:get_node_infotext(pos) .. "\n" ..
     "Heat: " .. heat .. "\n" ..
-    "Steam Tank: <" .. FluidStack.pretty_format(steam_fluid_stack, FLUID_CAPACITY) .. ">\n" ..
-    "Water Tank: <" .. FluidStack.pretty_format(water_fluid_stack, FLUID_CAPACITY) .. ">"
+    "Steam Tank: " .. FluidStack.pretty_format(steam_fluid_stack, FLUID_CAPACITY) .. "\n" ..
+    "Water Tank: " .. FluidStack.pretty_format(water_fluid_stack, FLUID_CAPACITY)
 
   meta:set_string("infotext", infotext)
 end
@@ -81,6 +84,56 @@ local function on_timer(pos, elapsed)
   local node = minetest.get_node(pos)
 
   -- TODO: use heat
+  local usable_heat = meta:get_float("heat")
+
+  -- TODO: determine what the heat's scale is
+  if usable_heat >= 100 then
+    -- Convert water into steam
+    do
+      local stack = FluidMeta.drain_fluid(meta,
+        WATER_TANK,
+        FluidStack.new("group:water", math.floor(500 * elapsed)),
+        fluid_interface._private.bandwidth, fluid_interface._private.capacity, false)
+
+      if stack then
+        -- TODO: yatm_core:steam should not be hardcoded
+        local filled_stack = FluidMeta.fill_fluid(meta,
+          STEAM_TANK,
+          FluidStack.set_name(stack, "yatm_core:steam"),
+          fluid_interface._private.bandwidth, fluid_interface._private.capacity, true)
+
+        if filled_stack and filled_stack.amount > 0 then
+          FluidMeta.drain_fluid(meta,
+            WATER_TANK,
+            FluidStack.set_amount(stack, filled_stack.amount),
+            fluid_interface._private.bandwidth, fluid_interface._private.capacity, true)
+        end
+      end
+    end
+  end
+
+  -- Fill tank on the UP face of the boiler with steam, if available
+  do
+    local stack, _new_stack = FluidMeta.drain_fluid(meta,
+      STEAM_TANK,
+      FluidStack.new("group:steam", 1000),
+      fluid_interface._private.capacity, fluid_interface._private.capacity, false)
+
+    if stack then
+      local steam_tank_dir = Directions.facedir_to_face(node.param2, Directions.D_UP)
+      local steam_tank_pos = vector.add(pos, Directions.DIR6_TO_VEC3[steam_tank_dir])
+      local steam_tank_node = minetest.get_node(steam_tank_pos)
+      local steam_tank_nodedef = minetest.registered_nodes[steam_tank_node.name]
+
+      if steam_tank_nodedef then
+        local filled_stack = FluidTanks.fill_fluid(steam_tank_pos,
+          Directions.invert_dir(steam_tank_dir), stack, true)
+        if filled_stack and filled_stack.amount > 0 then
+          FluidTanks.drain_fluid(pos, steam_tank_dir, filled_stack, true)
+        end
+      end
+    end
+  end
 
   return true
 end
