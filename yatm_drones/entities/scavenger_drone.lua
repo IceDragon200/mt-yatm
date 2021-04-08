@@ -106,36 +106,50 @@ local function get_nearby_entity_item(self)
   return nil
 end
 
-local function hq_pickup_item(self, prty)
-  local func = function(self)
-    if mobkit.is_queue_empty_low(self) and self.isonground then
-      local item_entity = get_nearby_entity_item(self)
-      if item_entity then
-        local item_stack = ItemStack(item_entity:get_luaentity().itemstring)
-        local inv = self:get_inventory()
+local function hq_pickup_item(self)
+  if mobkit.is_queue_empty_low(self) and self.isonground then
+    local item_entity = get_nearby_entity_item(self)
+    if item_entity then
+      local item_stack = ItemStack(item_entity:get_luaentity().itemstring)
+      local inv = self:get_inventory()
 
-        if inv:room_for_item("main", item_stack) then
-          local pos = mobkit.get_stand_pos(self)
-          local tpos = mobkit.get_stand_pos(item_entity)
+      if inv:room_for_item("main", item_stack) then
+        local pos = mobkit.get_stand_pos(self)
+        local tpos = mobkit.get_stand_pos(item_entity)
+        local voodoo_range = self.voodoo_range
+        local dist = vector.distance(pos,tpos)
+
+        if voodoo_range > 0 then
+          if dist < voodoo_range then
+            -- TODO: the drone should take some time before it can pick up the item
+            -- using voodoo, also play some visual and audio effects when it uses voodoo
+            -- versus regular vacuum
+            -- it should also consumer quite a bit of energy
+            inv:add_item("main", item_stack)
+            item_entity:remove()
+            return true
+          else
+            mobkit.goto_next_waypoint(self, tpos)
+          end
+        else
           local vacuum_range = self.vacuum_range
 
-          if vector.distance(pos,tpos) > vacuum_range then
+          if dist > vacuum_range then
             mobkit.goto_next_waypoint(self, tpos)
           else
             inv:add_item("main", item_stack)
             item_entity:remove()
             return true
           end
-        else
-          mobkit.remember(self, "need_dropoff", true)
-          return true
         end
       else
+        mobkit.remember(self, "need_dropoff", true)
         return true
       end
+    else
+      return true
     end
   end
-  mobkit.queue_high(self,func,prty)
 end
 
 local function hq_find_dropoff_station(self, prty, search_radius)
@@ -262,6 +276,8 @@ end
 local ENERGY_PER_SECOND = 20
 
 local function drone_logic(self)
+  --mobkit.remember(self, "elapsed", (mobkit.recall(self, "elapsed") or 0) + self.elapsed)
+
   do
     -- TODO: should also check light levels
     local solar_charge_rate = self.solar_charge_rate or 0.0
@@ -368,7 +384,7 @@ local function drone_logic(self)
             local item_entity = get_nearby_entity_item(self)
             if item_entity then
               mobkit.clear_queue_high(self)
-              hq_pickup_item(self, 20)
+              mobkit.queue_high(self, hq_pickup_item, 20)
               mobkit.forget(self, "idle_time")
               self:change_action_text("picking up an item")
               self:change_state("on")
