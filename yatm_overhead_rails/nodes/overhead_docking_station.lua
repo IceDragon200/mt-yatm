@@ -506,6 +506,8 @@ minetest.register_node("yatm_overhead_rails:overhead_docking_station", {
         -- TODO: alert user that they can't add this crate
       end
     end
+
+    return itemstack
   end,
 })
 
