@@ -16,7 +16,7 @@ local function pipe_after_destruct(pos, _old_node)
   fluid_transport_network:unregister_member(pos)
 end
 
-local basename = "yatm_fluid_pipe_valves:valve_fluid_pipe"
+local basename = "yatm_fluid_pipe_valves:mesecon_valve_fluid_pipe"
 for _,row in ipairs(yatm.colors_with_default) do
   local color_basename = row.name
   local color_name = row.description
@@ -48,9 +48,9 @@ for _,row in ipairs(yatm.colors_with_default) do
 
   yatm.register_stateful_node(node_name, {
     basename = basename,
-    base_description = "Valve Fluid Pipe",
+    base_description = "Mesecon Valve Fluid Pipe",
 
-    description = "Valve Fluid Pipe (" .. color_name .. ")",
+    description = "Mesecon Valve Fluid Pipe (" .. color_name .. ")",
 
     drop = node_name .. "_off",
 
@@ -71,9 +71,10 @@ for _,row in ipairs(yatm.colors_with_default) do
     after_place_node = pipe_after_place_node,
     after_destruct = pipe_after_destruct,
     on_destruct = pipe_on_destruct,
+
   }, {
     off = {
-      tiles = {"yatm_fluid_pipe_valve_" .. color_basename .. "_valve.off.png"},
+      tiles = {"yatm_fluid_pipe_valve_mesecon." .. color_basename .. "_valve.off.png"},
 
       fluid_transport_device = {
         type = "valve",
@@ -81,23 +82,22 @@ for _,row in ipairs(yatm.colors_with_default) do
         color = color_basename,
       },
 
-      on_rightclick = function (pos, node, clicker, itemstack, pointed_thing)
-        if itemstack:is_empty() then
-          local new_node = {
-            param = node.param,
-            param2 = node.param2,
-            name = node_name .. "_on",
-          }
-          minetest.swap_node(pos, new_node)
-          fluid_transport_network:update_member(pos, new_node)
-        end
-        return itemstack
-      end,
+      mesecons = {
+        effector = {
+          rules = yatm_fluid_pipe_valves.valve_mesecon_rules,
+
+          action_on = function (pos, node)
+            node.name = node_name .. "_on"
+            minetest.swap_node(pos, node)
+            fluid_transport_network:update_member(pos, node)
+          end,
+        }
+      },
     },
     on = {
       groups = table_merge(groups, {not_in_creative_inventory = 1}),
 
-      tiles = {"yatm_fluid_pipe_valve_" .. color_basename .. "_valve.on.png"},
+      tiles = {"yatm_fluid_pipe_valve_mesecon." .. color_basename .. "_valve.on.png"},
 
       fluid_transport_device = {
         type = "valve",
@@ -105,18 +105,17 @@ for _,row in ipairs(yatm.colors_with_default) do
         color = color_basename,
       },
 
-      on_rightclick = function (pos, node, clicker, itemstack, pointed_thing)
-        if itemstack:is_empty() then
-          local new_node = {
-            param = node.param,
-            param2 = node.param2,
-            name = node_name .. "_off",
-          }
-          minetest.swap_node(pos, new_node)
-          fluid_transport_network:update_member(pos, new_node)
-        end
-        return itemstack
-      end,
+      mesecons = {
+        effector = {
+          rules = yatm_fluid_pipe_valves.valve_mesecon_rules,
+
+          action_off = function (pos, node)
+            node.name = node_name .. "_off"
+            minetest.swap_node(pos, node)
+            fluid_transport_network:update_member(pos, node)
+          end,
+        }
+      },
     }
   })
 end

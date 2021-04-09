@@ -52,6 +52,7 @@ minetest.register_node("yatm_fluids:fluid_tank", {
   fluid_interface = assert(yatm_fluids.fluid_tank_fluid_interface),
 
   on_rightclick = function (pos, node, clicker, itemstack, pointed_thing)
+    return itemstack
   end,
 })
 
