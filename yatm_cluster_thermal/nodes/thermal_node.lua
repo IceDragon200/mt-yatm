@@ -133,6 +133,7 @@ yatm.register_stateful_node("yatm_cluster_thermal:thermal_node", {
     tiles = {
       "yatm_thermal_node_side.off.png"
     },
+    use_texture_alpha = "opaque",
   },
 
   heating = {
@@ -149,6 +150,7 @@ yatm.register_stateful_node("yatm_cluster_thermal:thermal_node", {
         },
       },
     },
+    use_texture_alpha = "opaque",
   },
 
   cooling = {
@@ -165,6 +167,7 @@ yatm.register_stateful_node("yatm_cluster_thermal:thermal_node", {
         },
       },
     },
+    use_texture_alpha = "opaque",
   },
 
   radiating = {
@@ -181,5 +184,6 @@ yatm.register_stateful_node("yatm_cluster_thermal:thermal_node", {
         },
       },
     },
+    use_texture_alpha = "opaque",
   },
 })

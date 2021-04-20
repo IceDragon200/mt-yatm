@@ -97,6 +97,7 @@ yatm.register_stateful_node("yatm_cluster_thermal:thermal_duct", {
     tiles = {
       "yatm_thermal_duct_side.off.png"
     },
+    use_texture_alpha = "opaque",
   },
 
   heating = {
@@ -105,6 +106,7 @@ yatm.register_stateful_node("yatm_cluster_thermal:thermal_duct", {
     tiles = {
       "yatm_thermal_duct_side.heating.png"
     },
+    use_texture_alpha = "opaque",
   },
 
   cooling = {
@@ -113,5 +115,6 @@ yatm.register_stateful_node("yatm_cluster_thermal:thermal_duct", {
     tiles = {
       "yatm_thermal_duct_side.cooling.png"
     },
+    use_texture_alpha = "opaque",
   },
 })
