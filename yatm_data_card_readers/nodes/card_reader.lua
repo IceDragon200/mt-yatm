@@ -203,6 +203,7 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_reader", {
       "yatm_card_reader_data.back.off.png",
       "yatm_card_reader_reader.data.front.off.png",
     },
+    use_texture_alpha = "opaque",
 
     on_access_card_inserted = function (pos, node, access_card)
       if yatm_security.is_chipped_node(pos) then
@@ -242,6 +243,7 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_reader", {
       "yatm_card_reader_data.back.on.png",
       "yatm_card_reader_reader.data.front.on.png",
     },
+    use_texture_alpha = "opaque",
 
     on_access_card_removed = function (pos, node, access_card)
       node.name = "yatm_data_card_readers:data_card_reader_off"
@@ -264,6 +266,7 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_reader", {
       "yatm_card_reader_data.back.error.png",
       "yatm_card_reader_reader.data.front.error.png",
     },
+    use_texture_alpha = "opaque",
 
     on_access_card_removed = function (pos, node, access_card)
       node.name = "yatm_data_card_readers:data_card_reader_off"

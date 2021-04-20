@@ -189,6 +189,7 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_swiper", {
       "yatm_card_reader_data.back.error.png",
       "yatm_card_reader_swiper.data.front.error.png",
     },
+    use_texture_alpha = "opaque",
 
     on_timer = function (pos, elapsed)
       local node = minetest.get_node(pos)
@@ -213,6 +214,7 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_swiper", {
       "yatm_card_reader_data.back.on.png",
       "yatm_card_reader_swiper.data.front.on.png",
     },
+    use_texture_alpha = "opaque",
 
     on_timer = function (pos, elapsed)
       local node = minetest.get_node(pos)
