@@ -57,6 +57,7 @@ for _,row in ipairs(yatm.colors_with_default) do
     sounds = yatm.node_sounds:build("metal"),
 
     tiles = {"yatm_fluid_pipe_" .. color_basename .. "_pipe.on.png"},
+    use_texture_alpha = "opaque",
 
     fluid_transport_device = {
       type = "transporter",

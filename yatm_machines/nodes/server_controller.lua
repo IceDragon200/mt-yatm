@@ -85,6 +85,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_server_controller_back.off.png",
     "yatm_server_controller_front.off.png",
   },
+  use_texture_alpha = "opaque",
   drawtype = "nodebox",
   node_box = server_controller_node_box,
 
@@ -112,6 +113,7 @@ yatm.devices.register_stateful_network_device({
       "yatm_server_controller_back.error.png",
       "yatm_server_controller_front.error.png",
     },
+    use_texture_alpha = "opaque",
   },
   on = {
     tiles = {
@@ -130,5 +132,6 @@ yatm.devices.register_stateful_network_device({
         },
       }
     },
+    use_texture_alpha = "opaque",
   },
 })

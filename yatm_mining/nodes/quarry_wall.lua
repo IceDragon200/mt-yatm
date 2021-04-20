@@ -16,6 +16,7 @@ minetest.register_node("yatm_mining:quarry_wall", {
     "yatm_quarry_wall_side.png",
     "yatm_quarry_wall_side.png",
   },
+  use_texture_alpha = "clip",
 
   sounds = yatm.node_sounds:build("glass"),
 

@@ -394,6 +394,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
       "yatm_data_arith_side.png",
     },
+    use_texture_alpha = "opaque",
 
     data_interface = table_merge(data_interface, {
       calculate = function (self, pos, node, left, right)
@@ -415,6 +416,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
       "yatm_data_arith_side.png",
     },
+    use_texture_alpha = "opaque",
 
     data_interface = table_merge(data_interface, {
       calculate = function (self, pos, node, left, right)
@@ -436,6 +438,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
       "yatm_data_arith_side.png",
     },
+    use_texture_alpha = "opaque",
 
     data_interface = table_merge(data_interface, {
       calculate = function (self, pos, node, left, right)
@@ -457,6 +460,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
       "yatm_data_arith_side.png",
     },
+    use_texture_alpha = "opaque",
 
     data_interface = table_merge(data_interface, {
       calculate = function (self, pos, node, left, right)
@@ -478,6 +482,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
       "yatm_data_arith_side.png",
     },
+    use_texture_alpha = "opaque",
 
     data_interface = table_merge(data_interface, {
       calculate = function (self, pos, node, left, right)
@@ -499,6 +504,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
       "yatm_data_arith_side.png",
     },
+    use_texture_alpha = "opaque",
 
     data_interface = table_merge(data_interface, {
       calculate = function (self, pos, node, left, right)
@@ -520,6 +526,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
       "yatm_data_arith_side.png",
     },
+    use_texture_alpha = "opaque",
 
     data_interface = table_merge(data_interface, {
       calculate = function (self, pos, node, left, right)
@@ -541,6 +548,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
       "yatm_data_arith_side.png",
     },
+    use_texture_alpha = "opaque",
 
     data_interface = table_merge(data_interface, {
       calculate = function (self, pos, node, left, right)
@@ -564,6 +572,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
       "yatm_data_arith_side.png",
     },
+    use_texture_alpha = "opaque",
 
     data_interface = table_merge(data_interface, {
       calculate = function (self, pos, node, left, right)
@@ -585,6 +594,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
       "yatm_data_arith_side.png",
     },
+    use_texture_alpha = "opaque",
 
     data_interface = table_merge(data_interface, {
       calculate = function (self, pos, node, left, right)
@@ -606,6 +616,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
       "yatm_data_arith_side.png",
     },
+    use_texture_alpha = "opaque",
 
     data_interface = table_merge(data_interface, {
       calculate = function (self, pos, node, left, right)
@@ -627,6 +638,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
       "yatm_data_arith_side.png",
     },
+    use_texture_alpha = "opaque",
 
     data_interface = table_merge(data_interface, {
       calculate = function (self, pos, node, left, right)
@@ -648,6 +660,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
       "yatm_data_arith_side.png",
     },
+    use_texture_alpha = "opaque",
 
     data_interface = table_merge(data_interface, {
       calculate = function (self, pos, node, left, right)
@@ -669,6 +682,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
       "yatm_data_arith_side.png",
     },
+    use_texture_alpha = "opaque",
 
     data_interface = table_merge(data_interface, {
       calculate = function (self, pos, node, left, right)
@@ -690,6 +704,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
       "yatm_data_arith_side.png",
     },
+    use_texture_alpha = "opaque",
 
     data_interface = table_merge(data_interface, {
       calculate = function (self, pos, node, left, right)
@@ -711,6 +726,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
       "yatm_data_arith_side.png",
       "yatm_data_arith_side.png",
     },
+    use_texture_alpha = "opaque",
 
     data_interface = table_merge(data_interface, {
       calculate = function (self, pos, node, left, right)

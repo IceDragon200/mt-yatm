@@ -13,9 +13,13 @@ local function get_value(row, pos)
     local meta = minetest.get_meta(pos)
     if row.type == "integer" then
       value = tostring(meta:get_int(row.name))
-    else
+    elseif row.type == "string" then
       value = meta:get_string(row.name)
+    else
+      error("unexpected row type for name=" .. row.name)
     end
+  else
+    error("unsupported non-meta row")
   end
   return value
 end
@@ -387,7 +391,7 @@ local function on_receive_fields(player, form_name, fields, assigns)
               formspec_or_refresh = true
             end
           else
-            minetest.log("warning", "unsupported receive field gcomponent=" .. component.component)
+            minetest.log("warning", "unsupported receive field component=" .. component.component)
           end
         end
       end

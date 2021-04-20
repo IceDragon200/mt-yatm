@@ -255,6 +255,7 @@ minetest.register_node("yatm_frames:frame_motor_default_off", {
     "yatm_frame_motor_side.png",
     "yatm_frame_motor_side.png",
   },
+  use_texture_alpha = "opaque",
 
   paramtype = "none",
   paramtype2 = "facedir",
@@ -284,6 +285,7 @@ minetest.register_node("yatm_frames:frame_motor_default_on", {
     "yatm_frame_motor_side.png",
     "yatm_frame_motor_side.png",
   },
+  use_texture_alpha = "opaque",
 
   paramtype = "none",
   paramtype2 = "facedir",
@@ -339,6 +341,7 @@ if mesecon then
       "yatm_frame_motor_side_mesecon.off.png",
       "yatm_frame_motor_side_mesecon.off.png",
     },
+    use_texture_alpha = "opaque",
 
     paramtype = "none",
     paramtype2 = "facedir",
@@ -370,6 +373,7 @@ if mesecon then
       "yatm_frame_motor_side_mesecon.on.png",
       "yatm_frame_motor_side_mesecon.on.png",
     },
+    use_texture_alpha = "opaque",
 
     paramtype = "none",
     paramtype2 = "facedir",
@@ -537,6 +541,7 @@ if yatm_data_logic then
         "yatm_frame_motor_side_data.png",
         "yatm_frame_motor_side_data.png",
       },
+      use_texture_alpha = "opaque",
     },
     on = {
       groups = {
@@ -555,6 +560,7 @@ if yatm_data_logic then
         "yatm_frame_motor_side_data.png",
         "yatm_frame_motor_side_data.png",
       },
+      use_texture_alpha = "opaque",
 
       on_timer = function (pos, elapsed)
         local node = minetest.get_node(pos)

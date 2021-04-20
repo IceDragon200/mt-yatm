@@ -77,6 +77,8 @@ yatm.devices.register_stateful_network_device({
     "yatm_solar_panel_side.off.png",
     "yatm_solar_panel_side.off.png",
   },
+  use_texture_alpha = "opaque",
+
   drawtype = "nodebox",
   node_box = solar_panel_nodebox,
 
@@ -96,6 +98,7 @@ yatm.devices.register_stateful_network_device({
       "yatm_solar_panel_side.on.png",
       "yatm_solar_panel_side.on.png",
     },
+    use_texture_alpha = "opaque",
   },
   error = {
     tiles = {
@@ -106,5 +109,6 @@ yatm.devices.register_stateful_network_device({
       "yatm_solar_panel_side.error.png",
       "yatm_solar_panel_side.error.png",
     },
+    use_texture_alpha = "opaque",
   }
 })

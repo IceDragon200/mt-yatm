@@ -281,6 +281,8 @@ for _,row in ipairs(yatm.colors_with_default) do
       "yatm_mailbox_wood_" .. basename .. "_back.png",
       "yatm_mailbox_wood_" .. basename .. "_front.png"
     },
+    use_texture_alpha = "opaque",
+
     paramtype = "light",
     paramtype2 = "facedir",
     drawtype = "nodebox",
@@ -333,6 +335,8 @@ for _,row in ipairs(yatm.colors_with_default) do
       "yatm_mailbox_metal_" .. basename .. "_back.png",
       "yatm_mailbox_metal_" .. basename .. "_front.png"
     },
+    use_texture_alpha = "opaque",
+
     paramtype = "light",
     paramtype2 = "facedir",
     drawtype = "nodebox",

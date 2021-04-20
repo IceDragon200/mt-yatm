@@ -186,6 +186,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_console_monitor_back.data.png",
     "yatm_console_monitor_front.console.off.png",
   },
+  use_texture_alpha = "opaque",
 
   paramtype = "none",
   paramtype2 = "facedir",
@@ -223,6 +224,7 @@ yatm.devices.register_stateful_network_device({
       "yatm_console_monitor_back.data.png",
       "yatm_console_monitor_front.console.error.png",
     },
+    use_texture_alpha = "opaque",
   },
   on = {
     tiles = {
@@ -241,6 +243,7 @@ yatm.devices.register_stateful_network_device({
         },
       },
     },
+    use_texture_alpha = "opaque",
   },
 })
 
@@ -290,6 +293,8 @@ yatm.devices.register_stateful_network_device({
     "yatm_console_monitor_back.data.png",
     "yatm_console_monitor_front.console.off.png",
   },
+  use_texture_alpha = "opaque",
+
   drawtype = "nodebox",
   node_box = flat_monitor_nodebox,
 
@@ -327,6 +332,7 @@ yatm.devices.register_stateful_network_device({
       "yatm_console_monitor_back.data.png",
       "yatm_console_monitor_front.console.error.png",
     },
+    use_texture_alpha = "opaque",
   },
   on = {
     tiles = {
@@ -345,5 +351,6 @@ yatm.devices.register_stateful_network_device({
         },
       },
     },
+    use_texture_alpha = "opaque",
   }
 })

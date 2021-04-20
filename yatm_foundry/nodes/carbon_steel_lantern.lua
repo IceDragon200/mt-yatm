@@ -57,5 +57,6 @@ for _,row in ipairs(yatm.colors) do
       "yatm_carbon_steel_lanterns_" .. color_basename .. "_side.png",
       "yatm_carbon_steel_lanterns_" .. color_basename .. "_side.png",
     },
+    use_texture_alpha = "opaque",
   })
 end

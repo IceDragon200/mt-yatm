@@ -116,6 +116,8 @@ for _,default_state in ipairs(states) do
         "yatm_lamp_large_" .. basename .. "_side.off.png",
         "yatm_lamp_large_" .. basename .. "_side.off.png"
       },
+      use_texture_alpha = "opaque",
+
       paramtype = "light",
       paramtype2 = "facedir",
       drawtype = "nodebox",
@@ -141,6 +143,8 @@ for _,default_state in ipairs(states) do
         "yatm_lamp_large_" .. basename .. "_side.on.png",
         "yatm_lamp_large_" .. basename .. "_side.on.png"
       },
+      use_texture_alpha = "opaque",
+
       paramtype = "light",
       paramtype2 = "facedir",
       sunlight_propagates = false,
@@ -170,6 +174,8 @@ for _,default_state in ipairs(states) do
         "yatm_lamp_large_" .. basename .. "_side.off.png",
         "yatm_lamp_large_" .. basename .. "_side.off.png"
       },
+      use_texture_alpha = "opaque",
+
       paramtype = "light",
       paramtype2 = "facedir",
       drawtype = "nodebox",
@@ -195,6 +201,8 @@ for _,default_state in ipairs(states) do
         "yatm_lamp_large_" .. basename .. "_side.on.png",
         "yatm_lamp_large_" .. basename .. "_side.on.png"
       },
+      use_texture_alpha = "opaque",
+
       paramtype = "light",
       paramtype2 = "facedir",
       sunlight_propagates = false,
@@ -226,6 +234,8 @@ for _,default_state in ipairs(states) do
         "yatm_lamp_small_" .. basename .. "_side.off.png",
         "yatm_lamp_small_" .. basename .. "_side.off.png"
       },
+      use_texture_alpha = "opaque",
+
       paramtype = "light",
       paramtype2 = "facedir",
       drawtype = "nodebox",
@@ -251,6 +261,8 @@ for _,default_state in ipairs(states) do
         "yatm_lamp_small_" .. basename .. "_side.on.png",
         "yatm_lamp_small_" .. basename .. "_side.on.png"
       },
+      use_texture_alpha = "opaque",
+
       paramtype = "light",
       paramtype2 = "facedir",
       sunlight_propagates = false,

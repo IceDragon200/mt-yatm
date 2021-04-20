@@ -48,6 +48,7 @@ yatm.register_stateful_node("yatm_decor:jukebox", {
       "yatm_jukebox_back.off.png",
       "yatm_jukebox_front.off.png"
     },
+    use_texture_alpha = "opaque",
   },
   on = {
     groups = {cracky = 1, not_in_creative_inventory = 1},
@@ -60,5 +61,6 @@ yatm.register_stateful_node("yatm_decor:jukebox", {
       "yatm_jukebox_back.on.png",
       "yatm_jukebox_front.on.png"
     },
+    use_texture_alpha = "opaque",
   }
 })

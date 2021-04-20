@@ -214,7 +214,7 @@ for _,row in ipairs(colors) do
       "yatm_data_cable_" .. color_basename .. ".side.png^yatm_data_cable_bracket.side.png",
       "yatm_data_cable_" .. color_basename .. ".side.png^yatm_data_cable_bracket.side.png",
     },
-    use_texture_alpha = true,
+    use_texture_alpha = "clip",
 
     drawtype = "nodebox",
     node_box = straight_bracket_cable_nodebox,
@@ -273,7 +273,7 @@ for _,row in ipairs(colors) do
       "yatm_data_cable_" .. color_basename .. ".side.png^yatm_data_cable_bracket.side.png",
       "yatm_data_cable_" .. color_basename .. ".side.png^yatm_data_cable_bracket.side.png",
     },
-    use_texture_alpha = true,
+    use_texture_alpha = "clip",
 
     drawtype = "nodebox",
     node_box = corner_bracket_cable_nodebox,
@@ -332,7 +332,7 @@ for _,row in ipairs(colors) do
       "yatm_data_cable_" .. color_basename .. ".side.png^yatm_data_cable_bracket.side.png",
       "yatm_data_cable_" .. color_basename .. ".side.png^yatm_data_cable_bracket.side.png",
     },
-    use_texture_alpha = true,
+    use_texture_alpha = "clip",
 
     drawtype = "nodebox",
     node_box = tee_bracket_cable_nodebox,
@@ -392,7 +392,7 @@ for _,row in ipairs(colors) do
       "yatm_data_cable_" .. color_basename .. ".side.png^yatm_data_cable_bracket.side.png",
       "yatm_data_cable_" .. color_basename .. ".side.png^yatm_data_cable_bracket.side.png",
     },
-    use_texture_alpha = true,
+    use_texture_alpha = "clip",
 
     drawtype = "nodebox",
     node_box = cross_bracket_cable_nodebox,
@@ -453,7 +453,7 @@ for _,row in ipairs(colors) do
       "yatm_data_cable_" .. color_basename .. ".riser.front.png^yatm_data_cable_bracket.riser.front.png",
       "yatm_data_cable_" .. color_basename .. ".riser.front.png^yatm_data_cable_bracket.riser.front.png",
     },
-    use_texture_alpha = true,
+    use_texture_alpha = "clip",
 
     drawtype = "nodebox",
     node_box = riser_bracket_cable_nodebox,
@@ -513,7 +513,7 @@ for _,row in ipairs(colors) do
       "yatm_data_cable_" .. color_basename .. ".bus.side.png^yatm_data_cable_bracket.side.png",
       "yatm_data_cable_" .. color_basename .. ".bus.side.png^yatm_data_cable_bracket.side.png",
     },
-    use_texture_alpha = true,
+    use_texture_alpha = "clip",
 
     drawtype = "nodebox",
     node_box = straight_bracket_bus_nodebox,
@@ -572,7 +572,7 @@ for _,row in ipairs(colors) do
       "yatm_data_cable_" .. color_basename .. ".bus.side.png^yatm_data_cable_bracket.side.png",
       "yatm_data_cable_" .. color_basename .. ".bus.side.png^yatm_data_cable_bracket.side.png",
     },
-    use_texture_alpha = true,
+    use_texture_alpha = "clip",
 
     drawtype = "nodebox",
     node_box = corner_bracket_bus_nodebox,
@@ -631,7 +631,7 @@ for _,row in ipairs(colors) do
       "yatm_data_cable_" .. color_basename .. ".bus.side.png^yatm_data_cable_bracket.side.png",
       "yatm_data_cable_" .. color_basename .. ".bus.side.png^yatm_data_cable_bracket.side.png",
     },
-    use_texture_alpha = true,
+    use_texture_alpha = "clip",
 
     drawtype = "nodebox",
     node_box = tee_bracket_bus_nodebox,
@@ -691,7 +691,7 @@ for _,row in ipairs(colors) do
       "yatm_data_cable_" .. color_basename .. ".bus.side.png^yatm_data_cable_bracket.side.png",
       "yatm_data_cable_" .. color_basename .. ".bus.side.png^yatm_data_cable_bracket.side.png",
     },
-    use_texture_alpha = true,
+    use_texture_alpha = "clip",
 
     drawtype = "nodebox",
     node_box = cross_bracket_bus_nodebox,
@@ -766,7 +766,7 @@ for _,row in ipairs(colors) do
       "yatm_data_cable_" .. color_basename .. ".side.png",
       "yatm_data_cable_" .. color_basename .. ".side.png",
     },
-    use_texture_alpha = true,
+    use_texture_alpha = "clip",
 
     drawtype = "nodebox",
     node_box = data_cable_nodebox,
@@ -837,7 +837,7 @@ for _,row in ipairs(colors) do
       "yatm_data_cable_" .. color_basename .. ".bus.side.png",
       "yatm_data_cable_" .. color_basename .. ".bus.side.png",
     },
-    use_texture_alpha = true,
+    use_texture_alpha = "clip",
 
     drawtype = "nodebox",
     node_box = data_bus_nodebox,

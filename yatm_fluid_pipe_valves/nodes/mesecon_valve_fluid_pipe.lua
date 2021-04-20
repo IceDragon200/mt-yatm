@@ -75,6 +75,7 @@ for _,row in ipairs(yatm.colors_with_default) do
   }, {
     off = {
       tiles = {"yatm_fluid_pipe_valve_mesecon." .. color_basename .. "_valve.off.png"},
+      use_texture_alpha = "opaque",
 
       fluid_transport_device = {
         type = "valve",
@@ -98,6 +99,7 @@ for _,row in ipairs(yatm.colors_with_default) do
       groups = table_merge(groups, {not_in_creative_inventory = 1}),
 
       tiles = {"yatm_fluid_pipe_valve_mesecon." .. color_basename .. "_valve.on.png"},
+      use_texture_alpha = "opaque",
 
       fluid_transport_device = {
         type = "valve",

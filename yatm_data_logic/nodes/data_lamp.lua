@@ -60,6 +60,7 @@ for i = 0,13 do
       "yatm_data_lamp_side_"..digits..".png",
       "yatm_data_lamp_side_"..digits..".png",
     },
+    use_texture_alpha = "opaque",
 
     on_construct = function (pos)
       local node = minetest.get_node(pos)

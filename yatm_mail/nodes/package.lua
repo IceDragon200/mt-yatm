@@ -130,6 +130,7 @@ minetest.register_node("yatm_mail:package", {
     "yatm_package_plain_side.png",
     "yatm_package_plain_side.png",
   },
+  use_texture_alpha = "opaque",
 
   paramtype = "light",
   paramtype2 = "facedir",
@@ -172,6 +173,7 @@ for _,row in ipairs(yatm.colors) do
       "yatm_package_" .. basename .. "_side.ribbon.png",
       "yatm_package_" .. basename .. "_side.ribbon.png",
     },
+    use_texture_alpha = "opaque",
 
     paramtype = "light",
     paramtype2 = "facedir",

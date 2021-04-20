@@ -1,2 +1,2 @@
-dofile(yatm_frames.modpath .. "/nodes/frame.lua")
-dofile(yatm_frames.modpath .. "/nodes/frame_motor.lua")
+yatm_frames:require("/nodes/frame.lua")
+yatm_frames:require("/nodes/frame_motor.lua")

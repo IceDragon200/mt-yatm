@@ -79,10 +79,10 @@ function FluidRegistry.register_fluid_tank(modname, fluid_name, nodedef)
     drop = "yatm_fluids:fluid_tank",
 
     tiles = fluid_tank_tiles,
-
     special_tiles = {
       get_fluid_tile(fluiddef),
     },
+    --use_texture_alpha = "blend",
 
     drawtype = "glasslike_framed",
 

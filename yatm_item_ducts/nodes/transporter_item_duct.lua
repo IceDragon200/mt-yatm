@@ -53,6 +53,7 @@ for _,row in ipairs(yatm.colors_with_default) do
     tiles = {
       "yatm_item_duct_" .. color_basename .. "_pipe.on.png"
     },
+    use_texture_alpha = "opaque",
 
     item_transport_device = {
       type = "transporter",

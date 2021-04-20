@@ -61,7 +61,7 @@ for ascii_code, new_ascii_code in pairs(ASCII_TABLE) do
         "yatm_data_char_display_side.png",
         "yatm_data_char_display_side.png",
       },
-      use_texture_alpha = true,
+      use_texture_alpha = "clip",
     }
   end
 end

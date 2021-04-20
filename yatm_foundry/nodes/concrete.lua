@@ -46,7 +46,7 @@ for _,row in ipairs(yatm.colors) do
       codex_entry_id = "yatm_foundry:concrete",
 
       tiles = {"yatm_concrete_" .. variant_basename .. "_" .. color_basename .. "_side.png"},
-      use_texture_alpha = false,
+      use_texture_alpha = "opaque",
 
       groups = {cracky = 1, concrete = 1},
       is_ground_content = false,
@@ -69,7 +69,7 @@ for _,row in ipairs(yatm.colors) do
       codex_entry_id = "yatm_foundry:concrete_plate",
 
       tiles = {"yatm_concrete_" .. variant_basename .. "_" .. color_basename .. "_side.png"},
-      use_texture_alpha = false,
+      use_texture_alpha = "opaque",
 
       groups = {cracky = 1, concrete = 1, concrete_plate = 1},
       is_ground_content = false,
@@ -107,7 +107,7 @@ for _,row in ipairs(yatm.colors) do
         codex_entry_id = "yatm_foundry:concrete_slab",
 
         tiles = {"yatm_concrete_" .. variant_basename .. "_" .. color_basename .. "_side.png"},
-        use_texture_alpha = false,
+        use_texture_alpha = "opaque",
 
         groups = {cracky = 1, concrete = 1},
         is_ground_content = false,

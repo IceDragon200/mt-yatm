@@ -78,6 +78,8 @@ for _,row in ipairs(yatm.colors) do
       "yatm_mesecon_button_" .. color_basename .. "_side.off.png",
       "yatm_mesecon_button_" .. color_basename .. "_side.off.png",
     },
+    use_texture_alpha = "opaque",
+
     drawtype = "nodebox",
     node_box = mesecon_button_nodebox,
 
@@ -135,6 +137,7 @@ for _,row in ipairs(yatm.colors) do
       "yatm_mesecon_button_" .. color_basename .. "_side.on.png",
       "yatm_mesecon_button_" .. color_basename .. "_side.on.png",
     },
+    use_texture_alpha = "opaque",
 
     mesecons = {
       receptor = {

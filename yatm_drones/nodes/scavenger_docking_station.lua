@@ -81,6 +81,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_scavenger_docking_station_back.png",
     "yatm_scavenger_docking_station_front.off.png",
   },
+  use_texture_alpha = "opaque",
 
   paramtype = "light",
   paramtype2 = "facedir",
@@ -97,6 +98,7 @@ yatm.devices.register_stateful_network_device({
       "yatm_scavenger_docking_station_back.png",
       "yatm_scavenger_docking_station_front.error.png",
     },
+    use_texture_alpha = "opaque",
   },
 
   on = {
@@ -108,6 +110,7 @@ yatm.devices.register_stateful_network_device({
       "yatm_scavenger_docking_station_back.png",
       "yatm_scavenger_docking_station_front.on.png",
     },
+    use_texture_alpha = "opaque",
   },
 })
 
@@ -197,6 +200,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_scavenger_docking_station_back.png",
     "yatm_scavenger_docking_station_front.off.png",
   },
+  use_texture_alpha = "opaque",
 
   paramtype = "light",
   paramtype2 = "facedir",
@@ -214,6 +218,7 @@ yatm.devices.register_stateful_network_device({
       "yatm_scavenger_docking_station_back.png",
       "yatm_scavenger_docking_station_front.error.png",
     },
+    use_texture_alpha = "opaque",
   },
 
   on = {
@@ -225,5 +230,6 @@ yatm.devices.register_stateful_network_device({
       "yatm_scavenger_docking_station_back.png",
       "yatm_scavenger_docking_station_front.on.png",
     },
+    use_texture_alpha = "opaque",
   },
 })

@@ -32,6 +32,7 @@ minetest.register_node("yatm_fluids:fluid_tank", {
 
   special_tiles = {
   },
+  use_texture_alpha = "clip",
 
   drawtype = "glasslike_framed",
   paramtype = "light",
@@ -100,6 +101,7 @@ minetest.register_node("yatm_fluids:steel_fluid_tank", {
     "yatm_steel_fluid_tank_side.png",
     "yatm_steel_fluid_tank_side.png",
   },
+  use_texture_alpha = "opaque",
 
   paramtype = "light",
   paramtype2 = "facedir",

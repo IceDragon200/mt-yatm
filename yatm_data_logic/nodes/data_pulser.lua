@@ -51,6 +51,7 @@ yatm.register_stateful_node("yatm_data_logic:data_pulser", {
     "yatm_data_pulser_side.png",
     "yatm_data_pulser_side.png",
   },
+  use_texture_alpha = "opaque",
 
   on_construct = function (pos)
     local node = minetest.get_node(pos)
@@ -193,6 +194,7 @@ yatm.register_stateful_node("yatm_data_logic:data_pulser", {
       "yatm_data_pulser_side.png",
       "yatm_data_pulser_side.png",
     },
+    use_texture_alpha = "opaque",
   },
   step_1 = {
     next_step = "yatm_data_logic:data_pulser_step_0",
@@ -204,5 +206,6 @@ yatm.register_stateful_node("yatm_data_logic:data_pulser", {
       "yatm_data_pulser_side.png",
       "yatm_data_pulser_side.png",
     },
+    use_texture_alpha = "opaque",
   }
 })

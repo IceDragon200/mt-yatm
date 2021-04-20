@@ -239,6 +239,8 @@ yatm.devices.register_stateful_network_device({
     "yatm_teleporter_side.off.png",
     "yatm_teleporter_side.off.png",
   },
+  use_texture_alpha = "opaque",
+
   drawtype = "nodebox",
   paramtype = "light",
   paramtype2 = "facedir",
@@ -266,6 +268,7 @@ yatm.devices.register_stateful_network_device({
       "yatm_teleporter_side.error.png",
       "yatm_teleporter_side.error.png",
     },
+    use_texture_alpha = "opaque",
   },
 
   inactive = {
@@ -277,6 +280,7 @@ yatm.devices.register_stateful_network_device({
       "yatm_teleporter_side.inactive.png",
       "yatm_teleporter_side.inactive.png",
     },
+    use_texture_alpha = "opaque",
   },
 
   on = {
@@ -296,6 +300,7 @@ yatm.devices.register_stateful_network_device({
       "yatm_teleporter_side.on.png^[transformFX",
       "yatm_teleporter_side.on.png",
     },
+    use_texture_alpha = "opaque",
     mesecons = teleporter_on_mesecons,
     yatm_spacetime = {
       groups = {

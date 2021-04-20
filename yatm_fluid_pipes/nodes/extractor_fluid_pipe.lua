@@ -41,6 +41,7 @@ minetest.register_node("yatm_fluid_pipes:extractor_fluid_pipe", {
       },
     },
   },
+  use_texture_alpha = "opaque",
 
   drawtype = "nodebox",
   node_box = {

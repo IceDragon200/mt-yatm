@@ -233,6 +233,7 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
       "yatm_data_comparator_side.png",
       "yatm_data_comparator_side.png",
     },
+    use_texture_alpha = "opaque",
 
     data_interface = table_merge(data_interface, {
       operate = function (self, pos, node, left, right)
@@ -254,6 +255,7 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
       "yatm_data_comparator_side.png",
       "yatm_data_comparator_side.png",
     },
+    use_texture_alpha = "opaque",
 
     data_interface = table_merge(data_interface, {
       operate = function (self, pos, node, left, right)
@@ -275,6 +277,7 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
       "yatm_data_comparator_side.png",
       "yatm_data_comparator_side.png",
     },
+    use_texture_alpha = "opaque",
 
     data_interface = table_merge(data_interface, {
       operate = function (self, pos, node, left, right)
@@ -296,6 +299,7 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
       "yatm_data_comparator_side.png",
       "yatm_data_comparator_side.png",
     },
+    use_texture_alpha = "opaque",
 
     data_interface = table_merge(data_interface, {
       operate = function (self, pos, node, left, right)
@@ -317,6 +321,7 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
       "yatm_data_comparator_side.png",
       "yatm_data_comparator_side.png",
     },
+    use_texture_alpha = "opaque",
 
     data_interface = table_merge(data_interface, {
       operate = function (self, pos, node, left, right)
@@ -338,6 +343,7 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
       "yatm_data_comparator_side.png",
       "yatm_data_comparator_side.png",
     },
+    use_texture_alpha = "opaque",
 
     data_interface = table_merge(data_interface, {
       operate = function (self, pos, node, left, right)

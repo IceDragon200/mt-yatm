@@ -44,6 +44,7 @@ yatm.register_stateful_node("yatm_data_logic:data_level_display_decor_panel", {
       "yatm_data_level_display_panel0a.png",
       "yatm_data_level_display_panel0a.png",
     },
+    use_texture_alpha = "clip",
   },
 
   ["0b"] = {
@@ -57,6 +58,7 @@ yatm.register_stateful_node("yatm_data_logic:data_level_display_decor_panel", {
       "yatm_data_level_display_panel0b.png",
       "yatm_data_level_display_panel0b.png",
     },
+    use_texture_alpha = "clip",
   },
 
   ["0c"] = {
@@ -70,6 +72,7 @@ yatm.register_stateful_node("yatm_data_logic:data_level_display_decor_panel", {
       "yatm_data_level_display_panel0c.png",
       "yatm_data_level_display_panel0c.png",
     },
+    use_texture_alpha = "clip",
   },
 
   ["1a"] = {
@@ -83,6 +86,7 @@ yatm.register_stateful_node("yatm_data_logic:data_level_display_decor_panel", {
       "yatm_data_level_display_panel1a.png",
       "yatm_data_level_display_panel1a.png",
     },
+    use_texture_alpha = "clip",
   },
 
   ["1b"] = {
@@ -96,6 +100,7 @@ yatm.register_stateful_node("yatm_data_logic:data_level_display_decor_panel", {
       "yatm_data_level_display_panel1b.png",
       "yatm_data_level_display_panel1b.png",
     },
+    use_texture_alpha = "clip",
   },
 
   ["1c"] = {
@@ -109,6 +114,7 @@ yatm.register_stateful_node("yatm_data_logic:data_level_display_decor_panel", {
       "yatm_data_level_display_panel1c.png",
       "yatm_data_level_display_panel1c.png",
     },
+    use_texture_alpha = "clip",
   },
 
   ["2a"] = {
@@ -122,6 +128,7 @@ yatm.register_stateful_node("yatm_data_logic:data_level_display_decor_panel", {
       "yatm_data_level_display_panel2a.png",
       "yatm_data_level_display_panel2a.png",
     },
+    use_texture_alpha = "clip",
   },
 })
 
@@ -149,6 +156,7 @@ yatm.register_stateful_node("yatm_data_logic:data_level_display", {
   },
   special_tiles = {
   },
+  use_texture_alpha = "clip",
 
   is_ground_content = false,
   sunlight_propagates = true,
