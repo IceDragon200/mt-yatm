@@ -128,6 +128,8 @@ function yatm_cables.register_cable_state(params, size)
     paramtype2 = "facedir",
 
     tiles = tiles,
+    use_texture_alpha = "opaque",
+
     drawtype = "nodebox",
     node_box = {
       type = "connected",
@@ -139,7 +141,6 @@ function yatm_cables.register_cable_state(params, size)
       connect_left   = {-0.5,  -size, -size, size,  size, size}, -- x-
       connect_right  = {-size, -size, -size, 0.5,   size, size}, -- x+
     },
-
     connects_to = connects_to,
 
     after_place_node = cable_after_place_node,
