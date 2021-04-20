@@ -67,7 +67,7 @@ for _,row in ipairs(yatm.colors_with_default) do
       "yatm_barrel_wood_fluid_" .. color_basename .. "_side.png",
       "yatm_barrel_wood_fluid_" .. color_basename .. "_side.png",
     },
-    use_texture_alpha = false,
+    use_texture_alpha = "opaque",
 
     paramtype = "none",
     paramtype2 = "facedir",
@@ -101,7 +101,7 @@ for _,row in ipairs(yatm.colors_with_default) do
       "yatm_barrel_metal_fluid_" .. color_basename .. "_side.png",
       "yatm_barrel_metal_fluid_" .. color_basename .. "_side.png",
     },
-    use_texture_alpha = false,
+    use_texture_alpha = "opaque",
 
     paramtype = "none",
     paramtype2 = "facedir",
