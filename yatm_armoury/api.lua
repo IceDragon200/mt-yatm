@@ -1,4 +1,9 @@
 local Groups = assert(foundation.com.Groups)
+local sounds = assert(yatm.sounds)
+
+local function play_sound(def)
+  return sounds:play(def.name, def.params)
+end
 
 --
 -- Determines if the given stack is a form of ammunition
@@ -85,15 +90,15 @@ end
 
 function yatm_armoury.get_firearm_magazine_size(firearm_stack)
   local meta = firearm_stack:get_meta()
-  return meta:get_int("cartridge_count")
+  return meta:get_int("magazine_size")
 end
 
 function yatm_armoury.get_firearm_cartridge_count(firearm_stack)
   local meta = magazine_stack:get_meta()
-  return meta:get_int("magazine_size")
+  return meta:get_int("cartridge_count")
 end
 
-function yatm_armoury.get_firearm_cartridge(firearm_stack, index)
+function yatm_armoury.get_firearm_cartridge_at(firearm_stack, index)
   local meta = magazine_stack:get_meta()
   return string.sub(meta:get_string("cartridge_string"), index, index)
 end
@@ -130,7 +135,7 @@ function yatm_armoury.add_cartridges_to_magazine(cartridge_stack, magazine_stack
 
             for i = 1,cartridges_to_take do
               -- the ammo_code is a single char that will be placed into the cartridge_string
-              -- notice it's prefixed to the string, this because all magazines are LIFO
+              -- notice it's prefixed to the string, this is because all magazines are FIFO
               cartridge_string = cartridge_itemdef.ammo_code .. cartridge_string
             end
             magazine_meta:set_int("cartridge_count", cartridge_count + cartridges_to_take)
@@ -143,23 +148,41 @@ function yatm_armoury.add_cartridges_to_magazine(cartridge_stack, magazine_stack
   return cartridge_stack, magazine_stack
 end
 
-function yatm_armoury.refresh_magazine_wear(magazine_stack)
+function yatm_armoury.calculate_magazine_wear(magazine_stack)
   local size = yatm_armoury.get_magazine_size(magazine_stack)
   local count = yatm_armoury.get_magazine_cartridge_count(magazine_stack)
 
-  local wear = math.floor(count * 0xFFFE / size)
+  local wear = 0
+  if size > 0 then
+    wear = math.floor(count * 0xFFFE / size)
+  end
+  return wear
+end
 
+function yatm_armoury.refresh_magazine_wear(magazine_stack)
+  local wear = yatm_armoury.calculate_magazine_wear(magazine_stack)
   magazine_stack:set_wear(wear)
   return magazine_stack
 end
 
-function yatm_armoury.refresh_firearm_wear(firearm_stack)
+function yatm_armoury.calculate_firearm_wear(firearm_stack)
   local meta = firearm_stack:get_meta()
 
   local size = yatm_armoury.get_firearm_magazine_size(firearm_stack)
   local count = yatm_armoury.get_firearm_cartridge_count(firearm_stack)
 
-  local wear = math.floor(count * 0xFFFE / size)
+  local wear = 0
+  if size > 0 then
+    wear = math.floor(count * 0xFFFE / size)
+  end
+  return wear
+end
+
+function yatm_armoury.refresh_firearm_wear(firearm_stack)
+  local wear = yatm_armoury.calculate_firearm_wear(firearm_stack)
+
+  firearm_stack:set_wear(wear)
+  return firearm_stack
 end
 
 function yatm_armoury.install_magazine(magazine_stack, firearm_stack)
@@ -237,7 +260,7 @@ function yatm_armoury.handle_ballistics(item_stack, player, pointed_thing)
   local itemdef = item_stack:get_definition()
 
   if itemdef.ballistics then
-    if itemdef.ballistics.type == "firearm" then
+    if itemdef.ballistics.path == "linear" then
       local can_fire = true
       if type(itemdef.ballistics.can_fire) == "function" then
         can_fire = itemdef.ballistics:can_fire(item_stack, player, pointed_thing)
@@ -256,6 +279,12 @@ function yatm_armoury.handle_ballistics(item_stack, player, pointed_thing)
     end
   end
   return item_stack
+end
+
+function yatm_armoury.on_use_firearm(item_stack, player, pointed_thing)
+  local itemdef = item_stack:get_definition()
+
+  play_sound(itemdef.ballistics.sounds.fire)
 end
 
 local function player_on_hit(player, hit_data)
@@ -327,7 +356,7 @@ function yatm_armoury.pop_cartridge(item_stack)
   local meta = item_stack:get_meta()
 
   local cartridge_index = meta:get_int("cartridge_index")
-  local ammunition_code = yatm_armoury.get_firearm_cartridge(item_stack, cartridge_index)
+  local ammunition_code = yatm_armoury.get_firearm_cartridge_at(item_stack, cartridge_index)
 
   if ammunition_code and ammunition_code ~= "" then
     meta:set_int("cartridge_index", cartridge_index + 1)

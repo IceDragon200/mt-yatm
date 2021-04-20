@@ -54,6 +54,8 @@ yatm.devices.register_stateful_network_device({
     cracky = 1,
     item_interface_in = 1,
     item_interface_out = 1,
+    fluid_interface_in = 1,
+    fluid_interface_out = 1,
   },
 
   tiles = {

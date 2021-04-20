@@ -41,6 +41,16 @@
 -- 'amr' Anti-Material Rifle
 -- 'gl'  Grenade Launcher
 --
+local sounds = assert(yatm.sounds)
+
+sounds:register("firearm.pistol.fire", "yatm_pistol.fire", {})
+sounds:register("firearm.rifle.fire", "yatm_rifle.fire", {})
+sounds:register("firearm.grenade_launcher.fire", "yatm_grenade_launcher.fire", {})
+sounds:register("firearm.heavy_rifle.fire", "yatm_heavy_rifle.fire", {})
+sounds:register("firearm.machine_gun.reload", "yatm_machine_gun.reload", {})
+sounds:register("firearm.magazine.insert", "yatm_magazine.insert", {})
+sounds:register("firearm.magazine.remove", "yatm_magazine.remove", {})
+sounds:register("firearm.bolt_action", "yatm_bolt_action", {})
 
 -- firearms were designed on a 24x24 grid, the Sallos HG is the reference point
 local function make_visual_scale(res)
@@ -48,9 +58,14 @@ local function make_visual_scale(res)
   return { x = a, y = a, z = 1 }
 end
 
-local ballistics = {
-  type = 'hitscan',
-}
+local function new_ballistics(params)
+  local ballistics = {
+    path = "linear",
+    type = 'hitscan',
+    sounds = params.sounds,
+  }
+  return ballistics
+end
 
 -- 9x19mm - Semi-Automatic
 yatm.register_stateful_tool("yatm_armoury:firearm_hg9mm_semi", {
@@ -75,8 +90,15 @@ yatm.register_stateful_tool("yatm_armoury:firearm_hg9mm_semi", {
 
   wield_scale = make_visual_scale(24),
 
-  ballistics = ballistics,
-  on_use = yatm_armoury.handle_ballistics,
+  ballistics = new_ballistics({
+    sounds = {
+      fire = {
+        name = "firearm.pistol.fire",
+        params = {},
+      },
+    }
+  }),
+  on_use = yatm_armoury.on_use_firearm,
 }, {
   ul = {
     inventory_image = "yatm_firearms_hg9mm_semi_ul.png",
@@ -111,7 +133,15 @@ yatm.register_stateful_tool("yatm_armoury:firearm_smg9mm_auto", {
 
   wield_scale = make_visual_scale(32),
 
-  on_use = yatm_armoury.handle_ballistics,
+  ballistics = new_ballistics({
+    sounds = {
+      fire = {
+        name = "firearm.pistol.fire",
+        params = {},
+      },
+    }
+  }),
+  on_use = yatm_armoury.on_use_firearm,
 }, {
   ul = {
     inventory_image = "yatm_firearms_smg9mm_auto_ul.png",
@@ -149,7 +179,15 @@ yatm.register_stateful_tool("yatm_armoury:firearm_mg9mm_auto", {
 
   wield_scale = make_visual_scale(32),
 
-  on_use = yatm_armoury.handle_ballistics,
+  ballistics = new_ballistics({
+    sounds = {
+      fire = {
+        name = "firearm.pistol.fire",
+        params = {},
+      },
+    }
+  }),
+  on_use = yatm_armoury.on_use_firearm,
 }, {
   ul = {
     inventory_image = "yatm_firearms_mg9mm_auto_ul.png",
@@ -183,7 +221,15 @@ yatm.register_stateful_tool("yatm_armoury:firearm_rfl45mm_semi", {
 
   wield_scale = make_visual_scale(64),
 
-  on_use = yatm_armoury.handle_ballistics,
+  ballistics = new_ballistics({
+    sounds = {
+      fire = {
+        name = "firearm.rifle.fire",
+        params = {},
+      },
+    }
+  }),
+  on_use = yatm_armoury.on_use_firearm,
 }, {
   ul = {
     inventory_image = "yatm_firearms_rfl45mm_semi_ul.png",
@@ -219,7 +265,15 @@ yatm.register_stateful_tool("yatm_armoury:firearm_rfl45mm_auto", {
 
   wield_scale = make_visual_scale(64),
 
-  on_use = yatm_armoury.handle_ballistics,
+  ballistics = new_ballistics({
+    sounds = {
+      fire = {
+        name = "firearm.rifle.fire",
+        params = {},
+      },
+    }
+  }),
+  on_use = yatm_armoury.on_use_firearm,
 }, {
   ul = {
     inventory_image = "yatm_firearms_rfl45mm_auto_ul.png",
@@ -262,7 +316,15 @@ yatm.register_stateful_tool("yatm_armoury:firearm_br51mm_semi", {
 
   wield_scale = make_visual_scale(80),
 
-  on_use = yatm_armoury.handle_ballistics,
+  ballistics = new_ballistics({
+    sounds = {
+      fire = {
+        name = "firearm.heavy_rifle.fire",
+        params = {},
+      },
+    }
+  }),
+  on_use = yatm_armoury.on_use_firearm,
 }, {
   ul = {
     inventory_image = "yatm_firearms_br51mm_semi_ul.png",
@@ -297,7 +359,15 @@ yatm.register_stateful_tool("yatm_armoury:firearm_br51mm_auto", {
 
   wield_scale = make_visual_scale(80),
 
-  on_use = yatm_armoury.handle_ballistics,
+  ballistics = new_ballistics({
+    sounds = {
+      fire = {
+        name = "firearm.heavy_rifle.fire",
+        params = {},
+      },
+    }
+  }),
+  on_use = yatm_armoury.on_use_firearm,
 }, {
   ul = {
     inventory_image = "yatm_firearms_br51mm_auto_ul.png",
@@ -335,7 +405,15 @@ yatm.register_stateful_tool("yatm_armoury:firearm_amr99mm_semi", {
 
   wield_scale = make_visual_scale(96),
 
-  on_use = yatm_armoury.handle_ballistics,
+  ballistics = new_ballistics({
+    sounds = {
+      fire = {
+        name = "firearm.heavy_rifle.fire",
+        params = {},
+      },
+    }
+  }),
+  on_use = yatm_armoury.on_use_firearm,
 }, {
   ul = {
     inventory_image = "yatm_firearms_amr99mm_semi_ul.png",
@@ -370,7 +448,15 @@ yatm.register_stateful_tool("yatm_armoury:firearm_hmg99mm_auto", {
 
   wield_scale = make_visual_scale(96),
 
-  on_use = yatm_armoury.handle_ballistics,
+  ballistics = new_ballistics({
+    sounds = {
+      fire = {
+        name = "firearm.heavy_rifle.fire",
+        params = {},
+      },
+    }
+  }),
+  on_use = yatm_armoury.on_use_firearm,
 }, {
   ul = {
     inventory_image = "yatm_firearms_hmg99mm_auto_ul.png",
@@ -406,7 +492,15 @@ yatm.register_stateful_tool("yatm_armoury:firearm_gren43mm_semi", {
 
   stack_max = 1,
 
-  on_use = yatm_armoury.handle_ballistics,
+  ballistics = new_ballistics({
+    sounds = {
+      fire = {
+        name = "firearm.grenade_launcher.fire",
+        params = {},
+      },
+    }
+  }),
+  on_use = yatm_armoury.on_use_firearm,
 }, {
   ul = {
     inventory_image = "yatm_firearms_gren43mm_semi_ul.png",
