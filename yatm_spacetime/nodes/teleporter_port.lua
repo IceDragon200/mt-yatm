@@ -30,10 +30,7 @@ local function teleporter_port_after_place_node(pos, placer, itemstack, pointed_
   local old_meta = itemstack:get_meta()
 
   SpacetimeMeta.copy_address(old_meta, new_meta)
-
   local address = SpacetimeMeta.patch_address(new_meta)
-
-  assert(SpacetimeMeta.get_address(new_meta) == address)
   local node = minetest.get_node(pos)
   spacetime_network:maybe_register_node(pos, node)
 
@@ -58,9 +55,9 @@ local function teleporter_port_preserve_metadata(pos, oldnode, old_meta_table, d
   SpacetimeMeta.copy_address(old_meta, new_meta)
 end
 
---[[
-Ports are teleporter destinations, by themselves they don't actually do any teleporting.
-]]
+--
+-- Ports are teleporter destinations, by themselves they don't actually do any teleporting.
+--
 local teleporter_port_yatm_network = {
   kind = "machine",
   groups = {
@@ -144,6 +141,115 @@ yatm.devices.register_stateful_network_device({
     tiles = {
       {
         name = "yatm_teleporter_port_top.on.png",
+        animation = {
+          type = "vertical_frames",
+          aspect_w = 16,
+          aspect_h = 16,
+          length = 1.0
+        },
+      },
+      "yatm_teleporter_port_bottom.png",
+      "yatm_teleporter_port_side.on.png",
+      "yatm_teleporter_port_side.on.png^[transformFX",
+      "yatm_teleporter_port_side.on.png",
+      "yatm_teleporter_port_side.on.png",
+    },
+
+    yatm_spacetime = {
+      groups = {
+        player_teleporter_destination = 1,
+      },
+    },
+  }
+})
+
+local teleporter_port_data_yatm_network = {
+  kind = "machine",
+  groups = {
+    machine = 1,
+    teleporter_port = 1,
+    energy_consumer = 1,
+  },
+  default_state = "off",
+  states = {
+    conflict = "yatm_spacetime:teleporter_port_data_error",
+    error = "yatm_spacetime:teleporter_port_data_error",
+    off = "yatm_spacetime:teleporter_port_data_off",
+    on = "yatm_spacetime:teleporter_port_data_on",
+    inactive = "yatm_spacetime:teleporter_port_data_inactive",
+  },
+  energy = {
+    capacity = 100,
+    passive_lost = 5,
+    network_charge_bandwidth = 10,
+    startup_threshold = 20,
+  },
+}
+
+--
+-- DATA Variant of the Teleporter Port
+--
+yatm.devices.register_stateful_network_device({
+  basename = "yatm_spacetime:teleporter_port_data",
+
+  description = "Teleporter Port [DATA]",
+
+  codex_entry_id = "yatm_spacetime:teleporter_port_data",
+
+  groups = {
+    cracky = 1,
+    spacetime_device = 1,
+    addressable_spacetime_device = 1,
+    yatm_data_device = 1,
+  },
+
+  drop = teleporter_port_data_yatm_network.states.off,
+  tiles = {
+    "yatm_teleporter_port_top.data.off.png",
+    "yatm_teleporter_port_bottom.png",
+    "yatm_teleporter_port_side.off.png",
+    "yatm_teleporter_port_side.off.png^[transformFX",
+    "yatm_teleporter_port_side.off.png",
+    "yatm_teleporter_port_side.off.png",
+  },
+  drawtype = "nodebox",
+  paramtype = "light",
+  paramtype2 = "facedir",
+  node_box = teleporter_port_node_box,
+
+  refresh_infotext = teleporter_port_refresh_infotext,
+
+  yatm_network = teleporter_port_data_yatm_network,
+  yatm_spacetime = {},
+
+  after_place_node = teleporter_port_after_place_node,
+  on_destruct = teleporter_port_on_destruct,
+  preserve_metadata = teleporter_port_preserve_metadata,
+}, {
+  error = {
+    tiles = {
+      "yatm_teleporter_port_top.data.error.png",
+      "yatm_teleporter_port_bottom.png",
+      "yatm_teleporter_port_side.error.png",
+      "yatm_teleporter_port_side.error.png^[transformFX",
+      "yatm_teleporter_port_side.error.png",
+      "yatm_teleporter_port_side.error.png",
+    },
+  },
+  inactive = {
+    tiles = {
+      "yatm_teleporter_port_top.data.inactive.png",
+      "yatm_teleporter_port_bottom.png",
+      "yatm_teleporter_port_side.inactive.png",
+      "yatm_teleporter_port_side.inactive.png^[transformFX",
+      "yatm_teleporter_port_side.inactive.png",
+      "yatm_teleporter_port_side.inactive.png",
+    },
+  },
+  on = {
+    tiles = {
+      {
+        name = "yatm_teleporter_port_top.data.on.png",
         animation = {
           type = "vertical_frames",
           aspect_w = 16,

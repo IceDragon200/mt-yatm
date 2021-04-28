@@ -3,6 +3,7 @@ local list_sample = assert(foundation.com.list_sample)
 local table_keys = assert(foundation.com.table_keys)
 local is_blank = assert(foundation.com.is_blank)
 local is_table_empty = assert(foundation.com.is_table_empty)
+local table_copy = assert(foundation.com.table_copy)
 local Directions = assert(foundation.com.Directions)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
@@ -15,29 +16,6 @@ local teleporter_node_box = {
   fixed = {
     {-0.5, -0.5, -0.5, 0.5, (1 / 16) - 0.5, 0.5},
   }
-}
-
---[[
-Teleporters transport any players standing on them to the paired telporter port block
-]]
-local teleporter_yatm_network = {
-  kind = "machine",
-  groups = {
-    machine = 1,
-    teleporter = 1,
-    energy_consumer = 1,
-  },
-  default_state = "off",
-  states = {
-    conflict = "yatm_spacetime:teleporter_error",
-    error = "yatm_spacetime:teleporter_error",
-    off = "yatm_spacetime:teleporter_off",
-    on = "yatm_spacetime:teleporter_on",
-    inactive = "yatm_spacetime:teleporter_inactive",
-  },
-  energy = {
-    passive_lost = 5,
-  },
 }
 
 local function find_all_connected_relays(pos, collected)
@@ -99,7 +77,6 @@ local function maybe_teleport_all_players_on_teleporter(pos, node)
       return true
     end)
 
-    print(dump(positions))
     if is_table_empty(positions) then
       print(minetest.pos_to_string(pos), address, "No target positions!")
     else
@@ -165,10 +142,6 @@ local function teleporter_after_place_node(pos, placer, itemstack, pointed_thing
   Network:maybe_register_node(pos, node)
 
   yatm.devices.device_after_place_node(pos, placer, itemstack, pointed_thing)
-
-  if rawget(_G, "mesecon") then
-    minetest.after(0, mesecon.on_placenode, pos, node)
-  end
 end
 
 local function teleporter_on_destruct(pos)
@@ -188,24 +161,6 @@ local function teleporter_preserve_metadata(pos, oldnode, old_meta_table, drops)
   SpacetimeMeta.copy_address(old_meta, new_meta)
 end
 
-local function teleporter_change_spacetime_address(pos, node, new_address)
-  local meta = minetest.get_meta(pos)
-
-  SpacetimeMeta.set_address(meta, new_address)
-  Network:maybe_update_node(pos, node)
-
-  local nodedef = minetest.registered_nodes[node.name]
-  if is_blank(new_address) then
-    node.name = nodedef.yatm_network.states.inactive
-    minetest.swap_node(pos, node)
-  else
-    node.name = nodedef.yatm_network.states.on
-    minetest.swap_node(pos, node)
-  end
-  yatm.queue_refresh_infotext(pos, node)
-  return new_address
-end
-
 local function teleporter_refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
   local infotext =
@@ -216,6 +171,29 @@ local function teleporter_refresh_infotext(pos, node)
 
   meta:set_string("infotext", infotext)
 end
+
+--
+-- Teleporters transport any players standing on them to the paired telporter port block
+--
+local teleporter_yatm_network = {
+  kind = "machine",
+  groups = {
+    machine = 1,
+    teleporter = 1,
+    energy_consumer = 1,
+  },
+  default_state = "off",
+  states = {
+    conflict = "yatm_spacetime:teleporter_error",
+    error = "yatm_spacetime:teleporter_error",
+    off = "yatm_spacetime:teleporter_off",
+    on = "yatm_spacetime:teleporter_on",
+    inactive = "yatm_spacetime:teleporter_inactive",
+  },
+  energy = {
+    passive_lost = 5,
+  },
+}
 
 yatm.devices.register_stateful_network_device({
   basename = "yatm_spacetime:teleporter",
@@ -251,13 +229,37 @@ yatm.devices.register_stateful_network_device({
 
   refresh_infotext = teleporter_refresh_infotext,
 
-  after_place_node = teleporter_after_place_node,
+  after_place_node = function (pos, placer, itemstack, pointed_thing)
+    teleporter_after_place_node(pos, placer, itemstack, pointed_thing)
+    minetest.after(0, mesecon.on_placenode, pos, node)
+  end,
+
   on_destruct = teleporter_on_destruct,
   after_destruct = teleporter_after_destruct,
 
   preserve_metadata = teleporter_preserve_metadata,
 
-  change_spacetime_address = teleporter_change_spacetime_address,
+  change_spacetime_address = function (pos, node, new_address)
+    local meta = minetest.get_meta(pos)
+
+    SpacetimeMeta.set_address(meta, new_address)
+
+    local nodedef = minetest.registered_nodes[node.name]
+    local new_node = table_copy(node)
+    if is_blank(new_address) then
+      new_node.name = nodedef.yatm_network.states.inactive
+    else
+      new_node.name = nodedef.yatm_network.states.on
+    end
+
+    if new_node.name ~= node.name then
+      minetest.swap_node(pos, new_node)
+      Network:maybe_update_node(pos, new_node)
+    end
+    yatm.queue_refresh_infotext(pos, new_node)
+
+    return new_address
+  end,
 }, {
   error = {
     tiles = {
@@ -287,6 +289,245 @@ yatm.devices.register_stateful_network_device({
     tiles = {
       {
         name = "yatm_teleporter_top.on.png",
+        animation = {
+          type = "vertical_frames",
+          aspect_w = 16,
+          aspect_h = 16,
+          length = 1.0
+        },
+      },
+      "yatm_teleporter_bottom.png",
+      "yatm_teleporter_side.on.png",
+      "yatm_teleporter_side.on.png^[transformFX",
+      "yatm_teleporter_side.on.png^[transformFX",
+      "yatm_teleporter_side.on.png",
+    },
+    use_texture_alpha = "opaque",
+    mesecons = teleporter_on_mesecons,
+    yatm_spacetime = {
+      groups = {
+        player_teleporter = 1,
+        player_teleporter_destination = 1,
+      },
+    },
+  },
+})
+
+--
+-- DATA Variant
+--
+local data_network = yatm.data_network
+
+if not data_network then
+  minetest.log("warn", "data network unavailable, not registering DATA based teleporters")
+  return
+end
+local string_hex_unescape = assert(foundation.com.string_hex_unescape)
+
+local teleporter_data_yatm_network = {
+  kind = "machine",
+  groups = {
+    machine = 1,
+    teleporter = 1,
+    energy_consumer = 1,
+  },
+  default_state = "off",
+  states = {
+    conflict = "yatm_spacetime:teleporter_data_error",
+    error = "yatm_spacetime:teleporter_data_error",
+    off = "yatm_spacetime:teleporter_data_off",
+    on = "yatm_spacetime:teleporter_data_on",
+    inactive = "yatm_spacetime:teleporter_data_inactive",
+  },
+  energy = {
+    passive_lost = 5,
+  },
+}
+
+local data_interface = {
+  on_load = function (self, pos, node)
+    yatm_data_logic.mark_all_inputs_for_active_receive(pos)
+  end,
+
+  receive_pdu = function (self, pos, node, dir, port, value)
+    local bin = string_hex_unescape(value)
+    local input = string.byte(bin, 1)
+
+    local meta = minetest.get_meta(pos)
+
+    local data_on_threshold = meta:get_string("data_on_threshold")
+    data_on_threshold = string_hex_unescape(data_on_threshold)
+    local threshold = string.byte(data_on_threshold, 1) or 0
+
+    if input >= threshold then
+      maybe_teleport_all_players_on_teleporter(pos, node)
+    end
+  end,
+
+  get_programmer_formspec = {
+    default_tab = "ports",
+    tabs = {
+      {
+        tab_id = "ports",
+        title = "Ports",
+        header = "Port Configuration",
+        render = {
+          {
+            component = "io_ports",
+            mode = "io",
+          }
+        },
+      },
+      {
+        tab_id = "data",
+        title = "DATA",
+        header = "DATA Configuration",
+        render = {
+          {
+            component = "field",
+            label = "High Threshold (byte)",
+            name = "data_on_threshold",
+            type = "string",
+            meta = true,
+          },
+        },
+      }
+    }
+  },
+
+  receive_programmer_fields = {
+    tabbed = true, -- notify the solver that tabs are in use
+    tabs = {
+      {
+        components = {
+          {
+            component = "io_ports",
+            mode = "io",
+          }
+        }
+      },
+      {
+        components = {
+          {
+            component = "field",
+            name = "data_on_threshold",
+            type = "string",
+            meta = true,
+          }
+        }
+      }
+    }
+  },
+}
+
+local on_construct = function (pos)
+  local meta = minetest.get_meta(pos)
+  local node = minetest.get_node(pos)
+
+  data_network:add_node(pos, node)
+end
+
+yatm.devices.register_stateful_network_device({
+  basename = "yatm_spacetime:teleporter_data",
+
+  description = "Teleporter [DATA]",
+
+  codex_entry_id = "yatm_spacetime:teleporter_data",
+
+  groups = {
+    cracky = 1,
+    spacetime_device = 1,
+    addressable_spacetime_device = 1,
+    yatm_data_device = 1,
+    data_programmable = 1,
+  },
+
+  drop = teleporter_data_yatm_network.states.off,
+  tiles = {
+    "yatm_teleporter_top.data.off.png",
+    "yatm_teleporter_bottom.png",
+    "yatm_teleporter_side.off.png",
+    "yatm_teleporter_side.off.png^[transformFX",
+    "yatm_teleporter_side.off.png",
+    "yatm_teleporter_side.off.png",
+  },
+  use_texture_alpha = "opaque",
+
+  drawtype = "nodebox",
+  paramtype = "light",
+  paramtype2 = "facedir",
+  node_box = teleporter_node_box,
+  yatm_network = teleporter_data_yatm_network,
+  yatm_spacetime = {},
+
+  refresh_infotext = teleporter_refresh_infotext,
+
+  on_construct = on_construct,
+  after_place_node = teleporter_after_place_node,
+  on_destruct = teleporter_on_destruct,
+  after_destruct = function (pos, old_node)
+    data_network:remove_node(pos, old_node)
+    teleporter_after_destruct(pos, old_node)
+  end,
+
+  data_network_device = {
+    type = "device",
+  },
+  data_interface = data_interface,
+
+  preserve_metadata = teleporter_preserve_metadata,
+
+  change_spacetime_address = function (pos, node, new_address)
+    local meta = minetest.get_meta(pos)
+
+    SpacetimeMeta.set_address(meta, new_address)
+
+    local nodedef = minetest.registered_nodes[node.name]
+    local new_node = table_copy(node)
+    if is_blank(new_address) then
+      new_node.name = nodedef.yatm_network.states.inactive
+    else
+      new_node.name = nodedef.yatm_network.states.on
+    end
+
+    if new_node.name ~= node.name then
+      minetest.swap_node(pos, new_node)
+      data_network:upsert_member(pos, new_node)
+      Network:maybe_update_node(pos, new_node)
+    end
+
+    yatm.queue_refresh_infotext(pos, new_node)
+    return new_address
+  end,
+}, {
+  error = {
+    tiles = {
+      "yatm_teleporter_top.data.error.png",
+      "yatm_teleporter_bottom.png",
+      "yatm_teleporter_side.error.png",
+      "yatm_teleporter_side.error.png^[transformFX",
+      "yatm_teleporter_side.error.png",
+      "yatm_teleporter_side.error.png",
+    },
+    use_texture_alpha = "opaque",
+  },
+
+  inactive = {
+    tiles = {
+      "yatm_teleporter_top.data.inactive.png",
+      "yatm_teleporter_bottom.png",
+      "yatm_teleporter_side.inactive.png",
+      "yatm_teleporter_side.inactive.png^[transformFX",
+      "yatm_teleporter_side.inactive.png",
+      "yatm_teleporter_side.inactive.png",
+    },
+    use_texture_alpha = "opaque",
+  },
+
+  on = {
+    tiles = {
+      {
+        name = "yatm_teleporter_top.data.on.png",
         animation = {
           type = "vertical_frames",
           aspect_w = 16,
