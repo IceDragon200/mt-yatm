@@ -24,10 +24,10 @@ local function pipe_on_destruct(pos)
   print("valve_fluid_pipe_on_destruct", minetest.pos_to_string(pos))
 end
 
-local function pipe_after_destruct(pos, _old_node)
+local function pipe_after_destruct(pos, old_node)
   print("valve_fluid_pipe_after_destruct", minetest.pos_to_string(pos))
   fluid_transport_network:unregister_member(pos)
-  data_network:remove_node(pos, node)
+  data_network:remove_node(pos, old_node)
 end
 
 local function valve_swap(pos, node, state)
