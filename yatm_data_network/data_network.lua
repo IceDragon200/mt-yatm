@@ -325,16 +325,18 @@ function ic:add_node(pos, node)
   local member_id = minetest.hash_node_position(pos)
   local member = self.m_members[member_id]
   if member then
-    error("cannot register " .. minetest.pos_to_string(pos) .. " " ..
+    minetest.log("error", "cannot register " .. minetest.pos_to_string(pos) .. " " ..
                                 node.name .. " it was already registered by " ..
                                 member.node.name)
+    return false
   end
 
   local nodedef = minetest.registered_nodes[node.name]
 
   -- hah dungeons and dragons... I'll see myself out
   if not nodedef.data_network_device then
-    error("cannot register " .. node.name .. " it does not have a data_network_device field defined")
+    minetest.log("error", "cannot register " .. node.name .. " it does not have a data_network_device field defined")
+    return false
   end
 
   local dnd = assert(nodedef.data_network_device)
@@ -359,7 +361,7 @@ function ic:add_node(pos, node)
 
   self:do_register_member_groups(member)
   self:_queue_refresh(pos, "node added")
-  return self
+  return true
 end
 
 -- Call this function when the physical node has changed in order to keep the
