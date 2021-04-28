@@ -40,7 +40,7 @@ local chemical_injector_yatm_network = {
 }
 
 function chemical_injector_yatm_network.work()
-  -- TODO
+  return 0
 end
 
 yatm.devices.register_stateful_network_device({
@@ -48,10 +48,14 @@ yatm.devices.register_stateful_network_device({
 
   basename = "yatm_armoury:chemical_injector",
 
+  base_description = "Chemical Injector",
   description = "Chemical Injector",
+
+  sounds = yatm.node_sounds:build("metal"),
 
   groups = {
     cracky = 1,
+    yatm_energy_device = 1,
     item_interface_in = 1,
     item_interface_out = 1,
     fluid_interface_in = 1,
@@ -59,33 +63,44 @@ yatm.devices.register_stateful_network_device({
   },
 
   tiles = {
-    "yatm_chemical_injector_top.off.png",
-    "yatm_chemical_injector_bottom.png",
-    "yatm_chemical_injector_side.png",
-    "yatm_chemical_injector_side.png^[transformFX",
-    "yatm_chemical_injector_back.png",
+    "yatm_chemical_injector_top.off.empty.png",
+    "yatm_chemical_injector_bottom.off.png",
+    "yatm_chemical_injector_side.off.png",
+    "yatm_chemical_injector_side.off.png^[transformFX",
+    "yatm_chemical_injector_back.off.png",
     "yatm_chemical_injector_front.off.png",
   },
+
+  paramtype = "none",
+  paramtype2 = "facedir",
 
   yatm_network = chemical_injector_yatm_network,
 }, {
   error = {
     tiles = {
-      "yatm_chemical_injector_top.error.png",
-      "yatm_chemical_injector_bottom.png",
-      "yatm_chemical_injector_side.png",
-      "yatm_chemical_injector_side.png^[transformFX",
-      "yatm_chemical_injector_back.png",
+      "yatm_chemical_injector_top.off.empty.png",
+      "yatm_chemical_injector_bottom.error.png",
+      "yatm_chemical_injector_side.error.png",
+      "yatm_chemical_injector_side.error.png^[transformFX",
+      "yatm_chemical_injector_back.error.png",
       "yatm_chemical_injector_front.error.png",
     },
   },
   on = {
     tiles = {
-      "yatm_chemical_injector_top.on.png",
-      "yatm_chemical_injector_bottom.png",
-      "yatm_chemical_injector_side.png",
-      "yatm_chemical_injector_side.png^[transformFX",
-      "yatm_chemical_injector_back.png",
+      {
+        name = "yatm_chemical_injector_top.on.chemical.png",
+        animation = {
+          type = "vertical_frames",
+          aspect_w = 16,
+          aspect_h = 16,
+          length = 1,
+        },
+      },
+      "yatm_chemical_injector_bottom.on.png",
+      "yatm_chemical_injector_side.on.png",
+      "yatm_chemical_injector_side.on.png^[transformFX",
+      "yatm_chemical_injector_back.on.png",
       "yatm_chemical_injector_front.on.png",
     },
   }

@@ -17,7 +17,29 @@ minetest.register_tool("yatm_armoury:grenade_chemical", {
     chemical_grenade = 1,
   },
 
-  inventory_image = "yatm_grenades_chemical.png",
+  inventory_image = "yatm_grenades_chemical_0.png",
+})
+
+minetest.register_tool("yatm_armoury:grenade_incendiary", {
+  description = "Incendiary Grenade\nCaution: HOT.",
+
+  groups = {
+    grenade = 1,
+    incendiary_grenade = 1,
+  },
+
+  inventory_image = "yatm_grenades_fire_0.png",
+})
+
+minetest.register_tool("yatm_armoury:grenade_nuclear", {
+  description = "Incendiary Grenade\nCaution: Contains radioactive materials.",
+
+  groups = {
+    grenade = 1,
+    nuclear_grenade = 1,
+  },
+
+  inventory_image = "yatm_grenades_nuclear_0.png",
 })
 
 if rawget(_G, "yatm_blasts_emp") then
@@ -30,7 +52,15 @@ if rawget(_G, "yatm_blasts_emp") then
       emp_grenade = 1,
     },
 
-    inventory_image = "yatm_grenades_emp.png",
+    inventory_image = {
+      name = "yatm_grenades_emp.png",
+      animation = {
+        type = "vertical_frames",
+        aspect_w = 16,
+        aspect_h = 16,
+        length = 0.25
+      },
+    },
   })
 end
 
@@ -44,6 +74,6 @@ if rawget(_G, "yatm_blasts_frost") then
       frost_grenade = 1,
     },
 
-    inventory_image = "yatm_grenades_emp.png",
+    inventory_image = "yatm_grenades_frost_0.png",
   })
 end
