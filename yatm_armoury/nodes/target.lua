@@ -13,4 +13,11 @@ mod:register_node("target", {
   tiles = {
     "yatm_target.png",
   },
+
+  on_projectile_hit = function (pos, node, hit_data)
+    print("HIT!", dump(hit_data))
+
+    --
+    hit_data.stop = true
+  end,
 })

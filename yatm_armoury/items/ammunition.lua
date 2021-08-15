@@ -180,6 +180,7 @@ end
 --       one day I'll revise the system, but for now, I'll just throw some numbers in their
 --       for testing.
 
+-- Small Calibre
 yatm_armoury:register_calibre_class("9x19mm", {
   range = 16 * 3, -- nodes
 })
@@ -196,6 +197,7 @@ yatm_armoury:register_calibre_class("12.7x99mm", {
   range = 16 * 6, -- nodes
 })
 
+-- Medium Calibre
 yatm_armoury:register_calibre_class("25x137mm", {
   range = 16 * 7, -- nodes
 })

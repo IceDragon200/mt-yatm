@@ -1,4 +1,6 @@
-minetest.register_tool("yatm_armoury:grenade_lemonade", {
+local mod = yatm_armoury
+
+mod:register_tool("grenade_lemonade", {
   description = "Lemon-nade\nCaution: Handle with care",
   lore = "Not for juice.",
 
@@ -9,7 +11,7 @@ minetest.register_tool("yatm_armoury:grenade_lemonade", {
   inventory_image = "yatm_grenades_lemonade.png",
 })
 
-minetest.register_tool("yatm_armoury:grenade_chemical", {
+mod:register_tool("grenade_chemical", {
   description = "Chemical Grenade\nCaution: May or may not contain, harmful substances, up to you.",
 
   groups = {
@@ -20,7 +22,7 @@ minetest.register_tool("yatm_armoury:grenade_chemical", {
   inventory_image = "yatm_grenades_chemical_0.png",
 })
 
-minetest.register_tool("yatm_armoury:grenade_incendiary", {
+mod:register_tool("grenade_incendiary", {
   description = "Incendiary Grenade\nCaution: HOT.",
 
   groups = {
@@ -31,7 +33,7 @@ minetest.register_tool("yatm_armoury:grenade_incendiary", {
   inventory_image = "yatm_grenades_fire_0.png",
 })
 
-minetest.register_tool("yatm_armoury:grenade_nuclear", {
+mod:register_tool("grenade_nuclear", {
   description = "Incendiary Grenade\nCaution: Contains radioactive materials.",
 
   groups = {
@@ -43,7 +45,7 @@ minetest.register_tool("yatm_armoury:grenade_nuclear", {
 })
 
 if rawget(_G, "yatm_blasts_emp") then
-  minetest.register_tool("yatm_armoury:grenade_emp", {
+  mod:register_tool("grenade_emp", {
     description = "EMP Grenade\nCaution: Do not throw near machines.",
     lore = "A neatly packed Grenade of electro-magnetic goodness.",
 
@@ -65,7 +67,7 @@ if rawget(_G, "yatm_blasts_emp") then
 end
 
 if rawget(_G, "yatm_blasts_frost") then
-  minetest.register_tool("yatm_armoury:grenade_frost", {
+  mod:register_tool("grenade_frost", {
     description = "FROST Grenade\nCold to touch.",
     lore = "An experimental grenade issued by FROST, causes freezing upon detonation.",
 

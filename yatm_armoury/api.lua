@@ -285,68 +285,86 @@ function yatm_armoury.on_use_firearm(item_stack, player, pointed_thing)
   local itemdef = item_stack:get_definition()
 
   play_sound(itemdef.ballistics.sounds.fire)
+
+  yatm_armoury.handle_bullet_ballistics("S", item_stack, player, pointed_thing)
 end
 
-local function player_on_hit(player, hit_data)
+local function player_on_projectile_hit(player, hit_data)
   --
 end
 
-function yatm_armoury.handle_bullet_ballistics(ammunition_code, item_stack, player, pointed_thing)
+local function entity_on_projectile_hit(entity, hit_data)
+  if entity:is_player() then
+    player_on_projectile_hit(entity, hit_data)
+  else
+    local lua_entity = entity:get_luaentity()
+
+    if lua_entity then
+      if lua_entity.on_projectile_hit then
+        lua_entity.on_projectile_hit(entity, hit_data)
+      end
+    end
+  end
+end
+
+local function node_on_projectile_hit(pos, node, hit_data)
+  local nodedef = minetest.registered_nodes[node.name]
+  print("Projectile Hit", node.name, dump(pos))
+  if nodedef.on_projectile_hit then
+    nodedef.on_projectile_hit(pos, node, hit_data)
+  else
+    -- default to stopping on node hit
+    hit_data.stop = true
+  end
+end
+
+function yatm_armoury.handle_bullet_ballistics(ammunition_code, item_stack, player, _pointed_thing)
   local calibre = yatm_armoury.get_item_stack_calibre(item_stack)
 
   local ammunition_class = yatm_armoury:get_ammunition_class_by_code(ammunition_code)
   local calibre_class = yatm_armoury:get_calibre_class(calibre)
 
   local look_dir = player:get_look_dir()
-  look_dir = vector.multiply(look_dir, calibre_class.range)
-  local raycast = minetest.raycast(player:get_pos(),
-                                   vector.add(player:get_pos(), look_dir),
-                                   true,
-                                   false)
+  local effective_range = vector.multiply(look_dir, calibre_class.range)
+  local origin_min = vector.add(look_dir, { x = 0, y = 1, z = 0 })
+  local origin_pos = vector.add(player:get_pos(), origin_min)
+  local target_pos = vector.add(origin_pos, effective_range)
+  local include_objects = true
+  local include_liquids = false
+  local raycast = minetest.raycast(origin_pos,
+                                   target_pos,
+                                   include_objects,
+                                   include_liquids)
+
+  local hit_data = {
+    kind = "bullet",
+    shooter = player,
+    origin = origin_pos,
+    target = target_pos,
+    pointed_thing = pointed_thing,
+    stop = false,
+    data = {
+      ammunition = ammunition_class,
+    }
+  }
 
   for pointed_thing in raycast do
-    if pointed_thing.ref then
-      local hit_data = {
-        kind = "bullet",
-        entity = player,
-        from = player:get_pos(),
-        to = pos,
-        data = {
-          ammunition = ammunition_class,
-        }
-      }
+    print("Pointed At", pointed_thing.type, dump(pointed_thing))
 
-      if pointed_thing.ref:is_player() then
-        player_on_hit(pointed_thing.ref, hit_data)
-      else
-        local lua_entity = pointed_thing.ref:get_luaentity()
-
-        if lua_entity then
-          if lua_entity.on_hit then
-            lua_entity.on_hit(pointed_thing.ref, hit_data)
-          end
-        end
-      end
-    else
+    if pointed_thing.type == "object" then
+      entity_on_projectile_hit(pointed_thing.ref, hit_data)
+    elseif pointed_thing.type == "node" then
       local pos = pointed_thing.under
-      local node = minetest.get_node(pos)
-      local nodedef = minetest.registered_nodes[node.name]
+      local node = minetest.get_node_or_nil(pos)
 
-      local hit_data = {
-        kind = "bullet",
-        entity = player,
-        from = player:get_pos(),
-        to = pos,
-        data = {
-          ammunition = ammunition_class,
-        }
-      }
-
-      if nodedef.on_hit then
-        nodedef.on_hit(pos, node, hit_data)
+      if node then
+        node_on_projectile_hit(pos, node, hit_data)
       end
     end
-    break
+
+    if hit_data.stop then
+      break
+    end
   end
 
   return item_stack

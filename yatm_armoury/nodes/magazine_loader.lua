@@ -43,7 +43,8 @@ local magazine_loader_yatm_network = {
   },
 }
 
-function magazine_loader_yatm_network.work()
+function magazine_loader_yatm_network.work(pos, node, energy_available, work_rate, dtime, ot)
+  return 0
 end
 
 yatm.devices.register_stateful_network_device({

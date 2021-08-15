@@ -8,8 +8,12 @@ end
 
 local Directions = assert(foundation.com.Directions)
 local ItemInterface = assert(yatm.items.ItemInterface)
+local FluidInterface = assert(yatm.fluids.FluidInterface)
 
-local chemical_injector_item_interface =
+local fluid_interface =
+  FluidInterface.new_simple("tank", 4000)
+
+local item_interface =
   ItemInterface.new_directional(function (self, pos, dir)
     local node = minetest.get_node(pos)
     local new_dir = Directions.facedir_to_face(node.param2, dir)
@@ -17,7 +21,7 @@ local chemical_injector_item_interface =
     return "ammo_items"
   end)
 
-local chemical_injector_yatm_network = {
+local yatm_network = {
   basename = "yatm_armoury:chemical_injector",
   kind = "machine",
   groups = {
@@ -39,7 +43,7 @@ local chemical_injector_yatm_network = {
   },
 }
 
-function chemical_injector_yatm_network.work()
+function yatm_network.work()
   return 0
 end
 
@@ -74,7 +78,9 @@ yatm.devices.register_stateful_network_device({
   paramtype = "none",
   paramtype2 = "facedir",
 
-  yatm_network = chemical_injector_yatm_network,
+  yatm_network = yatm_network,
+  item_interface = item_interface,
+  fluid_interface = fluid_interface,
 }, {
   error = {
     tiles = {
