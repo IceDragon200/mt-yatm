@@ -1,1 +1,1 @@
-dofile(yatm_fluids.modpath .. "/nodes/fluid_tank.lua")
+yatm_fluids:require("nodes/fluid_tank.lua")

@@ -25,6 +25,8 @@
   Silver however produces more workers.
 
 ]]
+local mod = yatm_bees
+
 local colors = {
   {"default", "Default"},
   {"tech", "Tech"},
@@ -46,7 +48,9 @@ for _,variant_pair in ipairs(variants) do
     local color_basename = color_pair[1]
     local color_name = color_pair[2]
 
-    minetest.register_craftitem("yatm_bees:bee_" .. variant_basename .. "_" .. color_basename, {
+    local name = mod:make_name("bee_" .. variant_basename .. "_" .. color_basename)
+
+    minetest.register_tool(name, {
       basename = "yatm_bees:bee_" .. variant_basename,
       base_description = variant_name .. " Bee",
 

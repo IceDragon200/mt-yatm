@@ -1,4 +1,4 @@
-print("sad yatm sounds, no base game detected")
+minetest.log("info", "preparing empty node sounds for baseless")
 local node_sounds = assert(yatm_core.node_sounds)
 
 -- empty sounds

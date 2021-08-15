@@ -1,3 +1,3 @@
-dofile(yatm_bees.modpath .. "/nodes/bee_box.lua")
-dofile(yatm_bees.modpath .. "/nodes/bait_box.lua")
-dofile(yatm_bees.modpath .. "/nodes/bee_hive.lua")
+yatm_bees:require("nodes/bee_box.lua")
+yatm_bees:require("nodes/bait_box.lua")
+yatm_bees:require("nodes/bee_hive.lua")

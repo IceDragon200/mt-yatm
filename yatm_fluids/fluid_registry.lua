@@ -299,15 +299,15 @@ function FluidRegistry.normalize_fluid_name(fluid_name)
 end
 
 --
--- @spec FluidRegistry.item_name_to_fluid_name(String.t) :: String.t | nil
---
+-- @spec item_name_to_fluid_name(item_name: String): String
 function FluidRegistry.item_name_to_fluid_name(item_name)
   return FluidRegistry.m_item_name_to_fluid_name[item_name]
 end
 
+-- @spec fluid_name_to_tank_name(fluid_name: String): String
 function FluidRegistry.fluid_name_to_tank_name(fluid_name)
   fluid_name = FluidRegistry.normalize_fluid_name(fluid_name)
   return FluidRegistry.m_fluid_name_to_tank_name[fluid_name]
 end
 
-yatm_fluids.FluidRegistry = FluidRegistry
+yatm_fluids.fluid_registry = FluidRegistry

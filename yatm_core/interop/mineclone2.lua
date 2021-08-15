@@ -1,4 +1,5 @@
-minetest.log("info", "yatm is running in a default environment")
+minetest.log("info", "yatm is running in a mineclone2 environment")
+
 local node_sounds = assert(yatm_core.node_sounds)
 
 node_sounds:register("base", {
@@ -51,6 +52,7 @@ node_sounds:register("water", {
   extends = { "base" },
   sounds = {
     foostep = {name = "default_water_footstep", gain = 0.2},
+    place = {name = "mcl_sounds_place_node_water", gain = 0.2},
   }
 })
 node_sounds:register("cardboard", {

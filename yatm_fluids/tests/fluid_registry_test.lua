@@ -1,10 +1,10 @@
 local MetaRef = assert(foundation.com.FakeMetaRef)
 local Luna = assert(yatm.Luna)
 
-local m = assert(yatm.fluids.FluidRegistry)
+local m = assert(yatm.fluids.fluid_registry)
 local FluidStack = assert(yatm.fluids.FluidStack)
 
-local case = Luna:new("yatm.fluids.FluidRegistry")
+local case = Luna:new("yatm.fluids.fluid_registry")
 
 case:describe("item_name_to_fluid_name/1", function (t2)
   t2:test("can retrieve fluid names for registered fluid source blocks", function (t3)

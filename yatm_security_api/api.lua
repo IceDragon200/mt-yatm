@@ -1,3 +1,4 @@
+-- @namespace yatm.security
 local string_empty = assert(foundation.com.string_empty)
 local is_table_empty = assert(foundation.com.is_table_empty)
 
@@ -36,11 +37,13 @@ local SecuritySlotSchema = foundation.com.MetaSchema:new("SecuritySlotSchema", "
 --                                 data: Table) :: (yatm.security.AccessFlag,
 --                                                  Function | nil | String),
 -- }
--- @spec { [name :: String] = SecurityFeatureDefinition }
+
+-- @struct { [name :: String] = SecurityFeatureDefinition }
 yatm.security.registered_security_features = {}
 
 -- Register new security features with register_security_feature
--- @spec register_security_feature(name: String, definition: Table) :: void
+--
+-- @spec register_security_feature(name: String, definition: Table): void
 function yatm.security.register_security_feature(name, definition)
   assert(type(name) == "string", "expected a name for security feature")
   assert(type(definition) == "table", "expected a table defining security feature properties")
@@ -56,13 +59,15 @@ function yatm.security.register_security_feature(name, definition)
 end
 
 -- Remove existing features with unregister_security_feature
--- @spec unregister_security_feature(name: String) :: void
+--
+-- @spec unregister_security_feature(name: String): void
 function yatm.security.unregister_security_feature(name)
   yatm.security.registered_security_features[name] = nil
 end
 
 -- Retrieve a feature by it's name
--- @spec get_security_feature(name: String) :: Table | nil
+--
+-- @spec get_security_feature(name: String): Table | nil
 function yatm.security.get_security_feature(name)
   return yatm.security.registered_security_features[name]
 end
@@ -78,6 +83,7 @@ yatm.security.NEEDS_ACTION = 'NEEDS_ACTION'
 -- The object requests that the caller continue calling the transaction
 yatm.security.CONTINUE = 'CONTINUE'
 
+-- @class SecurityTransaction
 local SecurityTransaction = foundation.com.Class:extends()
 do
   local ic = SecurityTransaction.instance_class
@@ -93,6 +99,7 @@ do
     minetest.log("action", "New SecurityTransaction id=" .. id)
   end
 
+  -- @spec #continue(): yatm.security.Status
   function ic:continue()
     -- TODO: this entire function should likely be rewritten as a coroutine
     if not self.held then

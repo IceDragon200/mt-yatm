@@ -3,7 +3,7 @@ local cluster_energy = assert(yatm.cluster.energy)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidUtils = assert(yatm.fluids.Utils)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
-local FluidRegistry = assert(yatm.fluids.FluidRegistry)
+local fluid_registry = assert(yatm.fluids.fluid_registry)
 
 local combustion_engine_nodebox = {
   type = "fixed",
@@ -63,7 +63,7 @@ function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, 
 
   local new_state
   if fluid_stack and fluid_stack.amount > 0 then
-    local fluid = FluidRegistry.get_fluid(fluid_stack.name)
+    local fluid = fluid_registry.get_fluid(fluid_stack.name)
     if fluid then
       local capacity = fluid_interface._private.capacity
       fluid_stack.amount = 20

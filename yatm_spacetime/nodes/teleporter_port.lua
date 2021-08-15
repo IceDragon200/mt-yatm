@@ -222,6 +222,10 @@ yatm.devices.register_stateful_network_device({
   yatm_network = teleporter_port_data_yatm_network,
   yatm_spacetime = {},
 
+  data_network_device = {
+    type = "device",
+  },
+
   after_place_node = teleporter_port_after_place_node,
   on_destruct = teleporter_port_on_destruct,
   preserve_metadata = teleporter_port_preserve_metadata,

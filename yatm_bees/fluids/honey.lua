@@ -3,7 +3,7 @@
   The real McCoy.
 
 ]]
-yatm.fluids.FluidRegistry.register("yatm_bees", "honey", {
+yatm.fluids.fluid_registry.register("yatm_bees", "honey", {
   description = "Honey",
 
   groups = {

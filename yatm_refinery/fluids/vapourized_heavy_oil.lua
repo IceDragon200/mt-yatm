@@ -1,5 +1,5 @@
 -- Borrowed this from Factorio
-yatm.fluids.FluidRegistry.register("yatm_refinery", "vapourized_heavy_oil", {
+yatm.fluids.fluid_registry.register("yatm_refinery", "vapourized_heavy_oil", {
   description = "Vapourized Heavy Oil",
 
   groups = {

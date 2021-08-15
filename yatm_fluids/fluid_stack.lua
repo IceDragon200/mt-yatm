@@ -1,30 +1,36 @@
 --
 -- Simple utility module for dealing with stacks of fluids
 --
-local FluidRegistry = assert(yatm_fluids.FluidRegistry)
+local fluid_registry = assert(yatm_fluids.fluid_registry)
 local FluidUtils = assert(yatm_fluids.Utils)
 local FluidStack = {}
 
+-- @spec new(name: String, amount: Integer): FluidStack
 function FluidStack.new(name, amount)
   return { name = name, amount = amount or 0 }
 end
 
+-- @spec new_empty(): FluidStack
 function FluidStack.new_empty()
   return FluidStack.new(nil, 0)
 end
 
+-- @spec new_group(group_name: String, amount: Integer): FluidStack
 function FluidStack.new_group(group_name, amount)
   return FluidStack.new("group:" .. group_name, amount)
 end
 
+-- @spec new_wildcard(amount: Integer): FluidStack
 function FluidStack.new_wildcard(amount)
   return FluidStack.new("*", amount)
 end
 
+-- @spec copy(fluid_stack: FluidStack): FluidStack
 function FluidStack.copy(fluid_stack)
   return { name = fluid_stack.name, amount = fluid_stack.amount }
 end
 
+-- @spec copy(a?: FluidStack, b?: FluidStack): Boolean
 function FluidStack.same_fluid(a, b)
   if a and b then
     return FluidUtils.matches(a.name, b.name)
@@ -37,6 +43,7 @@ function FluidStack.same_fluid_or_replacable_by(base, replacement)
   if not base then
     return replacement ~= nil
   end
+  return FluidStack.same_fluid(base, replacement)
 end
 
 function FluidStack.equals(a, b)
@@ -55,7 +62,7 @@ end
 
 function FluidStack.get_fluid(fluid_stack)
   if fluid_stack and fluid_stack.name then
-    return FluidRegistry.get_fluid(fluid_stack.name)
+    return fluid_registry.get_fluid(fluid_stack.name)
   end
   return nil
 end
@@ -95,7 +102,7 @@ function FluidStack.pretty_format(fluid_stack, capacity)
   local name = ""
   local amount = 0
   if fluid_stack then
-    local fluiddef = FluidRegistry.get_fluid(fluid_stack.name)
+    local fluiddef = fluid_registry.get_fluid(fluid_stack.name)
     if fluiddef then
       name = fluiddef.description or fluid_stack.name
     else
@@ -131,11 +138,11 @@ end
 function FluidStack.merge(a, ...)
   assert(a, "expected a fluid stack")
   local result = {
-    name = FluidRegistry.normalize_fluid_name(a.name),
+    name = fluid_registry.normalize_fluid_name(a.name),
     amount = a.amount or 0,
   }
   for _,b in ipairs({...}) do
-    FluidRegistry.normalize_fluid_name(b.name)
+    fluid_registry.normalize_fluid_name(b.name)
     if not result.name or b.name == result.name then
       result.amount = result.amount + b.amount
     end
@@ -145,7 +152,7 @@ end
 
 function FluidStack.normalize(stack)
   return {
-    name = FluidRegistry.normalize_fluid_name(stack.name),
+    name = fluid_registry.normalize_fluid_name(stack.name),
     amount = stack.amount
   }
 end

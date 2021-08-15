@@ -15,7 +15,7 @@ local rffr = freezing_registry:method("register_fluid_freezing_recipe")
 -- Fluid Recipes
 --
 
--- River water contains less salt - refresh water, so it's easier to freeze
+-- River water contains less salt - fresh water, so it's easier to freeze
 rffr("yatm_machines:freeze_river_water",
     FluidStack.new("default:river_water", 1000),
     ItemStack("default:ice", 1),

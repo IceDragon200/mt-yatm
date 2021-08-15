@@ -1,5 +1,5 @@
 -- Don't ask, it's a tribute to my cat
-yatm.fluids.FluidRegistry.register("yatm_fluids", "garfielium", {
+yatm.fluids.fluid_registry.register("yatm_fluids", "garfielium", {
   description = "Garfielium",
 
   aliases = {

@@ -5,7 +5,7 @@ local Directions = assert(foundation.com.Directions)
 local FluidStack = assert(yatm_fluids.FluidStack)
 local FluidInterface = assert(yatm_fluids.FluidInterface)
 local FluidTanks = assert(yatm_fluids.FluidTanks)
-local FluidRegistry = assert(yatm_fluids.FluidRegistry)
+local fluid_registry = assert(yatm_fluids.fluid_registry)
 local FluidMeta = assert(yatm_fluids.FluidMeta)
 
 local fluid_tank_fluid_interface = FluidInterface.new_simple("tank", 16000)
@@ -15,7 +15,7 @@ function fluid_tank_fluid_interface:on_fluid_changed(pos, dir, new_stack)
   local node = minetest.get_node(pos)
 
   if new_stack and new_stack.amount > 0 then
-    local tank_name = FluidRegistry.fluid_name_to_tank_name(new_stack.name)
+    local tank_name = fluid_registry.fluid_name_to_tank_name(new_stack.name)
     assert(tank_name, "expected fluid tank for " .. dump(new_stack.name))
 
     if node.name ~= tank_name then

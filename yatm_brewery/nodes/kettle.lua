@@ -117,6 +117,34 @@ local function kettle_on_timer(pos, dt)
   end
 end
 
+local thermal_interface = {
+  groups = {
+    heater = 1,
+    thermal_user = 1,
+  },
+
+  update_heat = function (self, pos, node, heat, dtime)
+    local meta = minetest.get_meta(pos)
+
+    if yatm.thermal.update_heat(meta, "heat", heat, 10, dtime) then
+      local new_name
+      if math.floor(heat) > 0 then
+        new_name = "yatm_brewery:kettle_on"
+      else
+        new_name = "yatm_brewery:kettle_off"
+      end
+      if new_name ~= node.name then
+        node.name = new_name
+        minetest.swap_node(pos, node)
+      end
+
+      maybe_start_node_timer(pos, 1.0)
+
+      yatm.queue_refresh_infotext(pos, node)
+    end
+  end,
+}
+
 local groups = {
   -- Tool groups
   cracky = 1,
@@ -169,33 +197,7 @@ yatm.register_stateful_node("yatm_brewery:kettle", {
 
   fluid_interface = fluid_interface,
   item_interface = item_interface,
-  thermal_interface = {
-    groups = {
-      heater = 1,
-      thermal_user = 1,
-    },
-
-    update_heat = function (self, pos, node, heat, dtime)
-      local meta = minetest.get_meta(pos)
-
-      if yatm.thermal.update_heat(meta, "heat", heat, 10, dtime) then
-        local new_name
-        if math.floor(heat) > 0 then
-          new_name = "yatm_brewery:kettle_on"
-        else
-          new_name = "yatm_brewery:kettle_off"
-        end
-        if new_name ~= node.name then
-          node.name = new_name
-          minetest.swap_node(pos, node)
-        end
-
-        maybe_start_node_timer(pos, 1.0)
-
-        yatm.queue_refresh_infotext(pos, node)
-      end
-    end,
-  },
+  thermal_interface = thermal_interface,
 }, {
   off = {
     tiles = {

@@ -4,9 +4,8 @@
 --
 local Directions = assert(foundation.com.Directions)
 local list_concat = assert(foundation.com.list_concat)
-
-local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
+local FluidTanks = assert(yatm.fluids.FluidTanks)
 
 local barrel_nodebox = {
   type = "fixed",
@@ -57,7 +56,13 @@ for _,row in ipairs(yatm.colors_with_default) do
     base_description = "Fluid Barrel (Wood)",
 
     description = "Fluid Barrel (Wood / " .. color_name .. ")",
-    groups = { fluid_barrel = 1, wood_fluid_barrel = 1, cracky = 2, fluid_interface_in = 1, fluid_interface_out = 1 },
+    groups = {
+      fluid_barrel = 1,
+      wood_fluid_barrel = 1,
+      choppy = 2,
+      fluid_interface_in = 1,
+      fluid_interface_out = 1,
+    },
     sounds = yatm.node_sounds:build("wood"),
     tiles = {
       "yatm_barrel_wood_fluid_" .. color_basename .. "_top.png",
@@ -91,7 +96,13 @@ for _,row in ipairs(yatm.colors_with_default) do
     base_description = "Fluid Barrel (Metal)",
 
     description = "Fluid Barrel (Metal / " .. color_name .. ")",
-    groups = { fluid_barrel = 1, metal_fluid_barrel = 1, cracky = 1, fluid_interface_in = 1, fluid_interface_out = 1 },
+    groups = {
+      fluid_barrel = 1,
+      metal_fluid_barrel = 1,
+      cracky = 1,
+      fluid_interface_in = 1,
+      fluid_interface_out = 1,
+    },
     sounds = yatm.node_sounds:build("metal"),
     tiles = {
       "yatm_barrel_metal_fluid_" .. color_basename .. "_top.png",

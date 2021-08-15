@@ -1,4 +1,4 @@
-yatm.fluids.FluidRegistry.register("yatm_brewery_apple_cider", "apple_cider", {
+yatm.fluids.fluid_registry.register("yatm_brewery_apple_cider", "apple_cider", {
   description = "Apple Cider",
 
   groups = {

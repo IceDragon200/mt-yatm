@@ -1,5 +1,5 @@
 -- Borrowed this from Factorio
-yatm.fluids.FluidRegistry.register("yatm_fluids", "heavy_oil", {
+yatm.fluids.fluid_registry.register("yatm_fluids", "heavy_oil", {
   description = "Heavy Oil",
 
   aliases = {

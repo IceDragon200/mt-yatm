@@ -1,4 +1,4 @@
-yatm.fluids.FluidRegistry.register("yatm_foundry", "molten_gold", {
+yatm.fluids.fluid_registry.register("yatm_foundry", "molten_gold", {
   description = "Molten Gold",
 
   groups = {

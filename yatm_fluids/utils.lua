@@ -1,5 +1,5 @@
 local string_starts_with = assert(foundation.com.string_starts_with)
-local FluidRegistry = assert(yatm_fluids.FluidRegistry)
+local fluid_registry = assert(yatm_fluids.fluid_registry)
 
 local Utils = {}
 
@@ -34,13 +34,13 @@ Returns:
 * `fluid_name :: String.t | nil` - the correct fluid name OR nil if no match was performed
 ]]
 function Utils.matches(a, b)
-  a = FluidRegistry.normalize_fluid_name(a)
-  b = FluidRegistry.normalize_fluid_name(b)
+  a = fluid_registry.normalize_fluid_name(a)
+  b = fluid_registry.normalize_fluid_name(b)
   if string_starts_with(a, "group:") then
     -- We can't match group to group, since it has to return a valid name
     if b ~= "*" and not string_starts_with(b, "group:") then
       local group = string.sub(a, #"group:" + 1)
-      local members = yatm.Measurable.members_of(FluidRegistry, group)
+      local members = yatm.Measurable.members_of(fluid_registry, group)
       if members and members[b] then
         return b
       end
@@ -51,7 +51,7 @@ function Utils.matches(a, b)
       return nil
     end
     local group = string.sub(b, #"group:" + 1)
-    local members = yatm.Measurable.members_of(FluidRegistry, group)
+    local members = yatm.Measurable.members_of(fluid_registry, group)
     if members and members[a] then
       return a
     end

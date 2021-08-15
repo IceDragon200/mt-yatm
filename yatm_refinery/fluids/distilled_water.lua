@@ -1,5 +1,5 @@
 -- Not sure what I'll use it for, but it exists!
-yatm.fluids.FluidRegistry.register("yatm_refinery", "distilled_water", {
+yatm.fluids.fluid_registry.register("yatm_refinery", "distilled_water", {
   description = "Distilled Water",
 
   groups = {

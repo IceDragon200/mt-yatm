@@ -1,23 +1,11 @@
---[[
-
-  Bee Box, keeps all your bees in one easy to access place.
-
-]]
+--
+-- Bee Box, keeps all your bees in one easy to access place.
+--
 local table_merge = assert(foundation.com.table_merge)
 
 local ItemInterface = assert(yatm.items.ItemInterface)
 
-local function itemstack_is_frame(item_stack)
-  if not item_stack:is_empty() then
-    local def = item_stack:get_definition()
-    if def then
-      if def.groups.bee_box_frame then
-        return true
-      end
-    end
-  end
-  return false
-end
+local itemstack_is_frame = assert(yatm.bees.itemstack_is_frame)
 
 local function get_bee_box_formspec(pos, user)
   local meta = minetest.get_meta(pos)
@@ -159,8 +147,9 @@ local function bee_box_on_timer(pos, elapsed)
   -- Princesses can aid with speeding up the process of hatching brood combs into workers.
   -- Princesses can be hatched directly from brood combs, or nurtured from existing workers.
   -- If a hive is left without a Queen, but has a princess, the princess can be nutured into a Queen.
-  -- If a give has neither Queen nor Princesses, workers will slowly die off unless there are existing "brood combs"
+  -- If a hive has neither Queen nor Princesses, workers will slowly die off unless there are existing "brood combs"
 
+  -- Queen
   local queen_bee = inv:get_stack("queen_slot", 1)
   -- Princesses act as nurses and aid with the creation of additional workers
   local princesses = inv:get_list("princess_slots")
@@ -183,6 +172,8 @@ local function bee_box_on_timer(pos, elapsed)
   if itemstack_is_frame(frames[4]) then
     local combs4 = inv:get_list("comb_slots_4")
   end
+
+  -- TODO
 
   return true
 end
@@ -220,7 +211,6 @@ end
 
 local function bee_box_on_metadata_inventory_take(pos, list, index, item_stack, player)
 end
-
 
 minetest.register_node("yatm_bees:bee_box_wood", {
   basename = "yatm_bees:bee_box",

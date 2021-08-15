@@ -9,9 +9,7 @@ local function dump_nodes()
   local i = 0
   local result = {}
   for name, def in pairs(minetest.registered_nodes) do
-    i = i + 1
-
-    result[i] = minetest.write_json({
+    local blob = minetest.write_json({
       codex_entry_id = def.codex_entry_id,
       name = name,
       basename = def.basename or name,
@@ -26,6 +24,14 @@ local function dump_nodes()
       paramtype2 = def.paramtype2,
       sounds = def.sounds,
     })
+
+    if blob then
+      i = i + 1
+
+      result[i] = blob
+    else
+      minetest.log("warning", "could not export node name="..name)
+    end
   end
 
   minetest.safe_file_write(minetest.get_worldpath() .. "/yatm_exported_nodes.mljson", table.concat(result, "\n"))

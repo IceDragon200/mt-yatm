@@ -1,1 +1,1 @@
-dofile(yatm_brewery.modpath .. "/items/yeast.lua")
+yatm_brewery:require("items/yeast.lua")

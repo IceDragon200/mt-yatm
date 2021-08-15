@@ -1,4 +1,4 @@
-yatm.fluids.FluidRegistry.register("yatm_fluids", "ice_slurry", {
+yatm.fluids.fluid_registry.register("yatm_fluids", "ice_slurry", {
   description = "Ice Slurry",
 
   groups = {

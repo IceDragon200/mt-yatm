@@ -2,7 +2,7 @@ local Directions = assert(foundation.com.Directions)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local FluidStack = assert(yatm.fluids.FluidStack)
-local FluidRegistry = assert(yatm.fluids.FluidRegistry)
+local fluid_registry = assert(yatm.fluids.fluid_registry)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
 local Energy = assert(yatm.energy)
@@ -72,7 +72,7 @@ function pump_yatm_network.work(pos, node, energy_available, work_rate, dtime, o
   local pump_dir = Directions.facedir_to_face(node.param2, Directions.D_DOWN)
   local target_pos = vector.add(pos, Directions.DIR6_TO_VEC3[pump_dir])
   local target_node = minetest.get_node(target_pos)
-  local fluid_name = FluidRegistry.item_name_to_fluid_name(target_node.name)
+  local fluid_name = fluid_registry.item_name_to_fluid_name(target_node.name)
 
   local capacity = nodedef.fluid_interface._private.capacity
 

@@ -7,7 +7,7 @@ local function frame_reducer(pos, node, context, accessible_dirs)
   local node_id = minetest.hash_node_position(pos)
   local nodedef = minetest.registered_nodes[node.name]
 
-  if nodedef.groups.motor_frame then
+  if nodedef.groups.node_frame then
     context.frames[node_id] = {
       sticky = false,
       pos = pos,
@@ -16,7 +16,7 @@ local function frame_reducer(pos, node, context, accessible_dirs)
 
     local frame_data = context.frames[node_id]
     -- is some kind of motor frame
-    if nodedef.groups.motor_frame_sticky then
+    if nodedef.groups.node_frame_sticky then
       -- Is a sticky frame
       frame_data.sticky = true
       frame_data.neighbours = {}
@@ -35,7 +35,7 @@ local function frame_reducer(pos, node, context, accessible_dirs)
       if sticky_node then
         sticky_nodedef = minetest.registered_nodes[sticky_node.name]
 
-        if sticky_nodedef and sticky_nodedef.groups.motor_frame_wire then
+        if sticky_nodedef and sticky_nodedef.groups.node_frame_wire then
           -- wire prevents other frames from connecting together
           -- TODO: optimize the below
           local inverted_sticky_dir = Directions.invert_dir(new_dir)
@@ -56,7 +56,7 @@ local function frame_reducer(pos, node, context, accessible_dirs)
           if sticky_node.name == "air" then
             accessible_dirs[new_dir] = false
           elseif sticky_nodedef then
-            if sticky_nodedef.groups.motor_frame then
+            if sticky_nodedef.groups.node_frame then
               -- will drag it along like normal
             elseif sticky_nodedef.groups.frame_motor then
               -- check if it's connected to the top face
@@ -188,7 +188,7 @@ local function maybe_move_frame(pos, dir)
   if node then
     local nodedef = minetest.registered_nodes[node.name]
 
-    if nodedef.groups.motor_frame then
+    if nodedef.groups.node_frame then
       local context = {
         frames = {}
       }

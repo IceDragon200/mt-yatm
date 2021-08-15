@@ -1,7 +1,7 @@
 local Directions = assert(foundation.com.Directions)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
-local FluidRegistry = assert(yatm.fluids.FluidRegistry)
+local fluid_registry = assert(yatm.fluids.fluid_registry)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
@@ -67,7 +67,7 @@ function fluid_interface:allow_fill(pos, dir, fluid_stack)
   if fluid_stack then
     local name, _capacity = self:get_fluid_tank_name(pos, dir)
     if name == INPUT_STEAM_TANK then
-      local fluid = FluidRegistry.get_fluid(fluid_stack.name)
+      local fluid = fluid_registry.get_fluid(fluid_stack.name)
       if fluid then
         -- only vapours
         if fluid.groups.vapourized then

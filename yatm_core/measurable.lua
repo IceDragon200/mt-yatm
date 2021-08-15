@@ -86,6 +86,7 @@ function m.get_measurable_name(meta, key)
   return m.schema:get_field(meta, key, "name")
 end
 
+-- @spec set_measurable_name(FluidRegistry, MetaRef, key: String, name: String): MetaRef
 function m.set_measurable_name(registry, meta, key, name)
   assert(registry, "expected registry")
   assert(meta, "expected metadata")

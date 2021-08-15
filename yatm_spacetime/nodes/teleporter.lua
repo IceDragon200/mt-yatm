@@ -231,6 +231,7 @@ yatm.devices.register_stateful_network_device({
 
   after_place_node = function (pos, placer, itemstack, pointed_thing)
     teleporter_after_place_node(pos, placer, itemstack, pointed_thing)
+    local node = minetest.get_node(pos)
     minetest.after(0, mesecon.on_placenode, pos, node)
   end,
 

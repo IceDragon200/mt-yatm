@@ -5,6 +5,7 @@
   Implementation of the EMP explosion
 
   EMP explosions will raycast their way to a target and can be deflected.
+
 ]]
 foundation.new_module("yatm_blasts_emp", "0.1.0")
 
@@ -29,7 +30,7 @@ local function handle_emp_target_node_at(pos, explosion, assigns)
         local nodedef = minetest.registered_nodes[node.name]
 
         if Groups.has_group(nodedef, "em_insulator") then
-          -- if it's an insulator drop the ray
+          -- if it's an insulator, drop the ray
           -- the target node cannot be affected since something is blocking the path
           blocked = true
           break
@@ -41,7 +42,10 @@ local function handle_emp_target_node_at(pos, explosion, assigns)
       --
     else
       local target_nodedef = minetest.registered_nodes[target_node.name]
-      target_nodedef.on_emp_blast(pos, target_node, {pos = explosion.pos, strength = assigns.strength})
+      target_nodedef.on_emp_blast(pos, target_node, {
+        pos = explosion.pos,
+        strength = assigns.strength
+      })
     end
   end
 end

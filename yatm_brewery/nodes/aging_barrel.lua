@@ -7,8 +7,8 @@ local list_concat = assert(foundation.com.list_concat)
 local Directions = assert(foundation.com.Directions)
 local aging_registry = assert(yatm.brewing.aging_registry)
 local ItemInterface = assert(yatm.items.ItemInterface)
-local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
+local FluidTanks = assert(yatm.fluids.FluidTanks)
 
 local barrel_nodebox = {
   type = "fixed",

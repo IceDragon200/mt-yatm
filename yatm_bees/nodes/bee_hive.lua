@@ -1,3 +1,6 @@
+--
+-- Bee Hives contain wild bees
+--
 minetest.register_node("yatm_bees:bee_hive", {
   description = "Bee Hive",
 

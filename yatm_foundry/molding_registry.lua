@@ -1,6 +1,8 @@
---[[
-The MoldingRegistry contains recipes for the molders
-]]
+-- @namespace yatm_foundry
+--
+-- The MoldingRegistry contains recipes for the molders
+--
+-- @class MoldingRegistry
 local MoldingRegistry = yatm_core.Class:extends()
 
 local m = assert(MoldingRegistry.instance_class)
@@ -40,4 +42,5 @@ function m:get_molding_recipe(mold_item_stack, molten_fluid)
   return nil
 end
 
+yatm_foundry.MoldingRegistry = MoldingRegistry
 yatm_foundry.molding_registry = MoldingRegistry:new()

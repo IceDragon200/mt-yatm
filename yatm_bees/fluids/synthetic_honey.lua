@@ -3,7 +3,7 @@
   AKA. fake honey, can't be eaten, but can be used as a substitute for some recipes.
 
 ]]
-yatm.fluids.FluidRegistry.register("yatm_bees", "synthetic_honey", {
+yatm.fluids.fluid_registry.register("yatm_bees", "synthetic_honey", {
   description = "Synthetic Honey",
 
   groups = {

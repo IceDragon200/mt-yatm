@@ -1,6 +1,6 @@
---[[
-The SmeltingRegistry contains recipes for the smelter
-]]
+--
+-- The SmeltingRegistry contains recipes for the smelter
+--
 local SmeltingRegistry = foundation.com.Class:extends("SmeltingRegistry")
 
 local ic = assert(SmeltingRegistry.instance_class)

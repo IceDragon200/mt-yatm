@@ -1,4 +1,4 @@
-yatm.fluids.FluidRegistry.register("default", "river_water", {
+yatm.fluids.fluid_registry.register("default", "river_water", {
   description = "River Water",
 
   groups = {

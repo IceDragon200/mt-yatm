@@ -1,4 +1,4 @@
-yatm.fluids.FluidRegistry.register("yatm_foundry", "molten_carbon_steel", {
+yatm.fluids.fluid_registry.register("yatm_foundry", "molten_carbon_steel", {
   description = "Molten Carbon Steel",
 
   groups = {

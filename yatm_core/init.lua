@@ -37,18 +37,26 @@ mod:require("recipes.lua")
 -- Post Load Hooks
 mod:require("post_hooks.lua")
 
+-- Interop
+-- no base
+mod:require("interop/baseless.lua")
+
 -- determine which interop base yatm should work with
 if rawget(_G, "default") then
   -- minetest game's default mod
   mod:require("interop/default.lua")
-elseif rawget(_G, "nokore") then
-  -- nokore
-  mod:require("interop/nokore.lua")
-else
-  -- no base
-  mod:require("interop/baseless.lua")
 end
 
+if rawget(_G, "nokore") then
+  -- nokore
+  mod:require("interop/nokore.lua")
+end
+
+if rawget(_G, "mcl_sounds") then
+  -- mineclone2
+  mod:require("interop/mineclone2.lua")
+end
+-- /Interop
 
 -- Tests
 mod:require("tests.lua")

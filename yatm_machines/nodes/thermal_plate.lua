@@ -63,6 +63,7 @@ yatm.devices.register_stateful_network_device({
 
   drop = thermal_plate_heating_yatm_network.states.off,
 
+  use_texture_alpha = "clip",
   tiles = { "yatm_thermal_plate_side.heating.off.png" },
   drawtype = "nodebox",
   node_box = thermal_plate_nodebox,
@@ -121,6 +122,7 @@ yatm.devices.register_stateful_network_device({
 
   drop = thermal_plate_cooling_yatm_network.states.off,
 
+  use_texture_alpha = "clip",
   tiles = {
     "yatm_thermal_plate_side.cooling.off.png",
   },
@@ -188,6 +190,7 @@ yatm.devices.register_stateful_network_device({
 
   drop = thermal_plate_nuclear_yatm_network.states.off,
 
+  use_texture_alpha = "clip",
   tiles = {
     "yatm_thermal_plate_side.nuclear.off.png",
   },

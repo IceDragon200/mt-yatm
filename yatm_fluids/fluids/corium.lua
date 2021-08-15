@@ -1,4 +1,4 @@
-yatm.fluids.FluidRegistry.register("yatm_fluids", "corium", {
+yatm.fluids.fluid_registry.register("yatm_fluids", "corium", {
   description = "Corium",
 
   groups = {

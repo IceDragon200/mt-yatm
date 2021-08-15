@@ -1,8 +1,6 @@
---[[
-
-  A bait box attracts bees, if you're lucky you'll get a queen!
-
-]]
+--
+-- A bait box attracts bees, if you're lucky you'll get a queen!
+--
 local table_merge = assert(foundation.com.table_merge)
 
 local ItemInterface = assert(yatm.items.ItemInterface)

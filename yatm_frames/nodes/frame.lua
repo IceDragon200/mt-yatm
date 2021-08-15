@@ -30,10 +30,11 @@ minetest.register_node("yatm_frames:frame", {
 
   groups = {
     cracky = 1,
-    motor_frame = 1,
+    node_frame = 1,
   },
 
   drawtype = "glasslike",
+  use_texture_alpha = "clip",
   tiles = {
     "yatm_frame_side.png",
   },
@@ -54,12 +55,14 @@ minetest.register_node("yatm_frames:frame_sticky_one", {
 
   groups = {
     cracky = 1,
-    motor_frame = 1,
-    motor_frame_sticky = 1,
+    node_frame = 1,
+    node_frame_sticky = 1,
   },
 
   sticky_faces = {Directions.D_SOUTH},
 
+  drawtype = "nodebox",
+  use_texture_alpha = "clip",
   tiles = {
     "yatm_frame_side.png",
     "yatm_frame_side.png",
@@ -69,7 +72,6 @@ minetest.register_node("yatm_frames:frame_sticky_one", {
     "yatm_frame_side_sticky.png",
   },
 
-  drawtype = "nodebox",
   node_box = node_box,
 
   paramtype = "light",
@@ -83,12 +85,16 @@ minetest.register_node("yatm_frames:frame_sticky_two", {
 
   groups = {
     cracky = 1,
-    motor_frame = 1,
-    motor_frame_sticky = 1,
+    node_frame = 1,
+    node_frame_sticky = 1,
   },
 
   sticky_faces = {Directions.D_UP, Directions.D_SOUTH},
 
+  drawtype = "nodebox",
+  node_box = node_box,
+
+  use_texture_alpha = "clip",
   tiles = {
     "yatm_frame_side_sticky.png",
     "yatm_frame_side.png",
@@ -97,9 +103,6 @@ minetest.register_node("yatm_frames:frame_sticky_two", {
     "yatm_frame_side.png",
     "yatm_frame_side_sticky.png",
   },
-
-  drawtype = "nodebox",
-  node_box = node_box,
 
   paramtype = "light",
   paramtype2 = "facedir",
@@ -112,12 +115,13 @@ minetest.register_node("yatm_frames:frame_sticky_three", {
 
   groups = {
     cracky = 1,
-    motor_frame = 1,
-    motor_frame_sticky = 1,
+    node_frame = 1,
+    node_frame_sticky = 1,
   },
 
   sticky_faces = {Directions.D_UP, Directions.D_EAST, Directions.D_SOUTH},
 
+  use_texture_alpha = "clip",
   tiles = {
     "yatm_frame_side_sticky.png",
     "yatm_frame_side.png",
@@ -142,12 +146,13 @@ minetest.register_node("yatm_frames:frame_sticky_four", {
 
   groups = {
     cracky = 1,
-    motor_frame = 1,
-    motor_frame_sticky = 1,
+    node_frame = 1,
+    node_frame_sticky = 1,
   },
 
   sticky_faces = {Directions.D_UP, Directions.D_WEST, Directions.D_EAST, Directions.D_SOUTH},
 
+  use_texture_alpha = "clip",
   tiles = {
     "yatm_frame_side_sticky.png",
     "yatm_frame_side.png",
@@ -171,12 +176,13 @@ minetest.register_node("yatm_frames:frame_sticky_cross_axle", {
 
   groups = {
     cracky = 1,
-    motor_frame = 1,
-    motor_frame_sticky = 1,
+    node_frame = 1,
+    node_frame_sticky = 1,
   },
 
   sticky_faces = {Directions.D_WEST, Directions.D_EAST, Directions.D_NORTH, Directions.D_SOUTH},
 
+  use_texture_alpha = "clip",
   tiles = {
     "yatm_frame_side.png",
     "yatm_frame_side.png",
@@ -200,12 +206,13 @@ minetest.register_node("yatm_frames:frame_sticky_five", {
 
   groups = {
     cracky = 1,
-    motor_frame = 1,
-    motor_frame_sticky = 1,
+    node_frame = 1,
+    node_frame_sticky = 1,
   },
 
   sticky_faces = {Directions.D_UP, Directions.D_DOWN, Directions.D_WEST, Directions.D_EAST, Directions.D_SOUTH},
 
+  use_texture_alpha = "clip",
   tiles = {
     "yatm_frame_side_sticky.png",
     "yatm_frame_side_sticky.png",
@@ -229,12 +236,13 @@ minetest.register_node("yatm_frames:frame_sticky", {
 
   groups = {
     cracky = 1,
-    motor_frame = 1,
-    motor_frame_sticky = 1,
+    node_frame = 1,
+    node_frame_sticky = 1,
   },
 
   sticky_faces = {Directions.D_UP, Directions.D_DOWN, Directions.D_WEST, Directions.D_EAST, Directions.D_NORTH, Directions.D_SOUTH},
 
+  use_texture_alpha = "alpha",
   tiles = {
     "yatm_frame_side_sticky.png",
   },
@@ -254,12 +262,13 @@ minetest.register_node("yatm_frames:frame_sticky_axle", {
 
   groups = {
     cracky = 1,
-    motor_frame = 1,
-    motor_frame_sticky = 1,
+    node_frame = 1,
+    node_frame_sticky = 1,
   },
 
   sticky_faces = {Directions.D_NORTH, Directions.D_SOUTH},
 
+  use_texture_alpha = "alpha",
   tiles = {
     "yatm_frame_side.png",
     "yatm_frame_side.png",
@@ -284,12 +293,13 @@ minetest.register_node("yatm_frames:frame_wire_one", {
 
   groups = {
     cracky = 1,
-    motor_frame = 1,
-    motor_frame_wire = 1,
+    node_frame = 1,
+    node_frame_wire = 1,
   },
 
   wired_faces = {Directions.D_SOUTH},
 
+  use_texture_alpha = "clip",
   tiles = {
     "yatm_frame_side.png",
     "yatm_frame_side.png",
@@ -313,13 +323,13 @@ minetest.register_node("yatm_frames:frame_wire", {
 
   groups = {
     cracky = 1,
-    motor_frame = 1,
-    motor_frame_wire = 1,
+    node_frame = 1,
+    node_frame_wire = 1,
   },
 
   wired_faces = {Directions.D_UP, Directions.D_DOWN, Directions.D_WEST, Directions.D_EAST, Directions.D_NORTH, Directions.D_SOUTH},
 
-  drawtype = "glasslike",
+  use_texture_alpha = "clip",
   tiles = {
     "yatm_frame_side_wire.png",
   },
@@ -338,12 +348,13 @@ minetest.register_node("yatm_frames:frame_wire_axle", {
 
   groups = {
     cracky = 1,
-    motor_frame = 1,
-    motor_frame_wire = 1,
+    node_frame = 1,
+    node_frame_wire = 1,
   },
 
   wired_faces = {Directions.D_NORTH, Directions.D_SOUTH},
 
+  use_texture_alpha = "clip",
   tiles = {
     "yatm_frame_side.png",
     "yatm_frame_side.png",
@@ -367,14 +378,15 @@ minetest.register_node("yatm_frames:frame_wire_and_sticky_axle", {
 
   groups = {
     cracky = 1,
-    motor_frame = 1,
-    motor_frame_wire = 1,
-    motor_frame_sticky = 1,
+    node_frame = 1,
+    node_frame_wire = 1,
+    node_frame_sticky = 1,
   },
 
   sticky_faces = {Directions.D_SOUTH},
   wired_faces = {Directions.D_NORTH},
 
+  use_texture_alpha = "alpha",
   tiles = {
     "yatm_frame_side.png",
     "yatm_frame_side.png",
@@ -398,15 +410,15 @@ minetest.register_node("yatm_frames:frame_wire_and_sticky_cross_axle_1", {
 
   groups = {
     cracky = 1,
-    motor_frame = 1,
-    motor_frame_wire = 1,
-    motor_frame_sticky = 1,
+    node_frame = 1,
+    node_frame_wire = 1,
+    node_frame_sticky = 1,
   },
 
   sticky_faces = {Directions.D_NORTH, Directions.D_SOUTH},
   wired_faces = {Directions.D_WEST, Directions.D_EAST},
 
-  drawtype = "glasslike",
+  use_texture_alpha = "alpha",
   tiles = {
     "yatm_frame_side.png",
     "yatm_frame_side.png",
@@ -430,15 +442,15 @@ minetest.register_node("yatm_frames:frame_wire_and_sticky_cross_axle_2", {
 
   groups = {
     cracky = 1,
-    motor_frame = 1,
-    motor_frame_wire = 1,
-    motor_frame_sticky = 1,
+    node_frame = 1,
+    node_frame_wire = 1,
+    node_frame_sticky = 1,
   },
 
   sticky_faces = {Directions.D_EAST, Directions.D_SOUTH},
   wired_faces = {Directions.D_WEST, Directions.D_NORTH},
 
-  drawtype = "glasslike",
+  use_texture_alpha = "alpha",
   tiles = {
     "yatm_frame_side.png",
     "yatm_frame_side.png",

@@ -2,7 +2,7 @@
 -- Utility module for operating on MetaRef's regarding fluids
 --
 local FluidUtil = assert(yatm_fluids.Utils)
-local FluidRegistry = assert(yatm_fluids.FluidRegistry)
+local fluid_registry = assert(yatm_fluids.fluid_registry)
 local FluidStack = assert(yatm_fluids.FluidStack)
 local Measurable = assert(yatm.Measurable)
 local FluidMeta = {}
@@ -62,7 +62,7 @@ function FluidMeta.set_fluid(meta, key, fluid_stack, commit)
   if dest_fluid_name ~= src_fluid_name then
     dest_fluid_name = src_fluid_name
     if commit then
-      Measurable.set_measurable_name(FluidRegistry, meta, key, src_fluid_name)
+      Measurable.set_measurable_name(fluid_registry, meta, key, src_fluid_name)
     end
   end
   local set_amount, new_amount = FluidMeta.set_amount(meta, key, fluid_stack.amount, commit)
@@ -93,7 +93,7 @@ function FluidMeta.increase_fluid(meta, key, fluid_stack, capacity, commit)
   if FluidUtil.can_replace(dest_fluid_name, src_fluid_name, fluid_amount) then
     dest_fluid_name = src_fluid_name
     if commit then
-      Measurable.set_measurable_name(FluidRegistry, meta, key, dest_fluid_name)
+      Measurable.set_measurable_name(fluid_registry, meta, key, dest_fluid_name)
     end
   end
   local match_name = FluidUtil.matches(dest_fluid_name, src_fluid_name)

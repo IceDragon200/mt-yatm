@@ -32,7 +32,7 @@ case:describe("is_empty/0", function (t2)
 
     t3:assert(fi:is_empty("main"))
 
-    fi:add_fluid_stack("main", FluidStack.new("default:water", 100))
+    fi:add_fluid_stack("main", FluidStack.new("yatm_fluids:crude_oil", 100))
 
     t3:refute(fi:is_empty("main"))
   end)
@@ -44,10 +44,10 @@ case:describe("set_fluid_stack/2", function (t2)
     fi:set_size("main", 256)
     fi:set_max_stack_size("main", 16000)
 
-    fi:set_fluid_stack("main", 1, FluidStack.new("default:water", 100))
+    fi:set_fluid_stack("main", 1, FluidStack.new("yatm_fluids:crude_oil", 100))
     local fs = fi:get_fluid_stack("main", 1)
 
-    t3:assert_eq("default:water", fs.name)
+    t3:assert_eq("yatm_fluids:crude_oil", fs.name)
     t3:assert_eq(100, fs.amount)
   end)
 
@@ -56,10 +56,10 @@ case:describe("set_fluid_stack/2", function (t2)
     fi:set_size("main", 256)
     fi:set_max_stack_size("main", 16000)
 
-    fi:set_fluid_stack("main", 1, FluidStack.new("default:water", 100))
+    fi:set_fluid_stack("main", 1, FluidStack.new("yatm_fluids:crude_oil", 100))
     local fs = fi:get_fluid_stack("main", 1)
 
-    t3:assert_eq("default:water", fs.name)
+    t3:assert_eq("yatm_fluids:crude_oil", fs.name)
     t3:assert_eq(100, fs.amount)
 
     fi:set_fluid_stack("main", 1, nil)
@@ -74,11 +74,11 @@ case:describe("add_fluid_stack/1", function (t2)
     fi:set_size("main", 256)
     fi:set_max_stack_size("main", 16000)
 
-    fi:add_fluid_stack("main", FluidStack.new("default:water", 100))
+    fi:add_fluid_stack("main", FluidStack.new("yatm_fluids:crude_oil", 100))
 
     local fs = fi:get_fluid_stack("main", 1)
 
-    t3:assert_eq("default:water", fs.name)
+    t3:assert_eq("yatm_fluids:crude_oil", fs.name)
     t3:assert_eq(100, fs.amount)
   end)
 
@@ -87,17 +87,17 @@ case:describe("add_fluid_stack/1", function (t2)
     fi:set_size("main", 256)
     fi:set_max_stack_size("main", 16000)
 
-    fi:add_fluid_stack("main", FluidStack.new("default:water", 100))
-    fi:add_fluid_stack("main", FluidStack.new("default:lava", 300))
+    fi:add_fluid_stack("main", FluidStack.new("yatm_fluids:crude_oil", 100))
+    fi:add_fluid_stack("main", FluidStack.new("yatm_fluids:heavy_oil", 300))
 
     local fs = fi:get_fluid_stack("main", 1)
 
-    t3:assert_eq("default:water", fs.name)
+    t3:assert_eq("yatm_fluids:crude_oil", fs.name)
     t3:assert_eq(100, fs.amount)
 
     local fs = fi:get_fluid_stack("main", 2)
 
-    t3:assert_eq("default:lava", fs.name)
+    t3:assert_eq("yatm_fluids:heavy_oil", fs.name)
     t3:assert_eq(300, fs.amount)
   end)
 
@@ -106,12 +106,12 @@ case:describe("add_fluid_stack/1", function (t2)
     fi:set_size("main", 256)
     fi:set_max_stack_size("main", 16000)
 
-    fi:add_fluid_stack("main", FluidStack.new("default:water", 100))
-    fi:add_fluid_stack("main", FluidStack.new("default:water", 100))
+    fi:add_fluid_stack("main", FluidStack.new("yatm_fluids:crude_oil", 100))
+    fi:add_fluid_stack("main", FluidStack.new("yatm_fluids:crude_oil", 100))
 
     local fs = fi:get_fluid_stack("main", 1)
 
-    t3:assert_eq("default:water", fs.name)
+    t3:assert_eq("yatm_fluids:crude_oil", fs.name)
     t3:assert_eq(200, fs.amount)
   end)
 
@@ -120,16 +120,16 @@ case:describe("add_fluid_stack/1", function (t2)
     fi:set_size("main", 256)
     fi:set_max_stack_size("main", 16000)
 
-    fi:add_fluid_stack("main", FluidStack.new("default:water", 12000))
-    fi:add_fluid_stack("main", FluidStack.new("default:water", 12000))
+    fi:add_fluid_stack("main", FluidStack.new("yatm_fluids:crude_oil", 12000))
+    fi:add_fluid_stack("main", FluidStack.new("yatm_fluids:crude_oil", 12000))
 
     local fs = fi:get_fluid_stack("main", 1)
 
-    t3:assert_eq("default:water", fs.name)
+    t3:assert_eq("yatm_fluids:crude_oil", fs.name)
     t3:assert_eq(16000, fs.amount)
 
     local fs = fi:get_fluid_stack("main", 2)
-    t3:assert_eq("default:water", fs.name)
+    t3:assert_eq("yatm_fluids:crude_oil", fs.name)
     t3:assert_eq(8000, fs.amount)
   end)
 end)
