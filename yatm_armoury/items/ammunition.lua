@@ -239,14 +239,21 @@ yatm_armoury:register_ammunition_class("yatm_armoury", {
   groups = {explosive = 1},
 })
 
--- ele - elemental round, when firing it also consumes MP from the user to deal additional damage
+-- ele - element round, when firing it also consumes additional Element from the user to deal additional damage
 yatm_armoury:register_ammunition_class("yatm_armoury", {
   code = "E",
   basename = "ele",
-  name = "Elemental",
-  groups = {elemental = 1, magical = 1},
+  name = "Element",
+  groups = {element = 1},
 })
 
+-- mana - mana round, when firing it also consumes Mana from the user to deal additional damage
+yatm_armoury:register_ammunition_class("yatm_armoury", {
+  code = "M",
+  basename = "mana",
+  name = "Mana",
+  groups = {element = 1, magical = 1},
+})
 
 if rawget(_G, "yatm_blasts_frost") then
   -- frost - FROST special issued rounds, causes a freezing effect
@@ -261,7 +268,7 @@ end
 if rawget(_G, "yatm_blasts_emp") then
   -- emp - Electro Magnetic Pulse, disrupts the operation of some machines and entities
   yatm_armoury:register_ammunition_class("yatm_armoury", {
-    code = "M",
+    code = "P",
     basename = "emp",
     name = "EMP",
     groups = {emp = 1},
