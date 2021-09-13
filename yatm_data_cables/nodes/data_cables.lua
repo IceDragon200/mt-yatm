@@ -175,11 +175,13 @@ local function on_rotate(pos, node, user, mode, new_param2)
 end
 
 local colors = list_concat({{name = "multi", description = "Multi"}}, yatm.colors)
+local cables_to_migrate = {}
 for _,row in ipairs(colors) do
   local color_basename = row.name
   local color_name = row.description
 
-  local node_name = "yatm_data_network:data_cable_bracket_straight_" .. color_basename
+  local node_name = "yatm_data_cables:data_cable_bracket_straight_" .. color_basename
+  table.insert(cables_to_migrate, "data_cable_bracket_straight_"..color_basename)
 
   local colored_group_name = "data_cable_bracket_straight_" .. color_basename
   local groups = {
@@ -192,12 +194,12 @@ for _,row in ipairs(colors) do
 
   -- Mounteded Cables can be mounted on walls
   minetest.register_node(node_name, {
-    basename = "yatm_data_network:data_cable_bracket_straight",
+    basename = "yatm_data_cables:data_cable_bracket_straight",
     base_description = "Data Cable Mounted Straight",
 
     description = "Data Cable Mounted Straight (" .. color_name .. ")",
 
-    codex_entry_id = "yatm_data_network:data_cable",
+    codex_entry_id = "yatm_data_cables:data_cable",
 
     groups = groups,
 
@@ -239,7 +241,8 @@ for _,row in ipairs(colors) do
     refresh_infotext = data_cable_refresh_infotext,
   })
 
-  local node_name = "yatm_data_network:data_cable_bracket_corner_" .. color_basename
+  local node_name = "yatm_data_cables:data_cable_bracket_corner_" .. color_basename
+  table.insert(cables_to_migrate, "data_cable_bracket_corner_"..color_basename)
 
   local colored_group_name = "data_cable_bracket_corner_" .. color_basename
   local groups = {
@@ -251,12 +254,12 @@ for _,row in ipairs(colors) do
   }
 
   minetest.register_node(node_name, {
-    basename = "yatm_data_network:data_cable_bracket_corner",
+    basename = "yatm_data_cables:data_cable_bracket_corner",
     base_description = "Data Cable Mounted Corner",
 
     description = "Data Cable Mounted Corner (" .. color_name .. ")",
 
-    codex_entry_id = "yatm_data_network:data_cable",
+    codex_entry_id = "yatm_data_cables:data_cable",
 
     groups = groups,
 
@@ -298,7 +301,8 @@ for _,row in ipairs(colors) do
     refresh_infotext = data_cable_refresh_infotext,
   })
 
-  local node_name = "yatm_data_network:data_cable_bracket_tee_" .. color_basename
+  local node_name = "yatm_data_cables:data_cable_bracket_tee_" .. color_basename
+  table.insert(cables_to_migrate, "data_cable_bracket_tee_"..color_basename)
 
   local colored_group_name = "data_cable_bracket_tee_" .. color_basename
   local groups = {
@@ -310,12 +314,12 @@ for _,row in ipairs(colors) do
   }
 
   minetest.register_node(node_name, {
-    basename = "yatm_data_network:data_cable_bracket_tee",
+    basename = "yatm_data_cables:data_cable_bracket_tee",
     base_description = "Data Cable Mounted Tee",
 
     description = "Data Cable Mounted Tee (" .. color_name .. ")",
 
-    codex_entry_id = "yatm_data_network:data_cable",
+    codex_entry_id = "yatm_data_cables:data_cable",
 
     groups = groups,
 
@@ -358,7 +362,8 @@ for _,row in ipairs(colors) do
     refresh_infotext = data_cable_refresh_infotext,
   })
 
-  local node_name = "yatm_data_network:data_cable_bracket_cross_" .. color_basename
+  local node_name = "yatm_data_cables:data_cable_bracket_cross_" .. color_basename
+  table.insert(cables_to_migrate, "data_cable_bracket_cross_"..color_basename)
 
   local colored_group_name = "data_cable_bracket_cross_" .. color_basename
   local groups = {
@@ -370,12 +375,12 @@ for _,row in ipairs(colors) do
   }
 
   minetest.register_node(node_name, {
-    basename = "yatm_data_network:data_cable_bracket_cross",
+    basename = "yatm_data_cables:data_cable_bracket_cross",
     base_description = "Data Cable Mounted Cross",
 
     description = "Data Cable Mounted Cross (" .. color_name .. ")",
 
-    codex_entry_id = "yatm_data_network:data_cable",
+    codex_entry_id = "yatm_data_cables:data_cable",
 
     groups = groups,
 
@@ -419,7 +424,8 @@ for _,row in ipairs(colors) do
     refresh_infotext = data_cable_refresh_infotext,
   })
 
-  local node_name = "yatm_data_network:data_cable_bracket_riser_" .. color_basename
+  local node_name = "yatm_data_cables:data_cable_bracket_riser_" .. color_basename
+  table.insert(cables_to_migrate, "data_cable_bracket_riser_"..color_basename)
 
   local colored_group_name = "data_cable_bracket_riser_" .. color_basename
   local groups = {
@@ -431,12 +437,12 @@ for _,row in ipairs(colors) do
   }
 
   minetest.register_node(node_name, {
-    basename = "yatm_data_network:data_cable_bracket_riser",
+    basename = "yatm_data_cables:data_cable_bracket_riser",
     base_description = "Data Cable Mounted Riser",
 
     description = "Data Cable Mounted Riser (" .. color_name .. ")",
 
-    codex_entry_id = "yatm_data_network:data_cable",
+    codex_entry_id = "yatm_data_cables:data_cable",
 
     groups = groups,
 
@@ -478,7 +484,8 @@ for _,row in ipairs(colors) do
     refresh_infotext = data_cable_refresh_infotext,
   })
 
-  local node_name = "yatm_data_network:data_cable_bus_bracket_straight_" .. color_basename
+  local node_name = "yatm_data_cables:data_cable_bus_bracket_straight_" .. color_basename
+  table.insert(cables_to_migrate, "data_cable_bus_bracket_straight_"..color_basename)
 
   local colored_group_name = "data_cable_bus_bracket_straight_" .. color_basename
   local groups = {
@@ -491,12 +498,12 @@ for _,row in ipairs(colors) do
 
   -- Mounteded Buses can be mounted on walls
   minetest.register_node(node_name, {
-    basename = "yatm_data_network:data_cable_bus_bracket_straight",
+    basename = "yatm_data_cables:data_cable_bus_bracket_straight",
     base_description = "Data Cable Bus Mounted Straight",
 
     description = "Data Cable Bus Mounted Straight (" .. color_name .. ")",
 
-    codex_entry_id = "yatm_data_network:data_cable_bus",
+    codex_entry_id = "yatm_data_cables:data_cable_bus",
 
     groups = groups,
 
@@ -538,7 +545,8 @@ for _,row in ipairs(colors) do
     refresh_infotext = data_cable_refresh_infotext,
   })
 
-  local node_name = "yatm_data_network:data_cable_bus_bracket_corner_" .. color_basename
+  local node_name = "yatm_data_cables:data_cable_bus_bracket_corner_" .. color_basename
+  table.insert(cables_to_migrate, "data_cable_bus_bracket_corner_"..color_basename)
 
   local colored_group_name = "data_cable_bus_bracket_corner_" .. color_basename
   local groups = {
@@ -550,12 +558,12 @@ for _,row in ipairs(colors) do
   }
 
   minetest.register_node(node_name, {
-    basename = "yatm_data_network:data_cable_bus_bracket_corner",
+    basename = "yatm_data_cables:data_cable_bus_bracket_corner",
     base_description = "Data Cable Bus Mounted Corner",
 
     description = "Data Cable Bus Mounted Corner (" .. color_name .. ")",
 
-    codex_entry_id = "yatm_data_network:data_cable_bus",
+    codex_entry_id = "yatm_data_cables:data_cable_bus",
 
     groups = groups,
 
@@ -597,7 +605,8 @@ for _,row in ipairs(colors) do
     refresh_infotext = data_cable_refresh_infotext,
   })
 
-  local node_name = "yatm_data_network:data_cable_bus_bracket_tee_" .. color_basename
+  local node_name = "yatm_data_cables:data_cable_bus_bracket_tee_" .. color_basename
+  table.insert(cables_to_migrate, "data_cable_bus_bracket_tee_"..color_basename)
 
   local colored_group_name = "data_cable_bus_bracket_tee_" .. color_basename
   local groups = {
@@ -609,12 +618,12 @@ for _,row in ipairs(colors) do
   }
 
   minetest.register_node(node_name, {
-    basename = "yatm_data_network:data_cable_bus_bracket_tee",
+    basename = "yatm_data_cables:data_cable_bus_bracket_tee",
     base_description = "Data Cable Bus Mounted Tee",
 
     description = "Data Cable Bus Mounted Tee (" .. color_name .. ")",
 
-    codex_entry_id = "yatm_data_network:data_cable_bus",
+    codex_entry_id = "yatm_data_cables:data_cable_bus",
 
     groups = groups,
 
@@ -657,7 +666,8 @@ for _,row in ipairs(colors) do
     refresh_infotext = data_cable_refresh_infotext,
   })
 
-  local node_name = "yatm_data_network:data_cable_bus_bracket_cross_" .. color_basename
+  local node_name = "yatm_data_cables:data_cable_bus_bracket_cross_" .. color_basename
+  table.insert(cables_to_migrate, "data_cable_bus_bracket_cross_"..color_basename)
 
   local colored_group_name = "data_cable_bus_bracket_cross_" .. color_basename
   local groups = {
@@ -669,12 +679,12 @@ for _,row in ipairs(colors) do
   }
 
   minetest.register_node(node_name, {
-    basename = "yatm_data_network:data_cable_bus_bracket_cross",
+    basename = "yatm_data_cables:data_cable_bus_bracket_cross",
     base_description = "Data Cable Bus Mounted Cross",
 
     description = "Data Cable Bus Mounted Cross (" .. color_name .. ")",
 
-    codex_entry_id = "yatm_data_network:data_cable",
+    codex_entry_id = "yatm_data_cables:data_cable",
 
     groups = groups,
 
@@ -728,7 +738,9 @@ for _,row in ipairs(colors) do
     [colored_group_name] = 1
   }
 
-  local node_name = "yatm_data_network:data_cable_" .. color_basename
+  local node_name = "yatm_data_cables:data_cable_" .. color_basename
+  table.insert(cables_to_migrate, "data_cable_"..color_basename)
+
   local connects_to = {}
   if color_basename == "multi" then
     -- multi can connect to anything
@@ -743,12 +755,12 @@ for _,row in ipairs(colors) do
   end
 
   minetest.register_node(node_name, {
-    basename = "yatm_data_network:data_cable",
+    basename = "yatm_data_cables:data_cable",
     base_description = "Data Cable",
 
     description = "Data Cable (" .. color_name .. ")",
 
-    codex_entry_id = "yatm_data_network:data_cable",
+    codex_entry_id = "yatm_data_cables:data_cable",
 
     groups = groups,
 
@@ -796,7 +808,9 @@ for _,row in ipairs(colors) do
     [colored_group_name] = 1
   }
 
-  local node_name = "yatm_data_network:data_cable_bus_" .. color_basename
+  local node_name = "yatm_data_cables:data_cable_bus_" .. color_basename
+  table.insert(cables_to_migrate, "data_cable_bus_"..color_basename)
+
   local connects_to = {
     "group:yatm_data_device",
     "group:" .. colored_group_name,
@@ -814,12 +828,12 @@ for _,row in ipairs(colors) do
   end
 
   minetest.register_node(node_name, {
-    basename = "yatm_data_network:data_cable_bus",
+    basename = "yatm_data_cables:data_cable_bus",
     base_description = "Data Bus",
 
     description = "Data Bus (" .. color_name .. ")",
 
-    codex_entry_id = "yatm_data_network:data_cable_bus",
+    codex_entry_id = "yatm_data_cables:data_cable_bus",
 
     groups = groups,
 
@@ -858,5 +872,23 @@ for _,row in ipairs(colors) do
     on_rotate = false,
 
     refresh_infotext = data_cable_refresh_infotext,
+  })
+end
+
+for _, cable_basename in ipairs(cables_to_migrate) do
+  local dest = "yatm_data_cables:"..cable_basename
+
+  minetest.register_lbm({
+    name = "yatm_data_cables:migrate_" .. cable_basename,
+
+    nodenames = {
+      "yatm_data_network:"..cable_basename,
+    },
+    run_at_every_load = false,
+
+    action = function (pos, node)
+      node.name = dest
+      minetest.swap_node(pos, node)
+    end
   })
 end
