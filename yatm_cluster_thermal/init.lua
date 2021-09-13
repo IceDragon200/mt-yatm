@@ -5,6 +5,4 @@ mod:require("thermal_cluster.lua")
 mod:require("api.lua")
 mod:require("hooks.lua")
 
-mod:require("nodes.lua")
-
 mod:require("tests.lua")

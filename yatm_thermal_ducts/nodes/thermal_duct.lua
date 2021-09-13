@@ -13,12 +13,12 @@ local groups = {
   thermal_duct = 1,
 }
 
-yatm.register_stateful_node("yatm_cluster_thermal:thermal_duct", {
+yatm.register_stateful_node("yatm_thermal_ducts:thermal_duct", {
   description = "Thermal Duct",
 
   groups = groups,
 
-  drop = "yatm_cluster_thermal:thermal_duct_off",
+  drop = "yatm_thermal_ducts:thermal_duct_off",
 
   connects_to = {
     "group:thermal_duct",
@@ -80,11 +80,11 @@ yatm.register_stateful_node("yatm_cluster_thermal:thermal_duct", {
 
     local new_name
     if math.floor(available_heat) > 0 then
-      new_name = "yatm_cluster_thermal:thermal_duct_heating"
+      new_name = "yatm_thermal_ducts:thermal_duct_heating"
     elseif math.floor(available_heat) < 0 then
-      new_name = "yatm_cluster_thermal:thermal_duct_cooling"
+      new_name = "yatm_thermal_ducts:thermal_duct_cooling"
     else
-      new_name = "yatm_cluster_thermal:thermal_duct_off"
+      new_name = "yatm_thermal_ducts:thermal_duct_off"
     end
 
     if node.name ~= new_name then

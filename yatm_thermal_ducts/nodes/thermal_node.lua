@@ -46,12 +46,12 @@ local groups = {
   heater_device = 1,
 }
 
-yatm.register_stateful_node("yatm_cluster_thermal:thermal_node", {
+yatm.register_stateful_node("yatm_thermal_ducts:thermal_node", {
   description = "Thermal Node",
 
   groups = groups,
 
-  drop = "yatm_cluster_thermal:thermal_node_off",
+  drop = "yatm_thermal_ducts:thermal_node_off",
 
   connects_to = {
     "group:thermal_duct",
@@ -85,7 +85,7 @@ yatm.register_stateful_node("yatm_cluster_thermal:thermal_node", {
   on_rightclick = function (pos, node, user)
     local assigns = { pos = pos, node = node }
     local formspec = get_thermal_node_formspec(pos, user, assigns)
-    local formspec_name = "yatm_cluster_thermal:thermal_node:" .. minetest.pos_to_string(pos)
+    local formspec_name = "yatm_thermal_ducts:thermal_node:" .. minetest.pos_to_string(pos)
 
     yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
       state = assigns,
@@ -116,11 +116,11 @@ yatm.register_stateful_node("yatm_cluster_thermal:thermal_node", {
 
     local new_name
     if math.floor(available_heat) > 0 then
-      new_name = "yatm_cluster_thermal:thermal_node_heating"
+      new_name = "yatm_thermal_ducts:thermal_node_heating"
     elseif math.floor(available_heat) < 0 then
-      new_name = "yatm_cluster_thermal:thermal_node_cooling"
+      new_name = "yatm_thermal_ducts:thermal_node_cooling"
     else
-      new_name = "yatm_cluster_thermal:thermal_node_off"
+      new_name = "yatm_thermal_ducts:thermal_node_off"
     end
 
     if node.name ~= new_name then
