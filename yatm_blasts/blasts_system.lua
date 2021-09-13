@@ -3,6 +3,7 @@ local ic = assert(BlastsSystem.instance_class)
 
 local mod_storage = yatm_blasts.mod_storage
 
+-- @spec #initialize(): void
 function ic:initialize()
   --
   self.initialized = false
@@ -16,6 +17,7 @@ function ic:initialize()
   self.explosions = {}
 end
 
+-- @spec #init(): void
 function ic:init()
   --
   minetest.log("info", "attempting to reload explosions")
@@ -27,6 +29,7 @@ function ic:init()
   self.initialized = true
 end
 
+-- @spec #_load_dump(Table): void
 function ic:_load_dump(dump)
   -- is the only version at the moment, so meh
   if dump.version == "2020-02-01" then
@@ -55,12 +58,14 @@ function ic:_load_dump(dump)
   end
 end
 
+-- @spec #terminate(): void
 function ic:terminate()
   --
   self:persist_explosions()
   self.terminated = true
 end
 
+-- @spec #persist_explosions(): void
 function ic:persist_explosions()
   minetest.log("info", "persisting explosions")
 
@@ -91,16 +96,19 @@ function ic:persist_explosions()
   minetest.log("info", "persisted explosions")
 end
 
+-- @spec #register_explosion_type(name: String, params: Table): (Table, self)
 function ic:register_explosion_type(name, params)
   self.explosion_types[name] = params
   return params, self
 end
 
+-- @spec #unregister_explosion_type(name: String): self
 function ic:unregister_explosion_type(name)
   self.explosion_types[name] = nil
   return self
 end
 
+-- @spec #update(delta: Float): void
 function ic:update(delta)
   if self.terminated then
     return
@@ -120,7 +128,7 @@ function ic:update(delta)
       explosion.elapsed = explosion.elapsed + delta
       local explosion_def = assert(self.explosion_types[explosion.kind])
 
-      explosion_def.update(self, explosion, explosion.assigns, delta)
+      explosion_def.update(explosion.assigns, self, explosion, delta)
     end
   end
 
@@ -128,10 +136,10 @@ function ic:update(delta)
     local new_explosions = {}
     for id, explosion in pairs(self.explosions) do
       if explosion.expired then
-        local exposion_def = assert(self.explosion_types[explosion.kind])
+        local explosion_def = assert(self.explosion_types[explosion.kind])
 
-        if exposion_def.on_expired then
-          exposion_def.on_expired(self, explosion, explosion.assigns)
+        if explosion_def.on_expired then
+          explosion_def.on_expired(explosion.assigns, self, explosion)
         end
       else
         new_explosions[id] = explosion
@@ -146,6 +154,7 @@ function ic:update(delta)
   end
 end
 
+-- @spec #create_explosion(pos: Vector3, kind: String, params: Table): (Boolean, String)
 function ic:create_explosion(pos, kind, params)
   if self.explosion_types[kind] then
     local explosion_def = self.explosion_types[kind]
@@ -161,7 +170,7 @@ function ic:create_explosion(pos, kind, params)
     }
 
     if explosion_def.init then
-      explosion_def.init(self, explosion, explosion.assigns, params)
+      explosion_def.init(explosion.assigns, self, explosion, params)
     end
 
     self.explosions[id] = explosion
@@ -172,8 +181,3 @@ function ic:create_explosion(pos, kind, params)
 end
 
 yatm_blasts.BlastsSystem = BlastsSystem
-yatm_blasts.blasts_system = BlastsSystem:new()
-
-minetest.register_on_mods_loaded(yatm_blasts.blasts_system:method("init"))
-minetest.register_globalstep(yatm_blasts.blasts_system:method("update"))
-minetest.register_on_shutdown(yatm_blasts.blasts_system:method("terminate"))

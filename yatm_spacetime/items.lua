@@ -1,1 +1,1 @@
-dofile(yatm_spacetime.modpath .. "/items/address_tool.lua")
+yatm_spacetime:require("items/address_tool.lua")

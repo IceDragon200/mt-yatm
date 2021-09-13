@@ -22,6 +22,7 @@ for _,row in ipairs(yatm.colors) do
       metallic = 1,
     },
 
+    use_texture_alpha = "opaque",
     tiles = {
       "yatm_carbon_steel_chests_" .. color_basename .. "_top.png",
       "yatm_carbon_steel_chests_" .. color_basename .. "_bottom.png",

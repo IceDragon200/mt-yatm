@@ -1,2 +1,2 @@
-dofile(yatm_data_card_readers.modpath .. "/nodes/card_reader.lua")
-dofile(yatm_data_card_readers.modpath .. "/nodes/card_swiper.lua")
+yatm_data_card_readers:require("nodes/card_reader.lua")
+yatm_data_card_readers:require("nodes/card_swiper.lua")

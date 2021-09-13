@@ -7,11 +7,11 @@
   EMP explosions will raycast their way to a target and can be deflected.
 
 ]]
-foundation.new_module("yatm_blasts_emp", "0.1.0")
+foundation.new_module("yatm_blasts_emp", "0.2.0")
 
 local Groups = assert(foundation.com.Groups)
 
-local function handle_emp_target_node_at(pos, explosion, assigns)
+local function handle_emp_target_node_at(self, pos, explosion)
   local target_node = minetest.get_node_or_nil(pos)
 
   if target_node then
@@ -44,7 +44,7 @@ local function handle_emp_target_node_at(pos, explosion, assigns)
       local target_nodedef = minetest.registered_nodes[target_node.name]
       target_nodedef.on_emp_blast(pos, target_node, {
         pos = explosion.pos,
-        strength = assigns.strength
+        strength = self.strength
       })
     end
   end
@@ -53,26 +53,26 @@ end
 yatm.blasts.system:register_explosion_type("yatm:emp", {
   description = "YATM EMP Explosion",
 
-  init = function (system, explosion, assigns, params)
+  init = function (self, system, explosion, params)
     --
-    assigns.range = params.range or 3
-    assigns.strength = params.strength or 1
+    self.range = params.range or 3
+    self.strength = params.strength or 1
   end,
 
-  update = function (system, explosion, assigns, delta)
+  update = function (self, system, explosion, delta)
     --
-    local minpos = vector.subtract(explosion.pos, assigns.range)
-    local maxpos = vector.add(explosion.pos, assigns.range)
+    local minpos = vector.subtract(explosion.pos, self.range)
+    local maxpos = vector.add(explosion.pos, self.range)
     local emp_targets = minetest.find_nodes_in_area_under_air(minpos, maxpos, {"group:emp_target"})
 
     for _, pos in ipairs(emp_targets) do
-      handle_emp_target_node_at(pos, explosion, assigns)
+      handle_emp_target_node_at(self, pos, explosion)
     end
 
     explosion.expired = true
   end,
 
-  on_expired = function (system, explosion, assigns)
+  on_expired = function (self, system, explosion)
     --
   end,
 })

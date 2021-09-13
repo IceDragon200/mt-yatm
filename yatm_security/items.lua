@@ -1,4 +1,4 @@
-dofile(yatm_security.modpath .. "/items/access_chips.lua")
-dofile(yatm_security.modpath .. "/items/access_cards.lua")
-dofile(yatm_security.modpath .. "/items/key.lua")
-dofile(yatm_security.modpath .. "/items/lock.lua")
+yatm_security:require("items/access_chips.lua")
+yatm_security:require("items/access_cards.lua")
+yatm_security:require("items/key.lua")
+yatm_security:require("items/lock.lua")

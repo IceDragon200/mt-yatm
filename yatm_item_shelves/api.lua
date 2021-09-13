@@ -244,14 +244,14 @@ function yatm.shelves.register_shelf(name, def)
   }, def))
 end
 
-
 minetest.register_entity("yatm_item_shelves:shelf_item", {
   initial_properties = {
     hp_max = 1,
     visual = "wielditem",
     visual_size = {x = 0.20, y = 0.20},
     collisionbox = {0,0,0, 0,0,0},
-    use_texture_alpha = "clip",
+    --use_texture_alpha = "clip",
+    use_texture_alpha = true,
     physical = false,
     collide_with_objects = false,
     pointable = false,

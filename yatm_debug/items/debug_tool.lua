@@ -89,5 +89,7 @@ yatm_debug:register_tool("debug_tool", {
     else
       sounds:play("action_error", { to_player = user:get_player_name() })
     end
+
+    return itemstack
   end,
 })

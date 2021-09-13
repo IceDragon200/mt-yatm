@@ -1,1 +1,1 @@
-dofile(yatm_solar_energy.modpath .. "/items/photovoltaic_cell.lua")
+yatm_solar_energy:require("items/photovoltaic_cell.lua")

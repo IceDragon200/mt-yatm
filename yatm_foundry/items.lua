@@ -1,1 +1,1 @@
-dofile(yatm_foundry.modpath .. "/items/molds.lua")
+yatm_foundry:require("items/molds.lua")

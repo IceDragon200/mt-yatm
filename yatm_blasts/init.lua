@@ -5,7 +5,7 @@
   Provides logic for explosions
 
 ]]
-local mod = foundation.new_module("yatm_blasts", "0.1.0")
+local mod = foundation.new_module("yatm_blasts", "0.2.0")
 
 mod.mod_storage = minetest.get_mod_storage()
 

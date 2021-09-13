@@ -242,7 +242,7 @@ minetest.register_node("yatm_frames:frame_sticky", {
 
   sticky_faces = {Directions.D_UP, Directions.D_DOWN, Directions.D_WEST, Directions.D_EAST, Directions.D_NORTH, Directions.D_SOUTH},
 
-  use_texture_alpha = "alpha",
+  use_texture_alpha = "blend",
   tiles = {
     "yatm_frame_side_sticky.png",
   },
@@ -268,7 +268,7 @@ minetest.register_node("yatm_frames:frame_sticky_axle", {
 
   sticky_faces = {Directions.D_NORTH, Directions.D_SOUTH},
 
-  use_texture_alpha = "alpha",
+  use_texture_alpha = "blend",
   tiles = {
     "yatm_frame_side.png",
     "yatm_frame_side.png",
@@ -386,7 +386,7 @@ minetest.register_node("yatm_frames:frame_wire_and_sticky_axle", {
   sticky_faces = {Directions.D_SOUTH},
   wired_faces = {Directions.D_NORTH},
 
-  use_texture_alpha = "alpha",
+  use_texture_alpha = "blend",
   tiles = {
     "yatm_frame_side.png",
     "yatm_frame_side.png",
@@ -418,7 +418,7 @@ minetest.register_node("yatm_frames:frame_wire_and_sticky_cross_axle_1", {
   sticky_faces = {Directions.D_NORTH, Directions.D_SOUTH},
   wired_faces = {Directions.D_WEST, Directions.D_EAST},
 
-  use_texture_alpha = "alpha",
+  use_texture_alpha = "blend",
   tiles = {
     "yatm_frame_side.png",
     "yatm_frame_side.png",
@@ -450,7 +450,7 @@ minetest.register_node("yatm_frames:frame_wire_and_sticky_cross_axle_2", {
   sticky_faces = {Directions.D_EAST, Directions.D_SOUTH},
   wired_faces = {Directions.D_WEST, Directions.D_NORTH},
 
-  use_texture_alpha = "alpha",
+  use_texture_alpha = "blend",
   tiles = {
     "yatm_frame_side.png",
     "yatm_frame_side.png",

@@ -6,11 +6,11 @@
 
   FROST explosions only target nodes that are below air, instantly freezing them given enough strength.
 ]]
-foundation.new_module("yatm_blasts_frost", "0.1.0")
+foundation.new_module("yatm_blasts_frost", "0.2.0")
 
 local Groups = assert(foundation.com.Groups)
 
-local function handle_freezable_node_at(pos, assigns)
+local function handle_freezable_node_at(self, pos)
   local freezable_node = minetest.get_node_or_nil(pos)
   if freezable_node then
     local freezable_nodedef = minetest.registered_nodes[freezable_node.name]
@@ -18,7 +18,7 @@ local function handle_freezable_node_at(pos, assigns)
     if Groups.has_group(freezable_nodedef, "freezable") then
       if freezable_nodedef then
         if freezable_nodedef.on_freeze then
-          freezable_nodedef.on_freeze(p, freezable_node, assigns.strength)
+          freezable_nodedef.on_freeze(p, freezable_node, self.strength)
         elseif freezable_nodedef.freezes_to then
           local freezes_to = freezable_nodedef.freezes_to
 
@@ -46,19 +46,19 @@ local FREEZABLE_GROUPS = {
 yatm.blasts.system:register_explosion_type("yatm:frost", {
   description = "YATM FROST Explosion",
 
-  init = function (system, explosion, assigns, params)
+  init = function (self, system, explosion, params)
     --
-    assigns.range = params.range or 3
-    assigns.strength = params.strength or 1
+    self.range = params.range or 3
+    self.strength = params.strength or 1
   end,
 
-  update = function (system, explosion, assigns, delta)
-    local minpos = vector.subtract(explosion.pos, assigns.range)
-    local maxpos = vector.add(explosion.pos, assigns.range)
+  update = function (self, system, explosion, delta)
+    local minpos = vector.subtract(explosion.pos, self.range)
+    local maxpos = vector.add(explosion.pos, self.range)
     local freezables = minetest.find_nodes_in_area_under_air(minpos, maxpos, FREEZABLE_GROUPS)
 
     for _, pos in ipairs(freezables) do
-      handle_freezable_node_at(pos, assigns)
+      handle_freezable_node_at(self, pos)
     end
 
     --[[
@@ -67,7 +67,7 @@ yatm.blasts.system:register_explosion_type("yatm:frost", {
     maxvel = vector.new(0, 1, 0)
 
     minetest.add_particlespawner({
-      amount = assigns.strength * 6,
+      amount = self.strength * 6,
       minpos = minpos,
       maxpos = maxpos,
       minvel = minvel,
@@ -78,7 +78,7 @@ yatm.blasts.system:register_explosion_type("yatm:frost", {
     explosion.expired = true
   end,
 
-  on_expired = function (system, explosion, assigns)
+  on_expired = function (self, system, explosion)
     --
   end,
 })
