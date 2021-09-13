@@ -47,6 +47,7 @@ mod:register_tool("grenade_nuclear", {
 if rawget(_G, "yatm_blasts_emp") then
   mod:register_tool("grenade_emp", {
     description = "EMP Grenade\nCaution: Do not throw near machines.",
+
     lore = "A neatly packed Grenade of electro-magnetic goodness.",
 
     groups = {
@@ -54,7 +55,8 @@ if rawget(_G, "yatm_blasts_emp") then
       emp_grenade = 1,
     },
 
-    inventory_image = {
+    inventory_image = "yatm_grenades_emp.png",
+    --[[inventory_image = {
       name = "yatm_grenades_emp.png",
       animation = {
         type = "vertical_frames",
@@ -62,7 +64,7 @@ if rawget(_G, "yatm_blasts_emp") then
         aspect_h = 16,
         length = 0.25
       },
-    },
+    },]]
   })
 end
 
