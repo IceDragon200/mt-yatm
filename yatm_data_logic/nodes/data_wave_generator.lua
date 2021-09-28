@@ -49,6 +49,7 @@ mod:register_node("data_wave_generator", {
     },
   },
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_data_wave_generator_top.png",
     "yatm_data_wave_generator_bottom.png",

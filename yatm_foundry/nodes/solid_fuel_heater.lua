@@ -207,6 +207,8 @@ yatm.register_stateful_node("yatm_foundry:solid_fuel_heater", {
       return meta:get_float("heat")
     end,
   },
+
+  use_texture_alpha = "opaque",
 }, {
   off = {
     tiles = {

@@ -409,8 +409,9 @@ do
   end
 
   function ic:terminate()
-    print("clusters", "terminate")
+    print("clusters", "terminating")
     self:_send_to_observers('terminate', nil)
+    print("clusters", "terminated")
   end
 
   function ic:schedule_node_event(cluster_group, event_name, pos, node, params)

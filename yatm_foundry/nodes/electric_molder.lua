@@ -187,6 +187,7 @@ yatm.devices.register_stateful_network_device({
 
   drop = electric_molder_yatm_network.states.off,
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_electric_molder_top.off.png",
     "yatm_electric_molder_bottom.off.png",

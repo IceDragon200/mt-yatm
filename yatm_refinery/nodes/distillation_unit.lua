@@ -225,6 +225,7 @@ yatm.devices.register_stateful_network_device({
     yatm_energy_device = 1,
   },
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_distillation_unit_top.off.png",
     "yatm_distillation_unit_bottom.off.png",

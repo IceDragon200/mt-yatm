@@ -56,6 +56,7 @@ yatm.devices.register_stateful_network_device({
 
   drop = hub_bus_yatm_network.states.off,
 
+  use_texture_alpha = "clip",
   tiles = {
     "yatm_hub_top.off.png",
     "yatm_hub_bottom.png",
@@ -126,6 +127,7 @@ yatm.devices.register_stateful_network_device({
   groups = {cracky = 1},
   drop = hub_wireless_yatm_network.states.off,
 
+  use_texture_alpha = "clip",
   tiles = {
     "yatm_hub_top.wireless.off.png",
     "yatm_hub_bottom.png",
@@ -202,6 +204,8 @@ yatm.devices.register_stateful_network_device({
   description = "Hub (ele)",
   groups = {cracky = 1},
   drop = hub_elegens_yatm_network.states.off,
+
+  use_texture_alpha = "clip",
   tiles = {
     "yatm_hub_top.ele.off.png",
     "yatm_hub_bottom.png",

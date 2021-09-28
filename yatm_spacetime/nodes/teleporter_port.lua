@@ -103,6 +103,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_teleporter_port_side.off.png",
     "yatm_teleporter_port_side.off.png",
   },
+  use_texture_alpha = "opaque",
   drawtype = "nodebox",
   paramtype = "light",
   paramtype2 = "facedir",

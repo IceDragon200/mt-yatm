@@ -31,6 +31,7 @@ minetest.register_node("yatm_data_logic:data_clock", {
     },
   },
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_data_clock_top.png",
     "yatm_data_clock_bottom.png",

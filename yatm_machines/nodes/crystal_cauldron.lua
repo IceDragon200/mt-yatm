@@ -57,6 +57,7 @@ yatm.devices.register_stateful_network_device({
 
   drop = crystal_cauldron_yatm_network.states.off,
 
+  use_texture_alpha = "clip",
   tiles = {
     "yatm_crystal_cauldron_top.png",
     "yatm_crystal_cauldron_bottom.png",

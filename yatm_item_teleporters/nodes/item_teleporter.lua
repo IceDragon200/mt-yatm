@@ -162,6 +162,7 @@ yatm.devices.register_stateful_network_device({
 
   sounds = yatm.node_sounds:build("glass"),
 
+  use_texture_alpha = "clip",
   tiles = {
     "yatm_item_teleporter_top.teleporter.off.png",
     "yatm_item_teleporter_top.teleporter.off.png",

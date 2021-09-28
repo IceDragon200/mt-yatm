@@ -182,6 +182,7 @@ minetest.register_node("yatm_oku:oku_micro_controller", {
 
   groups = groups,
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_oku_micro_controller_top.png",
     "yatm_oku_micro_controller_bottom.png",

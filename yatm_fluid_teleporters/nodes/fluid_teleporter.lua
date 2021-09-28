@@ -160,6 +160,7 @@ yatm.devices.register_stateful_network_device({
 
   sounds = yatm.node_sounds:build("metal"),
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_fluid_teleporter_top.teleporter.off.png",
     "yatm_fluid_teleporter_top.teleporter.off.png",

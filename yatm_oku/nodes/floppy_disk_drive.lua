@@ -158,6 +158,7 @@ yatm.devices.register_stateful_network_device({
     },
   },
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_floppy_disk_drive_top.off.png",
     "yatm_floppy_disk_drive_bottom.png",

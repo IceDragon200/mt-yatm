@@ -1,2 +1,2 @@
-dofile(yatm_fluid_teleporters.modpath .. "/nodes/fluid_teleporter.lua")
-dofile(yatm_fluid_teleporters.modpath .. "/nodes/fluid_receiver.lua")
+yatm_fluid_teleporters:require("nodes/fluid_teleporter.lua")
+yatm_fluid_teleporters:require("nodes/fluid_receiver.lua")

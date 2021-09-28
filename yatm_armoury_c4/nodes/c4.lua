@@ -20,6 +20,7 @@ minetest.register_node("yatm_armoury_c4:c4_tripwired", {
     }
   },
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_c4_plain.top.png",
     "yatm_c4_plain.bottom.png",
@@ -54,6 +55,7 @@ minetest.register_node("yatm_armoury_c4:c4_remote", {
     }
   },
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_c4_remote.top.png",
     "yatm_c4_remote.bottom.png",

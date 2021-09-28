@@ -186,6 +186,8 @@ yatm.register_stateful_node("yatm_brewery:kettle", {
 
   groups = groups,
 
+  use_texture_alpha = "clip",
+
   drawtype = "nodebox",
   node_box = kettle_node_box,
 

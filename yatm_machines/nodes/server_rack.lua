@@ -32,6 +32,7 @@ yatm.devices.register_stateful_network_device({
 
   drop = server_rack_yatm_network.states.off,
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_server_rack_top.off.png",
     "yatm_server_rack_bottom.png",

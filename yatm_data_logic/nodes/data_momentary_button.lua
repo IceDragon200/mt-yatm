@@ -20,6 +20,7 @@ yatm.register_stateful_node("yatm_data_logic:data_momentary_button", {
   paramtype = "light",
   paramtype2 = "facedir",
 
+  use_texture_alpha = "opaque",
   drawtype = "nodebox",
 
   data_network_device = {

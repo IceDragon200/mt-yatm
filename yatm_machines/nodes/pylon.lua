@@ -65,6 +65,7 @@ yatm.devices.register_stateful_network_device({
 
   groups = {cracky = 1},
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_pylon_top.off.png",
     "yatm_pylon_bottom.off.png",

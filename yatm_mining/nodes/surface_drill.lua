@@ -101,6 +101,7 @@ yatm.devices.register_stateful_network_device({
 
   drop = surface_drill_yatm_network.states.off,
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_surface_drill_top.off.png",
     "yatm_surface_drill_bottom.png",
@@ -162,10 +163,14 @@ yatm.devices.register_stateful_network_device({
 
   codex_entry_id = "yatm_mining:surface_drill_ext",
 
-  groups = {cracky = 1, surface_drill_ext = 1},
+  groups = {
+    cracky = 1,
+    surface_drill_ext = 1
+  },
 
   drop = surface_drill_ext_yatm_network.states.off,
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_surface_drill_top.off.png",
     "yatm_surface_drill_bottom.png",
@@ -212,6 +217,7 @@ minetest.register_node("yatm_mining:surface_drill_bit", {
     not_in_creative_inventory = 1
   },
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_surface_drill_bit.top.png",
     "yatm_surface_drill_bit.bottom.png",

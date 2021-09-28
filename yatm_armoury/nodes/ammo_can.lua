@@ -45,6 +45,7 @@ minetest.register_node("yatm_armoury:ammo_can", {
 
   stack_max = 1,
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_ammo_can_top.png",
     "yatm_ammo_can_bottom.png",

@@ -41,6 +41,7 @@ minetest.register_node("yatm_armoury_icbm:icbm_guiding_ring", {
     icbm_guiding_ring = 1,
   },
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_icbm_guiding_ring_top.png",
     "yatm_icbm_guiding_ring_bottom.png",
@@ -72,6 +73,7 @@ minetest.register_node("yatm_armoury_icbm:icbm_guiding_ring_single", {
     icbm_guiding_ring = 1,
   },
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_icbm_guiding_ring_top.png",
     "yatm_icbm_guiding_ring_bottom.png",
@@ -103,6 +105,7 @@ minetest.register_node("yatm_armoury_icbm:icbm_guiding_ring_warning_strips", {
     icbm_guiding_ring = 1,
   },
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_icbm_guiding_ring_top.png",
     "yatm_icbm_guiding_ring_bottom.png",
@@ -134,6 +137,7 @@ minetest.register_node("yatm_armoury_icbm:icbm_guiding_ring_single_warning_strip
     icbm_guiding_ring = 1,
   },
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_icbm_guiding_ring_top.png",
     "yatm_icbm_guiding_ring_bottom.png",

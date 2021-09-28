@@ -392,6 +392,7 @@ yatm.register_stateful_node("yatm_data_control:data_control_plane", {
     },
   },
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_data_control_plane_top.png",
     "yatm_data_control_plane_bottom.png",

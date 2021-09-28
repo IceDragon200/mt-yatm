@@ -178,6 +178,7 @@ yatm.devices.register_stateful_network_device({
 
   drop = combustion_engine_yatm_network.states.off,
 
+  use_texture_alpha = "clip",
   tiles = {
     "yatm_combustion_engine_top.off.png",
     "yatm_combustion_engine_bottom.off.png",
@@ -288,6 +289,7 @@ yatm.devices.register_stateful_network_device({
 
   drop = creative_engine_yatm_network.states.off,
 
+  use_texture_alpha = "clip",
   tiles = {
     "yatm_creative_engine_top.off.png",
     "yatm_creative_engine_bottom.off.png",
