@@ -8,7 +8,11 @@ Check each mod for it's own README on what it does.
 
 ## Requirements
 
-* Minetest 5.x.x with LuaJIT (bit and ffi modules)
+* Minetest 5.4.x (optinoally with LuaJIT for some mods (needed for bit and ffi modules))
+
+## Dependencies
+
+* [`foundation`](https://github.com/IceDragon200/mt-foundation)
 
 ## Optional
 
@@ -43,3 +47,15 @@ The bit module is needed for bit operations in various parts of the code especia
 A lua implementation is provided for the bit module and will allow the binary buffer to exist, however it will be slower than a more native version.
 
 I can promise the worse that will happen is minetest crashes due to a reading mistake.
+
+## Game and Modpack creators
+
+YATM has an optional dependency called `yatm_prelude`, which is purposely not present in this codebase.
+
+It is intended to be used to preconfigure YATM for a game or modpack, simply create a `yatm_prelude` mod in the game or modpack's mods directory and add the configuration settings in the init.lua.
+
+As of this writing YATM doesn't really have any settings that can be preconfigured to affects its behaviour
+
+## `yatm_prelude` Configuration
+
+This section will be populated when there are actual options to configure.
