@@ -2,7 +2,7 @@
 -- Memory model used by OKU
 --
 
--- yatm_oku will remove ffi from it's global object before finishing init,
+-- yatm_oku will remove ffi from its global object before finishing init,
 -- therefore we need to keep a reference here instead
 local ffi = yatm_oku.ffi
 
@@ -204,7 +204,6 @@ function m:binload(stream)
 
   local memory_blob, br = ByteBuf.read(stream, memory_size)
   bytes_read = bytes_read + br
-
 
   if memory_bo == "le" then
     -- the memory was dumped from a little endian machine

@@ -118,7 +118,7 @@ extern void oku_6502_chip_write_mem_i8(struct oku_6502_chip* chip, int32_t index
   oku_6502_mem_write_i8(mem_size, mem, index, value, status);
 }
 
-// PC Counter memory read and write helpers
+// PC memory read and write helpers
 extern int8_t oku_6502_read_pc_mem_i8(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
   // Reads the value at the program counter
