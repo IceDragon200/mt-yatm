@@ -35,6 +35,7 @@ minetest.register_node("yatm_culinary:pie_dish", {
     cracky = 3
   },
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_pie_dish_top.png",
     "yatm_pie_dish_bottom.png",
