@@ -2,21 +2,39 @@ local ByteBuf = assert(foundation.com.ByteBuf)
 
 local ffi = yatm_oku.ffi
 
-if not ffi then
-  minetest.log("error", "MOS6502 emulation requires ffi module")
-  return
+yatm_oku.OKU.isa.MOS6502 = {
+  has_native = false,
+  OK_CODE = 0,
+  INVALID_CODE = 1,
+  HALT_CODE = 4,
+  HANG_CODE = 5,
+  STARTUP_CODE = 7,
+  SEGFAULT_CODE = 127,
+  CPU_STATE_RESET = 1,
+  CPU_STATE_RUN = 2,
+  CPU_STATE_HANG = 3,
+  NMI_VECTOR_PTR = 0xFFFA,
+  RESET_VECTOR_PTR = 0xFFFC,
+  IRQ_VECTOR_PTR = 0xFFFE,
+  BREAK_VECTOR_PTR = 0xFFFE,
+}
+
+yatm_oku:require("lib/oku/isa/mos_6502/impl/lua.lua")
+if ffi then
+  minetest.log("info", "MOS6502 native implementation may be possible")
+  yatm_oku:require("lib/oku/isa/mos_6502/impl/native.lua")
+
+  if not yatm_oku.OKU.isa.MOS6502.has_native then
+    minetest.log("warning", "MOS6502 native implementation was not loaded")
+  end
+else
+  minetest.log("warning", "ffi unavailable, cannot use native MOS6502 implementation")
 end
 
-local oku_6502
-pcall(function ()
-  oku_6502 = ffi.load(yatm_oku.modpath .. "/ext/oku_6502.so")
-end)
+yatm_oku.OKU.isa.MOS6502.Chip = yatm_oku.OKU.isa.MOS6502.NativeChip or
+                                yatm_oku.OKU.isa.MOS6502.LuaChip
 
-if not oku_6502 then
-  minetest.log("warning", "oku_6502 shared object is not available, skipping implementation")
-  minetest.log("warning", "\n\nWARN: 6502 based CPUs will not be available.\n\n")
-  return
-end
+local Chip = assert(yatm_oku.OKU.isa.MOS6502.Chip, "expected a chip implementation")
 
 local code_table = {
   [0] = "ok",
@@ -27,81 +45,50 @@ local code_table = {
   [127] = "segfault",
 }
 
-local CPU_STATE_RESET = 1
-local CPU_STATE_RUN = 2
-local CPU_STATE_HANG = 3
-
-ffi.cdef([[
-struct oku_6502_chip
-{
-  uint16_t ab;        // Address Bus
-  uint16_t pc;        // Program Counter
-  uint8_t sp;         // Stack Pointer
-  uint8_t ir;         // Instruction Register
-  int8_t a;           // Accumulator
-  int8_t x;           // X
-  int8_t y;           // Y
-  int8_t sr;          // Status Register [NV-BDIZC]
-  // Ends the 6502 Registers
-
-  // 0000 (state param) 0000 (state code)
-  int8_t state; // Not apart of the 6502,
-                // this is here to define different states the CPU is in for the step function
-
-  uint32_t cycles; // Cycles never go backwards do they?
-  int32_t operand; // Any data we need to store for a bit
-};
-
-int oku_6502_chip_size();
-void oku_6502_chip_init(struct oku_6502_chip* chip);
-int oku_6502_chip_step(struct oku_6502_chip* chip, int32_t mem_size, char* mem);
-]])
-
-local isa = {}
+local isa = yatm_oku.OKU.isa.MOS6502
 
 function isa.test()
-  local chip = ffi.new("struct oku_6502_chip")
-  local mem_size = 0xFFFF
-  local mem = ffi.new("uint8_t[?]", mem_size)
+  local chip = Chip:new{
+    create_memory = true,
+    memory_size = 0xFFFF
+  }
 
-  oku_6502.oku_6502_chip_init(chip)
-
-  local status = oku_6502.oku_6502_step(chip, mem_size, mem);
+  local status = chip:step()
   print("STATUS", status)
+
+  chip:dispose()
 
   chip = nil
   mem = nil
 end
 
 function isa.init(oku, assigns)
-  local chip = ffi.new("struct oku_6502_chip")
-  oku_6502.oku_6502_chip_init(chip)
+  local chip = Chip:new()
   assigns.chip = chip
 end
 
 function isa.dispose(oku, assigns)
+  assigns.chip:dispose()
   assigns.chip = nil
 end
 
 function isa.reset(oku, assigns)
-  assigns.chip.state = CPU_STATE_RESET
+  assigns.chip:set_state(isa.CPU_STATE_RESET)
 end
 
 function isa.load_com_binary(oku, assigns, blob)
   -- COM files are a raw binary executable format
   -- The executation starts at address 0x0100
   -- https://www.csc.depauw.edu/~bhoward/asmtut/asmtut11.html
-  assigns.chip.pc = 0x0100
+  assigns.chip:set_register_pc(0x0100)
 
   oku:clear_memory_slice(0x0100, #blob)
   oku:w_memory_blob(0x0100, blob)
 end
 
 function isa.step(oku, assigns)
-  local mem_size = oku.memory:size()
-  local mem_ptr = oku.memory:ptr()
-
-  local code = oku_6502.oku_6502_chip_step(assigns.chip, mem_size, mem_ptr)
+  assigns.chip:set_memory(oku.memory:size(), oku.memory:ptr())
+  local code = assigns.chip:step()
 
   if code_table[code] == "ok" or
      code_table[code] == "startup" then
@@ -120,77 +107,77 @@ function isa.bindump(oku, assigns, stream)
   end
 
   -- Address Bus
-  local bw, err = ByteBuf.w_u16(stream, assigns.chip.ab)
+  local bw, err = ByteBuf.w_u16(stream, assigns.chip:get_register_ab())
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
 
   -- Program Counter
-  local bw, err = ByteBuf.w_u16(stream, assigns.chip.pc)
+  local bw, err = ByteBuf.w_u16(stream, assigns.chip:get_register_pc())
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
 
   -- Stack Pointer
-  local bw, err = ByteBuf.w_u8(stream, assigns.chip.sp)
+  local bw, err = ByteBuf.w_u8(stream, assigns.chip:get_register_sp())
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
 
   -- Instruction Register
-  local bw, err = ByteBuf.w_u8(stream, assigns.chip.ir)
+  local bw, err = ByteBuf.w_u8(stream, assigns.chip:get_register_ir())
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
 
   -- A
-  local bw, err = ByteBuf.w_i8(stream, assigns.chip.a)
+  local bw, err = ByteBuf.w_i8(stream, assigns.chip:get_register_a())
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
 
   -- X
-  local bw, err = ByteBuf.w_i8(stream, assigns.chip.x)
+  local bw, err = ByteBuf.w_i8(stream, assigns.chip:get_register_x())
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
 
   -- Y
-  local bw, err = ByteBuf.w_i8(stream, assigns.chip.y)
+  local bw, err = ByteBuf.w_i8(stream, assigns.chip:get_register_y())
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
 
   -- SR
-  local bw, err = ByteBuf.w_i8(stream, assigns.chip.sr)
+  local bw, err = ByteBuf.w_i8(stream, assigns.chip:get_register_sr())
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
 
   -- State
-  local bw, err = ByteBuf.w_i8(stream, assigns.chip.state)
+  local bw, err = ByteBuf.w_i8(stream, assigns.chip:get_state())
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
 
   -- Cycles
-  local bw, err = ByteBuf.w_u32(stream, assigns.chip.cycles)
+  local bw, err = ByteBuf.w_u32(stream, assigns.chip:get_cycles())
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
 
   -- Operand
-  local bw, err = ByteBuf.w_i32(stream, assigns.chip.operand)
+  local bw, err = ByteBuf.w_i32(stream, assigns.chip:get_operand())
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
@@ -204,8 +191,7 @@ function isa.binload(oku, assigns, stream)
   local version, br = ByteBuf.r_u32(stream)
   bytes_read = bytes_read + br
 
-  local chip = ffi.new("struct oku_6502_chip")
-  oku_6502.oku_6502_chip_init(chip)
+  local chip = Chip:new()
   assigns.chip = chip
 
   if version == 1 then
@@ -221,26 +207,25 @@ function isa.binload(oku, assigns, stream)
     local cycles, br = ByteBuf.r_u32(stream)
     local operand, br = ByteBuf.r_i32(stream)
 
-    assigns.chip.ab = ab
-    assigns.chip.pc = pc
-    assigns.chip.sp = sp
-    assigns.chip.ir = ir
-    assigns.chip.a = a
-    assigns.chip.x = x
-    assigns.chip.y = y
-    assigns.chip.sr = sr
-    assigns.chip.state = state
-    assigns.chip.cycles = cycles
-    assigns.chip.operand = operand
+    assigns.chip:set_register_ab(ab)
+    assigns.chip:set_register_pc(pc)
+    assigns.chip:set_register_sp(sp)
+    assigns.chip:set_register_ir(ir)
+    assigns.chip:set_register_a(a)
+    assigns.chip:set_register_x(x)
+    assigns.chip:set_register_y(y)
+    assigns.chip:set_register_sr(sr)
+
+    assigns.chip:set_state(state)
+    assigns.chip:set_cycles(cycles)
+    assigns.chip:set_operand(operand)
   else
     error("unexpected version=" .. version)
   end
   return bytes_read
 end
 
-yatm_oku.OKU.isa.MOS6502 = isa
-
-dofile(yatm_oku.modpath .. "/lib/oku/isa/mos_6502/builder.lua")
-dofile(yatm_oku.modpath .. "/lib/oku/isa/mos_6502/lexer.lua")
-dofile(yatm_oku.modpath .. "/lib/oku/isa/mos_6502/parser.lua")
-dofile(yatm_oku.modpath .. "/lib/oku/isa/mos_6502/assembler.lua")
+yatm_oku:require("lib/oku/isa/mos_6502/builder.lua")
+yatm_oku:require("lib/oku/isa/mos_6502/lexer.lua")
+yatm_oku:require("lib/oku/isa/mos_6502/parser.lua")
+yatm_oku:require("lib/oku/isa/mos_6502/assembler.lua")

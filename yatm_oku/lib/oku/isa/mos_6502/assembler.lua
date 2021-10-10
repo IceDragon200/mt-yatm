@@ -8,7 +8,7 @@ local match_tokens = assert(yatm_oku.match_tokens)
 local Lexer = assert(yatm_oku.OKU.isa.MOS6502.Lexer)
 local Parser = assert(yatm_oku.OKU.isa.MOS6502.Parser)
 
-dofile(yatm_oku.modpath .. "/lib/oku/isa/mos_6502/nmos_assembly.lua")
+yatm_oku:require("lib/oku/isa/mos_6502/nmos_assembly.lua")
 
 local NMOS_Assembly = assert(yatm_oku.OKU.isa.MOS6502.NMOS_Assembly)
 local AssemblyBuilder = assert(yatm_oku.OKU.isa.MOS6502.Builder)

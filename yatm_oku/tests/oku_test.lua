@@ -96,16 +96,16 @@ case:describe("step (mos6502)", function (t2)
       for i = 1,9 do
         t3:assert_eq(1, oku:step(1))
       end
-      t3:assert_eq(2, oku.isa_assigns.chip.state)
-      t3:assert_eq(512, oku.isa_assigns.chip.pc)
+      t3:assert_eq(2, oku.isa_assigns.chip:get_state())
+      t3:assert_eq(512, oku.isa_assigns.chip:get_register_pc())
 
       t3:assert_eq(1, oku:step(1))
-      t3:assert_eq(514, oku.isa_assigns.chip.pc)
+      t3:assert_eq(514, oku.isa_assigns.chip:get_register_pc())
 
-      t3:assert_eq(0, oku.isa_assigns.chip.a)
+      t3:assert_eq(0, oku.isa_assigns.chip:get_register_a())
 
       t3:assert_eq(1, oku:step(1))
-      t3:assert_eq(20, oku.isa_assigns.chip.a)
+      t3:assert_eq(20, oku.isa_assigns.chip:get_register_a())
     end)
   else
     t2:xtest("mos6502 unavailable", function ()
@@ -149,16 +149,16 @@ end)
 
 case:describe("binload/1", function (t2)
   if m:has_arch("mos6502") then
-    t2:test("can dump a mos6502 machine", function (t3)
+    t2:test("can load a mos6502 machine", function (t3)
       local oku =
         m:new({
           arch = "mos6502",
           label = "awesome label",
         })
 
-      oku.isa_assigns.chip.a = 127
-      oku.isa_assigns.chip.x = 76
-      oku.isa_assigns.chip.y = 32
+      oku.isa_assigns.chip:set_register_a(127)
+      oku.isa_assigns.chip:set_register_x(76)
+      oku.isa_assigns.chip:set_register_y(32)
       local stream = Buffer:new('', 'w')
 
       oku:bindump(stream)
@@ -175,9 +175,9 @@ case:describe("binload/1", function (t2)
 
       t3:assert_eq(oku.arch, "mos6502")
       t3:assert_eq(oku.label, "awesome label")
-      t3:assert_eq(oku.isa_assigns.chip.a, 127)
-      t3:assert_eq(oku.isa_assigns.chip.x, 76)
-      t3:assert_eq(oku.isa_assigns.chip.y, 32)
+      t3:assert_eq(oku.isa_assigns.chip:get_register_a(), 127)
+      t3:assert_eq(oku.isa_assigns.chip:get_register_x(), 76)
+      t3:assert_eq(oku.isa_assigns.chip:get_register_y(), 32)
     end)
   else
     t2:xtest("mos6502 unavailable", function ()

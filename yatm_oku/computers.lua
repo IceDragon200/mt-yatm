@@ -3,7 +3,7 @@
 --
 local OKU = yatm_oku.OKU
 if not OKU then
-  yatm.error("Cannot create computer service, OKU not available!?")
+  yatm.error("Cannot create computer service, OKU not available!")
   return
 end
 
@@ -32,7 +32,7 @@ local ic = assert(Computers.instance_class)
 
 --
 -- This is the header of the computer state file, since OKU
--- Handles the actual machine state, it's not included here.
+-- handles the actual machine state, it's not included here.
 -- Doesn't help that the format is variable depending on the size and type.
 --
 local ComputerStateHeaderSchema =

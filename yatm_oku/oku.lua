@@ -2,17 +2,17 @@ local ByteBuf = assert(foundation.com.ByteBuf)
 
 local ffi = yatm_oku.ffi
 if not ffi then
-  minetest.log("error", "OKU requires ffi")
-  return
+  minetest.log("warn", "OKU requires ffi for some components, trying to initialize anyway")
 end
 
 yatm_oku.OKU = foundation.com.Class:extends('OKU')
 yatm_oku.OKU.isa = {}
 
-dofile(yatm_oku.modpath .. "/lib/oku/token_buffer.lua")
-dofile(yatm_oku.modpath .. "/lib/oku/memory.lua")
-dofile(yatm_oku.modpath .. "/lib/oku/isa/riscv.lua")
-dofile(yatm_oku.modpath .. "/lib/oku/isa/mos_6502.lua")
+yatm_oku:require("lib/oku/registers.lua")
+yatm_oku:require("lib/oku/token_buffer.lua")
+yatm_oku:require("lib/oku/memory.lua")
+yatm_oku:require("lib/oku/isa/riscv.lua")
+yatm_oku:require("lib/oku/isa/mos_6502.lua")
 
 local OKU = yatm_oku.OKU
 
@@ -263,7 +263,7 @@ function ic:binload(stream)
       self.arch = arch
 
       -- Reset registers
-      local registers = ffi.new("struct yatm_oku_registers32")
+      local registers = yatm_oku.OKU.Registers:new()
       self.isa_assigns.registers = registers
 
       -- Restore registers
@@ -362,7 +362,7 @@ function ic:_binload_arch_rv32i_oku1(stream)
   local bytes_read = 0
 
   -- Restore registers
-  self.isa_assigns.registers = ffi.new("struct yatm_oku_registers32")
+  self.isa_assigns.registers = yatm_oku.OKU.Registers:new()
   bytes_read = bytes_read + self:_binload_registers(stream, self.isa_assigns.registers)
   -- Restore memory
   bytes_read = bytes_read + self:_binload_memory(stream)

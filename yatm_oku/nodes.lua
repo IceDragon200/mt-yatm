@@ -1,3 +1,3 @@
-dofile(yatm_oku.modpath .. "/nodes/computer.lua")
-dofile(yatm_oku.modpath .. "/nodes/floppy_disk_drive.lua")
-dofile(yatm_oku.modpath .. "/nodes/micro_controller.lua")
+yatm_oku:require("nodes/computer.lua")
+yatm_oku:require("nodes/floppy_disk_drive.lua")
+yatm_oku:require("nodes/micro_controller.lua")
