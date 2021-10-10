@@ -1,10 +1,10 @@
---[[
-A non-electric version of the molder, unfortunately for you it requires heat instead of energy!
-
-Reason? Balance, otherwise you could just abuse the poor thing for all your molding needs.
-
-That or just make it god awful slow at it's job.
-]]
+--
+-- A non-electric version of the molder, unfortunately for you it requires heat instead of energy!
+--
+-- Reason? Balance, otherwise you could just abuse the poor thing for all your molding needs.
+--
+-- That or just make it god awful slow at it's job.
+--
 local Directions = assert(foundation.com.Directions)
 local format_pretty_time = assert(foundation.com.format_pretty_time)
 local maybe_start_node_timer = assert(foundation.com.maybe_start_node_timer)
@@ -260,6 +260,7 @@ yatm.register_stateful_node("yatm_foundry:molder", {
   },
 }, {
   off = {
+    use_texture_alpha = "opaque",
     tiles = {
       "yatm_molder_top.off.png",
       "yatm_molder_bottom.off.png",
@@ -273,6 +274,7 @@ yatm.register_stateful_node("yatm_foundry:molder", {
   on = {
     groups = table_merge(groups, {not_in_creative_inventory = 1}),
 
+    use_texture_alpha = "opaque",
     tiles = {
       "yatm_molder_top.on.png",
       "yatm_molder_bottom.on.png",
