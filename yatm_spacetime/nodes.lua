@@ -1,3 +1,4 @@
-dofile(yatm_spacetime.modpath .. "/nodes/teleporter.lua")
-dofile(yatm_spacetime.modpath .. "/nodes/teleporter_relay.lua")
-dofile(yatm_spacetime.modpath .. "/nodes/teleporter_port.lua")
+yatm_spacetime:require("nodes/teleporter.lua")
+yatm_spacetime:require("nodes/teleporter_relay.lua")
+yatm_spacetime:require("nodes/teleporter_port.lua")
+yatm_spacetime:require("nodes/teleporter_gate.lua")
