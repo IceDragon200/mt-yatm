@@ -7,19 +7,19 @@ local groups = {
   cracky = 1,
 }
 
-mod:register_node("teleporter_gate_90l", {
-  description = "Teleporter Gate Left Bend",
+mod:register_node("teleporter_gate_corner", {
+  description = "Teleporter Gate Corner",
 
   groups = groups,
 
   use_texture_alpha = "opaque",
   tiles = {
-    "yatm_teleporter_gate_top_left.base.png",
-    "yatm_teleporter_gate_side_top.base.png^[transformR90",
-    "yatm_teleporter_gate_side_top.base.png",
-    "yatm_teleporter_gate_top_left.base.png^[transformR270",
-    "yatm_teleporter_gate_front_left.base.png^[transformFX",
-    "yatm_teleporter_gate_front_left.base.png",
+    "yatm_teleporter_gate_part_corner.inner_side.png^[transformR90",
+    "yatm_teleporter_gate_part_corner.outer_side.png",
+    "yatm_teleporter_gate_part_corner.outer_side.png",
+    "yatm_teleporter_gate_part_corner.inner_side.png",
+    "yatm_teleporter_gate_part_corner.front.png",
+    "yatm_teleporter_gate_part_corner.front.png",
   },
 
   paramtype = "light",
@@ -29,27 +29,27 @@ mod:register_node("teleporter_gate_90l", {
   node_box = {
     type = "fixed",
     fixed = {
-      nb(0, 12, 0, 16, 4, 16), -- top
-      nb(0,  0, 0,  4, 12, 16), -- left
-      nb(4, 10, 3, 12, 2, 10), -- top-fins
-      nb(4, 0, 3,   2, 10, 10), -- left-fins
+      nb(0, 0, 0, 16,  4, 16), -- bottom panel
+      nb(4, 4, 3, 12,  2, 10), -- bottom-fins
+      nb(0, 4, 0,  4, 12, 16), -- left panel
+      nb(4, 6, 3,  2, 10, 10), -- left-fins
     },
   },
 })
 
-mod:register_node("teleporter_gate_c", {
-  description = "Teleporter Gate Center",
+mod:register_node("teleporter_gate_body", {
+  description = "Teleporter Gate Body",
 
   groups = groups,
 
   use_texture_alpha = "opaque",
   tiles = {
-    "yatm_teleporter_gate_top_center.base.png",
-    "yatm_teleporter_gate_side_middle.base.png^[transformR90",
-    "yatm_teleporter_gate_side_top.base.png",
-    "yatm_teleporter_gate_side_bottom.base.png",
-    "yatm_teleporter_gate_front_center.base.png^[transformFX",
-    "yatm_teleporter_gate_front_center.base.png",
+    "yatm_teleporter_gate_part_body.inner_side.png",
+    "yatm_teleporter_gate_part_body.outer_side.png",
+    "yatm_teleporter_gate_part_corner.inner_side.png",
+    "yatm_teleporter_gate_part_corner.inner_side.png",
+    "yatm_teleporter_gate_part_body.front.png",
+    "yatm_teleporter_gate_part_body.front.png",
   },
 
   paramtype = "light",
@@ -59,38 +59,8 @@ mod:register_node("teleporter_gate_c", {
   node_box = {
     type = "fixed",
     fixed = {
-      nb(0, 12, 0, 16, 4, 16), -- main body
-      nb(0, 10, 3, 16, 2, 10), -- fins
-    },
-  },
-})
-
-mod:register_node("teleporter_gate_90r", {
-  description = "Teleporter Gate Right Bend",
-
-  groups = groups,
-
-  use_texture_alpha = "opaque",
-  tiles = {
-    "yatm_teleporter_gate_top_right.base.png",
-    "yatm_teleporter_gate_side_bottom.base.png^[transformR90",
-    "yatm_teleporter_gate_top_right.base.png^[transformR90",
-    "yatm_teleporter_gate_side_top.base.png",
-    "yatm_teleporter_gate_front_right.base.png^[transformFX",
-    "yatm_teleporter_gate_front_right.base.png",
-  },
-
-  paramtype = "light",
-  paramtype2 = "facedir",
-
-  drawtype = "nodebox",
-  node_box = {
-    type = "fixed",
-    fixed = {
-      nb(0, 12, 0, 16, 4, 16), -- top
-      nb(12, 0, 0,  4, 12, 16), -- right
-      nb(0, 10, 3, 12, 2, 10), -- top-fins
-      nb(10, 0, 3,  2, 10, 10), -- right-fins
+      nb(0, 0, 0, 16, 4, 16), -- main body
+      nb(0, 4, 3, 16, 2, 10), -- fins
     },
   },
 })
