@@ -14,11 +14,11 @@ mod:register_node("teleporter_gate_corner", {
 
   use_texture_alpha = "opaque",
   tiles = {
-    "yatm_teleporter_gate_part_corner.inner_side.png^[transformR90",
-    "yatm_teleporter_gate_part_corner.outer_side.png",
-    "yatm_teleporter_gate_part_corner.outer_side.png",
+    "yatm_teleporter_gate_part_corner.inner_side.png^[transformR270",
+    "yatm_teleporter_gate_part_corner.outer_side.png^[transformR270",
     "yatm_teleporter_gate_part_corner.inner_side.png",
-    "yatm_teleporter_gate_part_corner.front.png",
+    "yatm_teleporter_gate_part_corner.outer_side.png",
+    "yatm_teleporter_gate_part_corner.front.png^[transformFX",
     "yatm_teleporter_gate_part_corner.front.png",
   },
 
