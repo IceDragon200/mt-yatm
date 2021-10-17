@@ -155,7 +155,7 @@ local rules = {}
 if mesecon then
   rules = assert(mesecon.rules.default)
 else
-  print("yatm_decor", "mesecons is unavailable, lamps cannot be toggled")
+  print("yatm_oku", "mesecons is unavailable, micro controller cannot be stepped with mesecon")
 end
 
 local micro_controller_mesecons = {
