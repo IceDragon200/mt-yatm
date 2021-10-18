@@ -48,7 +48,7 @@ local FieldsSchema = {
   }
 }
 
-local function fluid_sensor_on_receive_fields(player, formname, fields, assigns)
+local function on_receive_fields(player, formname, fields, assigns)
   local meta = minetest.get_meta(assigns.pos)
 
   local changeset = Changeset:new(FieldsSchema, {})
@@ -89,9 +89,9 @@ local fluid_sensor_data_network_device = {
   }
 }
 
-local fluid_sensor_data_interface = {}
+local data_interface = {}
 
-function fluid_sensor_data_interface:update(pos, node, dt)
+function data_interface:update(pos, node, dt)
   --
   -- TODO: Allow configuring a sampling interval for the sensor
   --print("FluidSensor", "data update", minetest.pos_to_string(pos), node.name)
@@ -169,10 +169,10 @@ function fluid_sensor_data_interface:update(pos, node, dt)
   end
 end
 
-function fluid_sensor_data_interface:on_load(pos, node)
+function data_interface:on_load(pos, node)
 end
 
-function fluid_sensor_data_interface:receive_pdu(pos, node, dir, port, value)
+function data_interface:receive_pdu(pos, node, dir, port, value)
 end
 
 local function fluid_sensor_on_construct(pos)
@@ -246,7 +246,7 @@ minetest.register_node("yatm_data_fluid_sensor:fluid_sensor", {
 
   data_network_device = fluid_sensor_data_network_device,
 
-  data_interface = fluid_sensor_data_interface,
+  data_interface = data_interface,
 
   refresh_infotext = fluid_sensor_refresh_infotext,
 
@@ -261,7 +261,7 @@ minetest.register_node("yatm_data_fluid_sensor:fluid_sensor", {
 
     yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
       state = { pos = pos, node = node },
-      on_receive_fields = fluid_sensor_on_receive_fields
+      on_receive_fields = on_receive_fields
     })
   end,
 })
