@@ -1,3 +1,5 @@
+local mod = yatm_foundry
+
 local facedir_wallmount_after_place_node = assert(foundation.com.Directions.facedir_wallmount_after_place_node)
 
 local slab_nodebox = {
@@ -33,22 +35,31 @@ for _,row in ipairs(yatm.colors) do
     local variant_basename = variant_pair[1]
     local variant_name = variant_pair[2]
 
-    --[[
-    Full Blocks
-    ]]
-    minetest.register_node("yatm_foundry:concrete_" .. variant_basename .. "_" .. color_basename, {
-      basename = "yatm_foundry:concrete",
+    local variant_description_suffix = " - " .. variant_name .. " (" .. color_name .. ")"
 
-      base_description = "Concrete",
+    local tiles = {
+      "yatm_concrete_" .. variant_basename .. "_" .. color_basename .. "_side.png"
+    }
 
-      description = "Concrete - " .. variant_name .. " (" .. color_name .. ")",
+    local concrete_basename = "yatm_foundry:concrete_" .. variant_basename .. "_" .. color_basename
+
+    minetest.register_node(concrete_basename .. "_block", {
+      basename = "yatm_foundry:concrete_block",
+
+      base_description = "Concrete Block",
+
+      description = mod.S("Concrete Block" .. variant_description_suffix),
 
       codex_entry_id = "yatm_foundry:concrete",
 
-      tiles = {"yatm_concrete_" .. variant_basename .. "_" .. color_basename .. "_side.png"},
-      use_texture_alpha = "opaque",
+      groups = {
+        cracky = 1,
+        concrete = 1,
+      },
 
-      groups = {cracky = 1, concrete = 1},
+      use_texture_alpha = "opaque",
+      tiles = tiles,
+
       is_ground_content = false,
       sounds = yatm.node_sounds:build("stone"),
       paramtype = "none",
@@ -57,68 +68,56 @@ for _,row in ipairs(yatm.colors) do
       dye_color = color_basename,
     })
 
-    --[[
-    Plates
-    ]]
-    minetest.register_node("yatm_foundry:concrete_plate_" .. variant_basename .. "_" .. color_basename, {
-      basename = "yatm_foundry:concrete_plate",
-      base_description = "Concrete Panel",
-
-      description = "Concrete Panel - " .. variant_name .. " (" .. color_name .. ")",
-
-      codex_entry_id = "yatm_foundry:concrete_plate",
-
-      tiles = {"yatm_concrete_" .. variant_basename .. "_" .. color_basename .. "_side.png"},
-      use_texture_alpha = "opaque",
-
-      groups = {cracky = 1, concrete = 1, concrete_plate = 1},
-      is_ground_content = false,
-      sounds = yatm.node_sounds:build("stone"),
-      paramtype = "none",
-      paramtype2 = "facedir",
-      drawtype = "nodebox",
-      node_box = plate_nodebox,
-      dye_color = color_basename,
-
-      after_place_node = facedir_wallmount_after_place_node,
-    })
-
-    --[[
-    Stairs
-    ]]
-    if stairs then
-      stairs.register_stair_and_slab(
-        "yatm_foundry_concrete_" .. variant_basename .. "_" .. color_basename,
-        "yatm_foundry:concrete_" .. variant_basename .. "_" .. color_basename,
-        {cracky = 1, concrete = 1},
-        {"yatm_concrete_" .. variant_basename .. "_" .. color_basename .. "_side.png"},
-        "Concrete Stair - " .. variant_name .. " (" .. color_name .. ")",
-        "Concrete Slab  - " .. variant_name .. " (" .. color_name .. ")",
-        yatm.node_sounds:build("stone"),
-        false
-      )
-    else
-      minetest.register_node("yatm_foundry:concrete_slab_" .. variant_basename .. "_" .. color_basename, {
-        basename = "yatm_foundry:concrete_slab",
-        base_description = "Concrete Slab",
-
-        description = "Concrete Slab - " .. variant_name .. " (" .. color_name .. ")",
-
-        codex_entry_id = "yatm_foundry:concrete_slab",
-
-        tiles = {"yatm_concrete_" .. variant_basename .. "_" .. color_basename .. "_side.png"},
+    yatm.register_decor_nodes(concrete_basename, {
+      _ = {
+        groups = {
+          cracky = 1,
+          concrete = 1,
+        },
         use_texture_alpha = "opaque",
+        tiles = tiles,
 
-        groups = {cracky = 1, concrete = 1},
         is_ground_content = false,
-        sounds = yatm.node_sounds:build("stone"),
-        paramtype = "none",
-        paramtype2 = "facedir",
-        place_param2 = 0,
-        drawtype = "nodebox",
-        node_box = slab_nodebox,
-      })
-    end
-  end
 
+        sounds = yatm.node_sounds:build("stone"),
+        dye_color = color_basename,
+      },
+      column = {
+        basename = "yatm_foundry:concrete_column",
+        codex_entry_id = "yatm_foundry:concrete_column",
+        base_description = "Concrete Column",
+        description = mod.S("Concrete Column" .. variant_description_suffix),
+      },
+      plate = {
+        basename = "yatm_foundry:concrete_plate",
+        codex_entry_id = "yatm_foundry:concrete_plate",
+        base_description = "Concrete Plate",
+        description = mod.S("Concrete Plate" .. variant_description_suffix),
+      },
+      slab = {
+        basename = "yatm_foundry:concrete_slab",
+        codex_entry_id = "yatm_foundry:concrete_slab",
+        base_description = "Concrete Slab",
+        description = mod.S("Concrete Slab" .. variant_description_suffix),
+      },
+      stair = {
+        basename = "yatm_foundry:concrete_stair",
+        codex_entry_id = "yatm_foundry:concrete_stair",
+        base_description = "Concrete Stair",
+        description = mod.S("Concrete Stair" .. variant_description_suffix),
+      },
+      stair_inner = {
+        basename = "yatm_foundry:concrete_stair_inner",
+        codex_entry_id = "yatm_foundry:concrete_stair",
+        base_description = "Concrete Stair (Inner)",
+        description = mod.S("Concrete Stair (Inner)" .. variant_description_suffix),
+      },
+      stair_outer = {
+        basename = "yatm_foundry:concrete_stair_outer",
+        codex_entry_id = "yatm_foundry:concrete_stair",
+        base_description = "Concrete Stair (Outer)",
+        description = mod.S("Concrete Stair (Outer)" .. variant_description_suffix),
+      },
+    })
+  end
 end
