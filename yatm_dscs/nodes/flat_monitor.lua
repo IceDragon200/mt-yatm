@@ -60,6 +60,7 @@ yatm.devices.register_stateful_network_device({
 
   drop = monitor_crafting_yatm_network.states.off,
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_monitor_top.flat.png",
     "yatm_monitor_bottom.flat.png",
@@ -128,6 +129,8 @@ yatm.devices.register_stateful_network_device({
   description = "Flat Monitor (ele)",
   groups = groups,
   drop = monitor_ele_yatm_network.states.off,
+
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_monitor_top.flat.png",
     "yatm_monitor_bottom.flat.png",

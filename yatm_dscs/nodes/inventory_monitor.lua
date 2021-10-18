@@ -93,6 +93,7 @@ yatm.devices.register_stateful_network_device({
 
   drop = monitor_inventory_yatm_network.states.off,
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_monitor_top.png",
     "yatm_monitor_bottom.png",
@@ -174,6 +175,7 @@ yatm.devices.register_stateful_network_device({
 
   drop = flat_monitor_inventory_yatm_network.states.off,
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_monitor_top.flat.png",
     "yatm_monitor_bottom.flat.png",
