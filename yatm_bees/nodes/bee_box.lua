@@ -226,6 +226,7 @@ minetest.register_node("yatm_bees:bee_box_wood", {
 
   sounds = yatm.node_sounds:build("wood"),
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_bee_box_wood_top.png",
     "yatm_bee_box_wood_bottom.png",
@@ -234,6 +235,7 @@ minetest.register_node("yatm_bees:bee_box_wood", {
     "yatm_bee_box_wood_back.png",
     "yatm_bee_box_wood_front.png"
   },
+
   drawtype = "nodebox",
   node_box = node_box,
 
@@ -264,6 +266,7 @@ minetest.register_node("yatm_bees:bee_box_metal", {
 
   sounds = yatm.node_sounds:build("metal"),
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_bee_box_metal_top.png",
     "yatm_bee_box_metal_bottom.png",
@@ -272,6 +275,7 @@ minetest.register_node("yatm_bees:bee_box_metal", {
     "yatm_bee_box_metal_back.png",
     "yatm_bee_box_metal_front.png"
   },
+
   drawtype = "nodebox",
   node_box = node_box,
 
