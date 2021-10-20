@@ -7,49 +7,99 @@ if not yatm_machines then
   return
 end
 
+local lbit = assert(foundation.com.bit)
 local Groups = assert(foundation.com.Groups)
 local string_hex_encode = assert(foundation.com.string_hex_encode)
-local random_string62 = assert(foundation.com.random_string62)
+local string_hex_decode = assert(foundation.com.string_hex_decode)
+local string_starts_with = assert(foundation.com.string_starts_with)
+local string_trim_leading = assert(foundation.com.string_trim_leading)
+local string_split = assert(foundation.com.string_split)
 local sounds = assert(yatm_core.sounds)
 local data_network = assert(yatm.data_network)
 local cluster_energy = assert(yatm.cluster.energy)
 local cluster_devices = assert(yatm.cluster.devices)
 local Energy = assert(yatm.energy)
+local fspec = assert(foundation.com.formspec.api)
+
+local secrand = SecureRandom()
+
+-- Generates `byte_count` number of bytes and then hex encodes.
+-- This is intended to be used for the programmer table's prog data.
+-- The result is always twice as large as the byte count
+local function generate_prog_data_hex(byte_count)
+  local bytes = secrand:next_bytes(byte_count)
+
+  return string_hex_encode(bytes)
+end
 
 local function get_formspec(pos, user, assigns)
   local meta = minetest.get_meta(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
-  assigns.tab = assigns.tab or 1
+  assigns.tab = assigns.tab or 2
+
+  local hotbar_size = yatm.get_player_hotbar_size(entity)
+
+  local w = math.max(16, math.floor(hotbar_size * 1.5))
+  local h = 16
 
   local formspec =
-    "size[12,11]" ..
+    fspec.formspec_version(4) ..
+    fspec.size(w, h) ..
     yatm.formspec_bg_for_player(user:get_player_name(), "machine") ..
-    "tabheader[0,0;tab;Writer,6502 Assembler;" .. assigns.tab .. "]" ..
-    "label[0,0;Programmer's Table]" ..
-    ""
+    fspec.tabheader(0, 0, nil, nil, "tab", {"Pattern", "Imprinter", "6502 Assembler"}, assigns.tab) ..
+    fspec.label(0, 0, "Programmer's Table")
 
   if assigns.tab == 1 then
-    -- Writer Tab
     formspec =
       formspec ..
-      "button[0,0.5;3,1;random;Random]" ..
-      "field[3.5,0.75;5.5,1;prog_data;Data;" .. minetest.formspec_escape(meta:get_string("prog_data")) .. "]" ..
-      "button[9,0.5;3,1;commit;Commit]" ..
-      "label[0,1.25;Input Items]" ..
-      "list[nodemeta:" .. spos .. ";input_items;0,2;4,4;]" ..
+      fspec.button(0, 0.5, 3, 1, "random", "Random") ..
+      fspec.button(w - 3, 0.5, 3, 1, "commit", "Commit")
+
+      --fspec.field_area(3.5, 0.75, 5.5, 1, "prog_data", "Data", meta:get_string("prog_data")) ..
+
+    local prog_data = string_hex_decode(meta:get_string("prog_data"))
+
+    local texture_name
+    local noclip = true
+    local drawborder = false
+
+    for i = 1,8 do
+      local byte = string.byte(prog_data, i)
+
+      for b = 1,8 do
+        local v = byte % 2
+        byte = math.floor(byte / 2)
+        if v == 0 then
+          texture_name = "yatm_pattern_bits_empty.png"
+        else
+          texture_name = "yatm_pattern_bits_filled.png"
+        end
+        formspec =
+          formspec ..
+          fspec.image_button(b + 0, i + 2.5, 1, 1, texture_name, "prog_data_bit_" .. i .. "_" .. b, "", noclip, drawborder)
+      end
+    end
+  elseif assigns.tab == 2 then
+    local inv_name = "nodemeta:" .. spos
+
+    -- Imprinter Tab
+    formspec =
+      formspec ..
+      fspec.label(0, 1.25, "Input Items") ..
+      fspec.list(inv_name, "input_items", 0, 2, 4, 4) ..
       "box[3.875,1.875;4.125,4.125;#45d5d8]" ..
-      "label[4,1.25;Processing Items]" ..
+      fspec.label(4, 1.25, "Processing Items") ..
       "list[nodemeta:" .. spos .. ";processing_items;4,2;4,4;]" ..
-      "label[8,1.25;Output Items]" ..
-      "list[nodemeta:" .. spos .. ";output_items;8,2;4,4;]" ..
+      fspec.label(8, 1.25, "Output Items") ..
+      fspec.list(inv_name, "output_items", 8, 2, 4, 4) ..
       "list[current_player;main;2,6.85;8,1;]" ..
       "list[current_player;main;2,8.08;8,3;8]" ..
       "listring[nodemeta:" .. spos .. ";input_items]" ..
       "listring[current_player;main]" ..
       "listring[nodemeta:" .. spos .. ";output_items]" ..
       "listring[current_player;main]"
-  elseif assigns.tab == 2 then
+  elseif assigns.tab == 3 then
     -- 6502 Assembler
     formspec =
       formspec ..
@@ -76,12 +126,41 @@ local function handle_receive_fields(user, formname, fields, assigns)
     end
   end
 
-  if fields["prog_data"] then
-    meta:set_string("prog_data", fields["prog_data"])
+  local prog_data = string_hex_decode(meta:get_string("prog_data"))
+  local prog_bytes
+
+  for name,_ in pairs(fields) do
+    if string_starts_with(name, "prog_data_bit_") then
+      if not prog_bytes then
+        prog_bytes = {}
+        for i = 1,8 do
+          prog_bytes[i] = string.byte(prog_data, i)
+        end
+      end
+
+      local rest = string_trim_leading(name, "prog_data_bit_")
+
+      local parts = string_split(rest, "_")
+
+      local byte_index = tonumber(parts[1])
+      local bit_index = tonumber(parts[2]) - 1
+
+      prog_bytes[byte_index] = lbit.bxor(prog_bytes[byte_index], lbit.lshift(1, bit_index))
+    end
+  end
+
+  --if fields["prog_data"] then
+  --  meta:set_string("prog_data", fields["prog_data"])
+  --end
+
+  if prog_bytes then
+    local prog_chars = string.char(unpack(prog_bytes))
+    meta:set_string("prog_data", string_hex_encode(prog_chars))
+    needs_refresh = true
   end
 
   if fields["random"] then
-    meta:set_string("prog_data", yatm_security.gen_prvkey())
+    meta:set_string("prog_data", generate_prog_data_hex(8))
     needs_refresh = true
   end
 
@@ -269,7 +348,7 @@ yatm.devices.register_stateful_network_device({
     local node = minetest.get_node(pos)
     local meta = minetest.get_meta(pos)
 
-    meta:set_string("prog_data", random_string62(16))
+    meta:set_string("prog_data", generate_prog_data_hex(8))
 
     local inv = meta:get_inventory()
 
@@ -320,7 +399,7 @@ yatm.devices.register_stateful_network_device({
 
     yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
       state = assigns,
-      on_receive_fields = receive_fields
+      on_receive_fields = handle_receive_fields
     })
   end,
 
