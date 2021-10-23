@@ -13,28 +13,28 @@ local SecuritySlotSchema = foundation.com.MetaSchema:new("SecuritySlotSchema", "
   },
 })
 
--- @type SecurityFeatureDefinition :: {
---   get_node_slot_data = function (self: SecurityFeatureDefinition,
+-- @type SecurityFeatureDefinition: {
+--   get_node_slot_data: function (self: SecurityFeatureDefinition,
 --                                  pos: Vector,
 --                                  node: NodeRef,
---                                  slot_data: Table) :: (slot_data :: Table),
---   check_node_lock = function (self: SecurityFeatureDefinition,
+--                                  slot_data: Table) => (slot_data :: Table),
+--   check_node_lock: function (self: SecurityFeatureDefinition,
 --                               pos: Vector,
 --                               node: NodeRef,
 --                               player: ObjectRef,
 --                               slot_id: String,
 --                               slot_data: Table,
---                               data: Table) :: (yatm.security.AccessFlag,
+--                               data: Table) => (yatm.security.AccessFlag,
 --                                                Function | nil | String),
---   get_object_slot_data = function (self: SecurityFeatureDefinition,
+--   get_object_slot_data: function (self: SecurityFeatureDefinition,
 --                                    object: ObjectRef,
---                                    slot_data: Table) :: (slot_data :: Table),
---   check_object_lock = function (self: SecurityFeatureDefinition,
+--                                    slot_data: Table) => (slot_data :: Table),
+--   check_object_lock: function (self: SecurityFeatureDefinition,
 --                                 object: ObjectRef,
 --                                 player: ObjectRef,
 --                                 slot_id: String,
 --                                 slot_data: Table,
---                                 data: Table) :: (yatm.security.AccessFlag,
+--                                 data: Table) => (yatm.security.AccessFlag,
 --                                                  Function | nil | String),
 -- }
 
@@ -88,6 +88,7 @@ local SecurityTransaction = foundation.com.Class:extends()
 do
   local ic = SecurityTransaction.instance_class
 
+  -- @spec #initialize(Integer, Table, Function): void
   function ic:initialize(id, info, callback)
     self.id = id
     self.info = info
