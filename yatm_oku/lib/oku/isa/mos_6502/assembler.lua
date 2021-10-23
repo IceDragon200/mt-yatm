@@ -4,7 +4,6 @@
 -- This comes with a full lexer as well, so you could theorectically use
 -- it for other stuff.
 --
-local match_tokens = assert(yatm_oku.match_tokens)
 local Lexer = assert(yatm_oku.OKU.isa.MOS6502.Lexer)
 local Parser = assert(yatm_oku.OKU.isa.MOS6502.Parser)
 
