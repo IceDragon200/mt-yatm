@@ -38,7 +38,7 @@ local function get_formspec(pos, user, assigns)
 
   assigns.tab = assigns.tab or 2
 
-  local hotbar_size = yatm.get_player_hotbar_size(entity)
+  local hotbar_size = yatm.get_player_hotbar_size(user)
 
   local w = math.max(16, math.floor(hotbar_size * 1.5))
   local h = 16
@@ -46,7 +46,7 @@ local function get_formspec(pos, user, assigns)
   local formspec =
     fspec.formspec_version(4) ..
     fspec.size(w, h) ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "machine") ..
+    yatm.formspec_bg_for_player(user:get_player_name(), "machine", 0, 0, w, h) ..
     fspec.tabheader(0, 0, nil, nil, "tab", {"Pattern", "Imprinter", "6502 Assembler"}, assigns.tab) ..
     fspec.label(0, 0, "Programmer's Table")
 
@@ -93,8 +93,7 @@ local function get_formspec(pos, user, assigns)
       "list[nodemeta:" .. spos .. ";processing_items;4,2;4,4;]" ..
       fspec.label(8, 1.25, "Output Items") ..
       fspec.list(inv_name, "output_items", 8, 2, 4, 4) ..
-      "list[current_player;main;2,6.85;8,1;]" ..
-      "list[current_player;main;2,8.08;8,3;8]" ..
+      yatm.player_inventory_lists_fragment(user, 0.5, 5.25) ..
       "listring[nodemeta:" .. spos .. ";input_items]" ..
       "listring[current_player;main]" ..
       "listring[nodemeta:" .. spos .. ";output_items]" ..
@@ -107,8 +106,7 @@ local function get_formspec(pos, user, assigns)
       "textarea[6.25,1;6,5;;Binary (Hex Dump);" .. minetest.formspec_escape(meta:get_string("assembly_binary")) .. "]" ..
       "textarea[0.25,6;9,2;;Error;" .. minetest.formspec_escape(meta:get_string("assembly_error")) .. "]" ..
       "button[9,6;3,1;assemble;Assemble]" ..
-      "list[current_player;main;2,6.85;8,1;]" ..
-      "list[current_player;main;2,8.08;8,3;8]"
+      yatm.player_inventory_lists_fragment(user, 0.5, 7.25)
   end
 
   return formspec
