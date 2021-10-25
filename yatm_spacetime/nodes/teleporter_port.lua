@@ -95,6 +95,8 @@ yatm.devices.register_stateful_network_device({
   },
 
   drop = teleporter_port_yatm_network.states.off,
+
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_teleporter_port_top.off.png",
     "yatm_teleporter_port_bottom.png",
@@ -103,7 +105,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_teleporter_port_side.off.png",
     "yatm_teleporter_port_side.off.png",
   },
-  use_texture_alpha = "opaque",
+
   drawtype = "nodebox",
   paramtype = "light",
   paramtype2 = "facedir",
@@ -205,6 +207,7 @@ yatm.devices.register_stateful_network_device({
   },
 
   drop = teleporter_port_data_yatm_network.states.off,
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_teleporter_port_top.data.off.png",
     "yatm_teleporter_port_bottom.png",

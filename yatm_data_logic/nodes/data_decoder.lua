@@ -156,6 +156,7 @@ minetest.register_node("yatm_data_logic:data_decoder", {
     },
   },
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_data_decoder_top.png",
     "yatm_data_decoder_bottom.png",
