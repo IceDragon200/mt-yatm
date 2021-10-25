@@ -986,12 +986,20 @@ function ic:refresh_from_pos(base_pos)
       member_entry.pos = member_entry.pos or pos
       member_entry.node = table_copy(node)
       member_entry.type = dnd.type
-      member_entry.accessible_dirs = table_copy(dnd.accessible_dirs)
+      if dnd.accessible_dirs then
+        member_entry.accessible_dirs = table_copy(dnd.accessible_dirs)
+      else
+        member_entry.accessible_dirs = nil
+      end
       member_entry.color = dnd.color
       member_entry.groups = dnd.groups or {}
       member_entry.resolution_id = self.m_resolution_id
       member_entry.network_id = network.id
-      member_entry.attached_colors_by_dir = table_copy(member_entry.attached_colors_by_dir) or {}
+      if member_entry.attached_colors_by_dir then
+        member_entry.attached_colors_by_dir = table_copy(member_entry.attached_colors_by_dir)
+      else
+        member_entry.attached_colors_by_dir = {}
+      end
       member_entry.sub_network_id = nil
       member_entry.sub_network_ids = {}
 
