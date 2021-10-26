@@ -47,8 +47,8 @@ yatm.bg9_name.cardboard = "yatm_gui_formbg_cardboard.9s.png"
 yatm.bg9_name.dscs = "yatm_gui_formbg_dscs.9s.png"
 yatm.bg9_name.inventory = "yatm_gui_formbg_inventory.9s.png"
 
--- @spec formspec_bg_for_player(player_name: String, background_id: String, x?: Number, y?: Number, w?: Number, h?: Number): String
-function yatm.formspec_bg_for_player(player_name, background_id, x, y, w, h)
+-- @spec formspec_bg_for_player(player_name: String, background_id: String, x?: Number, y?: Number, w?: Number, h?: Number, auto_clip: Boolean): String
+function yatm.formspec_bg_for_player(player_name, background_id, x, y, w, h, auto_clip)
   assert(type(player_name) == "string", "expected player_name as string")
 
   x = x or 0
@@ -56,16 +56,20 @@ function yatm.formspec_bg_for_player(player_name, background_id, x, y, w, h)
   w = w or 1
   h = h or 1
 
+  if auto_clip == nil then
+    auto_clip = false
+  end
+
   local info = minetest.get_player_information(player_name)
   local texture_name
 
   if info.formspec_version then
     if info.formspec_version >= 2 then
       texture_name = yatm.bg9_name[background_id]
-      return fspec.background9(x, y, w, h, texture_name, true, 32)
+      return fspec.background9(x, y, w, h, texture_name, auto_clip, 32)
     end
   end
 
   texture_name = yatm.bg_name[background_id]
-  return fspec.background(x, y, w, h, texture_name, true)
+  return fspec.background(x, y, w, h, texture_name, auto_clip)
 end

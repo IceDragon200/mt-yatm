@@ -129,6 +129,7 @@ yatm.register_stateful_node("yatm_data_logic:data_toggle_button", {
       },
     },
 
+    use_texture_alpha = "opaque",
     tiles = {
       "yatm_data_toggle_button_top.left.png",
       "yatm_data_toggle_button_bottom.png",
@@ -157,6 +158,7 @@ yatm.register_stateful_node("yatm_data_logic:data_toggle_button", {
       },
     },
 
+    use_texture_alpha = "opaque",
     tiles = {
       "yatm_data_toggle_button_top.right.png",
       "yatm_data_toggle_button_bottom.png",

@@ -20,6 +20,7 @@ local cluster_energy = assert(yatm.cluster.energy)
 local cluster_devices = assert(yatm.cluster.devices)
 local Energy = assert(yatm.energy)
 local fspec = assert(foundation.com.formspec.api)
+local Rect = assert(foundation.com.Rect)
 
 local secrand = SecureRandom()
 
@@ -39,74 +40,86 @@ local function get_formspec(pos, user, assigns)
   assigns.tab = assigns.tab or 2
 
   local hotbar_size = yatm.get_player_hotbar_size(user)
+  local padding = 0.5
+  local inv_cell_padding = 0.25
 
-  local w = math.max(16, math.floor(hotbar_size * 1.5))
-  local h = 16
+  local w = math.max(16, math.floor(hotbar_size * 1.5)) + padding * 2
+  local h = 13 + padding * 2
+
+  local form_rect = Rect.new(0, 0, w, h)
+
+  local _, dims = yatm.player_inventory_lists_fragment(user, 0, 0)
+
+  local inv_w = dims.x * 1.25
+  local inv_h = dims.y * 1.25 + padding * 2
+  local inv_y = h - inv_h
+
+  local player_inv_frag =
+    fspec.container(0, inv_y, function ()
+
+      return yatm.formspec_bg_for_player(user:get_player_name(), "inventory", 0, 0, w, inv_h) ..
+        yatm.player_inventory_lists_fragment(user, padding + (w - padding * 2 - inv_w) / 2, padding)
+    end)
 
   local formspec =
     fspec.formspec_version(4) ..
     fspec.size(w, h) ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "machine", 0, 0, w, h) ..
     fspec.tabheader(0, 0, nil, nil, "tab", {"Pattern", "Imprinter", "6502 Assembler"}, assigns.tab) ..
-    fspec.label(0, 0, "Programmer's Table")
+    yatm.formspec_bg_for_player(user:get_player_name(), "machine", 0, 0, w, h - inv_h) ..
+    fspec.label(padding, padding, "Programmer's Table")
 
   if assigns.tab == 1 then
     formspec =
       formspec ..
-      fspec.button(0, 0.5, 3, 1, "random", "Random") ..
-      fspec.button(w - 3, 0.5, 3, 1, "commit", "Commit")
-
-      --fspec.field_area(3.5, 0.75, 5.5, 1, "prog_data", "Data", meta:get_string("prog_data")) ..
+      fspec.button(padding * 2 + 8, padding * 2, w - 8 - padding * 3, 1, "random", "Random")
 
     local prog_data = string_hex_decode(meta:get_string("prog_data"))
 
-    local texture_name
-    local noclip = true
-    local drawborder = false
+    local bm, rect = yatm_security.render_button_bitmap(padding, padding * 2, 8, 8, prog_data, "prog_data_bit")
 
-    for i = 1,8 do
-      local byte = string.byte(prog_data, i)
+    formspec =
+      formspec ..
+      bm ..
+      player_inv_frag
 
-      for b = 1,8 do
-        local v = byte % 2
-        byte = math.floor(byte / 2)
-        if v == 0 then
-          texture_name = "yatm_pattern_bits_empty.png"
-        else
-          texture_name = "yatm_pattern_bits_filled.png"
-        end
-        formspec =
-          formspec ..
-          fspec.image_button(b + 0, i + 2.5, 1, 1, texture_name, "prog_data_bit_" .. i .. "_" .. b, "", noclip, drawborder)
-      end
-    end
   elseif assigns.tab == 2 then
     local inv_name = "nodemeta:" .. spos
 
     -- Imprinter Tab
+    local rect = Rect.new(0, 1 + padding, w, 4 * 1.5 + padding)
+    Rect.contract(rect, padding)
+    local cols = Rect.subdivide(rect, 3, nil)
+
+    local input_rect = cols[1]
+    local processing_rect = cols[2]
+    local output_rect = cols[3]
+
     formspec =
       formspec ..
-      fspec.label(0, 1.25, "Input Items") ..
-      fspec.list(inv_name, "input_items", 0, 2, 4, 4) ..
-      "box[3.875,1.875;4.125,4.125;#45d5d8]" ..
-      fspec.label(4, 1.25, "Processing Items") ..
-      "list[nodemeta:" .. spos .. ";processing_items;4,2;4,4;]" ..
-      fspec.label(8, 1.25, "Output Items") ..
-      fspec.list(inv_name, "output_items", 8, 2, 4, 4) ..
-      yatm.player_inventory_lists_fragment(user, 0.5, 5.25) ..
-      "listring[nodemeta:" .. spos .. ";input_items]" ..
-      "listring[current_player;main]" ..
-      "listring[nodemeta:" .. spos .. ";output_items]" ..
-      "listring[current_player;main]"
+      fspec.label(input_rect.x, input_rect.y - padding, "Input Items") ..
+      fspec.label(processing_rect.x, processing_rect.y - padding, "Processing Items") ..
+      fspec.label(output_rect.x, output_rect.y - padding, "Output Items") ..
+      --
+      fspec.box(processing_rect.x, processing_rect.y - padding, processing_rect.w, processing_rect.h, "#45d5d8") ..
+      fspec.list(inv_name, "input_items", input_rect.x + inv_cell_padding, input_rect.y, 4, 4) ..
+      fspec.list(inv_name, "processing_items", processing_rect.x + inv_cell_padding, processing_rect.y, 4, 4) ..
+      fspec.list(inv_name, "output_items", output_rect.x + inv_cell_padding, output_rect.y, 4, 4) ..
+      player_inv_frag ..
+      fspec.list_ring(inv_name, "input_items") ..
+      fspec.list_ring("current_player", "main") ..
+      fspec.list_ring(inv_name, "output_items") ..
+      fspec.list_ring("current_player", "main")
+
   elseif assigns.tab == 3 then
     -- 6502 Assembler
     formspec =
       formspec ..
-      "textarea[0.25,1;6,5;source;Source;" .. minetest.formspec_escape(meta:get_string("assembly_source")) .. "]" ..
+      fspec.textarea(padding, padding * 2, w / 2, h - padding * 2 - 2, "source", "Source", meta:get_string("assembly_source")) ..
       "textarea[6.25,1;6,5;;Binary (Hex Dump);" .. minetest.formspec_escape(meta:get_string("assembly_binary")) .. "]" ..
       "textarea[0.25,6;9,2;;Error;" .. minetest.formspec_escape(meta:get_string("assembly_error")) .. "]" ..
       "button[9,6;3,1;assemble;Assemble]" ..
-      yatm.player_inventory_lists_fragment(user, 0.5, 7.25)
+      player_inv_frag
+
   end
 
   return formspec
