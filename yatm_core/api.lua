@@ -95,6 +95,7 @@ function yatm.register_stateful_craftitem(basename, base, states)
   return result
 end
 
+yatm_core:require("api/wrench.lua")
 yatm_core:require("api/building_blocks.lua")
 yatm_core:require("api/colors.lua")
 yatm_core:require("api/formspec_backgrounds.lua")
