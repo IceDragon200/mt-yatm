@@ -259,6 +259,7 @@ yatm.devices.register_stateful_network_device({
     yatm_data_device = 1,
   },
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_programmers_table_top.off.png",
     "yatm_programmers_table_bottom.off.png",
@@ -267,6 +268,8 @@ yatm.devices.register_stateful_network_device({
     "yatm_programmers_table_side.off.png",
     "yatm_programmers_table_side.off.png",
   },
+
+  paramtype2 = "facedir",
 
   yatm_network = {
     kind = "machine",
