@@ -50,6 +50,7 @@ minetest.register_node("yatm_bees:bait_box_wood", {
 
   sounds = yatm.node_sounds:build("wood"),
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_bait_box_wood_top.png",
     "yatm_bait_box_wood_bottom.png",
@@ -77,6 +78,7 @@ minetest.register_node("yatm_bees:bait_box_metal", {
 
   sounds = yatm.node_sounds:build("metal"),
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_bait_box_metal_top.png",
     "yatm_bait_box_metal_bottom.png",
