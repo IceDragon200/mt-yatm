@@ -99,7 +99,10 @@ yatm.devices.register_stateful_network_device({
 
   drop = assembler_yatm_network.states.off,
 
-  tiles = {"yatm_assembler_side.off.png"},
+  use_texture_alpha = "opaque",
+  tiles = {
+    "yatm_assembler_side.off.png",
+  },
   use_texture_alpha = "clip",
 
   drawtype = "nodebox",

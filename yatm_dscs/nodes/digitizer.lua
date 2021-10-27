@@ -95,7 +95,10 @@ yatm.devices.register_stateful_network_device({
 
   drop = digitizer_yatm_network.states.off,
 
-  tiles = {"yatm_digitizer_side.off.png"},
+  use_texture_alpha = "opaque",
+  tiles = {
+    "yatm_digitizer_side.off.png",
+  },
 
   paramtype = "none",
   paramtype2 = "facedir",

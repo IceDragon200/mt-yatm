@@ -56,7 +56,10 @@ yatm.devices.register_stateful_network_device({
 
   drop = compute_module_yatm_network.states.off,
 
-  tiles = {"yatm_compute_module_side.off.png"},
+  use_texture_alpha = "opaque",
+  tiles = {
+    "yatm_compute_module_side.off.png",
+  },
 
   paramtype = "none",
   paramtype2 = "facedir",

@@ -58,6 +58,7 @@ yatm.devices.register_stateful_network_device({
 
   drop = void_crate_yatm_network.states.off,
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_void_crate_top.off.png",
     "yatm_void_crate_bottom.png",

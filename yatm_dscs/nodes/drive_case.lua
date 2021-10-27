@@ -9,6 +9,8 @@ local Vector3 = assert(foundation.com.Vector3)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
+local fspec = assert(foundation.com.formspec.api)
+local player_service = assert(nokore.player_service)
 
 local DRIVE_BAY_SIZE = 8
 
@@ -18,12 +20,17 @@ end
 
 local function get_drive_case_formspec(pos, player_name, _assigns)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+  local node_inv = "nodemeta:" .. spos
+  local padding = 0.5
+  local player = assert(player_service:get_player_by_name(player_name))
+  local player_inv_frag, dims = yatm.player_inventory_lists_fragment(player, padding, padding + 5)
+
   local formspec =
-    "size[8,9]" ..
+    fspec.formspec_version(4) ..
+    fspec.size(12, 9) ..
     yatm.formspec_bg_for_player(player_name, "dscs") ..
-    "list[nodemeta:" .. spos .. ";drive_bay;0,0.3;2,4;]" ..
-    "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]" ..
+    fspec.list(node_inv, "drive_bay", padding, padding, 2, 4) ..
+    player_inv_frag ..
     "listring[nodemeta:" .. spos .. ";drive_bay]" ..
     "listring[current_player;main]"
 
@@ -250,6 +257,7 @@ yatm.devices.register_stateful_network_device({
 
   drop = drive_case_yatm_network.states.off,
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_drive_case_top.off.png",
     "yatm_drive_case_bottom.png",
@@ -275,7 +283,7 @@ yatm.devices.register_stateful_network_device({
 
   on_rightclick = function (pos, node, user, item_stack, pointed_thing)
     local assigns = { pos = pos, node = node }
-    local formspec = get_drive_case_formspec(pos, user, assigns)
+    local formspec = get_drive_case_formspec(pos, user:get_player_name(), assigns)
     local formspec_name = get_formspec_name(pos)
 
     yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
