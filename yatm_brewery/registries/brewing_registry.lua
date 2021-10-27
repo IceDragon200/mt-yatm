@@ -9,15 +9,18 @@ local BrewingRegistry = foundation.com.Class:extends('yatm.brewery.BrewingRegist
 local ic = BrewingRegistry.instance_class
 
 -- @type RecipeID: integer
+--
 -- @type ItemIngredient: {
 --   name: String,
 --   amount: Integer = 0,
 --   metadata: Table
 -- }
+--
 -- @type FluidIngredient: {
 --   name: String,
 --   amount: Integer = 0
 -- }
+--
 -- @type BrewingRecipeDefinition: {
 --   inputs: {
 --     item: ItemIngredient,
@@ -30,18 +33,22 @@ local ic = BrewingRegistry.instance_class
 --   duration: Float, -- time in seconds
 --   heat_rate: Integer, -- heat per second, how much heat is consumed while brewing per second.
 -- }
+--
 -- @type BrewingRecipe: {
 --   id: RecipeID,
 --   name: String,
 -- } extends BrewingRecipeDefinition
 --
 -- @type Recipes: { [RecipeID]: BrewingRecipeDefinition }
+--
 -- @type RecipesIndex: {
 --   [fluid_name: String]: {
 --     [item_name: String]: RecipeID
 --   }
 -- }
+--
 -- @type output_fluid_to_recipes: { [fluid_name: String] = { [RecipeID] = true } }
+--
 -- @type output_item_to_recipes: { [item_name: String] = { [RecipeID] = true } }
 --
 

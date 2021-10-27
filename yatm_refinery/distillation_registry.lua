@@ -21,7 +21,12 @@ DistillationRegistry:register_distillation(
   { input_ratio :: integer, distilled_ratio :: integer, vapour_ratio :: integer }
 )
 ]]
-function ic:register_distillation_recipe(vapour_name, distilled_fluid_name, output_vapour_name, ratios)
+function ic:register_distillation_recipe(
+            vapour_name,
+            distilled_fluid_name,
+            output_vapour_name,
+            ratios
+          )
   local recipe = {
     ratios = ratios,
     distilled_fluid_name = distilled_fluid_name,

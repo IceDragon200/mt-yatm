@@ -44,6 +44,7 @@ globals = {
       log = {},
       pos_to_string = {},
       register_abm = {},
+      register_chatcommand = {},
       register_craftitem = {},
       register_globalstep = {},
       register_lbm = {},
@@ -84,6 +85,7 @@ globals = {
   -- Allow yatm global modules
   yatm = {
     fields = {
+      sounds = {},
       register_stateful_node = {},
       queue_refresh_infotext = {},
       formspec_bg_for_player = {},
@@ -303,6 +305,7 @@ globals = {
           get_node_slot_ids = {},
           check_node_locks = {},
           get_object_lock = {},
+          get_object_locks = {},
           has_object_lock = {},
           has_object_locks = {},
           get_object_slot_ids = {},
@@ -420,6 +423,7 @@ files["yatm_mesecon_sequencer/**.lua"] = { globals = {"yatm_mesecon_sequencer"} 
 files["yatm_mining/**.lua"] = { globals = {"yatm_mining"} }
 files["yatm_oku/**.lua"] = { globals = {"yatm_oku"} }
 files["yatm_overhead_rails/**.lua"] = { globals = {"yatm_overhead_rails"} }
+files["yatm_packs/**.lua"] = { globals = {"yatm_packs"} }
 files["yatm_papercraft/**.lua"] = { globals = {"yatm_papercraft"} }
 files["yatm_plastics/**.lua"] = { globals = {"yatm_plastics"} }
 files["yatm_rails/**.lua"] = { globals = {"yatm_rails"} }
@@ -430,4 +434,7 @@ files["yatm_security/**.lua"] = { globals = {"yatm_security"} }
 files["yatm_security_api/**.lua"] = { globals = {"yatm_security_api"} }
 files["yatm_solar_energy/**.lua"] = { globals = {"yatm_solar_energy"} }
 files["yatm_spacetime/**.lua"] = { globals = {"yatm_spacetime"} }
+files["yatm_thermal_ducts/**.lua"] = { globals = {"yatm_thermal_ducts"} }
 files["yatm_woodcraft/**.lua"] = { globals = {"yatm_woodcraft"} }
+files["yatm_woodcraft_default/**.lua"] = { globals = {"yatm_woodcraft"} }
+files["yatm_woodcraft_nokore/**.lua"] = { globals = {"yatm_woodcraft"} }
