@@ -14,6 +14,7 @@ function devices.device_on_construct(pos)
   if nodedef.groups['yatm_cluster_device'] then
     cluster_devices:schedule_add_node(pos, node)
   end
+
   if nodedef.groups['yatm_cluster_energy'] then
     cluster_energy:schedule_add_node(pos, node)
   end
