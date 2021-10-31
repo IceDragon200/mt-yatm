@@ -3,7 +3,7 @@ local data_network = assert(yatm.data_network)
 minetest.register_node("yatm_data_logic:data_server", {
   description = "DATA Server\nSupports a CALL/RESPONSE format for payloads.",
 
-  codex_entry_id = "yatm_data_logic:data_router",
+  codex_entry_id = "yatm_data_logic:data_server",
 
   groups = {
     cracky = 1,

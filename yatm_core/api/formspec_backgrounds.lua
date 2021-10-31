@@ -2,6 +2,7 @@
 -- All of YATM's standard formspec backgrounds
 --
 local fspec = assert(foundation.com.formspec.api)
+local Rect = assert(foundation.com.Rect)
 
 -- @namespace yatm
 
@@ -72,4 +73,43 @@ function yatm.formspec_bg_for_player(player_name, background_id, x, y, w, h, aut
 
   texture_name = yatm.bg_name[background_id]
   return fspec.background(x, y, w, h, texture_name, auto_clip)
+end
+
+function yatm.formspec_render_split_inv_panel(player, main_cols, main_rows, options, callback)
+  options = options or {}
+
+  local device_bg = options.bg or "default"
+
+  local inv_size = yatm.player_inventory_size2(player)
+
+  local device_dims = fspec.calc_form_inventory_size(main_cols, main_rows)
+  local inv_dims = fspec.calc_form_inventory_size(inv_size.x, inv_size.y)
+
+  local padding = 0.5
+
+  local device_w = device_dims.x + padding * 2
+  local device_h = device_dims.y + padding * 2
+
+  local inv_w = inv_dims.x + padding * 2
+  local inv_h = inv_dims.y + padding * 2
+
+  local w = math.max(device_w, inv_w)
+  local h = device_h + inv_h
+
+  local device_rect = Rect.new((w - device_dims.x) / 2, padding, device_dims.x, device_dims.y)
+  local inv_rect = Rect.new((w - inv_dims.x) / 2, device_h + padding, inv_dims.x, inv_dims.y)
+  local full_rect = Rect.new(padding, padding, w - padding * 2, h - padding * 2)
+
+  local formspec =
+    fspec.formspec_version(4) ..
+    callback("before_size", full_rect) ..
+    fspec.size(w, h) ..
+    callback("header", full_rect) ..
+    yatm.formspec_bg_for_player(player:get_player_name(), device_bg, 0, 0, w, device_h) ..
+    callback("main_body", device_rect) ..
+    yatm.formspec_bg_for_player(player:get_player_name(), "inventory", 0, device_h, w, inv_h) ..
+    yatm.player_inventory_lists_fragment(player, inv_rect.x, inv_rect.y)
+    callback("footer", full_rect)
+
+  return formspec
 end

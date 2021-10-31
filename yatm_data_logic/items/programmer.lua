@@ -249,17 +249,19 @@ local function render_table_formspec(spec, pos, player, pointed_thing, assigns)
   -- retrieve the tab by index
   local tab = spec.tabs[assigns.tab_index]
 
+  local background_name = "module"
   if tab then
     -- a tab is present, use its background if available
-    formspec =
-      formspec ..
-      yatm.formspec_bg_for_player(player:get_player_name(), tab.bg or "module")
-  else
-    -- TODO: return an error form
-    -- no tab was present, default to the module background
-    formspec =
-      formspec .. yatm.formspec_bg_for_player(player:get_player_name(), "module")
+    background_name = tab.bg or "module"
   end
+
+  formspec =
+    formspec ..
+    yatm.formspec_bg_for_player(
+      player:get_player_name(),
+      background_name,
+      0, 0, yatm_data_logic.FORMSPEC_SIZE.x, yatm_data_logic.y
+    )
 
   -- check if there are multiple tabs available
   if #spec.tabs > 1 then

@@ -6,23 +6,26 @@ local cluster_devices = assert(yatm.cluster.devices)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local Energy = assert(yatm.energy)
 local grinding_registry = assert(yatm.grinding.grinding_registry)
+local fspec = assert(foundation.com.formspec.api)
 
 local function get_auto_grinder_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
-  local formspec =
-    "size[8,9]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "machine") ..
-    "list[nodemeta:" .. spos .. ";grinder_input;0,0.3;1,1;]" ..
-    "list[nodemeta:" .. spos .. ";grinder_processing;2,0.3;1,1;]" ..
-    "list[nodemeta:" .. spos .. ";grinder_output;4,0.3;2,2;]" ..
-    "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]" ..
-    "listring[nodemeta:" .. spos .. ";grinder_input]" ..
-    "listring[current_player;main]" ..
-    "listring[nodemeta:" .. spos .. ";grinder_output]" ..
-    "listring[current_player;main]"
+  local node_inv_name = "nodemeta:" .. spos
+  local cio = fspec.calc_inventory_offset
 
-  return formspec
+  return yatm.formspec_render_split_inv_panel(user, 6, 2, { bg = "machine" }, function (loc, rect)
+    if loc == "main_body" then
+      return fspec.list(node_inv_name, "grinder_input", rect.x, rect.y, 1, 1) ..
+        fspec.list(node_inv_name, "grinder_processing", rect.x + cio(2), rect.y, 1, 1) ..
+        fspec.list(node_inv_name, "grinder_output", rect.x + cio(4), rect.y, 2, 2)
+    elseif loc == "footer" then
+      return fspec.list_ring(node_inv_name, "grinder_input") ..
+        fspec.list_ring("current_player", "main") ..
+        fspec.list_ring(node_inv_name, "grinder_output") ..
+        fspec.list_ring("current_player", "main")
+    end
+    return ""
+  end)
 end
 
 local auto_grinder_yatm_network = {

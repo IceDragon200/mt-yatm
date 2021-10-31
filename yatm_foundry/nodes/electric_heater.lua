@@ -89,7 +89,8 @@ yatm.devices.register_stateful_network_device({
 
   yatm_network = heater_yatm_network,
 
-  on_construct = function (pos, node)
+  on_construct = function (pos)
+    local node = minetest.get_node(pos)
     yatm.devices.device_on_construct(pos)
     cluster_thermal:schedule_add_node(pos, node)
   end,

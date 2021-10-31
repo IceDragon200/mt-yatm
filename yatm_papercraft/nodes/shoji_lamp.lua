@@ -66,6 +66,7 @@ minetest.register_node("yatm_papercraft:shoji_lamp_on", {
   is_ground_content = false,
   sounds = lamp_sounds,
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_shoji_lamp_top.on.png",
     "yatm_shoji_lamp_bottom.on.png",

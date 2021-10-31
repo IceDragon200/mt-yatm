@@ -8,30 +8,20 @@ local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local data_network = assert(yatm.data_network)
 local Energy = assert(yatm.energy)
+local fspec = assert(foundation.com.formspec.api)
 
 local function get_computer_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local meta = minetest.get_meta(pos)
-  local formspec =
-    "size[8,9]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "computer")
 
-  --[[for i = 0,15 do
-    local x = 0.25 + math.floor(i % 4)
-    local y = 0.5 + math.floor(i / 4)
-    local port_id = i + 1
-    local port_value = meta:get_int("p" .. port_id)
-    formspec = formspec ..
-      "field[" .. x .. "," .. y .. ";1,1;p" .. port_id .. ";Port " .. port_id .. ";" .. port_value .. "]" ..
-      "field_close_on_enter[p" .. port_id .. ",false]"
-  end]]
-
-  formspec =
-    formspec ..
-    "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]"
-
-  return formspec
+  return yatm.formspec_render_split_inv_panel(user, 4, 4, { bg = "computer" }, function (loc, rect)
+    if loc == "main_body" then
+      return ""
+    elseif loc == "footer" then
+      return fspec.list_ring("current_player", "main")
+    end
+    return ""
+  end)
 end
 
 local function computer_on_receive_fields(player, formname, fields, assigns)

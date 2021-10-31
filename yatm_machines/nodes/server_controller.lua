@@ -66,6 +66,8 @@ end
 yatm.devices.register_stateful_network_device({
   basename = "yatm_machines:server_controller",
 
+  codex_entry_id = "yatm_machines:server_controller",
+
   description = "Server Controller",
 
   groups = {
@@ -77,6 +79,7 @@ yatm.devices.register_stateful_network_device({
 
   drop = server_controller_yatm_network.states.off,
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_server_controller_top.off.png",
     "yatm_server_controller_bottom.png",
@@ -85,7 +88,7 @@ yatm.devices.register_stateful_network_device({
     "yatm_server_controller_back.off.png",
     "yatm_server_controller_front.off.png",
   },
-  use_texture_alpha = "opaque",
+
   drawtype = "nodebox",
   node_box = server_controller_node_box,
 

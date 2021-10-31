@@ -20,10 +20,15 @@ yatm.Cuboid = foundation.com.Cuboid
 
 local nokore_player_inv = rawget(_G, "nokore_player_inv")
 
--- @spec yatm.player_inventory_lists_fragment(player: Player, x: Number, y: Number): (String, dimensions: Vector2)
+--
+-- @spec player_inventory_lists_fragment(player: Player, x: Number, y: Number): (String, dimensions: Vector2)
+
+--
+-- @spec player_inventory_size2(Player): Vector2
 
 if nokore_player_inv then
   yatm.player_inventory_lists_fragment = nokore_player_inv.player_inventory_lists_fragment
+  yatm.player_inventory_size2 = nokore_player_inv.player_inventory_size2
 
   function yatm.get_player_hotbar_size(_player)
     return nokore_player_inv.player_hotbar_size
@@ -34,28 +39,26 @@ else
     return 8
   end
 
-  function yatm.player_inventory_lists_fragment(player, x, y)
+  function yatm.player_inventory_size2(player)
     local cols = yatm.get_player_hotbar_size(player)
     local inv = player:get_inventory()
-
-    local h = 0
-
     local main_size = inv:get_size("main")
-    local offhand_size = main_size - cols
+    local rows = math.ceil(main_size / cols)
+    return { x = cols, y = rows }
+  end
+
+  function yatm.player_inventory_lists_fragment(player, x, y)
+    local size = yatm.player_inventory_size2(player)
 
     local result = ""
 
-    result = result .. fspec.list("current_player", "main", x, y, cols, 1)
+    result = result .. fspec.list("current_player", "main", x, y, size.x, 1)
 
-    h = 1.5
-
-    if offhand_size > 0 then
-      local rows = math.ceil(offhand_size / cols)
-      result = result .. fspec.list("current_player", "main", x, h + y, cols, rows, cols)
-      h = h + rows * 1.5
+    if size.y > 1 then
+      result = result .. fspec.list("current_player", "main", x, y + 1.5, size.x, size.y - 1, size.x)
     end
 
-    return result, h
+    return result, { x = cols, y = rows }
   end
 end
 

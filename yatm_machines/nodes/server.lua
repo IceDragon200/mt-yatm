@@ -66,6 +66,8 @@ end
 yatm.devices.register_stateful_network_device({
   basename = "yatm_machines:server",
 
+  codex_entry_id = "yatm_machines:server",
+
   description = "Server",
 
   groups = {

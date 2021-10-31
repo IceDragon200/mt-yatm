@@ -10,23 +10,26 @@ local cluster_devices = assert(yatm.cluster.devices)
 local Energy = assert(yatm.energy)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local rolling_registry = assert(yatm.rolling.rolling_registry)
+local fspec = assert(foundation.com.formspec.api)
 
 local function get_roller_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
-  local formspec =
-    "size[8,9]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "machine") ..
-    "list[nodemeta:" .. spos .. ";roller_input;0,0.3;1,1;]" ..
-    "list[nodemeta:" .. spos .. ";roller_processing;1.5,0.3;1,1;]" ..
-    "list[nodemeta:" .. spos .. ";roller_output;3,0.3;1,1;]" ..
-    "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]" ..
-    "listring[nodemeta:" .. spos .. ";roller_input]" ..
-    "listring[current_player;main]" ..
-    "listring[nodemeta:" .. spos .. ";roller_output]" ..
-    "listring[current_player;main]"
+  local node_inv_name = "nodemeta:" .. spos
+  local cio = fspec.calc_inventory_offset
 
-  return formspec
+  return yatm.formspec_render_split_inv_panel(user, 8, 2, { bg = "machine" }, function (loc, rect)
+    if loc == "main_body" then
+      return fspec.list(node_inv_name, "roller_input", rect.x, rect.y, 1, 1) ..
+        fspec.list(node_inv_name, "roller_processing", rect.x + cio(2), rect.y, 1, 1) ..
+        fspec.list(node_inv_name, "roller_output", rect.x + cio(4), rect.y, 1, 1)
+    elseif loc == "footer" then
+      return fspec.list_ring(node_inv_name, "roller_input") ..
+        fspec.list_ring("current_player", "main") ..
+        fspec.list_ring(node_inv_name, "roller_output") ..
+        fspec.list_ring("current_player", "main")
+    end
+    return ""
+  end)
 end
 
 function roller_refresh_infotext(pos)

@@ -3,6 +3,7 @@ local is_blank = assert(foundation.com.is_blank)
 local string_split = assert(foundation.com.string_split)
 local table_merge = assert(foundation.com.table_merge)
 local Directions = assert(foundation.com.Directions)
+local fspec = assert(foundation.com.formspec.api)
 
 yatm.shelves = {}
 
@@ -39,6 +40,8 @@ end
 
 local function get_shelf_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+  local node_inv_name = "nodemeta:" .. spos
+
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
 
@@ -47,21 +50,20 @@ local function get_shelf_formspec(pos, user)
 
   local bg
   if nodedef.material_basename == "wood" then
-    bg = yatm.formspec_bg_for_player(user:get_player_name(), "wood")
+    bg = "wood"
   else
-    bg = yatm.formspec_bg_for_player(user:get_player_name(), "default")
+    bg = "default"
   end
 
-  local formspec =
-    "size[8,9]" ..
-    bg ..
-    "list[nodemeta:" .. spos .. ";main;0.25,0.25;" .. cols .. "," .. rows .. ";]" ..
-    "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]" ..
-    "listring[nodemeta:" .. spos .. ";main]" ..
-    "listring[current_player;main]"
-
-  return formspec
+  return yatm.formspec_render_split_inv_panel(user, cols, rows, { bg = bg }, function (loc, rect)
+    if loc == "main_body" then
+      return fspec.list(node_inv_name, "main", rect.x, rect.y, cols, rows)
+    elseif loc == "footer" then
+      return fspec.list_ring(node_inv_name, "main") ..
+        fspec.list_ring("current_player", "main")
+    end
+    return ""
+  end)
 end
 
 function yatm.shelves.clear_entities(pos)

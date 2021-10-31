@@ -32,6 +32,7 @@ minetest.register_node("yatm_data_logic:data_router", {
     },
   },
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_data_router_top.png",
     "yatm_data_router_bottom.png",

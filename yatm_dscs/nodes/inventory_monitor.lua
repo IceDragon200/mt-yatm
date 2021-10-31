@@ -4,6 +4,7 @@
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
+local fspec = assert(foundation.com.formspec.api)
 
 local groups = {
   cracky = 1,
@@ -18,19 +19,21 @@ end
 
 local function get_formspec(pos, user, assigns)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
-  assigns.tab = assigns.tab or 1
-  local formspec =
-    "size[8,9]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "dscs") ..
-    "label[0,0;DSCS Inventory]" ..
-    "tabheader[0,0;tab;Items,Fluids;" .. assigns.tab .. "]" ..
-    --"list[nodemeta:" .. spos .. ";drive_bay;0,0.3;2,4;]" ..
-    "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]"
-    --"listring[nodemeta:" .. spos .. ";drive_bay]" ..
-    --"listring[current_player;main]" ..
+  local node_inv_name = "nodemeta:" .. spos
 
-  return formspec
+  assigns.tab = assigns.tab or 1
+
+  return yatm.formspec_render_split_inv_panel(user, 2, 4, { bg = "dscs" }, function (loc, rect)
+    if loc == "header" then
+      return fspec.tabheader(0, 0, nil, nil, "tab", { "Items", "Fluids" }, assigns.tab)
+    elseif loc == "main_body" then
+      return fspec.list(node_inv_name, "drive_bay", rect.x, rect.y, 2, 4)
+    elseif loc == "footer" then
+      return fspec.list_ring(device_inv_name, "drive_bay") ..
+        fspec.list_ring("current_player", "main")
+    end
+    return ""
+  end)
 end
 
 local function refresh_infotext(pos, node)

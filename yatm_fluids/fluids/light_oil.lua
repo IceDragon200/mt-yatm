@@ -17,7 +17,7 @@ yatm.fluids.fluid_registry.register("yatm_fluids", "light_oil", {
     texture_basename = "yatm_light_oil",
     groups = { oil = 1, light_oil = 1, liquid = 3, flammable = 1 },
 
-    alpha = 220,
+    use_texture_alpha = "opaque",
     post_effect_color = {a=192, r=216, g=197, b=69},
   },
 

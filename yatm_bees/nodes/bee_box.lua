@@ -2,10 +2,9 @@
 -- Bee Box, keeps all your bees in one easy to access place.
 --
 local table_merge = assert(foundation.com.table_merge)
-
 local ItemInterface = assert(yatm.items.ItemInterface)
-
 local itemstack_is_frame = assert(yatm.bees.itemstack_is_frame)
+local fspec = assert(foundation.com.formspec.api)
 
 local function get_bee_box_formspec(pos, user)
   local meta = minetest.get_meta(pos)

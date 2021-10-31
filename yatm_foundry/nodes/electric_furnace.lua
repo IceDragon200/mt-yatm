@@ -1,16 +1,21 @@
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
+local fspec = assert(foundation.com.formspec.api)
 
 local function get_electric_furnace_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
-  local formspec =
-    "size[8,9]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "machine_heated") ..
-    "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]"
+  local node_inv_name = "nodemeta:" .. spos
 
-  return formspec
+  return yatm.formspec_render_split_inv_panel(user, 6, 4, { bg = "machine_heated" }, function (loc, rect)
+    -- TODO
+    if loc == "main_body" then
+      return ""
+    elseif loc == "footer" then
+      return ""
+    end
+    return ""
+  end)
 end
 
 local function electric_furnace_refresh_infotext(pos)

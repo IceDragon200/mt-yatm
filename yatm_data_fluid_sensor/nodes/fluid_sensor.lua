@@ -231,6 +231,7 @@ minetest.register_node("yatm_data_fluid_sensor:fluid_sensor", {
 
   groups = groups,
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_fluid_sensor_side.png",
   },

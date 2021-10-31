@@ -378,6 +378,7 @@ minetest.register_node("yatm_security:locksmiths_table_wood", {
 
   groups = { locksmiths_table = 1, cracky = 1 },
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_locksmiths_table_wood_top.png",
     "yatm_locksmiths_table_wood_bottom.png",
@@ -386,6 +387,7 @@ minetest.register_node("yatm_security:locksmiths_table_wood", {
     "yatm_locksmiths_table_wood_side.png^[transformFX",
     "yatm_locksmiths_table_wood_side.png"
   },
+
   paramtype = "light",
   paramtype2 = "facedir",
   drawtype = "nodebox",

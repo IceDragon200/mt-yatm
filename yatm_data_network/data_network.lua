@@ -385,7 +385,10 @@ function ic:update_member(pos, node, force_refresh)
     end
 
     if not table_equals(member.accessible_dirs, dnd.accessible_dirs) then
-      member.accessible_dirs = table_copy(dnd.accessible_dirs)
+      member.accessible_dirs = nil
+      if dnd.accessible_dirs then
+        member.accessible_dirs = table_copy(dnd.accessible_dirs)
+      end
       need_refresh = true
     end
 

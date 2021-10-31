@@ -5,6 +5,7 @@ local maybe_start_node_timer = assert(foundation.com.maybe_start_node_timer)
 local inspect_axis = assert(foundation.com.Directions.inspect_axis)
 local cluster_thermal = assert(yatm.cluster.thermal)
 local ItemInterface = assert(yatm.items.ItemInterface)
+local fspec = assert(foundation.com.formspec.api)
 
 local function is_item_solid_fuel(item_stack)
   if not item_stack or item_stack:get_count() == 0 then
@@ -25,16 +26,17 @@ end
 
 local function get_solid_fuel_heater_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
-  local formspec =
-    "size[8,9]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "machine_heated") ..
-    "list[nodemeta:" .. spos .. ";fuel_slot;0,0.3;1,1;]" ..
-    "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]" ..
-    "listring[nodemeta:" .. spos .. ";fuel_slot]" ..
-    "listring[current_player;main]"
+  local node_inv_name = "nodemeta:" .. spos
 
-  return formspec
+  return yatm.formspec_render_split_inv_panel(user, 1, 1, { bg = "machine_heated" }, function (loc, rect)
+    if loc == "main_body" then
+      return fspec.list(node_inv_name, "fuel_slot", rect.x, rect.y, 1, 1)
+    elseif loc == "footer" then
+      return fspec.list_ring(node_inv_name, "fuel_slot") ..
+        fspec.list_ring("current_player", "main")
+    end
+    return ""
+  end)
 end
 
 local function solid_fuel_heater_on_construct(pos)

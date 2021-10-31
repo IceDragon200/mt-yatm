@@ -17,6 +17,7 @@ local ng = Cuboid.new_fast_node_box
 local Directions = assert(foundation.com.Directions)
 local Groups = assert(foundation.com.Groups)
 local string_hex_unescape = assert(foundation.com.string_hex_unescape)
+local fspec = assert(foundation.com.formspec.api)
 
 -- Deadzone
 --   The Silo has a deadzone of up to 8 nodes in any direction, this it to prevent it from blowing itself up with a misconfigured ICBM.

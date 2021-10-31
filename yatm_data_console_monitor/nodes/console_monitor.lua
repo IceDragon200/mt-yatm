@@ -7,6 +7,7 @@ local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local data_network = assert(yatm.data_network)
 local Energy = assert(yatm.energy)
+local fspec = assert(foundation.com.formspec.api)
 
 local function append_history(meta, new_line)
   local history = meta:get_string("history")
@@ -34,17 +35,18 @@ end
 
 local function get_formspec(pos, player_name, assigns)
   local meta = minetest.get_meta(pos)
+  local player = nokore.player_service:get_player_by_name(player_name)
 
-  local formspec =
-    "formspec_version[3]" ..
-    "size[12,12]" ..
-    yatm.formspec_bg_for_player(player_name, "display") ..
-    "textarea[0.5,1;11,9;;History;" .. minetest.formspec_escape(meta:get_string("history")) .. "]" ..
-    "field[0.5,10.5;11,1;console_input;;]" ..
-    "field_close_on_enter[console_input;false]" ..
-    ""
-
-  return formspec
+  return yatm.formspec_render_split_inv_panel(player, 11, 10, { bg = "display" }, function (loc, rect)
+    if loc == "main_body" then
+      return fspec.textarea(rect.x, rect.y, 11, 9, nil, "History", meta:get_string("history")) ..
+        fspec.field_area(rect.x, rect.y + 9, 11, 1, "console_input", nil) ..
+        fspec.field_close_on_enter("console_input", false)
+    elseif loc == "footer" then
+      return ""
+    end
+    return ""
+  end)
 end
 
 local data_interface = {

@@ -23,8 +23,14 @@ local yatm_network = {
 yatm.devices.register_stateful_network_device({
   basename = "yatm_device_hubs:hub_wireless",
 
+  codex_entry_id = "yatm_device_hubs:hub_wireless",
+
   description = "Hub (wireless)",
-  groups = {cracky = 1},
+
+  groups = {
+    cracky = 1,
+  },
+
   drop = yatm_network.states.off,
 
   use_texture_alpha = "clip",

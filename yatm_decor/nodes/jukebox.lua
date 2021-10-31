@@ -1,3 +1,5 @@
+local fspec = assert(foundation.com.formspec.api)
+
 local jukebox_node_box = {
   type = "fixed",
   fixed = {
@@ -9,13 +11,17 @@ local jukebox_node_box = {
 
 local function get_jukebox_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+  local node_inv_name = "nodemeta:" .. spos
 
-  local formspec =
-    "size[8,9]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "default") ..
-    "list[nodemeta:" .. spos .. ";input_disc;1,1;1,1;]"
-
-  return formspec
+  return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = "default" }, function (loc, rect)
+    if loc == "main_body" then
+      return fspec.list(node_inv_name, "input_disc", rect.x, rect.y, 1, 1)
+    elseif loc == "footer" then
+      return fspec.list_ring(node_inv_name, "input_disc") ..
+        fspec.list_ring("current_player", "main")
+    end
+    return ""
+  end)
 end
 
 yatm.register_stateful_node("yatm_decor:jukebox", {

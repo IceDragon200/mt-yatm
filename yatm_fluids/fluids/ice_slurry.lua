@@ -10,7 +10,7 @@ yatm.fluids.fluid_registry.register("yatm_fluids", "ice_slurry", {
   nodes = {
     texture_basename = "yatm_ice_slurry",
     groups = { ice = 1, ice_slurry = 1, liquid = 3, freezing = 2 },
-    alpha = 220,
+    use_texture_alpha = "opaque",
     post_effect_color = {a=192, r=167, g=231, b=216},
   },
 

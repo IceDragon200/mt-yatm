@@ -14,6 +14,7 @@ local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local ItemInterface = assert(yatm.items.ItemInterface)
+local fspec = assert(foundation.com.formspec.api)
 
 local freezer_item_interface = ItemInterface.new_directional(function (self, pos, dir)
   local node = minetest.get_node(pos)
@@ -209,20 +210,21 @@ local function get_freezer_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local meta = minetest.get_meta(pos)
 
-  local formspec =
-    "size[8,9]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "machine_cooled") ..
-    "label[0,0;Freezer]" ..
-    "list[nodemeta:" .. spos .. ";input_items;0.5,1;3,3;]" ..
-    "list[nodemeta:" .. spos .. ";output_items;4.5,1;3,3;]" ..
-    "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]" ..
-    "listring[nodemeta:" .. spos .. ";input_items]" ..
-    "listring[current_player;main]" ..
-    "listring[nodemeta:" .. spos .. ";output_items]" ..
-    "listring[current_player;main]"
+  local node_inv_name = "nodemeta:" .. spos
 
-  return formspec
+  return yatm.formspec_render_split_inv_panel(user, 7, 3, { bg = "machine_cooled" }, function (loc, rect)
+    if loc == "main_body" then
+      -- fspec.calc_inventory_offset(4)
+      return fspec.list(node_inv_name, "input_items", rect.x, rect.y, 3, 3) ..
+        fspec.list(node_inv_name, "output_items", rect.x + 4, rect.y, 3, 3)
+    elseif loc == "footer" then
+      return fspec.list_ring(node_inv_name, "input_items") ..
+        fspec.list_ring("current_player", "main") ..
+        fspec.list_ring(node_inv_name, "output_items") ..
+        fspec.list_ring("current_player", "main")
+    end
+    return ""
+  end)
 end
 
 local function freezer_on_dig(pos, node, digger)
@@ -251,12 +253,15 @@ local groups = {
 yatm.devices.register_stateful_network_device({
   basename = "yatm_machines:freezer",
 
+  codex_entry_id = "yatm_machines:freezer",
+
   description = "Freezer",
 
   groups = groups,
 
   drop = freezer_yatm_network.states.off,
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_freezer_top.off.png",
     "yatm_freezer_bottom.off.png",

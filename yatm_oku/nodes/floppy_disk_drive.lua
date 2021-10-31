@@ -12,6 +12,7 @@ local cluster_energy = assert(yatm.cluster.energy)
 local data_network = assert(yatm.data_network)
 local Energy = assert(yatm.energy)
 local ByteDecoder = yatm.ByteDecoder
+local fspec = assert(foundation.com.formspec.api)
 
 if not ByteDecoder then
   minetest.log("warning", "Memory module requires yatm.ByteDecoder")
@@ -23,19 +24,17 @@ local MAX_DISK_SIZE = 0x4000
 local function get_floppy_disk_drive_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local meta = minetest.get_meta(pos)
-  local formspec =
-    "size[8,9]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "computer")
+  local node_inv_name = "nodemeta:" .. spos
 
-  formspec =
-    formspec ..
-    "list[nodemeta:" .. spos .. ";floppy_disk;0,1;1,1;]" ..
-    "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]" ..
-    "listring[current_player;main]" ..
-    "listring[nodemeta:" .. spos .. ";floppy_disk]"
-
-  return formspec
+  return yatm.formspec_render_split_inv_panel(user, 2, 4, { bg = "computer" }, function (loc, rect)
+    if loc == "main_body" then
+      return fspec.list(node_inv_name, "floppy_disk", rect.x, rect.y, 1, 1)
+    elseif loc == "footer" then
+      return fspec.list_ring(node_inv_name, "floppy_disk") ..
+        fspec.list_ring("current_player", "main")
+    end
+    return ""
+  end)
 end
 
 local function floppy_disk_drive_on_receive_fields(player, formname, fields, assigns)

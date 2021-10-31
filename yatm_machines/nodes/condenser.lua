@@ -79,6 +79,8 @@ local groups = {
 yatm.devices.register_stateful_network_device({
   basename = "yatm_machines:condenser",
 
+  codex_entry_id = "yatm_machines:condenser",
+
   description = "Condenser",
 
   groups = groups,

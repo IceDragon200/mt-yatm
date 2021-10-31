@@ -9,20 +9,23 @@ local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local smelting_registry = assert(yatm.smelting.smelting_registry)
+local fspec = assert(foundation.com.formspec.api)
 
 local function get_smelter_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
-  local formspec =
-    "size[8,9]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "machine_heated") ..
-    "list[nodemeta:" .. spos .. ";input_slot;0,0.3;1,1;]" ..
-    "list[nodemeta:" .. spos .. ";processing_slot;2,0.3;1,1;]" ..
-    "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]" ..
-    "listring[nodemeta:" .. spos .. ";input_slot]" ..
-    "listring[current_player;main]"
+  local node_inv_name = "nodemeta:" .. spos
+  local cio = fspec.calc_inventory_offset
 
-  return formspec
+  return yatm.formspec_render_split_inv_panel(user, 5, 2, { bg = "machine_heated" }, function (loc, rect)
+    if loc == "main_body" then
+      return fspec.list(node_inv_name, "input_slot", rect.x, rect.y, 1, 1) ..
+             fspec.list(node_inv_name, "processing_slot", rect.x + cio(2), rect.y, 1, 1)
+    elseif loc == "footer" then
+      return fspec.list_ring(node_inv_name, "input_slot") ..
+        fspec.list_ring("current_player", "main")
+    end
+    return ""
+  end)
 end
 
 local TANK_CAPACITY = 4000

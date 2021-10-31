@@ -43,6 +43,8 @@ yatm.devices.register_stateful_network_device({
 
   description = "Network Controller",
 
+  codex_entry_id = "yatm_machines:network_controller",
+
   groups = groups,
 
   drop = network_controller_yatm_network.states.off,

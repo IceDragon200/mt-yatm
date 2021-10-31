@@ -145,7 +145,6 @@ function FluidRegistry.register_fluid_nodes(basename, def)
         },
       },
     },
-    alpha = def.alpha or 255,
     paramtype = "light",
     walkable = false,
     pointable = false,
@@ -189,7 +188,6 @@ function FluidRegistry.register_fluid_nodes(basename, def)
         },
       },
     },
-    alpha = def.alpha or 255,
     paramtype = "light",
     paramtype2 = "flowingliquid",
     walkable = false,
@@ -221,7 +219,6 @@ function FluidRegistry.register(modname, fluid_basename, definition)
       description_base = description,
       texture_basename = definition.nodes.texture_basename,
       groups = definition.nodes.groups or {},
-      alpha = definition.nodes.alpha or 255,
       post_effect_color = definition.nodes.post_effect_color,
     }
   end

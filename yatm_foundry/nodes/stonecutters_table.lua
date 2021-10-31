@@ -46,6 +46,7 @@ minetest.register_node("yatm_foundry:stonecutters_table_wood", {
     cracky = 1
   },
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_stonecutters_table_wood_top.png",
     "yatm_stonecutters_table_wood_bottom.png",
@@ -54,6 +55,7 @@ minetest.register_node("yatm_foundry:stonecutters_table_wood", {
     "yatm_stonecutters_table_wood_side.png^[transformFX",
     "yatm_stonecutters_table_wood_side.png"
   },
+
   paramtype = "light",
   paramtype2 = "facedir",
   drawtype = "nodebox",

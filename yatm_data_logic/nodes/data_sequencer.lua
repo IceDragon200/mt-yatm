@@ -72,6 +72,7 @@ minetest.register_node("yatm_data_logic:data_sequencer", {
     },
   },
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_data_sequencer_top.png",
     "yatm_data_sequencer_bottom.png",

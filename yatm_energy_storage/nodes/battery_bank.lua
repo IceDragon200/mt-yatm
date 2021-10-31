@@ -7,6 +7,7 @@ local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
 local EnergyDevices = assert(yatm.energy.EnergyDevices)
+local fspec = assert(foundation.com.formspec.api)
 
 local function num_round(value)
   local d = value - math.floor(value)
@@ -28,19 +29,19 @@ local function get_battery_bank_formspec(pos, user, assigns)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local meta = minetest.get_meta(pos)
   local mode = meta:get_string("mode")
+  local node_inv_name = "nodemeta:" .. spos
+  local cio = fspec.calc_inventory_offset
 
-  local formspec =
-    "size[8,9]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "machine") ..
-    "label[0,0;Battery Bank]" ..
-    "list[nodemeta:" .. spos .. ";batteries;0,0.5;4,4;]" ..
-    "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]" ..
-    "listring[nodemeta:" .. spos .. ";batteries]" ..
-    "listring[current_player;main]" ..
-    "dropdown[4,0.5;4,1;mode;none,i,o,io;" .. (mode_to_index[mode] or 1) .. "]"
-
-  return formspec
+  return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = "machine" }, function (loc, rect)
+    if loc == "main_body" then
+      return fspec.list(node_inv_name, "batteries", rect.x, rect.y, 4, 4) ..
+             fspec.dropdown(rect.x + cio(4), rect.y, 4, 1, "mode", { "node", "i", "o", "io" }, mode_to_index[mode] or 1)
+    elseif loc == "footer" then
+      return fspec.list_ring(node_inv_name, "batteries") ..
+        fspec.list_ring("current_player", "main")
+    end
+    return ""
+  end)
 end
 
 local function battery_bank_on_receive_fields(player, formname, fields, assigns)

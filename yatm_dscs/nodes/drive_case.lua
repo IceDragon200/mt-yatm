@@ -20,21 +20,20 @@ end
 
 local function get_drive_case_formspec(pos, player_name, _assigns)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
-  local node_inv = "nodemeta:" .. spos
+  local node_inv_name = "nodemeta:" .. spos
   local padding = 0.5
   local player = assert(player_service:get_player_by_name(player_name))
   local player_inv_frag, dims = yatm.player_inventory_lists_fragment(player, padding, padding + 5)
 
-  local formspec =
-    fspec.formspec_version(4) ..
-    fspec.size(12, 9) ..
-    yatm.formspec_bg_for_player(player_name, "dscs") ..
-    fspec.list(node_inv, "drive_bay", padding, padding, 2, 4) ..
-    player_inv_frag ..
-    "listring[nodemeta:" .. spos .. ";drive_bay]" ..
-    "listring[current_player;main]"
-
-  return formspec
+  return yatm.formspec_render_split_inv_panel(player, 2, 4, { bg = "dscs" }, function (loc, rect)
+    if loc == "main_body" then
+      return fspec.list(node_inv_name, "drive_bay", rect.x, rect.y, 2, 4)
+    elseif loc == "footer" then
+      return fspec.list_ring(node_inv_name, "drive_bay") ..
+        fspec.list_ring("current_player", "main")
+    end
+    return ""
+  end)
 end
 
 local function refresh_formspec(pos, player)

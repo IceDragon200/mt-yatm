@@ -28,6 +28,7 @@ minetest.register_node("yatm_data_logic:data_light_sensor", {
     },
   },
 
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_data_light_sensor_top.png",
     "yatm_data_light_sensor_bottom.png",

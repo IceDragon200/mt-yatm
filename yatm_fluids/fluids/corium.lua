@@ -10,7 +10,7 @@ yatm.fluids.fluid_registry.register("yatm_fluids", "corium", {
   nodes = {
     texture_basename = "yatm_corium",
     groups = { corium = 1, radioactive = 1, corrosive = 1 },
-    alpha = 220,
+    use_texture_alpha = "opaque",
   },
 
   bucket = {

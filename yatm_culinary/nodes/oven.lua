@@ -1,27 +1,30 @@
 local maybe_start_node_timer = assert(foundation.com.maybe_start_node_timer)
 local format_pretty_time = assert(foundation.com.format_pretty_time)
 local cluster_thermal = assert(yatm.cluster.thermal)
+local fspec = assert(foundation.com.formspec.api)
 
 local function get_oven_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+  local node_inv_name = "nodemeta:" .. spos
+  local meta = minetest.get_meta(pos)
+  local cio = fspec.calc_inventory_offset
 
-  local formspec =
-    "size[8,9]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "machine_heated") ..
-    "list[nodemeta:" .. spos .. ";fuel_slot;3,2.5.3;1,1;]" ..
-    "list[nodemeta:" .. spos .. ";input_slot;1,1;1,1;]" ..
-    "list[nodemeta:" .. spos .. ";processing_slot;3,1;1,1;]" ..
-    "list[nodemeta:" .. spos .. ";output_slot;5,1;1,1;]" ..
-    "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]" ..
-    "listring[nodemeta:" .. spos .. ";fuel_slot]" ..
-    "listring[current_player;main]" ..
-    "listring[nodemeta:" .. spos .. ";input_slot]" ..
-    "listring[current_player;main]" ..
-    "listring[nodemeta:" .. spos .. ";output_slot]" ..
-    "listring[current_player;main]"
-
-  return formspec
+  return yatm.formspec_render_split_inv_panel(user, 7, 1, { bg = "machine_heated" }, function (loc, rect)
+    if loc == "main_body" then
+      return fspec.list(node_inv_name, "fuel_slot", rect.x, rect.y, 1, 1) ..
+        fspec.list(node_inv_name, "input_slot", rect.x + cio(2), rect.y, 1, 1) ..
+        fspec.list(node_inv_name, "processing_slot", rect.x + cio(4), rect.y, 1, 1) ..
+        fspec.list(node_inv_name, "output_slot", rect.x + cio(6), rect.y, 1, 1)
+    elseif loc == "footer" then
+      return fspec.list_ring(node_inv_name, "fuel_slot") ..
+        fspec.list_ring("current_player", "main") ..
+        fspec.list_ring(node_inv_name, "input_slot") ..
+        fspec.list_ring("current_player", "main") ..
+        fspec.list_ring(node_inv_name, "output_slot") ..
+        fspec.list_ring("current_player", "main")
+    end
+    return ""
+  end)
 end
 
 local function oven_on_rightclick(pos, node, user)

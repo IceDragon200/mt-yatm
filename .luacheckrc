@@ -85,6 +85,7 @@ globals = {
   -- Allow yatm global modules
   yatm = {
     fields = {
+      colors = {},
       sounds = {},
       register_stateful_node = {},
       queue_refresh_infotext = {},
@@ -229,6 +230,12 @@ globals = {
       icbm = {
       },
 
+      items = {
+        fields = {
+          ItemInterface = {},
+        }
+      },
+
       -- mail module
       mail = {},
 
@@ -367,7 +374,9 @@ globals = {
 max_line_length = 100
 max_code_line_length = 100
 
-include_files = {"yatm_*/*.lua"}
+--include_files = {
+--  "yatm_*/**/*.lua"
+--}
 
 -- ignore each module's global
 files["yatm_armoury/**.lua"] = { globals = {"yatm_armoury"} }

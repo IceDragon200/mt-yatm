@@ -4,6 +4,7 @@ local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
 local ItemInterface = assert(yatm.items.ItemInterface)
+local fspec = assert(foundation.com.formspec.api)
 
 local item_replicator_yatm_network = {
   kind = "machine",
@@ -29,19 +30,21 @@ local item_replicator_yatm_network = {
 
 local function get_item_replicator_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
-  local formspec =
-    "size[8,9]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "machine") ..
-    "list[nodemeta:" .. spos .. ";input_slot;0,0.3;1,1;]" ..
-    "list[nodemeta:" .. spos .. ";output_slot;2,0.3;1,1;]" ..
-    "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]" ..
-    "listring[nodemeta:" .. spos .. ";input_slot]" ..
-    "listring[current_player;main]" ..
-    "listring[nodemeta:" .. spos .. ";output_slot]" ..
-    "listring[current_player;main]"
+  local node_inv_name = "nodemeta:" .. spos
+  local cio = fspec.calc_inventory_offset
 
-  return formspec
+  return yatm.formspec_render_split_inv_panel(user, 6, 2, { bg = "machine" }, function (loc, rect)
+    if loc == "main_body" then
+      return fspec.list(node_inv_name, "input_slot", rect.x, rect.y, 1, 1) ..
+        fspec.list(node_inv_name, "output_slot", rect.x + cio(2), rect.y, 1, 1)
+    elseif loc == "footer" then
+      return fspec.list_ring(node_inv_name, "input_slot") ..
+        fspec.list_ring("current_player", "main") ..
+        fspec.list_ring(node_inv_name, "output_slot") ..
+        fspec.list_ring("current_player", "main")
+    end
+    return ""
+  end)
 end
 
 function item_replicator_refresh_infotext(pos)
