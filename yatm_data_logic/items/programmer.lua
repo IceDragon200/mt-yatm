@@ -260,7 +260,7 @@ local function render_table_formspec(spec, pos, player, pointed_thing, assigns)
     yatm.formspec_bg_for_player(
       player:get_player_name(),
       background_name,
-      0, 0, yatm_data_logic.FORMSPEC_SIZE.x, yatm_data_logic.y
+      0, 0, yatm_data_logic.FORMSPEC_SIZE.w, yatm_data_logic.FORMSPEC_SIZE.h
     )
 
   -- check if there are multiple tabs available
