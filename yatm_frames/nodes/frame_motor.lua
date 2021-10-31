@@ -496,14 +496,13 @@ if yatm_data_logic then
           end
         end
 
-        local ichg, ochg = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "io")
+        local any_change, changes = yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, "io")
 
-        if not is_table_empty(ochg) then
+        if any_change then
           needs_refresh = true
         end
 
-        if not is_table_empty(ichg) then
-          needs_refresh = true
+        if changes.input then
           yatm_data_logic.unmark_all_receive(assigns.pos)
           yatm_data_logic.mark_all_inputs_for_active_receive(assigns.pos)
         end
