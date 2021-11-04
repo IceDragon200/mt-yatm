@@ -29,7 +29,7 @@ local function get_formspec(pos, user, assigns)
     elseif loc == "main_body" then
       return fspec.list(node_inv_name, "drive_bay", rect.x, rect.y, 2, 4)
     elseif loc == "footer" then
-      return fspec.list_ring(device_inv_name, "drive_bay") ..
+      return fspec.list_ring(node_inv_name, "drive_bay") ..
         fspec.list_ring("current_player", "main")
     end
     return ""
