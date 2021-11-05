@@ -75,7 +75,18 @@ function yatm.formspec_bg_for_player(player_name, background_id, x, y, w, h, aut
   return fspec.background(x, y, w, h, texture_name, auto_clip)
 end
 
+-- @spec formspec_render_split_inv_panel(
+--   Player,
+--   main_cols: Integer,
+--   main_rows: Integer,
+--   options: Table,
+--   callback: function (slot: String, rect: Rect) => String
+-- ): String
 function yatm.formspec_render_split_inv_panel(player, main_cols, main_rows, options, callback)
+  assert(player, "expected player")
+  assert(type(main_cols) == "number", "expected a column count")
+  assert(type(main_rows) == "number", "expected a row count")
+
   options = options or {}
 
   local device_bg = options.bg or "default"
