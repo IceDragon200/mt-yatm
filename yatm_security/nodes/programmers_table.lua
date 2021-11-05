@@ -411,7 +411,7 @@ yatm.devices.register_stateful_network_device({
     local assigns = { pos = pos, node = node }
     local formspec = get_formspec(pos, user, assigns)
 
-    yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
+    nokore.formspec_bindings:show_formspec(user:get_player_name(), formspec_name, formspec, {
       state = assigns,
       on_receive_fields = handle_receive_fields
     })

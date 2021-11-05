@@ -260,7 +260,7 @@ minetest.register_node("yatm_data_fluid_sensor:fluid_sensor", {
     local formspec_name = "yatm_data_fluid_sensor:fluid_sensor:" .. minetest.pos_to_string(pos)
     local formspec = get_fluid_sensor_formspec(pos, user)
 
-    yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
+    nokore.formspec_bindings:show_formspec(user:get_player_name(), formspec_name, formspec, {
       state = { pos = pos, node = node },
       on_receive_fields = on_receive_fields
     })

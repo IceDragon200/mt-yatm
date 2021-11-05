@@ -465,7 +465,7 @@ minetest.register_tool("yatm_data_logic:data_programmer", {
 
           sounds:play("action_open", { to_player = user:get_player_name() })
 
-          yatm_core.show_bound_formspec(user:get_player_name(), formname, formspec, {
+          nokore.formspec_bindings:show_formspec(user:get_player_name(), formname, formspec, {
             state = assigns,
             on_receive_fields = on_receive_fields,
             on_quit = on_formspec_quit,

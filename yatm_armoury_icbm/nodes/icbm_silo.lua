@@ -578,7 +578,7 @@ minetest.register_node("yatm_armoury_icbm:icbm_silo", {
     local formspec = get_formspec(pos, user:get_player_name(), assigns)
     local formspec_name = get_formspec_name(pos)
 
-    yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
+    nokore.formspec_bindings:show_formspec(user:get_player_name(), formspec_name, formspec, {
       state = assigns,
       on_receive_fields = receive_fields
     })

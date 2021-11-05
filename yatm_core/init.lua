@@ -1,7 +1,7 @@
 --
 -- YATM Core
 --
-local mod = foundation.new_module("yatm_core", "2.0.0")
+local mod = foundation.new_module("yatm_core", "2.1.0")
 
 -- This is yatm's shared namespace, use the apis from this instead of the module's name when possible
 yatm = mod
@@ -17,9 +17,6 @@ yatm_core.Class = foundation.com.Class
 mod:require("changeset.lua")
 -- Networks
 mod:require("measurable.lua") -- similar to energy, but has a name field too
-
--- Formspec Handle system
-mod:require("formspec_handles.lua")
 
 -- Sounds
 mod:require("sounds.lua")

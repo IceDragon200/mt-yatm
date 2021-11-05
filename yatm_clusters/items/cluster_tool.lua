@@ -55,7 +55,7 @@ local function show_cluster_summary(user, state)
   local formspec = get_cluster_summary_formspec(user, assigns)
   local formspec_name = "yatm_clusters:cluster_summary"
 
-  yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
+  nokore.formspec_bindings:show_formspec(user:get_player_name(), formspec_name, formspec, {
     state = assigns,
     on_receive_fields = receive_cluster_summary_fields
   })

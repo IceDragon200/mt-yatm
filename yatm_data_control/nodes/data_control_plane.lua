@@ -435,7 +435,7 @@ yatm.register_stateful_node("yatm_data_control:data_control_plane", {
     local formspec = get_formspec(pos, user, assigns)
     local formspec_name = get_formspec_name(pos)
 
-    yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
+    nokore.formspec_bindings:show_formspec(user:get_player_name(), formspec_name, formspec, {
       state = assigns,
       on_receive_fields = receive_fields
     })

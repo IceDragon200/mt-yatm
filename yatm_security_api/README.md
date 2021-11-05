@@ -88,10 +88,11 @@ local function prompt_for_password(pos, node, player, slot_id, slot_data, data, 
       return true -- this is just the receive_fields propogation flag
     end
 
-  yatm_core.bind_on_player_receive_fields(player, formspec_name,
-                                          assigns,
-                                          on_receive_fields)
-  minetest.show_formspec(player:get_player_name(), formspec_name)
+  nokore.formspec_bindings:show_formspec(
+    player:get_player_name(),
+    formspec_name,
+    formspec
+  )
 end
 
 yatm.security.register_security_feature("yatm:password_lock", {

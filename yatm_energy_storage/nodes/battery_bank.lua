@@ -218,7 +218,7 @@ local function battery_bank_on_rightclick(pos, node, user)
   local assigns = { pos = pos, node = node }
   local formspec = get_battery_bank_formspec(pos, user, assigns)
 
-  yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
+  nokore.formspec_bindings:show_formspec(user:get_player_name(), formspec_name, formspec, {
     state = assigns,
     on_receive_fields = receive_fields
   })

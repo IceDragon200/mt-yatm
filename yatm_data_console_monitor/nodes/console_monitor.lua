@@ -36,11 +36,12 @@ end
 local function get_formspec(pos, player_name, assigns)
   local meta = minetest.get_meta(pos)
   local player = nokore.player_service:get_player_by_name(player_name)
+  local cio = fspec.calc_inventory_offset
 
   return yatm.formspec_render_split_inv_panel(player, 11, 10, { bg = "display" }, function (loc, rect)
     if loc == "main_body" then
-      return fspec.textarea(rect.x, rect.y, 11, 9, nil, "History", meta:get_string("history")) ..
-        fspec.field_area(rect.x, rect.y + 9, 11, 1, "console_input", nil) ..
+      return fspec.textarea(rect.x, rect.y, rect.w, 9, nil, "History", meta:get_string("history")) ..
+        fspec.field_area(rect.x, rect.y + cio(9), rect.w, 1, "console_input", nil) ..
         fspec.field_close_on_enter("console_input", false)
     elseif loc == "footer" then
       return ""
@@ -61,9 +62,12 @@ local data_interface = {
 
     append_history(meta, str)
 
-    yatm_core.refresh_formspecs(get_formspec_name(pos), function (player_name, assigns)
-      return get_formspec(pos, player_name, assigns)
-    end)
+    nokore.formspec_bindings:refresh_formspecs(
+      get_formspec_name(pos),
+      function (player_name, assigns)
+        return get_formspec(pos, player_name, assigns)
+      end
+    )
   end,
 
   get_programmer_formspec = {
@@ -126,7 +130,7 @@ local function on_rightclick(pos, node, user, itemstack, pointed_thing)
   local formspec = get_formspec(pos, user:get_player_name(), assigns)
   local formspec_name = get_formspec_name(pos)
 
-  yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
+  nokore.formspec_bindings:show_formspec(user:get_player_name(), formspec_name, formspec, {
     state = assigns,
     on_receive_fields = receive_fields
   })

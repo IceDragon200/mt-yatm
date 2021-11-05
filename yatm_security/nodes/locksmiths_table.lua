@@ -404,7 +404,7 @@ minetest.register_node("yatm_security:locksmiths_table_wood", {
 
     local formspec_name = "yatm_security:locksmiths_table:" .. minetest.pos_to_string(pos)
 
-    yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
+    nokore.formspec_bindings:show_formspec(user:get_player_name(), formspec_name, formspec, {
       state = assigns,
       on_receive_fields = on_player_receive_fields
     })

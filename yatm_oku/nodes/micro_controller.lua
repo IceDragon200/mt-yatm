@@ -214,7 +214,7 @@ minetest.register_node("yatm_oku:oku_micro_controller", {
     local assigns = { pos = pos, node = node }
     local formspec = get_micro_controller_formspec(pos, user, assigns)
 
-    yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
+    nokore.formspec_bindings:show_formspec(user:get_player_name(), formspec_name, formspec, {
       state = assigns,
       on_receive_fields = micro_controller_on_receive_fields
     })

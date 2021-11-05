@@ -82,7 +82,7 @@ yatm_debug:register_tool("debug_tool", {
       local assigns = {
         pos = pos,
       }
-      yatm_core.show_bound_formspec(user:get_player_name(), "yatm_core:debug_tool_formspec", get_formspec(pos, user, assigns), {
+      nokore.formspec_bindings:show_formspec(user:get_player_name(), "yatm_core:debug_tool_formspec", get_formspec(pos, user, assigns), {
         state = assigns,
         on_receive_fields = receive_fields,
       })

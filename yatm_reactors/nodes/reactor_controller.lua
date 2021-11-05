@@ -1,4 +1,5 @@
 local cluster_reactor = assert(yatm.cluster.reactor)
+local fspec = assert(foundation.com.formspec.api)
 
 local function reactor_controller_refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
@@ -11,23 +12,21 @@ end
 
 local function get_reactor_controller_formspec(pos, node, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+  local node_inv_name = "nodemeta:" .. spos
+  local cio = fspec.calc_inventory_offset
 
-  local formspec =
-    "size[8,9]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "machine_radioactive")
-
-  if node.name == "yatm_reactors:reactor_controller_on" then
-    formspec = formspec .. "button[1,1;4,2;stop;Stop]"
-  else
-    formspec = formspec .. "button[1,1;4,2;start;Start]"
-  end
-
-  formspec =
-    formspec ..
-    "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]"
-
-  return formspec
+  return yatm.formspec_render_split_inv_panel(user, 8, 2, { bg = "machine_radioactive" }, function (loc, rect)
+    if loc == "main_body" then
+      if node.name == "yatm_reactors:reactor_controller_on" then
+        return fspec.button(rect.x, rect.y, 4, 2, "stop", "Stop")
+      else
+        return fspec.button(rect.x, rect.y, 4, 2, "start", "Start")
+      end
+    elseif loc == "footer" then
+      return ""
+    end
+    return ""
+  end)
 end
 
 local function reactor_controller_on_receive_fields(player, formname, fields, assigns)
@@ -52,7 +51,7 @@ local function reactor_controller_on_rightclick(pos, node, user)
   local assigns = { pos = pos, node = node }
   local formspec = get_reactor_controller_formspec(pos, node, user, assigns)
 
-  yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
+  nokore.formspec_bindings:show_formspec(user:get_player_name(), formspec_name, formspec, {
     state = assigns,
     on_receive_fields = reactor_controller_on_receive_fields
   })
