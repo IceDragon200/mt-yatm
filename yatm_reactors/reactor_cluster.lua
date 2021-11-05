@@ -78,13 +78,15 @@ local function linear_explore(size_limit, origin, cluster, dir)
   local to_visit = {origin}
   local seen = {}
   local valid = true
+  local old_to_visit
+  local next_pos
 
   while #to_visit > 0 do
     if not valid then
       break
     end
 
-    local old_to_visit = to_visit
+    old_to_visit = to_visit
     to_visit = {}
 
     for _,pos in ipairs(old_to_visit) do
@@ -92,14 +94,14 @@ local function linear_explore(size_limit, origin, cluster, dir)
         last_pos = pos
         total_distance = total_distance + 1
 
-        if pos.l > size_limit then
+        if pos.w and pos.w > size_limit then
           valid = false
           break
         end
 
-        local next_pos = vector.add(pos, DIR6_TO_VEC3[dir])
+        next_pos = vector.add(pos, DIR6_TO_VEC3[dir])
 
-        next_pos.l = (pos.l or 0) + 1
+        next_pos.w = (pos.w or 0) + 1
 
         table.insert(to_visit, next_pos)
       end
