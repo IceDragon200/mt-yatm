@@ -1,8 +1,7 @@
 --[[
 
-  Compute Modules are no-op blocks that act as a bonus modifier to assemblers on the network.
-
-  Each compute module will speed up the auto-crafting by parallel processing other requests.
+  Compute modules take a recipe from a server and then tries to complete it by
+  co-operating with the inventory controllers to find the necessary ingredients
 
 ]]
 local cluster_devices = assert(yatm.cluster.devices)

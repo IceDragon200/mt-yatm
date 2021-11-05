@@ -5,84 +5,83 @@
 local Energy = assert(yatm.energy)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
+local player_service = assert(nokore.player_service)
 local fspec = assert(foundation.com.formspec.api)
 
 local function get_formspec_name(pos)
   return "yatm_dscs:void_chest:" .. minetest.pos_to_string(pos)
 end
 
-local function get_void_chest_formspec(pos, player_name, assigns)
+local function get_formspec(pos, user, assigns)
+  assert(pos, "expected a node position")
+  assert(user, "expected a user")
+  assert(assigns, "expected assigns")
+
   local meta = minetest.get_meta(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+  local node_inv_name = "nodemeta:" .. spos
+  local cio = fspec.calc_inventory_offset
   local inv = meta:get_inventory()
   local stack = inv:get_stack("drive_slot", 1)
   local label = ""
   local capacity = 0
+
+  local cols = yatm.get_player_hotbar_size(user)
+  local rows = 4
+
+  local page_size = rows * cols
+  local row_count = math.ceil(capacity / page_size)
+
   assigns.drive_contents_offset = assigns.drive_contents_offset or 0
+  assigns.drive_contents_offset =
+    math.max(math.min(assigns.drive_contents_offset, row_count - 1), 0)
+
+  local row_offset = assigns.drive_contents_offset * page_size
 
   if yatm.dscs.is_item_stack_item_drive(stack) then
     capacity = stack:get_definition().drive_capacity
     label = stack:get_meta():get_string("drive_label")
   end
 
-  local entity = nil
+  return yatm.formspec_render_split_inv_panel(user, cols + 1, rows + 1, { bg = "dscs" }, function (loc, rect)
+    if loc == "main_body" then
+      local blob = fspec.list(node_inv_name, "drive_slot", rect.x, rect.y, 1, 1)
 
-  local cols = yatm.get_player_hotbar_size(entity)
-  local rows = 4
+      if capacity > 0 then
+        local fw = rect.w - 1
+        local fh = 1
 
-  local w = yatm.get_player_hotbar_size(entity)
-  local h = 10
+        blob =
+          blob ..
+          fspec.field_area(rect.x + 1, rect.y, fw, fh, "drive_label", "Drive Label", label) ..
+          fspec.list(node_inv_name, "drive_contents", rect.x, rect.y + cio(1), cols, rows, row_offset)
+      end
 
-  local page_size = rows * cols
+      if row_count > 1 then
+        local px = rect.x + w - 1
 
-  local formspec =
-    fspec.size(w, h) ..
-    yatm.formspec_bg_for_player(player_name, "dscs")
+        blob =
+          blob ..
+          fspec.button(px, rect.y + cio(1), 1, 1, "pgup", "Up") ..
+          fspec.label(px, rect.y + cio(2), (assigns.drive_contents_offset + 1) .. "/" .. row_count) ..
+          fspec.button(px, rect.y + cio(3), 1, 1, "pgdown", "Down")
+      end
 
-  local row_count = math.ceil(capacity / page_size)
-  assigns.drive_contents_offset = math.min(math.max(assigns.drive_contents_offset, 0), row_count - 1)
-  local row_offset = assigns.drive_contents_offset * page_size
-
-  formspec =
-    formspec ..
-    fspec.label(0, 0, "Void Chest") ..
-    fspec.list("nodemeta:"..spos, "drive_slot", 0, 0.5, 1, 1)
-
-  if capacity > 0 then
-    formspec =
-      formspec ..
-      fspec.field_area(1.25, 1, w - 1, 1, "drive_label", "Drive Label", label) ..
-      fspec.list("nodemeta:"..spos, "drive_contents", 0, 1.5, cols, rows, row_offset)
-  end
-
-  formspec =
-    formspec ..
-    yatm.player_inventory_lists_fragment(entity, 0, 5.85) ..
-    fspec.list_ring("current_player", "main")
-
-  if capacity > 0 then
-    formspec =
-      formspec ..
-      fspec.list_ring("nodemeta:"..spos, "drive_contents") ..
-      fspec.list_ring("current_player", "main")
-  end
-
-  if row_count > 1 then
-    formspec =
-      formspec ..
-      fspec.button(w - 1, 1.5, 1, 1, "up", "Up") ..
-      fspec.label(w - 1, 3.5, (assigns.drive_contents_offset + 1) .. "/" .. row_count) ..
-      fspec.button(w - 1, 4.5, 1, 1, "down", "Down")
-  end
-
-  return formspec
+      return blob
+    elseif loc == "footer" then
+      if capacity > 0 then
+        return fspec.list_ring("nodemeta:"..spos, "drive_contents") ..
+               fspec.list_ring("current_player", "main")
+      end
+    end
+    return ""
+  end)
 end
 
-local function refresh_formspec(pos, player)
-  minetest.after(0, function ()
-    yatm_core.refresh_player_formspec(player, get_formspec_name(pos), function (player_name, assigns)
-      return get_void_chest_formspec(assigns.pos, player_name, assigns)
-    end)
+local function refresh_formspec(pos)
+  nokore.formspec_bindings:refresh_formspecs(get_formspec_name(pos), function (player_name, assigns)
+    local player = player_service:get_player_by_name(player_name)
+    return get_formspec(pos, player, assigns)
   end)
 end
 
@@ -159,18 +158,19 @@ local function on_metadata_inventory_move(pos, from_list, from_index, to_list, t
   end
 end
 
-local function on_metadata_inventory_put(pos, listname, index, stack, player)
+local function on_metadata_inventory_put(pos, listname, index, item_stack, player)
   if listname == "drive_slot" then
-    if yatm.dscs.is_item_stack_item_drive(stack) then
+    if yatm.dscs.is_item_stack_item_drive(item_stack) then
       local meta = minetest.get_meta(pos)
       local inv = meta:get_inventory()
 
-      local list, capacity = yatm.dscs.load_inventory_list_from_drive(stack)
+      local list, capacity = yatm.dscs.load_inventory_list_from_drive(item_stack)
 
       inv:set_size("drive_contents", capacity)
       inv:set_list("drive_contents", list)
+      meta:set_string("drive_label", yatm.dscs.get_drive_label(item_stack))
 
-      refresh_formspec(pos, player)
+      refresh_formspec(pos)
 
       minetest.log("action", player:get_player_name() .. " installed a drive")
     end
@@ -179,15 +179,16 @@ local function on_metadata_inventory_put(pos, listname, index, stack, player)
   end
 end
 
-local function on_metadata_inventory_take(pos, listname, index, stack, player)
+local function on_metadata_inventory_take(pos, listname, index, item_stack, player)
   if listname == "drive_slot" then
-    if yatm.dscs.is_item_stack_item_drive(stack) then
+    if yatm.dscs.is_item_stack_item_drive(item_stack) then
       local meta = minetest.get_meta(pos)
       local inv = meta:get_inventory()
 
       inv:set_size("drive_contents", 0)
+      meta:set_string("drive_label", "")
 
-      refresh_formspec(pos, player)
+      refresh_formspec(pos)
 
       minetest.log("action", player:get_player_name() .. " removed a drive")
     end
@@ -210,21 +211,37 @@ local function receive_fields(player, formname, fields, assigns)
     end
   end
 
-  if fields["up"] then
+  if fields["pgup"] then
     assigns.drive_contents_offset = assigns.drive_contents_offset - 1
     needs_refresh = true
   end
 
-  if fields["down"] then
+  if fields["pgdown"] then
     assigns.drive_contents_offset = assigns.drive_contents_offset + 1
     needs_refresh = true
   end
 
   if needs_refresh then
-    return true, get_void_chest_formspec(assigns.pos, player, assigns)
+    return true, get_formspec(assigns.pos, player, assigns)
   else
     return true
   end
+end
+
+local function on_rightclick(pos, node, user, item_stack, pointed_thing)
+  local assigns = { pos = pos, node = node }
+  local formspec = get_formspec(pos, user, assigns)
+  local formspec_name = get_formspec_name(pos)
+
+  nokore.formspec_bindings:show_formspec(
+    user:get_player_name(),
+    formspec_name,
+    formspec,
+    {
+      state = assigns,
+      on_receive_fields = receive_fields
+    }
+  )
 end
 
 yatm.devices.register_stateful_network_device({
@@ -280,16 +297,7 @@ yatm.devices.register_stateful_network_device({
 
   yatm_network = void_chest_yatm_network,
 
-  on_rightclick = function (pos, node, user, item_stack, pointed_thing)
-    local assigns = { pos = pos, node = node }
-    local formspec = get_void_chest_formspec(pos, user:get_player_name(), assigns)
-    local formspec_name = get_formspec_name(pos)
-
-    yatm_core.show_bound_formspec(user:get_player_name(), formspec_name, formspec, {
-      state = assigns,
-      on_receive_fields = receive_fields
-    })
-  end,
+  on_rightclick = on_rightclick,
 
   refresh_infotext = function (pos)
     local meta = minetest.get_meta(pos)

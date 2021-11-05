@@ -14,6 +14,7 @@ function yatm.dscs.get_drive_stack_size(item_stack)
   return item_stack:get_definition().drive_stack_size
 end
 
+-- @spec set_drive_label(ItemStack, drive_label: String): ItemStack
 function yatm.dscs.set_drive_label(item_stack, drive_label)
   local meta = item_stack:get_meta()
   meta:set_string("drive_label", drive_label)
@@ -22,6 +23,13 @@ function yatm.dscs.set_drive_label(item_stack, drive_label)
   else
     meta:set_string("description", "")
   end
+  return item_stack
+end
+
+-- @spec get_drive_label(ItemStack): String
+function yatm.dscs.get_drive_label(item_stack)
+  local meta = item_stack:get_meta()
+  return meta:get_string("drive_label")
 end
 
 function yatm.dscs.load_fluid_inventory_from_drive(fluid_inventory_name, item_stack)
