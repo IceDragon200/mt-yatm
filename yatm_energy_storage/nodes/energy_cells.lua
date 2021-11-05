@@ -105,6 +105,7 @@ for cell_type, cell_config in pairs(cell_types) do
 
   for stage = 0,7 do
     groups = {
+      oddly_breakable_by_hand = 1,
       cracky = 1,
       yatm_energy_device = 1,
     }
@@ -178,6 +179,7 @@ for cell_type, cell_config in pairs(cell_types) do
     description = "Energy Cell ("..cell_type..") [Creative]",
 
     groups = {
+      oddly_breakable_by_hand = 1,
       cracky = 1,
       yatm_energy_device = 1,
     },
