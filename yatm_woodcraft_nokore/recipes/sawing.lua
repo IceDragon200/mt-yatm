@@ -2,6 +2,8 @@ local sawing_registry = assert(yatm.sawing.sawing_registry)
 
 local wood_types = {}
 
+local has_stairs = rawget(_G, "stairs") ~= nil
+
 if rawget(_G, "nokore_world_tree_acacia") then
   wood_types.acacia = true
 end
@@ -69,7 +71,7 @@ for wood_type,_ in pairs(wood_types) do
       0.25)
 
   -- Planks to Slabs
-  if stairs then
+  if has_stairs then
     reg("yatm_woodcraft:"..wood_type.."_planks_to_slabs",
         ItemStack(planks_name),
         {
@@ -81,7 +83,7 @@ for wood_type,_ in pairs(wood_types) do
   -- Slabs to Panels
   -- Slabs are half of a plank, which doing the math, is 8px tall
   -- Panels or Plates are 2px tall, so `slab > panel` should produce 4 panels.
-  if stairs then
+  if has_stairs then
     reg("yatm_woodcraft:"..wood_type.."_slabs_to_panels",
         ItemStack(slab_name),
         {
@@ -91,7 +93,7 @@ for wood_type,_ in pairs(wood_types) do
   end
 
   -- Fallback Plank to Panels
-  if not stairs then
+  if not has_stairs then
     yatm.info("Falling back to plank to panel recipes")
 
     reg("yatm_woodcraft:"..wood_type.."_planks_to_panels",

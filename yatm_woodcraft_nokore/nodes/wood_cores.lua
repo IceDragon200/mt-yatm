@@ -1,3 +1,5 @@
+local mod = yatm_woodcraft_nokore
+
 local wood_types = {}
 
 -- Nokore World Tree *
@@ -66,27 +68,61 @@ if rawget(_G, "nokore_world_tree_willow") then
 end
 
 for wood_basename, wood_config in pairs(wood_types) do
+  local sounds = nokore.node_sounds:build("wood")
+  local tiles = {
+    "yatm_wood_core_nokore_" .. wood_config.default_basename .. ".top.png",
+    "yatm_wood_core_nokore_" .. wood_config.default_basename .. ".top.png",
+    "yatm_wood_core_nokore_" .. wood_config.default_basename .. ".side.png",
+    "yatm_wood_core_nokore_" .. wood_config.default_basename .. ".side.png",
+    "yatm_wood_core_nokore_" .. wood_config.default_basename .. ".side.png",
+    "yatm_wood_core_nokore_" .. wood_config.default_basename .. ".side.png",
+  }
+
   minetest.register_node(":yatm_woodcraft:" .. wood_basename .. "_core", {
     basename = "yatm_woodcraft:wood_core",
     base_description = "Tree Core",
 
-    description = wood_config.name .. " Core",
+    description = mod.S(wood_config.name .. " Core"),
 
     groups = {
       choppy = 1,
       wood = 1,
     },
 
-    tiles = {
-      "yatm_wood_core_nokore_" .. wood_config.default_basename .. ".top.png",
-      "yatm_wood_core_nokore_" .. wood_config.default_basename .. ".top.png",
-      "yatm_wood_core_nokore_" .. wood_config.default_basename .. ".side.png",
-      "yatm_wood_core_nokore_" .. wood_config.default_basename .. ".side.png",
-      "yatm_wood_core_nokore_" .. wood_config.default_basename .. ".side.png",
-      "yatm_wood_core_nokore_" .. wood_config.default_basename .. ".side.png",
-    },
+    use_texture_alpha = "opaque",
+    tiles = tiles,
+
+    sounds = sounds,
 
     paramtype = "none",
     paramtype2 = "facedir",
+  })
+
+  nokore_stairs.build_and_register_nodes(":yatm_woodcraft:" .. wood_basename .. "_core", {
+    -- base
+    _ = {
+      groups = {cracky = 3, stone = 2},
+      tiles = tiles,
+      sounds = sounds,
+    },
+    column = {
+      description = mod.S(wood_config.name .. " Column"),
+    },
+    plate = false,
+    --plate = {
+    --  description = mod.S(wood_config.name .. " Plate"),
+    --}, -- panels replace these
+    slab = {
+      description = mod.S(wood_config.name .. " Slab"),
+    },
+    stair = {
+      description = mod.S(wood_config.name .. " Stair"),
+    },
+    stair_inner = {
+      description = mod.S(wood_config.name .. " Stair Inner"),
+    },
+    stair_outer = {
+      description = mod.S(wood_config.name .. " Stair Outer"),
+    },
   })
 end
