@@ -46,79 +46,83 @@ local quarry_yatm_network = {
 }
 
 function quarry_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
-  local meta = minetest.get_meta(pos)
+  if available_energy > 200 then
+    local meta = minetest.get_meta(pos)
 
-  -- get current cursor position
-  local cx = meta:get_int("cx")
-  local cy = meta:get_int("cy")
-  local cz = meta:get_int("cz")
+    -- get current cursor position
+    local cx = meta:get_int("cx")
+    local cy = meta:get_int("cy")
+    local cz = meta:get_int("cz")
 
-  local delta_x = meta:get_int("dx")
-  if delta_x == 0 then
-    delta_x = 1
+    local delta_x = meta:get_int("dx")
+    if delta_x == 0 then
+      delta_x = 1
+    end
+    local delta_z = meta:get_int("dz")
+    if delta_z == 0 then
+      delta_z = 1
+    end
+
+    -- determine coords matrix
+    local north_dir = Directions.facedir_to_face(node.param2, Directions.D_NORTH)
+    local east_dir = Directions.facedir_to_face(node.param2, Directions.D_EAST)
+    local down_dir = Directions.facedir_to_face(node.param2, Directions.D_DOWN)
+
+    local nv = Directions.DIR6_TO_VEC3[north_dir]
+    local ev = Directions.DIR6_TO_VEC3[east_dir]
+    local dv = Directions.DIR6_TO_VEC3[down_dir]
+
+    local new_nv = vector.multiply(nv, cz)
+    local new_ev = vector.multiply(ev, cx)
+    local new_dv = vector.multiply(dv, cy)
+
+    local cursor_relative_pos = vector.add(vector.add(new_nv, new_ev), new_dv)
+    cursor_relative_pos = vector.add(cursor_relative_pos, north_dir) -- the cursor is always 1 step ahead of the quarry
+    local cursor_pos = vector.add(pos, cursor_relative_pos)
+
+    -- TODO: respect permissions
+    print("Removing " .. minetest.pos_to_string(cursor_pos))
+    minetest.remove_node(cursor_pos)
+    -- TODO: store removed node, or determine if it can be stored
+
+    -- Finally move the cursor to the next location
+    cx = cx + delta_x
+
+    if cx > 7 then
+      cx = 7 -- clamp
+      delta_x = -1 -- reverse delta
+      cz = cz + delta_z
+    elseif cx < -8 then
+      cx = -8
+      delta_x = 1
+      cz = cz + delta_z
+    end
+
+    if cz > 16 then
+      cz = 16
+      delta_z = -1
+      delta_x = -delta_x
+      cy = cy + 1
+    elseif cz < 0 then
+      cz = 0
+      delta_z = 1
+      delta_x = -delta_x
+      cy = cy + 1
+    end
+
+    meta:set_int("cx", cx)
+    meta:set_int("cy", cy)
+    meta:set_int("cz", cz)
+    meta:set_int("dx", delta_x)
+    meta:set_int("dz", delta_z)
+
+    -- TODO: Spawn a cursor entity which marks the position the quarry is currently working on.
+    --       The cursor should have a simple animation where lines go up the sides of the cube.
+    --       Once the lines reach the top, the target node is removed and added to the internal inventory.
+    --       Then the cursor moves to the next tile and repeats.
+
+    return 200
   end
-  local delta_z = meta:get_int("dz")
-  if delta_z == 0 then
-    delta_z = 1
-  end
-
-  -- determine coords matrix
-  local north_dir = Directions.facedir_to_face(node.param2, Directions.D_NORTH)
-  local east_dir = Directions.facedir_to_face(node.param2, Directions.D_EAST)
-  local down_dir = Directions.facedir_to_face(node.param2, Directions.D_DOWN)
-
-  local nv = Directions.DIR6_TO_VEC3[north_dir]
-  local ev = Directions.DIR6_TO_VEC3[east_dir]
-  local dv = Directions.DIR6_TO_VEC3[down_dir]
-
-  local new_nv = vector.multiply(nv, cz)
-  local new_ev = vector.multiply(ev, cx)
-  local new_dv = vector.multiply(dv, cy)
-
-  local cursor_relative_pos = vector.add(vector.add(new_nv, new_ev), new_dv)
-  cursor_relative_pos = vector.add(cursor_relative_pos, north_dir) -- the cursor is always 1 step ahead of the quarry
-  local cursor_pos = vector.add(pos, cursor_relative_pos)
-
-  -- TODO: respect permissions
-  print("Removing " .. minetest.pos_to_string(cursor_pos))
-  minetest.remove_node(cursor_pos)
-  -- TODO: store removed node, or determine if it can be stored
-
-  -- Finally move the cursor to the next location
-  cx = cx + delta_x
-
-  if cx > 7 then
-    cx = 7 -- clamp
-    delta_x = -1 -- reverse delta
-    cz = cz + delta_z
-  elseif cx < -8 then
-    cx = -8
-    delta_x = 1
-    cz = cz + delta_z
-  end
-
-  if cz > 16 then
-    cz = 16
-    delta_z = -1
-    delta_x = -delta_x
-    cy = cy + 1
-  elseif cz < 0 then
-    cz = 0
-    delta_z = 1
-    delta_x = -delta_x
-    cy = cy + 1
-  end
-
-  meta:set_int("cx", cx)
-  meta:set_int("cy", cy)
-  meta:set_int("cz", cz)
-  meta:set_int("dx", delta_x)
-  meta:set_int("dz", delta_z)
-
-  -- TODO: Spawn a cursor entity which marks the position the quarry is currently working on.
-  --       The cursor should have a simple animation where lines go up the sides of the cube.
-  --       Once the lines reach the top, the target node is removed and added to the internal inventory.
-  --       Then the cursor moves to the next tile and repeats.
 
   return 0
 end
