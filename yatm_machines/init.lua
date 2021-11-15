@@ -23,11 +23,7 @@ startup_energy_threshold :: integer
 ]]
 local mod = foundation.new_module("yatm_machines", "2.0.0")
 
-mod:require("compacting_registry.lua")
-mod:require("condensing_registry.lua")
-mod:require("freezing_registry.lua")
-mod:require("grinding_registry.lua")
-mod:require("rolling_registry.lua")
+mod:require("registries.lua")
 
 mod:require("api.lua")
 mod:require("nodes.lua")

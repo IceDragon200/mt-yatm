@@ -1,6 +1,6 @@
 local FluidStack = assert(yatm.fluids.FluidStack)
 
-local CondensingRecipe = foundation.com.Class:extends("CondensingRecipe")
+local CondensingRecipe = foundation.com.Class:extends("yatm_machines.CondensingRecipe")
 do
   local ic = CondensingRecipe.instance_class
 
@@ -18,7 +18,7 @@ end
 --
 -- Registry
 --
-local CondensingRegistry = foundation.com.Class:extends("CondensingRegistry")
+local CondensingRegistry = foundation.com.Class:extends("yatm_machines.CondensingRegistry")
 do
   local ic = CondensingRegistry.instance_class
 

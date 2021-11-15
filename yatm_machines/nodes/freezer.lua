@@ -16,6 +16,8 @@ local FluidStack = assert(yatm.fluids.FluidStack)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local fspec = assert(foundation.com.formspec.api)
 
+local ITEM_INV_SIZE = 9
+
 local freezer_item_interface = ItemInterface.new_directional(function (self, pos, dir)
   local node = minetest.get_node(pos)
 
@@ -62,103 +64,59 @@ local freezer_yatm_network = {
   },
 }
 
-function freezer_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
+function freezer_yatm_network.work(pos, node, available_energy, work_rate, dtime, trace)
   --
   -- So the freezer takes either fluids or input items and then, well freezes them
   -- In the case of fluids, they need to be registered with a transition fluid
-  -- And a duration, since the freeze accepts up to 9 items (and 1 fluid),
+  -- And a duration, since the freezer accepts up to 9 items (and 1 fluid),
   -- it can operate on 10 elements at a time, BUT, it can only store the result of
   -- 9 of those, so be careful.
   --
+  local span
+
   local meta = minetest.get_meta(pos)
 
   local inv = meta:get_inventory()
 
+  if trace then
+    span = trace:span_start("fluid")
+  end
   -- input0 is reserved for the fluid
   do
     local remaining_dtime = dtime
-    while remaining_dtime > 0 do
-      local fluid_stack = FluidMeta.get_fluid_stack(meta, "tank")
+    local fluid_stack
+    local recipe
+    local recipe_name
+    local item_time
+    local item_duration
+    local new_item_time
 
-      local recipe = freezing_registry:find_fluid_freezing_recipe(fluid_stack)
+    fluid_stack = FluidMeta.get_fluid_stack(meta, "tank")
 
-      if recipe then
-        local recipe_name = meta:get_string("recipe_name_0")
+    if not FluidStack.is_empty(fluid_stack) then
+      while remaining_dtime > 0 do
+        fluid_stack = FluidMeta.get_fluid_stack(meta, "tank")
 
-        if recipe.name ~= recipe_name then
-          meta:set_string("recipe_name_0", recipe.name)
-          meta:set_float("input_time_0", recipe.duration)
-          meta:set_float("input_duration_0", recipe.duration)
-        end
-
-        local item_time = meta:get_int("input_time_0")
-        local item_duration = meta:get_int("input_duration_0")
-
-        local new_item_time = math.max(item_time - remaining_dtime, 0)
-
-        meta:set_float("input_time_0", new_item_time)
-        remaining_dtime = remaining_dtime - (item_time - new_item_time)
-
-        item_time = meta:get_float("input_time_0")
-
-        if item_time <= 0 then
-          -- try adding the result
-          if inv:room_for_item(recipe.output_item_stack) then
-            item_stack:take_item(recipe.input_item_stack:get_count())
-            inv:set_stack("input_items", i, item_stack)
-            inv:add_item("output_items", recipe.output_item_stack)
-
-            meta:set_string("recipe_name_0", "")
-            meta:set_float("input_time_0", -1)
-            meta:set_float("input_duration_0", -1)
-          else
-            -- hold the items until the next work step
-            break
-          end
-        else
-          break
-        end
-      else
-        meta:set_string("recipe_name_0", "")
-        meta:set_float("input_time_0", -1)
-        meta:set_float("input_duration_0", -1)
-        break
-      end
-    end
-  end
-
-  -- input1..9 is for items
-  for i = 1,9 do
-    local remaining_dtime = dtime
-    while remaining_dtime > 0 do
-      local item_stack = inv:get_stack("input_items", i)
-
-      if item_stack:is_empty() then
-        meta:set_string("recipe_name_" .. i, "")
-        meta:set_float("input_time_" .. i, -1)
-        meta:set_float("input_duration_" .. i, -1)
-        break
-      else
-        local recipe = freezing_registry:find_item_freezing_recipe(item_stack)
+        recipe = freezing_registry:find_fluid_freezing_recipe(fluid_stack)
 
         if recipe then
-          local recipe_name = meta:get_string("recipe_name_" .. i)
+          recipe_name = meta:get_string("recipe_name_0")
 
           if recipe.name ~= recipe_name then
-            meta:set_string("recipe_name_" .. i, recipe.name)
-            meta:set_float("input_time_" .. i, recipe.duration)
-            meta:set_float("input_duration_" .. i, recipe.duration)
+            meta:set_string("recipe_name_0", recipe.name)
+            meta:set_float("input_time_0", recipe.duration)
+            meta:set_float("input_duration_0", recipe.duration)
           end
 
-          local item_time = meta:get_int("input_time_" .. i)
-          local item_duration = meta:get_int("input_duration_" .. i)
+          item_time = meta:get_int("input_time_0")
+          item_duration = meta:get_int("input_duration_0")
 
-          local new_item_time = math.max(item_time - remaining_dtime, 0)
+          new_item_time = math.max(item_time - remaining_dtime, 0)
 
-          meta:set_float("input_time_" .. i, new_item_time)
+          meta:set_float("input_time_0", new_item_time)
           remaining_dtime = remaining_dtime - (item_time - new_item_time)
 
-          item_time = meta:get_float("input_time_" .. i)
+          item_time = meta:get_float("input_time_0")
 
           if item_time <= 0 then
             -- try adding the result
@@ -167,9 +125,9 @@ function freezer_yatm_network.work(pos, node, available_energy, work_rate, dtime
               inv:set_stack("input_items", i, item_stack)
               inv:add_item("output_items", recipe.output_item_stack)
 
-              meta:set_string("recipe_name_" .. i, "")
-              meta:set_float("input_time_" .. i, -1)
-              meta:set_float("input_duration_" .. i, -1)
+              meta:set_string("recipe_name_0", "")
+              meta:set_float("input_time_0", -1)
+              meta:set_float("input_duration_0", -1)
             else
               -- hold the items until the next work step
               break
@@ -178,13 +136,91 @@ function freezer_yatm_network.work(pos, node, available_energy, work_rate, dtime
             break
           end
         else
-          meta:set_string("recipe_name_" .. i, "")
-          meta:set_float("input_time_" .. i, -1)
-          meta:set_float("input_duration_" .. i, -1)
+          meta:set_string("recipe_name_0", "")
+          meta:set_float("input_time_0", -1)
+          meta:set_float("input_duration_0", -1)
           break
         end
       end
     end
+  end
+  if span then
+    span:span_end()
+  end
+
+  if trace then
+    span = trace:span_start("items")
+  end
+  -- input1..(ITEM_INV_SIZE) is for items
+  if not inv:is_empty("input_items") then
+    for i = 1,ITEM_INV_SIZE do
+      local remaining_dtime = dtime
+      local item_stack
+      local recipe
+      local recipe_name
+      local item_time
+      local item_duration
+      local new_item_time
+
+      while remaining_dtime > 0 do
+        item_stack = inv:get_stack("input_items", i)
+
+        if item_stack:is_empty() then
+          meta:set_string("recipe_name_" .. i, "")
+          meta:set_float("input_time_" .. i, -1)
+          meta:set_float("input_duration_" .. i, -1)
+          break
+        else
+          recipe = freezing_registry:find_item_freezing_recipe(item_stack)
+
+          if recipe then
+            recipe_name = meta:get_string("recipe_name_" .. i)
+
+            if recipe.name ~= recipe_name then
+              meta:set_string("recipe_name_" .. i, recipe.name)
+              meta:set_float("input_time_" .. i, recipe.duration)
+              meta:set_float("input_duration_" .. i, recipe.duration)
+            end
+
+            item_time = meta:get_int("input_time_" .. i)
+            item_duration = meta:get_int("input_duration_" .. i)
+
+            new_item_time = math.max(item_time - remaining_dtime, 0)
+
+            meta:set_float("input_time_" .. i, new_item_time)
+            remaining_dtime = remaining_dtime - (item_time - new_item_time)
+
+            item_time = meta:get_float("input_time_" .. i)
+
+            if item_time <= 0 then
+              -- try adding the result
+              if inv:room_for_item(recipe.output_item_stack) then
+                item_stack:take_item(recipe.input_item_stack:get_count())
+                inv:set_stack("input_items", i, item_stack)
+                inv:add_item("output_items", recipe.output_item_stack)
+
+                meta:set_string("recipe_name_" .. i, "")
+                meta:set_float("input_time_" .. i, -1)
+                meta:set_float("input_duration_" .. i, -1)
+              else
+                -- hold the items until the next work step
+                break
+              end
+            else
+              break
+            end
+          else
+            meta:set_string("recipe_name_" .. i, "")
+            meta:set_float("input_time_" .. i, -1)
+            meta:set_float("input_duration_" .. i, -1)
+            break
+          end
+        end
+      end
+    end
+  end
+  if span then
+    span:span_end()
   end
 
   -- yeah 100 units, regardless
@@ -195,10 +231,10 @@ local function freezer_on_construct(pos)
   local meta = minetest.get_meta(pos)
 
   local inv = meta:get_inventory()
-  inv:set_size("input_items", 9)
-  inv:set_size("output_items", 9)
+  inv:set_size("input_items", ITEM_INV_SIZE)
+  inv:set_size("output_items", ITEM_INV_SIZE)
 
-  for i = 0,9 do
+  for i = 0,ITEM_INV_SIZE do
     meta:set_int("input_time_" .. i, -1)
     meta:set_int("input_duration_" .. i, -1)
   end
