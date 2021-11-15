@@ -368,7 +368,10 @@ end
 
 local loading_system = LoadingSystem:new()
 
-minetest.register_globalstep(loading_system:method("update"))
+nokore_proxy.register_globalstep(
+  "yatm_item_shelves.update/1",
+  loading_system:method("update")
+)
 
 minetest.register_lbm({
   label = "Refresh Shelf Contents",

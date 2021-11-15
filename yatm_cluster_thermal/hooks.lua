@@ -6,7 +6,10 @@ yatm.clusters:register_node_event_handler(CLUSTER_GROUP, yatm.cluster.thermal:me
 yatm.clusters:observe('terminate', 'yatm_cluster_thermal:terminate', yatm.cluster.thermal:method('terminate'))
 
 yatm_cluster_thermal.thermal_system = yatm_cluster_thermal.ThermalSystem:new()
-yatm.cluster.thermal:register_system("yatm_cluster_thermal:thermal_logic", yatm_cluster_thermal.thermal_system:method("update"))
+yatm.cluster.thermal:register_system(
+  "yatm_cluster_thermal:thermal_logic",
+  yatm_cluster_thermal.thermal_system:method("update")
+)
 
 yatm.cluster_tool.register_cluster_tool_render(CLUSTER_GROUP, yatm.cluster.thermal:method("cluster_tool_render"))
 

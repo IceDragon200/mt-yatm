@@ -143,9 +143,10 @@ yatm_fluid_pipes.fluid_transport_network = FluidTransportNetwork:new({
 })
 
 do
-  minetest.register_globalstep(function (delta)
-    yatm_fluid_pipes.fluid_transport_network:update(delta)
-  end)
+  nokore_proxy.register_globalstep(
+    "yatm_fluid_pipes.update/1",
+    yatm_fluid_pipes.fluid_transport_network:method("update")
+  )
 
   minetest.register_lbm({
     name = "yatm_fluid_pipes:fluid_transport_network_reload_lbm",

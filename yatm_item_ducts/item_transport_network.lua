@@ -182,9 +182,10 @@ yatm_item_ducts.item_transport_network = ItemTransportNetwork:new({
 })
 
 do
-  minetest.register_globalstep(function (delta)
-    yatm_item_ducts.item_transport_network:update(delta)
-  end)
+  nokore_proxy.register_globalstep(
+    "yatm_item_ducts.update/1",
+    yatm_item_ducts.item_transport_network:method("update")
+  )
 
   minetest.register_lbm({
     name = "yatm_item_ducts:item_transport_network_reload_lbm",

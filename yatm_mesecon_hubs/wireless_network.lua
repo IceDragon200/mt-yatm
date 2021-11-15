@@ -91,12 +91,12 @@ function ic:dispatch_queued()
   end
 end
 
-function ic:update(dtime)
+function ic:update(dtime, trace)
   local counter = self.m_counter
 
-  local ot = Trace.new("yatm_mesecon_hubs.wireless_network", "update/1")
+  local span = span:span_start("dispatch_queued/0")
   self:dispatch_queued()
-  Trace.span_end(ot)
+  span:span_end()
   --Trace.inspect(ot)
 
   self.m_counter = counter + 1
@@ -109,7 +109,10 @@ end
 
 local wireless_network = WirelessNetwork:new()
 
-minetest.register_globalstep(wireless_network:method("update"))
+nokore_proxy.register_globalstep(
+  "yatm_mesecon_hubs.update/1",
+  wireless_network:method("update")
+)
 minetest.register_on_shutdown(wireless_network:method("terminate"))
 
 minetest.register_lbm({

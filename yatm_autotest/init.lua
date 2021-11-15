@@ -131,7 +131,7 @@ minetest.register_on_shutdown(function ()
   autotest:on_shutdown()
 end)
 
-minetest.register_globalstep(function (dtime)
+nokore_proxy.register_globalstep("yatm_autotest.update/1", function (dtime)
   autotest:update(dtime)
 end)
 

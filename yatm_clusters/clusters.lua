@@ -714,41 +714,51 @@ do
     end
   end
 
+  -- default = 1 / 4 -- (every 250ms)
+  local UPDATE_RATE = 1 / 60 -- every 16ms
+
   --
   -- Update
   --
-  function ic:update(dtime)
+  function ic:update(dtime, trace)
     self.m_counter = self.m_counter + 1
 
     --
     -- Resolve any active block events, or expire dead blocks
     --
-    self:_update_active_blocks(dtime)
+    self:_update_active_blocks(dtime, trace)
 
     --
     -- Resolve any queued node events
     --
-    self:_resolve_node_events(dtime)
+    self:_resolve_node_events(dtime, trace)
 
     self.m_acc_dtime = self.m_acc_dtime + dtime
 
-    while self.m_acc_dtime > 0.25 do
-      self.m_acc_dtime = self.m_acc_dtime - 0.25
+    while self.m_acc_dtime > UPDATE_RATE do
+      self.m_acc_dtime = self.m_acc_dtime - UPDATE_RATE
 
       --
       -- Run update logic against clusters with systems
       --
-      self:_update_systems(0.25)
+      self:_update_systems(UPDATE_RATE, trace)
 
       --
       -- Run any other cluster updates
       --
-      self:_update_clusters(0.25)
+      self:_update_clusters(UPDATE_RATE, trace)
     end
   end
 
-  function ic:_update_active_blocks(dtime)
+  function ic:_update_active_blocks(dtime, trace)
     local has_expired_blocks = false
+
+
+    local span
+
+    if trace then
+      span = trace:span_start("_update_active_blocks")
+    end
 
     for block_hash,entry in pairs(self.m_active_blocks) do
       if (self.m_counter - entry.counter) > 3 then
@@ -777,6 +787,10 @@ do
         end
       end
     end
+
+    if span then
+      span:span_end()
+    end
   end
 
   function ic:register_node_event_handler(cluster_group, handler)
@@ -785,41 +799,88 @@ do
     return self
   end
 
-  function ic:_resolve_node_events(dtime)
+  function ic:_resolve_node_events(dtime, trace)
+    local span
+
+    if trace then
+      span = trace:span_start("_resolve_node_events")
+    end
+
     if not is_table_empty(self.m_queued_node_events) then
       local old_events = self.m_queued_node_events
+      local handler
+      local cluster_ids
+
       self.m_queued_node_events = {}
       for node_id,events in pairs(old_events) do
         for _,event in ipairs(events) do
-          local handler = self.m_node_event_handlers[event.cluster_group]
+          handler = self.m_node_event_handlers[event.cluster_group]
 
           if handler then
-            local cluster_ids = self.m_group_clusters[event.cluster_group]
+            cluster_ids = self.m_group_clusters[event.cluster_group]
 
             handler(self, self.m_counter, event, cluster_ids)
           end
         end
       end
     end
+
+    if span then
+      span:span_end()
+    end
   end
 
-  function ic:_update_systems(dtime)
+  function ic:_update_systems(dtime, mod_trace)
+    local cluster_ids
+    local cluster
+    local func_trace
+    local sys_trace
+    local cls_trace
+
+    if mod_trace then
+      func_trace = mod_trace:span_start("_update_systems")
+    end
+
     for system_id, system in pairs(self.m_systems) do
-      local cluster_ids = self.m_group_clusters[system.cluster_group]
+      if func_trace then
+        sys_trace = func_trace:span_start(system_id)
+      end
+
+      cluster_ids = self.m_group_clusters[system.cluster_group]
       if cluster_ids then
         for cluster_id, _ in pairs(cluster_ids) do
-          local cluster = self.m_clusters[cluster_id]
+          cluster = self.m_clusters[cluster_id]
           if cluster then
-            system.update(self, cluster, dtime)
+            if sys_trace then
+              cls_trace = sys_trace:span_start(cluster_id)
+            end
+            system.update(self, cluster, dtime, cls_trace)
+            if cls_trace then
+              cls_trace:span_end()
+            end
           else
             print("clusters", "WARN", "missing cluster cluster_id=" .. cluster_id)
           end
         end
       end
+
+      if sys_trace then
+        sys_trace:span_end()
+      end
+    end
+
+    if func_trace then
+      func_trace:span_end()
     end
   end
 
-  function ic:_update_clusters(dtime)
+  function ic:_update_clusters(dtime, trace)
+    local span
+
+    if trace then
+      span = trace:span_start("_update_clusters")
+    end
+
     local contains_empty_clusters = false
     for cluster_id, cluster in pairs(self.m_clusters) do
       if cluster:is_empty() then
@@ -842,6 +903,10 @@ do
       for cluster_id, _ in pairs(dead_clusters) do
         self:destroy_cluster(cluster_id, 'empty')
       end
+    end
+
+    if span then
+      span:span_end()
     end
   end
 

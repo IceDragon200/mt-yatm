@@ -27,6 +27,8 @@
 --   only receive energy that was produced, and not energy that was stored.
 --
 -- See the energy_system.lua for implementation details.
+
+-- @namespace yatm_cluster_energy.EnergyDevices
 local EnergyDevices = {}
 
 local function get_energy_interface_function(pos, node, function_name)
@@ -60,9 +62,9 @@ end
 --
 -- This is only valid for `energy_producer` device nodes.
 --
--- @spec EnergyDevices.produce_energy(pos: Vector3, node: Node, dtime: Float, ot: Trace) :: Integer | nil
-function EnergyDevices.produce_energy(pos, node, dtime, ot)
-  return get_energy_interface_function(pos, node, "produce_energy")(pos, node, dtime, ot)
+-- @spec produce_energy(pos: Vector3, node: Node, dtime: Float, trace: Trace): Integer | nil
+function EnergyDevices.produce_energy(pos, node, dtime, trace)
+  return get_energy_interface_function(pos, node, "produce_energy")(pos, node, dtime, trace)
 end
 
 -- Requests the target node to report it's current 'usable' energy, usable need not be the full
@@ -70,9 +72,9 @@ end
 --
 -- This is only valid for `energy_storage` device nodes.
 --
--- @spec EnergyDevices.get_usable_stored_energy(pos: Vector3, node: Node, dtime: Float, ot: Trace) :: Integer | nil
-function EnergyDevices.get_usable_stored_energy(pos, node, dtime, ot)
-  return get_energy_interface_function(pos, node, "get_usable_stored_energy")(pos, node, dtime, ot)
+-- @spec get_usable_stored_energy(pos: Vector3, node: Node, dtime: Float, trace: Trace): Integer | nil
+function EnergyDevices.get_usable_stored_energy(pos, node, dtime, trace)
+  return get_energy_interface_function(pos, node, "get_usable_stored_energy")(pos, node, dtime, trace)
 end
 
 -- Requests that the target node use the provided energy `energy_available` and return how much it
@@ -84,9 +86,9 @@ end
 --
 -- This is only valid for `energy_consumer` device nodes.
 --
--- @spec EnergyDevices.consume_energy(pos: Vector3, node: Node, energy_available: Integer, dtime: Float, ot: Trace) :: Integer | nil
-function EnergyDevices.consume_energy(pos, node, energy_available, dtime, ot)
-  return get_energy_interface_function(pos, node, "consume_energy")(pos, node, energy_available, dtime, ot)
+-- @spec consume_energy(pos: Vector3, node: Node, energy_available: Integer, dtime: Float, trace: Trace): Integer | nil
+function EnergyDevices.consume_energy(pos, node, energy_available, dtime, trace)
+  return get_energy_interface_function(pos, node, "consume_energy")(pos, node, energy_available, dtime, trace)
 end
 
 -- Requests that the target node consume it's 'stored' energy, this is only used for nodes that
@@ -101,9 +103,9 @@ end
 --
 -- This is only valid for `energy_storage` device nodes.
 --
--- @spec EnergyDevices.use_stored_energy(pos: Vector3, node: Node, amount_to_consume: Integer, dtime: Float, ot: Trace) :: Integer | nil
-function EnergyDevices.use_stored_energy(pos, node, amount_to_consume, dtime, ot)
-  return get_energy_interface_function(pos, node, "use_stored_energy")(pos, node, amount_to_consume, dtime, ot)
+-- @spec use_stored_energy(pos: Vector3, node: Node, amount_to_consume: Integer, dtime: Float, trace: Trace): Integer | nil
+function EnergyDevices.use_stored_energy(pos, node, amount_to_consume, dtime, trace)
+  return get_energy_interface_function(pos, node, "use_stored_energy")(pos, node, amount_to_consume, dtime, trace)
 end
 
 -- Requests the target node to 'receive' the remaining energy after the system has resolved everything else.
@@ -114,9 +116,9 @@ end
 --
 -- This is only valid for `energy_storage` device nodes.
 --
--- @spec EnergyDevices.receive_energy(pos: Vector3, node: Node, energy_left: Integer, dtime: Float, ot: Trace) :: Integer | nil
-function EnergyDevices.receive_energy(pos, node, energy_left, dtime, ot)
-  return get_energy_interface_function(pos, node, "receive_energy")(pos, node, energy_left, dtime, ot)
+-- @spec receive_energy(pos: Vector3, node: Node, energy_left: Integer, dtime: Float, trace: Trace): Integer | nil
+function EnergyDevices.receive_energy(pos, node, energy_left, dtime, trace)
+  return get_energy_interface_function(pos, node, "receive_energy")(pos, node, energy_left, dtime, trace)
 end
 
 yatm_cluster_energy.EnergyDevices = EnergyDevices

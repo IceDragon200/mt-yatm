@@ -8,7 +8,6 @@ if not OKU then
 end
 
 local BinSchema = foundation.com.BinSchema
-
 if not BinSchema then
   yatm.error("computers service not available, foundation.com.BinSchema is unavailable")
   return
@@ -26,9 +25,6 @@ else
   yatm.info("using StringBuffer as primary buffer for computers")
   Buffer = assert(foundation.com.StringBuffer)
 end
-
-local Computers = foundation.com.Class:extends("ComputersService")
-local ic = assert(Computers.instance_class)
 
 --
 -- This is the header of the computer state file, since OKU
@@ -53,6 +49,11 @@ local ComputerStateHeaderSchema =
     -- Here would be the oku state, but OKU handles its own serialization.
   })
 
+-- @class Computers
+local Computers = foundation.com.Class:extends("ComputersService")
+local ic = assert(Computers.instance_class)
+
+-- @spec #initialize(): void
 function ic:initialize()
   self.m_root_dir = path_join(minetest.get_worldpath(), "/yatm/oku")
   minetest.mkdir(self.m_root_dir)
@@ -66,26 +67,31 @@ end
 --
 -- Should be called by the minetest startup to do stuff.
 --
+-- @spec #setup(): void
 function ic:setup()
   --
 end
 
 --
 --
--- @spec load_computer_state(Vector) :: {ComputerState | nil, error}
+-- @spec #load_computer_state(Vector): (ComputerState | nil, Error)
 function ic:load_computer_state(pos)
   local basename = pos_to_basename(pos)
   local filename = path_join(self.m_root_dir, basename)
 
-  local trace = Trace.new('load_computer_state/' .. minetest.pos_to_string(pos))
+  local trace = Trace:new('load_computer_state/' .. minetest.pos_to_string(pos))
+  local span
+  span = trace:span_start("io.open")
   local file = io.open(filename, "r")
+  span:span_end()
+
   if file then
-    local ot = Trace.span_start(trace, 'read-binary')
+    span = trace:span_start('file#read')
     local stream = Buffer:new(file:read('*all'), 'r')
     file:close()
-    Trace.span_end(ot)
+    span:span_end()
 
-    local ot = Trace.span_start(trace, 'decode-stream')
+    span = trace:span_start('state-load')
     -- FIXME: This entire section should be wrapped in a protected call
     --        and the file closed properly.
     -- Read the state header
@@ -96,9 +102,10 @@ function ic:load_computer_state(pos)
     local oku, br = OKU:binload(stream)
 
     stream:close()
-    Trace.span_end(ot)
-    Trace.span_end(trace)
-    Trace.inspect(trace)
+
+    span:span_end() -- close state-load
+    trace:span_end() -- close trace
+    trace:inspect()
 
     local state_pos = vector.new(state.x, state.y, state.z)
     local node = {
@@ -112,7 +119,7 @@ function ic:load_computer_state(pos)
       pos = state_pos,
       node = node,
       secret = state.secret,
-
+      label = "computer-" .. node.name .. "-" .. minetest.pos_to_string(state_pos),
       oku = oku
     }, nil
   else
@@ -121,19 +128,21 @@ function ic:load_computer_state(pos)
 end
 
 --
--- @spec save_computer_state(ComputerState) :: {bytes_written :: non_neg_integer, error}
-function ic:save_computer_state(state, parent_trace)
+-- @spec #save_computer_state(ComputerState, Trace): (bytes_written: Integer, error: Error)
+function ic:save_computer_state(state, trace)
   print("Saving Computer State", minetest.pos_to_string(state.pos))
   local basename = pos_to_basename(state.pos)
   local filename = path_join(self.m_root_dir, basename)
 
-  local ot
-  if parent_trace then
-    ot = Trace.span_start(parent_trace, 'save_computer_state/' .. minetest.pos_to_string(state.pos))
+  local span
+  if trace then
+    span = trace:span_start('save_computer_state/' .. minetest.pos_to_string(state.pos))
   else
-    ot = Trace.new('save_computer_state/' .. minetest.pos_to_string(state.pos))
+    span = Trace:new('save_computer_state/' .. minetest.pos_to_string(state.pos))
   end
   local stream = Buffer:new('', 'w')
+
+  local func_trace = span:span_start("dump")
 
   local bytes_written = 0
   local bw, err =
@@ -162,6 +171,8 @@ function ic:save_computer_state(state, parent_trace)
   local bw, err = state.oku:bindump(stream)
   bytes_written = bytes_written + bw
 
+  func_trace:span_end()
+
   if err then
     stream:close()
     return bytes_written, "error while writing oku state " .. err
@@ -169,16 +180,19 @@ function ic:save_computer_state(state, parent_trace)
 
   stream:close()
 
+  func_trace = span:span_start("safe_file_write")
   minetest.safe_file_write(filename, stream:blob())
-  Trace.span_end(ot)
-  if not parent_trace then
-    Trace.inspect(ot)
+  func_trace:span_end()
+
+  span:span_end()
+  if not trace then
+    span:inspect()
   end
   return bytes_written, nil
 end
 
 --
--- @spec delete_computer_state(Vector) :: boolean
+-- @spec #delete_computer_state(pos: Vector): Boolean
 function ic:delete_computer_state(pos)
   local basename = pos_to_basename(pos)
   local filename = path_join(self.m_root_dir, basename)
@@ -193,13 +207,14 @@ function ic:delete_computer_state(pos)
   end
 end
 
+-- @spec #persist_computer_states(): void
 function ic:persist_computer_states()
-  local ot = Trace.new('persist_computer_states')
+  local trace = Trace:new('persist_computer_states')
   for _hash,state in pairs(self.m_computers) do
-    self:save_computer_state(state, ot)
+    self:save_computer_state(state, trace)
   end
-  Trace.span_end(ot)
-  Trace.inspect(ot)
+  trace:span_end()
+  trace:inspect()
 end
 
 function ic:terminate()
@@ -211,18 +226,21 @@ function ic:terminate()
   print("yatm.computers", "terminated")
 end
 
-function ic:update(dt)
-  local ot = Trace.new("oku_computers_update")
+function ic:update(dt, trace)
   --
   local clock_speed = math.floor(dt * 1000)
+  local span
   for _, computer in pairs(self.m_computers) do
-    local ct = Trace.span_start(ot, "computer-" .. computer.node.name .. "-" .. minetest.pos_to_string(computer.pos))
+    if trace then
+      span = trace:span_start(computer.label)
+    end
     --local steps_taken, err = computer.oku:step(clock_speed)
     --print("STEPS", ct.name, steps_taken, err)
-    Trace.span_end(ct)
+
+    if trace then
+      span:span_end()
+    end
   end
-  Trace.span_end(ot)
-  --Trace.inspect(ot)
 end
 
 --
@@ -233,6 +251,7 @@ end
 function ic:create_computer(pos, node, secret, options)
   assert(type(secret) == "string", "expected secret to be a string got:" .. type(secret))
   assert(type(options) == "table", "expected an options table got:" .. type(options))
+
   local hash = minetest.hash_node_position(pos)
   if self.m_computers[hash] then
     error("a computer already exists hash=" .. hash)

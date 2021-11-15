@@ -8,7 +8,10 @@ do
   -- initialization
   minetest.register_on_mods_loaded(yatm_data_network.data_network:method("init"))
   -- update
-  minetest.register_globalstep(yatm_data_network.data_network:method("update"))
+  nokore_proxy.register_globalstep(
+    "yatm_data_network.update/1",
+    yatm_data_network.data_network:method("update")
+  )
   -- termination
   minetest.register_on_shutdown(yatm_data_network.data_network:method("terminate"))
 

@@ -182,18 +182,22 @@ do
     local neighbours = {}
 
     local color = self:get_node_color(node)
+    local npos
+    local cluster
+    local node_entry
+    local other_color
 
     if cluster_ids and not is_table_empty(cluster_ids) then
       for dir6, vec3 in pairs(DIR6_TO_VEC3) do
-        local npos = vector.add(origin, vec3)
+        npos = vector.add(origin, vec3)
 
         for cluster_id, _ in pairs(cluster_ids) do
-          local cluster = cls:get_cluster(cluster_id)
+          cluster = cls:get_cluster(cluster_id)
           if cluster then
-            local node_entry = cluster:get_node(npos)
+            node_entry = cluster:get_node(npos)
 
             if node_entry then
-              local other_color = self:get_node_color(node_entry.node)
+              other_color = self:get_node_color(node_entry.node)
 
               if self:is_compatible_colors(color, other_color) then
                 neighbours[dir6] = {
@@ -264,8 +268,10 @@ do
   function ic:_handle_update_node(cls, generation_id, event, given_cluster_ids)
     self:log('_handle_update_node', minetest.pos_to_string(event.pos))
     local cluster
+    local ncluster
+
     for cluster_id, _ in pairs(given_cluster_ids) do
-      local ncluster = cls:get_cluster(cluster_id)
+      ncluster = cls:get_cluster(cluster_id)
       if ncluster and ncluster.groups[self.m_cluster_group] then
         cluster = ncluster
         break
@@ -280,15 +286,19 @@ do
 
   function ic:mark_accessible_dirs(pos, node, accessible_dirs)
     local color = self:get_node_color(node)
+    local npos
+    local nnode
+    local rating
+    local other_color
 
     for dir6, vec3 in pairs(DIR6_TO_VEC3) do
-      local npos = vector.add(pos, vec3)
-      local nnode = minetest.get_node_or_nil(npos)
+      npos = vector.add(pos, vec3)
+      nnode = minetest.get_node_or_nil(npos)
 
       if nnode then
-        local rating = minetest.get_item_group(nnode.name, self.m_node_group)
+        rating = minetest.get_item_group(nnode.name, self.m_node_group)
         if rating and rating > 0 then
-          local other_color = self:get_node_color(nnode)
+          other_color = self:get_node_color(nnode)
 
           if self:is_compatible_colors(color, other_color) then
             -- okay
@@ -315,29 +325,37 @@ do
 
     local origin = scan_origin
     local g_branch_id = 0
+    local branch_id
+    local nodes
+    local current_node_id
+    local nodedef
+    local other_branch_id
+    local other_branches
+    local new_nodes
+
     for dir6, vec3 in pairs(DIR6_TO_VEC3) do
       g_branch_id = g_branch_id + 1
       origin = vector.add(origin, vec3)
 
-      local branch_id = g_branch_id
-      local nodes = {}
+      branch_id = g_branch_id
+      nodes = {}
       branches[branch_id] = nodes
 
       yatm.explore_nodes(origin, 0, function (pos, node, acc, accessible_dirs)
-        local current_node_id = hash_node_position(pos)
+        current_node_id = hash_node_position(pos)
         if nodes[current_node_id] then
           return false, acc
         end
 
-        local nodedef = minetest.registered_nodes[node.name]
+        nodedef = minetest.registered_nodes[node.name]
         if nodedef then
           if nodedef.groups[self.m_node_group] then
             if all_nodes[current_node_id] then
-              local other_branch_id = all_nodes[current_node_id]
-              local other_branches = branches[other_branch_id]
+              other_branch_id = all_nodes[current_node_id]
+              other_branches = branches[other_branch_id]
 
               if nodes ~= other_branches then
-                local new_nodes = {}
+                new_nodes = {}
                 table_merge(nodes, other_branches)
 
                 for node_id,_ in pairs(nodes) do
@@ -395,11 +413,16 @@ do
 
     local affected_clusters = {}
     local branch_id_to_cluster_id = {}
+    local pos
+    local cluster_id
+    local cluster
+    local node
+
     for branch_id, nodes in pairs(branches) do
       for node_id, _ in pairs(nodes) do
-        local pos = minetest.get_position_from_hash(node_id)
+        pos = minetest.get_position_from_hash(node_id)
 
-        local cluster_id =
+        cluster_id =
           cls:reduce_node_clusters(pos, nil, function (cluster, acc)
             if cluster.groups[self.m_cluster_group] then
               return false, cluster.id
@@ -422,11 +445,11 @@ do
 
     for branch_id, nodes in pairs(branches) do
       if not is_table_empty(nodes) then
-        local cluster = cls:create_cluster(self:get_cluster_groups())
+        cluster = cls:create_cluster(self:get_cluster_groups())
 
         for node_id, _ in pairs(nodes) do
-          local pos = minetest.get_position_from_hash(node_id)
-          local node = minetest.get_node(pos)
+          pos = minetest.get_position_from_hash(node_id)
+          node = minetest.get_node(pos)
 
           cls:add_node_to_cluster(cluster.id, pos, node, self:get_node_groups(node))
           yatm.queue_refresh_infotext(pos, node)
@@ -481,10 +504,12 @@ do
     local item_size = colsize * 0.6
     local label_size = colsize * 0.6
     local i = 0
+    local x
+    local y
 
     for node_name, count in pairs(registered_nodes_with_count) do
-      local x = math.floor(i % cols) * colsize
-      local y = math.floor(i / cols) * colsize
+      x = math.floor(i % cols) * colsize
+      y = math.floor(i / cols) * colsize
 
       formspec =
         formspec ..

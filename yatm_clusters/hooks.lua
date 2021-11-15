@@ -44,7 +44,7 @@ minetest.register_chatcommand("yatm.networks", {
 })
 
 minetest.register_on_shutdown(yatm.clusters:method("terminate"))
-minetest.register_globalstep(yatm.clusters:method("update"))
+nokore_proxy.register_globalstep("yatm_clusters.update/1", yatm.clusters:method("update"))
 
 yatm.clusters:register_node_event_handler('refresh_infotext', function (_cls, _counter, event, _clusters)
   local pos = event.pos
@@ -54,9 +54,9 @@ yatm.clusters:register_node_event_handler('refresh_infotext', function (_cls, _c
     local nodedef = minetest.registered_nodes[node.name]
 
     if nodedef and nodedef.refresh_infotext then
-      local tracei = Trace.new(node.name .. " refresh_infotext/2")
+      local trace = Trace:new(node.name .. " refresh_infotext/2")
       nodedef.refresh_infotext(pos, node)
-      Trace.span_end(tracei)
+      trace:span_end()
     end
   end
 end)

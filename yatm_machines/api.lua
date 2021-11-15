@@ -1,4 +1,3 @@
-local Trace = assert(foundation.com.Trace)
 local table_merge = assert(foundation.com.table_merge)
 local table_deep_merge = assert(foundation.com.table_deep_merge)
 local cluster_devices = assert(yatm.cluster.devices)
@@ -97,7 +96,7 @@ end
 -- @spec devices.device_passive_consume_energy(vector3.t, Node.t, non_neg_integer, float, TraceContext)
 --
 function devices.device_passive_consume_energy(pos, node, total_available, dtime, ot)
-  local span = Trace.span_start(ot, "device_passive_consume_energy")
+  local span = ot:span_start("device_passive_consume_energy")
   local consumed = 0
   local nodedef = minetest.registered_nodes[node.name]
   local energy = nodedef.yatm_network.energy
@@ -125,7 +124,7 @@ function devices.device_passive_consume_energy(pos, node, total_available, dtime
   end
 
   --print("CONSUMED", pos.x, pos.y, pos.z, node.name, "CONSUMED", consumed, "GIVEN", total_available)
-  Trace.span_end(span)
+  span:span_end()
 
   return consumed
 end
@@ -370,3 +369,6 @@ yatm.compacting.compacting_registry = yatm_machines.CompactingRegistry:new()
 
 yatm.rolling = yatm.rolling or {}
 yatm.rolling.rolling_registry = yatm_machines.RollingRegistry:new()
+
+yatm.crushing = yatm.crushing or {}
+yatm.crushing.crushing_registry = yatm_machines.CrushingRegistry:new()

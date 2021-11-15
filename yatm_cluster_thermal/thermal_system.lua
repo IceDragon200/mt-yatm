@@ -12,27 +12,38 @@ function ic:initialize()
   ic._super.initialize(self)
 end
 
-function ic:update(cls, cluster, dtime)
-  local pot = Trace.new()
+function ic:update(cls, cluster, dtime, cls_trace)
+  local node
+  local nodedef
+  local heat_produced
+  local neighbour_pos
+  local neighbour_node_entry
+  local neighbour_node
+  local neighbour_nodedef
 
+  local group_trace
+
+  if cls_trace then
+    group_trace = cls_trace:span_start("thermal_producer")
+  end
   cluster:reduce_nodes_of_groups("thermal_producer", 0, function (node_entry, acc)
-    local node = minetest.get_node_or_nil(node_entry.pos)
+    node = minetest.get_node_or_nil(node_entry.pos)
     if node then
-      local nodedef = minetest.registered_nodes[node.name]
+      nodedef = minetest.registered_nodes[node.name]
 
       if not nodedef.thermal_interface then
         error("expected a thermal_interface node=" .. node.name)
       end
 
-      local heat_produced = nodedef.thermal_interface:get_heat(node_entry.pos, node, dtime)
+      heat_produced = nodedef.thermal_interface:get_heat(node_entry.pos, node, dtime)
 
       --print("Updating Cluster", cluster.id, dtime, heat_produced)
       for dir, vec3 in pairs(Directions.DIR6_TO_VEC3) do
-        local neighbour_pos = vector.add(node_entry.pos, vec3)
-        local neighbour_node_entry = cluster:get_node(neighbour_pos)
+        neighbour_pos = vector.add(node_entry.pos, vec3)
+        neighbour_node_entry = cluster:get_node(neighbour_pos)
         if neighbour_node_entry then
-          local neighbour_node = minetest.get_node(neighbour_node_entry.pos)
-          local neighbour_nodedef = minetest.registered_nodes[neighbour_node.name]
+          neighbour_node = minetest.get_node(neighbour_node_entry.pos)
+          neighbour_nodedef = minetest.registered_nodes[neighbour_node.name]
 
           if not neighbour_nodedef.thermal_interface then
             error("expected a thermal_interface node=" .. neighbour_node.name)
@@ -47,17 +58,24 @@ function ic:update(cls, cluster, dtime)
 
     return true, acc + 1
   end)
+  if group_trace then
+    group_trace:span_end()
+  end
 
+  if cls_trace then
+    group_trace = cls_trace:span_start("updatable")
+  end
   cluster:reduce_nodes_of_groups("updatable", 0, function (node_entry, acc)
-    local node = minetest.get_node(node_entry.pos)
-    local nodedef = minetest.registered_nodes[node.name]
+    node = minetest.get_node(node_entry.pos)
+    nodedef = minetest.registered_nodes[node.name]
 
     nodedef.thermal_interface:update(node_entry.pos, node, dtime)
 
     return true, acc + 1
   end)
-
-  Trace.span_end(pot)
+  if group_trace then
+    group_trace:span_end()
+  end
 end
 
 yatm_cluster_thermal.ThermalSystem = ThermalSystem
