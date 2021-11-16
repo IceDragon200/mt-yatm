@@ -95,9 +95,7 @@ function FluidStack.to_string(fluid_stack, capacity)
   return result
 end
 
---[[
-@spec FluidStack.pretty_format(FluidStack.t, capacity :: non_neg_integer | nil) :: String.t
-]]
+-- @spec pretty_format(FluidStack, capacity: Integer | nil): String
 function FluidStack.pretty_format(fluid_stack, capacity)
   local name = ""
   local amount = 0
@@ -111,9 +109,9 @@ function FluidStack.pretty_format(fluid_stack, capacity)
     amount = fluid_stack.amount
   end
   if capacity then
-    return "<" .. name .. ">" .. " (" .. amount .. " / " .. capacity .. ")"
+    return "<"..name..">".." ("..amount.." / "..capacity..")"
   else
-    return "<" .. name .. ">" .. " (" .. amount .. ")"
+    return "<"..name..">".." ("..amount..")"
   end
 end
 
