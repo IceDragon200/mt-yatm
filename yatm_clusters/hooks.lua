@@ -49,17 +49,21 @@ nokore_proxy.register_globalstep("yatm_clusters.update/1", yatm.clusters:method(
 yatm.clusters:register_node_event_handler(
   "refresh_infotext",
   "yatm_clusters:refresh_infotext",
-  function (_cls, _counter, event, _clusters)
+  function (_cls, _counter, event, _clusters, trace)
     local pos = event.pos
     local node = minetest.get_node_or_nil(pos)
-
     if node then
       local nodedef = minetest.registered_nodes[node.name]
 
       if nodedef and nodedef.refresh_infotext then
-        local trace = Trace:new(node.name .. " refresh_infotext/2")
+        local span
+        if trace then
+          span = trace:span_start(node.name)
+        end
         nodedef.refresh_infotext(pos, node)
-        trace:span_end()
+        if span then
+          span:span_end()
+        end
       end
     end
   end
