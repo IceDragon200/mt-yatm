@@ -87,7 +87,7 @@ function distillation_unit_yatm_network.work(pos, node, available_energy, work_r
 
   local fluid_stack = FluidMeta.get_fluid_stack(meta, INPUT_STEAM_TANK)
 
-  if fluid_stack and fluid_stack.amount > 0 then
+  if not FluidStack.is_empty(fluid_stack) then
     -- limit the stack to only 100 units of fluid
     fluid_stack.amount = math.min(fluid_stack.amount, 100)
     local fluid_name = fluid_stack.name
@@ -143,31 +143,34 @@ function distillation_unit_yatm_network.work(pos, node, available_energy, work_r
     local output_tank_dir = Directions.facedir_to_face(node.param2, Directions.D_UP)
     local output_tank_pos = vector.add(pos, Directions.DIR6_TO_VEC3[output_tank_dir])
 
-    local fs = FluidExchange.transfer_from_meta_to_tank(
+    fluid_stack = FluidExchange.transfer_from_meta_to_tank(
       meta, { tank_name = OUTPUT_STEAM_TANK, capacity = fluid_interface._private.capacity, bandwidth = fluid_interface._private.capacity },
       FluidStack.new_wildcard(100),
       output_tank_pos, Directions.invert_dir(output_tank_dir),
       true
     )
 
-    if fs and fs.amount > 0 then
+    if fluid_stack and fluid_stack.amount > 0 then
       need_refresh = true
     end
   end
 
   do -- output distilled fluids
-    for _,dir_code in pairs(Directions.DIR4) do
-      local output_tank_dir = Directions.facedir_to_face(node.param2, dir_code)
-      local output_tank_pos = vector.add(pos, Directions.DIR6_TO_VEC3[output_tank_dir])
+    local output_tank_dir
+    local output_tank_pos
 
-      local fs = FluidExchange.transfer_from_meta_to_tank(
+    for _,dir_code in pairs(Directions.DIR4) do
+      output_tank_dir = Directions.facedir_to_face(node.param2, dir_code)
+      output_tank_pos = vector.add(pos, Directions.DIR6_TO_VEC3[output_tank_dir])
+
+      fluid_stack = FluidExchange.transfer_from_meta_to_tank(
         meta, { tank_name = DISTILLED_TANK, capacity = fluid_interface._private.capacity, bandwidth = fluid_interface._private.capacity },
         FluidStack.new_wildcard(100),
         output_tank_pos, Directions.invert_dir(output_tank_dir),
         true
       )
 
-      if fs and fs.amount > 0 then
+      if fluid_stack and fluid_stack.amount > 0 then
         need_refresh = true
       end
     end
