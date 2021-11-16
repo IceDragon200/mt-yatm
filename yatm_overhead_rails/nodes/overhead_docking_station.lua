@@ -800,7 +800,7 @@ yatm.register_stateful_node("yatm_overhead_rails:overhead_docking_station", {
             blob = string.sub(blob, 5)
             local serialized_list = ascii_unpack(blob)
             local list = {}
-            InventorySerializer.deserialize_list(serialized_list, list)
+            InventorySerializer.load_list(serialized_list, list)
             local inv = meta:get_inventory()
             inv:set_size(INVENTORY_NAME, INVENTORY_SIZE)
             inv:set_list(INVENTORY_NAME, list)
@@ -820,7 +820,7 @@ yatm.register_stateful_node("yatm_overhead_rails:overhead_docking_station", {
 
         local inv = meta:get_inventory()
         local list = inv:get_list(INVENTORY_NAME)
-        local serialized_list = InventorySerializer.serialize(list)
+        local serialized_list = InventorySerializer.dump_list(list)
         local blob = ascii_pack(serialized_list)
         stack_meta:set_string("crate_inventory", "ASCI"..blob)
 

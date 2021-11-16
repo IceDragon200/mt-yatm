@@ -4,6 +4,7 @@ local Groups = assert(foundation.com.Groups)
 local Directions = assert(foundation.com.Directions)
 local Energy = assert(yatm.energy)
 local invbat = assert(yatm.energy.inventory_batteries)
+local InventorySerializer = assert(yatm.items.InventorySerializer)
 
 local g_inventory_id = 0
 local view_range = (minetest.get_mapgen_setting('active_object_send_range_blocks') or 3) * 3
@@ -68,7 +69,7 @@ local function restore_inventory(self, dump)
   for list_name, dumped_list in pairs(dump.data) do
     local list = inv:get_list(list_name)
     assert(list, "expected list to exist name=" .. list_name)
-    list = yatm.items.InventorySerializer.deserialize_list(dumped_list, list)
+    list = InventorySerializer.load_list(dumped_list, list)
     inv:set_list(list_name, list)
   end
 end
@@ -88,7 +89,7 @@ local function dump_inventory(self)
   local result = {}
 
   for list_name, list in pairs(lists) do
-    result[list_name] = yatm.items.InventorySerializer.serialize(list)
+    result[list_name] = InventorySerializer.dump_list(list)
   end
 
   return { version = 1, data = result }

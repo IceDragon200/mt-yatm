@@ -43,7 +43,7 @@ local function cardboard_box_after_place_node(pos, placer, item_stack, pointed_t
   if not is_blank(old_inv_list) then
     local dumped = minetest.deserialize(old_inv_list)
     local list = new_inv:get_list("main")
-    list = yatm.items.InventorySerializer.deserialize_list(dumped, list)
+    list = yatm.items.InventorySerializer.load_list(dumped, list)
     new_inv:set_list("main", list)
   end
 end
@@ -57,7 +57,7 @@ local function cardboard_box_preserve_metadata(pos, old_node, _old_meta_table, d
   local old_inv = old_meta:get_inventory()
   local list = old_inv:get_list("main")
 
-  local dumped = yatm.items.InventorySerializer.serialize(list)
+  local dumped = yatm.items.InventorySerializer.dump_list(list)
 
   --print("preserve_metadata", dump(dumped))
   new_meta:set_string("inventory_dump", minetest.serialize(dumped))

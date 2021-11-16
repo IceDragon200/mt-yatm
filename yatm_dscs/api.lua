@@ -1,4 +1,5 @@
 local Groups = assert(foundation.com.Groups)
+local InventorySerializer = assert(yatm.items.InventorySerializer)
 
 yatm.dscs = yatm.dscs or {}
 
@@ -64,7 +65,7 @@ end
 
 function yatm.dscs.persist_inventory_list_to_drive(item_stack, list)
   if yatm.dscs.is_item_stack_item_drive(item_stack) then
-    local list_dump = yatm.items.InventorySerializer.serialize(list)
+    local list_dump = InventorySerializer.dump_list(list)
     local stack_meta = item_stack:get_meta()
     stack_meta:set_string("drive_contents", minetest.serialize(list_dump))
 
@@ -80,7 +81,7 @@ function yatm.dscs.load_inventory_list_from_drive(item_stack)
   local capacity = assert(item_stack:get_definition().drive_capacity, "expected drive to have a capacity")
   local list = {}
   if drive_contents then
-    list = yatm.items.InventorySerializer.deserialize_list(drive_contents, list)
+    list = InventorySerializer.load_list(drive_contents, list)
   end
   return list, capacity
 end

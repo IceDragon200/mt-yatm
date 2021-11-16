@@ -90,7 +90,7 @@ minetest.register_node("yatm_armoury:ammo_can", {
     if not is_blank(old_inv_list) then
       local dumped = minetest.deserialize(old_inv_list)
       local list = new_inv:get_list("main")
-      list = InventorySerializer.deserialize_list(dumped, list)
+      list = InventorySerializer.load_list(dumped, list)
       new_inv:set_list("main", list)
     end
   end,
@@ -104,7 +104,7 @@ minetest.register_node("yatm_armoury:ammo_can", {
     local old_inv = old_meta:get_inventory()
     local list = old_inv:get_list("main")
 
-    local dumped = InventorySerializer.serialize(list)
+    local dumped = InventorySerializer.dump_list(list)
 
     --print("preserve_metadata", dump(dumped))
     new_meta:set_string("inventory_dump", minetest.serialize(dumped))
