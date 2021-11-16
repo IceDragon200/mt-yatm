@@ -63,8 +63,9 @@ yatm.register_stateful_node("yatm_thermal_ducts:thermal_duct", {
 
     update_heat = function (self, pos, node, heat, dtime)
       local meta = minetest.get_meta(pos)
-      yatm.thermal.update_heat(meta, "heat", heat, 10, dtime)
-      yatm.queue_refresh_infotext(pos, node)
+      if yatm.thermal.update_heat(meta, "heat", heat, 10, dtime) then
+        yatm.queue_refresh_infotext(pos, node)
+      end
     end,
   },
 

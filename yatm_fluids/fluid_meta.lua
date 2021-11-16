@@ -18,7 +18,7 @@ end
 
 function FluidMeta.decrease_amount(meta, key, amount, commit)
   local existing_amount = Measurable.get_measurable_amount(meta, key)
-  local new_amount = math.max(existing_amount - amount, 0);
+  local new_amount = math.max(existing_amount - amount, 0)
   if commit then
     Measurable.set_measurable_amount(meta, key, new_amount)
   end
@@ -46,6 +46,18 @@ end
 
 function FluidMeta.receive_amount(meta, key, amount, bandwidth, capacity, commit)
   return FluidMeta.increase_amount(meta, key, math.min(bandwidth, amount), capacity, commit)
+end
+
+function FluidMeta.is_empty(meta, key)
+  local amount = Measurable.get_measurable_amount(meta, key)
+  if amount and amount <= 0 then
+    return true
+  end
+  local name = Measurable.get_measurable_name(meta, key)
+  if name == "" then
+    return true
+  end
+  return false
 end
 
 function FluidMeta.get_fluid_stack(meta, key)

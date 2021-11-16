@@ -35,18 +35,20 @@ function digitizer_yatm_network.work(pos, node, total_energy_available, work_rat
   local inv = meta:get_inventory()
   local energy_available = total_energy_available
 
-  for i = 1,6 do
-    if energy_available < 100 then
-      break
-    end
-    local stack = inv:get_stack("main", i)
+  if not inv:is_empty("main") then
+    for i = 1,6 do
+      if energy_available < 100 then
+        break
+      end
+      local stack = inv:get_stack("main", i)
 
-    if not stack:is_empty() then
-      -- TODO: push into network
+      if not stack:is_empty() then
+        -- TODO: push into network
 
-      -- Each item pushed into the network requires 100 energy per total stack
-      local energy_used = math.ceil(100 * stack:get_count() / stack:get_stack_max())
-      energy_available = energy_available - energy_used
+        -- Each item pushed into the network requires 100 energy per total stack
+        local energy_used = math.ceil(100 * stack:get_count() / stack:get_stack_max())
+        energy_available = energy_available - energy_used
+      end
     end
   end
 

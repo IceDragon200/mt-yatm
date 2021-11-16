@@ -78,23 +78,31 @@ end
 function fluid_replicator_yatm_network.work(pos, node, energy_available, work_rate, dtime, ot)
   local energy_consumed = 0
   local meta = minetest.get_meta(pos)
-  local capacity = fluid_interface._private.capacity
-  -- Drain fluid from replicator into any adjacent fluid interface
-  for _, dir in ipairs(Directions.DIR6) do
-    local target_pos = vector.add(pos, Directions.DIR6_TO_VEC3[dir])
-    local stack = FluidMeta.drain_fluid(meta,
-      TANK_NAME,
-      FluidStack.new_wildcard(capacity),
-      capacity, capacity, false)
 
-    if stack then
-      stack.amount = capacity
-      local target_dir = Directions.invert_dir(dir)
-      yatm.fluid_tanks.fill(target_pos, target_dir, stack.name, stack.amount, true)
-      energy_consumed = energy_consumed + 10
-      yatm.queue_refresh_infotext(pos, node)
+  if not FluidMeta.is_empty(meta, TANK_NAME) then
+    local capacity = fluid_interface._private.capacity
+    local target_pos
+    local stack
+    local target_dir
+
+    -- Drain fluid from replicator into any adjacent fluid interface
+    for _, dir in ipairs(Directions.DIR6) do
+      target_pos = vector.add(pos, Directions.DIR6_TO_VEC3[dir])
+      stack = FluidMeta.drain_fluid(meta,
+        TANK_NAME,
+        FluidStack.new_wildcard(capacity),
+        capacity, capacity, false)
+
+      if stack then
+        stack.amount = capacity
+        target_dir = Directions.invert_dir(dir)
+        yatm.fluid_tanks.fill(target_pos, target_dir, stack.name, stack.amount, true)
+        energy_consumed = energy_consumed + 10
+        yatm.queue_refresh_infotext(pos, node)
+      end
     end
   end
+
   return energy_consumed
 end
 

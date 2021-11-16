@@ -2,7 +2,11 @@ local CLUSTER_GROUP = 'yatm_reactor'
 
 yatm.cluster.reactor = yatm_reactors.ReactorCluster:new(CLUSTER_GROUP)
 
-yatm.clusters:register_node_event_handler(CLUSTER_GROUP, yatm.cluster.reactor:method('handle_node_event'))
+yatm.clusters:register_node_event_handler(
+  CLUSTER_GROUP,
+  "yatm_reactors:handle_node_event",
+  yatm.cluster.reactor:method('handle_node_event')
+)
 yatm.clusters:observe('terminate', 'yatm_cluster_reactor:terminate', yatm.cluster.reactor:method('terminate'))
 
 yatm_reactors.reactor_system = yatm_reactors.ReactorSystem:new()

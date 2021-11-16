@@ -171,7 +171,7 @@ for cell_type, cell_config in pairs(cell_types) do
   end
 
   function creative_energy_cell_yatm_network.energy.use_stored_energy(pos, node, amount)
-    yatm.queue_refresh_infotext(pos, node)
+    --yatm.queue_refresh_infotext(pos, node) -- too excessive
     return amount
   end
 

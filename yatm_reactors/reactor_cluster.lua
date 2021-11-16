@@ -30,7 +30,13 @@ function ic:schedule_remove_node(pos, node)
   return ic._super.schedule_remove_node(self, pos, node)
 end
 
-function ic:handle_node_event(cls, generation_id, event, cluster_ids)
+function ic:handle_node_event(cls, generation_id, event, cluster_ids, trace)
+  local span
+
+  if trace then
+    span = trace:span_start(event.event_name)
+  end
+
   print(self.m_log_group, 'event', event.event_name, generation_id, minetest.pos_to_string(event.pos))
 
   if event.event_name == 'load_node' then
@@ -57,6 +63,10 @@ function ic:handle_node_event(cls, generation_id, event, cluster_ids)
 
   else
     print(self.m_log_group, "unhandled event event_name=" .. event.event_name)
+  end
+
+  if span then
+    span:span_end()
   end
 end
 

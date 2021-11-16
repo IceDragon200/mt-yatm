@@ -2,7 +2,11 @@ local CLUSTER_GROUP = 'yatm_thermal'
 
 yatm.cluster.thermal = yatm_cluster_thermal.ThermalCluster:new(CLUSTER_GROUP)
 
-yatm.clusters:register_node_event_handler(CLUSTER_GROUP, yatm.cluster.thermal:method('handle_node_event'))
+yatm.clusters:register_node_event_handler(
+  CLUSTER_GROUP,
+  "yatm_cluster_thermal:handle_node_event",
+  yatm.cluster.thermal:method('handle_node_event')
+)
 yatm.clusters:observe('terminate', 'yatm_cluster_thermal:terminate', yatm.cluster.thermal:method('terminate'))
 
 yatm_cluster_thermal.thermal_system = yatm_cluster_thermal.ThermalSystem:new()

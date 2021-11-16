@@ -137,8 +137,14 @@ do
     clusters:schedule_node_event(self.m_cluster_group, 'remove_node', pos, node, { })
   end
 
-  function ic:handle_node_event(cls, generation_id, event, cluster_ids)
+  function ic:handle_node_event(cls, generation_id, event, cluster_ids, trace)
+    local span
+
     self:log('event', event.event_name, generation_id, minetest.pos_to_string(event.pos))
+
+    if trace then
+      span = trace:span_start(event.event_name)
+    end
 
     if event.event_name == 'load_node' then
       -- treat loads like adding a node
@@ -158,6 +164,10 @@ do
 
     else
       self:log("unhandled event event_name=" .. event.event_name)
+    end
+
+    if span then
+      span:span_end()
     end
   end
 

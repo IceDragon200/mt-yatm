@@ -42,7 +42,7 @@ function ic:get_node_groups(node)
   end
 end
 
-function ic:handle_node_event(cls, generation_id, event, node_clusters)
+function ic:handle_node_event(cls, generation_id, event, node_clusters, trace)
   if event.event_name == 'refresh_controller' then
     self:_handle_refresh_controller(cls, generation_id, event, node_clusters)
 
@@ -50,7 +50,7 @@ function ic:handle_node_event(cls, generation_id, event, node_clusters)
     self:_handle_transition_state(cls, generation_id, event, node_clusters)
 
   else
-    ic._super.handle_node_event(self, cls, generation_id, event, node_clusters)
+    ic._super.handle_node_event(self, cls, generation_id, event, node_clusters, trace)
   end
 end
 
@@ -199,7 +199,11 @@ do
   yatm.cluster.DeviceCluster = DeviceCluster
   yatm.cluster.devices = DeviceCluster:new(CLUSTER_GROUP)
 
-  yatm.clusters:register_node_event_handler(CLUSTER_GROUP, yatm.cluster.devices:method('handle_node_event'))
+  yatm.clusters:register_node_event_handler(
+    CLUSTER_GROUP,
+    "yatm_cluster_devices:handle_node_event",
+    yatm.cluster.devices:method('handle_node_event')
+  )
   yatm.clusters:observe('pre_block_expired', 'yatm_cluster_devices:pre_block_expired', yatm.cluster.devices:method('on_pre_block_expired'))
   yatm.clusters:observe('terminate', 'yatm_cluster_devices:terminate', yatm.cluster.devices:method('terminate'))
 

@@ -4,6 +4,7 @@
 local is_table_empty = assert(foundation.com.is_table_empty)
 local table_length = assert(foundation.com.table_length)
 local Vector3 = assert(foundation.com.Vector3)
+local List = assert(foundation.com.List)
 
 local hash_pos = minetest.hash_node_position
 
@@ -392,8 +393,8 @@ do
     -- Node ID > {Cluster ID}
     self.m_node_clusters = {}
 
-    -- Node ID > Events
-    self.m_queued_node_events = {}
+    -- @member m_queued_node_events: List<Event>
+    self.m_queued_node_events = List:new()
 
     -- A life-cycle system, this determines if a mapblock is still loaded
     -- by checking 1 of it's nodes for "ignore", if it receives an "ignore"
@@ -418,19 +419,25 @@ do
     assert(pos, "need a position")
     --print("clusters", "schedule_node_event", cluster_group, event_name, minetest.pos_to_string(pos), node.name)
     local node_id = minetest.hash_node_position(pos)
-
-    if not self.m_queued_node_events[node_id] then
-      self.m_queued_node_events[node_id] = {}
+    local node_name = "N/A"
+    if node then
+      node_name = node.name
     end
 
-    table.insert(self.m_queued_node_events[node_id],
-                  {
-                    cluster_group = cluster_group,
-                    event_name = event_name,
-                    pos = pos,
-                    node = node,
-                    params = params,
-                  })
+    --print("pushing_node_event",
+    --  "node_id:", node_id,
+    --  "event_name:", event_name,
+    --  "from_node:", node_name,
+    --  "params: ", dump(params))
+
+    self.m_queued_node_events:push({
+      cluster_group = cluster_group,
+      event_name = event_name,
+      pos = pos,
+      node_id = node_id,
+      node = node,
+      params = params,
+    })
   end
 
   --
@@ -753,7 +760,6 @@ do
   function ic:_update_active_blocks(dtime, trace)
     local has_expired_blocks = false
 
-
     local span
 
     if trace then
@@ -793,9 +799,23 @@ do
     end
   end
 
-  function ic:register_node_event_handler(cluster_group, handler)
-    print("clusters", "registering node_event_handler cluster_group=" .. cluster_group)
-    self.m_node_event_handlers[cluster_group] = handler
+  function ic:register_node_event_handler(cluster_group, callback_name, callback)
+    assert(type(cluster_group) == "string", "expected a cluster group name")
+    assert(type(callback_name) == "string", "expected a callback name")
+    assert(type(callback) == "function", "expected callback to be a function")
+
+    print(
+      "clusters",
+      "registering node_event_handler cluster_group=" .. cluster_group,
+      "callback_name=" .. callback_name
+    )
+
+    if not self.m_node_event_handlers[cluster_group] then
+      self.m_node_event_handlers[cluster_group] = {}
+    end
+    local group_handlers = self.m_node_event_handlers[cluster_group]
+    group_handlers[callback_name] = callback
+
     return self
   end
 
@@ -806,20 +826,33 @@ do
       span = trace:span_start("_resolve_node_events")
     end
 
-    if not is_table_empty(self.m_queued_node_events) then
-      local old_events = self.m_queued_node_events
-      local handler
+    if not self.m_queued_node_events:is_empty() then
+      local node_event_queue = self.m_queued_node_events:data()
+      local len = self.m_queued_node_events:size()
+      self.m_queued_node_events:clear()
+      local handlers
       local cluster_ids
+      local handler_trace
+      local event
 
-      self.m_queued_node_events = {}
-      for node_id,events in pairs(old_events) do
-        for _,event in ipairs(events) do
-          handler = self.m_node_event_handlers[event.cluster_group]
+      for index = 1,len do
+        event = node_event_queue[index]
+        handlers = self.m_node_event_handlers[event.cluster_group]
 
-          if handler then
+        --print("processing event", dump(event), dump(handlers))
+
+        if handlers then
+          for callback_name, callback in pairs(handlers) do
+            if span then
+              handler_trace = span:span_start(callback_name)
+            end
             cluster_ids = self.m_group_clusters[event.cluster_group]
 
-            handler(self, self.m_counter, event, cluster_ids)
+            callback(self, self.m_counter, event, cluster_ids, handler_trace)
+
+            if handler_trace then
+              handler_trace:span_end()
+            end
           end
         end
       end

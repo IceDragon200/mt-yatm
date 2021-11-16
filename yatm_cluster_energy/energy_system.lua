@@ -5,6 +5,8 @@
 local Trace = assert(foundation.com.Trace)
 local EnergyDevices = assert(yatm.energy.EnergyDevices)
 
+local get_node_or_nil = minetest.get_node_or_nil
+
 local EnergySystem = foundation.com.Class:extends("EnergySystem")
 local ic = EnergySystem.instance_class
 
@@ -14,31 +16,19 @@ function ic:initialize()
   ic._super.initialize(self)
 end
 
-function ic:update(cls, cluster, dtime, cls_trace)
-  local pot
-  local ot
+function ic:calc_energy_produced(cluster, dtime, trace)
   local span
-  if cls_trace then
-    pot = cls_trace:span_start("energy_system")
-  end
-  if pot then
-    ot = pot:span_start(cluster.id)
-  end
-  --print(LOG_GROUP, "dtime=" .. dtime, "cluster_id=" .. cluster.id, "size=" .. cluster:size(), "updating energy")
 
-  --print(cluster:inspect())
-
-  -- Highest priority, produce energy
-  -- It's up to the node how it wants to deal with the energy, whether it's buffered, or just burst
-  if ot then
-    span = ot:span_start("produce_energy")
+  if trace then
+    span = trace:span_start("produce_energy")
   end
 
   local node
   local amount_produced
+
   local energy_produced =
     cluster:reduce_nodes_of_groups("energy_producer", 0, function (node_entry, acc)
-      node = minetest.get_node_or_nil(node_entry.pos)
+      node = get_node_or_nil(node_entry.pos)
       --print(LOG_GROUP, "produce energy", node_entry.pos.x, node_entry.pos.y, node_entry.pos.z, node.name)
       if node then
         amount_produced = EnergyDevices.produce_energy(node_entry.pos, node, dtime, span)
@@ -53,18 +43,22 @@ function ic:update(cls, cluster, dtime, cls_trace)
     span:span_end()
   end
 
-  -- Second highest priority, how much energy is stored in the network right now
-  -- This is combined with the produced to determine how much is available
-  -- The node is allowed to lie about it's contents, to cause energy trickle or gating
-  if ot then
-    span = ot:span_start("calc_energy_stored")
+  return energy_produced
+end
+
+function ic:calc_energy_stored(cluster, dtime, trace)
+  local span
+
+  if trace then
+    span = trace:span_start("calc_energy_stored")
   end
 
+  local node
   local amount_stored
 
   local energy_stored =
     cluster:reduce_nodes_of_groups("energy_storage", 0, function (node_entry, accumulated_energy_stored)
-      node = minetest.get_node_or_nil(node_entry.pos)
+      node = get_node_or_nil(node_entry.pos)
       if node then
         amount_stored = EnergyDevices.get_usable_stored_energy(node_entry.pos, node, dtime, span)
 
@@ -79,47 +73,63 @@ function ic:update(cls, cluster, dtime, cls_trace)
     span:span_end()
   end
 
-  if ot then
-    span = ot:span_start("consume_energy")
+  return energy_stored
+end
+
+function ic:run_consume_energy(energy_available, cluster, dtime, trace)
+  local span
+
+  if trace then
+    span = trace:span_start("consume_energy")
   end
 
-  local total_energy_available = energy_stored + energy_produced
-  local energy_available = total_energy_available
+  local energy_consumed = 0
 
-  --print(LOG_GROUP, "energy_available", energy_available, "=", energy_stored, " + ", energy_produced)
+  if energy_available > 0 then
+    --print(LOG_GROUP, "energy_available", energy_available, "=", energy_stored, " + ", energy_produced)
 
-  -- Consumers are different from receivers, they use energy without any intention of storing it
-  local amount_consumed
-  local energy_consumed =
-    cluster:reduce_nodes_of_groups("energy_consumer", 0, function (node_entry, acc)
-      node = minetest.get_node_or_nil(node_entry.pos)
+    -- Consumers are different from receivers, they use energy without any intention of storing it
+    local amount_consumed
+    local node
 
-      if node then
-        amount_consumed = EnergyDevices.consume_energy(node_entry.pos, node, energy_available, dtime, span)
-        if amount_consumed then
-          energy_available = energy_available - amount_consumed
-          acc = acc + amount_consumed
+    energy_consumed =
+      cluster:reduce_nodes_of_groups("energy_consumer", energy_consumed, function (node_entry, acc)
+        node = get_node_or_nil(node_entry.pos)
+
+        if node then
+          amount_consumed = EnergyDevices.consume_energy(node_entry.pos, node, energy_available, dtime, span)
+          if amount_consumed then
+            energy_available = energy_available - amount_consumed
+            acc = acc + amount_consumed
+          end
         end
-      end
 
-      -- can't continue if we have no energy available
-      return energy_available > 0, acc
-    end)
+        -- can't continue if we have no energy available
+        return energy_available > 0, acc
+      end)
+  end
 
   if span then
     span:span_end()
   end
 
-  --print(LOG_GROUP, "energy_consumed", energy_consumed)
-  if ot then
-    span = ot:span_start("use_stored_energy")
+  return energy_consumed, energy_available
+end
+
+function ic:run_use_stored_energy(energy_storage_consumed, cluster, dtime, trace)
+  local span
+
+  if trace then
+    span = trace:span_start("use_stored_energy")
   end
-  local energy_storage_consumed = energy_consumed - energy_produced
+
   -- if we went over the produced, then the rest must be taken from the storage
   if energy_storage_consumed > 0 then
     local used
+    local node
+
     cluster:reduce_nodes_of_groups("energy_storage", 0, function (node_entry, acc)
-      node = minetest.get_node_or_nil(node_entry.pos)
+      node = get_node_or_nil(node_entry.pos)
 
       if node then
         used = EnergyDevices.use_stored_energy(node_entry.pos, node, energy_storage_consumed, dtime, span)
@@ -136,22 +146,24 @@ function ic:update(cls, cluster, dtime, cls_trace)
   if span then
     span:span_end()
   end
+end
 
-  -- how much extra energy is left, note the stored is subtracted from the available
-  -- if it falls below 0 then there is no extra energy.
-  if ot then
-    span = ot:span_start("receive_energy")
+function ic:run_receive_energy(energy_left, cluster, dtime, trace)
+  local span
+
+  if trace then
+    span = trace:span_start("receive_energy")
   end
 
-  if energy_available > energy_stored then
-    local energy_left = energy_available - energy_stored
+  if energy_left > 0 then
+    local node
 
     --print(LOG_GROUP, "energy_left", energy_left)
     -- Receivers are the lowest priority, they accept any left over energy from the production
     -- Incidentally, storage nodes tend to be also receivers
     local energy_received
     cluster:reduce_nodes_of_groups("energy_receiver", 0, function (node_entry, acc)
-      node = minetest.get_node_or_nil(node_entry.pos)
+      node = get_node_or_nil(node_entry.pos)
       if node then
         energy_received = EnergyDevices.receive_energy(node_entry.pos, node, energy_left, dtime, span)
         if energy_received then
@@ -165,16 +177,22 @@ function ic:update(cls, cluster, dtime, cls_trace)
   if span then
     span:span_end()
   end
+end
 
-  if ot then
-    span = ot:span_start("has_update")
+function ic:run_has_update(cluster, dtime, trace)
+  local span
+  if trace then
+    span = trace:span_start("has_update")
   end
+
   local pos
+  local node
   local tc
   local nodedef
+
   cluster:reduce_nodes_of_groups("has_update", 0, function (node_entry, acc)
     pos = node_entry.pos
-    node = minetest.get_node_or_nil(pos)
+    node = get_node_or_nil(pos)
 
     if node then
       nodedef = minetest.registered_nodes[node.name]
@@ -198,13 +216,56 @@ function ic:update(cls, cluster, dtime, cls_trace)
   if span then
     span:span_end()
   end
+end
 
-  if ot then
-    ot:span_end()
+function ic:update(cls, cluster, dtime, trace)
+  local sys_trace
+  local step_trace
+
+  if trace then
+    sys_trace = trace:span_start("energy_system")
   end
 
-  if pot then
-    pot:span_end()
+  if sys_trace then
+    step_trace = sys_trace:span_start(cluster.id)
+  end
+  --print(LOG_GROUP, "dtime=" .. dtime, "cluster_id=" .. cluster.id, "size=" .. cluster:size(), "updating energy")
+
+  --print(cluster:inspect())
+
+  -- Highest priority, produce energy
+  -- It's up to the node how it wants to deal with the energy, whether it's buffered, or just burst
+  local energy_produced = self:calc_energy_produced(cluster, dtime, step_trace)
+
+  -- Second highest priority, how much energy is stored in the network right now
+  -- This is combined with the produced to determine how much is available
+  -- The node is allowed to lie about it's contents, to cause energy trickle or gating
+  local energy_stored = self:calc_energy_stored(cluster, dtime, step_trace)
+
+  local total_energy_available = energy_stored + energy_produced
+  local energy_available = total_energy_available
+
+  local energy_consumed
+
+  energy_consumed, energy_available = self:run_consume_energy(energy_available, cluster, dtime, step_trace)
+
+  --print(LOG_GROUP, "energy_consumed", energy_consumed)
+  self:run_use_stored_energy(energy_consumed - energy_produced, cluster, dtime, step_trace)
+
+  -- how much extra energy is left, note the stored is subtracted from the available
+  -- if it falls below 0 then there is no extra energy.
+  local energy_left = energy_available - energy_consumed
+
+  self:run_receive_energy(energy_left, cluster, dtime, step_trace)
+
+  self:run_has_update(cluster, dtime, step_trace)
+
+  if step_trace then
+    step_trace:span_end()
+  end
+
+  if sys_trace then
+    sys_trace:span_end()
   end
 end
 

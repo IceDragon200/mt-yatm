@@ -7,6 +7,11 @@ local devices = {
   ENERGY_BUFFER_KEY = "energy_buffer"
 }
 
+local REASON_TRANSITION = { reason = "transition_state" }
+local REASON_STORED_ENERGY = { reason = "stored_energy" }
+local REASON_CONSUMED_ENERGY = { reason = "consumed_energy" }
+local REASON_IDLE = { reason = "idle" }
+
 function devices.device_on_construct(pos)
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
@@ -75,7 +80,7 @@ function devices.device_transition_device_state(pos, node, state)
       end
     end
 
-    yatm.queue_refresh_infotext(pos, node)
+    yatm.queue_refresh_infotext(pos, node, REASON_TRANSITION)
   end
 end
 
@@ -119,7 +124,9 @@ function devices.device_passive_consume_energy(pos, node, total_available, dtime
 
       consumed = consumed + stored
 
-      yatm.queue_refresh_infotext(pos, node)
+      if stored > 0 then
+        yatm.queue_refresh_infotext(pos, node, REASON_STORED_ENERGY)
+      end
     end
   end
 
@@ -169,11 +176,11 @@ function devices.worker_update(pos, node, dtime, ot)
 
       if consumed > 0 then
         yatm.energy.consume_energy(meta, devices.ENERGY_BUFFER_KEY, consumed, bandwidth, capacity, true)
-        yatm.queue_refresh_infotext(pos, node)
+        yatm.queue_refresh_infotext(pos, node, REASON_CONSUMED_ENERGY)
       end
       --print("devices.worker_update/3", minetest.pos_to_string(pos), dump(node.name), "consumed energy", consumed)
     else
-      yatm.queue_refresh_infotext(pos, node)
+      yatm.queue_refresh_infotext(pos, node, REASON_IDLE)
     end
   end
 
