@@ -2,6 +2,7 @@ local table_merge = assert(foundation.com.table_merge)
 local table_deep_merge = assert(foundation.com.table_deep_merge)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
+local en_receive_energy = assert(yatm.energy.receive_energy)
 
 local devices = {
   ENERGY_BUFFER_KEY = "energy_buffer"
@@ -98,10 +99,14 @@ function devices.get_energy_capacity(pos, node)
 end
 
 --
--- @spec devices.device_passive_consume_energy(vector3.t, Node.t, non_neg_integer, float, TraceContext)
 --
-function devices.device_passive_consume_energy(pos, node, total_available, dtime, ot)
-  local span = ot:span_start("device_passive_consume_energy")
+-- @spec devices.device_passive_consume_energy(Vector3, Node, Integer, dtime: Float, Trace): Integer
+function devices.device_passive_consume_energy(pos, node, total_available, dtime, trace)
+  local span
+  if trace then
+    span = trace:span_start("device_passive_consume_energy")
+  end
+
   local consumed = 0
   local nodedef = minetest.registered_nodes[node.name]
   local energy = nodedef.yatm_network.energy
@@ -120,7 +125,7 @@ function devices.device_passive_consume_energy(pos, node, total_available, dtime
 
     if charge_bandwidth and charge_bandwidth > 0 then
       local meta = minetest.get_meta(pos)
-      local stored = yatm.energy.receive_energy(meta, devices.ENERGY_BUFFER_KEY, remaining, charge_bandwidth, capacity, true)
+      local stored = en_receive_energy(meta, devices.ENERGY_BUFFER_KEY, remaining, charge_bandwidth, capacity, true)
 
       consumed = consumed + stored
 
@@ -131,7 +136,9 @@ function devices.device_passive_consume_energy(pos, node, total_available, dtime
   end
 
   --print("CONSUMED", pos.x, pos.y, pos.z, node.name, "CONSUMED", consumed, "GIVEN", total_available)
-  span:span_end()
+  if span then
+    span:span_end()
+  end
 
   return consumed
 end
