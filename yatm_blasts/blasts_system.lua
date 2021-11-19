@@ -1,3 +1,6 @@
+-- @namespace yatm_blasts
+
+-- @class BlastsSystem
 local BlastsSystem = foundation.com.Class:extends("BlastsSystem")
 local ic = assert(BlastsSystem.instance_class)
 

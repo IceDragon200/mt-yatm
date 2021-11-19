@@ -161,7 +161,7 @@ function ic:set_register_sr(sr)
   return self
 end
 
--- @private
+-- @spec #_step_startup(): Integer
 function ic:_step_startup()
   local histate = math.floor(self.m_chip.state / 16)
   local chip = self.m_chip
@@ -254,7 +254,7 @@ end
 
 -- Fetch and execute
 --
--- @private
+-- @spec #_step_fex(): Integer
 function ic:_step_fex()
   -- TODO: actually fetch
   return HANG_CODE

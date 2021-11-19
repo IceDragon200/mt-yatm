@@ -1,3 +1,4 @@
+-- @namespace yatm_armoury
 local Groups = assert(foundation.com.Groups)
 local sounds = assert(yatm.sounds)
 
@@ -8,7 +9,7 @@ end
 --
 -- Determines if the given stack is a form of ammunition
 --
--- @spec yatm_armoury.is_stack_cartridge(ItemStack) :: boolean
+-- @spec is_stack_cartridge(ItemStack): boolean
 function yatm_armoury.is_stack_cartridge(stack)
   if stack then
     local def = stack:get_definition()
@@ -22,7 +23,7 @@ end
 --
 -- Determines if the given stack is a form of magazine
 --
--- @spec yatm_armoury.is_stack_magazine(ItemStack) :: boolean
+-- @spec is_stack_magazine(ItemStack): boolean
 function yatm_armoury.is_stack_magazine(stack)
   if stack then
     local def = stack:get_definition()
@@ -33,6 +34,7 @@ function yatm_armoury.is_stack_magazine(stack)
   return false
 end
 
+-- @spec is_stack_firearm(ItemStack): Boolean
 function yatm_armoury.is_stack_firearm(stack)
   if stack then
     local def = stack:get_definition()
@@ -43,6 +45,7 @@ function yatm_armoury.is_stack_firearm(stack)
   return false
 end
 
+-- @spec get_item_stack_calibre(ItemStack): String
 function yatm_armoury.get_item_stack_calibre(item_stack)
   local itemdef = item_stack:get_definition()
   if yatm_armoury.is_stack_firearm(item_stack) then
@@ -106,7 +109,8 @@ end
 --
 -- Places the given cartridge/bullet/ammunition into a magazine
 --
--- @spec yatm_armoury.add_cartridges_to_magazine(ItemStack, ItemStack) :: (leftover_bullets :: ItemStack, new_magazine :: ItemStack)
+-- @spec add_cartridges_to_magazine(cartridge_stack: ItemStack, magazine_stack: ItemStack):
+--   (leftover_bullets: ItemStack, new_magazine: ItemStack)
 function yatm_armoury.add_cartridges_to_magazine(cartridge_stack, magazine_stack)
   -- need a cartridge and magazine respectvely
   if yatm_armoury.is_stack_cartridge(cartridge_stack) and yatm_armoury.is_stack_magazine(magazine_stack) then

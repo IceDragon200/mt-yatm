@@ -6,15 +6,21 @@ local table_bury = assert(foundation.com.table_bury)
 local AgingRegistry = foundation.com.Class:extends('yatm.brewery.AgingRegistry')
 local ic = AgingRegistry.instance_class
 
+--
 -- @type ItemIngredient: {
 --   name: String,
 --   amount: Integer = 0,
 --   metadata?: Table
 -- }
+
+--
 -- @type FluidIngredient: {
 --   name: String,
 --   amount: Integer = 0
 -- }
+
+-- Duration is in seconds
+--
 -- @type AgingRecipeDefinition: {
 --   inputs: {
 --     item: ItemIngredient,
@@ -24,8 +30,10 @@ local ic = AgingRegistry.instance_class
 --     item?: ItemIngredient,
 --     fluid: FluidIngredient,
 --   },
---   duration: Float, -- in seconds
+--   duration: Float,
 -- }
+
+--
 -- @type AgingRecipe: {
 --   id: integer,
 -- } extends AgingRecipeDefinition

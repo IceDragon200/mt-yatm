@@ -1,3 +1,4 @@
+-- @namespace yatm.wrench
 local Directions = assert(foundation.com.Directions)
 local table_copy = assert(foundation.com.table_copy)
 
@@ -37,13 +38,15 @@ local function rotate_facedir(rotate_type, facedir, reversed)
   return facedir
 end
 
--- @mutate
+-- @mutative
+-- @spec type_handler.wallmounted(RotationType, Node, reversed: Boolean): Node
 function yatm.wrench.type_handler.wallmounted(rotate_type, node, reversed)
   -- TODO
   return node
 end
 
--- @mutate
+-- @mutative
+-- @spec type_handler.facedir(RotationType, Node, reversed: Boolean): Node
 function yatm.wrench.type_handler.facedir(rotate_type, node, reversed)
   -- the original facedir value
   local facedir = rotate_facedir(rotate_type, node.param2, reversed)
@@ -53,7 +56,8 @@ function yatm.wrench.type_handler.facedir(rotate_type, node, reversed)
   return node
 end
 
--- @mutate
+-- @mutative
+-- @spec type_handler.colorfacedir(RotationType, Node, reversed: Boolean): Node
 function yatm.wrench.type_handler.colorfacedir(rotate_type, node, reversed)
   -- the original facedir value
   local facedir = node.param2 % 32
@@ -66,7 +70,8 @@ function yatm.wrench.type_handler.colorfacedir(rotate_type, node, reversed)
   return node
 end
 
--- @mutate
+-- @mutative
+-- @spec type_handler.colorwallmounted(RotationType, Node, reversed: Boolean): Node
 function yatm.wrench.type_handler.colorwallmounted(rotate_type, node, reversed)
   -- TODO
   return node
@@ -76,8 +81,8 @@ end
 -- should return the updated node if any rotations should apply,
 -- or nil otherwise
 --
+-- @mutative
 -- @spec calc_rotate_node(rotate_type: ROTATE_AXIS | ROTATE_FACE, pos: Vector3, node: Node, reverse: Boolean): Node | nil
--- @mutate
 function yatm.wrench.calc_rotate_node(rotate_type, pos, node, reversed)
   local nodedef = minetest.registered_nodes[node.name]
 

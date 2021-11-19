@@ -82,7 +82,7 @@ function m.assemble_tokens(token_buf)
   return table.concat(result), context
 end
 
--- @spec assemble(String) :: (binary :: String, error :: String)
+-- @spec assemble(String): (binary: String, error: String)
 function m.assemble(prog)
   local tokens, rest = m.parse(prog)
 
@@ -90,7 +90,7 @@ function m.assemble(prog)
   return blob, context, rest
 end
 
--- @spec assemble_safe(String) :: (boolean, binary :: String, error :: String)
+-- @spec assemble_safe(String): (Boolean, binary: String, error: String)
 function m.assemble_safe(prog)
   local result, blob, context, rest =
     pcall(function ()

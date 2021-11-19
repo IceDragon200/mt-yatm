@@ -2,22 +2,22 @@
 -- FluidInterface
 --
 -- @since "1.0.0"
--- @callback get(self, pos, dir, node): FluidStack
+-- @type FluidInterface.get(self, pos, dir, node) => FluidStack
 --
 -- @since "1.1.0"
--- @callback get_capacity(self, pos, dir, node): Integer
+-- @type FluidInterface.get_capacity(self, pos, dir, node) => Integer
 --
 -- @since "1.0.0"
--- @callback replace(self, pos, dir, node, fluid_stack: FluidStack, commit: Boolean)
+-- @type FluidInterface.replace(self, pos, dir, node, fluid_stack: FluidStack, commit: Boolean) => void
 --
 -- @since "1.0.0"
--- @callback fill(self, pos, dir, node, fluid_stack: FluidStack, commit: Boolean)
+-- @type FluidInterface.fill(self, pos, dir, node, fluid_stack: FluidStack, commit: Boolean) => void
 --
 -- @since "1.0.0"
--- @callback drain(self, pos, dir, node, fluid_stack: FluidStack, commit: Boolean)
+-- @type FluidInterface.drain(self, pos, dir, node, fluid_stack: FluidStack, commit: Boolean) => void
 --
 -- @since "1.0.0"
--- @callback on_fluid_changed(self, pos, dir, fluid_stack: FluidStack)
+-- @type FluidInterface.on_fluid_changed(self, pos, dir, fluid_stack: FluidStack) => void
 local FluidMeta = assert(yatm_fluids.FluidMeta)
 
 local FluidInterface = {

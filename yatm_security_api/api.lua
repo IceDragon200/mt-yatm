@@ -38,7 +38,8 @@ local SecuritySlotSchema = foundation.com.MetaSchema:new("SecuritySlotSchema", "
 --                                                  Function | nil | String),
 -- }
 
--- @struct { [name :: String] = SecurityFeatureDefinition }
+-- @type RegisteredSecurityFeatures: { [name: String]: SecurityFeatureDefinition }
+
 yatm.security.registered_security_features = {}
 
 -- Register new security features with register_security_feature

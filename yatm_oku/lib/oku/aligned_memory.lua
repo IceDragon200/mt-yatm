@@ -28,7 +28,7 @@ union yatm_oku_aligned_memory_cell32 {
 local UNION_BYTE_SIZE = 4
 
 -- Initializes a new binary memory, size is in bytes
--- @spec initialize(size :: integer) :: void
+-- @spec initialize(size: Integer): void
 function m:initialize(size)
   self.size = size
   self.m_data_size = math.floor(self.size / UNION_BYTE_SIZE) -- the data size is a 1/4 of the given size

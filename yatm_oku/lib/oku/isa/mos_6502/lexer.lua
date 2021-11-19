@@ -1,3 +1,5 @@
+-- @namespace yatm_oku.OKU.isa.MOS6502.Lexer
+
 local StringBuffer = assert(foundation.com.StringBuffer)
 local TokenBuffer = assert(yatm_oku.TokenBuffer)
 
@@ -171,7 +173,7 @@ local function tokenize_value(buf, result)
   return false
 end
 
--- @spec tokenize(String) :: TokenBuffer, String
+-- @spec tokenize(String): (TokenBuffer, String)
 function Lexer.tokenize(str)
   local buf = StringBuffer:new(str, 'r')
 

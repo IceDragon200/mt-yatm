@@ -1,3 +1,5 @@
+-- @namespace yatm_oku.OKU
+
 --
 -- Memory model used by OKU
 --
@@ -13,6 +15,7 @@ end
 
 local ByteBuf = assert(foundation.com.ByteBuf)
 
+-- @class Memory
 local Memory = foundation.com.Class:extends("oku.Memory")
 local m = assert(Memory.instance_class)
 
@@ -33,7 +36,7 @@ union yatm_oku_memory_cell32 {
 ]]
 
 -- Initializes a new binary memory, size is in bytes
--- @spec initialize(size :: integer) :: void
+-- @spec initialize(size: Integer): void
 function m:initialize(size)
   assert(size > 0, "expected memory size to be greater than 0")
   self.m_size = size

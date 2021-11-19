@@ -55,7 +55,7 @@ function yatm_data_logic.layout_formspec(w, h)
 end
 
 --
--- @type options :: {
+-- @type Options :: {
 --   width = float,
 --   sections = [
 --     {
@@ -68,7 +68,8 @@ end
 --     }
 --   ]
 -- }
--- @spec yatm_data_logic.get_port_matrix_formspec(vector, MetaRef, options)
+--
+-- @spec yatm_data_logic.get_port_matrix_formspec(Vector3, MetaRef, Options): String
 function yatm_data_logic.get_port_matrix_formspec(pos, meta, options)
   options = options or {}
   local sub_network_ids = data_network:get_sub_network_ids(pos)

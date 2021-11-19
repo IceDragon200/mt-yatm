@@ -8,18 +8,24 @@ local table_bury = assert(foundation.com.table_bury)
 local BrewingRegistry = foundation.com.Class:extends('yatm.brewery.BrewingRegistry')
 local ic = BrewingRegistry.instance_class
 
+--
 -- @type RecipeID: integer
+
 --
 -- @type ItemIngredient: {
 --   name: String,
 --   amount: Integer = 0,
 --   metadata: Table
 -- }
+
 --
 -- @type FluidIngredient: {
 --   name: String,
 --   amount: Integer = 0
 -- }
+
+-- `duration` is in seconds
+-- `heat_rate` is how many units of heat are required per second for the recipe.
 --
 -- @type BrewingRecipeDefinition: {
 --   inputs: {
@@ -30,27 +36,33 @@ local ic = BrewingRegistry.instance_class
 --     item: ItemIngredient,
 --     fluid: FluidIngredient
 --   },
---   duration: Float, -- time in seconds
---   heat_rate: Integer, -- heat per second, how much heat is consumed while brewing per second.
+--   duration: Float,
+--   heat_rate: Integer,
 -- }
+
 --
 -- @type BrewingRecipe: {
 --   id: RecipeID,
 --   name: String,
 -- } extends BrewingRecipeDefinition
+
 --
--- @type Recipes: { [RecipeID]: BrewingRecipeDefinition }
+-- @type Recipes: {
+--   [RecipeID]: BrewingRecipeDefinition
+-- }
+
 --
 -- @type RecipesIndex: {
 --   [fluid_name: String]: {
 --     [item_name: String]: RecipeID
 --   }
 -- }
+
 --
--- @type output_fluid_to_recipes: { [fluid_name: String] = { [RecipeID] = true } }
+-- @type output_fluid_to_recipes: { [fluid_name: String]: { [RecipeID]: Boolean } }
+
 --
--- @type output_item_to_recipes: { [item_name: String] = { [RecipeID] = true } }
---
+-- @type output_item_to_recipes: { [item_name: String]: { [RecipeID]: Boolean } }
 
 function ic:initialize()
   self.m_recipe_id = 0

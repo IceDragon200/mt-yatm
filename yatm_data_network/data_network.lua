@@ -319,7 +319,7 @@ function ic:cancel_queued_refresh(pos)
   return self
 end
 
--- @spec :add_node(Vector3, NodeRef) :: self
+-- @spec #add_node(Vector3, NodeRef): self
 function ic:add_node(pos, node)
   self:log("add_node", minetest.pos_to_string(pos), node.name)
   local member_id = minetest.hash_node_position(pos)
@@ -367,7 +367,7 @@ end
 -- Call this function when the physical node has changed in order to keep the
 -- information up to date, an example would be after a minetest.swap_node call.
 --
--- @spec :update_member(Vector3, NodeRef, Boolean) :: self
+-- @spec #update_member(Vector3, NodeRef, Boolean): self
 function ic:update_member(pos, node, force_refresh)
   self:log("update_member/3 pos=" .. minetest.pos_to_string(pos) ..
                          " name=" .. node.name ..
@@ -414,7 +414,7 @@ end
 
 -- If the node is already registered this function will call update_member, if it then add_node.
 --
--- @spec :upsert_member(Vector3, NodeRef, Boolean) :: self
+-- @spec #upsert_member(Vector3, NodeRef, Boolean): self
 function ic:upsert_member(pos, node, force_refresh)
   self:log("upsert_member", minetest.pos_to_string(pos), node.name)
   local member_id = minetest.hash_node_position(pos)
@@ -426,12 +426,13 @@ function ic:upsert_member(pos, node, force_refresh)
   end
 end
 
--- @spec :unregister_member(Vector3, NodeRef | nil) :: self
+-- @spec #unregister_member(Vector3, Node | nil): self
 function ic:unregister_member(pos, node)
   self:log("unregister_member/2", "is deprecated please use remove_node/2 instead")
   return self:remove_node(pos, node)
 end
 
+-- @spec #remove_node(Vector3, Node): self
 function ic:remove_node(pos, node)
   self:_internal_remove_node(pos, node)
   self:_queue_refresh(pos, "removed node")

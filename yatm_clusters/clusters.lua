@@ -308,9 +308,11 @@ do
   end
 
   --
-  -- @type reducer :: (node_entry :: NodeEntry, acc :: term) =>
-  --                  {continue_reduce :: boolean, acc :: term}
-  -- @spec reduce_nodes_of_groups([string], acc :: term, reducer) :: acc
+  -- @type ReducerFunction: function(node_entry: NodeEntry, acc: Any) =>
+  --         (continue_reduce: Boolean, acc: Any)
+  --
+
+  -- @spec reduce_nodes_of_groups([String], acc: Any, ReducerFunction): (acc: Any)
   function ic:reduce_nodes_of_groups(groups, acc, reducer)
     if type(groups) == "string" then
       groups = {groups}
