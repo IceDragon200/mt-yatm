@@ -178,9 +178,10 @@ function Lexer.tokenize(str)
   local buf = StringBuffer:new(str, 'r')
 
   local result = TokenBuffer:new({}, 'w')
+  local next_char
 
   while not buf:isEOF() do
-    local next_char = buf:peek(1)
+    next_char = buf:peek(1)
 
     if next_char == ";" then
       tokenize_comment(buf, result)
