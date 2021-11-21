@@ -1,23 +1,24 @@
+-- @namespace yatm_fluids.FluidInterface
 --
 -- FluidInterface
 --
 -- @since "1.0.0"
--- @type FluidInterface.get(self, pos, dir, node) => FluidStack
+-- @type get: function(self, pos, dir, node) => FluidStack
 --
 -- @since "1.1.0"
--- @type FluidInterface.get_capacity(self, pos, dir, node) => Integer
+-- @type get_capacity: function(self, pos, dir, node) => Integer
 --
 -- @since "1.0.0"
--- @type FluidInterface.replace(self, pos, dir, node, fluid_stack: FluidStack, commit: Boolean) => void
+-- @type replace: function(self, pos, dir, node, fluid_stack: FluidStack, commit: Boolean) => void
 --
 -- @since "1.0.0"
--- @type FluidInterface.fill(self, pos, dir, node, fluid_stack: FluidStack, commit: Boolean) => void
+-- @type fill: function(self, pos, dir, node, fluid_stack: FluidStack, commit: Boolean) => void
 --
 -- @since "1.0.0"
--- @type FluidInterface.drain(self, pos, dir, node, fluid_stack: FluidStack, commit: Boolean) => void
+-- @type drain: function(self, pos, dir, node, fluid_stack: FluidStack, commit: Boolean) => void
 --
 -- @since "1.0.0"
--- @type FluidInterface.on_fluid_changed(self, pos, dir, fluid_stack: FluidStack) => void
+-- @type on_fluid_changed: function(self, pos, dir, fluid_stack: FluidStack) => void
 local FluidMeta = assert(yatm_fluids.FluidMeta)
 
 local FluidInterface = {
