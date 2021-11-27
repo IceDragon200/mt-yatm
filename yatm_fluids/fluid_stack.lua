@@ -3,6 +3,8 @@
 --
 local fluid_registry = assert(yatm_fluids.fluid_registry)
 local FluidUtils = assert(yatm_fluids.Utils)
+
+-- @namespace yatm_fluids.FluidStack
 local FluidStack = {}
 
 -- @spec new(name: String, amount: Integer): FluidStack

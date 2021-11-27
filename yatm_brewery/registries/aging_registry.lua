@@ -3,6 +3,9 @@
 --
 local table_bury = assert(foundation.com.table_bury)
 
+-- @namespace yatm_brewery
+
+-- @class AgingRegistry
 local AgingRegistry = foundation.com.Class:extends('yatm.brewery.AgingRegistry')
 local ic = AgingRegistry.instance_class
 
@@ -122,7 +125,7 @@ end
 
 -- Retrieve an aging recipe by its id if it exists
 --
--- @spec get_aging_recipe(recipe_id: Integer): AgingRecipe | nil
+-- @spec #get_aging_recipe(recipe_id: Integer): AgingRecipe | nil
 function ic:get_aging_recipe(recipe_id)
   return self.m_recipes[recipe_id]
 end

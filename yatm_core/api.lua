@@ -6,16 +6,28 @@
 local table_merge = assert(foundation.com.table_merge)
 local fspec = assert(foundation.com.formspec.api)
 
+-- @namespace yatm
+
 -- alias foundation modules into yatm, they were originally yatm modules to begin with
+-- @alias Luna = foundation.com.Luna
 yatm.Luna = foundation.com.Luna
+-- @alias MetaSchema = foundation.com.MetaSchema
 yatm.MetaSchema = foundation.com.MetaSchema
+-- @alias ByteBuf = foundation.com.ByteBuf
 yatm.ByteBuf = foundation.com.ByteBuf
+-- @alias BinSchema = foundation.com.BinSchema
 yatm.BinSchema = foundation.com.BinSchema
+-- @alias ByteDecoder = foundation.com.ByteDecoder
 yatm.ByteDecoder = foundation.com.ByteDecoder
+-- @alias ByteEncoder = foundation.com.ByteEncoder
 yatm.ByteEncoder = foundation.com.ByteEncoder
+-- @alias Vector2 = foundation.com.Vector2
 yatm.Vector2 = foundation.com.Vector2
+-- @alias Vector3 = foundation.com.Vector3
 yatm.Vector3 = foundation.com.Vector3
+-- @alias Vector4 = foundation.com.Vector4
 yatm.Vector4 = foundation.com.Vector4
+-- @alias Cuboid = foundation.com.Cuboid
 yatm.Cuboid = foundation.com.Cuboid
 
 local nokore_player_inv = rawget(_G, "nokore_player_inv")

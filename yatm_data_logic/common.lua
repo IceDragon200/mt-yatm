@@ -5,6 +5,7 @@ local data_network = assert(yatm.data_network)
 local bit = assert(foundation.com.bit)
 local is_table_empty = assert(foundation.com.is_table_empty)
 
+-- @namespace yatm_data_logic
 local NO_SETTINGS = {}
 
 yatm_data_logic.INTERVAL_LIST = {
@@ -101,7 +102,7 @@ local function toggle_bit(value, pos)
   return bit.bxor(value, bit.lshift(1, pos))
 end
 
--- @spec yatm_data_logic.encode_varuint(value: Integer, length: Integer) :: String
+-- @spec encode_varuint(value: Integer, length: Integer) :: String
 function yatm_data_logic.encode_varuint(value, length)
   local now = value
   local result = {}
@@ -114,22 +115,22 @@ function yatm_data_logic.encode_varuint(value, length)
   return table.concat(result)
 end
 
--- @spec yatm_data_logic.encode_u8(value: Integer) :: String
+-- @spec encode_u8(value: Integer) :: String
 function yatm_data_logic.encode_u8(value)
   return yatm_data_logic.encode_varuint(value, 1)
 end
 
--- @spec yatm_data_logic.encode_u16(value: Integer) :: String
+-- @spec encode_u16(value: Integer) :: String
 function yatm_data_logic.encode_u16(value)
   return yatm_data_logic.encode_varuint(value, 2)
 end
 
--- @spec yatm_data_logic.encode_u24(value: Integer) :: String
+-- @spec encode_u24(value: Integer) :: String
 function yatm_data_logic.encode_u24(value)
   return yatm_data_logic.encode_varuint(value, 3)
 end
 
--- @spec yatm_data_logic.encode_u32(value: Integer) :: String
+-- @spec encode_u32(value: Integer) :: String
 function yatm_data_logic.encode_u32(value)
   return yatm_data_logic.encode_varuint(value, 4)
 end
@@ -183,7 +184,7 @@ end
 --
 -- Treats the specified value as a vector, that is each value in the string is outputted on a different port
 --
--- @spec yatm_data_logic.emit_output_data_vector(pos: Vector, vector_value: String, options: Table) :: boolean
+-- @spec emit_output_data_vector(pos: Vector, vector_value: String, options: Table) :: boolean
 function yatm_data_logic.emit_output_data_vector(pos, vector_value, options)
   options = options or {}
   local meta = minetest.get_meta(pos)

@@ -4,6 +4,7 @@ local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local en_receive_energy = assert(yatm.energy.receive_energy)
 
+-- @namespace yatm.devices
 local devices = {
   ENERGY_BUFFER_KEY = "energy_buffer"
 }
@@ -100,7 +101,7 @@ end
 
 --
 --
--- @spec devices.device_passive_consume_energy(Vector3, Node, Integer, dtime: Float, Trace): Integer
+-- @spec device_passive_consume_energy(Vector3, Node, Integer, dtime: Float, Trace): Integer
 function devices.device_passive_consume_energy(pos, node, total_available, dtime, trace)
   local span
   if trace then

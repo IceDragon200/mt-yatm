@@ -3,7 +3,10 @@
   The GrindingRegistry contains recipes for the grinders
 
 ]]
-local GrindingRegistry = foundation.com.Class:extends("GrindingRegistry")
+-- @namespace yatm_machines
+
+-- @class GrindingRegistry
+local GrindingRegistry = foundation.com.Class:extends("yatm_machines.GrindingRegistry")
 local ic = GrindingRegistry.instance_class
 
 function ic:initialize()
@@ -14,7 +17,12 @@ function ic:initialize()
 end
 
 --
--- @spec register_grinding_recipe(String, ItemStack, {ItemStack}, Number) :: self
+-- @spec register_grinding_recipe(
+--   name: String,
+--   input_item_stack: ItemStack,
+--   output_item_stack: ItemStack[],
+--   duration: Number
+-- ): self
 --
 function ic:register_grinding_recipe(name, input_item_stack, output_item_stacks, duration)
   assert(name, "requires a name")

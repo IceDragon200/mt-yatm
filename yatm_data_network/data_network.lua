@@ -29,7 +29,10 @@ local table_bury = assert(foundation.com.table_bury)
 local random_string32 = assert(foundation.com.random_string32)
 local Directions = assert(foundation.com.Directions)
 
-local DataNetwork = foundation.com.Class:extends('yatm.data.Network')
+-- @namespace yatm_data_network
+
+-- @class DataNetwork
+local DataNetwork = foundation.com.Class:extends('yatm_data_network.DataNetwork')
 local ic = assert(DataNetwork.instance_class)
 
 DataNetwork.PORT_RANGE = 16

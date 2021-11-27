@@ -6,6 +6,8 @@ local data_network = assert(yatm.data_network)
 local Directions = assert(foundation.com.Directions)
 local fspec = assert(foundation.com.formspec.api)
 
+-- @namespace yatm_data_logic
+
 local BUTTONS_BY_BIT = {
   {
     bit = 1,
@@ -54,22 +56,29 @@ function yatm_data_logic.layout_formspec(w, h)
   return formspec
 end
 
+-- Section Properties
+--   * `name` - lower case string will be prefixed on the port names
+--   * `label` - descriptive label of the section
+--   * `cols` - how many colunms are allowed in this section
+--   * `port_count` - how many ports does this section have
+--   * `port_names` - the port names
+--   * `port_labels` - the descriptive labels of each port
 --
--- @type Options :: {
---   width = float,
---   sections = [
+-- @type PortOptions: {
+--   width: Float,
+--   sections: [
 --     {
---        name = string, -- lower case string will be prefixed on the port names
---        label = string, -- descriptive label of the section
---        cols = integer, -- how many colunms are allowed in this section
---        port_count = integer, -- how many ports does this section have
---        port_names = [string], -- the port names
---        port_labels = [string], -- the descriptive labels of each port
+--        name: String,
+--        label: String,
+--        cols: Integer,
+--        port_count: Integer,
+--        port_names: [String],
+--        port_labels: [String],
 --     }
 --   ]
 -- }
 --
--- @spec yatm_data_logic.get_port_matrix_formspec(Vector3, MetaRef, Options): String
+-- @spec yatm_data_logic.get_port_matrix_formspec(Vector3, MetaRef, PortOptions): String
 function yatm_data_logic.get_port_matrix_formspec(pos, meta, options)
   options = options or {}
   local sub_network_ids = data_network:get_sub_network_ids(pos)

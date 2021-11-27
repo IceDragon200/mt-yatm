@@ -1,5 +1,7 @@
+-- @namespace yatm_oku.OKU.isa.MOS6502
 local isa = yatm_oku.OKU.isa.MOS6502
 
+-- @class LuaChip
 isa.LuaChip = foundation.com.Class:extends("yatm_oku.OKU.isa.MOS6502.LuaChip")
 local ic = isa.LuaChip.instance_class
 

@@ -5,6 +5,10 @@
 
 ]]
 
+-- @namespace yatm.Measurable
+
+-- @type ReducerFunction: function(name: String, member: Table, acc: Any) => (continue: Boolean, acc: Any)
+
 local m = {
 }
 
@@ -20,6 +24,7 @@ m.schema = foundation.com.MetaSchema:new("measurable", "", {
   }
 })
 
+-- @spec register(Registry, name: String, def: Table): (def: Table)
 function m.register(registry, name, def)
   assert(registry, "expected a registry")
   assert(name, "requires a name")
@@ -44,13 +49,14 @@ function m.register(registry, name, def)
   return def
 end
 
---[[
-Retrieve a list of the members in the specified group
-]]
+-- Retrieve a table of the members in the specified group
+--
+-- @spec member_of(Registry, group_name: String): { [name: String]: Integer }
 function m.members_of(registry, group_name)
   return registry.group_members[group_name] or {}
 end
 
+-- @spec is_member_of(Registry, name: String, group_name: String): Boolean
 function m.is_member_of(registry, name, group_name)
   local member = registry.members[name]
   if member then
@@ -59,6 +65,7 @@ function m.is_member_of(registry, name, group_name)
   return false
 end
 
+-- @spec reduce_members_of(Registry, group_name: String, acc: Any, reducer: ReducerFunction): (acc: Any)
 function m.reduce_members_of(registry, group_name, acc, fun)
   local base = registry.group_members[group_name];
   if base then

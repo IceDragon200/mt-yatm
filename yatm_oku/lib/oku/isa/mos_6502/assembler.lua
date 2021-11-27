@@ -11,6 +11,16 @@ yatm_oku:require("lib/oku/isa/mos_6502/nmos_assembly.lua")
 
 local NMOS_Assembly = assert(yatm_oku.OKU.isa.MOS6502.NMOS_Assembly)
 local AssemblyBuilder = assert(yatm_oku.OKU.isa.MOS6502.Builder)
+
+-- @namespace yatm_oku.OKU.isa.MOS6502.Assembler
+
+-- @type AssemblerContext: {
+--   pos: Integer,
+--   jump_table: {
+--     [label: String]: Integer
+--   }
+-- }
+
 local Assembler = {
   Lexer = Lexer,
   Parser = Parser,
@@ -18,12 +28,14 @@ local Assembler = {
 
 local m = Assembler
 
+-- @spec parse(String): (TokenBuffer, rest: String)
 function m.parse(prog)
   local token_buf, rest = m.Lexer.tokenize(prog)
   token_buf:open('r')
   return m.Parser.parse(token_buf), rest
 end
 
+-- @spec assemble_tokens(TokenBuffer): (blob: String, AssemblerContext)
 function m.assemble_tokens(token_buf)
   local tokens = token_buf:to_list()
 

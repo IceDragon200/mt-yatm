@@ -1,12 +1,16 @@
 --
 -- The pressing registry contains recipes for the mechanical press.
 --
+
+-- @namespace yatm_brewery
+
+-- @class PressingRegistry
 local PressingRegistry = foundation.com.Class:extends('yatm.brewery.PressingRegistry')
 local ic = PressingRegistry.instance_class
 
 --
 --
---
+-- @spec #initialize(): void
 function ic:initialize()
   self.m_recipe_id = 0
   self.m_recipes = {}

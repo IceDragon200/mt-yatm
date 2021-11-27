@@ -7,7 +7,9 @@ local Vector3 = assert(foundation.com.Vector3)
 local List = assert(foundation.com.List)
 
 local hash_pos = minetest.hash_node_position
+-- @namespace yatm_clusters
 
+-- @class Cluster
 local Cluster = foundation.com.Class:extends("YATM.Cluster")
 do
   local ic = Cluster.instance_class
@@ -377,6 +379,7 @@ end
 --
 local MAP_BLOCK_SIZE3 = Vector3.new(16, 16, 16)
 
+-- @class Clusters
 local Clusters = foundation.com.Class:extends("YATM.Clusters")
 do
   local ic = Clusters.instance_class

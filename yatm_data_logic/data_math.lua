@@ -2,11 +2,12 @@
 -- Helper math/arithemtic/logic functions for use by the various data nodes
 --
 -- This operates on little-endian encoded byte vectors
+-- @namespace yatm_data_logic.data_math
 local data_math = {}
 
 -- Retrieves the value at the specific index
 --
--- @spec elem(String | Table, Integer) :: Integer | nil
+-- @private.spec elem(object: String | Table, index: Integer): Integer | nil
 local function elem(object, index)
   if type(object) == "string" then
     return string.byte(object, index)

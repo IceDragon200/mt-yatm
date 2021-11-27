@@ -1,8 +1,10 @@
 local Groups = assert(foundation.com.Groups)
 local InventorySerializer = assert(yatm.items.InventorySerializer)
 
+-- @namespace yatm.dscs
 yatm.dscs = yatm.dscs or {}
 
+-- @spec get_drive_capacity(ItemStack): Integer
 function yatm.dscs.get_drive_capacity(item_stack)
   return item_stack:get_definition().drive_capacity
 end

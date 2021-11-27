@@ -3,9 +3,12 @@
 -- for 'brewing' recipes, these are recipes used by the kettle.
 -- The recipes themselves can be quite complicated.
 --
+
+-- @namespace yatm_brewery
 local table_bury = assert(foundation.com.table_bury)
 
-local BrewingRegistry = foundation.com.Class:extends('yatm.brewery.BrewingRegistry')
+-- @class BrewingRegistry
+local BrewingRegistry = foundation.com.Class:extends('yatm_brewery.BrewingRegistry')
 local ic = BrewingRegistry.instance_class
 
 --
@@ -64,6 +67,7 @@ local ic = BrewingRegistry.instance_class
 --
 -- @type output_item_to_recipes: { [item_name: String]: { [RecipeID]: Boolean } }
 
+-- @spec #initialize(): void
 function ic:initialize()
   self.m_recipe_id = 0
   self.m_recipes = {}

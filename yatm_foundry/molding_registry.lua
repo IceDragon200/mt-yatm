@@ -7,10 +7,17 @@ local MoldingRegistry = yatm_core.Class:extends()
 
 local m = assert(MoldingRegistry.instance_class)
 
+-- @spec #initialize(): void
 function m:initialize()
   self.recipes_by_mold = {}
 end
 
+-- @spec #register_molding_recipe(
+--   name: String,
+--   mold_item_stack: ItemStack,
+--   result_item_stack: ItemStack,
+--   duration: Number
+-- ): self
 function m:register_molding_recipe(name, mold_item_stack, molten_fluid, result_item_stack, duration)
   local mold_name = mold_item_stack:get_name()
 
@@ -26,6 +33,7 @@ function m:register_molding_recipe(name, mold_item_stack, molten_fluid, result_i
   return self
 end
 
+-- @spec #get_molding_recipe(mold_item_stack: ItemStack, molten_fluid: FluidStack): self
 function m:get_molding_recipe(mold_item_stack, molten_fluid)
   if mold_item_stack and molten_fluid then
     local mold_name = mold_item_stack:get_name()

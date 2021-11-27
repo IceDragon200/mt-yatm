@@ -26,6 +26,8 @@ else
   Buffer = assert(foundation.com.StringBuffer)
 end
 
+-- @namespace yatm_oku
+
 --
 -- This is the header of the computer state file, since OKU
 -- handles the actual machine state, it's not included here.

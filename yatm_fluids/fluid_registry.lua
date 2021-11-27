@@ -6,6 +6,7 @@ local Groups = assert(foundation.com.Groups)
 local table_merge = assert(foundation.com.table_merge)
 local Directions = assert(foundation.com.Directions)
 
+-- @namespace yatm_fluids.fluid_registry
 local FluidRegistry = {
   m_item_name_to_fluid_name = {},
   m_fluid_name_to_tank_name = {},
@@ -287,10 +288,12 @@ function FluidRegistry.register(modname, fluid_basename, definition)
   end
 end
 
+-- @spec get_fluid(fluid_name: String): Fluid
 function FluidRegistry.get_fluid(fluid_name)
   return FluidRegistry.members[fluid_name]
 end
 
+-- @spec normalize_fluid_name(fluid_name: String): String
 function FluidRegistry.normalize_fluid_name(fluid_name)
   return FluidRegistry.aliases[fluid_name] or fluid_name
 end

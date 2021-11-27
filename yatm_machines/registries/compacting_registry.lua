@@ -3,7 +3,10 @@
   The CompactingRegistry contains recipes for the compactors
 
 ]]
-local CompactingRegistry = foundation.com.Class:extends()
+-- @namespace yatm_machines
+
+-- @class CompactingRegistry
+local CompactingRegistry = foundation.com.Class:extends("yatm_machines.CompactingRegistry")
 local ic = CompactingRegistry.instance_class
 
 function ic:initialize()
@@ -14,8 +17,12 @@ function ic:initialize()
 end
 
 --
--- @spec register_compacting_recipe(String, ItemStack, {ItemStack}, Number) :: self
---
+-- @spec register_compacting_recipe(
+--   name: String,
+--   input_item_stack: ItemStack,
+--   output_item_stack: ItemStack,
+--   duration: Number
+-- ): self
 function ic:register_compacting_recipe(name, input_item_stack, output_item_stack, duration)
   assert(name, "requires a name")
   assert(input_item_stack, "requires an input stack")
