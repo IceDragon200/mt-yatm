@@ -8,10 +8,15 @@
 -- If you're looking for wood processing, check yatm_woodcraft.
 local mod = foundation.new_module("yatm_foundry", "2.0.0")
 
-mod:require("kiln_registry.lua")
-mod:require("blasting_registry.lua")
-mod:require("smelting_registry.lua")
-mod:require("molding_registry.lua")
+mod:require("registries/kiln_registry.lua")
+mod:require("registries/blasting_registry.lua")
+mod:require("registries/smelting_registry.lua")
+mod:require("registries/molding_registry.lua")
+
+yatm_foundry.blasting_registry = yatm_foundry.BlastingRegistry:new()
+yatm_foundry.molding_registry = yatm_foundry.MoldingRegistry:new()
+yatm_foundry.kiln_registry = yatm_foundry.KilnRegistry:new()
+yatm_foundry.smelting_registry = yatm_foundry.SmeltingRegistry:new()
 
 mod:require("api.lua")
 

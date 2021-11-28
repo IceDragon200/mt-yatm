@@ -3,12 +3,11 @@
 -- The MoldingRegistry contains recipes for the molders
 --
 -- @class MoldingRegistry
-local MoldingRegistry = yatm_core.Class:extends()
-
-local m = assert(MoldingRegistry.instance_class)
+local MoldingRegistry = yatm_core.Class:extends("yatm_foundry.MoldingRegistry")
+local ic = assert(MoldingRegistry.instance_class)
 
 -- @spec #initialize(): void
-function m:initialize()
+function ic:initialize()
   self.recipes_by_mold = {}
 end
 
@@ -18,7 +17,7 @@ end
 --   result_item_stack: ItemStack,
 --   duration: Number
 -- ): self
-function m:register_molding_recipe(name, mold_item_stack, molten_fluid, result_item_stack, duration)
+function ic:register_molding_recipe(name, mold_item_stack, molten_fluid, result_item_stack, duration)
   local mold_name = mold_item_stack:get_name()
 
   self.recipes_by_mold[mold_name] = self.recipes_by_mold[mold_name] or {}
@@ -33,8 +32,8 @@ function m:register_molding_recipe(name, mold_item_stack, molten_fluid, result_i
   return self
 end
 
--- @spec #get_molding_recipe(mold_item_stack: ItemStack, molten_fluid: FluidStack): self
-function m:get_molding_recipe(mold_item_stack, molten_fluid)
+-- @spec #get_molding_recipe(mold_item_stack: ItemStack, molten_fluid: FluidStack): nil | MoldingRecipe
+function ic:get_molding_recipe(mold_item_stack, molten_fluid)
   if mold_item_stack and molten_fluid then
     local mold_name = mold_item_stack:get_name()
     local mold_recipes = self.recipes_by_mold[mold_name]
@@ -51,4 +50,3 @@ function m:get_molding_recipe(mold_item_stack, molten_fluid)
 end
 
 yatm_foundry.MoldingRegistry = MoldingRegistry
-yatm_foundry.molding_registry = MoldingRegistry:new()

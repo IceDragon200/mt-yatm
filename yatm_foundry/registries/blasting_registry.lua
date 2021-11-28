@@ -14,4 +14,3 @@ function m:register_blasting_recipe()
 end
 
 yatm_foundry.BlastingRegistry = BlastingRegistry
-yatm_foundry.blasting_registry = BlastingRegistry:new()
