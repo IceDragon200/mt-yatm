@@ -13,11 +13,6 @@ mod:require("registries/blasting_registry.lua")
 mod:require("registries/smelting_registry.lua")
 mod:require("registries/molding_registry.lua")
 
-yatm_foundry.blasting_registry = yatm_foundry.BlastingRegistry:new()
-yatm_foundry.molding_registry = yatm_foundry.MoldingRegistry:new()
-yatm_foundry.kiln_registry = yatm_foundry.KilnRegistry:new()
-yatm_foundry.smelting_registry = yatm_foundry.SmeltingRegistry:new()
-
 mod:require("api.lua")
 
 mod:require("nodes.lua")
