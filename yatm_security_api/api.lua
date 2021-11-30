@@ -1,32 +1,54 @@
 -- @namespace yatm.security
 local string_empty = assert(foundation.com.string_empty)
 local is_table_empty = assert(foundation.com.is_table_empty)
+local MetaSchema = assert(foundation.com.MetaSchema)
 
 yatm.security = yatm.security or {}
 
-local SecuritySlotSchema = foundation.com.MetaSchema:new("SecuritySlotSchema", "", {
+local SecuritySlotSchema = MetaSchema:new("SecuritySlotSchema", "", {
   version = {
     type = "integer",
   },
   feature_name = {
     type = "string"
   },
+  -- Any optional parameters that can be used by the security slot
+  p1 = {
+    type = "string"
+  },
+  p2 = {
+    type = "string"
+  },
 })
+
+-- @const SecuritySlotSchema: MetaSchema
+yatm.security.SecuritySlotSchema = SecuritySlotSchema
 
 --
 -- @type AccessFlag: Any
 
+-- Error codes returned by various action functions
+-- @type ErrorCode: Any
+
 -- @type SecurityFeatureDefinition: {
+--   install_node_slot_feature: function (
+--     self: SecurityFeatureDefinition,
+--     pos: Vector3,
+--     node: NodeRef,
+--     slot_id: String,
+--     params: Table
+--   ) => (success: Boolean, ErrorCode?),
+--
 --   get_node_slot_data: function (
 --     self: SecurityFeatureDefinition,
---     pos: Vector,
+--     pos: Vector3,
 --     node: NodeRef,
 --     slot_data: Table
 --   ) => (slot_data: Table),
 --
 --   check_node_lock: function (
 --     self: SecurityFeatureDefinition,
---     pos: Vector,
+--     pos: Vector3,
 --     node: NodeRef,
 --     player: ObjectRef,
 --     slot_id: String,
@@ -101,6 +123,9 @@ yatm.security.NEEDS_ACTION = 'NEEDS_ACTION'
 -- The object requests that the caller continue calling the transaction
 -- @const CONTINUE: AccessFlag
 yatm.security.CONTINUE = 'CONTINUE'
+
+-- @const ERR_INSTALL_FEATURE_NOT_FOUND: ErrorCode
+yatm.security.ERR_INSTALL_FEATURE_NOT_FOUND = 'ERR_INSTALL_FEATURE_NOT_FOUND'
 
 -- @class SecurityTransaction
 local SecurityTransaction = foundation.com.Class:extends("yatm.security.SecurityTransaction")
@@ -263,8 +288,15 @@ yatm.security.context = yatm.security.SecurityContext:new()
 --   slot_data: Table,
 --   data: Table
 -- ): (AccessFlag, Function | nil | String)
-function yatm.security:security_feature_check_node_lock(feature_name, pos, node, player,
-                                                        slot_id, slot_data, data)
+function yatm.security:security_feature_check_node_lock(
+      feature_name,
+      pos,
+      node,
+      player,
+      slot_id,
+      slot_data,
+      data
+    )
   local security_feature = self.registered_security_features[feature_name]
   assert(security_feature, "expected security_feature to exist")
   return security_feature:check_node_lock(pos, node, player, slot_id, slot_data, data)
@@ -279,16 +311,42 @@ end
 --   slot_data: Table,
 --   data: Table
 -- ): (AccessFlag, Function | nil | String)
-function yatm.security:security_feature_check_object_lock(feature_name, object, player,
-                                                          slot_id, slot_data, data)
+function yatm.security:security_feature_check_object_lock(
+      feature_name,
+      object,
+      player,
+      slot_id,
+      slot_data,
+      data
+    )
   local security_feature = self.registered_security_features[feature_name]
   assert(security_feature, "expected security_feature to exist")
   return security_feature:check_object_lock(object, player, slot_id, slot_data, data)
 end
 
+-- Attempts to install a security feature in the specified slot, the security
+-- feature is denoted by the `feature_name`.
+--
+-- @spec &install_node_slot_feature(
+--   pos: Vector3,
+--   node: NodeRef,
+--   slot_id: String
+--   feature_name: String,
+--   params: String,
+-- ): (Boolean, ErrorCode)
+function yatm.security:install_node_slot_feature(pos, node, slot_id, feature_name, params)
+  local feature = self.registered_security_features[feature_name]
+
+  if feature then
+    return feature:install_node_slot_feature(pos, node, slot_id, params)
+  end
+
+  return false, yatm.security.ERR_INSTALL_FEATURE_NOT_FOUND
+end
+
 -- Retrieve the slot ids from a registered node at given position.
 --
--- @spec &get_node_slot_ids(pos: Vector, node: NodeRef): Table<String> | nil
+-- @spec &get_node_slot_ids(pos: Vector3, node: NodeRef): Table<String> | nil
 function yatm.security:get_node_slot_ids(pos, node)
   local nodedef = minetest.registered_nodes[node.name]
 
@@ -330,8 +388,11 @@ end
 
 -- @private.spec execute_security_transaction(SecurityTransaction): Any
 local function execute_security_transaction(security_transaction)
+  local result
+  local extra
+
   while true do
-    local result, extra = security_transaction:continue()
+    result, extra = security_transaction:continue()
 
     if result == yatm.security.CONTINUE then
       -- just continue the loop

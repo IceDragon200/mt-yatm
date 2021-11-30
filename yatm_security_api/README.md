@@ -18,7 +18,7 @@ security = {
     return {"yatmsec_primary", "yatmsec_secondary"}
   end,
 
-  on_install_feature = function (pos, node, slot, data)
+  before_install_feature = function (pos, node, slot, data)
     -- called before a feature is installed
     -- developers can modify the data here
     -- or outright reject the installation by returning false
@@ -27,7 +27,7 @@ security = {
     return true
   end,
 
-  on_feature_installed = function (pos, node, slot, data)
+  after_install_feature = function (pos, node, slot, data)
     -- a callback function when security feature is installed on the object
     -- slot is the name of the slot that the feature was installed in
     -- data contains any additional information, possibly what type of
@@ -125,59 +125,7 @@ yatm.security.register_security_feature("yatm:password_lock", {
 
 __API mockup__
 
-```lua
--- Register new security features with register_security_feature
-yatm.security.register_security_feature(name: String, definition: Table) :: void
-
--- Remove existing features with unregister_security_feature
-yatm.security.unregister_security_feature(name: String) :: void
-
--- Retrieve a feature by it's name
-yatm.security.get_security_feature(name: String) :: Table
-
--- Trigger check_node_lock for a specific feature
-yatm.security.security_feature_check_node_lock(feature_name: String, pos: Vector, node: NodeRef, player: PlayerRef, slot_id: String, slot_data: Table, data: Table) :: AccessFlag, Function | nil | String
-yatm.security.security_feature_check_object_lock(feature_name: String, object: ObjectRef, player: PlayerRef, slot_id: String, slot_data: Table, data: Table) :: AccessFlag, Function | nil | String
-
--- The execute_* functions will take a callback function which should perform the normal
--- action.
--- check_* functions will return the result from check_lock on the feature, it's up to the caller to deal with it
-
--- Check all locks on a specific node
--- Use this when all locks need to be checked at once
-yatm.security.execute_check_node_locks(pos: Vector, callback: Function) :: void
-yatm.security.check_node_locks(pos: Vector) :: yatm.security.AccessFlag, Function | nil | String
-
--- Check all locks on given object
--- Use this when all locks need to be checked at once
-yatm.security.execute_check_object_locks(object: ObjectRef, callback: Function) :: void
-yatm.security.check_object_locks(object: ObjectRef) :: yatm.security.AccessFlag, Function | nil | String
-
--- Check a specific lock on a specific node
-yatm.security.execute_check_node_lock(pos: Vector, slot_id: String, callback: Function) :: void
-yatm.security.check_node_lock(pos: Vector, slot_id: String) :: yatm.security.AccessFlag, Function | nil | String
-
--- Check a specific lock on given object
-yatm.security.execute_check_object_lock(object: ObjectRef, slot_id: String, callback: Function) :: void
-yatm.security.check_object_lock(object: ObjectRef, slot_id: String) :: yatm.security.AccessFlag, Function | nil | String
-
--- Check for presence of locks with:
-yatm.security.has_node_locks(pos: Vector) :: Boolean
-yatm.security.has_node_lock(pos: Vector, slot_id: String) :: Boolean
-yatm.security.has_object_locks(object: ObjectRef) :: Boolean
-yatm.security.has_object_lock(object: ObjectRef, slot_id: String) :: Boolean
-
--- Retrieve information on a node's locks with the functions below:
--- This retrieves ALL locks on the specific node, the table is indexed by the slot_id
-yatm.security.get_node_locks(pos: Vector) :: Table<String, Table> | nil
-
--- Retrieves the data for the specific lock
-yatm.security.get_node_lock(pos: Vector, slot_id: String) :: Table | nil
-
-yatm.security.get_object_locks(object: ObjectRef) :: Table<String, Table> | nil
-yatm.security.get_object_lock(object: ObjectRef, slot_id: String) :: Table | nil
-
-```
+See `api.lua` for function specs.
 
 __Example of security checks__
 
