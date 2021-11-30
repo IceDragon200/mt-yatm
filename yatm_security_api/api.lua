@@ -13,33 +13,46 @@ local SecuritySlotSchema = foundation.com.MetaSchema:new("SecuritySlotSchema", "
   },
 })
 
+--
+-- @type AccessFlag: Any
+
 -- @type SecurityFeatureDefinition: {
---   get_node_slot_data: function (self: SecurityFeatureDefinition,
---                                  pos: Vector,
---                                  node: NodeRef,
---                                  slot_data: Table) => (slot_data: Table),
---   check_node_lock: function (self: SecurityFeatureDefinition,
---                               pos: Vector,
---                               node: NodeRef,
---                               player: ObjectRef,
---                               slot_id: String,
---                               slot_data: Table,
---                               data: Table) => (yatm.security.AccessFlag,
---                                                Function | nil | String),
---   get_object_slot_data: function (self: SecurityFeatureDefinition,
---                                    object: ObjectRef,
---                                    slot_data: Table) => (slot_data: Table),
---   check_object_lock: function (self: SecurityFeatureDefinition,
---                                 object: ObjectRef,
---                                 player: ObjectRef,
---                                 slot_id: String,
---                                 slot_data: Table,
---                                 data: Table) => (yatm.security.AccessFlag,
---                                                  Function | nil | String),
+--   get_node_slot_data: function (
+--     self: SecurityFeatureDefinition,
+--     pos: Vector,
+--     node: NodeRef,
+--     slot_data: Table
+--   ) => (slot_data: Table),
+--
+--   check_node_lock: function (
+--     self: SecurityFeatureDefinition,
+--     pos: Vector,
+--     node: NodeRef,
+--     player: ObjectRef,
+--     slot_id: String,
+--     slot_data: Table,
+--     data: Table
+--   ) => (AccessFlag, Function | nil | String),
+--
+--   get_object_slot_data: function (
+--     self: SecurityFeatureDefinition,
+--     object: ObjectRef,
+--     slot_data: Table
+--   ) => (slot_data: Table),
+--
+--   check_object_lock: function (
+--     self: SecurityFeatureDefinition,
+--     object: ObjectRef,
+--     player: ObjectRef,
+--     slot_id: String,
+--     slot_data: Table,
+--     data: Table
+--   ) => (AccessFlag, Function | nil | String),
 -- }
 
 -- @type RegisteredSecurityFeatures: { [name: String]: SecurityFeatureDefinition }
 
+-- @const registered_security_features: RegisteredSecurityFeatures
 yatm.security.registered_security_features = {}
 
 -- Register new security features with register_security_feature
@@ -74,18 +87,23 @@ function yatm.security.get_security_feature(name)
 end
 
 -- NOTHING to be done
+-- @const NOTHING: AccessFlag
 yatm.security.NOTHING = 'NOTHING'
 -- It is OK to use
+-- @const OK: AccessFlag
 yatm.security.OK = 'OK'
 -- Permission was REJECTed
+-- @const REJECT: AccessFlag
 yatm.security.REJECT = 'REJECT'
 -- The object requires additional action from the caller
+-- @const NEEDS_ACTION: AccessFlag
 yatm.security.NEEDS_ACTION = 'NEEDS_ACTION'
 -- The object requests that the caller continue calling the transaction
+-- @const CONTINUE: AccessFlag
 yatm.security.CONTINUE = 'CONTINUE'
 
 -- @class SecurityTransaction
-local SecurityTransaction = foundation.com.Class:extends()
+local SecurityTransaction = foundation.com.Class:extends("yatm.security.SecurityTransaction")
 do
   local ic = SecurityTransaction.instance_class
 
@@ -101,7 +119,7 @@ do
     minetest.log("action", "New SecurityTransaction id=" .. id)
   end
 
-  -- @spec #continue(): yatm.security.Status
+  -- @spec #continue(): AccessFlag
   function ic:continue()
     -- TODO: this entire function should likely be rewritten as a coroutine
     if not self.held then
@@ -204,10 +222,13 @@ end
 -- It doesn't keep track of the transactions, as they don't really need to be kept track of
 -- instead it handles assigning incrementing ids to them.
 --
-yatm.security.SecurityContext = foundation.com.Class:extends("SecurityContext")
+
+-- @class SecurityContext
+yatm.security.SecurityContext = foundation.com.Class:extends("yatm.security.SecurityContext")
 do
   local ic = yatm.security.SecurityContext.instance_class
 
+  -- @spec #initialize(): void
   function ic:initialize()
     self.g_transaction_id = 0
   end
@@ -217,9 +238,10 @@ do
   --
   -- Args:
   -- * `info` - the security transaction data
-  -- * `callback` - the final callback that should be executed when the transaction is successful
+  -- * `callback` - the final callback that should be executed when the
+  --                transaction is successful
   --
-  -- @spec create_transaction(info: Table, callback: Function): SecurityTransaction
+  -- @spec #create_transaction(info: Table, callback: Function): SecurityTransaction
   function ic:create_transaction(info, callback)
     self.g_transaction_id = self.g_transaction_id + 1
     local transaction_id = self.g_transaction_id
@@ -232,38 +254,42 @@ yatm.security.context = yatm.security.SecurityContext:new()
 
 -- Trigger check_node_lock for a specific feature
 --
--- @spec security_feature_check_node_lock(feature_name: String,
---                                        pos: Vector,
---                                        node: NodeRef,
---                                        player: ObjectRef,
---                                        slot_id: String,
---                                        slot_data: Table,
---                                        data: Table): (AccessFlag, Function | nil | String)
-function yatm.security.security_feature_check_node_lock(feature_name, pos, node, player,
+-- @spec &security_feature_check_node_lock(
+--   feature_name: String,
+--   pos: Vector,
+--   node: NodeRef,
+--   player: ObjectRef,
+--   slot_id: String,
+--   slot_data: Table,
+--   data: Table
+-- ): (AccessFlag, Function | nil | String)
+function yatm.security:security_feature_check_node_lock(feature_name, pos, node, player,
                                                         slot_id, slot_data, data)
-  local security_feature = yatm.security.registered_security_features[feature_name]
+  local security_feature = self.registered_security_features[feature_name]
   assert(security_feature, "expected security_feature to exist")
   return security_feature:check_node_lock(pos, node, player, slot_id, slot_data, data)
 end
 
 --
--- @spec security_feature_check_object_lock(feature_name: String,
---                                          object: ObjectRef,
---                                          player: ObjectRef,
---                                          slot_id: String,
---                                          slot_data: Table,
---                                          data: Table): (AccessFlag, Function | nil | String)
-function yatm.security.security_feature_check_object_lock(feature_name, object, player,
+-- @spec &security_feature_check_object_lock(
+--   feature_name: String,
+--   object: ObjectRef,
+--   player: ObjectRef,
+--   slot_id: String,
+--   slot_data: Table,
+--   data: Table
+-- ): (AccessFlag, Function | nil | String)
+function yatm.security:security_feature_check_object_lock(feature_name, object, player,
                                                           slot_id, slot_data, data)
-  local security_feature = yatm.security.registered_security_features[feature_name]
+  local security_feature = self.registered_security_features[feature_name]
   assert(security_feature, "expected security_feature to exist")
   return security_feature:check_object_lock(object, player, slot_id, slot_data, data)
 end
 
 -- Retrieve the slot ids from a registered node at given position.
 --
--- @spec get_node_slot_ids(pos: Vector, node: NodeRef): Table<String> | nil
-function yatm.security.get_node_slot_ids(pos, node)
+-- @spec &get_node_slot_ids(pos: Vector, node: NodeRef): Table<String> | nil
+function yatm.security:get_node_slot_ids(pos, node)
   local nodedef = minetest.registered_nodes[node.name]
 
   if nodedef then
@@ -274,17 +300,18 @@ function yatm.security.get_node_slot_ids(pos, node)
       elseif type(slot_ids) == "function" then
         return slot_ids(pos, node)
       else
-        error("expected slot_ids to be a table or function")
+        error("expected slot_ids to be a table or function name=" .. node.name)
       end
     end
   end
+
   return nil
 end
 
 -- Retrieve security slot ids from an object
 --
--- @spec get_object_slot_ids(object: ObjectRef): Table | nil
-function yatm.security.get_object_slot_ids(object)
+-- @spec &get_object_slot_ids(object: ObjectRef): Table | nil
+function yatm.security:get_object_slot_ids(object)
   local lua_entity = object:get_luaentity()
 
   if lua_entity and lua_entity.security then
@@ -301,6 +328,7 @@ function yatm.security.get_object_slot_ids(object)
   return nil
 end
 
+-- @private.spec execute_security_transaction(SecurityTransaction): Any
 local function execute_security_transaction(security_transaction)
   while true do
     local result, extra = security_transaction:continue()
@@ -319,15 +347,16 @@ local function execute_security_transaction(security_transaction)
 end
 
 --
--- @spec check_node_locks(pos: Vector,
---                        player: ObjectRef,
---                        slot_ids: nil | [String],
---                        callback: Function):
---         (AccessFlag, Function | nil | String, SecurityTransaction)
-function yatm.security.check_node_locks(pos, player, slot_ids, callback)
+-- @spec &check_node_locks(
+--   pos: Vector,
+--   player: ObjectRef,
+--   slot_ids: nil | [String],
+--   callback: Function
+-- ): (AccessFlag, Function | nil | String, SecurityTransaction)
+function yatm.security:check_node_locks(pos, player, slot_ids, callback)
   local node = minetest.get_node_or_nil(pos)
   if node then
-    slot_ids = slot_ids or yatm.security.get_node_slot_ids(pos, node)
+    slot_ids = slot_ids or self:get_node_slot_ids(pos, node)
 
     if slot_ids and not is_table_empty(slot_ids) then
       local security_transaction =
@@ -345,12 +374,13 @@ function yatm.security.check_node_locks(pos, player, slot_ids, callback)
   return yatm.security.NOTHING, nil, nil
 end
 
--- @spec check_object_locks(object: ObjectRef,
---                          player: ObjectRef,
---                          slot_ids: nil | [String],
---                          callback: Function):
---         (AccessFlag, Function | nil | String, SecurityTransaction)
-function yatm.security.check_object_locks(object, player, slot_ids, callback)
+-- @spec &check_object_locks(
+--   object: ObjectRef,
+--   player: ObjectRef,
+--   slot_ids: nil | [String],
+--   callback: Function
+-- ): (AccessFlag, Function | nil | String, SecurityTransaction)
+function yatm.security:check_object_locks(object, player, slot_ids, callback)
   slot_ids = slot_ids or yatm.security.get_object_slot_ids(object)
 
   if slot_ids and not is_table_empty(slot_ids) then
@@ -372,8 +402,12 @@ end
 
 -- Retrieves the data for the specific lock
 --
--- @spec get_node_lock(pos: Vector, node: NodeRef, slot_id: String): Table | nil
-function yatm.security.get_node_lock(pos, _node, slot_id)
+-- @spec &get_node_lock(
+--   pos: Vector,
+--   node: NodeRef,
+--   slot_id: String
+-- ): Table | nil
+function yatm.security:get_node_lock(pos, _node, slot_id)
   local meta = minetest.get_meta(pos)
   local slot_data = SecuritySlotSchema:get(meta, slot_id)
   return slot_data
@@ -381,29 +415,37 @@ end
 
 -- This retrieves ALL locks on the specific node, the table is indexed by the slot_id
 --
--- @spec get_node_locks(pos: Vector, node: NodeRef): Table<String, Table> | nil
-function yatm.security.get_node_locks(pos, node)
-  local slot_ids = yatm.security.get_node_slot_ids(pos, node)
+-- @spec &get_node_locks(
+--   pos: Vector,
+--   node: NodeRef
+-- ): Table<String, Table> | nil
+function yatm.security:get_node_locks(pos, node)
+  local slot_ids = self:get_node_slot_ids(pos, node)
 
   local result = {}
   for _, slot_id in ipairs(slot_ids) do
-    result[slot_id] = yatm.security.get_node_lock(pos, node, slot_id)
+    result[slot_id] = self:get_node_lock(pos, node, slot_id)
   end
   return result
 end
 
--- @spec get_object_lock(object: ObjectRef, slot_id: String): Table | nil
-function yatm.security.get_object_lock(object, slot_id)
+-- @spec &get_object_lock(
+--   object: ObjectRef,
+--   slot_id: String
+-- ): Table | nil
+function yatm.security:get_object_lock(object, slot_id)
   error("TODO: get_object_lock/2")
 end
 
--- @spec get_object_locks(object: ObjectRef): Table<String, Table> | nil
-function yatm.security.get_object_locks(object)
-  local slot_ids = yatm.security.get_object_slot_ids(object)
+-- @spec &get_object_locks(
+--   object: ObjectRef
+-- ): Table<String, Table> | nil
+function yatm.security:get_object_locks(object)
+  local slot_ids = self:get_object_slot_ids(object)
 
   local result = {}
   for _, slot_id in ipairs(slot_ids) do
-    result[slot_id] = yatm.security.get_object_lock(object, slot_id)
+    result[slot_id] = self:get_object_lock(object, slot_id)
   end
   return result
 end
@@ -411,39 +453,46 @@ end
 -- Check for presence of locks in a specified node.
 -- This function will return true if there is even 1 lock present, false otherwise.
 --
--- @spec has_node_locks(pos: Vector, node: NodeRef): Boolean
-function yatm.security.has_node_locks(pos, node)
-  local slot_ids = yatm.security.get_node_slot_ids(pos, node)
+-- @spec &has_node_locks(
+--   pos: Vector,
+--   node: NodeRef
+-- ): Boolean
+function yatm.security:has_node_locks(pos, node)
+  local slot_ids = self:get_node_slot_ids(pos, node)
   for _, slot_id in ipairs(slot_ids) do
-    if yatm.security.get_node_lock(pos, node, slot_id) then
+    if self:get_node_lock(pos, node, slot_id) then
       return true
     end
   end
   return false
 end
 
--- @spec has_node_lock(pos: Vector, node: NodeRef, slot_id: String): Boolean
-function yatm.security.has_node_lock(pos, node, slot_id)
-  if yatm.security.get_node_lock(pos, node, slot_id) then
+-- @spec &has_node_lock(
+--   pos: Vector,
+--   node: NodeRef,
+--   slot_id: String
+-- ): Boolean
+function yatm.security:has_node_lock(pos, node, slot_id)
+  if self:get_node_lock(pos, node, slot_id) then
     return true
   end
   return false
 end
 
--- @spec has_object_locks(object: ObjectRef): Boolean
-function yatm.security.has_object_locks(object)
-  local slot_ids = yatm.security.get_object_slot_ids(object)
+-- @spec &has_object_locks(object: ObjectRef): Boolean
+function yatm.security:has_object_locks(object)
+  local slot_ids = self:get_object_slot_ids(object)
   for _, slot_id in ipairs(slot_ids) do
-    if yatm.security.get_object_lock(object, slot_id) then
+    if self:get_object_lock(object, slot_id) then
       return true
     end
   end
   return false
 end
 
--- @spec has_object_lock(object: ObjectRef, slot_id: String): Boolean
-function yatm.security.has_object_lock(object, slot_id)
-  if yatm.security.get_object_lock(object, slot_id) then
+-- @spec &has_object_lock(object: ObjectRef, slot_id: String): Boolean
+function yatm.security:has_object_lock(object, slot_id)
+  if self:get_object_lock(object, slot_id) then
     return true
   end
   return false
