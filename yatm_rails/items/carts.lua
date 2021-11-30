@@ -12,7 +12,7 @@ local function place_cart(item_stack, user, pointed_thing, name)
   return itemstack
 end
 
-mod:register_tool(mod:make_name("battery_cart"), {
+mod:register_tool("battery_cart", {
   description = mod.S("Battery Cart"),
 
   inventory_image = "yatm_cart.battery.png"
@@ -28,7 +28,7 @@ mod:register_tool(mod:make_name("battery_cart"), {
   end,
 })
 
-mod:register_tool(mod:make_name("fluid_cart"), {
+mod:register_tool("fluid_cart", {
   description = mod.S("Fluid Cart"),
 
   inventory_image = "yatm_cart.fluid.png"
@@ -44,7 +44,7 @@ mod:register_tool(mod:make_name("fluid_cart"), {
   end,
 })
 
-mod:register_tool(mod:make_name("item_cart"), {
+mod:register_tool("item_cart", {
   description = mod.S("Item Cart"),
 
   inventory_image = "yatm_cart.item.png"
@@ -60,7 +60,7 @@ mod:register_tool(mod:make_name("item_cart"), {
   end,
 })
 
-mod:register_tool(mod:make_name("solid_fuel_locomotive"), {
+mod:register_tool("solid_fuel_locomotive", {
   description = mod.S("Solid Fuel Locomotive"),
 
   inventory_image = "yatm_locomotive.solid_fuel.png"
@@ -76,7 +76,7 @@ mod:register_tool(mod:make_name("solid_fuel_locomotive"), {
   end,
 })
 
-mod:register_tool(mod:make_name("electric_locomotive"), {
+mod:register_tool("electric_locomotive", {
   description = mod.S("Electric Locomotive"),
 
   inventory_image = "yatm_locomotive.electric.png"
