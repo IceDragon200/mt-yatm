@@ -2,6 +2,10 @@ local mod = yatm_core
 
 local wrench = yatm.wrench
 
+local function is_player_sneaking(player)
+  return player:get_player_control().sneak
+end
+
 yatm_core:register_tool("wrench", {
   codex_entry_id = "yatm_core:wrench",
 
@@ -11,9 +15,11 @@ yatm_core:register_tool("wrench", {
 
   -- left
   on_use = function (item_stack, user, pointed_thing)
-    if pointed_thing.type == "node" then
-      if wrench.user_rotate_node_at_pos(user, wrench.ROTATE_FACE, pointed_thing.under, false) then
-        -- was rotated
+    if not is_player_sneaking(user) then
+      if pointed_thing.type == "node" then
+        if wrench.user_rotate_node_at_pos(user, wrench.ROTATE_FACE, pointed_thing.under, false) then
+          -- was rotated
+        end
       end
     end
 
@@ -22,9 +28,11 @@ yatm_core:register_tool("wrench", {
 
   -- right
   on_place = function (item_stack, user, pointed_thing)
-    if pointed_thing.type == "node" then
-      if wrench.user_rotate_node_at_pos(user, wrench.ROTATE_AXIS, pointed_thing.under, false) then
-        -- was rotated
+    if not is_player_sneaking(user) then
+      if pointed_thing.type == "node" then
+        if wrench.user_rotate_node_at_pos(user, wrench.ROTATE_AXIS, pointed_thing.under, false) then
+          -- was rotated
+        end
       end
     end
 
