@@ -48,7 +48,15 @@ yatm.bg9_name.cardboard = "yatm_gui_formbg_cardboard.9s.png"
 yatm.bg9_name.dscs = "yatm_gui_formbg_dscs.9s.png"
 yatm.bg9_name.inventory = "yatm_gui_formbg_inventory.9s.png"
 
--- @spec formspec_bg_for_player(player_name: String, background_id: String, x?: Number, y?: Number, w?: Number, h?: Number, auto_clip: Boolean): String
+-- @spec formspec_bg_for_player(
+--   player_name: String,
+--   background_id: String,
+--   x?: Number,
+--   y?: Number,
+--   w?: Number,
+--   h?: Number,
+--   auto_clip?: Boolean
+-- ): String
 function yatm.formspec_bg_for_player(player_name, background_id, x, y, w, h, auto_clip)
   assert(type(player_name) == "string", "expected player_name as string")
 
