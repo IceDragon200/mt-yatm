@@ -7,7 +7,7 @@ if not ffi then
   return
 end
 
-local ByteBuf = assert(foundation.com.ByteBuf)
+local ByteBuf = assert(foundation.com.ByteBuf.little)
 
 -- @namespace yatm_oku.OKU
 
@@ -142,24 +142,24 @@ end
 function m:bindump(stream)
   local bytes_written = 0
   if ffi.abi("le") then
-    local bw = ByteBuf.write(stream, "le")
+    local bw = ByteBuf:write(stream, "le")
     bytes_written = bytes_written + bw
   else
-    local bw = ByteBuf.write(stream, "be")
+    local bw = ByteBuf:write(stream, "be")
     bytes_written = bytes_written + bw
   end
 
   local blob = ffi.string(self.m_data, self.size)
-  local bw = ByteBuf.write(stream, blob)
+  local bw = ByteBuf:write(stream, blob)
   bytes_written = bytes_written + bw
   return bytes_written, nil
 end
 
 function m:binload(stream)
   local bytes_read = 0
-  local memory_bo, br = ByteBuf.read(stream, 2)
+  local memory_bo, br = ByteBuf:read(stream, 2)
   bytes_read = bytes_read + br
-  local memory_blob, br = ByteBuf.read(stream, memory_size)
+  local memory_blob, br = ByteBuf:read(stream, memory_size)
   bytes_read = bytes_read + br
   if memory_bo == "le" then
     -- the memory was dumped from a little endian machine

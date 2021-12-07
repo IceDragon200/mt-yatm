@@ -6,7 +6,7 @@
 --
 -- The machine is programmed in actual assembly, and emulated in lua.
 --
-local mod = foundation.new_module("yatm_oku", "0.3.0")
+local mod = foundation.new_module("yatm_oku", "0.4.0")
 
 local insec = minetest.request_insecure_environment()
 if insec then

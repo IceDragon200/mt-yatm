@@ -13,7 +13,7 @@ if not ffi then
   return
 end
 
-local ByteBuf = assert(foundation.com.ByteBuf)
+local ByteBuf = assert(foundation.com.ByteBuf.little)
 
 -- @class Memory
 local Memory = foundation.com.Class:extends("oku.Memory")
@@ -173,20 +173,20 @@ end
 function m:bindump(stream)
   local bytes_written = 0
   if ffi.abi("le") then
-    local bw = ByteBuf.write(stream, "le")
+    local bw = ByteBuf:write(stream, "le")
     bytes_written = bytes_written + bw
   else
-    local bw = ByteBuf.write(stream, "be")
+    local bw = ByteBuf:write(stream, "be")
     bytes_written = bytes_written + bw
   end
 
-  local bw = ByteBuf.w_u32(stream, self.m_size)
+  local bw = ByteBuf:w_u32(stream, self.m_size)
   bytes_written = bytes_written + bw
 
   if self.m_size > 0 then
     local blob = ffi.string(self.m_data, self.m_size)
     assert(#blob == self.m_size, "expected blob to be the same size")
-    bw = ByteBuf.write(stream, blob, self.m_size)
+    bw = ByteBuf:write(stream, blob, self.m_size)
     bytes_written = bytes_written + bw
   end
   return bytes_written, nil
@@ -195,17 +195,17 @@ end
 function m:binload(stream)
   local bytes_read = 0
 
-  local memory_bo, br = ByteBuf.read(stream, 2)
+  local memory_bo, br = ByteBuf:read(stream, 2)
   bytes_read = bytes_read + br
 
-  local memory_size, br = ByteBuf.r_u32(stream)
+  local memory_size, br = ByteBuf:r_u32(stream)
   bytes_read = bytes_read + br
 
   if memory_size ~= self.m_size then
     error("memory size mismatch expected=" .. self.m_size .. " got=" .. memory_size)
   end
 
-  local memory_blob, br = ByteBuf.read(stream, memory_size)
+  local memory_blob, br = ByteBuf:read(stream, memory_size)
   bytes_read = bytes_read + br
 
   if memory_bo == "le" then

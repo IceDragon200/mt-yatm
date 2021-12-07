@@ -1,7 +1,7 @@
 --
 -- Utility module for parsing ELF32 binares and possibly ELF64 in the future...
 --
-local ByteBuf = assert(foundation.com.ByteBuf)
+local ByteBuf = assert(foundation.com.ByteBuf.little)
 
 assert(foundation.com.binary_types)
 local Enum = assert(foundation.com.binary_types.Enum)
@@ -305,7 +305,7 @@ function yatm_oku.elf:read(stream)
           table.insert(section.symbols, data)
         end
       elseif shdr.type == "SHT_STRTAB" then
-        local blob = ByteBuf.read(stream, shdr.size)
+        local blob = ByteBuf:read(stream, shdr.size)
         section.entries = {}
         local offset = 0
         local iter = 0
@@ -322,7 +322,7 @@ function yatm_oku.elf:read(stream)
           end
         end
       else
-        local blob = ByteBuf.read(stream, shdr.size)
+        local blob = ByteBuf:read(stream, shdr.size)
         section.blob = blob
       end
     end
@@ -336,7 +336,7 @@ function yatm_oku.elf:read(stream)
     if phdr.filesz > 0 then
       stream:seek(phdr.offset + 1)
 
-      local blob = ByteBuf.read(stream, phdr.filesz)
+      local blob = ByteBuf:read(stream, phdr.filesz)
       segment.blob = blob
     end
     table.insert(prog_segments, segment)

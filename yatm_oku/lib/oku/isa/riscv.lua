@@ -4,7 +4,7 @@
 --   pc
 --
 local ffi = assert(yatm_oku.ffi)
-local ByteBuf = assert(foundation.com.ByteBuf)
+local ByteBuf = assert(foundation.com.ByteBuf.little)
 local StringBuffer = assert(foundation.com.StringBuffer)
 
 yatm_oku.OKU.isa.RISCV = {}
@@ -156,7 +156,7 @@ end
 function isa.bindump(oku, assigns, stream)
   local bytes_written = 0
   -- Write Version
-  local bw, err = ByteBuf.w_u32(stream, 1)
+  local bw, err = ByteBuf:w_u32(stream, 1)
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
@@ -173,7 +173,7 @@ end
 
 function isa.binload(oku, assigns, stream)
   local bytes_read = 0
-  local version, br = ByteBuf.r_u32(stream)
+  local version, br = ByteBuf:r_u32(stream)
   bytes_read = bytes_read + br
 
   init_riscv_assigns(assigns)
@@ -193,11 +193,11 @@ end
 function isa._binload_registers(oku, assigns, stream)
   local bytes_read = 0
   for i = 0,31 do
-    local rv, br = ByteBuf.r_i32(stream)
+    local rv, br = ByteBuf:r_i32(stream)
     bytes_read = bytes_read + br
     assigns.registers.x[i].i32 = rv
   end
-  assigns.registers.pc.u32 = ByteBuf.r_u32(stream)
+  assigns.registers.pc.u32 = ByteBuf:r_u32(stream)
   return bytes_read
 end
 
@@ -206,7 +206,7 @@ function isa._bindump_registers(oku, assigns, stream)
 
   for i = 0,31 do
     local rv = assigns.registers.x[i].i32
-    local bw, err = ByteBuf.w_i32(stream, rv)
+    local bw, err = ByteBuf:w_i32(stream, rv)
     bytes_written = bytes_written + bw
 
     if err then
@@ -214,7 +214,7 @@ function isa._bindump_registers(oku, assigns, stream)
     end
   end
 
-  local bw, err = ByteBuf.w_u32(stream, assigns.registers.pc.u32)
+  local bw, err = ByteBuf:w_u32(stream, assigns.registers.pc.u32)
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err

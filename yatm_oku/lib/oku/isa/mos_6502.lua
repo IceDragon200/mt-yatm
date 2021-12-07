@@ -1,4 +1,4 @@
-local ByteBuf = assert(foundation.com.ByteBuf)
+local ByteBuf = assert(foundation.com.ByteBuf.little)
 
 local ffi = yatm_oku.ffi
 
@@ -100,84 +100,84 @@ end
 
 function isa.bindump(oku, assigns, stream)
   local bytes_written = 0
-  local bw, err = ByteBuf.w_u32(stream, 1)
+  local bw, err = ByteBuf:w_u32(stream, 1)
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
 
   -- Address Bus
-  local bw, err = ByteBuf.w_u16(stream, assigns.chip:get_register_ab())
+  local bw, err = ByteBuf:w_u16(stream, assigns.chip:get_register_ab())
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
 
   -- Program Counter
-  local bw, err = ByteBuf.w_u16(stream, assigns.chip:get_register_pc())
+  local bw, err = ByteBuf:w_u16(stream, assigns.chip:get_register_pc())
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
 
   -- Stack Pointer
-  local bw, err = ByteBuf.w_u8(stream, assigns.chip:get_register_sp())
+  local bw, err = ByteBuf:w_u8(stream, assigns.chip:get_register_sp())
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
 
   -- Instruction Register
-  local bw, err = ByteBuf.w_u8(stream, assigns.chip:get_register_ir())
+  local bw, err = ByteBuf:w_u8(stream, assigns.chip:get_register_ir())
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
 
   -- A
-  local bw, err = ByteBuf.w_i8(stream, assigns.chip:get_register_a())
+  local bw, err = ByteBuf:w_i8(stream, assigns.chip:get_register_a())
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
 
   -- X
-  local bw, err = ByteBuf.w_i8(stream, assigns.chip:get_register_x())
+  local bw, err = ByteBuf:w_i8(stream, assigns.chip:get_register_x())
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
 
   -- Y
-  local bw, err = ByteBuf.w_i8(stream, assigns.chip:get_register_y())
+  local bw, err = ByteBuf:w_i8(stream, assigns.chip:get_register_y())
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
 
   -- SR
-  local bw, err = ByteBuf.w_i8(stream, assigns.chip:get_register_sr())
+  local bw, err = ByteBuf:w_i8(stream, assigns.chip:get_register_sr())
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
 
   -- State
-  local bw, err = ByteBuf.w_i8(stream, assigns.chip:get_state())
+  local bw, err = ByteBuf:w_i8(stream, assigns.chip:get_state())
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
 
   -- Cycles
-  local bw, err = ByteBuf.w_u32(stream, assigns.chip:get_cycles())
+  local bw, err = ByteBuf:w_u32(stream, assigns.chip:get_cycles())
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
   end
 
   -- Operand
-  local bw, err = ByteBuf.w_i32(stream, assigns.chip:get_operand())
+  local bw, err = ByteBuf:w_i32(stream, assigns.chip:get_operand())
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
@@ -188,24 +188,24 @@ end
 
 function isa.binload(oku, assigns, stream)
   local bytes_read = 0
-  local version, br = ByteBuf.r_u32(stream)
+  local version, br = ByteBuf:r_u32(stream)
   bytes_read = bytes_read + br
 
   local chip = Chip:new()
   assigns.chip = chip
 
   if version == 1 then
-    local ab, br = ByteBuf.r_u16(stream)
-    local pc, br = ByteBuf.r_u16(stream)
-    local sp, br = ByteBuf.r_u8(stream)
-    local ir, br = ByteBuf.r_u8(stream)
-    local a, br = ByteBuf.r_i8(stream)
-    local x, br = ByteBuf.r_i8(stream)
-    local y, br = ByteBuf.r_i8(stream)
-    local sr, br = ByteBuf.r_i8(stream)
-    local state, br = ByteBuf.r_i8(stream)
-    local cycles, br = ByteBuf.r_u32(stream)
-    local operand, br = ByteBuf.r_i32(stream)
+    local ab, br = ByteBuf:r_u16(stream)
+    local pc, br = ByteBuf:r_u16(stream)
+    local sp, br = ByteBuf:r_u8(stream)
+    local ir, br = ByteBuf:r_u8(stream)
+    local a, br = ByteBuf:r_i8(stream)
+    local x, br = ByteBuf:r_i8(stream)
+    local y, br = ByteBuf:r_i8(stream)
+    local sr, br = ByteBuf:r_i8(stream)
+    local state, br = ByteBuf:r_i8(stream)
+    local cycles, br = ByteBuf:r_u32(stream)
+    local operand, br = ByteBuf:r_i32(stream)
 
     assigns.chip:set_register_ab(ab)
     assigns.chip:set_register_pc(pc)
