@@ -3,7 +3,7 @@
 -- However its main purpose is to program items, not other nodes.
 -- So it's not really an equivalent, it has a totally different function...
 --
-if not yatm_machines then
+if not rawget(_G, "yatm_machines") then
   return
 end
 

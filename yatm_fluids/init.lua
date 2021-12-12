@@ -18,6 +18,8 @@ mod:require("fluids.lua")
 mod:require("nodes.lua")
 mod:require("items.lua")
 
-mod:require("tests.lua")
+if foundation.com.Luna then
+  mod:require("tests.lua")
+end
 
 mod:require("migrations.lua")

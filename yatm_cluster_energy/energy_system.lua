@@ -2,7 +2,6 @@
 -- System module that runs under the energy cluster to resolve the energy generation and
 -- distribution.
 --
-local Trace = assert(foundation.com.Trace)
 local EnergyDevices = assert(yatm.energy.EnergyDevices)
 
 local get_node_or_nil = minetest.get_node_or_nil

@@ -1,4 +1,4 @@
-if not yatm_data_logic then
+if not rawget(_G, "yatm_data_logic") then
   return
 end
 

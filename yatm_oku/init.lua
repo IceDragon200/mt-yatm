@@ -30,7 +30,9 @@ mod:require("items.lua")
 
 mod:require("hooks.lua")
 
-mod:require("tests.lua")
+if foundation.com.Luna then
+  mod:require("tests.lua")
+end
 
 mod.ffi = nil
 mod.bit = nil

@@ -7,4 +7,6 @@ mod:require("api.lua")
 
 mod:require("security_features.lua")
 
-mod:require("tests.lua")
+if foundation.com.Luna then
+  mod:require("tests.lua")
+end

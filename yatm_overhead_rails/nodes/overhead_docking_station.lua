@@ -8,17 +8,33 @@ local ascii_pack = assert(foundation.com.ascii_pack)
 local ascii_unpack = assert(foundation.com.ascii_unpack)
 local itemstack_is_blank = assert(foundation.com.itemstack_is_blank)
 
-local FluidInterface = yatm.fluids.FluidInterface
-local FluidStack = yatm.fluids.FluidStack
-local FluidMeta = yatm.fluids.FluidMeta
+local FluidInterface
+local FluidStack
+local FluidMeta
 
-local ItemInterface = yatm.items.ItemInterface
+if yatm.fluids then
+  FluidInterface = yatm.fluids.FluidInterface
+  FluidStack = yatm.fluids.FluidStack
+  FluidMeta = yatm.fluids.FluidMeta
+end
+
+local ItemInterface
+if yatm.items then
+  ItemInterface = yatm.items.ItemInterface
+end
 local InventorySerializer = foundation.com.InventorySerializer
 
 local Energy = yatm.energy
-local cluster_energy = yatm.cluster.energy
-local cluster_devices = yatm.cluster.devices
-local cluster_thermal = yatm.cluster.thermal
+local cluster_energy
+local cluster_devices
+local cluster_thermal
+
+if yatm.cluster then
+  cluster_energy = yatm.cluster.energy
+  cluster_devices = yatm.cluster.devices
+  cluster_thermal = yatm.cluster.thermal
+end
+
 local data_network = yatm.data_network
 
 local INVENTORY_SIZE = 4*4 -- 4 rows by 4 cols, i.e. 16

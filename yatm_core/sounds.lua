@@ -1,4 +1,5 @@
-local sounds = foundation.com.SoundsRegistry:new()
+local SoundsRegistry = assert(foundation.com.SoundsRegistry)
+local sounds = SoundsRegistry:new()
 
 sounds:register("access_denied", "yatm_access_denied", {})
 sounds:register("access_granted", "yatm_beep0", {})

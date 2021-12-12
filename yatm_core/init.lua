@@ -56,7 +56,9 @@ end
 -- /Interop
 
 -- Tests
-mod:require("tests.lua")
+if foundation.com.Luna then
+  mod:require("tests.lua")
+end
 
 -- prevent insecure modules from leaking
 yatm.native_bit = nil

@@ -1,4 +1,3 @@
-local Trace = assert(foundation.com.Trace)
 local string_split = assert(foundation.com.string_split)
 local table_keys = assert(foundation.com.table_keys)
 local table_length = assert(foundation.com.table_length)

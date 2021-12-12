@@ -12,4 +12,6 @@ mod:require("items.lua")
 
 mod:require("migrations.lua")
 
-mod:require("tests.lua")
+if foundation.com.Luna then
+  mod:require("tests.lua")
+end

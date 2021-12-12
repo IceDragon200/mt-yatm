@@ -14,7 +14,7 @@ if not BinSchema then
 end
 
 local path_join = assert(foundation.com.path_join)
-local Trace = assert(foundation.com.Trace)
+local Trace = foundation.com.Trace
 
 -- Pick a buffer module, prefer binary or string, as it's faster
 local Buffer
@@ -81,19 +81,32 @@ function ic:load_computer_state(pos)
   local basename = pos_to_basename(pos)
   local filename = path_join(self.m_root_dir, basename)
 
-  local trace = Trace:new('load_computer_state/' .. minetest.pos_to_string(pos))
+  local trace
+  if Trace then
+    trace = Trace:new('load_computer_state/' .. minetest.pos_to_string(pos))
+  end
   local span
-  span = trace:span_start("io.open")
+  if trace then
+    span = trace:span_start("io.open")
+  end
   local file = io.open(filename, "r")
-  span:span_end()
+  if span then
+    span:span_end()
+  end
 
   if file then
-    span = trace:span_start('file#read')
+    if trace then
+      span = trace:span_start('file#read')
+    end
     local stream = Buffer:new(file:read('*all'), 'r')
     file:close()
-    span:span_end()
+    if span then
+      span:span_end()
+    end
 
-    span = trace:span_start('state-load')
+    if trace then
+      span = trace:span_start('state-load')
+    end
     -- FIXME: This entire section should be wrapped in a protected call
     --        and the file closed properly.
     -- Read the state header
@@ -105,9 +118,13 @@ function ic:load_computer_state(pos)
 
     stream:close()
 
-    span:span_end() -- close state-load
-    trace:span_end() -- close trace
-    trace:inspect()
+    if span then
+      span:span_end() -- close state-load
+    end
+    if trace then
+      trace:span_end() -- close trace
+      trace:inspect()
+    end
 
     local state_pos = vector.new(state.x, state.y, state.z)
     local node = {
@@ -140,7 +157,9 @@ function ic:save_computer_state(state, trace)
   if trace then
     span = trace:span_start('save_computer_state/' .. minetest.pos_to_string(state.pos))
   else
-    span = Trace:new('save_computer_state/' .. minetest.pos_to_string(state.pos))
+    if Trace then
+      span = Trace:new('save_computer_state/' .. minetest.pos_to_string(state.pos))
+    end
   end
   local stream = Buffer:new('', 'w')
 
@@ -211,12 +230,17 @@ end
 
 -- @spec #persist_computer_states(): void
 function ic:persist_computer_states()
-  local trace = Trace:new('persist_computer_states')
+  local trace
+  if Trace then
+    trace = Trace:new('persist_computer_states')
+  end
   for _hash,state in pairs(self.m_computers) do
     self:save_computer_state(state, trace)
   end
-  trace:span_end()
-  trace:inspect()
+  if trace then
+    trace:span_end()
+    trace:inspect()
+  end
 end
 
 function ic:terminate()

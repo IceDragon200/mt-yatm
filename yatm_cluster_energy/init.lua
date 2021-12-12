@@ -11,4 +11,6 @@ mod:require("energy_system.lua")
 mod:require("energy_cluster.lua")
 mod:require("hooks.lua")
 
-mod:require("tests.lua")
+if foundation.com.Luna then
+  mod:require("tests.lua")
+end

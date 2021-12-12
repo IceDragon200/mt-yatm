@@ -2,7 +2,6 @@
 -- The thermal system is a bit different, it works by forcing it's neighbours to match each other
 -- Producers will emit a specific heat value, all attached nodes will then slowly move towards that value.
 --
-local Trace = assert(foundation.com.Trace)
 local Directions = assert(foundation.com.Directions)
 
 local ThermalSystem = foundation.com.Class:extends("ThermalSystem")
