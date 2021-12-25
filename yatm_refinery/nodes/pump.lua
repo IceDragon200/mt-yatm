@@ -58,16 +58,19 @@ local function pump_refresh_infotext(pos)
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     cluster_energy:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "Tank: " .. FluidStack.pretty_format(fluid_stack, capacity)
 
   meta:set_string("infotext", infotext)
 end
 
-function pump_yatm_network.work(pos, node, energy_available, work_rate, dtime, ot)
+function pump_yatm_network:work(ctx)
+  local meta = ctx.meta
+  local pos = ctx.pos
+  local node = ctx.node
+  local nodedef = ctx.nodedef
+
   local energy_consumed = 0
-  local meta = minetest.get_meta(pos)
-  local nodedef = minetest.registered_nodes[node.name]
 
   local pump_dir = Directions.facedir_to_face(node.param2, Directions.D_DOWN)
   local target_pos = vector.add(pos, Directions.DIR6_TO_VEC3[pump_dir])

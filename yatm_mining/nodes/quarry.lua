@@ -45,10 +45,12 @@ local quarry_yatm_network = {
   }
 }
 
-function quarry_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
-  if available_energy > 200 then
-    local meta = minetest.get_meta(pos)
+function quarry_yatm_network:work(ctx)
+  local pos = ctx.pos
+  local meta = ctx.meta
+  local node = ctx.node
 
+  if ctx.available_energy > 200 then
     -- get current cursor position
     local cx = meta:get_int("cx")
     local cy = meta:get_int("cy")

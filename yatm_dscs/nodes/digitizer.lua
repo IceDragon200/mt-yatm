@@ -30,39 +30,45 @@ local digitizer_yatm_network = {
   },
 }
 
-function digitizer_yatm_network.work(pos, node, total_energy_available, work_rate, dtime, ot)
-  local meta = minetest.get_meta(pos)
+function digitizer_yatm_network:work(ctx)
+  local pos = ctx.pos
+  local meta = ctx.meta
+  local node = ctx.node
+
   local inv = meta:get_inventory()
-  local energy_available = total_energy_available
+  local available_energy = ctx.available_energy
 
   if not inv:is_empty("main") then
+    local stack
+    local energy_used
+
     for i = 1,6 do
-      if energy_available < 100 then
+      if available_energy < 100 then
         break
       end
-      local stack = inv:get_stack("main", i)
+      stack = inv:get_stack("main", i)
 
       if not stack:is_empty() then
         -- TODO: push into network
 
         -- Each item pushed into the network requires 100 energy per total stack
-        local energy_used = math.ceil(100 * stack:get_count() / stack:get_stack_max())
-        energy_available = energy_available - energy_used
+        energy_used = math.ceil(100 * stack:get_count() / stack:get_stack_max())
+        available_energy = available_energy - energy_used
       end
     end
   end
 
-  if energy_available >= 100 then
+  if available_energy >= 100 then
     local fluid_stack = FluidMeta.get_fluid_stack(meta, "tank")
     if fluid_stack and not FluidStack.is_empty(fluid_stack) then
       -- TODO: push into network
 
       local energy_used = math.ceil(100 * fluid_stack.size / 4000)
-      energy_available = energy_available - energy_used
+      available_energy = available_energy - energy_used
     end
   end
 
-  return total_energy_available - energy_available
+  return ctx.available_energy - available_energy
 end
 
 local function refresh_infotext(pos, node)
@@ -70,7 +76,7 @@ local function refresh_infotext(pos, node)
   local infotext =
     "Digitizer\n" ..
     cluster_devices:get_node_infotext(pos) .. "\n" ..
-    cluster_energy:get_node_infotext(pos) .. " [" .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "]\n"
+    cluster_energy:get_node_infotext(pos) .. " [" .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "]\n"
 
   meta:set_string("infotext", infotext)
 end

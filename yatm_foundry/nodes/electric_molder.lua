@@ -99,7 +99,7 @@ local function electric_molder_refresh_infotext(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "Recipe: " .. recipe_name .. "\n" ..
     "Molten Tank: " .. FluidStack.pretty_format(molten_tank_fluid_stack, capacity) .. "\n" ..
     "Molding Tank: " .. FluidStack.pretty_format(molding_tank_fluid_stack, capacity) .. "\n" ..
@@ -108,9 +108,12 @@ local function electric_molder_refresh_infotext(pos)
   meta:set_string("infotext", infotext)
 end
 
-function electric_molder_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
+function electric_molder_yatm_network:work(ctx)
+  local pos = ctx.pos
+  local meta = ctx.meta
+  local node = ctx.node
+
   local energy_consumed = 0
-  local meta = minetest.get_meta(pos)
   local inv = meta:get_inventory()
 
   local molding_fluid = FluidMeta.get_fluid_stack(meta, "molding_tank")

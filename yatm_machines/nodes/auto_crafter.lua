@@ -22,7 +22,7 @@ local auto_crafter_yatm_network = {
   },
 }
 
-function auto_crafter_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
+function auto_crafter_yatm_network:work(ctx)
   return 0
 end
 

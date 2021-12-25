@@ -79,10 +79,13 @@ function fluid_interface:allow_fill(pos, dir, fluid_stack)
   return false
 end
 
-function distillation_unit_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
+function distillation_unit_yatm_network:work(ctx)
+  local pos = ctx.pos
+  local meta = ctx.meta
+  local node = ctx.node
+
   local energy_consumed = 0
   local need_refresh = false
-  local meta = minetest.get_meta(pos)
   meta:set_int("work_counter", (meta:get_int("work_counter") or 0) + 1)
 
   local fluid_stack = FluidMeta.get_fluid_stack(meta, INPUT_STEAM_TANK)
@@ -204,7 +207,7 @@ function distillation_unit_refresh_infotext(pos)
 
   infotext =
     infotext .. "\n" ..
-    cluster_energy:get_node_infotext(pos) .. "(" .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. " E)" .. "\n" ..
+    cluster_energy:get_node_infotext(pos) .. "(" .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. " E)" .. "\n" ..
     "I.Steam Tank: " .. FluidStack.pretty_format(input_steam_fluid_stack, capacity) .. "\n" ..
     "O.Steam Tank: " .. FluidStack.pretty_format(output_steam_fluid_stack, capacity) .. "\n" ..
     "Distilled Tank: " .. FluidStack.pretty_format(distilled_fluid_stack, capacity)

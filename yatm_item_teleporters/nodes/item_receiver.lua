@@ -39,8 +39,8 @@ local item_receiver_yatm_network = {
   },
 }
 
-function item_receiver_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
-  return 10
+function item_receiver_yatm_network:work(ctx)
+  return 0
 end
 
 local function teleporter_on_construct(pos)
@@ -100,7 +100,7 @@ local function item_receiver_refresh_infotext(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "S.Address: " .. SpacetimeMeta.to_infotext(meta) .. "\n" ..
     "Item: " .. itemstack_inspect(stack)
 

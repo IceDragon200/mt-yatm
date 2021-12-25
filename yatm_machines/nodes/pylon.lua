@@ -8,7 +8,7 @@ local function pylon_refresh_infotext(pos)
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     cluster_energy:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
+    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
 
   meta:set_string("infotext", infotext)
 end
@@ -34,8 +34,7 @@ local pylon_yatm_network = {
   }
 }
 
-function pylon_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
-
+function pylon_yatm_network:work(ctx)
   return 0
 end
 

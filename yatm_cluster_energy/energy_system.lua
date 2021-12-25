@@ -2,19 +2,24 @@
 -- System module that runs under the energy cluster to resolve the energy generation and
 -- distribution.
 --
+
+-- @namespace yatm_cluster_energy
 local EnergyDevices = assert(yatm.energy.EnergyDevices)
 
 local get_node_or_nil = minetest.get_node_or_nil
 
+-- @class EnergySystem
 local EnergySystem = foundation.com.Class:extends("EnergySystem")
 local ic = EnergySystem.instance_class
 
 --local LOG_GROUP = 'yatm.cluster.energy:energy_system'
 
+-- @spec #initialize(): void
 function ic:initialize()
   ic._super.initialize(self)
 end
 
+-- @spec #calc_energy_produced(Cluster, dtime: Float, trace: Trace): Integer
 function ic:calc_energy_produced(cluster, dtime, trace)
   local span
 
@@ -45,6 +50,7 @@ function ic:calc_energy_produced(cluster, dtime, trace)
   return energy_produced
 end
 
+-- @spec #calc_energy_stored(cluster: Cluster, dtime: Float, trace: Trace): Integer
 function ic:calc_energy_stored(cluster, dtime, trace)
   local span
 
@@ -75,6 +81,12 @@ function ic:calc_energy_stored(cluster, dtime, trace)
   return energy_stored
 end
 
+-- @spec #calc_energy_stored(
+--   energy_available: Integer,
+--   cluster: Cluster,
+--   dtime: Float,
+--   trace: Trace
+-- ): (energy_consumed: Integer, energy_available: Integer)
 function ic:run_consume_energy(energy_available, cluster, dtime, trace)
   local span
 
@@ -115,6 +127,12 @@ function ic:run_consume_energy(energy_available, cluster, dtime, trace)
   return energy_consumed, energy_available
 end
 
+-- @spec #run_use_stored_energy(
+--   energy_available: Integer,
+--   cluster: Cluster,
+--   dtime: Float,
+--   trace: Trace
+-- ): void
 function ic:run_use_stored_energy(energy_storage_consumed, cluster, dtime, trace)
   local span
 
@@ -147,6 +165,12 @@ function ic:run_use_stored_energy(energy_storage_consumed, cluster, dtime, trace
   end
 end
 
+-- @spec #run_receive_energy(
+--   energy_left: Integer,
+--   cluster: Cluster,
+--   dtime: Float,
+--   trace: Trace
+-- ): void
 function ic:run_receive_energy(energy_left, cluster, dtime, trace)
   local span
 

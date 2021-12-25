@@ -30,7 +30,7 @@ local function energy_cell_refresh_infotext(pos)
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     cluster_energy:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.to_infotext(meta, "internal", nodedef.yatm_network.energy.capacity) .. "\n" ..
+    "Energy: " .. Energy.meta_to_infotext(meta, "internal", nodedef.yatm_network.energy.capacity) .. "\n" ..
     "Usable Energy: " .. tostring(usable)
 
   meta:set_string("infotext", infotext)
@@ -69,7 +69,7 @@ for cell_type, cell_config in pairs(cell_types) do
 
   local function on_energy_changed(pos, node)
     local meta = minetest.get_meta(pos)
-    local current_energy = Energy.get_energy(meta, "internal")
+    local current_energy = Energy.get_meta_energy(meta, "internal")
     local stage = math.min(num_round(7 * current_energy / cell_config.capacity), 7);
 
     local new_name = energy_cell_yatm_network.basename .. "_" .. stage
@@ -82,7 +82,7 @@ for cell_type, cell_config in pairs(cell_types) do
 
   function energy_cell_yatm_network.energy.receive_energy(pos, node, amount)
     local meta = minetest.get_meta(pos)
-    local used_amount = Energy.receive_energy(meta, "internal", amount, cell_config.bandwidth, cell_config.capacity, true)
+    local used_amount = Energy.receive_meta_energy(meta, "internal", amount, cell_config.bandwidth, cell_config.capacity, true)
     if used_amount > 0 then
       on_energy_changed(pos, node)
     end
@@ -91,12 +91,12 @@ for cell_type, cell_config in pairs(cell_types) do
 
   function energy_cell_yatm_network.energy.get_usable_stored_energy(pos, node)
     local meta = minetest.get_meta(pos)
-    return Energy.get_energy_throughput(meta, "internal", cell_config.bandwidth)
+    return Energy.get_meta_energy_throughput(meta, "internal", cell_config.bandwidth)
   end
 
   function energy_cell_yatm_network.energy.use_stored_energy(pos, node, amount)
     local meta = minetest.get_meta(pos)
-    local consumed_amount = Energy.consume_energy(meta, "internal", amount, cell_config.bandwidth, cell_config.capacity, true)
+    local consumed_amount = Energy.consume_meta_energy(meta, "internal", amount, cell_config.bandwidth, cell_config.capacity, true)
     if consumed_amount > 0 then
       on_energy_changed(pos, node)
     end

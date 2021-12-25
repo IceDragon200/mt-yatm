@@ -43,7 +43,7 @@ local function computer_refresh_infotext(pos, node)
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     cluster_energy:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     data_network:get_infotext(pos)
 
   meta:set_string("infotext", infotext)
@@ -135,9 +135,9 @@ local computer_yatm_network = {
   }
 }
 
-function computer_yatm_network.work(pos, node, energy_available, work_rate, dtime, ot)
+function computer_yatm_network:work(ctx)
   local energy_consumed = 0
-  local nodedef = minetest.registered_nodes[node.name]
+  local nodedef = ctx.nodedef
   -- TODO
   return energy_consumed
 end

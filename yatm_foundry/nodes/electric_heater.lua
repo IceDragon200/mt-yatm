@@ -27,9 +27,13 @@ local heater_yatm_network = {
 
 local HEAT_MAX = 1600
 
-function heater_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
-  local meta = minetest.get_meta(pos)
-  local heat = meta:get_int("heat")
+function heater_yatm_network:work(ctx)
+  local pos = ctx.pos
+  local meta = ctx.meta
+  local node = ctx.node
+  local dtime = ctx.dtime
+
+  local heat = meta:get_float("heat")
   local new_heat = math.min(heat + 10 * dtime, HEAT_MAX)
   meta:set_float("heat", new_heat)
   -- due to precision issues with floating point numbers,
@@ -39,7 +43,7 @@ function heater_yatm_network.work(pos, node, available_energy, work_rate, dtime,
   end
 
   -- heaters devour energy like no tomorrow
-  return math.floor(100 * dtime)
+  return math.floor(100 * ctx.dtime)
 end
 
 local function electric_heater_refresh_infotext(pos)
@@ -52,7 +56,7 @@ local function electric_heater_refresh_infotext(pos)
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     cluster_energy:get_node_infotext(pos) .. "\n" ..
     cluster_thermal:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "Heat: " .. heat .. " / " .. HEAT_MAX
 
   meta:set_string("infotext", infotext)

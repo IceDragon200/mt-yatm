@@ -87,16 +87,19 @@ function electric_smelter_refresh_infotext(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "Molten Tank: " .. FluidStack.pretty_format(molten_tank_fluid_stack, capacity) .. "\n" ..
     "Time Remaining: " .. format_pretty_time(recipe_time) .. " / " .. format_pretty_time(recipe_time_max)
 
   meta:set_string("infotext", infotext)
 end
 
-function electric_smelter_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
+function electric_smelter_yatm_network:work(ctx)
+  local pos = ctx.pos
+  local meta = ctx.meta
+  local node = ctx.node
+
   local energy_consumed = 0
-  local meta = minetest.get_meta(pos)
   local inv = meta:get_inventory()
 
   local processing_item_stack = inv:get_stack("processing_slot",  1)

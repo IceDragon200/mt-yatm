@@ -400,7 +400,7 @@ yatm.devices.register_stateful_network_device({
 
     local infotext =
       cluster_devices:get_node_infotext(pos) .. "\n" ..
-      cluster_energy:get_node_infotext(pos) .. " (" .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. ")" .. "\n" ..
+      cluster_energy:get_node_infotext(pos) .. " (" .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. ")" .. "\n" ..
       data_network:get_infotext(pos)
 
     meta:set_string("infotext", infotext)

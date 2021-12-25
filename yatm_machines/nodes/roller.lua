@@ -40,7 +40,7 @@ function roller_refresh_infotext(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "Time Remaining: " .. format_pretty_time(recipe_time) .. " / " .. format_pretty_time(recipe_time_max)
 
   meta:set_string("infotext", infotext)
@@ -67,9 +67,13 @@ local roller_yatm_network = {
   }
 }
 
-function roller_yatm_network.work(pos, node, energy_available, work_rate, dtime, ot)
+function roller_yatm_network:work(ctx)
+  local pos = ctx.pos
+  local node = ctx.node
+  local meta = ctx.meta
+  local dtime = ctx.dtime
+
   local energy_consumed = 0
-  local meta = minetest.get_meta(pos)
   local inv = meta:get_inventory()
 
   do

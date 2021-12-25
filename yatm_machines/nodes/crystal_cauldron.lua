@@ -23,7 +23,7 @@ local crystal_cauldron_yatm_network = {
   },
 }
 
-function crystal_cauldron_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
+function crystal_cauldron_yatm_network:work(ctx)
   return 0
 end
 

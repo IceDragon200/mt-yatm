@@ -19,10 +19,7 @@ local electrolyser_yatm_network = {
   }
 }
 
-function electrolyser_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
-  local nodedef = minetest.registered_nodes[node.name]
-  if nodedef then
-  end
+function electrolyser_yatm_network:work(ctx)
   return 0
 end
 

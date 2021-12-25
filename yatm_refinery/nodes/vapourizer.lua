@@ -67,14 +67,14 @@ end
 
 local auto_transfer = false
 
-function vapourizer_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
+function vapourizer_yatm_network:work(ctx)
   local energy_consumed = 0
   local need_refresh = false
-  local meta = minetest.get_meta(pos)
+  local meta = ctx.meta
 
   if auto_transfer then
     -- Fluid transfer from input
-    local input_tank_dir = Directions.facedir_to_face(node.param2, Directions.D_DOWN)
+    local input_tank_dir = Directions.facedir_to_face(ctx.node.param2, Directions.D_DOWN)
     local input_tank_pos = vector.add(pos, Directions.DIR6_TO_VEC3[input_tank_dir])
 
     local fs = FluidExchange.transfer_from_tank_to_meta(
@@ -158,7 +158,7 @@ function vapourizer_refresh_infotext(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
-    cluster_energy:get_node_infotext(pos) .. " (" .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. " E)" .. "\n" ..
+    cluster_energy:get_node_infotext(pos) .. " (" .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. " E)" .. "\n" ..
     "Vapour Tank: " .. FluidStack.pretty_format(vapour_fluid_stack, fluid_interface._private.capacity) .. "\n" ..
     "Fluid Tank: " .. FluidStack.pretty_format(fluid_stack, fluid_interface._private.capacity)
 

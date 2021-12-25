@@ -12,7 +12,7 @@ local function server_refresh_infotext(pos, node)
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     cluster_energy:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     data_network:get_infotext(pos)
 
   meta:set_string("infotext", infotext)
@@ -54,7 +54,7 @@ local server_yatm_network = {
   }
 }
 
-function server_yatm_network.work(pos, node, energy_available, work_rate, dtime, ot)
+function server_yatm_network:work(ctx)
   --data_network:mark_ready_to_receive(pos, 1)
   --data_network:mark_ready_to_receive(pos, 2)
   --data_network:mark_ready_to_receive(pos, 3)

@@ -43,7 +43,7 @@ local yatm_network = {
   },
 }
 
-function yatm_network.work()
+function yatm_network:work(ctx)
   return 0
 end
 

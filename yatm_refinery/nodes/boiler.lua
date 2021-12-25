@@ -63,7 +63,7 @@ local function boiler_refresh_infotext(pos)
       "%s\n%s\nEnergy: %s\nSteam Tank: %s\nWater Tank: %s",
       cluster_devices:get_node_infotext(pos),
       cluster_energy:get_node_infotext(pos),
-      Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY),
+      Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY),
       FluidStack.pretty_format(steam_fluid_stack, fluid_interface._private.capacity),
       FluidStack.pretty_format(water_fluid_stack, fluid_interface._private.capacity)
     )
@@ -71,9 +71,14 @@ local function boiler_refresh_infotext(pos)
   meta:set_string("infotext", infotext)
 end
 
-function boiler_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
+function boiler_yatm_network:work(ctx)
+  local pos = ctx.pos
+  local node = ctx.node
+  local meta = ctx.meta
+  local dtime = ctx.dtime
+
   local energy_consumed = 0
-  local meta = minetest.get_meta(pos)
+
   yatm.devices.set_idle(meta, 1)
   -- Drain water from adjacent tanks
   for _, dir in ipairs(Directions.DIR4) do

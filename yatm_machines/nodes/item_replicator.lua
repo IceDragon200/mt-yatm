@@ -56,15 +56,15 @@ function item_replicator_refresh_infotext(pos)
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     cluster_energy:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "Replicating: " .. itemstack_inspect(stack)
 
   meta:set_string("infotext", infotext)
 end
 
-function item_replicator_yatm_network.work(pos, node, energy_available, work_rate, dtime, ot)
+function item_replicator_yatm_network:work(ctx)
   local energy_consumed = 0
-  local meta = minetest.get_meta(pos)
+  local meta = ctx.meta
 
   local inv = meta:get_inventory()
 

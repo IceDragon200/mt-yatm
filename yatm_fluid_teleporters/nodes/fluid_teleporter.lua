@@ -27,7 +27,7 @@ local function fluid_teleporter_refresh_infotext(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "S.Address: " .. SpacetimeMeta.to_infotext(meta) .. "\n" ..
     "Tank: " .. FluidMeta.to_infotext(meta, "tank", fluid_interface:get_capacity(pos, 0))
 
@@ -55,9 +55,12 @@ local fluid_teleporter_yatm_network = {
   },
 }
 
-function fluid_teleporter_yatm_network.work(pos, node, energy_available, work_rate, dtime, ot)
+function fluid_teleporter_yatm_network:work(ctx)
+  local pos = ctx.pos
+  local meta = ctx.meta
+  local node = ctx.node
+
   local energy_consumed = 0
-  local meta = minetest.get_meta(pos)
   local address = SpacetimeMeta.get_address(meta)
 
   if not is_blank(address) then
@@ -99,7 +102,7 @@ local function fluid_teleporter_after_place_node(pos, _placer, itemstack, _point
   SpacetimeNetwork:maybe_register_node(pos, node)
 
   yatm.devices.device_after_place_node(pos, placer, itemstack, pointed_thing)
-  assert(yatm.queue_refresh_infotext(pos))
+  yatm.queue_refresh_infotext(pos)
 end
 
 local function fluid_teleporter_on_destruct(pos)

@@ -17,7 +17,7 @@
 --   Normally energy_storage nodes will also implement in the energy_receiver part of the interface.
 --
 -- * `energy_consumer`
---   Energy consumers take any energy from production and stored and perform some work using it.
+--   Energy consumers take any energy from production and stored to perform some work using it.
 --   Generally nodes will buffer this energy they consume and perform work later via the `update`
 --   callback (for nodes in the `has_update` group).
 --

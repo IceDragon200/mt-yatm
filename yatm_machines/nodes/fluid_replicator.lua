@@ -75,9 +75,12 @@ function fluid_interface:drain(pos, dir, new_stack, commit)
   return stack
 end
 
-function fluid_replicator_yatm_network.work(pos, node, energy_available, work_rate, dtime, ot)
+function fluid_replicator_yatm_network:work(ctx)
+  local pos = ctx.pos
+  local meta = ctx.meta
+  local node = ctx.node
+
   local energy_consumed = 0
-  local meta = minetest.get_meta(pos)
 
   if not FluidMeta.is_empty(meta, TANK_NAME) then
     local capacity = fluid_interface._private.capacity

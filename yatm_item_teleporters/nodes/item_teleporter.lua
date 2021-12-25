@@ -27,7 +27,7 @@ local function item_teleporter_refresh_infotext(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "S.Address: " .. SpacetimeMeta.to_infotext(meta) .. "\n" ..
     "Item: " .. itemstack_inspect(stack)
 
@@ -55,9 +55,12 @@ local item_teleporter_yatm_network = {
   },
 }
 
-function item_teleporter_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
+function item_teleporter_yatm_network:work(ctx)
+  local pos = ctx.pos
+  local meta = ctx.meta
+  local node = ctx.node
+
   local energy_consumed = 0
-  local meta = minetest.get_meta(pos)
   local address = SpacetimeMeta.get_address(meta)
 
   if not is_blank(address) then

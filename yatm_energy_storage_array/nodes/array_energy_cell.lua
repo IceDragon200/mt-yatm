@@ -1,4 +1,5 @@
 local cluster_devices = assert(yatm.cluster.devices)
+local Energy = assert(yatm.energy)
 
 --
 -- Array Energy Cells are denser that regular energy cells
@@ -121,12 +122,12 @@ yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_na
       get_stored_energy = function (pos, node)
         local meta = minetest.get_meta(pos)
 
-        return yatm.energy.get_energy(meta, ENERGY_KEY)
+        return Energy.get_meta_energy(meta, ENERGY_KEY)
       end,
 
       receive_energy = function (pos, node, energy_left, dtime, ot)
         local meta = minetest.get_meta(pos)
-        local received_energy = yatm.energy.receive_energy(meta, ENERGY_KEY, energy_left, BANDWIDTH, CAPACITY, true)
+        local received_energy = Energy.receive_meta_energy(meta, ENERGY_KEY, energy_left, BANDWIDTH, CAPACITY, true)
         if received_energy > 0 then
           yatm.queue_refresh_infotext(pos, node)
         end
@@ -135,12 +136,12 @@ yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_na
 
       get_usable_stored_energy = function (pos, node)
         local meta = minetest.get_meta(pos)
-        return math.min(BANDWIDTH, yatm.energy.get_energy(meta, ENERGY_KEY))
+        return math.min(BANDWIDTH, Energy.get_meta_energy(meta, ENERGY_KEY))
       end,
 
       use_stored_energy = function (pos, node, energy_to_use)
         local meta = minetest.get_meta(pos)
-        local consumed_energy = yatm.energy.consume_energy(meta, ENERGY_KEY, energy_to_use, BANDWIDTH, CAPACITY, true)
+        local consumed_energy = Energy.consume_meta_energy(meta, ENERGY_KEY, energy_to_use, BANDWIDTH, CAPACITY, true)
         if consumed_energy > 0 then
           yatm.queue_refresh_infotext(pos, node)
         end
@@ -151,7 +152,7 @@ yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_na
 
   on_construct = function (pos)
     local meta = minetest.get_meta(pos)
-    yatm.energy.get_energy(meta, ENERGY_KEY, 0)
+    Energy.get_meta_energy(meta, ENERGY_KEY, 0)
 
     local node = minetest.get_node(pos)
     cluster_devices:schedule_add_node(pos, node)
@@ -169,7 +170,7 @@ yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_na
     local meta = minetest.get_meta(pos)
     local node = minetest.get_node(pos)
 
-    local en = yatm.energy.get_energy(meta, ENERGY_KEY)
+    local en = Energy.get_meta_energy(meta, ENERGY_KEY)
 
     local infotext =
       "Array Energy Cell\n" ..

@@ -38,7 +38,7 @@ local function freezer_refresh_infotext(pos)
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     cluster_energy:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
+    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
 
   meta:set_string("infotext", infotext)
 end
@@ -64,7 +64,7 @@ local freezer_yatm_network = {
   },
 }
 
-function freezer_yatm_network.work(pos, node, available_energy, work_rate, dtime, trace)
+function freezer_yatm_network:work(ctx)
   --
   -- So the freezer takes either fluids or input items and then, well freezes them
   -- In the case of fluids, they need to be registered with a transition fluid
@@ -74,12 +74,15 @@ function freezer_yatm_network.work(pos, node, available_energy, work_rate, dtime
   --
   local span
 
-  local meta = minetest.get_meta(pos)
+  local pos = ctx.pos
+  local meta = ctx.meta
+  local node = ctx.node
+  local dtime = ctx.dtime
 
   local inv = meta:get_inventory()
 
-  if trace then
-    span = trace:span_start("fluid")
+  if ctx.trace then
+    span = ctx.trace:span_start("fluid")
   end
   -- input0 is reserved for the fluid
   do
@@ -148,19 +151,21 @@ function freezer_yatm_network.work(pos, node, available_energy, work_rate, dtime
     span:span_end()
   end
 
-  if trace then
-    span = trace:span_start("items")
+  if ctx.trace then
+    span = ctx.trace:span_start("items")
   end
   -- input1..(ITEM_INV_SIZE) is for items
   if not inv:is_empty("input_items") then
+    local item_stack
+    local recipe
+    local recipe_name
+    local item_time
+    local item_duration
+    local new_item_time
+    local remaining_dtime
+
     for i = 1,ITEM_INV_SIZE do
-      local remaining_dtime = dtime
-      local item_stack
-      local recipe
-      local recipe_name
-      local item_time
-      local item_duration
-      local new_item_time
+      remaining_dtime = dtime
 
       while remaining_dtime > 0 do
         item_stack = inv:get_stack("input_items", i)

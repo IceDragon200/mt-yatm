@@ -43,7 +43,7 @@ local magazine_loader_yatm_network = {
   },
 }
 
-function magazine_loader_yatm_network.work(pos, node, energy_available, work_rate, dtime, ot)
+function magazine_loader_yatm_network:work(ctx)
   return 0
 end
 

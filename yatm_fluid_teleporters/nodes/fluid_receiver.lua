@@ -36,7 +36,7 @@ local fluid_receiver_yatm_network = {
   },
 }
 
-function fluid_receiver_yatm_network.work(pos, node, available_energy, work_rate, dtime, ot)
+function fluid_receiver_yatm_network:work(ctx)
   return 10
 end
 
@@ -92,7 +92,7 @@ local function teleporter_refresh_infotext(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "S.Address: " .. SpacetimeMeta.to_infotext(meta) .. "\n" ..
     "Tank: " .. FluidMeta.to_infotext(meta, "tank", fluid_interface:get_capacity(pos, 0))
 

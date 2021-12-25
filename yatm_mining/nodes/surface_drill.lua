@@ -55,9 +55,12 @@ local function update_bit(pos, node)
   end
 end
 
-function surface_drill_yatm_network.work(pos, node, energy_available, work_rate, dtime, _ot)
-  if energy_available > 200 then
-    local meta = minetest.get_meta(pos)
+function surface_drill_yatm_network:work(ctx)
+  if ctx.available_energy > 200 then
+    local meta = ctx.meta
+    local node = ctx.node
+    local pos = ctx.pos
+
     local timer = meta:get_int("work_timer")
     local new_face = Directions.facedir_to_face(node.param2, Directions.D_UP)
     assert(new_face)
@@ -65,10 +68,13 @@ function surface_drill_yatm_network.work(pos, node, energy_available, work_rate,
     local decr = 1
     local ext_pos = pos
     -- Count all the attached extensions
+    local ext_node
+    local ext_nodedef
+
     while true do
       ext_pos = vector.add(ext_pos, up_dirv3)
-      local ext_node = minetest.get_node(ext_pos)
-      local ext_nodedef = minetest.registered_nodes[ext_node.name]
+      ext_node = minetest.get_node(ext_pos)
+      ext_nodedef = minetest.registered_nodes[ext_node.name]
       if ext_nodedef then
         --print("node def", ext_pos.x, ext_pos.y, ext_pos.z, ext_node.name)
         if ext_nodedef.groups.surface_drill_ext then
@@ -81,6 +87,7 @@ function surface_drill_yatm_network.work(pos, node, energy_available, work_rate,
         break
       end
     end
+
     if timer <= 0 then
       update_bit(pos, node)
       timer = 20
@@ -88,9 +95,12 @@ function surface_drill_yatm_network.work(pos, node, energy_available, work_rate,
       --print("decr timer", decr, pos.x, pos.y, pos.z, node.name)
       timer = timer - decr
     end
+
     meta:set_int("work_timer", timer)
+
     return 200
   end
+
   return 0
 end
 

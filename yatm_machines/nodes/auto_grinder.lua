@@ -61,8 +61,11 @@ local item_interface =
     return "grinder_output"
   end)
 
-function auto_grinder_yatm_network.work(pos, node, energy_available, work_rate, dtime, ot)
-  local meta = minetest.get_meta(pos)
+function auto_grinder_yatm_network:work(ctx)
+  local pos = ctx.pos
+  local meta = ctx.meta
+  local node = ctx.node
+
   local inv = meta:get_inventory()
 
   local consumed = 0
@@ -148,7 +151,7 @@ local function auto_grinder_refresh_infotext(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "Recipe: " .. recipe_name .. "\n" ..
     "Time: " .. format_pretty_time(work_time) .. " / " .. format_pretty_time(duration)
 

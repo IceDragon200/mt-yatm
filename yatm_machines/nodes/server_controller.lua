@@ -9,7 +9,7 @@ local function server_controller_refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     data_network:get_infotext(pos)
 
   meta:set_string("infotext", infotext)
@@ -58,7 +58,10 @@ local server_controller_yatm_network = {
   }
 }
 
-function server_controller_yatm_network.work(pos, node, energy_available, work_rate, dtime, ot)
+function server_controller_yatm_network:work(ctx)
+  local pos = ctx.pos
+  local node = ctx.node
+
   data_network:send_value(pos, node, 1, 10)
   return 0
 end

@@ -33,7 +33,7 @@ local function compactor_refresh_infotext(pos)
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     cluster_energy:get_node_infotext(pos) .. "\n" ..
     "Recipe: " .. (meta:get_string("recipe_name") or "") .. "\n" ..
-    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
+    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
 
   meta:set_string("infotext", infotext)
 end
@@ -63,14 +63,20 @@ local compactor_yatm_network = {
   },
 }
 
-function compactor_yatm_network.work(pos, node, energy_available, work_rate, dtime, ot)
-  local meta = minetest.get_meta(pos)
+function compactor_yatm_network:work(ctx)
+  local pos = ctx.pos
+  local meta = ctx.meta
+  local node = ctx.node
+  local dtime = ctx.dtime
+
+  local available_energy = ctx.available_energy
+
   local inv = meta:get_inventory()
 
   local remaining_dtime = dtime
 
   local energy_used = 0
-  while remaining_dtime > 0 and energy_used < energy_available do
+  while remaining_dtime > 0 and energy_used < available_energy do
     local processing_item = inv:get_stack("processing_items", 1)
     if processing_item:is_empty() then
       local input_item = inv:get_stack("input_items", 1)
@@ -103,7 +109,7 @@ function compactor_yatm_network.work(pos, node, energy_available, work_rate, dti
       local time = meta:get_float("time")
       local used_time = math.min(time, remaining_dtime)
 
-      local energy_to_use = math.min(energy_available - energy_used, used_time * 400)
+      local energy_to_use = math.min(available_energy - energy_used, used_time * 400)
       used_time = energy_to_use / 400
       energy_used = energy_used + energy_to_use
 

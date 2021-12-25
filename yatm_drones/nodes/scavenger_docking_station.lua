@@ -32,11 +32,11 @@ function docking_station_yatm_network.charge_drone(pos, node, drone)
   local meta = minetest.get_meta(pos)
   -- TODO: charge drone
 
-  local amount = yatm.energy.consume_energy(meta, yatm.devices.ENERGY_BUFFER_KEY, 500, 500, 16000, false)
+  local amount = Energy.consume_meta_energy(meta, yatm.devices.ENERGY_BUFFER_KEY, 500, 500, 16000, false)
   local amount_used = drone.energy.receive_energy(drone, amount)
 
   if amount_used <= amount then
-    yatm.energy.consume_energy(meta, yatm.devices.ENERGY_BUFFER_KEY, amount_used, 500, 16000, true)
+    Energy.consume_meta_energy(meta, yatm.devices.ENERGY_BUFFER_KEY, amount_used, 500, 16000, true)
   end
 end
 
@@ -45,7 +45,7 @@ local function docking_station_refresh_infotext(pos, node)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
-    cluster_energy:get_node_infotext(pos) .. "[" .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "]"
+    cluster_energy:get_node_infotext(pos) .. "[" .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "]"
 
   meta:set_string("infotext", infotext)
 end

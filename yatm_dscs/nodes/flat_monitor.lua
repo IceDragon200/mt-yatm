@@ -11,7 +11,7 @@ local function refresh_infotext(pos, node)
     "Flat Monitor\n" ..
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     cluster_energy:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
+    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
 
   meta:set_string("infotext", infotext)
 end

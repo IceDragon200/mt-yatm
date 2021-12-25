@@ -22,7 +22,7 @@ local function refresh_infotext(pos, node)
   local infotext =
     "Console Monitor\n" ..
     cluster_devices:get_node_infotext(pos) .. "\n" ..
-    cluster_energy:get_node_infotext(pos) .. " [" .. Energy.to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "]\n" ..
+    cluster_energy:get_node_infotext(pos) .. " [" .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "]\n" ..
     data_network:get_infotext(pos) .. "\n" ..
     ""
 
