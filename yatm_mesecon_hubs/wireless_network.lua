@@ -94,10 +94,14 @@ end
 function ic:update(dtime, trace)
   local counter = self.m_counter
 
-  local span = span:span_start("dispatch_queued/0")
+  local span
+  if trace then
+    span = trace:span_start("dispatch_queued/0")
+  end
   self:dispatch_queued()
-  span:span_end()
-  --Trace.inspect(ot)
+  if span then
+    span:span_end()
+  end
 
   self.m_counter = counter + 1
 end
