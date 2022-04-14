@@ -428,7 +428,8 @@ local function on_receive_fields(player, form_name, fields, assigns)
   return keep_bubbling, formspec
 end
 
-local function on_formspec_quit(player, form_name, assigns)
+-- @private.spec on_formspec_quit(Player, form_name: String, fields: Table, assigns: Table): void
+local function on_formspec_quit(player, form_name, fields, assigns)
   local di = assigns.interface
 
   if di.on_programmer_formspec_quit then
