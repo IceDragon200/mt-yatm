@@ -115,7 +115,7 @@ local function reset_docking_station(pos, node)
 
   -- energy
   if Energy then
-    Energy.set_energy(meta, ENERGY_BUFFER_NAME, 0)
+    Energy.set_meta_energy(meta, ENERGY_BUFFER_NAME, 0)
   end
 
   -- fluid
@@ -137,7 +137,7 @@ local function reset_crate_contents(pos, node)
 
   -- energy
   if Energy then
-    Energy.set_energy(meta, ENERGY_BUFFER_NAME, 0)
+    Energy.set_meta_energy(meta, ENERGY_BUFFER_NAME, 0)
   end
 
   -- fluid
@@ -355,7 +355,7 @@ if cluster_energy then
       get_usable_stored_energy = function (pos, node, dtime, ot)
         if node_is_crate_type(pos, node, "energy") then
           local meta = minetest.get_meta(pos)
-          return Energy.get_energy(meta, ENERGY_BUFFER_NAME)
+          return Energy.get_meta_energy(meta, ENERGY_BUFFER_NAME)
         end
         return 0
       end,
@@ -363,8 +363,8 @@ if cluster_energy then
       use_stored_energy = function (pos, node, amount_to_consume, dtime, ot)
         if node_is_crate_type(pos, node, "energy") then
           local meta = minetest.get_meta(pos)
-          local used = Energy.consume_energy(meta, ENERGY_BUFFER_NAME, amount_to_consume, ENERGY_BANDWIDTH, ENERGY_CAPACITY, true)
-          if Energy.get_energy(meta, ENERGY_BUFFER_NAME) <= 0 then
+          local used = Energy.consume_meta_energy(meta, ENERGY_BUFFER_NAME, amount_to_consume, ENERGY_BANDWIDTH, ENERGY_CAPACITY, true)
+          if Energy.get_meta_energy(meta, ENERGY_BUFFER_NAME) <= 0 then
             maybe_change_docking_station_crate_type(pos, node, "empty")
           end
           return used
@@ -376,8 +376,8 @@ if cluster_energy then
         if node_is_crate_type(pos, node, "energy") or
            node_is_crate_type(pos, node, "empty") then
           local meta = minetest.get_meta(pos)
-          local received = Energy.receive_energy(meta, ENERGY_BUFFER_NAME, energy_left, ENERGY_BANDWIDTH, ENERGY_CAPACITY, true)
-          if Energy.get_energy(meta, ENERGY_BUFFER_NAME) > 0 then
+          local received = Energy.receive_meta_energy(meta, ENERGY_BUFFER_NAME, energy_left, ENERGY_BANDWIDTH, ENERGY_CAPACITY, true)
+          if Energy.get_meta_energy(meta, ENERGY_BUFFER_NAME) > 0 then
             maybe_change_docking_station_crate_type(pos, node, "energy")
           end
           return received
@@ -681,7 +681,7 @@ yatm.register_stateful_node("yatm_overhead_rails:overhead_docking_station", {
 
         local energy = stack_meta:get_int("stored_energy")
         if energy > 0 then
-          Energy.set_energy(meta, ENERGY_BUFFER_NAME, energy)
+          Energy.set_meta_energy(meta, ENERGY_BUFFER_NAME, energy)
           return true
         end
         return false
@@ -691,7 +691,7 @@ yatm.register_stateful_node("yatm_overhead_rails:overhead_docking_station", {
         local itemstack = ItemStack(CRATE_TYPE_TO_DOCKING_CRATE.energy)
         local stack_meta = itemstack:get_meta()
         local meta = minetest.get_meta(pos)
-        stack_meta:set_int("stored_energy", Energy.get_energy(meta, ENERGY_BUFFER_NAME))
+        stack_meta:set_int("stored_energy", Energy.get_meta_energy(meta, ENERGY_BUFFER_NAME))
         return itemstack
       end,
     },
