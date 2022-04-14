@@ -67,8 +67,14 @@ function thermal_plate_heating_yatm_network:work(ctx)
   if target_node then
     local target_nodedef = minetest.registered_nodes[target_node.name]
 
-    if Groups.has_group(target_nodedef, 'uses_thermal_modifier') then
-      --
+    if Groups.has_group(target_nodedef, 'uses_heat_modifier') then
+      local target_meta = minetest.get_meta(target_pos)
+
+      local heat_modifier = target_meta:get_float(yatm.devices.HEAT_MODIFIER_KEY)
+
+      -- TODO: apply changes
+
+      target_meta:set_float(yatm.devices.HEAT_MODIFIER_KEY, heat_modifier)
     end
   end
 
