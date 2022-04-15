@@ -1,3 +1,5 @@
+local mod = yatm_machines
+
 local crusher_yatm_network = {
   kind = "machine",
   groups = {
@@ -27,9 +29,11 @@ function crusher_yatm_network:work(ctx)
 end
 
 yatm.devices.register_stateful_network_device({
-  basename = "yatm_machines:crusher",
+  codex_entry_id = mod:make_name("crusher"),
 
-  description = "Crusher",
+  basename = mod:make_name("crusher"),
+
+  description = mod.S("Crusher"),
 
   groups = {
     cracky = 1,

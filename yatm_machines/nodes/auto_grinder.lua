@@ -1,3 +1,4 @@
+local mod = yatm_machines
 local Directions = assert(foundation.com.Directions)
 local is_blank = assert(foundation.com.is_blank)
 local itemstack_split = assert(foundation.com.itemstack_split)
@@ -186,9 +187,11 @@ local groups = {
 }
 
 yatm.devices.register_stateful_network_device({
-  basename = "yatm_machines:auto_grinder",
+  codex_entry_id = mod:make_name("auto_grinder"),
 
-  description = "Auto Grinder",
+  basename = mod:make_name("auto_grinder"),
+
+  description = mod.S("Auto Grinder"),
 
   groups = groups,
 

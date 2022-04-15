@@ -1,6 +1,7 @@
 --
 -- The Roller, or Metal Former, takes various metals or plates and forms them into other shapes.
 --
+local mod = yatm_machines
 local Directions = assert(foundation.com.Directions)
 local is_blank = assert(foundation.com.is_blank)
 local itemstack_is_blank = assert(foundation.com.itemstack_is_blank)
@@ -131,9 +132,12 @@ local item_interface = ItemInterface.new_directional(function (self, pos, dir)
 end)
 
 yatm.devices.register_stateful_network_device({
-  basename = "yatm_machines:roller",
+  codex_entry_id = mod:make_name("roller"),
 
-  description = "Roller",
+  basename = mod:make_name("roller"),
+
+  description = mod.S("Roller"),
+
   groups = {
     cracky = 1,
     item_interface_in = 1,

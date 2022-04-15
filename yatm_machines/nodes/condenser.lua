@@ -3,6 +3,7 @@
   Condensers turn gases into liquids, primarily steam back into water.
 
 ]]
+local mod = yatm_machines
 local Directions = assert(foundation.com.Directions)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
@@ -79,11 +80,11 @@ local groups = {
 }
 
 yatm.devices.register_stateful_network_device({
-  basename = "yatm_machines:condenser",
+  basename = mod:make_name("condenser"),
 
-  codex_entry_id = "yatm_machines:condenser",
+  codex_entry_id = mod:make_name("condenser"),
 
-  description = "Condenser",
+  description = mod.S("Condenser"),
 
   groups = groups,
 

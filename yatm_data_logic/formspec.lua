@@ -50,7 +50,7 @@ yatm_data_logic.FORMSPEC_SIZE = {w = 20, h = 15}
 
 function yatm_data_logic.layout_formspec(w, h)
   local formspec =
-    fspec.formspec_version(4) ..
+    fspec.formspec_version(6) ..
     fspec.size(w or yatm_data_logic.FORMSPEC_SIZE.w, h or yatm_data_logic.FORMSPEC_SIZE.h)
 
   return formspec

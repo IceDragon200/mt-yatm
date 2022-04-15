@@ -23,4 +23,8 @@ mod:require("recipes.lua")
 
 mod:require("migrations.lua")
 
+if minetest.global_exists("yatm_codex") then
+  mod:require("codex.lua")
+end
+
 mod:require("tests.lua")

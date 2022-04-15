@@ -114,6 +114,8 @@ for cell_type, cell_config in pairs(cell_types) do
       groups.not_in_creative_inventory = 1
     end
     yatm.devices.register_network_device(energy_cell_yatm_network.basename .. "_" .. stage, {
+      codex_entry_id = energy_cell_yatm_network.basename,
+
       basename = energy_cell_yatm_network.basename,
 
       description = "Energy Cell ("..cell_type..")",
@@ -176,6 +178,8 @@ for cell_type, cell_config in pairs(cell_types) do
   end
 
   yatm.devices.register_network_device(creative_energy_cell_yatm_network.basename, {
+    codex_entry_id = creative_energy_cell_yatm_network.basename,
+
     description = "Energy Cell ("..cell_type..") [Creative]",
 
     groups = {

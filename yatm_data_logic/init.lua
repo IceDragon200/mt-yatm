@@ -12,6 +12,10 @@ mod:require("items.lua")
 
 mod:require("migrations.lua")
 
+if minetest.global_exists("yatm_codex") then
+  mod:require("codex.lua")
+end
+
 if foundation.com.Luna then
   mod:require("tests.lua")
 end

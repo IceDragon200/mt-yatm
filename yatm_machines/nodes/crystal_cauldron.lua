@@ -1,3 +1,5 @@
+local mod = yatm_machines
+
 local crystal_cauldron_yatm_network = {
   kind = "machine",
   groups = {
@@ -43,9 +45,11 @@ local crysytal_cauldron_node_box = {
 }
 
 yatm.devices.register_stateful_network_device({
-  basename = "yatm_machines:crystal_cauldron",
+  codex_entry_id = mod:make_name("crystal_cauldron"),
 
-  description = "Crystal Cauldron",
+  basename = mod:make_name("crystal_cauldron"),
+
+  description = mod.S("Crystal Cauldron"),
 
   groups =  {
     cracky = 1,

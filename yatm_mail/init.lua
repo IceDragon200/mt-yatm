@@ -7,3 +7,7 @@ local mod = foundation.new_module("yatm_mail", "1.0.0")
 mod:require("nodes.lua")
 mod:require("items.lua")
 mod:require("api.lua")
+
+if minetest.global_exists("yatm_codex") then
+  mod:require("codex.lua")
+end

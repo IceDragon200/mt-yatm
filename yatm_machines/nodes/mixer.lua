@@ -1,3 +1,5 @@
+local mod = yatm_machines
+
 local mixer_yatm_network = {
   kind = "machine",
   groups = {
@@ -24,9 +26,11 @@ function mixer_yatm_network:work(ctx)
 end
 
 yatm.devices.register_stateful_network_device({
-  basename = "yatm_machines:mixer",
+  codex_entry_id = mod:make_name("mixer"),
 
-  description = "Mixer",
+  basename = mod:make_name("mixer"),
+
+  description = mod.S("Mixer"),
 
   groups = {
     cracky = 1,

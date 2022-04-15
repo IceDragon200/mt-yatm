@@ -1,3 +1,5 @@
+local mod = yatm_machines
+
 local auto_crafter_yatm_network = {
   kind = "machine",
   groups = {
@@ -34,9 +36,11 @@ local groups = {
 }
 
 yatm.devices.register_stateful_network_device({
-  basename = "yatm_machines:auto_crafter",
+  codex_entry_id = mod:make_name("auto_crafter"),
 
-  description = "Auto Crafter",
+  basename = mod:make_name("auto_crafter"),
+
+  description = mod.S("Auto Crafter"),
   groups = groups,
 
   drop = auto_crafter_yatm_network.states.off,

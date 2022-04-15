@@ -126,9 +126,10 @@ end
 
 function dropoff_station_item_interface:insert_item(pos, dir, item_stack, commit)
   local remaining = item_stack
+  local npos
   if dir == Directions.D_NONE then
     for dir6, vec3 in pairs(Directions.DIR6_TO_VEC3) do
-      local npos = vector.add(pos, vec3)
+      npos = vector.add(pos, vec3)
       remaining = ItemDevice.insert_item(npos, Directions.invert_dir(dir6), remaining, commit)
       if remaining then
         if remaining:is_empty() then

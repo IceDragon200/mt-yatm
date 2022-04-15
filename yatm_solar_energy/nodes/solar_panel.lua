@@ -1,3 +1,5 @@
+local mod = yatm_solar_energy
+
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 
@@ -54,11 +56,11 @@ local solar_panel_nodebox = {
 }
 
 yatm.devices.register_stateful_network_device({
-  basename = "yatm_solar_energy:solar_panel",
+  basename = mod:make_name("solar_panel"),
 
-  description = "Solar Panel",
+  description = mod.S("Solar Panel"),
 
-  codex_entry_id = "yatm_solar_energy:solar_panel",
+  codex_entry_id = mod:make_name("solar_panel"),
 
   groups = {
     cracky = 1,

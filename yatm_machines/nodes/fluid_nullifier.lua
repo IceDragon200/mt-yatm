@@ -5,6 +5,7 @@ Where does it go?
 
 /dev/null maybe?
 ]]
+local mod = yatm_machines
 
 local fluid_interface = {}
 
@@ -24,8 +25,8 @@ function fluid_interface:drain(pos, dir, fluid_stack, commit)
   return nil
 end
 
-minetest.register_node("yatm_machines:fluid_nullifier", {
-  description = "Fluid Nullifier",
+mod:register_node("fluid_nullifier", {
+  description = mod.S("Fluid Nullifier"),
 
   groups = {
     cracky = 1,

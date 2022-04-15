@@ -2,6 +2,7 @@
 -- FluidBarrels as their name states contain fluids.
 -- Unlike the brewing barrel used to age booze.
 --
+local mod = yatm_brewery
 local Directions = assert(foundation.com.Directions)
 local list_concat = assert(foundation.com.list_concat)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
@@ -52,10 +53,13 @@ for _,row in ipairs(yatm.colors_with_default) do
   local color_name = row.description
 
   minetest.register_node("yatm_brewery:fluid_barrel_wood_" .. color_basename, {
-    basename = "yatm_brewery:fluid_barrel_wood",
-    base_description = "Fluid Barrel (Wood)",
+    codex_entry_id = "yatm_brewery:fluid_barrel_wood",
 
-    description = "Fluid Barrel (Wood / " .. color_name .. ")",
+    basename = "yatm_brewery:fluid_barrel_wood",
+    base_description = mod.S("Fluid Barrel (Wood)"),
+
+    description = mod.S("Fluid Barrel (Wood / " .. color_name .. ")"),
+
     groups = {
       fluid_barrel = 1,
       wood_fluid_barrel = 1,
@@ -92,10 +96,13 @@ for _,row in ipairs(yatm.colors_with_default) do
   })
 
   minetest.register_node("yatm_brewery:fluid_barrel_metal_" .. color_basename, {
-    basename = "yatm_brewery:fluid_barrel_metal",
-    base_description = "Fluid Barrel (Metal)",
+    codex_entry_id = "yatm_brewery:fluid_barrel_metal",
 
-    description = "Fluid Barrel (Metal / " .. color_name .. ")",
+    basename = "yatm_brewery:fluid_barrel_metal",
+    base_description = mod.S("Fluid Barrel (Metal)"),
+
+    description = mod.S("Fluid Barrel (Metal / " .. color_name .. ")"),
+
     groups = {
       fluid_barrel = 1,
       metal_fluid_barrel = 1,

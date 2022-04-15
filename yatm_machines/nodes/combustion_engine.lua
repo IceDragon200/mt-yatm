@@ -1,3 +1,4 @@
+local mod = yatm_machines
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local FluidStack = assert(yatm.fluids.FluidStack)
@@ -166,9 +167,11 @@ function combustion_engine_transition_device_state(pos, _node, state)
 end
 
 yatm.devices.register_stateful_network_device({
-  basename = "yatm_machines:combustion_engine",
+  codex_entry_id = mod:make_name("combustion_engine"),
 
-  description = "Combustion Engine",
+  basename = mod:make_name("combustion_engine"),
+
+  description = mod.S("Combustion Engine"),
 
   groups = {
     cracky = 1,
@@ -233,7 +236,6 @@ yatm.devices.register_stateful_network_device({
   }
 })
 
-
 --
 -- Creative Engine
 --
@@ -278,9 +280,11 @@ function creative_engine_refresh_infotext(pos)
 end
 
 yatm.devices.register_stateful_network_device({
+  codex_entry_id = "yatm_machines:creative_engine",
+
   basename = "yatm_machines:creative_engine",
 
-  description = "Creative Engine",
+  description = mod.S("Creative Engine"),
 
   groups = {
     cracky = 1,

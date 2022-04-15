@@ -1,3 +1,4 @@
+local mod = yatm_machines
 local itemstack_inspect = assert(foundation.com.itemstack_inspect)
 local itemstack_is_blank = assert(foundation.com.itemstack_is_blank)
 local cluster_devices = assert(yatm.cluster.devices)
@@ -95,9 +96,11 @@ local groups = {
 }
 
 yatm.devices.register_stateful_network_device({
-  basename = "yatm_machines:item_replicator",
+  codex_entry_id = mod:make_name("item_replicator"),
 
-  description = "Item Replicator",
+  basename = mod:make_name("item_replicator"),
+
+  description = mod.S("Item Replicator"),
 
   drop = item_replicator_yatm_network.states.off,
 

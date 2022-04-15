@@ -1,3 +1,4 @@
+local mod = yatm_machines
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
@@ -47,9 +48,11 @@ local groups = {
 }
 
 yatm.devices.register_stateful_network_device({
-  basename = "yatm_machines:coal_generator",
+  codex_entry_id = mod:make_name("coal_generator"),
 
-  description = "Coal Generator",
+  basename = mod:make_name("coal_generator"),
+
+  description = mod.S("Coal Generator"),
   groups = groups,
 
   drop = coal_generator_yatm_network.states.off,

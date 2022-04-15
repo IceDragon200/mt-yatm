@@ -5,6 +5,7 @@
   Can also freeze some items, just be careful with glass.
 
 ]]
+local mod = yatm_machines
 local Directions = assert(foundation.com.Directions)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
@@ -292,11 +293,11 @@ local groups = {
 }
 
 yatm.devices.register_stateful_network_device({
-  basename = "yatm_machines:freezer",
+  basename = mod:make_name("freezer"),
 
-  codex_entry_id = "yatm_machines:freezer",
+  codex_entry_id = mod:make_name("freezer"),
 
-  description = "Freezer",
+  description = mod.S("Freezer"),
 
   groups = groups,
 

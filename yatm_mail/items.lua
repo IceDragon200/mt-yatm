@@ -1,1 +1,1 @@
-dofile(yatm_mail.modpath .. "/items/letter.lua")
+yatm_mail:require("items/letter.lua")

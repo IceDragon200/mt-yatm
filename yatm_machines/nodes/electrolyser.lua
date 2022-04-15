@@ -1,3 +1,5 @@
+local mod = yatm_machines
+
 local electrolyser_yatm_network = {
   kind = "machine",
   groups = {
@@ -24,9 +26,12 @@ function electrolyser_yatm_network:work(ctx)
 end
 
 yatm.devices.register_stateful_network_device({
-  basename = "yatm_machines:electrolyser",
+  codex_entry_id = mod:make_name("electrolyser"),
 
-  description = "Electrolyser",
+  basename = mod:make_name("electrolyser"),
+
+  description = mod.S("Electrolyser"),
+
   groups = {cracky = 1},
   tiles = {
     "yatm_electrolyser_top.off.png",

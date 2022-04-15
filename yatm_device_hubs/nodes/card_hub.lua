@@ -20,6 +20,8 @@ local yatm_network = {
 }
 
 yatm.devices.register_stateful_network_device({
+  codex_entry_id = "yatm_device_hubs:hub_card",
+
   basename = "yatm_device_hubs:hub_card",
 
   description = "Hub (Card)",

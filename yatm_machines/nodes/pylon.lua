@@ -1,3 +1,4 @@
+local mod = yatm_machines
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
@@ -58,9 +59,9 @@ local pylon_node_box = {
 }
 
 yatm.devices.register_stateful_network_device({
-  basename = "yatm_machines:pylon",
+  basename = mod:make_name("pylon"),
 
-  description = "Pylon",
+  description = mod.S("Pylon"),
 
   groups = {cracky = 1},
 

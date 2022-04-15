@@ -1,3 +1,4 @@
+local mod = yatm_machines
 local Directions = assert(foundation.com.Directions)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local cluster_devices = assert(yatm.cluster.devices)
@@ -194,9 +195,11 @@ local groups = {
 }
 
 yatm.devices.register_stateful_network_device({
-  basename = "yatm_machines:compactor",
+  codex_entry_id = mod:make_name("compactor"),
 
-  description = "Compactor",
+  basename = mod:make_name("compactor"),
+
+  description = mod.S("Compactor"),
   groups = groups,
 
   drop = compactor_yatm_network.states.off,

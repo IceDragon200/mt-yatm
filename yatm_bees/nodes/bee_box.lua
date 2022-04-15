@@ -212,6 +212,8 @@ local function bee_box_on_metadata_inventory_take(pos, list, index, item_stack, 
 end
 
 minetest.register_node("yatm_bees:bee_box_wood", {
+  codex_entry_id = "yatm_bees:bee_box_wood",
+
   basename = "yatm_bees:bee_box",
 
   material_basename = "wood",
@@ -252,6 +254,8 @@ minetest.register_node("yatm_bees:bee_box_wood", {
 })
 
 minetest.register_node("yatm_bees:bee_box_metal", {
+  codex_entry_id = "yatm_bees:bee_box_metal",
+
   basename = "yatm_bees:bee_box",
 
   material_basename = "metal",

@@ -2,6 +2,7 @@ local is_blank = assert(foundation.com.is_blank)
 local itemstack_is_blank = assert(foundation.com.itemstack_is_blank)
 local set_itemstack_meta_description = assert(foundation.com.set_itemstack_meta_description)
 local get_itemstack_description = assert(foundation.com.get_itemstack_description)
+local fspec = assert(foundation.com.formspec.api)
 
 local table_nodebox = {
   type = "fixed",
@@ -20,9 +21,15 @@ local function locksmiths_table_get_formspec(pos, user, assigns)
   assigns.tab = assigns.tab or 1
 
   local formspec =
-    "size[8,9]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "wood") ..
-    "label[0,0;Locksmith's Table]" ..
+    fspec.formspec_version(6) ..
+    fspec.size(8, 9) ..
+    yatm.formspec_bg_for_player(
+      user:get_player_name(),
+      "wood",
+      0, 0,
+      8, 9
+    ) ..
+    fspec.label(0, 0, "Locksmith's Table") ..
     "tabheader[0,0;tab;Lock Installation,Chip Installation,Key Duplication;" .. assigns.tab .. "]"
 
   if assigns.tab == 1 then
@@ -372,7 +379,7 @@ end
 minetest.register_node("yatm_security:locksmiths_table_wood", {
   basename = "yatm_security:locksmiths_table",
 
-  description = "Wood Locksmiths Table",
+  description = "Wood Locksmith's Table",
 
   codex_entry_id = "yatm_security:locksmiths_table",
 

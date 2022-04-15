@@ -25,7 +25,7 @@ yatm.codex.register_entry("yatm_dscs:void_crate", {
       heading = "Void Crate",
       lines = {
         "Void Crates are devices that allow accessing the contents of a Fluid Drive.",
-        "While the it's origins are dubious, there is no doubt of its usefulness.",
+        "While the its origins are dubious, there is no doubt of its usefulness.",
         "Simply install an item drive in the respective slot and power it to see it's contents."
       },
     },

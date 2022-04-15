@@ -7,3 +7,7 @@ mod:require("api.lua")
 
 mod:require("items.lua")
 mod:require("nodes.lua")
+
+if minetest.global_exists("yatm_codex") then
+  mod:require("codex.lua")
+end

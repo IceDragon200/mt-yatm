@@ -5,8 +5,14 @@ local function get_codex_entry_formspec(entity, assigns)
   local w = yatm.get_player_hotbar_size(entity)
   local h = 10
   local formspec =
+    fspec.formspec_version(6) ..
     fspec.size(w, h) ..
-    yatm.formspec_bg_for_player(entity:get_player_name(), "codex")
+    yatm.formspec_bg_for_player(
+      entity:get_player_name(),
+      "codex",
+      0, 0,
+      w, h
+    )
 
   local page = assert(assigns.codex_entry.pages[assigns.page_id])
 
@@ -31,9 +37,8 @@ local function get_codex_entry_formspec(entity, assigns)
       formspec ..
       -- For the love of code, WTF, last time I put the grid before it, it appeared above it!
       -- this gives the illusion of a grid around the item
-      "item_image[0,0.25;1.5,1.5;yatm_core:grid_block]" ..
-      "item_image[0,0.25;1.5,1.5;" .. item_name .. "]" ..
-      ""
+      fspec.item_image(0, 0.25, 1.5, 1.5, "yatm_core:grid_block") ..
+      fspec.item_image(0, 0.25, 1.5, 1.5, item_name)
   end
 
   if page.heading then

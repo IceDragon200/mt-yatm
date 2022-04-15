@@ -168,6 +168,8 @@ local groups = {
 }
 
 yatm.devices.register_stateful_network_device({
+  codex_entry_id = "yatm_machines:steam_turbine",
+
   basename = "yatm_machines:steam_turbine",
 
   description = "Steam Turbine",

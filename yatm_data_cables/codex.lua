@@ -1,25 +1,25 @@
-yatm.codex.register_entry("yatm_data_network:data_cable", {
+yatm.codex.register_entry("yatm_data_cables:data_cable", {
   pages = {
     {
       heading_item = {
         context = true,
-        default = "yatm_data_network:data_cable_white",
+        default = "yatm_data_cables:data_cable_white",
       },
       heading = "Data Cable",
       lines = {
-        "Data Cables carry data in a data network.",
+        "Data Cables carry data in a data cables.",
         "They only connect to those of the same color, or a multi.",
       },
     },
   },
 })
 
-yatm.codex.register_entry("yatm_data_network:data_cable_bus", {
+yatm.codex.register_entry("yatm_data_cables:data_cable_bus", {
   pages = {
     {
       heading_item = {
         context = true,
-        default = "yatm_data_network:data_cable_bus_white",
+        default = "yatm_data_cables:data_cable_bus_white",
       },
       heading = "Data Cable Bus",
       lines = {

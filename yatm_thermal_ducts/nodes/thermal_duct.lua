@@ -1,3 +1,4 @@
+local mod = yatm_thermal_ducts
 local cluster_thermal = assert(yatm.cluster.thermal)
 local table_length = assert(foundation.com.table_length)
 local table_merge = assert(foundation.com.table_merge)
@@ -14,7 +15,9 @@ local groups = {
 }
 
 yatm.register_stateful_node("yatm_thermal_ducts:thermal_duct", {
-  description = "Thermal Duct",
+  codex_entry_id = "yatm_thermal_ducts:thermal_duct",
+
+  description = mod.S("Thermal Duct"),
 
   groups = groups,
 

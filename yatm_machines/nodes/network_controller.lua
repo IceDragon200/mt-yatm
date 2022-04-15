@@ -1,3 +1,4 @@
+local mod = yatm_machines
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 
@@ -39,11 +40,11 @@ local groups = {
 }
 
 yatm.devices.register_stateful_network_device({
-  basename = "yatm_machines:network_controller",
+  codex_entry_id = mod:make_name("network_controller"),
 
-  description = "Network Controller",
+  basename = mod:make_name("network_controller"),
 
-  codex_entry_id = "yatm_machines:network_controller",
+  description = mod.S("Network Controller"),
 
   groups = groups,
 

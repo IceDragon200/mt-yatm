@@ -1,3 +1,4 @@
+local mod = yatm_machines
 local Directions = assert(foundation.com.Directions)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
@@ -116,9 +117,12 @@ local groups = {
 }
 
 yatm.devices.register_stateful_network_device({
-  basename = "yatm_machines:fluid_replicator",
+  codex_entry_id = mod:make_name("fluid_replicator"),
 
-  description = "Fluid Replicator",
+  basename = mod:make_name("fluid_replicator"),
+
+  description = mod.S("Fluid Replicator"),
+
   groups = groups,
   drop = fluid_replicator_yatm_network.states.off,
   tiles = {

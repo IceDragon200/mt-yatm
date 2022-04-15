@@ -1,6 +1,7 @@
 --
 -- Thermal Boilers are an alternative to the electric boiler, using the thermal system instead.
 --
+local mod = yatm_refinery
 local Directions = assert(foundation.com.Directions)
 local maybe_start_node_timer = assert(foundation.com.maybe_start_node_timer)
 local cluster_thermal = yatm.cluster.thermal
@@ -147,8 +148,10 @@ local groups = {
 }
 
 yatm.register_stateful_node("yatm_refinery:thermal_boiler", {
-  base_description = "Thermal Boiler",
-  description = "Thermal Boiler",
+  codex_entry_id = "yatm_refinery:thermal_boiler",
+
+  base_description = mod.S("Thermal Boiler"),
+  description = mod.S("Thermal Boiler"),
 
   drop = "yatm_refinery:thermal_boiler_off",
 
