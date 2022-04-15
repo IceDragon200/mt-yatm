@@ -166,6 +166,7 @@ end
 -- @spec #_step_startup(): Integer
 function ic:_step_startup()
   local histate = math.floor(self.m_chip.state / 16)
+  local lostate = self.m_chip.state % 16
   local chip = self.m_chip
 
   if histate == 0 then
@@ -174,7 +175,7 @@ function ic:_step_startup()
     chip.a = 0xAA
     chip.ir = 0x00
     chip.sr = 0x02
-    chip.state = chip.state + 16
+    chip.state = lostate + (histate * 16) + 1
     return STARTUP_CODE
 
   elseif histate == 1 then
@@ -183,7 +184,7 @@ function ic:_step_startup()
     chip.a = 0xAA
     chip.ir = 0x00
     chip.sr = 0x02
-    chip.state = chip.state + 16
+    chip.state = lostate + (histate * 16) + 1
     return STARTUP_CODE
 
   elseif histate == 2 then
@@ -193,7 +194,7 @@ function ic:_step_startup()
     chip.a = 0xAA
     chip.ir = 0x00
     chip.sr = 0x02
-    chip.state = chip.state + 16
+    chip.state = lostate + (histate * 16) + 1
     return STARTUP_CODE
 
   elseif histate == 3 then
@@ -203,7 +204,7 @@ function ic:_step_startup()
     chip.a = 0xAA
     chip.ir = 0x00
     chip.sr = 0x02
-    chip.state = chip.state + 16
+    chip.state = lostate + (histate * 16) + 1
     return STARTUP_CODE
 
   elseif histate == 4 then
@@ -213,7 +214,7 @@ function ic:_step_startup()
     chip.a = 0xAA
     chip.ir = 0x00
     chip.sr = 0x02
-    chip.state = chip.state + 16
+    chip.state = lostate + (histate * 16) + 1
     return STARTUP_CODE
 
   elseif histate == 5 then
@@ -223,7 +224,7 @@ function ic:_step_startup()
     chip.a = 0xAA
     chip.ir = 0x00
     chip.sr = 0x02
-    chip.state = chip.state + 16
+    chip.state = lostate + (histate * 16) + 1
     return STARTUP_CODE
 
   elseif histate == 6 then
@@ -233,13 +234,13 @@ function ic:_step_startup()
     chip.a = 0xAA
     chip.ir = 0x00
     chip.sr = 0x02
-    chip.state = chip.state + 16
+    chip.state = lostate + (histate * 16) + 1
     return STARTUP_CODE
 
   elseif histate == 7 then
     chip.ab = RESET_VECTOR_PTR
     chip.pc = 0 -- TODO: read memory
-    chip.state = chip.state + 16
+    chip.state = lostate + (histate * 16) + 1
     return STARTUP_CODE
 
   elseif histate == 8 then

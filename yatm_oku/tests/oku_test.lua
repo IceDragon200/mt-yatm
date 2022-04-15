@@ -75,43 +75,47 @@ case:describe("step (rv32i)", function (t2)
   end
 end)
 
-case:describe("step (mos6502)", function (t2)
-  if m:has_arch("mos6502") then
-    t2:test("runs a simple 6502 program", function (t3)
-      local oku =
-        m:new({
-          arch = "mos6502"
-        })
+if yatm_oku.OKU.isa.MOS6502.Chip == yatm_oku.OKU.isa.MOS6502.LuaChip then
+  minetest.log("error", "MOS6502 LuaChip is known to be unimplemented")
+else
+  case:describe("step (mos6502)", function (t2)
+    if m:has_arch("mos6502") then
+      t2:test("runs a simple 6502 program", function (t3)
+        local oku =
+          m:new({
+            arch = "mos6502"
+          })
 
-      local b = m.isa.MOS6502.Builder
+        local b = m.isa.MOS6502.Builder
 
-      local blob =
-        b.lda_imm(0) ..
-        b.adc_imm(20)
+        local blob =
+          b.lda_imm(0) ..
+          b.adc_imm(20)
 
-      oku:w_memory_blob(512, blob)
-      oku:w_memory_blob(0xFFFC, "\x00\x02")
+        oku:w_memory_blob(512, blob)
+        oku:w_memory_blob(0xFFFC, "\x00\x02")
 
-      -- reset sequence is roughly 9 steps
-      for i = 1,9 do
+        -- reset sequence is roughly 9 steps
+        for i = 1,9 do
+          t3:assert_eq(1, oku:step(1))
+        end
+        t3:assert_eq(2, oku.isa_assigns.chip:get_state())
+        t3:assert_eq(512, oku.isa_assigns.chip:get_register_pc())
+
         t3:assert_eq(1, oku:step(1))
-      end
-      t3:assert_eq(2, oku.isa_assigns.chip:get_state())
-      t3:assert_eq(512, oku.isa_assigns.chip:get_register_pc())
+        t3:assert_eq(514, oku.isa_assigns.chip:get_register_pc())
 
-      t3:assert_eq(1, oku:step(1))
-      t3:assert_eq(514, oku.isa_assigns.chip:get_register_pc())
+        t3:assert_eq(0, oku.isa_assigns.chip:get_register_a())
 
-      t3:assert_eq(0, oku.isa_assigns.chip:get_register_a())
-
-      t3:assert_eq(1, oku:step(1))
-      t3:assert_eq(20, oku.isa_assigns.chip:get_register_a())
-    end)
-  else
-    t2:xtest("mos6502 unavailable", function ()
-    end)
-  end
-end)
+        t3:assert_eq(1, oku:step(1))
+        t3:assert_eq(20, oku.isa_assigns.chip:get_register_a())
+      end)
+    else
+      t2:xtest("mos6502 unavailable", function ()
+      end)
+    end
+  end)
+end
 
 case:describe("bindump/1", function (t2)
   if m:has_arch("mos6502") then
