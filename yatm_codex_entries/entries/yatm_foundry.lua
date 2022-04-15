@@ -1,3 +1,5 @@
+local Cuboid = assert(foundation.com.Cuboid)
+
 yatm.codex.register_demo("yatm_foundry:concrete_showcase", {
   check_space = function (self, pos)
     return true
@@ -20,7 +22,8 @@ yatm.codex.register_demo("yatm_foundry:concrete_showcase", {
       "rosy",
     }
 
-    local cuboid = yatm.Cuboid:new(-math.floor(#colors / 2), 0, -math.floor(#variants / 2), #colors, 1, #variants):translate(pos)
+    local cuboid = Cuboid:new(-math.floor(#colors / 2), 0, -math.floor(#variants / 2), #colors, 1, #variants)
+    cuboid = Cuboid.translate(cuboid, pos)
     yatm.codex.fill_cuboid(cuboid, { name = "air" })
 
     local palette = {
