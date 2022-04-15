@@ -34,7 +34,7 @@ mod:register_tool("grenade_incendiary", {
 })
 
 mod:register_tool("grenade_nuclear", {
-  description = "Incendiary Grenade\nCaution: Contains radioactive materials.",
+  description = "Nuclear Grenade\nCaution: Contains radioactive materials.",
 
   groups = {
     grenade = 1,
