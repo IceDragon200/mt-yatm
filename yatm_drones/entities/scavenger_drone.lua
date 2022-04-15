@@ -120,7 +120,7 @@ local function hq_pickup_item(self)
         local voodoo_range = self.voodoo_range
         local dist = vector.distance(pos,tpos)
 
-        if voodoo_range > 0 then
+        if voodoo_range and voodoo_range > 0 then
           if dist < voodoo_range then
             -- TODO: the drone should take some time before it can pick up the item
             -- using voodoo, also play some visual and audio effects when it uses voodoo
