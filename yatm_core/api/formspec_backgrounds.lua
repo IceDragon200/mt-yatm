@@ -122,7 +122,7 @@ function yatm.formspec_render_split_inv_panel(player, main_cols, main_rows, opti
   local full_rect = Rect.new(padding, padding, w - padding * 2, h - padding * 2)
 
   local formspec =
-    fspec.formspec_version(4) ..
+    fspec.formspec_version(6) ..
     callback("before_size", full_rect) ..
     fspec.size(w, h) ..
     callback("header", full_rect) ..
