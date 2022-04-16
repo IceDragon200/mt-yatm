@@ -137,6 +137,7 @@ function dropoff_station_item_interface:insert_item(pos, dir, item_stack, commit
         end
       end
     end
+    return remaining
   end
   return nil, "can only insert from NONE direction"
 end
