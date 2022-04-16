@@ -5,6 +5,7 @@ local Directions = assert(foundation.com.Directions)
 local Energy = assert(yatm.energy)
 local invbat = assert(yatm.energy.inventory_batteries)
 local InventorySerializer = assert(yatm.items.InventorySerializer)
+local fspec = assert(foundation.com.formspec.api)
 
 local g_inventory_id = 0
 local view_range = (minetest.get_mapgen_setting('active_object_send_range_blocks') or 3) * 3
@@ -428,24 +429,30 @@ local function drone_logic(self)
   end
 end
 
+-- @private.spec get_scavenger_drone_formspec(Entity, PlayerRef): String
 local function get_scavenger_drone_formspec(self, user)
+  local cio = fspec.calc_inventory_offset
+
   local formspec =
-    "size[8,9]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "machine") ..
-    "label[0,0;Inventory]" ..
-    "list[detached:" .. self.inventory_name .. ";main;0,0.5;4,4;]" ..
-    "label[4,0;Upgrades]" ..
-    "list[detached:" .. self.inventory_name .. ";upgrades;4,0.5;4,1;]" ..
-    "label[4,2;Batteries]" ..
-    "list[detached:" .. self.inventory_name .. ";batteries;4,2.5;2,1;]" ..
-    "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]" ..
-    "listring[detached:" .. self.inventory_name .. ";main]" ..
-    "listring[current_player;main]" ..
-    "listring[detached:" .. self.inventory_name .. ";upgrades]" ..
-    "listring[current_player;main]" ..
-    "listring[detached:" .. self.inventory_name .. ";batteries]" ..
-    "listring[current_player;main]"
+    yatm.formspec_render_split_inv_panel(user, 8, 5, { bg = "machine" }, function (slot, rect)
+      if slot == "main_body" then
+        return fspec.label(rect.x, rect.y + 0.5, "Inventory") ..
+          fspec.list("detached:"..self.inventory_name, "main", rect.x, rect.y + 1, 4, 4) ..
+          fspec.label(rect.x + cio(4), rect.y + 0.5, "Upgrades") ..
+          fspec.list("detached:"..self.inventory_name, "upgrades", rect.x + cio(4), rect.y + 1, 4, 1) ..
+          fspec.label(rect.x + cio(4), rect.y + 2.5, "Batteries") ..
+          fspec.list("detached:"..self.inventory_name, "batteries", rect.x + cio(4), rect.y + cio(3), 2, 1)
+      elseif slot == "footer" then
+        return fspec.list_ring("detached:" .. self.inventory_name, "main") ..
+          fspec.list_ring("current_player", "main") ..
+          fspec.list_ring("detached:" .. self.inventory_name, "upgrades") ..
+          fspec.list_ring("current_player", "main") ..
+          fspec.list_ring("detached:" .. self.inventory_name, "batteries") ..
+          fspec.list_ring("current_player", "main")
+      end
+
+      return ""
+    end)
 
   return formspec
 end
