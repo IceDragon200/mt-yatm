@@ -573,6 +573,10 @@ minetest.register_node("yatm_armoury_icbm:icbm_silo", {
   item_interface = item_interface,
   fluid_interface = fluid_interface,
 
+  action_hints = {
+    secondary = "inventory"
+  },
+
   on_rightclick = function (pos, node, user, item_stack, pointed_thing)
     local assigns = { pos = pos, node = node }
     local formspec = get_formspec(pos, user:get_player_name(), assigns)

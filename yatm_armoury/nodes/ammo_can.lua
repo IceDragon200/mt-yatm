@@ -72,6 +72,10 @@ minetest.register_node("yatm_armoury:ammo_can", {
 
   item_interface = item_interface,
 
+  action_hints = {
+    secondary = "inventory"
+  },
+
   on_construct = function (pos)
     local meta = minetest.get_meta(pos)
 
