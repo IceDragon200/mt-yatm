@@ -242,6 +242,10 @@ function yatm.shelves.register_shelf(name, def)
     on_metadata_inventory_put = yatm.shelves.shelf_on_metadata_inventory_put,
     on_metadata_inventory_take = yatm.shelves.shelf_on_metadata_inventory_take,
 
+    action_hints = {
+      secondary = "inventory",
+    },
+
     on_rightclick = yatm.shelves.shelf_on_rightclick,
   }, def))
 end
