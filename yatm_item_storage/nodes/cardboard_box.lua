@@ -1,32 +1,39 @@
 local is_blank = assert(foundation.com.is_blank)
 local ItemInterface = assert(yatm.items.ItemInterface)
+local fspec = assert(foundation.com.formspec.api)
 
 function get_cardboard_box_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+
   local formspec =
-    "size[8,9]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "cardboard") ..
-    "label[0,0;Cardboard Box]" ..
-    "list[nodemeta:" .. spos .. ";main;2,0.5;4,4;]" ..
-    "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]" ..
-    "listring[nodemeta:" .. spos .. ";main]" ..
-    "listring[current_player;main]"
+    yatm.formspec_render_split_inv_panel(user, 8, 5, { bg = "cardboard" }, function (slot, rect)
+      if slot == "main_body" then
+        return fspec.label(rect.x, rect.y, "Cardboard Box") ..
+               fspec.list("nodemeta:" .. spos, "main", rect.x, rect.y + 0.5, 4, 4)
+      elseif slot == "footer" then
+        return fspec.list_ring("nodemeta:" .. spos, "main") ..
+               fspec.list_ring("current_player", "main")
+      end
+      return ""
+    end)
 
   return formspec
 end
 
 function get_super_cardboard_box_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+
   local formspec =
-    "size[16,9]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "cardboard") ..
-    "label[0,0;SUPER Cardboard Box]" ..
-    "list[nodemeta:" .. spos .. ";main;0,0.5;16,4;]" ..
-    "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]" ..
-    "listring[nodemeta:" .. spos .. ";main]" ..
-    "listring[current_player;main]"
+    yatm.formspec_render_split_inv_panel(user, 16, 5, { bg = "cardboard" }, function (slot, rect)
+      if slot == "main_body" then
+        return fspec.label(rect.x, rect.y, "Cardboard Box") ..
+               fspec.list("nodemeta:" .. spos, "main", rect.x, rect.y + 0.5, 16, 4)
+      elseif slot == "footer" then
+        return fspec.list_ring("nodemeta:" .. spos, "main") ..
+               fspec.list_ring("current_player", "main")
+      end
+      return ""
+    end)
 
   return formspec
 end
@@ -105,6 +112,10 @@ minetest.register_node("yatm_item_storage:cardboard_box", {
   paramtype2 = "facedir",
 
   item_interface = cardboard_box_item_interface,
+
+  action_hints = {
+    secondary = "inventory",
+  },
 
   on_construct = function (pos)
     local meta = minetest.get_meta(pos)

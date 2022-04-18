@@ -16,88 +16,6 @@ local mailbox_nodebox  = {
   }
 }
 
-local function mailbox_get_formspec(pos, is_unlocked)
-  local meta = minetest.get_meta(pos)
-  local spos = pos.x .. "," .. pos.y .. "," .. pos.z
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
-
-  local bg
-  if nodedef.material_basename == "wood" then
-    bg = yatm.bg.wood
-  elseif nodedef.material_basename == "metal" then
-    bg = yatm.bg.default
-  end
-
-  local w = yatm.get_player_hotbar_size(entity)
-  local h = 10
-
-  local formspec =
-    fspec.size(w, h) ..
-    bg ..
-    "label[0,0;Mailbox]"
-
-  if yatm_security.is_lockable_node(pos) then
-    -- if it's lockable, show the access key slot
-    formspec =
-      formspec ..
-      "list[nodemeta:" .. spos .. ";access_key;0,0.5;1,1;]"
-  end
-
-  if yatm_security.is_chipped_node(pos) then
-    -- if it's lockable, show the access key slot
-    formspec =
-      formspec ..
-      "list[nodemeta:" .. spos .. ";access_card;1.5,0.5;1,1;]"
-  end
-
-  formspec =
-    formspec ..
-    fspec.list("nodemeta:"..spos, "dropoff", w - 4, 0.5, 4, 1) ..
-    "listring[nodemeta:" .. spos .. ";dropoff]" ..
-    "listring[current_player;main]"
-
-  if is_unlocked then
-    formspec =
-      formspec ..
-      fspec.list("nodemeta:"..spos, "inbox", 0, 2, w, 2)
-
-    if yatm_security.is_lockable_node(pos) then
-      formspec =
-        formspec ..
-        "listring[nodemeta:" .. spos .. ";access_key]" ..
-        "listring[current_player;main]"
-    end
-
-    if yatm_security.is_chipped_node(pos) then
-      formspec =
-        formspec ..
-        "listring[nodemeta:" .. spos .. ";access_card]" ..
-        "listring[current_player;main]"
-    end
-
-    formspec =
-      formspec ..
-      "listring[nodemeta:" .. spos .. ";inbox]" ..
-      "listring[current_player;main]"
-  end
-
-  formspec =
-    formspec ..
-    yatm.player_inventory_lists_fragment(entity, 0, 5.85)
-
-  return formspec
-end
-
-local function mailbox_configure_inventory(_pos, meta)
-  local inv = meta:get_inventory()
-
-  inv:set_size("access_key", 1) -- slot used for the mailbox key, unless it's an open box
-  inv:set_size("access_card", 1) -- slot used for the mailbox access card, unless it's an open box
-  inv:set_size("dropoff", 4) -- dropoff will just transfer it to the inbox /shrug
-  inv:set_size("inbox", 16)
-end
-
 local function is_mailbox_open(pos)
   local meta = minetest.get_meta(pos)
 
@@ -126,14 +44,122 @@ local function is_mailbox_open(pos)
   return is_open
 end
 
-local function mailbox_configure_formspec(pos, meta)
-  meta:set_string("formspec", mailbox_get_formspec(pos, is_mailbox_open(pos)))
+local function get_mailbox_formspec_id(pos)
+  local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+
+  return "yatm_mail:mailbox:" .. spos
+end
+
+local function mailbox_get_formspec(user, assigns)
+  local pos = assigns.pos
+  assigns.is_unlocked = is_mailbox_open(pos)
+  local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+  local node = minetest.get_node(pos)
+  local nodedef = minetest.registered_nodes[node.name]
+  local meta = minetest.get_meta(pos)
+  local cio = fspec.calc_inventory_offset
+
+  local bg
+  if nodedef.material_basename == "wood" then
+    bg = "wood"
+  elseif nodedef.material_basename == "metal" then
+    bg = "default"
+  end
+
+  return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = bg }, function (slot, rect)
+    if slot == "main_body" then
+      local formspec =
+        fspec.label(0, 0, "Mailbox")
+
+      if yatm_security.is_lockable_node(pos) then
+        -- if it's lockable, show the access key slot
+        formspec =
+          formspec ..
+          fspec.list("nodemeta:"..spos, "access_key", rect.x, rect.y, 1, 1)
+      end
+
+      if yatm_security.is_chipped_node(pos) then
+        -- if it's lockable, show the access key slot
+        formspec =
+          formspec ..
+          fspec.list("nodemeta:"..spos, "access_card", rect.x + cio(1), rect.y, 1, 1)
+      end
+
+      formspec =
+        formspec ..
+        fspec.list("nodemeta:"..spos, "dropoff", rect.x + rect.w - cio(4), rect.y, 4, 1)
+
+      if assigns.is_unlocked then
+        formspec =
+          formspec ..
+          fspec.list("nodemeta:"..spos, "inbox", rect.x, rect.y + 2, 8, 2)
+
+        if yatm_security.is_lockable_node(pos) then
+          formspec =
+            formspec ..
+            "listring[nodemeta:" .. spos .. ";access_key]" ..
+            "listring[current_player;main]"
+        end
+
+        if yatm_security.is_chipped_node(pos) then
+          formspec =
+            formspec ..
+            "listring[nodemeta:" .. spos .. ";access_card]" ..
+            "listring[current_player;main]"
+        end
+
+        formspec =
+          formspec ..
+          "listring[nodemeta:" .. spos .. ";inbox]" ..
+          "listring[current_player;main]"
+      end
+
+      return formspec
+    elseif slot == "footer" then
+      return ""
+    end
+    return ""
+  end)
+end
+
+local function mailbox_show_formspec(pos, user)
+  local options = {
+    state = {
+      pos = pos,
+    }
+  }
+  nokore.formspec_bindings:show_formspec(
+    user:get_player_name(),
+    get_mailbox_formspec_id(pos),
+    mailbox_get_formspec(user, options.state),
+    options
+  )
+end
+
+local function mailbox_on_rightclick(pos, _node, user, itemstack, _pointed_thing)
+  mailbox_show_formspec(pos, user)
+end
+
+local function refresh_mailbox_formspec(pos, _user)
+  --
+  nokore.formspec_bindings:refresh_formspecs(get_mailbox_formspec_id(pos), function (player_name, state)
+    local user = minetest.get_player_by_name(player_name)
+    mailbox_show_formspec(state.pos, user)
+  end)
+end
+
+local function mailbox_configure_inventory(_pos, meta)
+  local inv = meta:get_inventory()
+
+  inv:set_size("access_key", 1) -- slot used for the mailbox key, unless it's an open box
+  inv:set_size("access_card", 1) -- slot used for the mailbox access card, unless it's an open box
+  inv:set_size("dropoff", 4) -- dropoff will just transfer it to the inbox /shrug
+  inv:set_size("inbox", 16)
 end
 
 local function mailbox_on_construct(pos)
   local meta = minetest.get_meta(pos)
 
-  mailbox_configure_formspec(pos, meta)
   mailbox_configure_inventory(pos, meta)
 end
 
@@ -207,7 +233,7 @@ end
 local function mailbox_on_metadata_inventory_put(pos, listname, index, stack, player)
   if listname == "access_key" or listname == "access_card" then
     local meta = minetest.get_meta(pos)
-    mailbox_configure_formspec(pos, meta)
+    refresh_mailbox_formspec(pos, player)
   elseif listname == "dropoff" then
     try_dropoff(pos)
   end
@@ -216,7 +242,7 @@ end
 local function mailbox_on_metadata_inventory_take(pos, listname, index, stack, player)
   if listname == "access_key" or listname == "access_card" then
     local meta = minetest.get_meta(pos)
-    mailbox_configure_formspec(pos, meta)
+    refresh_mailbox_formspec(pos, player)
   end
 end
 
@@ -243,8 +269,6 @@ local function mailbox_after_place_node(pos, _placer, itemstack, _pointed_thing)
   new_meta:set_string("box_title", old_meta:get_string("box_title"))
 
   new_meta:set_string("infotext", new_meta:get_string("description"))
-
-  mailbox_configure_formspec(pos, new_meta)
 end
 
 for _,row in ipairs(yatm.colors_with_default) do
@@ -260,7 +284,7 @@ for _,row in ipairs(yatm.colors_with_default) do
 
     codex_entry_id = "yatm_mail:mailbox",
 
-    material_basename = "metal",
+    material_basename = "wood",
 
     groups = {
       mailbox = 1,
@@ -294,7 +318,6 @@ for _,row in ipairs(yatm.colors_with_default) do
 
     after_place_node = mailbox_after_place_node,
 
-
     allow_metadata_inventory_move = mailbox_allow_metadata_inventory_move,
     allow_metadata_inventory_put = mailbox_allow_metadata_inventory_put,
     allow_metadata_inventory_take = mailbox_allow_metadata_inventory_take,
@@ -303,6 +326,8 @@ for _,row in ipairs(yatm.colors_with_default) do
     on_metadata_inventory_take = mailbox_on_metadata_inventory_take,
 
     preserve_metadata = mailbox_preserve_metadata,
+
+    on_rightclick = mailbox_on_rightclick,
   })
 
   local mailbox_basename = "yatm_mail:mailbox_metal_" .. basename
@@ -348,7 +373,6 @@ for _,row in ipairs(yatm.colors_with_default) do
 
     after_place_node = mailbox_after_place_node,
 
-
     allow_metadata_inventory_move = mailbox_allow_metadata_inventory_move,
     allow_metadata_inventory_put = mailbox_allow_metadata_inventory_put,
     allow_metadata_inventory_take = mailbox_allow_metadata_inventory_take,
@@ -357,5 +381,7 @@ for _,row in ipairs(yatm.colors_with_default) do
     on_metadata_inventory_take = mailbox_on_metadata_inventory_take,
 
     preserve_metadata = mailbox_preserve_metadata,
+
+    on_rightclick = mailbox_on_rightclick,
   })
 end
