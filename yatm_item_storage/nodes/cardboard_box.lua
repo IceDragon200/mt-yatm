@@ -2,6 +2,8 @@ local is_blank = assert(foundation.com.is_blank)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local fspec = assert(foundation.com.formspec.api)
 
+local MAIN_INVENTORY_NAME = "main"
+
 function get_cardboard_box_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
@@ -9,9 +11,9 @@ function get_cardboard_box_formspec(pos, user)
     yatm.formspec_render_split_inv_panel(user, 8, 5, { bg = "cardboard" }, function (slot, rect)
       if slot == "main_body" then
         return fspec.label(rect.x, rect.y, "Cardboard Box") ..
-               fspec.list("nodemeta:" .. spos, "main", rect.x, rect.y + 0.5, 4, 4)
+               fspec.list("nodemeta:" .. spos, MAIN_INVENTORY_NAME, rect.x, rect.y + 0.5, 4, 4)
       elseif slot == "footer" then
-        return fspec.list_ring("nodemeta:" .. spos, "main") ..
+        return fspec.list_ring("nodemeta:" .. spos, MAIN_INVENTORY_NAME) ..
                fspec.list_ring("current_player", "main")
       end
       return ""
@@ -27,9 +29,9 @@ function get_super_cardboard_box_formspec(pos, user)
     yatm.formspec_render_split_inv_panel(user, 16, 5, { bg = "cardboard" }, function (slot, rect)
       if slot == "main_body" then
         return fspec.label(rect.x, rect.y, "Cardboard Box") ..
-               fspec.list("nodemeta:" .. spos, "main", rect.x, rect.y + 0.5, 16, 4)
+               fspec.list("nodemeta:" .. spos, MAIN_INVENTORY_NAME, rect.x, rect.y + 0.5, 16, 4)
       elseif slot == "footer" then
-        return fspec.list_ring("nodemeta:" .. spos, "main") ..
+        return fspec.list_ring("nodemeta:" .. spos, MAIN_INVENTORY_NAME) ..
                fspec.list_ring("current_player", "main")
       end
       return ""
@@ -38,7 +40,7 @@ function get_super_cardboard_box_formspec(pos, user)
   return formspec
 end
 
-local cardboard_box_item_interface = ItemInterface.new_simple("main")
+local cardboard_box_item_interface = ItemInterface.new_simple(MAIN_INVENTORY_NAME)
 
 local function cardboard_box_after_place_node(pos, placer, item_stack, pointed_thing)
   local new_meta = minetest.get_meta(pos)
@@ -49,9 +51,9 @@ local function cardboard_box_after_place_node(pos, placer, item_stack, pointed_t
   local old_inv_list = old_meta:get_string("inventory_dump")
   if not is_blank(old_inv_list) then
     local dumped = minetest.deserialize(old_inv_list)
-    local list = new_inv:get_list("main")
+    local list = new_inv:get_list(MAIN_INVENTORY_NAME)
     list = yatm.items.InventorySerializer.load_list(dumped, list)
-    new_inv:set_list("main", list)
+    new_inv:set_list(MAIN_INVENTORY_NAME, list)
   end
 end
 
@@ -62,7 +64,7 @@ local function cardboard_box_preserve_metadata(pos, old_node, _old_meta_table, d
   local new_meta = stack:get_meta()
 
   local old_inv = old_meta:get_inventory()
-  local list = old_inv:get_list("main")
+  local list = old_inv:get_list(MAIN_INVENTORY_NAME)
 
   local dumped = yatm.items.InventorySerializer.dump_list(list)
 
@@ -74,7 +76,7 @@ end
 
 local function cardboard_box_on_blast(pos)
   local drops = {}
-  foundation.com.get_inventory_drops(pos, "main", drops)
+  foundation.com.get_inventory_drops(pos, MAIN_INVENTORY_NAME, drops)
   drops[#drops+1] = "default:" .. name
   minetest.remove_node(pos)
   return drops
@@ -122,7 +124,7 @@ minetest.register_node("yatm_item_storage:cardboard_box", {
 
     local inv = meta:get_inventory()
 
-    inv:set_size("main", 4*4)
+    inv:set_size(MAIN_INVENTORY_NAME, 4 * 4)
   end,
 
   after_place_node = cardboard_box_after_place_node,
@@ -175,7 +177,7 @@ minetest.register_node("yatm_item_storage:super_cardboard_box", {
 
     local inv = meta:get_inventory()
 
-    inv:set_size("main", 16*4)
+    inv:set_size(MAIN_INVENTORY_NAME, 16*4)
   end,
 
   after_place_node = cardboard_box_after_place_node,

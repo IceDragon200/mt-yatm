@@ -117,7 +117,7 @@ local function hq_pickup_item(self)
 
       if inv:room_for_item("main", item_stack) then
         local pos = mobkit.get_stand_pos(self)
-        local tpos = mobkit.get_stand_pos(item_entity)
+        local tpos = item_entity:get_pos()
         local voodoo_range = self.voodoo_range
         local dist = vector.distance(pos,tpos)
 
@@ -131,13 +131,23 @@ local function hq_pickup_item(self)
             item_entity:remove()
             return true
           else
-            mobkit.goto_next_waypoint(self, tpos)
+            if dist < self.teleport_range then
+              -- trigger teleport
+              self.object:set_pos(tpos)
+            else
+              mobkit.goto_next_waypoint(self, tpos)
+            end
           end
         else
           local vacuum_range = self.vacuum_range
 
           if dist > vacuum_range then
-            mobkit.goto_next_waypoint(self, tpos)
+            if dist < self.teleport_range then
+              -- trigger teleport
+              self.object:set_pos(tpos)
+            else
+              mobkit.goto_next_waypoint(self, tpos)
+            end
           else
             inv:add_item("main", item_stack)
             item_entity:remove()
@@ -205,7 +215,12 @@ local function hq_find_dropoff_station(self, prty, search_radius)
           mobkit.remember(self, "dropping_off", true)
           return true
         else
-          mobkit.goto_next_waypoint(self, closest_dropoff)
+          if dist < self.teleport_range then
+            -- trigger teleport
+            self.object:set_pos(closest_dropoff)
+          else
+            mobkit.goto_next_waypoint(self, closest_dropoff)
+          end
         end
       else
         mobkit.forget(self, "closest_dropoff")
@@ -214,7 +229,8 @@ local function hq_find_dropoff_station(self, prty, search_radius)
       end
     end
   end
-  mobkit.queue_high(self,func,prty)
+
+  mobkit.queue_high(self, func, prty)
 end
 
 local function hq_find_docking_station(self, prty, search_radius, can_move)
@@ -257,7 +273,12 @@ local function hq_find_docking_station(self, prty, search_radius, can_move)
           return true
         else
           if can_move then
-            mobkit.goto_next_waypoint(self, closest_dock)
+            if dist < self.teleport_range then
+              -- trigger teleport
+              self.object:set_pos(closest_dock)
+            else
+              mobkit.goto_next_waypoint(self, closest_dock)
+            end
           else
             return true
           end
@@ -268,7 +289,7 @@ local function hq_find_docking_station(self, prty, search_radius, can_move)
       end
     end
   end
-  mobkit.queue_high(self,func,prty)
+  mobkit.queue_high(self, func, prty)
 end
 
 local function hq_return_to_docking_station(self, prty)
@@ -352,13 +373,20 @@ local function drone_logic(self)
                   local main_list = inv:get_list("main")
 
                   local new_list = {}
+                  local remaining
+
                   for i, item in ipairs(main_list) do
                     if item:is_empty() then
                       new_list[i] = item
                     else
-                      local remaining = yatm.items.ItemDevice.insert_item(closest_dropoff, Directions.D_NONE, item, true)
+                      remaining = yatm.items.ItemDevice.insert_item(
+                        closest_dropoff,
+                        Directions.D_NONE,
+                        item,
+                        true
+                      )
                       if remaining then
-                        new_list[i] = remaining
+                        new_list[i] = foundation.com.itemstack_copy(remaining)
                       else
                         new_list[i] = item
                       end
@@ -429,32 +457,82 @@ local function drone_logic(self)
   end
 end
 
--- @private.spec get_scavenger_drone_formspec(Entity, PlayerRef): String
-local function get_scavenger_drone_formspec(self, user)
+-- @private.spec get_scavenger_drone_formspec(PlayerRef, assigns: Any): String
+local function get_scavenger_drone_formspec(user, assigns)
+  local entity = assigns.entity
   local cio = fspec.calc_inventory_offset
 
-  local formspec =
-    yatm.formspec_render_split_inv_panel(user, 8, 5, { bg = "machine" }, function (slot, rect)
-      if slot == "main_body" then
-        return fspec.label(rect.x, rect.y + 0.5, "Inventory") ..
-          fspec.list("detached:"..self.inventory_name, "main", rect.x, rect.y + 1, 4, 4) ..
-          fspec.label(rect.x + cio(4), rect.y + 0.5, "Upgrades") ..
-          fspec.list("detached:"..self.inventory_name, "upgrades", rect.x + cio(4), rect.y + 1, 4, 1) ..
-          fspec.label(rect.x + cio(4), rect.y + 2.5, "Batteries") ..
-          fspec.list("detached:"..self.inventory_name, "batteries", rect.x + cio(4), rect.y + cio(3), 2, 1)
-      elseif slot == "footer" then
-        return fspec.list_ring("detached:" .. self.inventory_name, "main") ..
-          fspec.list_ring("current_player", "main") ..
-          fspec.list_ring("detached:" .. self.inventory_name, "upgrades") ..
-          fspec.list_ring("current_player", "main") ..
-          fspec.list_ring("detached:" .. self.inventory_name, "batteries") ..
-          fspec.list_ring("current_player", "main")
-      end
+  local formspec
 
-      return ""
-    end)
+  local tabs = {
+    "Inventory",
+    "Info"
+  }
+
+  local tabheader = fspec.tabheader(0, 0, nil, nil, "drone_tab", tabs, assigns.tab)
+
+  if assigns.tab == 1 then
+    formspec =
+      yatm.formspec_render_split_inv_panel(user, 8, 5, { bg = "machine" }, function (slot, rect)
+        if slot == "header" then
+          return tabheader
+        elseif slot == "main_body" then
+          return fspec.label(rect.x, rect.y + 0.5, "Inventory") ..
+            fspec.list("detached:"..entity.inventory_name, "main", rect.x, rect.y + 1, 4, 4) ..
+            fspec.label(rect.x + cio(4), rect.y + 0.5, "Upgrades") ..
+            fspec.list("detached:"..entity.inventory_name, "upgrades", rect.x + cio(4), rect.y + 1, 4, 1) ..
+            fspec.label(rect.x + cio(4), rect.y + 2.5, "Batteries") ..
+            fspec.list("detached:"..entity.inventory_name, "batteries", rect.x + cio(4), rect.y + cio(3), 2, 1)
+        elseif slot == "footer" then
+          return fspec.list_ring("detached:" .. entity.inventory_name, "main") ..
+            fspec.list_ring("current_player", "main") ..
+            fspec.list_ring("detached:" .. entity.inventory_name, "upgrades") ..
+            fspec.list_ring("current_player", "main") ..
+            fspec.list_ring("detached:" .. entity.inventory_name, "batteries") ..
+            fspec.list_ring("current_player", "main")
+        end
+
+        return ""
+      end)
+  else
+    formspec =
+      yatm.formspec_render_split_inv_panel(user, 8, 5, { bg = "machine" }, function (slot, rect)
+        if slot == "header" then
+          return tabheader
+        elseif slot == "main_body" then
+          return fspec.label(rect.x, rect.y, "Jump Height") ..
+                   fspec.label(rect.x, rect.y + 0.5, entity.jump_height) ..
+                 fspec.label(rect.x, rect.y + 1, "Vacuum Range") ..
+                   fspec.label(rect.x, rect.y + 1.5, entity.vacuum_range) ..
+                 fspec.label(rect.x, rect.y + 2, "Voodoo Range") ..
+                   fspec.label(rect.x, rect.y + 2.5, entity.voodoo_range) ..
+                 fspec.label(rect.x, rect.y + 3, "View Range") ..
+                   fspec.label(rect.x, rect.y + 3.5, entity.view_range) ..
+                 fspec.label(rect.x + cio(4), rect.y, "Solar Charge Rate") ..
+                   fspec.label(rect.x + cio(4), rect.y + 0.5, entity.solar_charge_rate) ..
+                 fspec.label(rect.x + cio(4), rect.y + 1, "Teleport Range") ..
+                   fspec.label(rect.x + cio(4), rect.y + 1.5, entity.teleport_range) ..
+                 fspec.label(rect.x + cio(4), rect.y + 2, "Max HP") ..
+                   fspec.label(rect.x + cio(4), rect.y + 2.5, entity.max_hp) ..
+                 fspec.label(rect.x + cio(4), rect.y + 3, "Max Speed") ..
+                   fspec.label(rect.x + cio(4), rect.y + 3.5, entity.max_speed)
+        elseif slot == "footer" then
+          return ""
+        end
+
+        return ""
+      end)
+  end
 
   return formspec
+end
+
+local function get_scavenger_drone_on_receive_fields(user, form_name, fields, assigns)
+  if fields.drone_tab then
+    assigns.tab = math.max(1, math.min(2, tonumber(fields.drone_tab)))
+    return true, get_scavenger_drone_formspec(user, assigns)
+  end
+  return true
 end
 
 minetest.register_entity("yatm_drones:scavenger_drone", {
@@ -478,6 +556,8 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
   jump_height = 0.5, -- it really shouldn't be jumping
   vacuum_range = 1.0,
   energy_rate = 1.0,
+  teleport_range = 0,
+  voodoo_range = 0,
   view_range = view_range,
   static_save = true,
 
@@ -557,6 +637,14 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
       end
     end
 
+    self.max_speed = max_speed
+    self.jump_height = jump_height
+    self.vacuum_range = vacuum_range
+    self.energy_rate = energy_rate
+    self.solar_charge_rate = solar_charge_rate
+    self.teleport_range = teleport_range
+    self.voodoo_range = voodoo_range
+
     self.object:set_properties({
       max_speed = max_speed,
       jump_height = jump_height,
@@ -622,10 +710,19 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
   logic = drone_logic,
 
   on_rightclick = function (self, user)
-    minetest.show_formspec(
+    local assigns = {
+      tab = 1,
+      entity = self
+    }
+
+    nokore.formspec_bindings:show_formspec(
       user:get_player_name(),
       "yatm_drones:scavenger_drone",
-      get_scavenger_drone_formspec(self, user)
+      get_scavenger_drone_formspec(user, assigns),
+      {
+        state = assigns,
+        on_receive_fields = get_scavenger_drone_on_receive_fields,
+      }
     )
   end,
 

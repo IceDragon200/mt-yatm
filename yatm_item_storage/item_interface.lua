@@ -44,13 +44,17 @@ local function default_insert_item(self, pos, dir, item_stack, commit)
   if self:allow_insert_item(pos, dir, item_stack) then
     local meta = minetest.get_meta(pos)
     local inv = meta:get_inventory()
+    local remaining
+    local list
+    local new_list
+
     if commit then
-      local remaining = inv:add_item(self.inventory_name, item_stack)
+      remaining = inv:add_item(self.inventory_name, item_stack)
       self:on_insert_item(pos, dir, item_stack)
       return remaining
     else
-      local list = inv:get_list(self.inventory_name)
-      local _new_list, remaining = InventoryList.merge_stack(list, item_stack)
+      list = inv:get_list(self.inventory_name)
+      new_list, remaining = InventoryList.merge_stack(list, item_stack)
       return remaining
     end
   end
