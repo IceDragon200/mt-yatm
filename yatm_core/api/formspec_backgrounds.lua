@@ -129,7 +129,7 @@ function yatm.formspec_render_split_inv_panel(player, main_cols, main_rows, opti
     yatm.formspec_bg_for_player(player:get_player_name(), device_bg, 0, 0, w, dev_form_h) ..
     callback("main_body", device_rect) ..
     yatm.formspec_bg_for_player(player:get_player_name(), "inventory", 0, dev_form_h, w, player_form_h) ..
-    yatm.player_inventory_lists_fragment(player, inv_rect.x, inv_rect.y)
+    yatm.player_inventory_lists_fragment(player, inv_rect.x, inv_rect.y) ..
     callback("footer", full_rect)
 
   return formspec
