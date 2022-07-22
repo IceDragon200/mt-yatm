@@ -1,7 +1,9 @@
 --
 -- Bee Hives contain wild bees
 --
-minetest.register_node("yatm_bees:bee_hive", {
+local mod = yatm_bees
+
+mod:register_node("bee_hive", {
   description = "Bee Hive",
 
   groups = {

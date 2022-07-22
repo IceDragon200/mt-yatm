@@ -1,4 +1,6 @@
-minetest.register_craftitem("yatm_bees:honey_drop", {
+local mod = yatm_bees
+
+mod:register_craftitem("honey_drop", {
   description = "Honey Drop",
 
   groups = {
