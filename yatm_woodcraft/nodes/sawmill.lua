@@ -48,7 +48,10 @@ local function sawmill_on_rightclick(pos, node, clicker, itemstack, _pointed_thi
       while sawdust_rate > 1 do
         sawdust_rate = sawdust_rate - 1
 
-        local sawdust = ItemStack("yatm_woodcraft:sawdust 1")
+        local sawdust = ItemStack({
+          name = "yatm_woodcraft:sawdust",
+          count = 1
+        })
         local placed = false
 
         for dir6, vec3 in pairs(Directions.DIR6_TO_VEC3) do

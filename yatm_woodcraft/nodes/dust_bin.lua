@@ -2,6 +2,7 @@
 -- Dust bins attach to any sawmill, or milling tool and collects the fallen dust
 --
 -- For now it only connects to the sawmill
+local mod = assert(yatm_woodcraft)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local Groups = assert(foundation.com.Groups)
@@ -84,7 +85,7 @@ local groups = {
 yatm.register_stateful_node("yatm_woodcraft:dust_bin", {
   basename = "yatm_woodcraft:dust_bin",
 
-  description = "Dust Bin",
+  base_description = mod.S("Dust Bin"),
 
   codex_entry_id = "yatm_woodcraft:dust_bin",
 
@@ -101,6 +102,8 @@ yatm.register_stateful_node("yatm_woodcraft:dust_bin", {
   on_rightclick = dust_bin_on_rightclick,
 }, {
   empty = {
+    description = mod.S("Dust Bin [Empty]"),
+
     groups = table_merge(groups, { empty_dust_bin = 1 }),
 
     tiles = {
@@ -126,6 +129,8 @@ yatm.register_stateful_node("yatm_woodcraft:dust_bin", {
   },
 
   sawdust = {
+    description = mod.S("Dust Bin [Sawdust]"),
+
     groups = table_merge(groups, { not_in_creative_inventory = 1 }),
 
     tiles = {

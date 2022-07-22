@@ -1,5 +1,7 @@
-minetest.register_craftitem("yatm_woodcraft:sawdust", {
-  description = "Saw Dust",
+local mod = yatm_woodcraft
+
+mod:register_craftitem("sawdust", {
+  description = mod.S("Saw Dust"),
 
   groups = {
     dust = 1,
