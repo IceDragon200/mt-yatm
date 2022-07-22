@@ -25,7 +25,7 @@ local mode_to_index = {
   io = 4
 }
 
-local function get_battery_bank_formspec(pos, user, assigns)
+local function render_formspec(pos, user, assigns)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local meta = minetest.get_meta(pos)
   local mode = meta:get_string("mode")
@@ -44,7 +44,7 @@ local function get_battery_bank_formspec(pos, user, assigns)
   end)
 end
 
-local function battery_bank_on_receive_fields(player, formname, fields, assigns)
+local function on_receive_fields(player, formname, fields, assigns)
   local meta = minetest.get_meta(assigns.pos)
 
   if fields["mode"] then
@@ -216,11 +216,11 @@ end
 local function battery_bank_on_rightclick(pos, node, user)
   local formspec_name = "yatm_energy_storage:battery_bank:" .. minetest.pos_to_string(pos)
   local assigns = { pos = pos, node = node }
-  local formspec = get_battery_bank_formspec(pos, user, assigns)
+  local formspec = render_formspec(pos, user, assigns)
 
   nokore.formspec_bindings:show_formspec(user:get_player_name(), formspec_name, formspec, {
     state = assigns,
-    on_receive_fields = receive_fields
+    on_receive_fields = on_receive_fields
   })
 end
 
