@@ -1,3 +1,4 @@
+local mod = assert(yatm_data_logic)
 local sounds = assert(yatm.sounds)
 local Groups = assert(foundation.com.Groups)
 local data_network = assert(yatm.data_network)
@@ -128,7 +129,7 @@ local function render_field(row, rect, pos, player, pointed_thing, assigns)
     fspec.field_area(r.x, r.y, r.w, 1,
                      row.name,
                      row.label or row.name,
-                     minetest.formspec_escape(tostring(value)))
+                     tostring(value))
 
   r.y = r.y + 1
   r.h = r.h - 1
@@ -278,8 +279,16 @@ local function render_table_formspec(spec, pos, player, pointed_thing, assigns)
 
   if tab then
     local s = yatm_data_logic.FORMSPEC_SIZE
-    formspec = formspec .. render_tab(tab, Rect.new(0.5, 0.75, s.w - 1, s.h - 1.5),
-                                           pos, player, pointed_thing, assigns)
+    formspec =
+      formspec ..
+      render_tab(
+        tab,
+        Rect.new(0.5, 0.75, s.w - 1, s.h - 1.5),
+        pos,
+        player,
+        pointed_thing,
+        assigns
+      )
   end
 
   return formspec
@@ -438,7 +447,7 @@ local function on_formspec_quit(player, form_name, fields, assigns)
 end
 
 minetest.register_tool("yatm_data_logic:data_programmer", {
-  description = "Data Programmer\nRight-click on programmable DATA device.",
+  description = mod.S("Data Programmer\nRight-click on programmable DATA device."),
 
   groups = {
     data_programmer = 1,

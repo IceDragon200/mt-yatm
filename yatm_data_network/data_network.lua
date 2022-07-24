@@ -301,6 +301,7 @@ function ic:get_sub_network_ids_by_color(pos, expected_color)
   return result
 end
 
+-- @spec #get_data_interface(Vector3): (nil | DataInterface, nil | String)
 function ic:get_data_interface(pos)
   local member = self:get_member_at_pos(pos)
   if member then
@@ -308,9 +309,11 @@ function ic:get_data_interface(pos)
     if node then
       local nodedef = minetest.registered_nodes[node.name]
       return nodedef.data_interface
+    else
+      return nil, "node does not exist, or is unavailable"
     end
   end
-  return nil
+  return nil, "not a valid data network member"
 end
 
 function ic:cancel_queued_refresh(pos)
