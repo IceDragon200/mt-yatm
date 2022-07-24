@@ -1,6 +1,7 @@
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local Groups = assert(foundation.com.Groups)
+local Vector3 = assert(foundation.com.Vector3)
 local Directions = assert(foundation.com.Directions)
 local Energy = assert(yatm.energy)
 local invbat = assert(yatm.energy.inventory_batteries)
@@ -108,6 +109,17 @@ local function get_nearby_entity_item(self)
   return nil
 end
 
+local function try_teleport_or_move(self, tpos, dist)
+  if dist < self.teleport_range then
+    -- trigger teleport
+    local new_pos = Vector3.copy(tpos)
+    new_pos.y = new_pos.y + 1
+    self.object:set_pos(new_pos)
+  else
+    mobkit.goto_next_waypoint(self, tpos)
+  end
+end
+
 local function hq_pickup_item(self)
   if mobkit.is_queue_empty_low(self) and self.isonground then
     local item_entity = get_nearby_entity_item(self)
@@ -131,23 +143,13 @@ local function hq_pickup_item(self)
             item_entity:remove()
             return true
           else
-            if dist < self.teleport_range then
-              -- trigger teleport
-              self.object:set_pos(tpos)
-            else
-              mobkit.goto_next_waypoint(self, tpos)
-            end
+            try_teleport_or_move(self, tpos, dist)
           end
         else
           local vacuum_range = self.vacuum_range
 
           if dist > vacuum_range then
-            if dist < self.teleport_range then
-              -- trigger teleport
-              self.object:set_pos(tpos)
-            else
-              mobkit.goto_next_waypoint(self, tpos)
-            end
+            try_teleport_or_move(self, tpos, dist)
           else
             inv:add_item("main", item_stack)
             item_entity:remove()
@@ -215,12 +217,7 @@ local function hq_find_dropoff_station(self, prty, search_radius)
           mobkit.remember(self, "dropping_off", true)
           return true
         else
-          if dist < self.teleport_range then
-            -- trigger teleport
-            self.object:set_pos(closest_dropoff)
-          else
-            mobkit.goto_next_waypoint(self, closest_dropoff)
-          end
+          try_teleport_or_move(self, closest_dropoff, dist)
         end
       else
         mobkit.forget(self, "closest_dropoff")
@@ -273,12 +270,7 @@ local function hq_find_docking_station(self, prty, search_radius, can_move)
           return true
         else
           if can_move then
-            if dist < self.teleport_range then
-              -- trigger teleport
-              self.object:set_pos(closest_dock)
-            else
-              mobkit.goto_next_waypoint(self, closest_dock)
-            end
+            try_teleport_or_move(self, closest_dock, dist)
           else
             return true
           end
