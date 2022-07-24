@@ -9,6 +9,7 @@
 -- And ignores the origin and destination direction for it's receives and emits.
 -- This simplifies the interface a bit.
 --
+local mod = assert(yatm_armoury_icbm)
 local data_network = assert(yatm.data_network)
 
 local Vector3 = assert(foundation.com.Vector3)
@@ -18,6 +19,7 @@ local Directions = assert(foundation.com.Directions)
 local Groups = assert(foundation.com.Groups)
 local string_hex_unescape = assert(foundation.com.string_hex_unescape)
 local fspec = assert(foundation.com.formspec.api)
+local player_service = nokore.player_service
 
 -- Deadzone
 --   The Silo has a deadzone of up to 8 nodes in any direction, this it to prevent it from blowing itself up with a misconfigured ICBM.
@@ -123,9 +125,11 @@ local function arm_icbm(pos, node)
   end
 
   local params = {}
-  local offset = vector.new(meta:get_int("offset_x"),
-                            meta:get_int("offset_y"),
-                            meta:get_int("offset_z"))
+  local offset = vector.new(
+    meta:get_int("offset_x"),
+    meta:get_int("offset_y"),
+    meta:get_int("offset_z")
+  )
   params.target_pos = vector.add(pos, offset)
   params.origin_pos = pos
   params.origin_dir = up_vec
@@ -184,7 +188,7 @@ local data_interface = {
       arm_icbm(pos, node)
     elseif port == meta:get_int("probing_port") then
       if ProbeSchema then
-        -- Probing asks that the silo report it's current status on it's probe port
+        -- Probing asks that the silo report its current status on its probe port
         -- This 'probe' packet includes the currently set offsets and a status flag
         local probe_packet =
           ProbeSchema:write({
@@ -346,53 +350,73 @@ local function get_formspec_name(pos)
   return "yatm_armoury_icbm:icbm_silo:" .. Vector3.to_string(pos)
 end
 
-local function get_formspec(pos, player_name, assigns)
+local function render_formspec(pos, player, assigns)
   local meta = minetest.get_meta(pos)
   local inv = meta:get_inventory()
 
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+  local my_inv_name = "nodemeta:" .. spos
 
-  local formspec =
-    "size[8,9]" ..
-    yatm.formspec_bg_for_player(player_name, "machine_radioactive")
+  local cio = fspec.calc_inventory_offset
 
-  formspec =
-    formspec ..
-    "label[0,0;Shell]" ..
-    "list[nodemeta:" .. spos .. ";shell_slot;0,1.3;1,1;]" ..
-    "label[4,0;Warhead]" ..
-    "list[nodemeta:" .. spos .. ";warhead_slot;4,1.3;1,1;]"
+  return yatm.formspec_render_split_inv_panel(player, 8, 6, { bg = "machine_radioactive" }, function (loc, rect)
+    if loc == "main_body" then
+      local formspec =
+        fspec.label(rect.x, rect.y, "Shell") ..
+        fspec.list(my_inv_name, "shell_slot", rect.x, rect.y + 0.5, 1, 1) ..
+        fspec.label(rect.x + cio(4), rect.y, "Warhead") ..
+        fspec.list(my_inv_name, "warhead_slot", rect.x + cio(4), rect.y + 0.5, 1, 1)
 
-  if inv:get_size("capsule_inv") > 0 then
-    formspec =
-      formspec ..
-      "label[0,2.5;Capsule]" ..
-      "list[nodemeta:" .. spos .. ";capsule_inv;0,3.3;8,2;]" ..
-      "listring[nodemeta:" .. spos .. ";capsule_inv]" ..
-      "listring[current_player;main]"
-  end
+      if inv:get_size("capsule_inv") > 0 then
+        formspec =
+          formspec ..
+          fspec.label(rect.x, rect.y + cio(2.5), "Capsule") ..
+          fspec.list(my_inv_name, "capsule_inv", rect.x, rect.y + cio(3), 8, 2)
+      end
 
-  formspec =
-    formspec ..
-    "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]" ..
-    "listring[nodemeta:" .. spos .. ";shell_slot]" ..
-    "listring[current_player;main]" ..
-    "listring[nodemeta:" .. spos .. ";warhead_slot]" ..
-    "listring[current_player;main]"
+      formspec =
+        formspec ..
+        fspec.field_area(rect.x + cio(1), rect.y + cio(3), 2, 1, "offset_x", "Offset-X", meta:get_int("offset_x")) ..
+        fspec.field_area(rect.x + cio(3), rect.y + cio(3), 2, 1, "offset_y", "Offset-Y", meta:get_int("offset_y")) ..
+        fspec.field_area(rect.x + cio(5), rect.y + cio(3), 2, 1, "offset_z", "Offset-Z", meta:get_int("offset_z")) ..
+        fspec.field_area(rect.x, rect.y + cio(4), 8, 1, "launch_code", "Launch Code", meta:get_string("launch_code"))
 
-  formspec =
-    formspec ..
-    "field[1,3;2,1;offset_x;Offset-X;" .. meta:get_int("offset_x") .. "]" ..
-    "field[3,3;2,1;offset_y;Offset-Y;" .. meta:get_int("offset_y") .. "]" ..
-    "field[5,3;2,1;offset_z;Offset-Z;" .. meta:get_int("offset_z") .. "]" ..
-    "field[0.5,4;8,1;launch_code;Launch Code;" .. minetest.formspec_escape(meta:get_string("launch_code")) .. "]"
+      formspec =
+        formspec ..
+        fspec.button(rect.x, rect.y + cio(5), 2, 1, "arm", "Arm") ..
+        fspec.button(rect.x + cio(2), rect.y + cio(5), 2, 1, "disarm", "Disarm") ..
+        fspec.button(rect.x + cio(4), rect.y + cio(5), 4, 1, "launch", "Launch") ..
+        fspec.field_close_on_enter("arm", false) ..
+        fspec.field_close_on_enter("disarm", false) ..
+        fspec.field_close_on_enter("launch", false)
 
-  return formspec
+      return formspec
+    elseif loc == "footer" then
+      local formspec = ""
+
+      if inv:get_size("capsule_inv") > 0 then
+        formspec =
+          formspec ..
+          fspec.list_ring(my_inv_name, "capsule_inv") ..
+          fspec.list_ring("current_player", "main")
+      end
+
+      formspec =
+        formspec ..
+        fspec.list_ring(my_inv_name, "shell_slot") ..
+        fspec.list_ring("current_player", "main") ..
+        fspec.list_ring(my_inv_name, "warhead_slot") ..
+        fspec.list_ring("current_player", "main")
+
+      return formspec
+    end
+    return ""
+  end)
 end
 
-function receive_fields(user, form_name, fields, assigns)
+function on_receive_fields(user, form_name, fields, assigns)
   local meta = minetest.get_meta(assigns.pos)
+  print("on_receive_fields", dump(fields))
   if fields["offset_x"] then
     meta:set_int("offset_x", tonumber(fields["offset_x"]))
   end
@@ -411,16 +435,22 @@ function receive_fields(user, form_name, fields, assigns)
 
   if fields["arm"] then
     -- create an ICBM
+    arm_icbm(assigns.pos, assigns.node)
   elseif fields["disarm"] then
     -- remove armed ICBM
+  elseif fields["launch"] then
+    -- launch an ICBM
+    launch_icbm(assigns.pos, assigns.node)
   end
+
   return true
 end
 
 local function refresh_formspec(pos, player)
   minetest.after(0, function ()
     yatm_core.refresh_player_formspec(player, get_formspec_name(pos), function (player_name, assigns)
-      return get_formspec(assigns.pos, player_name, assigns)
+      local player = player_service:get_player_by_name(player_name)
+      return render_formspec(assigns.pos, player, assigns)
     end)
   end)
 end
@@ -525,7 +555,7 @@ function on_metadata_inventory_take(pos, listname, index, stack, player)
 end
 
 minetest.register_node("yatm_armoury_icbm:icbm_silo", {
-  description = "ICBM Silo",
+  description = mod.S("ICBM Silo"),
 
   codex_entry_id = "yatm_armoury_icbm:icbm_silo",
 
@@ -554,6 +584,7 @@ minetest.register_node("yatm_armoury_icbm:icbm_silo", {
   },
 
   on_construct = function (pos)
+    local node = minetest.get_node_or_nil(pos)
     local meta = minetest.get_meta(pos)
     local inv = meta:get_inventory()
 
@@ -563,6 +594,12 @@ minetest.register_node("yatm_armoury_icbm:icbm_silo", {
     meta:set_int("offset_x", 0)
     meta:set_int("offset_y", 0)
     meta:set_int("offset_z", 0)
+
+    data_network:add_node(pos, node)
+  end,
+
+  after_destruct = function (pos, node)
+    data_network:remove_node(pos, node)
   end,
 
   data_network_device = {
@@ -578,14 +615,22 @@ minetest.register_node("yatm_armoury_icbm:icbm_silo", {
   },
 
   on_rightclick = function (pos, node, user, item_stack, pointed_thing)
-    local assigns = { pos = pos, node = node }
-    local formspec = get_formspec(pos, user:get_player_name(), assigns)
+    local assigns = {
+      pos = pos,
+      node = node
+    }
+    local formspec = render_formspec(pos, user, assigns)
     local formspec_name = get_formspec_name(pos)
 
-    nokore.formspec_bindings:show_formspec(user:get_player_name(), formspec_name, formspec, {
-      state = assigns,
-      on_receive_fields = receive_fields
-    })
+    nokore.formspec_bindings:show_formspec(
+      user:get_player_name(),
+      formspec_name,
+      formspec,
+      {
+        state = assigns,
+        on_receive_fields = on_receive_fields
+      }
+    )
   end,
 
   refresh_infotext = refresh_infotext,

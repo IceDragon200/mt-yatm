@@ -2,6 +2,7 @@ local Directions = assert(foundation.com.Directions)
 local Vector3 = assert(foundation.com.Vector3)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
+local fspec = assert(foundation.com.formspec.api)
 
 local g_inventory_id = 0
 
@@ -74,30 +75,39 @@ local function dump_inventory(self)
   return { version = 1, data = result }
 end
 
-local function get_formspec(self, user, assigns)
-  local formspec =
-    "size[8,9]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "machine")
+local function render_formspec(self, user, assigns)
+  local my_inv_name = nil
 
-  if self.has_inventory and self.inventory_name then
-    formspec =
-      formspec ..
-      "label[0,0;Inventory]" ..
-      "list[detached:" .. self.inventory_name .. ";main;0,0.5;8,2;]" ..
-      "listring[detached:" .. self.inventory_name .. ";main]" ..
-      "listring[current_player;main]"
+  if self.inventory_name then
+    my_inv_name = "detached:" .. self.inventory_name
   end
 
-  formspec =
-    formspec ..
-    "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]"
+  local cio = fspec.calc_inventory_offset
 
-  formspec =
-    formspec ..
-    "button[0,3;4,1;disarm;Disarm]"
+  return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = "machine" }, function (loc, rect)
+    if loc == "main_body" then
+      local formspec = ""
 
-  return formspec
+      if my_inv_name then
+        formspec =
+          formspec ..
+          fspec.label(rect.x, rect.y, "Inventory") ..
+          fspec.list(my_inv_name, "main", rect.x, rect.y + cio(0.5), 8, 2)
+      end
+
+      formspec =
+        formspec ..
+        fspec.button(rect.x, rect.y + cio(2.5), 8, 1, "disarm", "Disarm")
+
+      return formspec
+    elseif loc == "footer" then
+      if my_inv_name then
+        return fspec.listring(my_inv_name, "main") ..
+          fspec.listring("current_player", "main")
+      end
+    end
+    return ""
+  end)
 end
 
 local function receive_fields(user, form_name, fields, assigns)
@@ -146,7 +156,7 @@ minetest.register_entity("yatm_armoury_icbm:icbm", {
     --
     if self.stage == "idle" or self.stage == "docked" then
       local assigns = { entity = self }
-      local formspec = get_formspec(self, user, assigns)
+      local formspec = render_formspec(self, user, assigns)
       local formspec_name = "yatm_armoury_icbm:icbm"
 
       nokore.formspec_bindings:show_formspec(user:get_player_name(), formspec_name, formspec, {
