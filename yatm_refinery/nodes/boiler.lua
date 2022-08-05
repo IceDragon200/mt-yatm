@@ -201,6 +201,16 @@ yatm.devices.register_stateful_network_device({
       "yatm_boiler_side.error.png"
     },
   },
+  idle = {
+    tiles = {
+      "yatm_boiler_top.off.png",
+      "yatm_boiler_bottom.off.png",
+      "yatm_boiler_side.idle.png",
+      "yatm_boiler_side.idle.png",
+      "yatm_boiler_side.idle.png",
+      "yatm_boiler_side.idle.png"
+    },
+  },
   on = {
     tiles = {
       "yatm_boiler_top.on.png",
