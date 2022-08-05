@@ -132,7 +132,7 @@ yatm.devices.register_stateful_network_device({
   },
   idle = {
     tiles = {"yatm_assembler_side.idle.png"},
-  }
+  },
   error = {
     tiles = {"yatm_assembler_side.error.png"},
   }
