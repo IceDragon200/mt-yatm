@@ -1,6 +1,6 @@
 local mod = yatm_machines
 
-local auto_crafter_yatm_network = {
+local yatm_network = {
   kind = "machine",
   groups = {
     machine_worker = 1, -- this is a worker module, it will consume energy to complete 'work'
@@ -15,6 +15,7 @@ local auto_crafter_yatm_network = {
     error = "yatm_machines:auto_crafter_error",
     off = "yatm_machines:auto_crafter_off",
     on = "yatm_machines:auto_crafter_on",
+    idle = "yatm_machines:auto_crafter_idle",
   },
   energy = {
     capacity = 4000,
@@ -24,7 +25,7 @@ local auto_crafter_yatm_network = {
   },
 }
 
-function auto_crafter_yatm_network:work(ctx)
+function yatm_network:work(ctx)
   return 0
 end
 
@@ -43,7 +44,7 @@ yatm.devices.register_stateful_network_device({
   description = mod.S("Auto Crafter"),
   groups = groups,
 
-  drop = auto_crafter_yatm_network.states.off,
+  drop = yatm_network.states.off,
 
   tiles = {
     "yatm_auto_crafter_top.off.png",
@@ -56,7 +57,8 @@ yatm.devices.register_stateful_network_device({
 
   paramtype = "none",
   paramtype2 = "facedir",
-  yatm_network = auto_crafter_yatm_network,
+
+  yatm_network = yatm_network,
 }, {
   on = {
     tiles = {
@@ -84,6 +86,16 @@ yatm.devices.register_stateful_network_device({
           length = 1.0
         },
       },
+    },
+  },
+  idle = {
+    tiles = {
+      "yatm_auto_crafter_top.idle.png",
+      "yatm_auto_crafter_bottom.png",
+      "yatm_auto_crafter_side.idle.png",
+      "yatm_auto_crafter_side.idle.png^[transformFX",
+      "yatm_auto_crafter_back.idle.png",
+      "yatm_auto_crafter_front.idle.png",
     },
   },
   error = {

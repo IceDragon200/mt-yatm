@@ -1,6 +1,11 @@
+--
+-- Electrolyser
+--
+--   Splits fluids into different gases.
+--
 local mod = yatm_machines
 
-local electrolyser_yatm_network = {
+local yatm_network = {
   kind = "machine",
   groups = {
     machine_worker = 1,
@@ -21,7 +26,7 @@ local electrolyser_yatm_network = {
   }
 }
 
-function electrolyser_yatm_network:work(ctx)
+function yatm_network:work(ctx)
   return 0
 end
 
@@ -32,7 +37,9 @@ yatm.devices.register_stateful_network_device({
 
   description = mod.S("Electrolyser"),
 
-  groups = {cracky = 1},
+  groups = {
+    cracky = 1,
+  },
   tiles = {
     "yatm_electrolyser_top.off.png",
     "yatm_electrolyser_bottom.png",
@@ -43,7 +50,7 @@ yatm.devices.register_stateful_network_device({
   },
   paramtype = "none",
   paramtype2 = "facedir",
-  yatm_network = electrolyser_yatm_network,
+  yatm_network = yatm_network,
 }, {
   error = {
     tiles = {

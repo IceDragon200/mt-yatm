@@ -25,6 +25,7 @@ local REASON_IDLE = { reason = "idle" }
 function devices.device_on_construct(pos)
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
+
   if nodedef.groups['yatm_cluster_device'] then
     cluster_devices:schedule_add_node(pos, node)
   end
@@ -174,11 +175,18 @@ end
 local WorkContext = foundation.com.Class:extends("yatm.devices.WorkContext")
 local ic = WorkContext.instance_class
 
+-- Initialize a new WorkContext.
+--
+-- @spec #initialize(): void
+function ic:initialize()
+  --
+end
+
 -- Initialize a new WorkContext given the position, node reference, elapsed time and an optional
 -- trace context.
 --
--- @spec #initialize(pos: Vector3, node: NodeRef, dtime: Float, trace?: Trace): void
-function ic:initialize(pos, node, dtime, trace)
+-- @spec #setup(pos: Vector3, node: NodeRef, dtime: Float, trace?: Trace): self
+function ic:setup(pos, node, dtime, trace)
   -- @member pos: Vector3
   self.pos = pos
 
@@ -198,6 +206,8 @@ function ic:initialize(pos, node, dtime, trace)
   -- retrieve and cache the metaref
   -- @member meta: MetaRef
   self.meta = minetest.get_meta(self.pos, self.node)
+
+  return self
 end
 
 --
@@ -335,9 +345,12 @@ end
 -- @namespace yatm.devices
 devices.WorkContext = WorkContext
 
+local ctx = WorkContext:new()
+
 -- @spec worker_update(pos: Vector3, node: NodeRef, dtime: Float, trace: Trace): void
 function devices.worker_update(pos, node, dtime, ot)
-  local ctx = WorkContext:new(pos, node, dtime, ot)
+  --local ctx = WorkContext:new():setup(pos, node, dtime, ot)
+  ctx:setup(pos, node, dtime, ot)
   ctx:run()
 end
 

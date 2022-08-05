@@ -14,7 +14,7 @@ local function coal_generator_refresh_infotext(pos)
   meta:set_string("infotext", infotext)
 end
 
-local coal_generator_yatm_network = {
+local yatm_network = {
   kind = "energy_producer",
   groups = {
     device_controller = 3,
@@ -34,11 +34,11 @@ local coal_generator_yatm_network = {
   }
 }
 
-function coal_generator_yatm_network.energy.produce_energy(pos, node, dtime, ot)
+function yatm_network.energy.produce_energy(pos, node, dtime, ot)
   return 0
 end
 
-function coal_generator_yatm_network.update(pos, node, ot)
+function yatm_network.update(pos, node, ot)
 end
 
 local groups = {
@@ -55,7 +55,7 @@ yatm.devices.register_stateful_network_device({
   description = mod.S("Coal Generator"),
   groups = groups,
 
-  drop = coal_generator_yatm_network.states.off,
+  drop = yatm_network.states.off,
 
   tiles = {
     "yatm_coal_generator_top.off.png",
@@ -69,7 +69,7 @@ yatm.devices.register_stateful_network_device({
   paramtype = "none",
   paramtype2 = "facedir",
 
-  yatm_network = coal_generator_yatm_network,
+  yatm_network = yatm_network,
 
   refresh_infotext = coal_generator_refresh_infotext,
 }, {
@@ -90,6 +90,16 @@ yatm.devices.register_stateful_network_device({
       "yatm_coal_generator_side.on.png",
       "yatm_coal_generator_back.on.png",
       "yatm_coal_generator_front.on.png"
+    },
+  },
+  idle = {
+    tiles = {
+      "yatm_coal_generator_top.idle.png",
+      "yatm_coal_generator_bottom.png",
+      "yatm_coal_generator_side.idle.png",
+      "yatm_coal_generator_side.idle.png",
+      "yatm_coal_generator_back.idle.png",
+      "yatm_coal_generator_front.idle.png"
     },
   },
   error = {

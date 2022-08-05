@@ -29,7 +29,7 @@ local function get_auto_grinder_formspec(pos, user)
   end)
 end
 
-local auto_grinder_yatm_network = {
+local yatm_network = {
   kind = "machine",
   groups = {
     machine_worker = 1,
@@ -43,6 +43,7 @@ local auto_grinder_yatm_network = {
     error = "yatm_machines:auto_grinder_error",
     off = "yatm_machines:auto_grinder_off",
     on = "yatm_machines:auto_grinder_on",
+    idle = "yatm_machines:auto_grinder_idle",
   },
   energy = {
     passive_lost = 0,
@@ -62,7 +63,7 @@ local item_interface =
     return "grinder_output"
   end)
 
-function auto_grinder_yatm_network:work(ctx)
+function yatm_network:work(ctx)
   local pos = ctx.pos
   local meta = ctx.meta
   local node = ctx.node
@@ -143,7 +144,7 @@ function auto_grinder_yatm_network:work(ctx)
   return consumed
 end
 
-local function auto_grinder_refresh_infotext(pos)
+local function refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
 
   local recipe_name = meta:get_string("active_recipe") or ""
@@ -159,7 +160,7 @@ local function auto_grinder_refresh_infotext(pos)
   meta:set_string("infotext", infotext)
 end
 
-local function auto_grinder_on_construct(pos)
+local function on_construct(pos)
   yatm.devices.device_on_construct(pos)
   --
   local meta = minetest.get_meta(pos)
@@ -171,7 +172,7 @@ local function auto_grinder_on_construct(pos)
   inv:set_size("grinder_output", 4)
 end
 
-local function auto_grinder_on_rightclick(pos, node, user)
+local function on_rightclick(pos, node, user)
   minetest.show_formspec(
     user:get_player_name(),
     "yatm_machines:auto_grinder",
@@ -195,7 +196,7 @@ yatm.devices.register_stateful_network_device({
 
   groups = groups,
 
-  drop = auto_grinder_yatm_network.states.off,
+  drop = yatm_network.states.off,
 
   tiles = {
     "yatm_auto_grinder_top.off.png",
@@ -209,12 +210,12 @@ yatm.devices.register_stateful_network_device({
   paramtype = "none",
   paramtype2 = "facedir",
 
-  on_construct = auto_grinder_on_construct,
-  on_rightclick = auto_grinder_on_rightclick,
+  on_construct = on_construct,
+  on_rightclick = on_rightclick,
 
-  yatm_network = auto_grinder_yatm_network,
+  yatm_network = yatm_network,
   item_interface = item_interface,
-  refresh_infotext = auto_grinder_refresh_infotext,
+  refresh_infotext = refresh_infotext,
 }, {
   on = {
     tiles = {
@@ -233,6 +234,16 @@ yatm.devices.register_stateful_network_device({
           length = 0.25
         },
       },
+    },
+  },
+  idle = {
+    tiles = {
+      "yatm_auto_grinder_top.idle.png",
+      "yatm_auto_grinder_bottom.png",
+      "yatm_auto_grinder_side.idle.png",
+      "yatm_auto_grinder_side.idle.png^[transformFX",
+      "yatm_auto_grinder_back.idle.png",
+      "yatm_auto_grinder_front.idle.png",
     },
   },
   error = {
