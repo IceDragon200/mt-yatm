@@ -49,6 +49,13 @@ minetest.register_node("yatm_papercraft:shoji_lamp_off", {
 
   drawtype = "nodebox",
   node_box = shoji_lamp_node_box,
+
+  on_rightclick = function (pos, node, user)
+    local new_node = {
+      name = "yatm_papercraft:shoji_lamp_on",
+    }
+    minetest.swap_node(pos, new_node)
+  end,
 })
 
 minetest.register_node("yatm_papercraft:shoji_lamp_on", {
@@ -83,4 +90,11 @@ minetest.register_node("yatm_papercraft:shoji_lamp_on", {
 
   drawtype = "nodebox",
   node_box = shoji_lamp_node_box,
+
+  on_rightclick = function (pos, node, user)
+    local new_node = {
+      name = "yatm_papercraft:shoji_lamp_off",
+    }
+    minetest.swap_node(pos, new_node)
+  end,
 })
