@@ -1,3 +1,4 @@
+local mod = yatm_energy_storage
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
@@ -118,7 +119,7 @@ for cell_type, cell_config in pairs(cell_types) do
 
       basename = energy_cell_yatm_network.basename,
 
-      description = "Energy Cell ("..cell_type..")",
+      description = mod.S("Energy Cell ("..cell_type..")"),
       drop = energy_cell_yatm_network.basename .. "_0",
       groups = groups,
       is_ground_content = false,
@@ -180,7 +181,7 @@ for cell_type, cell_config in pairs(cell_types) do
   yatm.devices.register_network_device(creative_energy_cell_yatm_network.basename, {
     codex_entry_id = creative_energy_cell_yatm_network.basename,
 
-    description = "Energy Cell ("..cell_type..") [Creative]",
+    description = mod.S("Energy Cell ("..cell_type..") [Creative]"),
 
     groups = {
       oddly_breakable_by_hand = 1,

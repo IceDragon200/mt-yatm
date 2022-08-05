@@ -2,6 +2,7 @@
 -- The battery bank acts as a both an energy storage unit and battery charger!
 -- Charge up any batteries
 --
+local mod = yatm_energy_storage
 local Groups = assert(foundation.com.Groups)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
@@ -314,7 +315,7 @@ end
 yatm.devices.register_stateful_network_device({
   basename = "yatm_energy_storage:battery_bank",
 
-  description = "Battery Bank",
+  description = mod.S("Battery Bank"),
 
   groups = {
     cracky = 1,

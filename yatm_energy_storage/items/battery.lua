@@ -1,3 +1,4 @@
+local mod = yatm_energy_storage
 local EnergyUtil = assert(yatm.energy)
 
 local materials = {
@@ -17,6 +18,7 @@ local material_capacity = {
   carbon_steel = 16000,
 }
 
+-- @private.spec battery_refresh_wear(ItemStack): void
 local function battery_refresh_wear(item_stack)
   local meta = item_stack:get_meta()
   local energy = meta:get_float("energy")
@@ -25,15 +27,18 @@ local function battery_refresh_wear(item_stack)
   item_stack:set_wear(1 + 0xFFFD - math.floor(energy * 0xFFFD / capacity))
 end
 
+-- @private.spec battery_get_capacity(ItemStack): Integer
 local function battery_get_capacity(item_stack)
   return item_stack:get_definition().energy.capacity
 end
 
+-- @private.spec battery_get_stored_energy(ItemStack): Integer
 local function battery_get_stored_energy(item_stack)
   local meta = item_stack:get_meta()
   return meta:get_float("energy")
 end
 
+-- @private.spec battery_consume_energy(ItemStack, amount: Integer): Integer
 local function battery_consume_energy(item_stack, amount)
   local meta = item_stack:get_meta()
   local energy = meta:get_float("energy")
@@ -46,6 +51,7 @@ local function battery_consume_energy(item_stack, amount)
   return used
 end
 
+-- @private.spec battery_receive_energy(ItemStack, amount: Integer): Integer
 local function battery_receive_energy(item_stack, amount)
   local meta = item_stack:get_meta()
   local energy = meta:get_float("energy")
@@ -66,9 +72,9 @@ for _,material_pair in ipairs(materials) do
 
   minetest.register_tool("yatm_energy_storage:battery_" .. material_basename, {
     basename = "yatm_energy_storage:battery",
-    base_description = "Battery",
+    base_description = mod.S("Battery"),
 
-    description = material_name .. " Battery\nCapacity: " .. capacity,
+    description = mod.S(material_name .. " Battery\nCapacity: " .. capacity),
     inventory_image = "yatm_materials_battery." .. material_basename .. ".png",
 
     groups = {
