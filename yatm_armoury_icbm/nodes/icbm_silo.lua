@@ -510,6 +510,7 @@ local function refresh_infotext(pos, node)
 
   local infotext =
     "ICBM Silo\n" ..
+    data_network:get_infotext(pos) .. "\n" ..
     "Offset: " .. Vector3.to_string(Vector3.new(offset_x, offset_y, offset_z)) .. "\n"
 
   if fluid_interface then
@@ -529,20 +530,31 @@ end
 
 function allow_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
   if to_list == "warhead_slot" then
-    -- FIXME: ensure that origin item is a warhead
-  elseif to_list == "shell_slot" then
-    -- FIXME: ensure that origin item is a shell
-  elseif to_list == "capsule_inv" then
     return 1
+  elseif to_list == "shell_slot" then
+    return 1
+  elseif to_list == "capsule_inv" then
+    return count
   else
     return 0
   end
 end
 
 function allow_metadata_inventory_put(pos, listname, index, stack, player)
+  if listname == "warhead_slot" then
+    if yatm.icbm.is_item_stack_icbm_warhead(stack) then
+      return 1
+    end
+  elseif listname == "shell_slot" then
+    if yatm.icbm.is_item_stack_icbm_shell(stack) then
+      return 1
+    end
+  end
+  return 0
 end
 
 function allow_metadata_inventory_take(pos, listname, index, stack, player)
+  return stack:get_count()
 end
 
 function on_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
@@ -582,6 +594,14 @@ minetest.register_node("yatm_armoury_icbm:icbm_silo", {
       {-0.5, -0.5, -0.5, 0.5, 0.5, 0.5},
     },
   },
+
+  allow_metadata_inventory_move = allow_metadata_inventory_move,
+  allow_metadata_inventory_put = allow_metadata_inventory_put,
+  allow_metadata_inventory_take = allow_metadata_inventory_take,
+
+  on_metadata_inventory_move = on_metadata_inventory_move,
+  on_metadata_inventory_put = on_metadata_inventory_put,
+  on_metadata_inventory_take = on_metadata_inventory_take,
 
   on_construct = function (pos)
     local node = minetest.get_node_or_nil(pos)

@@ -1,1 +1,1 @@
-dofile(yatm_armoury_icbm.modpath .. "/entities/icbm.lua")
+yatm_armoury_icbm:require("entities/icbm.lua")
