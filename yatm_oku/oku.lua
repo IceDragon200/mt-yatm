@@ -17,6 +17,15 @@ yatm_oku:require("lib/oku/isa/riscv.lua")
 yatm_oku:require("lib/oku/isa/mos_6502.lua")
 
 local OKU = yatm_oku.OKU
+local Memory
+
+if OKU.Memory then
+  Memory = OKU.Memory
+else
+  minetest.log("warn", "OKU requires Memory module")
+  yatm_oku.OKU = nil
+  return
+end
 
 -- @const DEFAULT_ARCH: String = "mos6502"
 OKU.DEFAULT_ARCH = "mos6502"
@@ -83,7 +92,7 @@ function ic:initialize(options)
   self.label = options.label or ""
 
   -- memory
-  self.memory = yatm_oku.OKU.Memory:new(options.memory_size)
+  self.memory = Memory:new(options.memory_size)
 
   self.exec_counter = 0
 

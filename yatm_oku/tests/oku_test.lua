@@ -118,6 +118,10 @@ else
 end
 
 case:describe("bindump/1", function (t2)
+  if not m.has_arch then
+    return
+  end
+
   if m:has_arch("mos6502") then
     t2:test("can dump a mos6502 machine", function (t3)
       local oku =
@@ -152,6 +156,10 @@ case:describe("bindump/1", function (t2)
 end)
 
 case:describe("binload/1", function (t2)
+  if not m.has_arch then
+    return
+  end
+
   if m:has_arch("mos6502") then
     t2:test("can load a mos6502 machine", function (t3)
       local oku =

@@ -1,4 +1,4 @@
-if yatm_oku.OKU:has_arch("mos6502") then
+if yatm_oku.OKU and yatm_oku.OKU.has_arch and yatm_oku.OKU:has_arch("mos6502") then
   yatm_oku:require("tests/oku/isa/mos_6502/builder_test.lua")
   yatm_oku:require("tests/oku/isa/mos_6502/assembler_test.lua")
 else
