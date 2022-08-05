@@ -1,6 +1,6 @@
 -- Borrowed this from Factorio
 yatm.fluids.fluid_registry.register("yatm_fluids", "petroleum_gas", {
-  description = "Petroleum Gas",
+  description = yatm_fluids.S("Petroleum Gas"),
 
   groups = {
     gas = 1,

@@ -1,5 +1,6 @@
+
 yatm.fluids.fluid_registry.register("yatm_fluids", "steam", {
-  description = "Steam",
+  description = yatm_fluids.S("Steam"),
 
   aliases = {
     "yatm_core:steam"

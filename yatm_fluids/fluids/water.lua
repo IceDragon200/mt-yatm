@@ -1,5 +1,5 @@
 yatm.fluids.fluid_registry.register("default", "water", {
-  description = "Water",
+  description = yatm_fluids.S("Water"),
 
   groups = {
     water = 1,
