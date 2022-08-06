@@ -327,12 +327,16 @@ do
 
     if primary_list then
       local continue_reduce = true
+      local should_continue
+      local member_list
+      local node_entry
+
       for node_id,group_value in pairs(primary_list) do
-        local should_continue = true
+        should_continue = true
 
         if groups_count > 1 then
           for _,group_name in ipairs(groups) do
-            local member_list = self.m_group_nodes[group_name]
+            member_list = self.m_group_nodes[group_name]
 
             if member_list then
               if not member_list[node_id] then
@@ -347,7 +351,34 @@ do
         end
 
         if should_continue then
-          local node_entry = self.m_nodes[node_id]
+          node_entry = self.m_nodes[node_id]
+          continue_reduce, acc = reducer(node_entry, acc)
+        end
+
+        if not continue_reduce then
+          break
+        end
+      end
+    end
+    return acc
+  end
+
+  --
+  -- Optimized version of reduce_nodes_of_groups, targets only a single group
+  --
+  function ic:reduce_nodes_of_group(group, acc, reducer)
+    local primary_list = self.m_group_nodes[group]
+
+    if primary_list then
+      local continue_reduce = true
+      local should_continue
+      local node_entry
+
+      for node_id,group_value in pairs(primary_list) do
+        should_continue = true
+
+        if should_continue then
+          node_entry = self.m_nodes[node_id]
           continue_reduce, acc = reducer(node_entry, acc)
         end
 
@@ -727,7 +758,9 @@ do
   end
 
   -- default = 1 / 4 -- (every 250ms)
-  local UPDATE_RATE = 1 / 60 -- every 16ms
+  -- local STEP_INTERVAL = 1 / 60 -- every 16ms
+  local STEP_INTERVAL = 1 / 20 -- every 50ms
+  --local STEP_INTERVAL = 1 / 10 -- every 100ms
 
   --
   -- Update
@@ -747,18 +780,18 @@ do
 
     self.m_acc_dtime = self.m_acc_dtime + dtime
 
-    while self.m_acc_dtime > UPDATE_RATE do
-      self.m_acc_dtime = self.m_acc_dtime - UPDATE_RATE
+    if self.m_acc_dtime > STEP_INTERVAL then
+      self.m_acc_dtime = self.m_acc_dtime - STEP_INTERVAL
 
       --
       -- Run update logic against clusters with systems
       --
-      self:_update_systems(UPDATE_RATE, trace)
+      self:_update_systems(STEP_INTERVAL, trace)
 
       --
       -- Run any other cluster updates
       --
-      self:_update_clusters(UPDATE_RATE, trace)
+      self:_update_clusters(STEP_INTERVAL, trace)
     end
   end
 

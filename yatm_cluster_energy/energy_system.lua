@@ -31,7 +31,7 @@ function ic:calc_energy_produced(cluster, dtime, trace)
   local amount_produced
 
   local energy_produced =
-    cluster:reduce_nodes_of_groups("energy_producer", 0, function (node_entry, acc)
+    cluster:reduce_nodes_of_group("energy_producer", 0, function (node_entry, acc)
       node = get_node_or_nil(node_entry.pos)
       --print(LOG_GROUP, "produce energy", node_entry.pos.x, node_entry.pos.y, node_entry.pos.z, node.name)
       if node then
@@ -62,7 +62,7 @@ function ic:calc_energy_stored(cluster, dtime, trace)
   local amount_stored
 
   local energy_stored =
-    cluster:reduce_nodes_of_groups("energy_storage", 0, function (node_entry, accumulated_energy_stored)
+    cluster:reduce_nodes_of_group("energy_storage", 0, function (node_entry, accumulated_energy_stored)
       node = get_node_or_nil(node_entry.pos)
       if node then
         amount_stored = EnergyDevices.get_usable_stored_energy(node_entry.pos, node, dtime, span)
@@ -104,7 +104,7 @@ function ic:run_consume_energy(energy_available, cluster, dtime, trace)
     local node
 
     energy_consumed =
-      cluster:reduce_nodes_of_groups("energy_consumer", energy_consumed, function (node_entry, acc)
+      cluster:reduce_nodes_of_group("energy_consumer", energy_consumed, function (node_entry, acc)
         node = get_node_or_nil(node_entry.pos)
 
         if node then
@@ -145,7 +145,7 @@ function ic:run_use_stored_energy(energy_storage_consumed, cluster, dtime, trace
     local used
     local node
 
-    cluster:reduce_nodes_of_groups("energy_storage", 0, function (node_entry, acc)
+    cluster:reduce_nodes_of_group("energy_storage", 0, function (node_entry, acc)
       node = get_node_or_nil(node_entry.pos)
 
       if node then
@@ -185,7 +185,7 @@ function ic:run_receive_energy(energy_left, cluster, dtime, trace)
     -- Receivers are the lowest priority, they accept any left over energy from the production
     -- Incidentally, storage nodes tend to be also receivers
     local energy_received
-    cluster:reduce_nodes_of_groups("energy_receiver", 0, function (node_entry, acc)
+    cluster:reduce_nodes_of_group("energy_receiver", 0, function (node_entry, acc)
       node = get_node_or_nil(node_entry.pos)
       if node then
         energy_received = EnergyDevices.receive_energy(node_entry.pos, node, energy_left, dtime, span)
@@ -213,7 +213,7 @@ function ic:run_has_update(cluster, dtime, trace)
   local tc
   local nodedef
 
-  cluster:reduce_nodes_of_groups("has_update", 0, function (node_entry, acc)
+  cluster:reduce_nodes_of_group("has_update", 0, function (node_entry, acc)
     pos = node_entry.pos
     node = get_node_or_nil(pos)
 

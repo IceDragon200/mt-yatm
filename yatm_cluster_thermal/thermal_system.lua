@@ -25,7 +25,7 @@ function ic:update(cls, cluster, dtime, cls_trace)
   if cls_trace then
     group_trace = cls_trace:span_start("thermal_producer")
   end
-  cluster:reduce_nodes_of_groups("thermal_producer", 0, function (node_entry, acc)
+  cluster:reduce_nodes_of_group("thermal_producer", 0, function (node_entry, acc)
     node = minetest.get_node_or_nil(node_entry.pos)
     if node then
       nodedef = minetest.registered_nodes[node.name]
@@ -64,7 +64,7 @@ function ic:update(cls, cluster, dtime, cls_trace)
   if cls_trace then
     group_trace = cls_trace:span_start("updatable")
   end
-  cluster:reduce_nodes_of_groups("updatable", 0, function (node_entry, acc)
+  cluster:reduce_nodes_of_group("updatable", 0, function (node_entry, acc)
     node = minetest.get_node(node_entry.pos)
     nodedef = minetest.registered_nodes[node.name]
 

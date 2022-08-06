@@ -1,6 +1,7 @@
 local is_table_empty = assert(foundation.com.is_table_empty)
 local table_keys = assert(foundation.com.table_keys)
 local table_length = assert(foundation.com.table_length)
+local hash_node_position = assert(minetest.hash_node_position)
 
 local DeviceCluster = yatm_clusters.SimpleCluster:extends("DeviceCluster")
 local ic = DeviceCluster.instance_class
@@ -14,14 +15,15 @@ function ic:initialize(cluster_group)
 end
 
 function ic:get_node_infotext(pos)
-  local node_id = minetest.hash_node_position(pos)
+  local node_id = hash_node_position(pos)
 
   local cluster = self:get_node_cluster(pos)
 
   if cluster then
     local state_string = cluster.assigns.state or 'unknown'
-    if cluster.assigns.controller_id then
-      if cluster.assigns.controller_id == node_id then
+    local controller_id = cluster.assigns.controller_id
+    if controller_id then
+      if controller_id == node_id then
         state_string = state_string .. " - is host"
       end
     else
@@ -70,9 +72,13 @@ end
 
 function ic:_handle_add_node(cls, generation_id, event, node_clusters)
   local cluster = ic._super._handle_add_node(self, cls, generation_id, event, node_clusters)
-  cls:schedule_node_event(self.m_cluster_group, 'refresh_controller',
-                           event.pos, event.node,
-                           { cluster_id = cluster.id, generation_id = generation_id })
+  cls:schedule_node_event(
+    self.m_cluster_group,
+    'refresh_controller',
+    event.pos,
+    event.node,
+    { cluster_id = cluster.id, generation_id = generation_id }
+  )
   return cluster
 end
 
@@ -105,7 +111,7 @@ function ic:_handle_refresh_controller(cls, generation_id, event, node_clusters)
 
       local tiered_nodes = {}
 
-      cluster:reduce_nodes_of_groups({'device_controller'}, tiered_nodes, function (node_entry, acc)
+      cluster:reduce_nodes_of_group("device_controller", tiered_nodes, function (node_entry, acc)
         local tier = node_entry.groups['device_controller']
         if not acc[tier] then
           acc[tier] = {}
