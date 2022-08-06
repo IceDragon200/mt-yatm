@@ -27,14 +27,18 @@ local function get_compactor_formspec(pos, user)
   end)
 end
 
+local device_get_node_infotext = assert(cluster_devices.get_node_infotext)
+local energy_get_node_infotext = assert(cluster_energy.get_node_infotext)
+local energy_meta_to_infotext = assert(Energy.meta_to_infotext)
+
 local function compactor_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
 
   local infotext =
-    cluster_devices:get_node_infotext(pos) .. "\n" ..
-    cluster_energy:get_node_infotext(pos) .. "\n" ..
+    device_get_node_infotext(cluster_devices, pos) .. "\n" ..
+    energy_get_node_infotext(cluster_energy, pos) .. "\n" ..
     "Recipe: " .. (meta:get_string("recipe_name") or "") .. "\n" ..
-    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
+    "Energy: " .. energy_meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
 
   meta:set_string("infotext", infotext)
 end

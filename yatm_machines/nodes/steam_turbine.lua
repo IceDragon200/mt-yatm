@@ -9,10 +9,10 @@ local FluidMeta = assert(yatm.fluids.FluidMeta)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidStack = assert(yatm.fluids.FluidStack)
 
---[[
-Steam turbines produce energy by consuming steam, they have the byproduct of water which can be cycled again into a boiler.
-]]
-local steam_turbine_yatm_network = {
+--
+-- Steam turbines produce energy by consuming steam, they have the byproduct of water which can be cycled again into a boiler.
+--
+local yatm_network = {
   kind = "energy_producer",
   groups = {
     energy_producer = 1,
@@ -56,7 +56,7 @@ function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
   yatm.queue_refresh_infotext(pos, node)
 end
 
-function steam_turbine_refresh_infotext(pos)
+function refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
 
   local water_tank_fluid_stack = FluidMeta.get_fluid_stack(meta, WATER_TANK)
@@ -71,14 +71,20 @@ function steam_turbine_refresh_infotext(pos)
   meta:set_string("infotext", infotext)
 end
 
-function steam_turbine_yatm_network.energy.produce_energy(pos, node, dtime, ot)
+function yatm_network.energy.produce_energy(pos, node, dtime, ot)
   local need_refresh = false
   local energy_produced = 0
   local meta = minetest.get_meta(pos)
-  local drained_stack, new_amount = FluidMeta.drain_fluid(meta,
-    STEAM_TANK,
-    FluidStack.new("group:steam", 100),
-    capacity, capacity, false)
+  local drained_stack, new_amount =
+    FluidMeta.drain_fluid(
+      meta,
+      STEAM_TANK,
+      FluidStack.new("group:steam", 100),
+      capacity,
+      capacity,
+      false
+    )
+
   if drained_stack and drained_stack.amount > 0 then
     local water_from_steam = FluidStack.new("default:water", drained_stack.amount / 2)
     local filled_stack, new_amount = FluidMeta.fill_fluid(meta,
@@ -102,23 +108,33 @@ function steam_turbine_yatm_network.energy.produce_energy(pos, node, dtime, ot)
   return energy_produced
 end
 
-function steam_turbine_yatm_network.update(pos, node, ot)
+function yatm_network.update(pos, node, ot)
   local need_refresh = false
+  local new_dir
+  local npos
+  local nnode
+  local nnodedef
+  local target_dir
+  local stack
+  local filled_stack
+
+  local tank_drain_fluid = FluidTanks.drain_fluid
+  local tank_fill_fluid = FluidTanks.fill_fluid
 
   for _, dir in ipairs(Directions.DIR4) do
-    local new_dir = Directions.facedir_to_face(node.param2, dir)
+    new_dir = Directions.facedir_to_face(node.param2, dir)
 
-    local npos = vector.add(pos, Directions.DIR6_TO_VEC3[new_dir])
-    local nnode = minetest.get_node(npos)
-    local nnodedef = minetest.registered_nodes[nnode.name]
+    npos = vector.add(pos, Directions.DIR6_TO_VEC3[new_dir])
+    nnode = minetest.get_node(npos)
+    nnodedef = minetest.registered_nodes[nnode.name]
     if nnodedef then
       if Groups.get_item(nnodedef, "fluid_tank") then
-        local target_dir = Directions.invert_dir(new_dir)
-        local stack = FluidTanks.drain_fluid(npos, target_dir, FluidStack.new("group:steam", 200), false)
+        target_dir = Directions.invert_dir(new_dir)
+        stack = tank_drain_fluid(npos, target_dir, FluidStack.new("group:steam", 200), false)
         if stack then
-          local filled_stack = FluidTanks.fill_fluid(pos, new_dir, stack, true)
+          filled_stack = tank_fill_fluid(pos, new_dir, stack, true)
           if filled_stack then
-            FluidTanks.drain_fluid(npos, target_dir, filled_stack, true)
+            tank_drain_fluid(npos, target_dir, filled_stack, true)
             need_refresh = true
           end
         end
@@ -176,7 +192,7 @@ yatm.devices.register_stateful_network_device({
 
   groups = groups,
 
-  drop = steam_turbine_yatm_network.states.off,
+  drop = yatm_network.states.off,
 
   sounds = yatm.node_sounds:build("metal"),
 
@@ -190,11 +206,11 @@ yatm.devices.register_stateful_network_device({
   },
   paramtype = "none",
   paramtype2 = "facedir",
-  yatm_network = steam_turbine_yatm_network,
+  yatm_network = yatm_network,
 
   fluid_interface = fluid_interface,
 
-  refresh_infotext = steam_turbine_refresh_infotext,
+  refresh_infotext = refresh_infotext,
 }, {
   error = {
     tiles = {

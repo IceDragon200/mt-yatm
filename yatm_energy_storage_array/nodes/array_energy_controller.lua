@@ -5,7 +5,7 @@ local function queue_refresh_infotext_for_controllers(pos)
   local cluster = cluster_devices:get_node_cluster(pos)
 
   if cluster then
-    cluster:reduce_nodes_of_groups({"array_energy_controller"}, 0, function (node_entry, acc)
+    cluster:reduce_nodes_of_group("array_energy_controller", 0, function (node_entry, acc)
       yatm.queue_refresh_infotext(node_entry.pos)
       return true, acc + 1
     end)
@@ -27,7 +27,7 @@ local function calc_array_capacity(pos)
   local cluster = cluster_devices:get_node_cluster(pos)
 
   if cluster then
-    return cluster:reduce_nodes_of_groups({"array_energy_cell"}, 0, function (node_entry, acc)
+    return cluster:reduce_nodes_of_group("array_energy_cell", 0, function (node_entry, acc)
       local cell_node = minetest.get_node(node_entry.pos)
       local intf = get_array_energy_interface(cell_node)
       if intf then
@@ -46,7 +46,7 @@ local function array_receive_energy(pos, energy_left, dtime, ot)
 
   if cluster then
     local count =
-      cluster:reduce_nodes_of_groups({"array_energy_cell"}, 0, function (node_entry, acc)
+      cluster:reduce_nodes_of_group("array_energy_cell", 0, function (node_entry, acc)
         return true, acc + 1
       end)
 
@@ -55,7 +55,7 @@ local function array_receive_energy(pos, energy_left, dtime, ot)
       energy_per_cell = energy_left
     end
 
-    return cluster:reduce_nodes_of_groups({"array_energy_cell"}, 0, function (node_entry, acc)
+    return cluster:reduce_nodes_of_group("array_energy_cell", 0, function (node_entry, acc)
       local cell_node = minetest.get_node(node_entry.pos)
       local intf = get_array_energy_interface(cell_node)
       if intf then
@@ -76,7 +76,7 @@ local function array_get_stored_energy(pos)
   local cluster = cluster_devices:get_node_cluster(pos)
 
   if cluster then
-    return cluster:reduce_nodes_of_groups({"array_energy_cell"}, 0, function (node_entry, acc)
+    return cluster:reduce_nodes_of_group("array_energy_cell", 0, function (node_entry, acc)
       local cell_node = minetest.get_node(node_entry.pos)
       local intf = get_array_energy_interface(cell_node)
       if intf then
@@ -94,7 +94,7 @@ local function array_get_usable_stored_energy(pos)
   local cluster = cluster_devices:get_node_cluster(pos)
 
   if cluster then
-    return cluster:reduce_nodes_of_groups({"array_energy_cell"}, 0, function (node_entry, acc)
+    return cluster:reduce_nodes_of_group("array_energy_cell", 0, function (node_entry, acc)
       local cell_node = minetest.get_node(node_entry.pos)
       local intf = get_array_energy_interface(cell_node)
       if intf then
@@ -112,7 +112,7 @@ local function array_use_stored_energy(pos, energy_to_use)
   local cluster = cluster_devices:get_node_cluster(pos)
 
   if cluster then
-    return cluster:reduce_nodes_of_groups({"array_energy_cell"}, 0, function (node_entry, acc)
+    return cluster:reduce_nodes_of_group("array_energy_cell", 0, function (node_entry, acc)
       local cell_node = minetest.get_node(node_entry.pos)
       local intf = get_array_energy_interface(cell_node)
       if intf then

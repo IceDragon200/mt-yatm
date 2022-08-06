@@ -33,6 +33,9 @@ local function get_roller_formspec(pos, user)
   end)
 end
 
+local device_get_node_infotext = assert(cluster_devices.get_node_infotext)
+local energy_meta_to_infotext = assert(Energy.meta_to_infotext)
+
 function roller_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
 
@@ -40,8 +43,8 @@ function roller_refresh_infotext(pos)
   local recipe_time_max = meta:get_float("recipe_time_max")
 
   local infotext =
-    cluster_devices:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    device_get_node_infotext(cluster_devices, pos) .. "\n" ..
+    "Energy: " .. energy_meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
     "Time Remaining: " .. format_pretty_time(recipe_time) .. " / " .. format_pretty_time(recipe_time_max)
 
   meta:set_string("infotext", infotext)

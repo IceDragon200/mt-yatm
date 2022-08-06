@@ -61,17 +61,21 @@ end
 
 function ic:dispatch_queued()
   local had_queued = false
+  local node
+  local nodedef
+  local mwd
+
   for address,event in pairs(self.m_queue) do
     had_queued = true
 
     if self.m_members_by_address[address] then
       for _hash,pos in pairs(self.m_members_by_address[address]) do
-        local node = minetest.get_node(pos)
+        node = minetest.get_node(pos)
         if node then
-          local nodedef = minetest.registered_nodes[node.name]
+          nodedef = minetest.registered_nodes[node.name]
 
           if nodedef and nodedef.mesecons_wireless_device then
-            local mwd = nodedef.mesecons_wireless_device
+            mwd = nodedef.mesecons_wireless_device
 
             if mwd.action_pdu then
               --print("Triggering action_pdu/3", minetest.pos_to_string(pos), node.name, dump(event))

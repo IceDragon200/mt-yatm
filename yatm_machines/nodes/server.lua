@@ -6,14 +6,21 @@ local cluster_energy = assert(yatm.cluster.energy)
 local data_network = assert(yatm.data_network)
 local Energy = assert(yatm.energy)
 
+local device_get_node_infotext = assert(cluster_devices.get_node_infotext)
+local energy_get_node_infotext = assert(cluster_energy.get_node_infotext)
+local energy_meta_to_infotext = assert(Energy.meta_to_infotext)
+local data_network_get_infotext = assert(data_network.get_infotext)
+
+local ENERGY_BUFFER_KEY = yatm.devices.ENERGY_BUFFER_KEY
+
 local function server_refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
 
   local infotext =
-    cluster_devices:get_node_infotext(pos) .. "\n" ..
-    cluster_energy:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
-    data_network:get_infotext(pos)
+    device_get_node_infotext(cluster_devices, pos) .. "\n" ..
+    energy_get_node_infotext(cluster_energy, pos) .. "\n" ..
+    "Energy: " .. energy_meta_to_infotext(meta, ENERGY_BUFFER_KEY) .. "\n" ..
+    data_network_get_infotext(data_network, pos)
 
   meta:set_string("infotext", infotext)
 end

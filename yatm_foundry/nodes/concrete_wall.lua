@@ -66,13 +66,6 @@ for _,row in ipairs(yatm.colors) do
     },
     use_texture_alpha = "opaque",
 
-    collision_box = {
-      type = "fixed",
-      fixed = {
-        ng(0, 0, 6, 16, 16, 4)
-      },
-    },
-
     selection_box = {
       type = "fixed",
       fixed = {

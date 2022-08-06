@@ -17,7 +17,7 @@ end
 
 function ic:update(cls, cluster, dtime)
   --print("Updating Cluster", network.id)
-  cluster:reduce_nodes_of_groups({"controller"}, 0, function (node_entry, acc)
+  cluster:reduce_nodes_of_group("controller", 0, function (node_entry, acc)
     local node = minetest.get_node(node_entry.pos)
     local nodedef = minetest.registered_nodes[node.name]
 
@@ -29,7 +29,7 @@ function ic:update(cls, cluster, dtime)
           energy = 0,
         }
 
-        cluster:reduce_nodes_of_groups({"fuel_rod"}, context, update_fuel_rod)
+        cluster:reduce_nodes_of_group("fuel_rod", context, update_fuel_rod)
       end
     end
     return false, acc

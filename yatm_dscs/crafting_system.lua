@@ -21,12 +21,12 @@ end
 
 function ic:update(cls, cluster, dtime)
   --print("Updating Cluster", network.id)
-  cluster:reduce_nodes_of_groups({"dscs_inventory_controller"}, 0, function (node_entry, acc)
+  cluster:reduce_nodes_of_group("dscs_inventory_controller", 0, function (node_entry, acc)
     --print(dump(pos), dump(node))
     return true, acc + 1
   end)
 
-  cluster:reduce_nodes_of_groups({"dscs_compute_module"}, 0, function (node_entry, acc)
+  cluster:reduce_nodes_of_group("dscs_compute_module", 0, function (node_entry, acc)
     --print(dump(pos), dump(node))
     return true, acc + 1
   end)

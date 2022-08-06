@@ -146,16 +146,20 @@ function ic:get_infotext(pos)
   local member_id = minetest.hash_node_position(pos)
 
   local network_id_str = network_id
+  local member
+  local color
+
+  local DIR_TO_STRING = Directions.DIR_TO_STRING
 
   if network_id then
-    local member = self.m_members[member_id]
+    member = self.m_members[member_id]
     if member then
       if member.type == "device" then
         for dir, sub_network_id in pairs(member.sub_network_ids) do
-          local color = self:get_attached_color(pos, dir)
+          color = self:get_attached_color(pos, dir)
           if color then
             network_id_str =  network_id_str .. "\n" ..
-                              Directions.DIR_TO_STRING[dir] .. "=" ..
+                              DIR_TO_STRING[dir] .. "=" ..
                               "sub:" .. sub_network_id ..
                               "(" .. color .. ":" ..
                                      self:get_port_offset_for_color(color) .. ":" ..
@@ -164,11 +168,12 @@ function ic:get_infotext(pos)
           end
         end
       else
+        color = member.color
         network_id_str = network_id_str .. "\n" ..
                          "sub:" .. (member.sub_network_id or "no-subnet") ..
-                         "(" .. member.color .. ":" ..
-                                self:get_port_offset_for_color(member.color) .. ":" ..
-                                self:get_port_range_for_color(member.color) ..
+                         "(" .. color .. ":" ..
+                                self:get_port_offset_for_color(color) .. ":" ..
+                                self:get_port_range_for_color(color) ..
                          ")"
       end
     end
