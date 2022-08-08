@@ -17,8 +17,12 @@ minetest.register_node("yatm_mesecon_hubs:mesecon_hub_bus_off", {
   basename = "yatm_mesecon_hubs:mesecon_hub_bus",
 
   description = "Mesecon Bus Hub",
-  groups = {cracky = 1},
+  groups = {
+    cracky = 1,
+  },
   drop = "yatm_mesecon_hubs:mesecon_hub_bus_off",
+
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_mesecon_hub_top.bus.off.png",
     "yatm_mesecon_hub_bottom.png",
@@ -50,8 +54,13 @@ minetest.register_node("yatm_mesecon_hubs:mesecon_hub_bus_on", {
   basename = "yatm_mesecon_hubs:mesecon_hub_bus",
 
   description = "Mesecon Bus Hub",
-  groups = {cracky = 1, not_in_creative_inventory = 1},
+  groups = {
+    cracky = 1,
+    not_in_creative_inventory = 1
+  },
   drop = "yatm_mesecon_hubs:mesecon_hub_bus_off",
+
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_mesecon_hub_top.bus.on.png",
     "yatm_mesecon_hub_bottom.png",
