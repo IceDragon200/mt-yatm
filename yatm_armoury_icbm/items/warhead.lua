@@ -97,6 +97,25 @@ minetest.register_craftitem("yatm_armoury_icbm:icbm_he_warhead", {
   inventory_image = "yatm_icbm_warheads_he.png",
 })
 
+-- Mana warhead
+-- Doesn't detontate, but offers inventory space
+minetest.register_craftitem("yatm_armoury_icbm:icbm_mana_warhead", {
+  basename = "yatm_armoury_icbm:icbm_warhead",
+
+  base_description = "ICBM Warhead",
+
+  description = "ICBM Mana Warhead",
+
+  groups = {
+    icbm_warhead = 1,
+    icbm_mana_warhead = 1,
+  },
+
+  icbm_warhead_type = "mana",
+
+  inventory_image = "yatm_icbm_warheads_mana.png",
+})
+
 -- Capsule warhead
 -- Doesn't detontate, but offers inventory space
 minetest.register_craftitem("yatm_armoury_icbm:icbm_capsule_warhead", {
