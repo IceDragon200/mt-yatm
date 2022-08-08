@@ -255,6 +255,16 @@ yatm_armoury:register_ammunition_class("yatm_armoury", {
   groups = {element = 1, magical = 1},
 })
 
+-- incendiary - inflicts a burn on target
+yatm_armoury:register_ammunition_class("yatm_armoury", {
+  code = "I",
+  basename = "incendiary",
+  name = "Incendiary",
+  groups = {
+    incendiary = 1,
+  },
+})
+
 if rawget(_G, "yatm_blasts_frost") then
   -- frost - FROST special issued rounds, causes a freezing effect
   yatm_armoury:register_ammunition_class("yatm_armoury", {
