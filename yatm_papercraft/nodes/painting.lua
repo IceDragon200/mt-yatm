@@ -1,3 +1,4 @@
+local mod = assert(yatm_papercraft)
 local table_merge = assert(foundation.com.table_merge)
 local Directions = assert(foundation.com.Directions)
 
@@ -86,53 +87,68 @@ local function register_painting(name, cols, rows, def)
 end
 
 register_painting("yatm_papercraft:painting_1", 3, 2, {
-  description = "Painting #1",
+  description = mod.S("Painting #1"),
   texture_basename = "yatm_painting_380485",
 })
 
 register_painting("yatm_papercraft:painting_2", 2, 3, {
-  description = "Painting #2",
+  description = mod.S("Painting #2"),
   texture_basename = "yatm_painting_395686",
 })
 
 register_painting("yatm_papercraft:painting_3", 2, 3, {
-  description = "Painting #3",
+  description = mod.S("Painting #3"),
   texture_basename = "yatm_painting_437182",
 })
 
 register_painting("yatm_papercraft:painting_4", 2, 4, {
-  description = "Painting #4",
+  description = mod.S("Painting #4"),
   texture_basename = "yatm_painting_437470",
 })
 
 register_painting("yatm_papercraft:painting_5", 3, 2, {
-  description = "Painting #5",
+  description = mod.S("Painting #5"),
   texture_basename = "yatm_painting_A31869",
 })
 
 register_painting("yatm_papercraft:painting_6", 3, 2, {
-  description = "Painting #6",
+  description = mod.S("Painting #6"),
   texture_basename = "yatm_painting_A40662",
 })
 
 register_painting("yatm_papercraft:painting_7", 3, 2, {
-  description = "Painting #7",
+  description = mod.S("Painting #7"),
   texture_basename = "yatm_painting_AC81-0174",
 })
 
 register_painting("yatm_papercraft:painting_8", 3, 2, {
-  description = "Painting #8",
+  description = mod.S("Painting #8"),
   texture_basename = "yatm_painting_E11326",
 })
 
 register_painting("yatm_papercraft:painting_9", 3, 4, {
-  description = "Painting #9",
+  description = mod.S("Painting #9"),
   texture_basename = "yatm_painting_rabbit_hare_pet_cute_0",
 })
 
 register_painting("yatm_papercraft:painting_10", 3, 4, {
-  description = "Painting #10",
+  description = mod.S("Painting #10"),
   texture_basename = "yatm_painting_samurai_warrior_samurai_fighter",
+})
+
+register_painting("yatm_papercraft:painting_11", 4, 3, {
+  description = mod.S("Painting #11"),
+  texture_basename = "yatm_painting_fallen_tree_1997.73.1",
+})
+
+register_painting("yatm_papercraft:painting_12", 2, 2, {
+  description = mod.S("Painting #12"),
+  texture_basename = "yatm_painting_italian_coast_scene_with_ruined_tower_1993.55.1"
+})
+
+register_painting("yatm_papercraft:painting_13", 3, 4, {
+  description = mod.S("Painting #13"),
+  texture_basename = "yatm_painting_october_2003.29.1",
 })
 
 yatm_papercraft.Paintings = Paintings
