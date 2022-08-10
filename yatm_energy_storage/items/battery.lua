@@ -64,6 +64,21 @@ local function battery_receive_energy(item_stack, amount)
   return used
 end
 
+-- @private.spec creative_battery_get_stored_energy(ItemStack): Integer
+local function creative_battery_get_stored_energy(item_stack)
+  return item_stack:get_definition().energy.capacity
+end
+
+-- @private.spec creative_battery_consume_energy(ItemStack, amount: Integer): Integer
+local function creative_battery_consume_energy(_item_stack, amount)
+  return amount
+end
+
+-- @private.spec creative_battery_receive_energy(ItemStack, amount: Integer): Integer
+local function creative_battery_receive_energy(_item_stack, amount)
+  return amount
+end
+
 for _,material_pair in ipairs(materials) do
   local material_basename = material_pair[1]
   local material_name = material_pair[2]
@@ -96,3 +111,29 @@ for _,material_pair in ipairs(materials) do
     refresh_wear = battery_refresh_wear,
   })
 end
+
+minetest.register_tool("yatm_energy_storage:battery_creative", {
+  basename = "yatm_energy_storage:battery",
+  base_description = mod.S("Battery"),
+
+  description = mod.S("Creative Battery\nCapacity: ∞"),
+  inventory_image = "yatm_materials_battery.creative.png",
+
+  groups = {
+    battery = 1,
+    ["battery_creative"] = 1,
+    energy_storage = 1,
+  },
+
+  material_name = "creative",
+
+  energy = {
+    capacity = 0xFFFFFFFF,
+    get_capacity = battery_get_capacity,
+    get_stored_energy = creative_battery_get_stored_energy,
+    consume_energy = creative_battery_consume_energy,
+    receive_energy = creative_battery_receive_energy,
+  },
+
+  refresh_wear = battery_refresh_wear,
+})
