@@ -19,6 +19,7 @@ local boiler_yatm_network = {
   states = {
     conflict = "yatm_refinery:boiler_error",
     error = "yatm_refinery:boiler_error",
+    idle = "yatm_refinery:boiler_idle",
     off = "yatm_refinery:boiler_off",
     on = "yatm_refinery:boiler_on",
   },
@@ -37,9 +38,9 @@ local function get_fluid_tank_name(self, pos, dir)
   local node = minetest.get_node(pos)
   local new_dir = Directions.facedir_to_face(node.param2, dir)
   if new_dir == Directions.D_UP then
-    return STEAM_TANK, self.capacity
+    return STEAM_TANK, self._private.capacity
   else
-    return WATER_TANK, self.capacity
+    return WATER_TANK, self._private.capacity
   end
   return nil, nil
 end
@@ -90,9 +91,13 @@ function boiler_yatm_network:work(ctx)
     if water_tank_nodedef then
       if Groups.get_item(water_tank_nodedef, "fluid_tank") then
         local target_dir = Directions.invert_dir(water_tank_dir)
-        local stack = FluidTanks.drain_fluid(water_tank_pos,
+        local stack = FluidTanks.drain_fluid(
+          water_tank_pos,
           target_dir,
-          FluidStack.new("group:water", math.floor(1000 * dtime)), false)
+          FluidStack.new("group:water", math.floor(1000 * dtime)),
+          false
+        )
+
         if stack then
           local filled_stack = FluidTanks.fill_fluid(pos, water_tank_dir, stack, true)
           if filled_stack and filled_stack.amount > 0 then
