@@ -1,3 +1,16 @@
+local source
+local flowing
+
+if rawget(_G, "default") then
+  source = "default:lava_source"
+  flowing = "default:lava_flowing"
+end
+
+if rawget(_G, "nokore_world_lava") then
+  source = "nokore_world_lava:lava_source"
+  flowing = "nokore_world_lava:lava_flowing"
+end
+
 yatm.fluids.fluid_registry.register("default", "lava", {
   description = "Lava",
 
@@ -8,8 +21,8 @@ yatm.fluids.fluid_registry.register("default", "lava", {
   nodes = {
     dont_register = true,
     names = {
-      source = "default:lava_source",
-      flowing = "default:lava_flowing",
+      source = source,
+      flowing = flowing,
     },
   },
 

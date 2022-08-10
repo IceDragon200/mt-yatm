@@ -13,9 +13,22 @@ local FluidRegistry = {
   m_tank_name_to_fluid_name = {},
 }
 
+-- @type FluidDef: {
+--   nodes: {
+--     source: String,
+--     flowing: String,
+--   },
+--   groups: { [group: String]: Integer },
+--   description: String,
+--   aliases: Any,
+--   tiles: Any,
+-- }
+
+-- @spec register_fluid(fluid_name: String, def: FluidDef): void
 function FluidRegistry.register_fluid(fluid_name, def)
-  assert(fluid_name, "requires a name")
-  assert(def, "requires a definition")
+  assert(type(fluid_name) == "string", "requires a name")
+  assert(type(def) == "table", "requires a definition table")
+
   if def.nodes and def.nodes.source then
     FluidRegistry.m_item_name_to_fluid_name[def.nodes.source] = fluid_name
   end
@@ -40,6 +53,7 @@ function FluidRegistry.register_fluid_bucket(bucket_name, bucket_def)
   end
 end
 
+-- @private.spec get_fluid_tile(Fluid): String
 local function get_fluid_tile(fluid)
   if fluid.tiles then
     return assert(fluid.tiles.source)

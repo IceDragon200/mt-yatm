@@ -9,8 +9,15 @@ yatm_fluids:require("fluids/steam.lua")
 yatm_fluids:require("fluids/oxygen.lua")
 yatm_fluids:require("fluids/hydrogen.lua")
 
-if rawget(_G, "default") then
-  yatm_fluids:require("fluids/lava.lua")
+if rawget(_G, "default") or rawget(_G, "nokore_world_water") then
   yatm_fluids:require("fluids/river_water.lua")
   yatm_fluids:require("fluids/water.lua")
+end
+
+if rawget(_G, "nokore_world_water") then
+  yatm_fluids:require("fluids/sea_water.lua")
+end
+
+if rawget(_G, "default") or rawget(_G, "nokore_world_lava") then
+  yatm_fluids:require("fluids/lava.lua")
 end

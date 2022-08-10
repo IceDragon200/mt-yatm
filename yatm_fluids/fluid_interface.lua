@@ -1,6 +1,7 @@
 -- @namespace yatm_fluids.FluidInterface
 --
 -- FluidInterface
+-- @version "1.1.0"
 --
 -- @since "1.0.0"
 -- @type get: function(self, pos, dir, node) => FluidStack
@@ -181,11 +182,28 @@ local function default_directional_fill(self, pos, dir, fluid_stack, commit)
   if allowed then
     local meta = minetest.get_meta(pos)
     local tank_name, capacity = self:get_fluid_tank_name(pos, dir)
+    if not capacity then
+      local node = minetest.get_node_or_nil(pos)
+      if node then
+        error(
+          "expected fluid tank capacity for node=" .. node.name .. " at pos=" .. minetest.pos_to_string(pos)
+        )
+      else
+        error(
+          "expected fluid tank capacity for at pos=" .. minetest.pos_to_string(pos)
+        )
+      end
+    end
+
     if tank_name then
-      local stack, new_stack = FluidMeta.fill_fluid(meta,
+      local stack, new_stack = FluidMeta.fill_fluid(
+        meta,
         tank_name,
         fluid_stack,
-        capacity, capacity, commit)
+        capacity,
+        capacity,
+        commit
+      )
       if commit then
         self:on_fluid_changed(pos, dir, new_stack)
       end

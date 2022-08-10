@@ -118,15 +118,39 @@ function FluidMeta.increase_fluid(meta, key, fluid_stack, capacity, commit)
 end
 
 function FluidMeta.drain_fluid(meta, key, fluid_stack, bandwidth, capacity, commit)
-  return FluidMeta.decrease_fluid(meta, key, FluidStack.set_amount(fluid_stack, math.min(bandwidth, fluid_stack.amount)), capacity, commit)
+  return FluidMeta.decrease_fluid(
+    meta,
+    key,
+    FluidStack.set_amount(fluid_stack, math.min(bandwidth, fluid_stack.amount)),
+    capacity,
+    commit
+  )
 end
 
 function FluidMeta.fill_fluid(meta, key, fluid_stack, bandwidth, capacity, commit)
-  return FluidMeta.increase_fluid(meta, key, FluidStack.set_amount(fluid_stack, math.min(bandwidth, fluid_stack.amount)), capacity, commit)
+  assert(fluid_stack, "expected a fluid stack")
+  assert(bandwidth, "expected a bandwidth amount")
+  assert(capacity, "expected a capacity value")
+  return FluidMeta.increase_fluid(
+    meta,
+    key,
+    FluidStack.set_amount(fluid_stack, math.min(bandwidth, fluid_stack.amount)),
+    capacity,
+    commit
+  )
 end
 
 function FluidMeta.room_for_fluid(meta, key, fluid_stack, bandwidth, capacity)
-  local used_fluid_stack = FluidMeta.fill_fluid(meta, key, fluid_stack, bandwidth, capacity, false)
+  local used_fluid_stack =
+    FluidMeta.fill_fluid(
+      meta,
+      key,
+      fluid_stack,
+      bandwidth,
+      capacity,
+      false
+    )
+
   if used_fluid_stack then
     return used_fluid_stack.amount == fluid_stack.amount
   else

@@ -1,13 +1,16 @@
+-- @namespace yatm_fluids.Utils
 local string_starts_with = assert(foundation.com.string_starts_with)
 local fluid_registry = assert(yatm_fluids.fluid_registry)
 
 local Utils = {}
 
+-- @spec is_valid_name(name?: String): Boolean
 function Utils.is_valid_name(name)
   -- A fluid name must not be nil, empty or is a group name
   return name ~= nil and name ~= "" and not string_starts_with(name, "group:")
 end
 
+-- @spec can_replace(name?: String): Boolean
 function Utils.can_replace(dest_name, src_name, amount)
   return (dest_name == nil or dest_name == "" or amount == 0) and
     Utils.is_valid_name(src_name)
