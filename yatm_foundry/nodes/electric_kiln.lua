@@ -30,6 +30,7 @@ local electric_kiln_yatm_network = {
   states = {
     conflict = "yatm_foundry:electric_kiln_error",
     error = "yatm_foundry:electric_kiln_error",
+    idle = "yatm_foundry:electric_kiln_idle",
     off = "yatm_foundry:electric_kiln_off",
     on = "yatm_foundry:electric_kiln_on",
   },
@@ -106,6 +107,17 @@ yatm.devices.register_stateful_network_device({
     )
   end,
 }, {
+  idle = {
+    tiles = {
+      "yatm_electric_kiln_top.idle.png",
+      "yatm_electric_kiln_bottom.idle.png",
+      "yatm_electric_kiln_side.idle.png",
+      "yatm_electric_kiln_side.idle.png^[transformFX",
+      "yatm_electric_kiln_back.idle.png",
+      "yatm_electric_kiln_front.idle.png"
+    },
+  },
+
   error = {
     tiles = {
       "yatm_electric_kiln_top.error.png",
