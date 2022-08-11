@@ -196,8 +196,8 @@ local function render_formspec(pos, user)
       local steam_stack = FluidMeta.get_fluid_stack(meta, STEAM_TANK)
       local water_stack = FluidMeta.get_fluid_stack(meta, WATER_TANK)
 
-      return fluid_fspec.render_fluid_stack(rect.x, rect.y, 1, 4, steam_stack, TANK_CAPACITY) ..
-        fluid_fspec.render_fluid_stack(rect.x + cio(7), rect.y, 1, 4, water_stack, TANK_CAPACITY)
+      return fluid_fspec.render_fluid_stack(rect.x, rect.y, 1, cio(4), steam_stack, TANK_CAPACITY) ..
+        fluid_fspec.render_fluid_stack(rect.x + cio(7), rect.y, 1, cio(4), water_stack, TANK_CAPACITY)
     elseif loc == "footer" then
       return ""
     end
