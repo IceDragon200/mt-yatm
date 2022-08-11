@@ -48,7 +48,7 @@ suite:describe("Concrete", function (t1)
         t2:yield()
       end)
 
-      if stairs then
+      if rawget(_G, "stairs") then
         -- TODO: test for stairs instead
       else
         t1:test("can place a " .. variant_basename .. " concrete slab " .. color_basename, function (t2)
