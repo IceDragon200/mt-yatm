@@ -97,6 +97,10 @@ function yatm.formspec_render_split_inv_panel(player, main_cols, main_rows, opti
 
   options = options or {}
 
+  if options.formspec_version == nil then
+    options.formspec_version = 6
+  end
+
   local device_bg = options.bg or "default"
 
   local inv_size = yatm.player_inventory_size2(player)
@@ -121,8 +125,14 @@ function yatm.formspec_render_split_inv_panel(player, main_cols, main_rows, opti
   local inv_rect = Rect.new((w - pform_size.x) / 2, dev_form_h + padding, pform_size.x, pform_size.y)
   local full_rect = Rect.new(padding, padding, w - padding * 2, h - padding * 2)
 
-  local formspec =
-    fspec.formspec_version(6) ..
+  local formspec = ""
+
+  if options.formspec_version then
+    formspec = formspec .. fspec.formspec_version(options.formspec_version)
+  end
+
+  formspec =
+    formspec ..
     callback("before_size", full_rect) ..
     fspec.size(w, h) ..
     callback("header", full_rect) ..
