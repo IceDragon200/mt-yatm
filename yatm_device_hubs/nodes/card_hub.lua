@@ -1,3 +1,7 @@
+local mod = assert(yatm_device_hubs)
+local Cuboid = assert(foundation.com.Cuboid)
+local ng = assert(Cuboid.new_fast_node_box)
+
 local yatm_network = {
   kind = "hub",
   groups = {
@@ -24,7 +28,7 @@ yatm.devices.register_stateful_network_device({
 
   basename = "yatm_device_hubs:hub_card",
 
-  description = "Hub (Card)",
+  description = mod.S("Hub (Card)"),
 
   groups = {cracky = 1},
 
@@ -43,7 +47,8 @@ yatm.devices.register_stateful_network_device({
   node_box = {
     type = "fixed",
     fixed = {
-      {-0.375, -0.5, -0.375, 0.375, (5 / 16.0) - 0.5, 0.375},
+      ng(2, 0, 2, 12, 4, 12), -- base
+      ng(3, 4, 2,  2, 1, 2), -- antennae
     }
   },
 
