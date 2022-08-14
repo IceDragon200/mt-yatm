@@ -40,16 +40,20 @@ function formspec.render_fluid_tank(x, y, w, h, fluid_name, amount, max)
   end
 
   return fspec.box(x, y, w, h, "#292729") ..
-    fspec.box(x, y, w, fluid_h, fluid_color) ..
+    fspec.box(x, y + h - fluid_h, w, fluid_h, fluid_color) ..
     fspec.tooltip_area(x, y, w, h, fluid_name .. " " .. amount .. " / " .. max)
 end
 
+--
+--
+--
 -- @spec render_fluid_stack(
 --   x: Number,
 --   y: Number,
 --   w: Number,
 --   h: Number,
---   fluid_stack: FluidStack
+--   fluid_stack: FluidStack,
+--   max: Number
 -- )
 function formspec.render_fluid_stack(x, y, w, h, fluid_stack, max)
   local fluid_name = ""

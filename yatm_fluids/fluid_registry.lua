@@ -118,8 +118,11 @@ function FluidRegistry.register_fluid_tank(modname, fluid_name, nodedef)
 
     after_place_node = function (pos, _placer, _itemstack, _pointed_thing)
       local capacity = fluid_interface:get_capacity(pos, 0)
-      yatm.fluids.FluidTanks.replace_fluid(pos, Directions.D_NONE,
-        yatm.fluids.FluidStack.new(fluiddef.name, capacity), true)
+      yatm.fluids.FluidTanks.replace_fluid(
+        pos,
+        Directions.D_NONE,
+        yatm.fluids.FluidStack.new(fluiddef.name, capacity), true
+      )
     end,
 
     fluid_interface = tank_fluid_interface,

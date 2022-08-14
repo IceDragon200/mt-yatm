@@ -48,6 +48,7 @@ function FluidMeta.receive_amount(meta, key, amount, bandwidth, capacity, commit
   return FluidMeta.increase_amount(meta, key, math.min(bandwidth, amount), capacity, commit)
 end
 
+-- @spec is_empty(meta: MetaRef, key: String): Boolean
 function FluidMeta.is_empty(meta, key)
   local amount = Measurable.get_measurable_amount(meta, key)
   if amount and amount <= 0 then

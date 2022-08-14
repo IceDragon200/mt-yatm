@@ -24,8 +24,14 @@ local FluidExchange = {}
 --   Direction.code,
 --   Boolean
 -- ): FluidStack
-function FluidExchange.transfer_from_tank_to_tank(from_pos, from_face, fluid_stack,
-                                                  to_pos, to_face, commit)
+function FluidExchange.transfer_from_tank_to_tank(
+  from_pos,
+  from_face,
+  fluid_stack,
+  to_pos,
+  to_face,
+  commit
+)
   -- the first drain is always a non-commit,
   -- this ensures that the fluid exists in the container in question
   local sdrained_fluid = FluidTanks.drain_fluid(from_pos, from_face, fluid_stack, false)

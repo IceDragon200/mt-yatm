@@ -1,3 +1,4 @@
+yatm_fluids:require("tests/fluid_containers_test.lua")
 yatm_fluids:require("tests/fluid_inventory_registry_test.lua")
 yatm_fluids:require("tests/fluid_inventory_test.lua")
 yatm_fluids:require("tests/fluid_stack_test.lua")

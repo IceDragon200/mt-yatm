@@ -1,5 +1,6 @@
 yatm.fluids = {
   FluidStack = assert(yatm_fluids.FluidStack),
+  FluidContainers = assert(yatm_fluids.FluidContainers),
   FluidTanks = assert(yatm_fluids.FluidTanks),
   FluidInterface = assert(yatm_fluids.FluidInterface),
   FluidMeta = assert(yatm_fluids.FluidMeta),
