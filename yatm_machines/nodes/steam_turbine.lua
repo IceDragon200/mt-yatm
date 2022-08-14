@@ -11,6 +11,7 @@ local FluidMeta = assert(yatm.fluids.FluidMeta)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local Vector3 = assert(foundation.com.Vector3)
+local player_service = assert(nokore.player_service)
 
 --
 -- Steam turbines produce energy by consuming steam, they have the byproduct of water which can be cycled again into a boiler.
@@ -91,16 +92,18 @@ function yatm_network.energy.produce_energy(pos, node, dtime, ot)
 
   if drained_stack and drained_stack.amount > 0 then
     local water_from_steam = FluidStack.new("default:water", drained_stack.amount / 2)
-    local filled_stack, new_amount = FluidMeta.fill_fluid(meta,
-      WATER_TANK,
-      water_from_steam,
-      TANK_CAPACITY,
-      TANK_CAPACITY,
-      true
-    )
+    local filled_stack, new_stack =
+      FluidMeta.fill_fluid(meta,
+        WATER_TANK,
+        water_from_steam,
+        TANK_CAPACITY,
+        TANK_CAPACITY,
+        true
+      )
 
-    if filled_stack then
-      local stack, new_amount = FluidMeta.drain_fluid(meta,
+    if filled_stack and filled_stack.amount > 0 then
+      local stack, new_stack = FluidMeta.drain_fluid(
+        meta,
         STEAM_TANK,
         drained_stack,
         TANK_CAPACITY,
@@ -112,6 +115,7 @@ function yatm_network.energy.produce_energy(pos, node, dtime, ot)
       energy_produced = energy_produced +  filled_stack.amount
     end
   end
+
   if need_refresh then
     yatm.queue_refresh_infotext(pos, node)
   end
@@ -185,7 +189,7 @@ function yatm_network.update(pos, node, ot)
   end
 end
 
-local function render_formspec(pos, user)
+local function render_formspec(pos, user, state)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
@@ -206,15 +210,27 @@ local function render_formspec(pos, user)
 end
 
 local function on_receive_fields(player, form_name, fields, state)
-
+  return false, nil
 end
 
 local function make_formspec_name(pos)
   return "yatm_machines:steam_turbine:"..Vector3.to_string(pos)
 end
 
+local function on_refresh_timer(player_name, form_name, state)
+  local player = player_service:get_player_by_name(player_name)
+  return {
+    {
+      type = "refresh_formspec",
+      value = render_formspec(state.pos, player, state),
+    }
+  }
+end
+
 local function on_rightclick(pos, node, user)
-  local state = {}
+  local state = {
+    pos = pos,
+  }
   local formspec = render_formspec(pos, user, state)
 
   nokore.formspec_bindings:show_formspec(
@@ -224,6 +240,13 @@ local function on_rightclick(pos, node, user)
     {
       state = state,
       on_receive_fields = on_receive_fields,
+      timers = {
+        -- steam turbines have a fluid tank, so their formspecs need to be routinely updated
+        refresh = {
+          every = 1,
+          action = on_refresh_timer,
+        },
+      },
     }
   )
 end
