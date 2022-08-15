@@ -67,7 +67,7 @@ function yatm_fluids.fluid_tank_refresh_infotext(pos)
     meta:set_string("infotext", "Tank <EMPTY>")
   else
     local capacity = fluid_interface:get_capacity(pos, 0)
-    local level = math.floor(63 * fluid_stack.amount / capacity)
+    local level = 128 + math.floor(63 * fluid_stack.amount / capacity)
     if node.param2 ~= level then
       node.param2 = level
       minetest.swap_node(pos, node)
