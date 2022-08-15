@@ -1,10 +1,14 @@
 local mod = yatm_machines
+local fspec = assert(foundation.com.formspec.api)
+local fluid_fspec = assert(yatm.fluids.formspec)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidUtils = assert(yatm.fluids.Utils)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local fluid_registry = assert(yatm.fluids.fluid_registry)
+local player_service = assert(nokore.player_service)
+local Vector3 = assert(foundation.com.Vector3)
 
 local combustion_engine_nodebox = {
   type = "fixed",
@@ -46,7 +50,9 @@ local combustion_engine_yatm_network = {
   }
 }
 
-local fluid_interface = yatm.fluids.FluidInterface.new_simple("tank", 16000)
+local TANK_NAME = "tank"
+local TANK_CAPACITY = 16000
+local fluid_interface = yatm.fluids.FluidInterface.new_simple(TANK_NAME, TANK_CAPACITY)
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
   local node = minetest.get_node(pos)
@@ -58,7 +64,7 @@ function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, 
   local should_commit = true
   local energy_produced = 0
   local meta = minetest.get_meta(pos)
-  local fluid_stack = FluidMeta.get_fluid_stack(meta, "tank")
+  local fluid_stack = FluidMeta.get_fluid_stack(meta, TANK_NAME)
 
   local nodedef = minetest.registered_nodes[node.name]
 
@@ -71,7 +77,7 @@ function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, 
       -- TODO: a FluidFuelRegistry
       if fluid.groups.crude_oil then
         -- Crude is absolutely terrible energy wise
-        local consumed_stack = FluidMeta.drain_fluid(meta, "tank", fluid_stack, capacity, capacity, should_commit)
+        local consumed_stack = FluidMeta.drain_fluid(meta, TANK_NAME, fluid_stack, capacity, capacity, should_commit)
         if consumed_stack and consumed_stack.amount > 0 then
           energy_produced = energy_produced + consumed_stack.amount * 5
           need_refresh = should_commit
@@ -79,7 +85,7 @@ function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, 
         end
       elseif fluid.groups.heavy_oil then
         -- Heavy oil doesn't produce much energy, but it lasts a bit longer
-        local consumed_stack = FluidMeta.drain_fluid(meta, "tank", fluid_stack, capacity, capacity, should_commit)
+        local consumed_stack = FluidMeta.drain_fluid(meta, TANK_NAME, fluid_stack, capacity, capacity, should_commit)
         if consumed_stack and consumed_stack.amount > 0 then
           energy_produced = energy_produced + consumed_stack.amount * 10
           need_refresh = should_commit
@@ -87,7 +93,7 @@ function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, 
         end
       elseif fluid.groups.light_oil then
         -- Light oil produces more energy at the saem fluid cost
-        local consumed_stack = FluidMeta.drain_fluid(meta, "tank", fluid_stack, capacity, capacity, should_commit)
+        local consumed_stack = FluidMeta.drain_fluid(meta, TANK_NAME, fluid_stack, capacity, capacity, should_commit)
         if consumed_stack and consumed_stack.amount > 0 then
           energy_produced = energy_produced + consumed_stack.amount  * 15
           need_refresh = should_commit
@@ -119,7 +125,7 @@ end
 function combustion_engine_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
 
-  local tank_fluid_stack = FluidMeta.get_fluid_stack(meta, "tank")
+  local tank_fluid_stack = FluidMeta.get_fluid_stack(meta, TANK_NAME)
   local capacity = fluid_interface._private.capacity
 
   local infotext =
@@ -136,7 +142,7 @@ function combustion_engine_transition_device_state(pos, _node, state)
   local nodedef = minetest.registered_nodes[node.name]
   local meta = minetest.get_meta(pos)
 
-  local tank_fluid_stack = FluidMeta.get_fluid_stack(meta, "tank")
+  local tank_fluid_stack = FluidMeta.get_fluid_stack(meta, TANK_NAME)
 
   local new_node_name = node.name
 
@@ -164,6 +170,67 @@ function combustion_engine_transition_device_state(pos, _node, state)
     cluster_devices:schedule_update_node(pos, node)
     cluster_energy:schedule_update_node(pos, node)
   end
+end
+
+local function render_formspec(pos, user, state)
+  local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+  local node_inv_name = "nodemeta:" .. spos
+  -- local cio = fspec.calc_inventory_offset
+  local cis = fspec.calc_inventory_size
+  local meta = minetest.get_meta(pos)
+
+  return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = "machine" }, function (loc, rect)
+    if loc == "main_body" then
+      local fluid_stack = FluidMeta.get_fluid_stack(meta, TANK_NAME)
+
+      return fluid_fspec.render_fluid_stack(rect.x, rect.y, 1, cis(4), fluid_stack, TANK_CAPACITY)
+    elseif loc == "footer" then
+      return ""
+    end
+    return ""
+  end)
+end
+
+local function on_receive_fields(player, form_name, fields, state)
+  return false, nil
+end
+
+local function make_formspec_name(pos)
+  return "yatm_machines:combustion_engine:"..Vector3.to_string(pos)
+end
+
+local function on_refresh_timer(player_name, form_name, state)
+  local player = player_service:get_player_by_name(player_name)
+  return {
+    {
+      type = "refresh_formspec",
+      value = render_formspec(state.pos, player, state),
+    }
+  }
+end
+
+local function on_rightclick(pos, node, user)
+  local state = {
+    pos = pos,
+  }
+  local formspec = render_formspec(pos, user, state)
+
+  nokore.formspec_bindings:show_formspec(
+    user:get_player_name(),
+    make_formspec_name(pos),
+    formspec,
+    {
+      state = state,
+      on_receive_fields = on_receive_fields,
+      timers = {
+        -- steam turbines have a fluid tank, so their formspecs need to be routinely updated
+        refresh = {
+          every = 1,
+          action = on_refresh_timer,
+        },
+      },
+    }
+  )
 end
 
 yatm.devices.register_stateful_network_device({
@@ -203,6 +270,8 @@ yatm.devices.register_stateful_network_device({
   refresh_infotext = combustion_engine_refresh_infotext,
 
   transition_device_state = combustion_engine_transition_device_state,
+
+  on_rightclick = on_rightclick,
 }, {
   on = {
     tiles = {

@@ -1,8 +1,14 @@
 local mod = yatm_machines
+local Vector3 = assert(foundation.com.Vector3)
+local fspec = assert(foundation.com.formspec.api)
+local fluid_fspec = assert(yatm.fluids.formspec)
 local Directions = assert(foundation.com.Directions)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local FluidStack = assert(yatm.fluids.FluidStack)
+local FluidContainers = assert(yatm.fluids.FluidContainers)
+local fluid_registry = assert(yatm.fluids.fluid_registry)
+local player_service = assert(nokore.player_service)
 
 local fluid_replicator_yatm_network = {
   kind = "monitor",
@@ -27,10 +33,11 @@ local fluid_replicator_yatm_network = {
 }
 
 local TANK_NAME = "tank"
+local TANK_CAPACITY = 16000
 local fluid_interface = {
   _private = {
     tank_name = TANK_NAME,
-    capacity = 16000,
+    capacity = TANK_CAPACITY,
   }
 }
 
@@ -53,10 +60,16 @@ end
 function fluid_interface:fill(pos, dir, new_stack, commit)
   local meta = minetest.get_meta(pos)
   local capacity = self._private.capacity
-  local stack, new_stack = FluidMeta.fill_fluid(meta,
-    self.tank_name,
-    FluidStack.set_amount(new_stack, capacity),
-    capacity, capacity, commit)
+  local stack, new_stack =
+    FluidMeta.fill_fluid(
+      meta,
+      self.tank_name,
+      FluidStack.set_amount(new_stack, capacity),
+      capacity,
+      capacity,
+      commit
+    )
+
   if commit then
     self:on_fluid_changed(pos, dir, new_stack)
   end
@@ -66,10 +79,16 @@ end
 function fluid_interface:drain(pos, dir, new_stack, commit)
   local meta = minetest.get_meta(pos)
   local capacity = self._private.capacity
-  local stack, new_stack = FluidMeta.drain_fluid(meta,
-    self.tank_name,
-    FluidStack.set_amount(new_stack, capacity),
-    capacity, capacity, false)
+  local stack, new_stack =
+    FluidMeta.drain_fluid(
+      meta,
+      self.tank_name,
+      FluidStack.set_amount(new_stack, capacity),
+      capacity,
+      capacity,
+      false
+    )
+
   if commit then
     self:on_fluid_changed(pos, dir, new_stack)
   end
@@ -83,31 +102,119 @@ function fluid_replicator_yatm_network:work(ctx)
 
   local energy_consumed = 0
 
-  if not FluidMeta.is_empty(meta, TANK_NAME) then
-    local capacity = fluid_interface._private.capacity
-    local target_pos
-    local stack
-    local target_dir
-
-    -- Drain fluid from replicator into any adjacent fluid interface
-    for _, dir in ipairs(Directions.DIR6) do
-      target_pos = vector.add(pos, Directions.DIR6_TO_VEC3[dir])
-      stack = FluidMeta.drain_fluid(meta,
-        TANK_NAME,
-        FluidStack.new_wildcard(capacity),
-        capacity, capacity, false)
-
-      if stack then
-        stack.amount = capacity
-        target_dir = Directions.invert_dir(dir)
-        yatm.fluid_tanks.fill(target_pos, target_dir, stack.name, stack.amount, true)
-        energy_consumed = energy_consumed + 10
-        yatm.queue_refresh_infotext(pos, node)
-      end
-    end
-  end
-
   return energy_consumed
+end
+
+local function maybe_initialize_inventory(meta)
+  assert(meta, "expected metaref")
+
+  local inv = meta:get_inventory()
+  -- slot used to extract duplicated fluid
+  inv:set_size("ftank_extract_slot", 1)
+
+  -- slot used to copy fluid from given item
+  inv:set_size("ftank_copy_slot", 1)
+end
+
+local function render_formspec(pos, user, state)
+  local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+  local node_inv_name = "nodemeta:" .. spos
+  local cio = fspec.calc_inventory_offset
+  local cis = fspec.calc_inventory_size
+  local meta = minetest.get_meta(pos)
+
+  return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = "machine" }, function (loc, rect)
+    if loc == "main_body" then
+      local fluid_stack = FluidMeta.get_fluid_stack(meta, TANK_NAME)
+
+      return fluid_fspec.render_fluid_stack(rect.x, rect.y + cio(1), 1, cis(2), fluid_stack, TANK_CAPACITY) ..
+             fspec.list(node_inv_name, "ftank_copy_slot", rect.x, rect.y, 1, 1) ..
+             fspec.list(node_inv_name, "ftank_extract_slot", rect.x, rect.y + cio(3), 1, 1)
+    elseif loc == "footer" then
+      return ""
+    end
+    return ""
+  end)
+end
+
+local function on_receive_fields(player, form_name, fields, state)
+  return false, nil
+end
+
+local function make_formspec_name(pos)
+  return "yatm_machines:fluid_replicator:"..Vector3.to_string(pos)
+end
+
+local function on_refresh_timer(player_name, form_name, state)
+  local player = player_service:get_player_by_name(player_name)
+  return {
+    {
+      type = "refresh_formspec",
+      value = render_formspec(state.pos, player, state),
+    }
+  }
+end
+
+local function on_rightclick(pos, node, user)
+  local meta = minetest.get_meta(pos)
+
+  maybe_initialize_inventory(meta)
+
+  local state = {
+    pos = pos,
+  }
+  local formspec = render_formspec(pos, user, state)
+
+  nokore.formspec_bindings:show_formspec(
+    user:get_player_name(),
+    make_formspec_name(pos),
+    formspec,
+    {
+      state = state,
+      on_receive_fields = on_receive_fields,
+      timers = {
+        -- steam turbines have a fluid tank, so their formspecs need to be routinely updated
+        refresh = {
+          every = 1,
+          action = on_refresh_timer,
+        },
+      },
+    }
+  )
+end
+
+local function on_construct(pos)
+  local meta = minetest.get_meta(pos)
+
+  maybe_initialize_inventory(meta)
+end
+
+local function on_metadata_inventory_put(pos, list, index, item_stack, player)
+  if list == "ftank_copy_slot" then
+    local fluid_name = nil
+    -- check if the given item is a fluid container
+    if FluidContainers.is_fluid_container(item_stack) then
+      local fluid_stack = FluidContainers.get_fluid_stack(item_stack)
+      if fluid_stack and fluid_stack.amount > 0 then
+        -- only if the fluid stack is actually present
+        fluid_name = fluid_stack.name
+      end
+    else
+      -- try to get a fluid name from the given item name
+      fluid_name = fluid_registry.item_name_to_fluid_name(item_stack:get_name())
+    end
+
+    local fluid_stack
+    if fluid_name then
+      fluid_stack = FluidStack.new(fluid_name, TANK_CAPACITY)
+    else
+      fluid_stack = FluidStack.new()
+    end
+
+    local meta = minetest.get_meta(pos)
+
+    FluidMeta.set_fluid(meta, TANK_NAME, fluid_stack, true)
+  end
 end
 
 local groups = {
@@ -135,7 +242,14 @@ yatm.devices.register_stateful_network_device({
   },
   paramtype = "none",
   paramtype2 = "facedir",
+
   yatm_network = fluid_replicator_yatm_network,
+
+  on_construct = on_construct,
+
+  on_rightclick = on_rightclick,
+
+  on_metadata_inventory_put = on_metadata_inventory_put,
 }, {
   error = {
     tiles = {

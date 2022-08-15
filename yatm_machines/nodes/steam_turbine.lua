@@ -19,6 +19,7 @@ local player_service = assert(nokore.player_service)
 local yatm_network = {
   kind = "energy_producer",
   groups = {
+    device_controller = 3, -- this device can act as a controller
     energy_producer = 1,
     has_update = 1, -- the device should be updated every network step
   },
@@ -193,6 +194,7 @@ local function render_formspec(pos, user, state)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
+  local cis = fspec.calc_inventory_size
   local meta = minetest.get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = "machine" }, function (loc, rect)
@@ -200,8 +202,8 @@ local function render_formspec(pos, user, state)
       local steam_stack = FluidMeta.get_fluid_stack(meta, STEAM_TANK)
       local water_stack = FluidMeta.get_fluid_stack(meta, WATER_TANK)
 
-      return fluid_fspec.render_fluid_stack(rect.x, rect.y, 1, cio(4), steam_stack, TANK_CAPACITY) ..
-        fluid_fspec.render_fluid_stack(rect.x + cio(7), rect.y, 1, cio(4), water_stack, TANK_CAPACITY)
+      return fluid_fspec.render_fluid_stack(rect.x, rect.y, 1, cis(4), steam_stack, TANK_CAPACITY) ..
+        fluid_fspec.render_fluid_stack(rect.x + cio(7), rect.y, 1, cis(4), water_stack, TANK_CAPACITY)
     elseif loc == "footer" then
       return ""
     end
