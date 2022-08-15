@@ -4,23 +4,34 @@ local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidStack = assert(yatm.fluids.FluidStack)
 
 local function fluid_tank_drain_sync(pos, node)
-  local draining_stack = FluidTanks.drain_fluid(
-    pos,
-    Directions.D_NONE,
-    FluidStack.new_wildcard(yatm_fluids.fluid_tank_fluid_interface._private.bandwidth),
-    false
-  )
+  local draining_stack =
+    FluidTanks.drain_fluid(
+      pos,
+      Directions.D_NONE,
+      FluidStack.new_wildcard(yatm_fluids.fluid_tank_fluid_interface._private.bandwidth),
+      false
+    )
 
   if draining_stack and draining_stack.amount > 0 then
-    local below_pos = vector.add(pos, Directions.V3_DOWN)
-    local adjacent_node = minetest.get_node_or_nil(below_pos)
+    -- by default, fluids in tanks will fall down
+    local adjacent_direction = Directions.D_DOWN
+
+    if FluidStack.is_member_of_group(draining_stack, "gas") then
+      -- however gases will float up
+      adjacent_direction = Directions.D_UP
+    end
+
+    local adjacent_offset = Directions.DIR6_TO_VEC3[adjacent_direction]
+    local adjacent_pos = vector.add(pos, adjacent_offset)
+    local adjacent_node = minetest.get_node_or_nil(adjacent_pos)
 
     if adjacent_node then
       local adjacent_nodedef = minetest.registered_nodes[adjacent_node.name]
 
       if adjacent_nodedef and Groups.has_group(adjacent_nodedef, "fluid_tank") then
         -- only fill if the adjacent node was some kind of fluid_tank
-        local filled_stack = FluidTanks.fill_fluid(below_pos, Directions.D_UP, draining_stack, true)
+        local inv_dir = Directions.invert_dir(adjacent_direction)
+        local filled_stack = FluidTanks.fill_fluid(adjacent_pos, inv_dir, draining_stack, true)
 
         if filled_stack and filled_stack.amount > 0 then
           local used_stack = FluidTanks.drain_fluid(pos, Directions.D_NONE, filled_stack, true)
