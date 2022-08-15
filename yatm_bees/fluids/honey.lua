@@ -6,6 +6,8 @@
 yatm.fluids.fluid_registry.register("yatm_bees", "honey", {
   description = "Honey",
 
+  color = "#ff9c16",
+
   groups = {
     honey = 1,
     honey_like = 1,
