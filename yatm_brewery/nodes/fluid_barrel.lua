@@ -3,10 +3,15 @@
 -- Unlike the brewing barrel used to age booze.
 --
 local mod = yatm_brewery
+local Vector3 = assert(foundation.com.Vector3)
+local fspec = assert(foundation.com.formspec.api)
+local fluid_fspec = assert(yatm.fluids.formspec)
 local Directions = assert(foundation.com.Directions)
 local list_concat = assert(foundation.com.list_concat)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
+local FluidMeta = assert(yatm.fluids.FluidMeta)
+local player_service = assert(nokore.player_service)
 
 local barrel_nodebox = {
   type = "fixed",
@@ -48,6 +53,67 @@ function barrel_fluid_interface:on_fluid_changed(pos, dir, _fluid_stack)
   yatm.queue_refresh_infotext(pos, node)
 end
 
+local function render_formspec(pos, user, state)
+  local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+  local node_inv_name = "nodemeta:" .. spos
+  -- local cio = fspec.calc_inventory_offset
+  local cis = fspec.calc_inventory_size
+  local meta = minetest.get_meta(pos)
+
+  return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = "wood" }, function (loc, rect)
+    if loc == "main_body" then
+      local fluid_stack = FluidMeta.get_fluid_stack(meta, "tank")
+
+      return fluid_fspec.render_fluid_stack(rect.x, rect.y, 1, cis(4), fluid_stack, BARREL_CAPACITY)
+    elseif loc == "footer" then
+      return ""
+    end
+    return ""
+  end)
+end
+
+local function on_receive_fields(player, form_name, fields, state)
+  return false, nil
+end
+
+local function make_formspec_name(pos)
+  return "yatm_brewery:fluid_barrel:"..Vector3.to_string(pos)
+end
+
+local function on_refresh_timer(player_name, form_name, state)
+  local player = player_service:get_player_by_name(player_name)
+  return {
+    {
+      type = "refresh_formspec",
+      value = render_formspec(state.pos, player, state),
+    }
+  }
+end
+
+local function on_rightclick(pos, node, user)
+  local state = {
+    pos = pos,
+  }
+  local formspec = render_formspec(pos, user, state)
+
+  nokore.formspec_bindings:show_formspec(
+    user:get_player_name(),
+    make_formspec_name(pos),
+    formspec,
+    {
+      state = state,
+      on_receive_fields = on_receive_fields,
+      timers = {
+        -- steam turbines have a fluid tank, so their formspecs need to be routinely updated
+        refresh = {
+          every = 1,
+          action = on_refresh_timer,
+        },
+      },
+    }
+  )
+end
+
 for _,row in ipairs(yatm.colors_with_default) do
   local color_basename = row.name
   local color_name = row.description
@@ -86,6 +152,8 @@ for _,row in ipairs(yatm.colors_with_default) do
     dye_color = color_basename,
 
     stack_max = 1,
+
+    on_rightclick = on_rightclick,
 
     on_construct = barrel_on_construct,
     on_destruct = barrel_on_destruct,
@@ -129,6 +197,8 @@ for _,row in ipairs(yatm.colors_with_default) do
     dye_color = color_basename,
 
     stack_max = 1,
+
+    on_rightclick = on_rightclick,
 
     on_construct = barrel_on_construct,
     on_destruct = barrel_on_destruct,
