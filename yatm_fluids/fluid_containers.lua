@@ -6,6 +6,18 @@ local FluidStack = assert(yatm_fluids.FluidStack)
 
 local FluidContainers = {}
 
+-- @spec is_fluid_container(item_stack: ItemStack): Boolean
+function FluidContainers.is_fluid_container(item_stack)
+  local def = item_stack:get_definition()
+  local fluid_container = def.fluid_container
+
+  if fluid_container then
+    return true
+  end
+
+  return false
+end
+
 -- @spec is_empty(item_stack: ItemStack): Boolean
 function FluidContainers.is_empty(item_stack)
   local def = item_stack:get_definition()
