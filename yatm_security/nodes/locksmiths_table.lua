@@ -20,88 +20,82 @@ local function locksmiths_table_get_formspec(pos, user, assigns)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   assigns.tab = assigns.tab or 1
 
-  local formspec =
-    fspec.formspec_version(6) ..
-    fspec.size(8, 9) ..
-    yatm.formspec_bg_for_player(
-      user:get_player_name(),
-      "wood",
-      0, 0,
-      8, 9
-    ) ..
-    fspec.label(0, 0, "Locksmith's Table") ..
-    "tabheader[0,0;tab;Lock Installation,Chip Installation,Key Duplication;" .. assigns.tab .. "]"
+  return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = "wood" }, function (loc, rect)
+    if loc == "main_body" then
+      local formspec =
+        fspec.tabheader(0, 0, nil, nil, "tab", {"Lock Installation", "Chip Installation", "Key Duplication"}, assigns.tab)
 
-  if assigns.tab == 1 then
-    formspec =
-      formspec ..
-      --
-      -- Lock Installation - physical locks
-      --
-      "label[0,0.5;Lock Installation]" ..
-      "label[0,1;Lockable]" ..
-      "list[nodemeta:" .. spos .. ";item_lockable;0,1.5;1,1;]" ..
-      "label[1.5,1;Lock]" ..
-      "list[nodemeta:" .. spos .. ";item_lock;1.5,1.5;1,1;]" ..
-      "label[3,1;Key]" ..
-      "list[nodemeta:" .. spos .. ";item_key;3,1.5;1,1;]" ..
-      "list[nodemeta:" .. spos .. ";item_result;6,1.5;2,1;]" ..
-      "listring[nodemeta:" .. spos .. ";item_lockable]" ..
-      "listring[current_player;main]" ..
-      "listring[nodemeta:" .. spos .. ";item_lock]" ..
-      "listring[current_player;main]" ..
-      "listring[nodemeta:" .. spos .. ";item_key]" ..
-      "listring[current_player;main]" ..
-      "listring[nodemeta:" .. spos .. ";item_result]" ..
-      "listring[current_player;main]"
+      if assigns.tab == 1 then
+        formspec =
+          formspec ..
+          --
+          -- Lock Installation - physical locks
+          --
+          "label[0,0.5;Lock Installation]" ..
+          "label[0,1;Lockable]" ..
+          "list[nodemeta:" .. spos .. ";item_lockable;0,1.5;1,1;]" ..
+          "label[1.5,1;Lock]" ..
+          "list[nodemeta:" .. spos .. ";item_lock;1.5,1.5;1,1;]" ..
+          "label[3,1;Key]" ..
+          "list[nodemeta:" .. spos .. ";item_key;3,1.5;1,1;]" ..
+          "list[nodemeta:" .. spos .. ";item_result;6,1.5;2,1;]" ..
+          "listring[nodemeta:" .. spos .. ";item_lockable]" ..
+          --
+          "listring[current_player;main]" ..
+          "listring[nodemeta:" .. spos .. ";item_lock]" ..
+          "listring[current_player;main]" ..
+          "listring[nodemeta:" .. spos .. ";item_key]" ..
+          "listring[current_player;main]" ..
+          "listring[nodemeta:" .. spos .. ";item_result]" ..
+          "listring[current_player;main]"
 
-  elseif assigns.tab == 2 then
-    formspec =
-      formspec ..
-      --
-      -- Chip Installation
-      --
-      "label[0,0.5;Chip Installation]" ..
-      "label[0,1;Chippable]" ..
-      "list[nodemeta:" .. spos .. ";item_chippable;0,1.5;1,1;]" ..
-      "label[1.5,1;Chip]" ..
-      "list[nodemeta:" .. spos .. ";item_access_chip;1.5,1.5;1,1;]" ..
-      "list[nodemeta:" .. spos .. ";item_chipped_result;7,1.5;1,1;]" ..
-      --
-      "listring[nodemeta:" .. spos .. ";item_chippable]" ..
-      "listring[current_player;main]" ..
-      "listring[nodemeta:" .. spos .. ";item_access_chip]" ..
-      "listring[current_player;main]" ..
-      "listring[nodemeta:" .. spos .. ";item_chipped_result]" ..
-      "listring[current_player;main]"
+      elseif assigns.tab == 2 then
+        formspec =
+          formspec ..
+          --
+          -- Chip Installation
+          --
+          "label[0,0.5;Chip Installation]" ..
+          "label[0,1;Chippable]" ..
+          "list[nodemeta:" .. spos .. ";item_chippable;0,1.5;1,1;]" ..
+          "label[1.5,1;Chip]" ..
+          "list[nodemeta:" .. spos .. ";item_access_chip;1.5,1.5;1,1;]" ..
+          "list[nodemeta:" .. spos .. ";item_chipped_result;7,1.5;1,1;]" ..
+          --
+          "listring[nodemeta:" .. spos .. ";item_chippable]" ..
+          "listring[current_player;main]" ..
+          "listring[nodemeta:" .. spos .. ";item_access_chip]" ..
+          "listring[current_player;main]" ..
+          "listring[nodemeta:" .. spos .. ";item_chipped_result]" ..
+          "listring[current_player;main]"
 
-  elseif assigns.tab == 3 then
-    formspec =
-      formspec ..
-      --
-      -- Key Duplication
-      --
-      "label[0,0.5;Key Duplication]" ..
-      "label[0,1;Source Key]" ..
-      "list[nodemeta:" .. spos .. ";item_dupkey_src;0,1.5;1,1;]" ..
-      "label[1.5,1;Blank Key]" ..
-      "list[nodemeta:" .. spos .. ";item_dupkey_dest;1.5,1.5;1,1;]" ..
-      "list[nodemeta:" .. spos .. ";item_dupkey_result;7,1.5;1,1;]" ..
-      --
-      "listring[nodemeta:" .. spos .. ";item_dupkey_src]" ..
-      "listring[current_player;main]" ..
-      "listring[nodemeta:" .. spos .. ";item_dupkey_dest]" ..
-      "listring[current_player;main]" ..
-      "listring[nodemeta:" .. spos .. ";item_dupkey_result]" ..
-      "listring[current_player;main]"
-  end
+      elseif assigns.tab == 3 then
+        formspec =
+          formspec ..
+          --
+          -- Key Duplication
+          --
+          "label[0,0.5;Key Duplication]" ..
+          "label[0,1;Source Key]" ..
+          "list[nodemeta:" .. spos .. ";item_dupkey_src;0,1.5;1,1;]" ..
+          "label[1.5,1;Blank Key]" ..
+          "list[nodemeta:" .. spos .. ";item_dupkey_dest;1.5,1.5;1,1;]" ..
+          "list[nodemeta:" .. spos .. ";item_dupkey_result;7,1.5;1,1;]" ..
+          --
+          "listring[nodemeta:" .. spos .. ";item_dupkey_src]" ..
+          "listring[current_player;main]" ..
+          "listring[nodemeta:" .. spos .. ";item_dupkey_dest]" ..
+          "listring[current_player;main]" ..
+          "listring[nodemeta:" .. spos .. ";item_dupkey_result]" ..
+          "listring[current_player;main]"
+      end
 
-  formspec =
-    formspec ..
-    "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]"
-
-  return formspec
+      return formspec
+    elseif loc == "footer" then
+      return ""
+    end
+    return ""
+  end)
 end
 
 local function on_player_receive_fields(user, form_name, fields, assigns)
