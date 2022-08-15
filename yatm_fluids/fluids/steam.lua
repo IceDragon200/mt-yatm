@@ -1,6 +1,9 @@
+local mod = yatm_fluids
 
 yatm.fluids.fluid_registry.register("yatm_fluids", "steam", {
-  description = yatm_fluids.S("Steam"),
+  description = mod.S("Steam"),
+
+  color = "#FFFFFF",
 
   aliases = {
     "yatm_core:steam"

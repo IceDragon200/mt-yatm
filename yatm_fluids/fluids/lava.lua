@@ -1,3 +1,5 @@
+local mod = yatm_fluids
+
 local source
 local flowing
 
@@ -12,9 +14,12 @@ if rawget(_G, "nokore_world_lava") then
 end
 
 yatm.fluids.fluid_registry.register("default", "lava", {
-  description = "Lava",
+  description = mod.S("Lava"),
+
+  color = "#8b1408",
 
   groups = {
+    liquid = 1,
     lava = 1,
   },
 

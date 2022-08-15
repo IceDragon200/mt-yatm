@@ -9,7 +9,10 @@ end
 yatm.fluids.fluid_registry.register("default", "sea_water", {
   description = yatm_fluids.S("Sea Water"),
 
+  color = "#235c7c",
+
   groups = {
+    liquid = 1,
     water = 1,
     sea_water = 1,
   },

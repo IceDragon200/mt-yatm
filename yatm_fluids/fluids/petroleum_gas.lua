@@ -1,6 +1,10 @@
 -- Borrowed this from Factorio
+local mod = yatm_fluids
+
 yatm.fluids.fluid_registry.register("yatm_fluids", "petroleum_gas", {
-  description = yatm_fluids.S("Petroleum Gas"),
+  description = mod.S("Petroleum Gas"),
+
+  color = "#13d0c9",
 
   groups = {
     gas = 1,

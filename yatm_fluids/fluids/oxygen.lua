@@ -1,5 +1,9 @@
+local mod = yatm_fluids
+
 yatm.fluids.fluid_registry.register("yatm_fluids", "oxygen", {
-  description = yatm_fluids.S("oxygen"),
+  description = mod.S("oxygen"),
+
+  color = "#FFFFFF",
 
   aliases = {
     "yatm_core:oxygen"

@@ -1,12 +1,17 @@
 -- Borrowed this from Factorio
+local mod = yatm_fluids
+
 yatm.fluids.fluid_registry.register("yatm_fluids", "light_oil", {
-  description = "Light Oil",
+  description = mod.S("Light Oil"),
+
+  color = "#e2e400",
 
   aliases = {
     "yatm_core:light_oil",
   },
 
   groups = {
+    liquid = 1,
     oil = 1,
     light_oil = 1,
     flammable = 1,

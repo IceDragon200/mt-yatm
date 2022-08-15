@@ -1,5 +1,9 @@
+local mod = yatm_fluids
+
 yatm.fluids.fluid_registry.register("yatm_fluids", "corium", {
-  description = "Corium",
+  description = mod.S("Corium"),
+
+  color = "#415350",
 
   groups = {
     corium = 1,
@@ -9,7 +13,12 @@ yatm.fluids.fluid_registry.register("yatm_fluids", "corium", {
 
   nodes = {
     texture_basename = "yatm_corium",
-    groups = { corium = 1, radioactive = 1, corrosive = 1 },
+    groups = {
+      corium = 1,
+      radioactive = 1,
+      corrosive = 1
+    },
+
     use_texture_alpha = "opaque",
   },
 
@@ -21,7 +30,10 @@ yatm.fluids.fluid_registry.register("yatm_fluids", "corium", {
 
   fluid_tank = {
     -- The fluid tank is radioactive and gives off mild light
-    groups = { radioactive = 1, corrosive = 1 },
+    groups = {
+      radioactive = 1,
+      corrosive = 1,
+    },
     light_source = 10,
   },
 })

@@ -5,6 +5,7 @@ local Measurable = assert(yatm.Measurable)
 local Groups = assert(foundation.com.Groups)
 local table_merge = assert(foundation.com.table_merge)
 local Directions = assert(foundation.com.Directions)
+local Color = assert(foundation.com.Color)
 
 -- @namespace yatm_fluids.fluid_registry
 local FluidRegistry = {
@@ -22,6 +23,7 @@ local FluidRegistry = {
 --   description: String,
 --   aliases: Any,
 --   tiles: Any,
+--   color: ColorString,
 -- }
 
 -- @spec register_fluid(fluid_name: String, def: FluidDef): void
@@ -33,6 +35,17 @@ function FluidRegistry.register_fluid(fluid_name, def)
     FluidRegistry.m_item_name_to_fluid_name[def.nodes.source] = fluid_name
   end
   def.name = fluid_name
+  if def.color then
+    local color = Color.from_colorstring(def.color)
+    if not color then
+      error("invalid colorstring=" .. def.color)
+    end
+  else
+    local msg = "suggestion: add a color to registered fluid name=" .. fluid_name
+    minetest.log("warning", msg)
+    --error(msg)
+  end
+
   -- force the definition into the fluid group
   Groups.put_item(def, "fluid", 1)
   Measurable.register(FluidRegistry, fluid_name, def)
@@ -246,6 +259,7 @@ function FluidRegistry.register(modname, fluid_basename, definition)
     description = description,
     groups = definition.groups or {},
     tiles = definition.tiles,
+    color = definition.color,
   }
 
   if fluid_node_def then
