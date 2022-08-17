@@ -45,11 +45,6 @@ function formspec.render_fluid_tank(x, y, w, h, fluid_name, amount, max)
     Color.new(199, 199, 199, 255)
   )
 
-  print(
-    "fluid", dump(Color.from_colorstring(fluid_color)),
-    "blend", dump(blend_color)
-  )
-
   return fspec.box(x, y, w, h, "#292729") ..
     fspec.box(x, y + h - fluid_h, w, fluid_h, fluid_color) ..
     fspec.tooltip_area(x, y, w, h, fluid_name .. " " .. amount .. " / " .. max) ..
