@@ -56,10 +56,12 @@ function energy.get_meta_energy(meta, key)
   return energy.schema:get_field(meta, key, "energy")
 end
 
+local get_meta_energy = energy.get_meta_energy
+
 -- @spec get_meta_energy_throughput(MetaRef, key: String, bandwidth: Integer): Integer
 function energy.get_meta_energy_throughput(meta, key, bandwidth)
   assert(meta, "expected a metaref")
-  return math.min(energy.get_meta_energy(meta, key), bandwidth)
+  return math.min(get_meta_energy(meta, key), bandwidth)
 end
 
 -- @spec set_meta_energy(MetaRef, key: String, amount: Integer): void
@@ -105,7 +107,7 @@ end
 --   commmit?: Boolean
 -- ): Integer
 function energy.receive_meta_energy(meta, key, amount, bandwidth, capacity, commit)
-  local stored = energy.get_meta_energy(meta, key)
+  local stored = get_meta_energy(meta, key)
   local stored, received_amount = energy.calc_received_energy(stored, amount, bandwidth, capacity)
   if commit then
     energy.schema:set_field(meta, key, "energy", stored)
@@ -122,7 +124,7 @@ end
 --   commit?: Boolean
 -- ): Integer
 function energy.consume_meta_energy(meta, key, amount, bandwidth, capacity, commit)
-  local stored = energy.get_meta_energy(meta, key)
+  local stored = get_meta_energy(meta, key)
   local stored, consumed_amount = energy.calc_consumed_energy(stored, amount, bandwidth, capacity)
   if commit then
     energy.schema:set_field(meta, key, "energy", stored)
@@ -139,13 +141,15 @@ function energy.format_string(amount, capacity)
   end
 end
 
+local format_string = energy.format_string
+
 -- @spec meta_to_infotext(meta: MetaRef, key: String, capacity: Integer): String
 function energy.meta_to_infotext(meta, key, capacity)
   assert(meta, "expected a meta")
   assert(key, "expected a key")
-  local amount = energy.get_meta_energy(meta, key)
+  local amount = get_meta_energy(meta, key)
 
-  return energy.format_string(amount, capacity)
+  return format_string(amount, capacity)
 end
 
 yatm_cluster_energy.energy = energy

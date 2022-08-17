@@ -5,6 +5,7 @@ mod:require("energy_devices.lua")
 -- Networks
 mod:require("energy.lua")
 
+mod:require("formspec.lua")
 mod:require("api.lua")
 
 mod:require("energy_system.lua")
