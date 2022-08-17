@@ -1,6 +1,7 @@
 local fspec = assert(foundation.com.formspec.api)
 local FluidStack = assert(yatm_fluids.FluidStack)
 local fluid_registry = assert(yatm_fluids.fluid_registry)
+local Color = assert(foundation.com.Color)
 
 local formspec = {}
 
@@ -39,9 +40,20 @@ function formspec.render_fluid_tank(x, y, w, h, fluid_name, amount, max)
     fluid_color = fluid.color
   end
 
+  local blend_color = Color.blend_hard_light(
+    Color.from_colorstring(fluid_color),
+    Color.new(199, 199, 199, 255)
+  )
+
+  print(
+    "fluid", dump(Color.from_colorstring(fluid_color)),
+    "blend", dump(blend_color)
+  )
+
   return fspec.box(x, y, w, h, "#292729") ..
     fspec.box(x, y + h - fluid_h, w, fluid_h, fluid_color) ..
-    fspec.tooltip_area(x, y, w, h, fluid_name .. " " .. amount .. " / " .. max)
+    fspec.tooltip_area(x, y, w, h, fluid_name .. " " .. amount .. " / " .. max) ..
+    fspec.image(x, y, w, h, "yatm_item_border_liquid.png^[multiply:" .. Color.to_string24(blend_color), 16)
 end
 
 --
