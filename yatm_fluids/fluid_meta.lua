@@ -119,6 +119,8 @@ function FluidMeta.increase_fluid(meta, key, fluid_stack, capacity, commit)
 end
 
 function FluidMeta.drain_fluid(meta, key, fluid_stack, bandwidth, capacity, commit)
+  assert(key, "expected a fluid meta key")
+
   return FluidMeta.decrease_fluid(
     meta,
     key,
@@ -129,9 +131,11 @@ function FluidMeta.drain_fluid(meta, key, fluid_stack, bandwidth, capacity, comm
 end
 
 function FluidMeta.fill_fluid(meta, key, fluid_stack, bandwidth, capacity, commit)
+  assert(key, "expected a fluid meta key")
   assert(fluid_stack, "expected a fluid stack")
   assert(bandwidth, "expected a bandwidth amount")
   assert(capacity, "expected a capacity value")
+
   return FluidMeta.increase_fluid(
     meta,
     key,

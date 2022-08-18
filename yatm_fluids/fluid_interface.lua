@@ -10,13 +10,31 @@
 -- @type get_capacity: function(self, pos, dir, node) => Integer
 --
 -- @since "1.0.0"
--- @type replace: function(self, pos, dir, node, fluid_stack: FluidStack, commit: Boolean) => void
+-- @type replace: function(
+--   self: Any,
+--   pos: Vector3,
+--   dir: DirectionCode,
+--   fluid_stack: FluidStack,
+--   commit: Boolean
+-- ) => (FluidStack, error?: String)
 --
 -- @since "1.0.0"
--- @type fill: function(self, pos, dir, node, fluid_stack: FluidStack, commit: Boolean) => void
+-- @type fill: function(
+--   self: Any,
+--   pos: Vector3,
+--   dir: DirectionCode,
+--   fluid_stack: FluidStack,
+--   commit: Boolean
+-- ) => (FluidStack, error?: String)
 --
 -- @since "1.0.0"
--- @type drain: function(self, pos, dir, node, fluid_stack: FluidStack, commit: Boolean) => void
+-- @type drain: function(
+--   self: Any,
+--   pos: Vector3,
+--   dir: DirectionCode,
+--   fluid_stack: FluidStack,
+--   commit: Boolean
+-- ) => (FluidStack, error?: String)
 --
 -- @since "1.0.0"
 -- @type on_fluid_changed: function(self, pos, dir, fluid_stack: FluidStack) => void
@@ -106,10 +124,16 @@ local function default_simple_drain(self, pos, dir, fluid_stack, commit)
   local allowed, reason = self:allow_drain(pos, dir, fluid_stack)
   if allowed then
     local meta = minetest.get_meta(pos)
-    local stack, new_stack = FluidMeta.drain_fluid(meta,
-      self._private.tank_name,
-      fluid_stack,
-      self._private.bandwidth, self:get_capacity(pos, dir), commit)
+    local stack, new_stack =
+      FluidMeta.drain_fluid(
+        meta,
+        self._private.tank_name,
+        fluid_stack,
+        self._private.bandwidth,
+        self:get_capacity(pos, dir),
+        commit
+      )
+
     if commit then
       self:on_fluid_changed(pos, dir, new_stack)
     end
@@ -182,20 +206,21 @@ local function default_directional_fill(self, pos, dir, fluid_stack, commit)
   if allowed then
     local meta = minetest.get_meta(pos)
     local tank_name, capacity = self:get_fluid_tank_name(pos, dir)
-    if not capacity then
-      local node = minetest.get_node_or_nil(pos)
-      if node then
-        error(
-          "expected fluid tank capacity for node=" .. node.name .. " at pos=" .. minetest.pos_to_string(pos)
-        )
-      else
-        error(
-          "expected fluid tank capacity for at pos=" .. minetest.pos_to_string(pos)
-        )
-      end
-    end
 
     if tank_name then
+      if not capacity then
+        local node = minetest.get_node_or_nil(pos)
+        if node then
+          error(
+            "expected fluid tank capacity for node=" .. node.name .. " at pos=" .. minetest.pos_to_string(pos)
+          )
+        else
+          error(
+            "expected fluid tank capacity for at pos=" .. minetest.pos_to_string(pos)
+          )
+        end
+      end
+
       local stack, new_stack = FluidMeta.fill_fluid(
         meta,
         tank_name,
@@ -211,26 +236,36 @@ local function default_directional_fill(self, pos, dir, fluid_stack, commit)
     end
     return nil, "no tank"
   end
+
   return nil, reason
 end
 
 local function default_directional_drain(self, pos, dir, fluid_stack, commit)
-  if self:allow_drain(pos, dir, fluid_stack) then
+  local allowed, reason = self:allow_drain(pos, dir, fluid_stack)
+  if allowed then
     local meta = minetest.get_meta(pos)
     local tank_name, capacity = self:get_fluid_tank_name(pos, dir)
+
     if tank_name then
-      local stack, new_stack = FluidMeta.drain_fluid(meta,
-        tank_name,
-        fluid_stack,
-        capacity, capacity, commit)
+      local stack, new_stack =
+        FluidMeta.drain_fluid(
+          meta,
+          tank_name,
+          fluid_stack,
+          capacity,
+          capacity,
+          commit
+        )
+
       if commit then
         self:on_fluid_changed(pos, dir, new_stack)
       end
+
       return stack
     end
     return nil, "no tank"
   end
-  return nil
+  return nil, reason
 end
 
 function FluidInterface.new_directional(get_fluid_tank_name)
