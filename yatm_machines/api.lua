@@ -2,6 +2,7 @@ local table_merge = assert(foundation.com.table_merge)
 local table_deep_merge = assert(foundation.com.table_deep_merge)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
+local cluster_thermal = assert(yatm.cluster.thermal)
 local Energy = assert(yatm.energy)
 local en_receive_meta_energy = assert(Energy.receive_meta_energy)
 
@@ -33,6 +34,10 @@ function devices.device_on_construct(pos)
   if nodedef.groups['yatm_cluster_energy'] then
     cluster_energy:schedule_add_node(pos, node)
   end
+
+  if nodedef.groups['yatm_cluster_thermal'] then
+    cluster_thermal:schedule_add_node(pos, node)
+  end
 end
 
 -- @spec device_on_destruct(pos: Vector3): void
@@ -49,6 +54,10 @@ function devices.device_after_destruct(pos, old_node)
 
   if nodedef.groups['yatm_cluster_energy'] then
     cluster_energy:schedule_remove_node(pos, old_node)
+  end
+
+  if nodedef.groups['yatm_cluster_thermal'] then
+    cluster_thermal:schedule_remove_node(pos, old_node)
   end
 end
 
@@ -98,6 +107,10 @@ function devices.device_transition_device_state(pos, node, state)
         if nodedef.groups['yatm_cluster_energy'] then
           cluster_energy:schedule_update_node(pos, node)
         end
+
+        if nodedef.groups['yatm_cluster_thermal'] then
+          cluster_thermal:schedule_update_node(pos, node)
+        end
       end
     end
 
@@ -135,18 +148,25 @@ function devices.device_passive_consume_energy(pos, node, total_available, dtime
 
   -- Passive lost affects how much energy is available
   -- Passive lost will not affect the node's current buffer only the consumable amount
-  local passive_lost = energy.passive_lost
+  local passive_lost = energy.passive_lost * dtime
   if passive_lost > 0 then
     consumed = consumed + math.min(total_available, passive_lost)
   end
 
   local remaining = total_available - consumed
   if remaining > 0 then
-    local charge_bandwidth = energy.network_charge_bandwidth
+    local charge_bandwidth = energy.network_charge_bandwidth * dtime
 
     if charge_bandwidth and charge_bandwidth > 0 then
       local meta = minetest.get_meta(pos)
-      local stored = en_receive_meta_energy(meta, devices.ENERGY_BUFFER_KEY, remaining, charge_bandwidth, capacity, true)
+      local stored = en_receive_meta_energy(
+        meta,
+        devices.ENERGY_BUFFER_KEY,
+        remaining,
+        charge_bandwidth,
+        capacity,
+        true
+      )
 
       consumed = consumed + stored
 
@@ -478,6 +498,10 @@ function devices.patch_device_nodedef(name, nodedef)
         assert(ym.energy, name .. " energy_receiver requires an `energy` interface")
         assert(ym.energy.receive_energy, name .. " expected a receive_energy function to be defined")
         nodedef.groups['yatm_cluster_energy'] = 1
+      end
+
+      if ym.groups.heat_producer then
+        nodedef.groups['yatm_cluster_thermal'] = 1
       end
     end
   end

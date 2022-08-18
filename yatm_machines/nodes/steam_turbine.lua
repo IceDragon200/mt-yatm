@@ -63,6 +63,7 @@ function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
   yatm.queue_refresh_infotext(pos, node)
 end
 
+-- @spec refresh_infotext(Vector3): String
 function refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
 

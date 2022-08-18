@@ -41,30 +41,42 @@ local fluid_interface = {
   }
 }
 
+function fluid_interface:on_fluid_changed(pos, dir, fluid_stack)
+  -- do nothing
+end
+
 function fluid_interface:get(pos, dir)
   local meta = minetest.get_meta(pos)
-  local stack = FluidMeta.get_fluid_stack(meta, self.tank_name)
+  local stack = FluidMeta.get_fluid_stack(meta, self._private.tank_name)
   stack.amount = self._private.capacity
   return stack
 end
 
 function fluid_interface:replace(pos, dir, new_stack, commit)
   local meta = minetest.get_meta(pos)
-  local stack, new_stack = FluidMeta.set_fluid(meta, self.tank_name, new_stack, commit)
+  local stack, new_stack =
+    FluidMeta.set_fluid(
+      meta,
+      self._private.tank_name,
+      new_stack,
+      commit
+    )
+
   if commit then
     self:on_fluid_changed(pos, dir, new_stack)
   end
+
   return stack
 end
 
-function fluid_interface:fill(pos, dir, new_stack, commit)
+function fluid_interface:fill(pos, dir, fluid_stack, commit)
   local meta = minetest.get_meta(pos)
-  local capacity = self._private.capacity
+  local capacity = assert(self._private.capacity)
   local stack, new_stack =
     FluidMeta.fill_fluid(
       meta,
-      self.tank_name,
-      FluidStack.set_amount(new_stack, capacity),
+      self._private.tank_name,
+      FluidStack.set_amount(fluid_stack, capacity),
       capacity,
       capacity,
       commit
@@ -73,17 +85,18 @@ function fluid_interface:fill(pos, dir, new_stack, commit)
   if commit then
     self:on_fluid_changed(pos, dir, new_stack)
   end
+
   return stack
 end
 
-function fluid_interface:drain(pos, dir, new_stack, commit)
+function fluid_interface:drain(pos, dir, fluid_stack, commit)
   local meta = minetest.get_meta(pos)
-  local capacity = self._private.capacity
+  local capacity = assert(self._private.capacity)
   local stack, new_stack =
     FluidMeta.drain_fluid(
       meta,
-      self.tank_name,
-      FluidStack.set_amount(new_stack, capacity),
+      self._private.tank_name,
+      FluidStack.set_amount(fluid_stack, capacity),
       capacity,
       capacity,
       false
@@ -92,6 +105,7 @@ function fluid_interface:drain(pos, dir, new_stack, commit)
   if commit then
     self:on_fluid_changed(pos, dir, new_stack)
   end
+
   return stack
 end
 
@@ -127,9 +141,16 @@ local function render_formspec(pos, user, state)
     if loc == "main_body" then
       local fluid_stack = FluidMeta.get_fluid_stack(meta, TANK_NAME)
 
-      return fluid_fspec.render_fluid_stack(rect.x, rect.y + cio(1), 1, cis(2), fluid_stack, TANK_CAPACITY) ..
-             fspec.list(node_inv_name, "ftank_copy_slot", rect.x, rect.y, 1, 1) ..
-             fspec.list(node_inv_name, "ftank_extract_slot", rect.x, rect.y + cio(3), 1, 1)
+      return fluid_fspec.render_fluid_stack(
+          rect.x,
+          rect.y + cio(1),
+          1,
+          cis(2),
+          fluid_stack,
+          TANK_CAPACITY
+        ) ..
+        fspec.list(node_inv_name, "ftank_copy_slot", rect.x, rect.y, 1, 1) ..
+        fspec.list(node_inv_name, "ftank_extract_slot", rect.x, rect.y + cio(3), 1, 1)
     elseif loc == "footer" then
       return ""
     end
@@ -187,6 +208,8 @@ local function on_construct(pos)
   local meta = minetest.get_meta(pos)
 
   maybe_initialize_inventory(meta)
+
+  yatm.devices.device_on_construct(pos)
 end
 
 local function on_metadata_inventory_put(pos, list, index, item_stack, player)
@@ -250,6 +273,8 @@ yatm.devices.register_stateful_network_device({
   on_rightclick = on_rightclick,
 
   on_metadata_inventory_put = on_metadata_inventory_put,
+
+  fluid_interface = fluid_interface,
 }, {
   error = {
     tiles = {
