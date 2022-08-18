@@ -87,15 +87,15 @@ end
 
 -- @spec formspec_render_split_inv_panel(
 --   Player,
---   main_cols: Integer,
---   main_rows: Integer,
+--   main_cols: Integer | nil,
+--   main_rows: Integer | nil,
 --   options: Table,
 --   callback: function (slot: String, rect: Rect) => String
 -- ): String
 function yatm.formspec_render_split_inv_panel(player, main_cols, main_rows, options, callback)
   assert(player, "expected player")
-  assert(type(main_cols) == "number", "expected a column count")
-  assert(type(main_rows) == "number", "expected a row count")
+  -- assert(type(main_cols) == "number", "expected a column count")
+  -- assert(type(main_rows) == "number", "expected a row count")
 
   options = options or {}
 
@@ -108,7 +108,11 @@ function yatm.formspec_render_split_inv_panel(player, main_cols, main_rows, opti
   local inv_size = yatm.player_inventory_size2(player)
 
   -- device form size
-  local dform_size = fspec.calc_form_inventory_size(main_cols, main_rows)
+  local dform_size =
+    fspec.calc_form_inventory_size(
+      main_cols or inv_size.x,
+      main_rows or inv_size.y
+    )
   -- player form size
   local pform_size = fspec.calc_form_inventory_size(inv_size.x, inv_size.y)
 
