@@ -52,11 +52,11 @@ local function get_fluid_tank_name(self, pos, dir)
   local node = minetest.get_node(pos)
   local new_dir = Directions.facedir_to_face(node.param2, dir)
   if new_dir == Directions.D_UP then
-    return OUTPUT_STEAM_TANK, self.capacity
+    return OUTPUT_STEAM_TANK, self._private.capacity
   elseif new_dir == Directions.D_DOWN then
-    return INPUT_STEAM_TANK, self.capacity
+    return INPUT_STEAM_TANK, self._private.capacity
   else
-    return DISTILLED_TANK, self.capacity
+    return DISTILLED_TANK, self._private.capacity
   end
   return nil, nil
 end
@@ -135,7 +135,7 @@ function distillation_unit_yatm_network:work(ctx)
           meta:set_string("error_text", nil)
           need_refresh = true
         else
-          meta:set_string("error_text", "distilled output mismatch")
+          meta:set_string("error_text", "distilled output amount mismatch")
           need_refresh = true
         end
       else

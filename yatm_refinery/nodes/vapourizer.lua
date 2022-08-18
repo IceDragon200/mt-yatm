@@ -91,7 +91,11 @@ function vapourizer_yatm_network:work(ctx)
     local fs = FluidExchange.transfer_from_tank_to_meta(
       input_tank_pos, Directions.invert_dir(input_tank_dir),
       FluidStack.new_wildcard(1000),
-      meta, { tank_name = FLUID_TANK, capacity = fluid_interface._private.capacity, bandwidth = fluid_interface._private.bandwidth },
+      meta, {
+        tank_name = FLUID_TANK,
+        capacity = fluid_interface._private.capacity,
+        bandwidth = fluid_interface._private.bandwidth
+      },
       true
     )
 
@@ -152,18 +156,20 @@ function vapourizer_yatm_network:work(ctx)
     if output_tank_node then
       local output_tank_nodedef = minetest.registered_nodes[output_tank_node.name]
 
-      if Groups.has_group(output_tank_nodedef, 'fluid_tank') then
-        local fs = FluidExchange.transfer_from_meta_to_tank(
-          meta,
-          {
-            tank_name = VAPOUR_TANK,
-            capacity = fluid_interface._private.capacity,
-            bandwidth = fluid_interface._private.capacity
-          },
-          FluidStack.new_wildcard(100),
-          output_tank_pos, Directions.invert_dir(output_tank_dir),
-          true
-        )
+      if Groups.has_group(output_tank_nodedef, "fluid_interface_in") then
+        local fs =
+          FluidExchange.transfer_from_meta_to_tank(
+            meta,
+            {
+              tank_name = VAPOUR_TANK,
+              capacity = fluid_interface._private.capacity,
+              bandwidth = fluid_interface._private.capacity
+            },
+            FluidStack.new_wildcard(100),
+            output_tank_pos,
+            Directions.invert_dir(output_tank_dir),
+            true
+          )
 
         if fs and fs.amount > 0 then
           need_refresh = true
