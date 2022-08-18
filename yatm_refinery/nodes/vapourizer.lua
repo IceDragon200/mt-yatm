@@ -71,16 +71,21 @@ function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
   yatm.queue_refresh_infotext(pos, node)
 end
 
-local auto_transfer = false
+-- TODO: auto_transfer shouldn't be used, instead auto-eject options should be available applicable nodes
+local auto_transfer = true
 
 function vapourizer_yatm_network:work(ctx)
   local energy_consumed = 0
   local need_refresh = false
   local meta = ctx.meta
 
+  local pos = ctx.pos
+  local node = ctx.node
+  local dtime = ctx.dtime
+
   if auto_transfer then
     -- Fluid transfer from input
-    local input_tank_dir = Directions.facedir_to_face(ctx.node.param2, Directions.D_DOWN)
+    local input_tank_dir = Directions.facedir_to_face(node.param2, Directions.D_DOWN)
     local input_tank_pos = vector.add(pos, Directions.DIR6_TO_VEC3[input_tank_dir])
 
     local fs = FluidExchange.transfer_from_tank_to_meta(
@@ -104,10 +109,28 @@ function vapourizer_yatm_network:work(ctx)
       local vapour_stack = FluidStack.new(recipe.vapour_name, math.min(fluid_stack.amount, 100))
       fluid_stack.amount = vapour_stack.amount
       if fluid_stack.amount > 0 then
-        local filled_stack = FluidMeta.fill_fluid(meta, VAPOUR_TANK, vapour_stack, fluid_interface._private.capacity, fluid_interface._private.capacity, true)
+        local filled_stack =
+          FluidMeta.fill_fluid(
+            meta,
+            VAPOUR_TANK,
+            vapour_stack,
+            fluid_interface._private.capacity,
+            fluid_interface._private.capacity,
+            true
+          )
+
         if filled_stack and filled_stack.amount > 0 then
           fluid_stack.amount = filled_stack.amount
-          local drained_stack = FluidMeta.drain_fluid(meta, FLUID_TANK, fluid_stack, fluid_interface._private.capacity, fluid_interface._private.capacity, true)
+          local drained_stack =
+            FluidMeta.drain_fluid(
+              meta,
+              FLUID_TANK,
+              fluid_stack,
+              fluid_interface._private.capacity,
+              fluid_interface._private.capacity,
+              true
+            )
+
           need_refresh = true
           energy_consumed = energy_consumed + math.max(math.floor(drained_stack.amount / 100), 1)
         end
