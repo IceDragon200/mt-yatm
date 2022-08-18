@@ -9,6 +9,14 @@ local List = assert(foundation.com.List)
 local hash_pos = minetest.hash_node_position
 -- @namespace yatm_clusters
 
+-- @type ClusterNode: {
+--   id: Integer,
+--   pos: Vector3,
+--   node: NodeRef,
+--   groups: Table<String, Integer>,
+--   assigns: Table,
+-- }
+
 -- @class Cluster
 local Cluster = foundation.com.Class:extends("YATM.Cluster")
 do
@@ -28,6 +36,7 @@ do
     self.terminate_reason = false
   end
 
+  -- @spec #terminate(reason: String): void
   function ic:terminate(reason)
     -- print("Terminating Cluster cluster_id=" .. self.id .. " reason=" .. reason)
     self.terminate_reason = reason
@@ -54,6 +63,7 @@ do
     })
   end
 
+  -- @spec #merge(Cluster): self
   function ic:merge(other_cluster)
     assert(other_cluster, "expected a cluster")
 
@@ -127,6 +137,7 @@ do
     self.m_block_nodes[block_id][node_entry.id] = true
   end
 
+  -- @spec #add_node(pos: Vector3, node: ClusterNode, groups: Table<String, Integer>): Boolean
   function ic:add_node(pos, node, groups)
     local node_id = hash_pos(pos)
 
@@ -164,12 +175,14 @@ do
     return true
   end
 
+  -- @spec #get_node(Vector3): ClusterNode
   function ic:get_node(pos)
     local node_id = hash_pos(pos)
 
     return self.m_nodes[node_id]
   end
 
+  -- @spec #get_node_group(pos: Vector3, group_name: String): Integer
   function ic:get_node_group(pos, group_name)
     local entry = self:get_node(pos)
 
@@ -179,6 +192,11 @@ do
     return 0
   end
 
+  -- @spec #update_node(
+  --   pos: Vector3,
+  --   node: ClusterNode,
+  --   groups: Table<String, Integer>
+  -- ): (Boolean, error: String)
   function ic:update_node(pos, node, groups)
     local node_id = hash_pos(pos)
     local old_node_entry = self.m_nodes[node_id]
@@ -215,6 +233,7 @@ do
     end
   end
 
+  -- @spec #remove_node(pos: Vector3, node: ClusterNode, reason: String): (Boolean, error: String)
   function ic:remove_node(pos, node, reason)
     local node_id = hash_pos(pos)
 
@@ -252,18 +271,22 @@ do
     end
   end
 
+  -- @spec #on_node_added(node_entry: ClusterNode): void
   function ic:on_node_added(node_entry)
     --
   end
 
+  -- @spec #on_node_updated(new_node_entry: ClusterNode, old_node_entry: ClusterNode): void
   function ic:on_node_updated(new_node_entry, old_node_entry)
     --
   end
 
+  -- @spec #on_node_removed(node_entry: ClusterNode, reason: String): void
   function ic:on_node_removed(node_entry, reason)
     --
   end
 
+  -- @spec #on_block_expired(block_id: String): void
   function ic:on_block_expired(block_id)
     if self.m_block_nodes[block_id] then
       local old_nodes = self.m_block_nodes[block_id]
@@ -278,6 +301,12 @@ do
     end
   end
 
+  --
+  -- @type ReducerFunction: function(node_entry: NodeEntry, acc: Any) =>
+  --         (continue_reduce: Boolean, acc: Any)
+  --
+
+  -- @spec #reduce_nodes(acc: Table, reducer: ReducerFunction): Table
   function ic:reduce_nodes(acc, reducer)
     local continue_reduce = true
     for node_id, node_entry in pairs(self.m_nodes) do
@@ -289,6 +318,11 @@ do
     return acc
   end
 
+  -- @spec #reduce_nodes_in_block(
+  --   block_id: String,
+  --   acc: Table,
+  --   reducer: ReducerFunction
+  -- ): (acc: Any)
   function ic:reduce_nodes_in_block(block_id, acc, reducer)
     assert(type(block_id) == "number", "expected block_id to be a number")
     local continue_reduce = true
@@ -302,19 +336,15 @@ do
             break
           end
         else
-          minetest.log("error", "potential block corruption block_id=" .. block_id .. " missing node entry node_id=" .. node_id)
+          minetest.log("error", "potential block corruption block_id=" .. block_id ..
+            " missing node entry node_id=" .. node_id)
         end
       end
     end
     return acc
   end
 
-  --
-  -- @type ReducerFunction: function(node_entry: NodeEntry, acc: Any) =>
-  --         (continue_reduce: Boolean, acc: Any)
-  --
-
-  -- @spec reduce_nodes_of_groups([String], acc: Any, ReducerFunction): (acc: Any)
+  -- @spec #reduce_nodes_of_groups(groups: String[], acc: Any, ReducerFunction): (acc: Any)
   function ic:reduce_nodes_of_groups(groups, acc, reducer)
     if type(groups) == "string" then
       groups = {groups}
@@ -390,6 +420,8 @@ do
     return acc
   end
 
+  --
+  -- @spec get_nodes_of_group(group_name: String): ClusterNode[]
   function ic:get_nodes_of_group(group_name)
     local member_list = self.m_group_nodes[group_name]
     local result = {}
@@ -401,6 +433,25 @@ do
       end
     end
     return result
+  end
+
+  --
+  -- Counts all nodes present in the specified group of the cluster
+  --
+  -- @spec #count_nodes_of_group(group_name: String): Integer
+  function ic:count_nodes_of_group(group_name)
+    local member_list = self.m_group_nodes[group_name]
+    if member_list then
+      local count = 0
+
+      for node_id,_ in pairs(member_list) do
+        count = count + 1
+      end
+
+      return count
+    end
+
+    return 0
   end
 end
 
@@ -415,6 +466,7 @@ local Clusters = foundation.com.Class:extends("YATM.Clusters")
 do
   local ic = Clusters.instance_class
 
+  -- @spec #initialize(): void
   function ic:initialize()
     self.m_counter = 0
 
@@ -449,6 +501,7 @@ do
     self.m_next_tick_callbacks = List:new()
   end
 
+  -- @spec #terminate(): void
   function ic:terminate()
     print("clusters", "terminating")
     self:_send_to_observers('terminate', nil)
