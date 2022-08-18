@@ -1,4 +1,5 @@
 local Directions = assert(foundation.com.Directions)
+local Vector3 = assert(foundation.com.Vector3)
 local Groups = assert(foundation.com.Groups)
 local table_merge = assert(foundation.com.table_merge)
 local cluster_devices = assert(yatm.cluster.devices)
@@ -11,6 +12,10 @@ local FluidMeta = assert(yatm.fluids.FluidMeta)
 local FluidExchange = assert(yatm.fluids.FluidExchange)
 local Energy = assert(yatm.energy)
 local vapour_registry = assert(yatm.refinery.vapour_registry)
+local fspec = assert(foundation.com.formspec.api)
+local energy_fspec = assert(yatm.energy.formspec)
+local fluid_fspec = assert(yatm.fluids.formspec)
+local player_service = assert(nokore.player_service)
 
 local vapourizer_yatm_network = {
   kind = "machine",
@@ -30,26 +35,27 @@ local vapourizer_yatm_network = {
     passive_lost = 0,
     startup_threshold = 0,
     capacity = 16000,
-    network_charge_bandwidth  = 1000,
+    network_charge_bandwidth = 1000,
   },
 }
 
 local VAPOUR_TANK = "vapour_tank"
 local FLUID_TANK = "fluid_tank"
+local TANK_CAPACITY = 16000
 
 local function get_fluid_tank_name(self, pos, dir)
   local node = minetest.get_node(pos)
   local new_dir = Directions.facedir_to_face(node.param2, dir)
   if new_dir == Directions.D_UP then
-    return VAPOUR_TANK, self.capacity
+    return VAPOUR_TANK, self._private.capacity
   else
-    return FLUID_TANK, self.capacity
+    return FLUID_TANK, self._private.capacity
   end
   return nil, nil
 end
 
 local fluid_interface = FluidInterface.new_directional(get_fluid_tank_name)
-fluid_interface._private.capacity = 16000
+fluid_interface._private.capacity = TANK_CAPACITY
 fluid_interface._private.bandwidth = fluid_interface._private.capacity
 
 function fluid_interface:allow_fill(pos, dir, fluid_stack)
@@ -150,7 +156,7 @@ function vapourizer_yatm_network:work(ctx)
   return energy_consumed
 end
 
-function vapourizer_refresh_infotext(pos)
+function refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
 
   local vapour_fluid_stack = FluidMeta.get_fluid_stack(meta, VAPOUR_TANK)
@@ -163,6 +169,94 @@ function vapourizer_refresh_infotext(pos)
     "Fluid Tank: " .. FluidStack.pretty_format(fluid_stack, fluid_interface._private.capacity)
 
   meta:set_string("infotext", infotext)
+end
+
+local function render_formspec(pos, user, state)
+  local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+  local node_inv_name = "nodemeta:" .. spos
+  local meta = minetest.get_meta(pos)
+  local cio = fspec.calc_inventory_offset
+  local cis = fspec.calc_inventory_size
+
+  return yatm.formspec_render_split_inv_panel(user, 10, 4, { bg = "machine_heated" }, function (loc, rect)
+    if loc == "main_body" then
+      local vapour_fluid_stack = FluidMeta.get_fluid_stack(meta, VAPOUR_TANK)
+      local liquid_fluid_stack = FluidMeta.get_fluid_stack(meta, FLUID_TANK)
+
+      return fluid_fspec.render_fluid_stack(
+          rect.x,
+          rect.y,
+          1,
+          cis(4),
+          liquid_fluid_stack,
+          TANK_CAPACITY
+        ) ..
+        fluid_fspec.render_fluid_stack(
+          rect.x + rect.w - cio(2),
+          rect.y,
+          1,
+          cis(4),
+          vapour_fluid_stack,
+          TANK_CAPACITY
+        ) ..
+        energy_fspec.render_meta_energy_gauge(
+          rect.x + rect.w - cio(1),
+          rect.y,
+          1,
+          cis(4),
+          meta,
+          yatm.devices.ENERGY_BUFFER_KEY,
+          yatm.devices.get_energy_capacity(pos, state.node)
+        )
+    elseif loc == "footer" then
+      return fspec.list_ring(node_inv_name, "input_slot") ..
+        fspec.list_ring("current_player", "main")
+    end
+    return ""
+  end)
+end
+
+local function on_receive_fields(player, form_name, fields, state)
+  return false, nil
+end
+
+local function make_formspec_name(pos)
+  return "yatm_foundry:electric_smelter:"..Vector3.to_string(pos)
+end
+
+local function on_refresh_timer(player_name, form_name, state)
+  local player = player_service:get_player_by_name(player_name)
+  return {
+    {
+      type = "refresh_formspec",
+      value = render_formspec(state.pos, player, state),
+    }
+  }
+end
+
+local function on_rightclick(pos, node, user)
+  local state = {
+    pos = pos,
+    node = node,
+  }
+  local formspec = render_formspec(pos, user, state)
+
+  nokore.formspec_bindings:show_formspec(
+    user:get_player_name(),
+    make_formspec_name(pos),
+    formspec,
+    {
+      state = state,
+      on_receive_fields = on_receive_fields,
+      timers = {
+        -- routinely update the formspec
+        refresh = {
+          every = 1,
+          action = on_refresh_timer,
+        },
+      },
+    }
+  )
 end
 
 yatm.devices.register_stateful_network_device({
@@ -197,7 +291,9 @@ yatm.devices.register_stateful_network_device({
 
   fluid_interface = fluid_interface,
 
-  refresh_infotext = vapourizer_refresh_infotext,
+  refresh_infotext = refresh_infotext,
+
+  on_rightclick = on_rightclick,
 }, {
   error = {
     tiles = {

@@ -1,9 +1,10 @@
 local mod = assert(yatm_refinery)
+local Groups = assert(foundation.com.Groups)
+local Directions = assert(foundation.com.Directions)
+local Vector3 = assert(foundation.com.Vector3)
 local fspec = assert(foundation.com.formspec.api)
 local energy_fspec = assert(yatm.energy.formspec)
 local fluid_fspec = assert(yatm.fluids.formspec)
-local Groups = assert(foundation.com.Groups)
-local Directions = assert(foundation.com.Directions)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local FluidStack = assert(yatm.fluids.FluidStack)
@@ -12,10 +13,9 @@ local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidUtils = assert(yatm.fluids.Utils)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local Energy = assert(yatm.energy)
-local Vector3 = assert(foundation.com.Vector3)
 local player_service = assert(nokore.player_service)
 
-local boiler_yatm_network = {
+local yatm_network = {
   kind = "machine",
   groups = {
     machine_worker = 1, -- Use the machine worker behaviour
@@ -61,7 +61,7 @@ function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
   yatm.queue_refresh_infotext(pos, node)
 end
 
-local function boiler_refresh_infotext(pos)
+local function refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
   local steam_fluid_stack = FluidMeta.get_fluid_stack(meta, STEAM_TANK)
   local water_fluid_stack = FluidMeta.get_fluid_stack(meta, WATER_TANK)
@@ -79,7 +79,7 @@ local function boiler_refresh_infotext(pos)
   meta:set_string("infotext", infotext)
 end
 
-function boiler_yatm_network:work(ctx)
+function yatm_network:work(ctx)
   local pos = ctx.pos
   local node = ctx.node
   local meta = ctx.meta
@@ -202,15 +202,29 @@ local function render_formspec(pos, user, state)
   local cis = fspec.calc_inventory_size
   local meta = minetest.get_meta(pos)
 
-  return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = "machine" }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(user, 10, 4, { bg = "machine" }, function (loc, rect)
     if loc == "main_body" then
       local steam_stack = FluidMeta.get_fluid_stack(meta, STEAM_TANK)
       local water_stack = FluidMeta.get_fluid_stack(meta, WATER_TANK)
 
-      return fluid_fspec.render_fluid_stack(rect.x, rect.y, 1, cis(4), steam_stack, TANK_CAPACITY) ..
-        fluid_fspec.render_fluid_stack(rect.x + cio(7), rect.y, 1, cis(4), water_stack, TANK_CAPACITY) ..
+      return fluid_fspec.render_fluid_stack(
+          rect.x,
+          rect.y,
+          1,
+          cis(4),
+          steam_stack,
+          TANK_CAPACITY
+        ) ..
+        fluid_fspec.render_fluid_stack(
+          rect.x + rect.w - cio(2),
+          rect.y,
+          1,
+          cis(4),
+          water_stack,
+          TANK_CAPACITY
+        ) ..
         energy_fspec.render_meta_energy_gauge(
-          rect.x + cis(7),
+          rect.x + rect.w - cio(1),
           rect.y,
           1,
           cis(4),
@@ -246,6 +260,7 @@ end
 local function on_rightclick(pos, node, user)
   local state = {
     pos = pos,
+    node = node,
   }
   local formspec = render_formspec(pos, user, state)
 
@@ -281,7 +296,7 @@ yatm.devices.register_stateful_network_device({
     yatm_energy_device = 1,
   },
 
-  drop = boiler_yatm_network.states.off,
+  drop = yatm_network.states.off,
 
   tiles = {
     "yatm_boiler_top.off.png",
@@ -295,11 +310,11 @@ yatm.devices.register_stateful_network_device({
   paramtype = "none",
   paramtype2 = "facedir",
 
-  yatm_network = boiler_yatm_network,
+  yatm_network = yatm_network,
 
   fluid_interface = fluid_interface,
 
-  refresh_infotext = boiler_refresh_infotext,
+  refresh_infotext = refresh_infotext,
 
   on_rightclick = on_rightclick,
 }, {
