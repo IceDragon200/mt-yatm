@@ -1,9 +1,13 @@
 local mod = yatm_solar_energy
+local Energy = assert(yatm.energy)
+local fspec = assert(foundation.com.formspec.api)
+local energy_fspec = assert(yatm.energy.formspec)
+local player_service = assert(nokore.player_service)
 
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 
-local solar_panel_yatm_network = {
+local yatm_network = {
   kind = "energy_producer",
   groups = {
     device_controller = 3,
@@ -23,20 +27,19 @@ local solar_panel_yatm_network = {
   }
 }
 
-function solar_panel_yatm_network.energy.produce_energy(pos, node, dtime, ot)
-  -- TODO: can we get sunlight instead?
+function yatm_network.energy.produce_energy(pos, node, dtime, ot)
   local meta = minetest.get_meta(pos)
-  local light = minetest.get_node_light(pos, nil)
+  local light = minetest.get_natural_light(pos, nil)
   local energy = 0
   if light > 5 then
-    energy = light * 3
+    energy = light * 3 * dtime
   end
   yatm.queue_refresh_infotext(pos, node)
   meta:set_int("last_produced_energy", energy)
   return energy
 end
 
-function solar_panel_refresh_infotext(pos)
+local function refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
 
   local last_produced_energy = meta:get_int("last_produced_energy")
@@ -57,11 +60,15 @@ local function render_formspec(pos, user, state)
 
   return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = "machine_electric" }, function (loc, rect)
     if loc == "main_body" then
-      local steam_stack = FluidMeta.get_fluid_stack(meta, STEAM_TANK)
-      local water_stack = FluidMeta.get_fluid_stack(meta, WATER_TANK)
-
-      return fluid_fspec.render_fluid_stack(rect.x, rect.y, 1, cis(4), steam_stack, TANK_CAPACITY) ..
-        fluid_fspec.render_fluid_stack(rect.x + cio(7), rect.y, 1, cis(4), water_stack, TANK_CAPACITY)
+      return energy_fspec.render_meta_energy_gauge(
+          rect.x + rect.w - cio(1),
+          rect.y,
+          1,
+          cis(4),
+          meta,
+          yatm.devices.ENERGY_BUFFER_KEY,
+          yatm.devices.get_energy_capacity(pos, state.node)
+        )
     elseif loc == "footer" then
       return ""
     end
@@ -130,7 +137,7 @@ yatm.devices.register_stateful_network_device({
     yatm_energy_device = 1,
   },
 
-  drop = solar_panel_yatm_network.states.off,
+  drop = yatm_network.states.off,
 
   sounds = yatm.node_sounds:build("glass"),
 
@@ -150,9 +157,9 @@ yatm.devices.register_stateful_network_device({
   paramtype = "light",
   paramtype2 = "facedir",
 
-  yatm_network = solar_panel_yatm_network,
+  yatm_network = yatm_network,
 
-  refresh_infotext = solar_panel_refresh_infotext,
+  refresh_infotext = refresh_infotext,
 }, {
   on = {
     tiles = {
