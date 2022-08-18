@@ -74,11 +74,20 @@ function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, 
     local fluid = fluid_registry.get_fluid(fluid_stack.name)
     if fluid then
       local capacity = fluid_interface._private.capacity
-      fluid_stack.amount = 20
+      fluid_stack.amount = 50 * dtime
       -- TODO: a FluidFuelRegistry
       if fluid.groups.crude_oil then
         -- Crude is absolutely terrible energy wise
-        local consumed_stack = FluidMeta.drain_fluid(meta, TANK_NAME, fluid_stack, capacity, capacity, should_commit)
+        local consumed_stack =
+          FluidMeta.drain_fluid(
+            meta,
+            TANK_NAME,
+            fluid_stack,
+            capacity,
+            capacity,
+            should_commit
+          )
+
         if consumed_stack and consumed_stack.amount > 0 then
           energy_produced = energy_produced + consumed_stack.amount * 5
           need_refresh = should_commit
@@ -86,7 +95,16 @@ function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, 
         end
       elseif fluid.groups.heavy_oil then
         -- Heavy oil doesn't produce much energy, but it lasts a bit longer
-        local consumed_stack = FluidMeta.drain_fluid(meta, TANK_NAME, fluid_stack, capacity, capacity, should_commit)
+        local consumed_stack =
+          FluidMeta.drain_fluid(
+            meta,
+            TANK_NAME,
+            fluid_stack,
+            capacity,
+            capacity,
+            should_commit
+          )
+
         if consumed_stack and consumed_stack.amount > 0 then
           energy_produced = energy_produced + consumed_stack.amount * 10
           need_refresh = should_commit
@@ -94,7 +112,16 @@ function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, 
         end
       elseif fluid.groups.light_oil then
         -- Light oil produces more energy at the saem fluid cost
-        local consumed_stack = FluidMeta.drain_fluid(meta, TANK_NAME, fluid_stack, capacity, capacity, should_commit)
+        local consumed_stack =
+          FluidMeta.drain_fluid(
+            meta,
+            TANK_NAME,
+            fluid_stack,
+            capacity,
+            capacity,
+            should_commit
+          )
+
         if consumed_stack and consumed_stack.amount > 0 then
           energy_produced = energy_produced + consumed_stack.amount  * 15
           need_refresh = should_commit
