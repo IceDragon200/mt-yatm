@@ -203,7 +203,7 @@ end
 local function render_formspec(pos, user, state)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
-  -- local cio = fspec.calc_inventory_offset
+  local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
   local meta = minetest.get_meta(pos)
 
@@ -220,7 +220,7 @@ local function render_formspec(pos, user, state)
           TANK_CAPACITY
         ) ..
         energy_fspec.render_meta_energy_gauge(
-          rect.x + cis(7),
+          rect.x + rect.w - cio(1),
           rect.y,
           1,
           cis(4),
