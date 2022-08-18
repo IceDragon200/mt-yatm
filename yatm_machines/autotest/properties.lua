@@ -43,6 +43,12 @@ local function set_node_to_air(pos)
   minetest.set_node(pos, { name = "air" })
 end
 
+yatm_machines.autotest_suite.utils = {
+  random_energy_provider = random_energy_provider,
+  wait_for_next_tick_on_clusters = wait_for_next_tick_on_clusters,
+  set_node_to_air = set_node_to_air,
+}
+
 yatm_machines.autotest_suite:define_property("is_network_controller_like", {
   description = "Is Network Controller Like",
   detail = [[
