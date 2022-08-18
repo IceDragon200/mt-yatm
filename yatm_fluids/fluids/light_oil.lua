@@ -6,6 +6,12 @@ yatm.fluids.fluid_registry.register("yatm_fluids", "light_oil", {
 
   color = "#e2e400",
 
+  attributes = {
+    fuel = {
+      energy_per_unit = 20,
+    },
+  },
+
   aliases = {
     "yatm_core:light_oil",
   },

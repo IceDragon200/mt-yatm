@@ -48,9 +48,11 @@ function FluidRegistry.register_fluid(fluid_name, def)
 
   -- force the definition into the fluid group
   Groups.put_item(def, "fluid", 1)
+
   Measurable.register(FluidRegistry, fluid_name, def)
 end
 
+-- @spec register_fluid_bucket(bucket_name: String, bucket_def: Table): void
 function FluidRegistry.register_fluid_bucket(bucket_name, bucket_def)
   assert(bucket_def.nodes)
   if bucket then
@@ -66,7 +68,7 @@ function FluidRegistry.register_fluid_bucket(bucket_name, bucket_def)
   end
 end
 
--- @private.spec get_fluid_tile(Fluid): String
+-- @private.spec get_fluid_tile(fluid: Fluid): String
 local function get_fluid_tile(fluid)
   if fluid.tiles then
     return assert(fluid.tiles.source)
@@ -75,7 +77,8 @@ local function get_fluid_tile(fluid)
     local node = assert(minetest.registered_nodes[name], "expected node to exist " .. name)
     return node.tiles[1]
   else
-    error("fluid .. " .. dump(fluid.name) .. " does not have tiles or nodes, cannot obtain texture information")
+    error("fluid .. " .. dump(fluid.name) ..
+      " does not have tiles or nodes, cannot obtain texture information")
   end
 end
 
@@ -86,7 +89,10 @@ function FluidRegistry.register_fluid_tank(modname, fluid_name, nodedef)
   }
 
   nodedef = nodedef or {}
-  local fluiddef = assert(FluidRegistry.get_fluid(fluid_name), "expected fluid " .. fluid_name .. "to exist")
+  local fluiddef = assert(
+    FluidRegistry.get_fluid(fluid_name),
+    "expected fluid " .. fluid_name .. "to exist"
+  )
 
   local groups = table_merge({
     cracky = 1,
@@ -237,11 +243,43 @@ function FluidRegistry.register_fluid_nodes(basename, def)
   })
 end
 
+local FLUID_DEFINITION = foundation.com.table_freeze({
+  -- description: String
+  description = {},
+  -- bucket: Table
+  bucket = {},
+  -- groups: Table
+  groups = {},
+  -- color: String
+  color = {},
+  -- attributes: Table
+  attributes = {},
+  -- fluid_tank: Table
+  fluid_tank = {},
+  -- nodes: Table
+  nodes = {},
+  -- aliases: Table
+  aliases = {},
+  -- tiles: Table
+  tiles = {},
+})
+
+local function check_register_definition(definition)
+  for key, _value in pairs(definition) do
+    local def = FLUID_DEFINITION[key]
+    if not def then
+      error("unexpected field=" .. key .. " (for FluidRegistry.register/3)")
+    end
+  end
+end
+
+-- @spec register(modname: String, fluid_basename: String, definition: Table): void
 function FluidRegistry.register(modname, fluid_basename, definition)
   local fluid_name = modname .. ":" .. fluid_basename
   local node_basename = fluid_name
   local bucket_name = modname .. ":bucket_" .. fluid_basename
   local nodes = {}
+  check_register_definition(definition)
   local description = definition.description or fluid_name
 
   local fluid_node_def = nil
@@ -260,6 +298,7 @@ function FluidRegistry.register(modname, fluid_basename, definition)
     groups = definition.groups or {},
     tiles = definition.tiles,
     color = definition.color,
+    attributes = definition.attributes or {},
   }
 
   if fluid_node_def then
@@ -285,7 +324,10 @@ function FluidRegistry.register(modname, fluid_basename, definition)
       }
     end
 
-    assert(type(bucket_def.groups) == "table", "groups are expected to be tables (" .. bucket_name .. ")")
+    assert(
+      type(bucket_def.groups) == "table",
+      "groups are expected to be tables (" .. bucket_name .. ")"
+    )
 
     bucket_def.groups.fluid_bucket = 1
   end
@@ -308,7 +350,7 @@ function FluidRegistry.register(modname, fluid_basename, definition)
   end
 
   if bucket_def then
-    print("FluidRegistry", "register", "registering fluid bucket", fluid_name, bucket_name)
+    -- print("FluidRegistry", "register", "registering fluid bucket", fluid_name, bucket_name)
     FluidRegistry.register_fluid_bucket(bucket_name, bucket_def)
   end
 

@@ -6,6 +6,12 @@ yatm.fluids.fluid_registry.register("yatm_fluids", "heavy_oil", {
 
   color = "#ce6300",
 
+  attributes = {
+    fuel = {
+      energy_per_unit = 5,
+    },
+  },
+
   aliases = {
     "yatm_core:heavy_oil",
   },
