@@ -2,13 +2,107 @@ local table_merge = assert(foundation.com.table_merge)
 local maybe_start_node_timer = assert(foundation.com.maybe_start_node_timer)
 local cluster_thermal = assert(yatm.cluster.thermal)
 
-local function furnace_refresh_infotext(pos)
+local function refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
   local heat = meta:get_float("heat")
 
   meta:set_string("infotext",
     cluster_thermal:get_node_infotext(pos) .. "\n" ..
     "Heat: " .. math.floor(heat)
+  )
+end
+
+local function maybe_initialize_inventory(meta)
+  local inv = meta:get_inventory()
+
+  inv:set_size("input_slot", 1)
+  inv:set_size("processing_slot", 1)
+  inv:set_size("output_slot", 1)
+end
+
+local function on_construct(pos)
+  local node = minetest.get_node(pos)
+  local meta = minetest.get_meta(pos)
+
+  cluster_thermal:schedule_add_node(pos, node)
+end
+
+local function render_formspec(pos, user, state)
+  local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+  local node_inv_name = "nodemeta:" .. spos
+  local meta = minetest.get_meta(pos)
+  local cio = fspec.calc_inventory_offset
+  local cis = fspec.calc_inventory_size
+
+  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine_heated" }, function (loc, rect)
+    if loc == "main_body" then
+      return fspec.list(
+          node_inv_name,
+          "input_slot",
+          rect.x,
+          rect.y,
+          1,
+          1
+        ) ..
+        fspec.list(
+          node_inv_name,
+          "processing_slot",
+          rect.x + cio(2),
+          rect.y,
+          1,
+          1
+        )
+    elseif loc == "footer" then
+      return fspec.list_ring(node_inv_name, "input_slot") ..
+        fspec.list_ring("current_player", "main")
+    end
+    return ""
+  end)
+end
+
+local function on_receive_fields(player, form_name, fields, state)
+  return false, nil
+end
+
+local function make_formspec_name(pos)
+  return "yatm_foundry:furnace:"..Vector3.to_string(pos)
+end
+
+local function on_refresh_timer(player_name, form_name, state)
+  local player = player_service:get_player_by_name(player_name)
+  return {
+    {
+      type = "refresh_formspec",
+      value = render_formspec(state.pos, player, state),
+    }
+  }
+end
+
+local function on_rightclick(pos, node, user)
+  local state = {
+    pos = pos,
+    node = node,
+  }
+  local meta = minetest.get_meta(pos)
+  maybe_initialize_inventory(meta)
+
+  local formspec = render_formspec(pos, user, state)
+
+  nokore.formspec_bindings:show_formspec(
+    user:get_player_name(),
+    make_formspec_name(pos),
+    formspec,
+    {
+      state = state,
+      on_receive_fields = on_receive_fields,
+      timers = {
+        -- routinely update the formspec
+        refresh = {
+          every = 1,
+          action = on_refresh_timer,
+        },
+      },
+    }
   )
 end
 
@@ -34,10 +128,7 @@ yatm.register_stateful_node("yatm_foundry:furnace", {
 
   sounds = yatm.node_sounds:build("stone"),
 
-  on_construct = function (pos)
-    local node = minetest.get_node(pos)
-    cluster_thermal:schedule_add_node(pos, node)
-  end,
+  on_construct = on_construct,
 
   after_destruct = function (pos, node)
     cluster_thermal:schedule_remove_node(pos, node)
@@ -47,7 +138,10 @@ yatm.register_stateful_node("yatm_foundry:furnace", {
     return true
   end,
 
-  refresh_infotext = furnace_refresh_infotext,
+  refresh_infotext = refresh_infotext,
+
+  on_rightclick = on_rightclick,
+
   thermal_interface = {
     groups = {
       heater = 1,

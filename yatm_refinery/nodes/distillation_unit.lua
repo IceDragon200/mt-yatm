@@ -229,7 +229,7 @@ local function render_formspec(pos, user, state)
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
 
-  return yatm.formspec_render_split_inv_panel(user, 10, 4, { bg = "machine_heated" }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine_heated" }, function (loc, rect)
     if loc == "main_body" then
       local output_steam_fluid_stack = FluidMeta.get_fluid_stack(meta, OUTPUT_STEAM_TANK)
       local input_steam_fluid_stack = FluidMeta.get_fluid_stack(meta, INPUT_STEAM_TANK)
@@ -239,7 +239,7 @@ local function render_formspec(pos, user, state)
           rect.x,
           rect.y,
           1,
-          cis(4),
+          rect.h,
           input_steam_fluid_stack,
           TANK_CAPACITY
         ) ..
@@ -247,7 +247,7 @@ local function render_formspec(pos, user, state)
           rect.x + rect.w - cio(3),
           rect.y,
           1,
-          cis(4),
+          rect.h,
           output_steam_fluid_stack,
           TANK_CAPACITY
         ) ..
@@ -255,7 +255,7 @@ local function render_formspec(pos, user, state)
           rect.x + rect.w - cio(2),
           rect.y,
           1,
-          cis(4),
+          rect.h,
           distilled_fluid_stack,
           TANK_CAPACITY
         ) ..
@@ -263,7 +263,7 @@ local function render_formspec(pos, user, state)
           rect.x + rect.w - cis(1),
           rect.y,
           1,
-          cis(4),
+          rect.h,
           meta,
           yatm.devices.ENERGY_BUFFER_KEY,
           yatm.devices.get_energy_capacity(pos, state.node)

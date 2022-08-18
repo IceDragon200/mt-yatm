@@ -1,4 +1,8 @@
+--
+-- Combustion Engine's burn liquid fuels to produce energy
+--
 local mod = yatm_machines
+local Groups = assert(foundation.com.Groups)
 local fspec = assert(foundation.com.formspec.api)
 local fluid_fspec = assert(yatm.fluids.formspec)
 local energy_fspec = assert(yatm.energy.formspec)
@@ -29,7 +33,7 @@ local combustion_engine_nodebox = {
   }
 }
 
-local combustion_engine_yatm_network = {
+local yatm_network = {
   kind = "energy_producer",
   groups = {
     device_controller = 3,
@@ -60,7 +64,7 @@ function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
   yatm.queue_refresh_infotext(pos, node)
 end
 
-function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, ot)
+function yatm_network.energy.produce_energy(pos, node, dtime, ot)
   local need_refresh = false
   local should_commit = true
   local energy_produced = 0
@@ -75,9 +79,10 @@ function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, 
     if fluid then
       local capacity = fluid_interface._private.capacity
       fluid_stack.amount = 50 * dtime
-      -- TODO: a FluidFuelRegistry
-      if fluid.groups.crude_oil then
-        -- Crude is absolutely terrible energy wise
+
+      if fluid.attributes.fuel and Groups.has_group(fluid, "liquid") then
+        local energy_per_unit = fluid.attributes.fuel.energy_per_unit
+
         local consumed_stack =
           FluidMeta.drain_fluid(
             meta,
@@ -89,41 +94,7 @@ function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, 
           )
 
         if consumed_stack and consumed_stack.amount > 0 then
-          energy_produced = energy_produced + consumed_stack.amount * 5
-          need_refresh = should_commit
-          new_state = 'on'
-        end
-      elseif fluid.groups.heavy_oil then
-        -- Heavy oil doesn't produce much energy, but it lasts a bit longer
-        local consumed_stack =
-          FluidMeta.drain_fluid(
-            meta,
-            TANK_NAME,
-            fluid_stack,
-            capacity,
-            capacity,
-            should_commit
-          )
-
-        if consumed_stack and consumed_stack.amount > 0 then
-          energy_produced = energy_produced + consumed_stack.amount * 10
-          need_refresh = should_commit
-          new_state = 'on'
-        end
-      elseif fluid.groups.light_oil then
-        -- Light oil produces more energy at the saem fluid cost
-        local consumed_stack =
-          FluidMeta.drain_fluid(
-            meta,
-            TANK_NAME,
-            fluid_stack,
-            capacity,
-            capacity,
-            should_commit
-          )
-
-        if consumed_stack and consumed_stack.amount > 0 then
-          energy_produced = energy_produced + consumed_stack.amount  * 15
+          energy_produced = energy_produced + consumed_stack.amount * energy_per_unit
           need_refresh = should_commit
           new_state = 'on'
         end
@@ -150,7 +121,7 @@ function combustion_engine_yatm_network.energy.produce_energy(pos, node, dtime, 
   return energy_produced
 end
 
-function combustion_engine_refresh_infotext(pos)
+function refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
 
   local tank_fluid_stack = FluidMeta.get_fluid_stack(meta, TANK_NAME)
@@ -160,7 +131,7 @@ function combustion_engine_refresh_infotext(pos)
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     cluster_energy:get_node_infotext(pos) .. "\n" ..
     "Tank: " .. FluidStack.pretty_format(tank_fluid_stack, capacity) .. "\n" ..
-    "Last Energy Produced: " .. meta:get_int("last_energy_produced")
+    "Energy/t: " .. meta:get_int("last_energy_produced")
 
   meta:set_string("infotext", infotext)
 end
@@ -207,7 +178,7 @@ local function render_formspec(pos, user, state)
   local cis = fspec.calc_inventory_size
   local meta = minetest.get_meta(pos)
 
-  return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = "machine_electric" }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine_electric" }, function (loc, rect)
     if loc == "main_body" then
       local fluid_stack = FluidMeta.get_fluid_stack(meta, TANK_NAME)
 
@@ -215,7 +186,7 @@ local function render_formspec(pos, user, state)
           rect.x,
           rect.y,
           1,
-          cis(4),
+          rect.h,
           fluid_stack,
           TANK_CAPACITY
         ) ..
@@ -223,7 +194,7 @@ local function render_formspec(pos, user, state)
           rect.x + rect.w - cio(1),
           rect.y,
           1,
-          cis(4),
+          rect.h,
           meta,
           yatm.devices.ENERGY_BUFFER_KEY,
           yatm.devices.get_energy_capacity(pos, state.node)
@@ -291,7 +262,7 @@ yatm.devices.register_stateful_network_device({
     yatm_energy_device = 1,
   },
 
-  drop = combustion_engine_yatm_network.states.off,
+  drop = yatm_network.states.off,
 
   use_texture_alpha = "clip",
   tiles = {
@@ -308,11 +279,11 @@ yatm.devices.register_stateful_network_device({
   paramtype = "none",
   paramtype2 = "facedir",
 
-  yatm_network = combustion_engine_yatm_network,
+  yatm_network = yatm_network,
 
   fluid_interface = fluid_interface,
 
-  refresh_infotext = combustion_engine_refresh_infotext,
+  refresh_infotext = refresh_infotext,
 
   transition_device_state = combustion_engine_transition_device_state,
 

@@ -134,15 +134,29 @@ local function render_formspec(pos, user, state)
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
 
-  return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = "machine_heated" }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine_heated" }, function (loc, rect)
     if loc == "main_body" then
-      return fspec.list(node_inv_name, "input_slot", rect.x, rect.y, 1, 1) ..
-        fspec.list(node_inv_name, "processing_slot", rect.x + cio(2), rect.y, 1, 1) ..
-        energy_fspec.render_meta_energy_gauge(
-          rect.x + cis(7),
+      return fspec.list(
+          node_inv_name,
+          "input_slot",
+          rect.x,
           rect.y,
           1,
-          cis(4),
+          1
+        ) ..
+        fspec.list(
+          node_inv_name,
+          "processing_slot",
+          rect.x + cio(2),
+          rect.y,
+          1,
+          1
+        ) ..
+        energy_fspec.render_meta_energy_gauge(
+          rect.x + rect.w - cio(1),
+          rect.y,
+          1,
+          rect.h,
           meta,
           yatm.devices.ENERGY_BUFFER_KEY,
           yatm.devices.get_energy_capacity(pos, state.node)
