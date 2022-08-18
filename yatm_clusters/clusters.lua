@@ -29,7 +29,7 @@ do
   end
 
   function ic:terminate(reason)
-    print("Terminating Cluster cluster_id=" .. self.id .. " reason=" .. reason)
+    -- print("Terminating Cluster cluster_id=" .. self.id .. " reason=" .. reason)
     self.terminate_reason = reason
     self.terminated = true
   end
@@ -424,6 +424,8 @@ do
     self.m_cluster_id = 0
     -- Clusters (Cluster ID > Cluster)
     self.m_clusters = {}
+    -- Clusters (Cluster ID > Cluster)
+    self.m_dead_clusters = {}
     -- Cluster Groups (Group Name > {Cluster ID})
     self.m_group_clusters = {}
     -- Node ID > {Cluster ID}
@@ -443,6 +445,8 @@ do
     self.m_systems = {}
 
     self.m_node_event_handlers = {}
+
+    self.m_next_tick_callbacks = List:new()
   end
 
   function ic:terminate()
@@ -509,7 +513,7 @@ do
     self.m_clusters[cluster_id] = Cluster:new(cluster_id, groups)
     local cluster = self.m_clusters[cluster_id]
 
-    print("clusters", "create_cluster", cluster.id)
+    -- print("clusters", "create_cluster", cluster.id)
 
     for group_name,group_value in pairs(cluster.groups) do
       if not self.m_group_clusters[group_name] then
@@ -522,7 +526,7 @@ do
   end
 
   function ic:merge_clusters(cluster_ids)
-    print("clusters", "merge_clusters", table.concat(cluster_ids, ", "))
+    -- print("clusters", "merge_clusters", table.concat(cluster_ids, ", "))
 
     local result_cluster = self:create_cluster()
 
@@ -546,7 +550,7 @@ do
       return true, acc + 1
     end)
 
-    print("clusters", "merged_clusters", table.concat(cluster_ids, ", "), " into cluster_id=" .. result_cluster.id)
+    -- print("clusters", "merged_clusters", table.concat(cluster_ids, ", "), " into cluster_id=" .. result_cluster.id)
 
     return result_cluster
   end
@@ -581,7 +585,7 @@ do
   end
 
   function ic:remove_cluster(cluster_id)
-    print("clusters", "remove_cluster", cluster_id)
+    -- print("clusters", "remove_cluster", cluster_id)
 
     local cluster = self.m_clusters[cluster_id]
     self:_cleanup_cluster(cluster)
@@ -608,7 +612,7 @@ do
   end
 
   function ic:destroy_cluster(cluster_id, reason)
-    print("clusters", "destroy_cluster", cluster_id)
+    -- print("clusters", "destroy_cluster", cluster_id)
 
     local cluster = self:remove_cluster(cluster_id)
     if cluster then
@@ -784,14 +788,16 @@ do
       self.m_acc_dtime = self.m_acc_dtime - STEP_INTERVAL
 
       --
+      -- Run any other cluster updates
+      --
+      self:_update_clusters(STEP_INTERVAL, trace)
+
+      --
       -- Run update logic against clusters with systems
       --
       self:_update_systems(STEP_INTERVAL, trace)
 
-      --
-      -- Run any other cluster updates
-      --
-      self:_update_clusters(STEP_INTERVAL, trace)
+      self:_handle_next_tick_calls(STEP_INTERVAL)
     end
   end
 
@@ -820,7 +826,7 @@ do
       self.m_active_blocks = {}
       for block_hash,entry in pairs(old_blocks) do
         if entry.expired then
-          print("clusters", "block expired", entry.id, minetest.pos_to_string(entry.pos))
+          -- print("clusters", "block expired", entry.id, minetest.pos_to_string(entry.pos))
           -- block expiration hooks
           self:_send_to_observers("pre_block_expired", entry)
 
@@ -842,11 +848,11 @@ do
     assert(type(callback_name) == "string", "expected a callback name")
     assert(type(callback) == "function", "expected callback to be a function")
 
-    print(
-      "clusters",
-      "registering node_event_handler cluster_group=" .. cluster_group,
-      "callback_name=" .. callback_name
-    )
+    -- print(
+    --   "clusters",
+    --   "registering node_event_handler cluster_group=" .. cluster_group,
+    --   "callback_name=" .. callback_name
+    -- )
 
     if not self.m_node_event_handlers[cluster_group] then
       self.m_node_event_handlers[cluster_group] = {}
@@ -952,32 +958,44 @@ do
       span = trace:span_start("_update_clusters")
     end
 
-    local contains_empty_clusters = false
     for cluster_id, cluster in pairs(self.m_clusters) do
       if cluster:is_empty() then
         if not cluster.pinned then
-          contains_empty_clusters = true
+          self.m_dead_clusters[cluster_id] = cluster
           break
         end
       end
     end
 
-    if contains_empty_clusters then
-      local old_clusters = self.m_clusters
-      local dead_clusters = {}
-      for cluster_id, cluster in pairs(self.m_clusters) do
-        if not cluster.pinned and cluster:is_empty() then
-          dead_clusters[cluster_id] = true
-        end
-      end
-
-      for cluster_id, _ in pairs(dead_clusters) do
+    if next(self.m_dead_clusters) then
+      for cluster_id, cluster in pairs(self.m_dead_clusters) do
         self:destroy_cluster(cluster_id, 'empty')
       end
+
+      self.m_dead_clusters = {}
     end
 
     if span then
       span:span_end()
+    end
+  end
+
+  --
+  -- Invokes all recently registered next_tick callbacks
+  -- The callbacks are cleared afterwards
+  --
+  -- @spec _handle_next_tick_calls(dtime: Float): void
+  function ic:_handle_next_tick_calls(dtime)
+    if not self.m_next_tick_callbacks:is_empty() then
+      local data = self.m_next_tick_callbacks:data()
+      local size = self.m_next_tick_callbacks:size()
+
+      -- allows the callbacks to register another next_tick
+      self.m_next_tick_callbacks:clear()
+      for i = 1,size do
+        local item = data[i]
+        item(self, dtime)
+      end
     end
   end
 
@@ -998,7 +1016,7 @@ do
     assert(group, "requires a group")
     assert(id, "requires a id")
     assert(callback, "requires a callback")
-    print("registering callback group:" .. group .. " id:" .. id .. " callback:" .. dump(callback))
+    -- print("registering callback group:" .. group .. " id:" .. id .. " callback:" .. dump(callback))
     if not self.m_observers[group] then
       self.m_observers[group] = {}
     end
@@ -1018,6 +1036,15 @@ do
         observer_callback(message, group, observer_id)
       end
     end
+  end
+
+  --
+  -- Next Tick callbacks
+  --
+  function ic:on_next_tick(callback)
+    assert(type(callback) == "function", "expected function as callback")
+
+    self.m_next_tick_callbacks:push(callback)
   end
 end
 

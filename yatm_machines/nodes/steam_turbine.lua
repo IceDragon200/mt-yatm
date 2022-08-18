@@ -1,5 +1,6 @@
 local fspec = assert(foundation.com.formspec.api)
 local fluid_fspec = assert(yatm.fluids.formspec)
+local energy_fspec = assert(yatm.energy.formspec)
 local Groups = assert(foundation.com.Groups)
 local Directions = assert(foundation.com.Directions)
 local table_merge = assert(foundation.com.table_merge)
@@ -197,13 +198,36 @@ local function render_formspec(pos, user, state)
   local cis = fspec.calc_inventory_size
   local meta = minetest.get_meta(pos)
 
-  return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = "machine" }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = "machine_electric" }, function (loc, rect)
     if loc == "main_body" then
       local steam_stack = FluidMeta.get_fluid_stack(meta, STEAM_TANK)
       local water_stack = FluidMeta.get_fluid_stack(meta, WATER_TANK)
 
-      return fluid_fspec.render_fluid_stack(rect.x, rect.y, 1, cis(4), steam_stack, TANK_CAPACITY) ..
-        fluid_fspec.render_fluid_stack(rect.x + cio(7), rect.y, 1, cis(4), water_stack, TANK_CAPACITY)
+      return fluid_fspec.render_fluid_stack(
+          rect.x,
+          rect.y,
+          1,
+          cis(4),
+          steam_stack,
+          TANK_CAPACITY
+        ) ..
+        fluid_fspec.render_fluid_stack(
+          rect.x + cio(1),
+          rect.y,
+          1,
+          cis(4),
+          water_stack,
+          TANK_CAPACITY
+        ) ..
+        energy_fspec.render_meta_energy_gauge(
+          rect.x + cis(7),
+          rect.y,
+          1,
+          cis(4),
+          meta,
+          yatm.devices.ENERGY_BUFFER_KEY,
+          yatm.devices.get_energy_capacity(pos, state.node)
+        )
     elseif loc == "footer" then
       return ""
     end
@@ -232,6 +256,7 @@ end
 local function on_rightclick(pos, node, user)
   local state = {
     pos = pos,
+    node = node,
   }
   local formspec = render_formspec(pos, user, state)
 
@@ -243,7 +268,7 @@ local function on_rightclick(pos, node, user)
       state = state,
       on_receive_fields = on_receive_fields,
       timers = {
-        -- steam turbines have a fluid tank, so their formspecs need to be routinely updated
+        -- routinely update the formspec
         refresh = {
           every = 1,
           action = on_refresh_timer,
@@ -302,7 +327,7 @@ yatm.devices.register_stateful_network_device({
       "yatm_steam_turbine_side.error.png"
     },
   },
-  error = {
+  idle = {
     tiles = {
       "yatm_steam_turbine_top.idle.png",
       "yatm_steam_turbine_bottom.png",

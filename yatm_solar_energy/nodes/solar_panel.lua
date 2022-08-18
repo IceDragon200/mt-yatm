@@ -48,6 +48,69 @@ function solar_panel_refresh_infotext(pos)
   meta:set_string("infotext", infotext)
 end
 
+local function render_formspec(pos, user, state)
+  local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+  local node_inv_name = "nodemeta:" .. spos
+  local cio = fspec.calc_inventory_offset
+  local cis = fspec.calc_inventory_size
+  local meta = minetest.get_meta(pos)
+
+  return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = "machine_electric" }, function (loc, rect)
+    if loc == "main_body" then
+      local steam_stack = FluidMeta.get_fluid_stack(meta, STEAM_TANK)
+      local water_stack = FluidMeta.get_fluid_stack(meta, WATER_TANK)
+
+      return fluid_fspec.render_fluid_stack(rect.x, rect.y, 1, cis(4), steam_stack, TANK_CAPACITY) ..
+        fluid_fspec.render_fluid_stack(rect.x + cio(7), rect.y, 1, cis(4), water_stack, TANK_CAPACITY)
+    elseif loc == "footer" then
+      return ""
+    end
+    return ""
+  end)
+end
+
+local function on_receive_fields(player, form_name, fields, state)
+  return false, nil
+end
+
+local function make_formspec_name(pos)
+  return "yatm_solar_energy:solar_panel:"..Vector3.to_string(pos)
+end
+
+local function on_refresh_timer(player_name, form_name, state)
+  local player = player_service:get_player_by_name(player_name)
+  return {
+    {
+      type = "refresh_formspec",
+      value = render_formspec(state.pos, player, state),
+    }
+  }
+end
+
+local function on_rightclick(pos, node, user)
+  local state = {
+    pos = pos,
+  }
+  local formspec = render_formspec(pos, user, state)
+
+  nokore.formspec_bindings:show_formspec(
+    user:get_player_name(),
+    make_formspec_name(pos),
+    formspec,
+    {
+      state = state,
+      on_receive_fields = on_receive_fields,
+      timers = {
+        -- routinely update the formspec
+        refresh = {
+          every = 1,
+          action = on_refresh_timer,
+        },
+      },
+    }
+  )
+end
+
 local solar_panel_nodebox = {
   type = "fixed",
   fixed = {

@@ -59,6 +59,8 @@ do
   end
 
   function ic:get_node_cluster(pos)
+    assert(pos, "expected node position")
+
     local node_id = minetest.hash_node_position(pos)
 
     return clusters:reduce_node_clusters(pos, nil, function (cluster, acc)
@@ -71,6 +73,8 @@ do
   end
 
   function ic:get_node_infotext(pos)
+    assert(pos, "expected node position")
+
     local node_id = minetest.hash_node_position(pos)
 
     return clusters:reduce_node_clusters(pos, '', function (cluster, acc)

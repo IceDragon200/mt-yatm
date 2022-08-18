@@ -1,5 +1,6 @@
 local mod = assert(yatm_refinery)
 local fspec = assert(foundation.com.formspec.api)
+local energy_fspec = assert(yatm.energy.formspec)
 local fluid_fspec = assert(yatm.fluids.formspec)
 local Groups = assert(foundation.com.Groups)
 local Directions = assert(foundation.com.Directions)
@@ -207,7 +208,16 @@ local function render_formspec(pos, user, state)
       local water_stack = FluidMeta.get_fluid_stack(meta, WATER_TANK)
 
       return fluid_fspec.render_fluid_stack(rect.x, rect.y, 1, cis(4), steam_stack, TANK_CAPACITY) ..
-        fluid_fspec.render_fluid_stack(rect.x + cio(7), rect.y, 1, cis(4), water_stack, TANK_CAPACITY)
+        fluid_fspec.render_fluid_stack(rect.x + cio(7), rect.y, 1, cis(4), water_stack, TANK_CAPACITY) ..
+        energy_fspec.render_meta_energy_gauge(
+          rect.x + cis(7),
+          rect.y,
+          1,
+          cis(4),
+          meta,
+          yatm.devices.ENERGY_BUFFER_KEY,
+          yatm.devices.get_energy_capacity(pos, state.node)
+        )
     elseif loc == "footer" then
       return ""
     end
@@ -247,7 +257,7 @@ local function on_rightclick(pos, node, user)
       state = state,
       on_receive_fields = on_receive_fields,
       timers = {
-        -- steam turbines have a fluid tank, so their formspecs need to be routinely updated
+        -- routinely update the formspec
         refresh = {
           every = 1,
           action = on_refresh_timer,

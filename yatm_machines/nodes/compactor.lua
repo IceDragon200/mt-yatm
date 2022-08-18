@@ -6,32 +6,15 @@ local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
 local compacting_registry = assert(yatm.compacting.compacting_registry)
 local fspec = assert(foundation.com.formspec.api)
-
-local function get_compactor_formspec(pos, user)
-  local spos = pos.x .. "," .. pos.y .. "," .. pos.z
-  local node_inv_name = "nodemeta:" .. spos
-  local cio = fspec.calc_inventory_offset
-
-  return yatm.formspec_render_split_inv_panel(user, 8, 2, { bg = "machine" }, function (loc, rect)
-    if loc == "main_body" then
-      return fspec.list(node_inv_name, "input_items", rect.x, rect.y, 2, 2) ..
-        fspec.list(node_inv_name, "processing_items", rect.x + cio(3), rect.y, 2, 2) ..
-        fspec.list(node_inv_name, "output_items", rect.x + cio(7), rect.y, 1, 1)
-    elseif loc == "footer" then
-      return fspec.list_ring(node_inv_name, "input_items") ..
-        fspec.list_ring("current_player", "main") ..
-        fspec.list_ring(node_inv_name, "output_items") ..
-        fspec.list_ring("current_player", "main")
-    end
-    return ""
-  end)
-end
+local energy_fspec = assert(yatm.energy.formspec)
+local player_service = assert(nokore.player_service)
+local Vector3 = assert(foundation.com.Vector3)
 
 local device_get_node_infotext = assert(cluster_devices.get_node_infotext)
 local energy_get_node_infotext = assert(cluster_energy.get_node_infotext)
 local energy_meta_to_infotext = assert(Energy.meta_to_infotext)
 
-local function compactor_refresh_infotext(pos)
+local function refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
 
   local infotext =
@@ -43,7 +26,7 @@ local function compactor_refresh_infotext(pos)
   meta:set_string("infotext", infotext)
 end
 
-local compactor_yatm_network = {
+local yatm_network = {
   kind = "machine",
   groups = {
     machine_worker = 1, -- the device should be updated every network step
@@ -55,7 +38,7 @@ local compactor_yatm_network = {
     error = "yatm_machines:compactor_error",
     off = "yatm_machines:compactor_off",
     on = "yatm_machines:compactor_on",
-    --idle = "yatm_machines:compactor_idle",
+    idle = "yatm_machines:compactor_idle",
   },
   energy = {
     -- compactors require a lot of energy and have a small capacity
@@ -68,7 +51,7 @@ local compactor_yatm_network = {
   },
 }
 
-function compactor_yatm_network:work(ctx)
+function yatm_network:work(ctx)
   local pos = ctx.pos
   local meta = ctx.meta
   local node = ctx.node
@@ -162,26 +145,101 @@ function compactor_yatm_network:work(ctx)
   return energy_used
 end
 
-local function compactor_on_construct(pos)
-  local meta = minetest.get_meta(pos)
+local function maybe_initialize_inventory(meta)
   local inv = meta:get_inventory()
 
-  inv:set_size("input_items", 1)
-  inv:set_size("processing_items", 1)
+  inv:set_size("input_items", 4)
+  inv:set_size("processing_items", 4)
   inv:set_size("output_items", 1)
-
-  yatm.devices.device_on_construct(pos)
 end
 
-local function compactor_on_rightclick(pos, node, user, item_stack, pointed_thing)
-  minetest.show_formspec(
+local function on_construct(pos)
+  yatm.devices.device_on_construct(pos)
+
+  local meta = minetest.get_meta(pos)
+
+  maybe_initialize_inventory(meta)
+end
+
+local function render_formspec(pos, user, state)
+  local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+  local node_inv_name = "nodemeta:" .. spos
+  local cio = fspec.calc_inventory_offset
+  local cis = fspec.calc_inventory_size
+  local meta = minetest.get_meta(pos)
+
+  return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = "machine" }, function (loc, rect)
+    if loc == "main_body" then
+      return fspec.list(node_inv_name, "input_items", rect.x + cio(2), rect.y, 4, 1) ..
+        fspec.list(node_inv_name, "processing_items", rect.x + cio(2), rect.y + cio(1.5), 4, 1) ..
+        fspec.list(node_inv_name, "output_items", rect.x + cio(3.5), rect.y + cio(3), 1, 1) ..
+        energy_fspec.render_meta_energy_gauge(
+          rect.x + cis(7),
+          rect.y,
+          1,
+          cis(4),
+          meta,
+          yatm.devices.ENERGY_BUFFER_KEY,
+          yatm.devices.get_energy_capacity(pos, state.node)
+        )
+    elseif loc == "footer" then
+      return fspec.list_ring(node_inv_name, "input_items") ..
+        fspec.list_ring("current_player", "main") ..
+        fspec.list_ring(node_inv_name, "output_items") ..
+        fspec.list_ring("current_player", "main")
+    end
+    return ""
+  end)
+end
+
+local function on_receive_fields(player, form_name, fields, state)
+  return false, nil
+end
+
+local function make_formspec_name(pos)
+  return "yatm_machines:compactor:"..Vector3.to_string(pos)
+end
+
+local function on_refresh_timer(player_name, form_name, state)
+  local player = player_service:get_player_by_name(player_name)
+  return {
+    {
+      type = "refresh_formspec",
+      value = render_formspec(state.pos, player, state),
+    }
+  }
+end
+
+local function on_rightclick(pos, node, user)
+  local meta = minetest.get_meta(pos)
+
+  maybe_initialize_inventory(meta)
+
+  local state = {
+    pos = pos,
+    node = node,
+  }
+  local formspec = render_formspec(pos, user, state)
+
+  nokore.formspec_bindings:show_formspec(
     user:get_player_name(),
-    "yatm_machines:compactor",
-    get_compactor_formspec(pos, user)
+    make_formspec_name(pos),
+    formspec,
+    {
+      state = state,
+      on_receive_fields = on_receive_fields,
+      timers = {
+        -- routinely update the formspec
+        refresh = {
+          every = 1,
+          action = on_refresh_timer,
+        },
+      },
+    }
   )
 end
 
-local compactor_item_interface =
+local item_interface =
   ItemInterface.new_directional(function (self, pos, dir)
     local node = minetest.get_node(pos)
     local new_dir = Directions.facedir_to_face(node.param2, dir)
@@ -206,7 +264,7 @@ yatm.devices.register_stateful_network_device({
   description = mod.S("Compactor"),
   groups = groups,
 
-  drop = compactor_yatm_network.states.off,
+  drop = yatm_network.states.off,
 
   tiles = {
     "yatm_compactor_top.off.png",
@@ -220,14 +278,14 @@ yatm.devices.register_stateful_network_device({
   paramtype = "none",
   paramtype2 = "facedir",
 
-  on_construct = compactor_on_construct,
-  on_rightclick = compactor_on_rightclick,
+  on_construct = on_construct,
+  on_rightclick = on_rightclick,
 
-  yatm_network = compactor_yatm_network,
+  yatm_network = yatm_network,
 
-  item_interface = compactor_item_interface,
+  item_interface = item_interface,
 
-  refresh_infotext = compactor_refresh_infotext,
+  refresh_infotext = refresh_infotext,
 }, {
   error = {
     tiles = {
@@ -237,6 +295,17 @@ yatm.devices.register_stateful_network_device({
       "yatm_compactor_side.error.png^[transformFX",
       "yatm_compactor_back.error.png",
       "yatm_compactor_front.error.png",
+    },
+  },
+
+  idle = {
+    tiles = {
+      "yatm_compactor_top.idle.png",
+      "yatm_compactor_bottom.png",
+      "yatm_compactor_side.idle.png",
+      "yatm_compactor_side.idle.png^[transformFX",
+      "yatm_compactor_back.idle.png",
+      "yatm_compactor_front.idle.png",
     },
   },
 

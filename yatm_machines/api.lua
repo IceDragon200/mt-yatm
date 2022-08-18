@@ -105,6 +105,7 @@ function devices.device_transition_device_state(pos, node, state)
   end
 end
 
+-- @spec get_energy_capacity(Vector3, NodeRef): Number
 function devices.get_energy_capacity(pos, node)
   local nodedef = minetest.registered_nodes[node.name]
   local en = nodedef.yatm_network.energy

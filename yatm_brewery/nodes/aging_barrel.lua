@@ -142,7 +142,7 @@ local function on_rightclick(pos, node, user)
       state = state,
       on_receive_fields = on_receive_fields,
       timers = {
-        -- steam turbines have a fluid tank, so their formspecs need to be routinely updated
+        -- routinely update the formspec
         refresh = {
           every = 1,
           action = on_refresh_timer,
