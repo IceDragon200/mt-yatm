@@ -10,9 +10,9 @@ local function get_cluster_summary_formspec(user, assigns)
   local w = 20
   local h = 15
   local formspec =
-    "formspec_version[3]" ..
+    fspec.formspec_version(6) ..
     fspec.size(w, h) ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "default")
+    yatm.formspec_bg_for_player(user:get_player_name(), "default", 0, 0, w, h)
 
   if not assigns.page then
     local page_key = next(assigns.state)
