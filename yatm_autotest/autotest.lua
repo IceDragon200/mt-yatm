@@ -48,6 +48,13 @@ do
     self.m_properties[name] = def
   end
 
+  -- @spec import_properties(AutotestSuite): void
+  function ic:import_properties(other)
+    for property_name, property in pairs(other.m_properties) do
+      self.m_properties[property_name] = property
+    end
+  end
+
   -- @spec #define_model(name: String, def: Table): void
   function ic:define_model(name, def)
     assert(type(name) == "string", "expected a model name")
