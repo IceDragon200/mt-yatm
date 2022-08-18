@@ -2,6 +2,10 @@ local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local cluster_thermal = assert(yatm.cluster.thermal)
 local Energy = assert(yatm.energy)
+local fspec = assert(foundation.com.formspec.api)
+local energy_fspec = assert(yatm.energy.formspec)
+local player_service = assert(nokore.player_service)
+local Vector3 = assert(foundation.com.Vector3)
 
 local heater_yatm_network = {
   kind = "machine",
@@ -46,7 +50,7 @@ function heater_yatm_network:work(ctx)
   return math.floor(100 * ctx.dtime)
 end
 
-local function electric_heater_refresh_infotext(pos)
+local function refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
 
   -- We only really care about the integral heat, it's only a float because of the dtime.
@@ -60,6 +64,74 @@ local function electric_heater_refresh_infotext(pos)
     "Heat: " .. heat .. " / " .. HEAT_MAX
 
   meta:set_string("infotext", infotext)
+end
+
+local function render_formspec(pos, user, state)
+  local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+  local node_inv_name = "nodemeta:" .. spos
+  local meta = minetest.get_meta(pos)
+  local cio = fspec.calc_inventory_offset
+  local cis = fspec.calc_inventory_size
+
+  return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = "machine_heated" }, function (loc, rect)
+    if loc == "main_body" then
+      return energy_fspec.render_meta_energy_gauge(
+          rect.x + cis(7),
+          rect.y,
+          1,
+          cis(4),
+          meta,
+          yatm.devices.ENERGY_BUFFER_KEY,
+          yatm.devices.get_energy_capacity(pos, state.node)
+        )
+    elseif loc == "footer" then
+      return ""
+    end
+    return ""
+  end)
+end
+
+local function on_receive_fields(player, form_name, fields, state)
+  return false, nil
+end
+
+local function make_formspec_name(pos)
+  return "yatm_foundry:electric_heater:"..Vector3.to_string(pos)
+end
+
+local function on_refresh_timer(player_name, form_name, state)
+  local player = player_service:get_player_by_name(player_name)
+  return {
+    {
+      type = "refresh_formspec",
+      value = render_formspec(state.pos, player, state),
+    }
+  }
+end
+
+local function on_rightclick(pos, node, user)
+  local state = {
+    pos = pos,
+    node = node,
+  }
+  local formspec = render_formspec(pos, user, state)
+
+  nokore.formspec_bindings:show_formspec(
+    user:get_player_name(),
+    make_formspec_name(pos),
+    formspec,
+    {
+      state = state,
+      on_receive_fields = on_receive_fields,
+      timers = {
+        -- routinely update the formspec
+        refresh = {
+          every = 1,
+          action = on_refresh_timer,
+        },
+      },
+    }
+  )
 end
 
 local groups = {
@@ -93,13 +165,9 @@ yatm.devices.register_stateful_network_device({
 
   yatm_network = heater_yatm_network,
 
-  on_construct = function (pos)
-    local node = minetest.get_node(pos)
-    yatm.devices.device_on_construct(pos)
-    cluster_thermal:schedule_add_node(pos, node)
-  end,
+  refresh_infotext = refresh_infotext,
 
-  refresh_infotext = electric_heater_refresh_infotext,
+  on_rightclick = on_rightclick,
 
   thermal_interface = {
     groups = {
