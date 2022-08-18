@@ -2,6 +2,8 @@
 yatm.fluids.fluid_registry.register("yatm_refinery", "vapourized_light_oil", {
   description = "Vapourized Light Oil",
 
+  color = "#e2e400",
+
   groups = {
     gas = 1,
     vapourized = 1,
