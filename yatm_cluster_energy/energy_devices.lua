@@ -42,7 +42,8 @@ local function get_energy_interface_function(pos, node, function_name)
         if func then
           return func
         else
-          error("expected yatm_network.energy." .. function_name .. " to be defined for node `" .. node.name .. "`")
+          error("expected yatm_network.energy." .. function_name .. " to be defined for node `" ..
+                node.name .. "`")
         end
       else
         error("expected a yatm_network.energy interface for node `" .. node.name .. "`")
@@ -64,7 +65,11 @@ end
 --
 -- @spec produce_energy(pos: Vector3, node: Node, dtime: Float, trace: Trace): Integer | nil
 function EnergyDevices.produce_energy(pos, node, dtime, trace)
-  return get_energy_interface_function(pos, node, "produce_energy")(pos, node, dtime, trace)
+  return get_energy_interface_function(
+    pos,
+    node,
+    "produce_energy"
+  )(pos, node, dtime, trace)
 end
 
 -- Requests the target node to report it's current 'usable' energy, usable need not be the full
@@ -72,9 +77,18 @@ end
 --
 -- This is only valid for `energy_storage` device nodes.
 --
--- @spec get_usable_stored_energy(pos: Vector3, node: Node, dtime: Float, trace: Trace): Integer | nil
+-- @spec get_usable_stored_energy(
+--   pos: Vector3,
+--   node: Node,
+--   dtime: Float,
+--   trace: Trace
+-- ): Integer | nil
 function EnergyDevices.get_usable_stored_energy(pos, node, dtime, trace)
-  return get_energy_interface_function(pos, node, "get_usable_stored_energy")(pos, node, dtime, trace)
+  return get_energy_interface_function(
+    pos,
+    node,
+    "get_usable_stored_energy"
+  )(pos, node, dtime, trace)
 end
 
 -- Requests that the target node use the provided energy `energy_available` and return how much it
@@ -86,15 +100,25 @@ end
 --
 -- This is only valid for `energy_consumer` device nodes.
 --
--- @spec consume_energy(pos: Vector3, node: Node, energy_available: Integer, dtime: Float, trace: Trace): Integer | nil
+-- @spec consume_energy(
+--   pos: Vector3,
+--   node: Node,
+--   energy_available: Integer,
+--   dtime: Float,
+--   trace: Trace
+-- ): Integer | nil
 function EnergyDevices.consume_energy(pos, node, energy_available, dtime, trace)
-  return get_energy_interface_function(pos, node, "consume_energy")(pos, node, energy_available, dtime, trace)
+  return get_energy_interface_function(
+    pos,
+    node,
+    "consume_energy"
+  )(pos, node, energy_available, dtime, trace)
 end
 
 -- Requests that the target node consume it's 'stored' energy, this is only used for nodes that
--- reported a device group of `energy_storage`, the system does not track who contributed what to the
--- previous pool created with get_usable_stored_energy/4, so devices that didn't contribute can be
--- expected to be drained as well if possible.
+-- reported a device group of `energy_storage`, the system does not track who contributed what to
+-- the previous pool created with get_usable_stored_energy/4, so devices that didn't contribute can
+-- be expected to be drained as well if possible.
 --
 -- It is up to the implementor to handle consuming the correct amount from whatever internal buffers
 -- are being used.
@@ -103,22 +127,43 @@ end
 --
 -- This is only valid for `energy_storage` device nodes.
 --
--- @spec use_stored_energy(pos: Vector3, node: Node, amount_to_consume: Integer, dtime: Float, trace: Trace): Integer | nil
+-- @spec use_stored_energy(
+--   pos: Vector3,
+--   node: Node,
+--   amount_to_consume: Integer,
+--   dtime: Float,
+--   trace: Trace
+-- ): Integer | nil
 function EnergyDevices.use_stored_energy(pos, node, amount_to_consume, dtime, trace)
-  return get_energy_interface_function(pos, node, "use_stored_energy")(pos, node, amount_to_consume, dtime, trace)
+  return get_energy_interface_function(
+    pos,
+    node,
+    "use_stored_energy"
+  )(pos, node, amount_to_consume, dtime, trace)
 end
 
--- Requests the target node to 'receive' the remaining energy after the system has resolved everything else.
--- This step is used to recharge `energy_storage` devices, and is the last (energy) function in the system
--- to be called.
+-- Requests the target node to 'receive' the remaining energy after the system has resolved
+-- everything else.
+-- This step is used to recharge `energy_storage` devices, and is the last (energy) function
+-- in the system to be called.
 --
 -- The receiving node must return how much energy it actually consumed from the `energy_left`
 --
 -- This is only valid for `energy_storage` device nodes.
 --
--- @spec receive_energy(pos: Vector3, node: Node, energy_left: Integer, dtime: Float, trace: Trace): Integer | nil
+-- @spec receive_energy(
+--   pos: Vector3,
+--   node: Node,
+--   energy_left: Integer,
+--   dtime: Float,
+--   trace: Trace
+-- ): Integer | nil
 function EnergyDevices.receive_energy(pos, node, energy_left, dtime, trace)
-  return get_energy_interface_function(pos, node, "receive_energy")(pos, node, energy_left, dtime, trace)
+  return get_energy_interface_function(
+    pos,
+    node,
+    "receive_energy"
+  )(pos, node, energy_left, dtime, trace)
 end
 
 yatm_cluster_energy.EnergyDevices = EnergyDevices
