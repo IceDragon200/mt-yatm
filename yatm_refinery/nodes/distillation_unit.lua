@@ -12,8 +12,7 @@ local Energy = assert(yatm.energy)
 local distillation_registry = assert(yatm.refinery.distillation_registry)
 local FluidExchange = assert(yatm.fluids.FluidExchange)
 local fspec = assert(foundation.com.formspec.api)
-local energy_fspec = assert(yatm.energy.formspec)
-local fluid_fspec = assert(yatm.fluids.formspec)
+local yatm_fspec = assert(yatm.formspec)
 local player_service = assert(nokore.player_service)
 
 local distillation_unit_yatm_network = {
@@ -235,7 +234,7 @@ local function render_formspec(pos, user, state)
       local input_steam_fluid_stack = FluidMeta.get_fluid_stack(meta, INPUT_STEAM_TANK)
       local distilled_fluid_stack = FluidMeta.get_fluid_stack(meta, DISTILLED_TANK)
 
-      return fluid_fspec.render_fluid_stack(
+      return yatm_fspec.render_fluid_stack(
           rect.x,
           rect.y,
           1,
@@ -243,7 +242,7 @@ local function render_formspec(pos, user, state)
           input_steam_fluid_stack,
           TANK_CAPACITY
         ) ..
-        fluid_fspec.render_fluid_stack(
+        yatm_fspec.render_fluid_stack(
           rect.x + rect.w - cio(3),
           rect.y,
           1,
@@ -251,7 +250,7 @@ local function render_formspec(pos, user, state)
           output_steam_fluid_stack,
           TANK_CAPACITY
         ) ..
-        fluid_fspec.render_fluid_stack(
+        yatm_fspec.render_fluid_stack(
           rect.x + rect.w - cio(2),
           rect.y,
           1,
@@ -259,7 +258,7 @@ local function render_formspec(pos, user, state)
           distilled_fluid_stack,
           TANK_CAPACITY
         ) ..
-        energy_fspec.render_meta_energy_gauge(
+        yatm_fspec.render_meta_energy_gauge(
           rect.x + rect.w - cis(1),
           rect.y,
           1,

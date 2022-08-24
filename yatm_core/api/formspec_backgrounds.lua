@@ -3,6 +3,9 @@
 --
 local fspec = assert(foundation.com.formspec.api)
 local Rect = assert(foundation.com.Rect)
+local Color = assert(foundation.com.Color)
+
+local maybe_to_colorstring = assert(Color.maybe_to_colorstring)
 
 -- @namespace yatm
 
@@ -50,7 +53,12 @@ yatm.bg9_name.cardboard = "yatm_gui_formbg_cardboard.9s.png"
 yatm.bg9_name.dscs = "yatm_gui_formbg_dscs.9s.png"
 yatm.bg9_name.inventory = "yatm_gui_formbg_inventory.9s.png"
 
--- @spec formspec_bg_for_player(
+-- @const formspec: Table
+yatm.formspec = yatm.formspec or {}
+
+-- @namespace yatm.formspec
+
+-- @spec bg_for_player(
 --   player_name: String,
 --   background_id: String,
 --   x?: Number,
@@ -59,7 +67,7 @@ yatm.bg9_name.inventory = "yatm_gui_formbg_inventory.9s.png"
 --   h?: Number,
 --   auto_clip?: Boolean
 -- ): String
-function yatm.formspec_bg_for_player(player_name, background_id, x, y, w, h, auto_clip)
+function yatm.formspec.bg_for_player(player_name, background_id, x, y, w, h, auto_clip)
   assert(type(player_name) == "string", "expected player_name as string")
 
   x = x or 0
@@ -85,14 +93,16 @@ function yatm.formspec_bg_for_player(player_name, background_id, x, y, w, h, aut
   return fspec.background(x, y, w, h, texture_name, auto_clip)
 end
 
--- @spec formspec_render_split_inv_panel(
+yatm.formspec_bg_for_player = yatm.formspec.bg_for_player
+
+-- @spec render_split_inv_panel(
 --   Player,
 --   main_cols: Integer | nil,
 --   main_rows: Integer | nil,
 --   options: Table,
 --   callback: function (slot: String, rect: Rect) => String
 -- ): String
-function yatm.formspec_render_split_inv_panel(player, main_cols, main_rows, options, callback)
+function yatm.formspec.render_split_inv_panel(player, main_cols, main_rows, options, callback)
   assert(player, "expected player")
   -- assert(type(main_cols) == "number", "expected a column count")
   -- assert(type(main_rows) == "number", "expected a row count")
@@ -147,6 +157,94 @@ function yatm.formspec_render_split_inv_panel(player, main_cols, main_rows, opti
     yatm.formspec_bg_for_player(player:get_player_name(), "inventory", 0, dev_form_h, w, player_form_h) ..
     yatm.player_inventory_lists_fragment(player, inv_rect.x, inv_rect.y) ..
     callback("footer", full_rect)
+
+  return formspec
+end
+
+yatm.formspec_render_split_inv_panel = yatm.formspec.render_split_inv_panel
+
+-- @spec render_gauge({
+--   x: Number,
+--   y: Number,
+--   w: Number,
+--   h: Number,
+--   amount: Number,
+--   max: Number,
+--   is_horz: Boolean,
+--   base_color: ColorSpec,
+--   gauge_color: ColorSpec,
+--   border: String,
+--   tooltip: String,
+-- }): String
+function yatm.formspec.render_gauge(options)
+  local x = options.x
+  local y = options.y
+  local w = options.w
+  local h = options.h
+  local amount = options.amount
+  local max = options.max
+  local is_horz = options.is_horz
+
+  local base_color = "#292729"
+  if options.base_color then
+    base_color = maybe_to_colorstring(options.base_color)
+  end
+
+  local gauge_color = "#FFFFFF"
+  if options.gauge_color then
+    gauge_color = maybe_to_colorstring(options.gauge_color)
+  end
+
+  local border = "yatm_item_border_default.png"
+  if options.border ~= nil then
+    border = options.border
+  end
+
+  local tooltip = options.tooltip
+
+  local gauge_dim
+  if is_horz then
+    gauge_dim = h * amount / max
+  else
+    gauge_dim = w * amount / max
+  end
+
+  local gauge_w = w
+  local gauge_h = gauge_dim
+
+  if is_horz then
+    gauge_w = gauge_dim
+    gauge_h = h
+  end
+
+  local gauge_x = x
+  local gauge_y = y + h - gauge_h
+
+  if is_horz then
+    gauge_y = y
+  end
+
+  local overlay_color =
+    Color.blend_hard_light(
+      Color.from_colorstring(gauge_color),
+      Color.new(199, 199, 199, 255)
+    )
+
+  local formspec =
+    fspec.box(x, y, w, h, base_color) ..
+    fspec.box(gauge_x, gauge_y, gauge_w, gauge_h, gauge_color)
+
+  if tooltip then
+    formspec =
+      formspec ..
+      fspec.tooltip_area(x, y, w, h, tooltip)
+  end
+
+  if border then
+    formspec =
+      formspec ..
+      fspec.image(x, y, w, h, border .. "^[multiply:" .. Color.to_string32(overlay_color), 16)
+  end
 
   return formspec
 end

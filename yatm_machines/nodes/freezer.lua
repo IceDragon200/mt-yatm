@@ -16,8 +16,7 @@ local FluidStack = assert(yatm.fluids.FluidStack)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local Vector3 = assert(foundation.com.Vector3)
 local fspec = assert(foundation.com.formspec.api)
-local energy_fspec = assert(yatm.energy.formspec)
-local fluid_fspec = assert(yatm.fluids.formspec)
+local yatm_fspec = assert(yatm.formspec)
 local player_service = assert(nokore.player_service)
 local freezing_registry = assert(yatm.freezing.freezing_registry)
 
@@ -267,7 +266,7 @@ local function render_formspec(pos, user, state)
     if loc == "main_body" then
       return fspec.list(node_inv_name, "input_items", rect.x, rect.y, 3, 3) ..
         fspec.list(node_inv_name, "output_items", rect.x + cio(3.5), rect.y, 3, 3) ..
-        energy_fspec.render_meta_energy_gauge(
+        yatm_fspec.render_meta_energy_gauge(
           rect.x + rect.w - cio(1),
           rect.y,
           1,

@@ -12,7 +12,7 @@ local Energy = assert(yatm.energy)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local rolling_registry = assert(yatm.rolling.rolling_registry)
 local fspec = assert(foundation.com.formspec.api)
-local energy_fspec = assert(yatm.energy.formspec)
+local yatm_fspec = assert(yatm.formspec)
 local Vector3 = assert(foundation.com.Vector3)
 local player_service = assert(nokore.player_service)
 
@@ -140,7 +140,7 @@ local function render_formspec(pos, user, state)
       return fspec.list(node_inv_name, "roller_input", rect.x, rect.y, 1, 1) ..
         fspec.list(node_inv_name, "roller_processing", rect.x + cio(2), rect.y, 1, 1) ..
         fspec.list(node_inv_name, "roller_output", rect.x + cio(4), rect.y, 1, 1) ..
-        energy_fspec.render_meta_energy_gauge(
+        yatm_fspec.render_meta_energy_gauge(
           rect.x + rect.w - cio(1),
           rect.y,
           1,

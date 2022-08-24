@@ -8,7 +8,7 @@ local ItemInterface = assert(yatm.items.ItemInterface)
 local Energy = assert(yatm.energy)
 local grinding_registry = assert(yatm.grinding.grinding_registry)
 local fspec = assert(foundation.com.formspec.api)
-local energy_fspec = assert(yatm.energy.formspec)
+local yatm_fspec = assert(yatm.formspec)
 local player_service = assert(nokore.player_service)
 local Vector3 = assert(foundation.com.Vector3)
 
@@ -167,7 +167,7 @@ local function render_formspec(pos, user, state)
       return fspec.list(node_inv_name, "grinder_input", rect.x, rect.y, 1, 1) ..
         fspec.list(node_inv_name, "grinder_processing", rect.x + cio(2), rect.y, 1, 1) ..
         fspec.list(node_inv_name, "grinder_output", rect.x + cio(4), rect.y, 2, 2) ..
-        energy_fspec.render_meta_energy_gauge(
+        yatm_fspec.render_meta_energy_gauge(
           rect.x + rect.w - cio(1),
           rect.y,
           1,

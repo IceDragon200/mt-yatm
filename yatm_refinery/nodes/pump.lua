@@ -1,5 +1,5 @@
 local fspec = assert(foundation.com.formspec.api)
-local fluid_fspec = assert(yatm.fluids.formspec)
+local yatm_fspec = assert(yatm.formspec)
 local Directions = assert(foundation.com.Directions)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
@@ -151,7 +151,7 @@ local function render_formspec(pos, user, state)
     if loc == "main_body" then
       local fluid_tank = FluidMeta.get_fluid_stack(meta, TANK_NAME)
 
-      return fluid_fspec.render_fluid_stack(rect.x, rect.y, 1, cis(4), fluid_tank, TANK_CAPACITY)
+      return yatm_fspec.render_fluid_stack(rect.x, rect.y, 1, cis(4), fluid_tank, TANK_CAPACITY)
     elseif loc == "footer" then
       return ""
     end

@@ -8,7 +8,6 @@ yatm.fluids = {
   FluidInventory = assert(yatm_fluids.FluidInventory),
   FluidInventoryRegistry = assert(yatm_fluids.FluidInventoryRegistry),
   Utils = assert(yatm_fluids.Utils),
-  formspec = assert(yatm_fluids.formspec),
   --
   fluid_registry = assert(yatm_fluids.fluid_registry),
   fluid_inventories = yatm_fluids.FluidInventoryRegistry:new(),

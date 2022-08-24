@@ -11,7 +11,7 @@ local FluidMeta = assert(yatm.fluids.FluidMeta)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local smelting_registry = assert(yatm.smelting.smelting_registry)
 local fspec = assert(foundation.com.formspec.api)
-local energy_fspec = assert(yatm.energy.formspec)
+local yatm_fspec = assert(yatm.formspec)
 local player_service = assert(nokore.player_service)
 local Vector3 = assert(foundation.com.Vector3)
 
@@ -152,7 +152,7 @@ local function render_formspec(pos, user, state)
           1,
           1
         ) ..
-        energy_fspec.render_meta_energy_gauge(
+        yatm_fspec.render_meta_energy_gauge(
           rect.x + rect.w - cio(1),
           rect.y,
           1,

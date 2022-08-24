@@ -5,7 +5,7 @@
 local mod = yatm_brewery
 local Vector3 = assert(foundation.com.Vector3)
 local fspec = assert(foundation.com.formspec.api)
-local fluid_fspec = assert(yatm.fluids.formspec)
+local yatm_fspec = assert(yatm.formspec)
 local Directions = assert(foundation.com.Directions)
 local list_concat = assert(foundation.com.list_concat)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
@@ -64,7 +64,7 @@ local function render_formspec(pos, user, state)
     if loc == "main_body" then
       local fluid_stack = FluidMeta.get_fluid_stack(meta, "tank")
 
-      return fluid_fspec.render_fluid_stack(rect.x, rect.y, 1, cis(4), fluid_stack, BARREL_CAPACITY)
+      return yatm_fspec.render_fluid_stack(rect.x, rect.y, 1, cis(4), fluid_stack, BARREL_CAPACITY)
     elseif loc == "footer" then
       return ""
     end

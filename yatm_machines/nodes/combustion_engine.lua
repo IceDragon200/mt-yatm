@@ -4,8 +4,7 @@
 local mod = yatm_machines
 local Groups = assert(foundation.com.Groups)
 local fspec = assert(foundation.com.formspec.api)
-local fluid_fspec = assert(yatm.fluids.formspec)
-local energy_fspec = assert(yatm.energy.formspec)
+local yatm_fspec = assert(yatm.formspec)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local FluidStack = assert(yatm.fluids.FluidStack)
@@ -182,7 +181,7 @@ local function render_formspec(pos, user, state)
     if loc == "main_body" then
       local fluid_stack = FluidMeta.get_fluid_stack(meta, TANK_NAME)
 
-      return fluid_fspec.render_fluid_stack(
+      return yatm_fspec.render_fluid_stack(
           rect.x,
           rect.y,
           1,
@@ -190,7 +189,7 @@ local function render_formspec(pos, user, state)
           fluid_stack,
           TANK_CAPACITY
         ) ..
-        energy_fspec.render_meta_energy_gauge(
+        yatm_fspec.render_meta_energy_gauge(
           rect.x + rect.w - cio(1),
           rect.y,
           1,

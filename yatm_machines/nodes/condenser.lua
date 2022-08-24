@@ -12,8 +12,7 @@ local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
 local fspec = assert(foundation.com.formspec.api)
-local energy_fspec = assert(yatm.energy.formspec)
-local fluid_fspec = assert(yatm.fluids.formspec)
+local yatm_fspec = assert(yatm.formspec)
 local Vector3 = assert(foundation.com.Vector3)
 local player_service = assert(nokore.player_service)
 
@@ -92,7 +91,7 @@ local function render_formspec(pos, user, state)
       local gas_stack = FluidMeta.get_fluid_stack(meta, GAS_TANK_NAME)
       local liquid_stack = FluidMeta.get_fluid_stack(meta, LIQUID_TANK_NAME)
 
-      return fluid_fspec.render_fluid_stack(
+      return yatm_fspec.render_fluid_stack(
           rect.x,
           rect.y,
           1,
@@ -100,7 +99,7 @@ local function render_formspec(pos, user, state)
           gas_stack,
           TANK_CAPACITY
         ) ..
-        fluid_fspec.render_fluid_stack(
+        yatm_fspec.render_fluid_stack(
           rect.x + cio(1),
           rect.y,
           1,
@@ -108,7 +107,7 @@ local function render_formspec(pos, user, state)
           liquid_stack,
           TANK_CAPACITY
         ) ..
-        energy_fspec.render_meta_energy_gauge(
+        yatm_fspec.render_meta_energy_gauge(
           rect.x + rect.w - cio(1),
           rect.y,
           1,

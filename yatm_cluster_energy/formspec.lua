@@ -3,7 +3,7 @@ local Color = assert(foundation.com.Color)
 local Energy = assert(yatm_cluster_energy.energy)
 local get_meta_energy = assert(Energy.get_meta_energy)
 
-local formspec = {}
+local formspec = yatm.formspec
 
 local DEFAULT_ENERGY_COLOR = {
   last_set_by = "yatm_cluster_energy",
@@ -27,24 +27,26 @@ end
 --   w: Number,
 --   h: Number,
 --   amount: Number,
---   capacity: Number
+--   capacity: Number,
+--   is_horz: Boolean
 -- ): String
-function formspec.render_energy_gauge(x, y, w, h, amount, capacity)
+function formspec.render_energy_gauge(x, y, w, h, amount, capacity, is_horz)
   local gauge_h = h * amount / capacity
 
   local color = DEFAULT_ENERGY_COLOR.color
 
-  local blend_color = Color.blend_hard_light(
-    Color.from_colorstring(color),
-    Color.new(199, 199, 199, 255)
-  )
-
-  local texture_name = "yatm_item_border_energy.png^[multiply:" .. Color.to_string24(blend_color)
-
-  return fspec.box(x, y, w, h, "#292729") ..
-    fspec.box(x, y + h - gauge_h, w, gauge_h, color) ..
-    fspec.tooltip_area(x, y, w, h, "Energy " .. amount .. " / " .. capacity) ..
-    fspec.image(x, y, w, h, texture_name, 16)
+  return formspec.render_gauge{
+    x = x,
+    y = y,
+    w = w,
+    h = h,
+    gauge_color = color,
+    border = "yatm_item_border_energy.png",
+    amount = amount,
+    max = capacity,
+    is_horz = is_horz,
+    tooltip = "Energy " .. amount .. " / " .. capacity,
+  }
 end
 
 -- @spec render_meta_energy_gauge(
@@ -54,12 +56,19 @@ end
 --   h: Number,
 --   meta: MetaRef,
 --   key: String,
---   capacity: Number
+--   capacity: Number,
+--   is_horz: Boolean
 -- ): String
-function formspec.render_meta_energy_gauge(x, y, w, h, meta, key, capacity)
+function formspec.render_meta_energy_gauge(x, y, w, h, meta, key, capacity, is_horz)
   assert(type(key) == "string")
   assert(type(capacity) == "number", "expected capacity to be number")
-  return formspec.render_energy_gauge(x, y, w, h, get_meta_energy(meta, key), capacity)
+  return formspec.render_energy_gauge(
+    x,
+    y,
+    w,
+    h,
+    get_meta_energy(meta, key),
+    capacity,
+    is_horz
+  )
 end
-
-yatm_cluster_energy.formspec = formspec

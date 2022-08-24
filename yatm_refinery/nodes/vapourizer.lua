@@ -13,8 +13,7 @@ local FluidExchange = assert(yatm.fluids.FluidExchange)
 local Energy = assert(yatm.energy)
 local vapour_registry = assert(yatm.refinery.vapour_registry)
 local fspec = assert(foundation.com.formspec.api)
-local energy_fspec = assert(yatm.energy.formspec)
-local fluid_fspec = assert(yatm.fluids.formspec)
+local yatm_fspec = assert(yatm.formspec)
 local player_service = assert(nokore.player_service)
 
 local vapourizer_yatm_network = {
@@ -212,7 +211,7 @@ local function render_formspec(pos, user, state)
       local vapour_fluid_stack = FluidMeta.get_fluid_stack(meta, VAPOUR_TANK)
       local liquid_fluid_stack = FluidMeta.get_fluid_stack(meta, FLUID_TANK)
 
-      return fluid_fspec.render_fluid_stack(
+      return yatm_fspec.render_fluid_stack(
           rect.x,
           rect.y,
           1,
@@ -220,7 +219,7 @@ local function render_formspec(pos, user, state)
           liquid_fluid_stack,
           TANK_CAPACITY
         ) ..
-        fluid_fspec.render_fluid_stack(
+        yatm_fspec.render_fluid_stack(
           rect.x + rect.w - cio(2),
           rect.y,
           1,
@@ -228,7 +227,7 @@ local function render_formspec(pos, user, state)
           vapour_fluid_stack,
           TANK_CAPACITY
         ) ..
-        energy_fspec.render_meta_energy_gauge(
+        yatm_fspec.render_meta_energy_gauge(
           rect.x + rect.w - cio(1),
           rect.y,
           1,

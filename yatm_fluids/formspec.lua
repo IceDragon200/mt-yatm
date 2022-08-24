@@ -3,7 +3,7 @@ local FluidStack = assert(yatm_fluids.FluidStack)
 local fluid_registry = assert(yatm_fluids.fluid_registry)
 local Color = assert(foundation.com.Color)
 
-local formspec = {}
+local formspec = yatm.formspec
 
 local DEFAULT_FLUID_COLOR = {
   last_set_by = "yatm_fluids",
@@ -27,12 +27,11 @@ end
 --   w: Number,
 --   h: Number,
 --   fluid_name: String,
---   amount: Number
+--   amount: Number,
+--   is_horz: Boolean
 -- ): String
-function formspec.render_fluid_tank(x, y, w, h, fluid_name, amount, max)
+function formspec.render_fluid_tank(x, y, w, h, fluid_name, amount, max, is_horz)
   local fluid = fluid_registry.get_fluid(fluid_name)
-
-  local fluid_h = h * amount / max
 
   local fluid_color = DEFAULT_FLUID_COLOR.color
 
@@ -40,15 +39,18 @@ function formspec.render_fluid_tank(x, y, w, h, fluid_name, amount, max)
     fluid_color = fluid.color
   end
 
-  local blend_color = Color.blend_hard_light(
-    Color.from_colorstring(fluid_color),
-    Color.new(199, 199, 199, 255)
-  )
-
-  return fspec.box(x, y, w, h, "#292729") ..
-    fspec.box(x, y + h - fluid_h, w, fluid_h, fluid_color) ..
-    fspec.tooltip_area(x, y, w, h, fluid_name .. " " .. amount .. " / " .. max) ..
-    fspec.image(x, y, w, h, "yatm_item_border_liquid.png^[multiply:" .. Color.to_string24(blend_color), 16)
+  return formspec.render_gauge{
+    x = x,
+    y = y,
+    w = w,
+    h = h,
+    gauge_color = fluid_color,
+    border = "yatm_item_border_liquid.png",
+    amount = amount,
+    max = max,
+    is_horz = is_horz,
+    tooltip = fluid_name .. " " .. amount .. " / " .. max,
+  }
 end
 
 --
@@ -60,9 +62,10 @@ end
 --   w: Number,
 --   h: Number,
 --   fluid_stack: FluidStack,
---   max: Number
+--   max: Number,
+--   is_horz: Boolean
 -- )
-function formspec.render_fluid_stack(x, y, w, h, fluid_stack, max)
+function formspec.render_fluid_stack(x, y, w, h, fluid_stack, max, is_horz)
   local fluid_name = ""
   local fluid_amount = 0
 
@@ -78,7 +81,8 @@ function formspec.render_fluid_stack(x, y, w, h, fluid_stack, max)
     h,
     fluid_name,
     fluid_amount,
-    max
+    max,
+    is_horz
   )
 end
 

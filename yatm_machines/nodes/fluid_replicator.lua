@@ -1,7 +1,7 @@
 local mod = yatm_machines
 local Vector3 = assert(foundation.com.Vector3)
 local fspec = assert(foundation.com.formspec.api)
-local fluid_fspec = assert(yatm.fluids.formspec)
+local yatm_fspec = assert(yatm.formspec)
 local Directions = assert(foundation.com.Directions)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
@@ -141,7 +141,7 @@ local function render_formspec(pos, user, state)
     if loc == "main_body" then
       local fluid_stack = FluidMeta.get_fluid_stack(meta, TANK_NAME)
 
-      return fluid_fspec.render_fluid_stack(
+      return yatm_fspec.render_fluid_stack(
           rect.x,
           rect.y + cio(1),
           1,

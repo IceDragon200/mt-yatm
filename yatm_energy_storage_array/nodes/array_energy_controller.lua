@@ -8,7 +8,7 @@ local mod = yatm_energy_storage_array
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local fspec = assert(foundation.com.formspec.api)
-local energy_fspec = assert(yatm.energy.formspec)
+local yatm_fspec = assert(yatm.formspec)
 local player_service = assert(nokore.player_service)
 local Vector3 = assert(foundation.com.Vector3)
 
@@ -213,7 +213,7 @@ local function render_formspec(pos, user, state)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine_electric" }, function (loc, rect)
     if loc == "main_body" then
-      return energy_fspec.render_meta_energy_gauge(
+      return yatm_fspec.render_meta_energy_gauge(
           rect.x + cio(7),
           rect.y,
           1,

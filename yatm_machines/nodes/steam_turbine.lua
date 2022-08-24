@@ -1,6 +1,5 @@
 local fspec = assert(foundation.com.formspec.api)
-local fluid_fspec = assert(yatm.fluids.formspec)
-local energy_fspec = assert(yatm.energy.formspec)
+local yatm_fspec = assert(yatm.formspec)
 local Groups = assert(foundation.com.Groups)
 local Directions = assert(foundation.com.Directions)
 local table_merge = assert(foundation.com.table_merge)
@@ -204,7 +203,7 @@ local function render_formspec(pos, user, state)
       local steam_stack = FluidMeta.get_fluid_stack(meta, STEAM_TANK)
       local water_stack = FluidMeta.get_fluid_stack(meta, WATER_TANK)
 
-      return fluid_fspec.render_fluid_stack(
+      return yatm_fspec.render_fluid_stack(
           rect.x,
           rect.y,
           1,
@@ -212,7 +211,7 @@ local function render_formspec(pos, user, state)
           steam_stack,
           TANK_CAPACITY
         ) ..
-        fluid_fspec.render_fluid_stack(
+        yatm_fspec.render_fluid_stack(
           rect.x + cio(1),
           rect.y,
           1,
@@ -220,7 +219,7 @@ local function render_formspec(pos, user, state)
           water_stack,
           TANK_CAPACITY
         ) ..
-        energy_fspec.render_meta_energy_gauge(
+        yatm_fspec.render_meta_energy_gauge(
           rect.x + rect.w - cio(1),
           rect.y,
           1,
