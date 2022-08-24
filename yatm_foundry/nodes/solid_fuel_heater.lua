@@ -28,7 +28,7 @@ local function get_solid_fuel_heater_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
 
-  return yatm.formspec_render_split_inv_panel(user, 1, 1, { bg = "machine_heated" }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine_heated" }, function (loc, rect)
     if loc == "main_body" then
       return fspec.list(node_inv_name, "fuel_slot", rect.x, rect.y, 1, 1)
     elseif loc == "footer" then

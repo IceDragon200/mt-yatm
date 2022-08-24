@@ -32,7 +32,7 @@ local function get_crafting_table_formspec(pos, user)
 
   local cio = fspec.calc_inventory_offset
 
-  return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = "wood" }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "wood" }, function (loc, rect)
     if loc == "main_body" then
       return "" ..
         fspec.list(my_inv_name, "main", rect.x, rect.y + cio(0), 2, 4) ..

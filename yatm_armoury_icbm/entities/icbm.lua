@@ -84,7 +84,7 @@ local function render_formspec(self, user, assigns)
 
   local cio = fspec.calc_inventory_offset
 
-  return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = "machine" }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine" }, function (loc, rect)
     if loc == "main_body" then
       local formspec = ""
 

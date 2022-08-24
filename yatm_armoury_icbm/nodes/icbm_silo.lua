@@ -359,7 +359,7 @@ local function render_formspec(pos, player, assigns)
 
   local cio = fspec.calc_inventory_offset
 
-  return yatm.formspec_render_split_inv_panel(player, 8, 6, { bg = "machine_radioactive" }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(player, nil, 6, { bg = "machine_radioactive" }, function (loc, rect)
     if loc == "main_body" then
       local formspec =
         fspec.label(rect.x, rect.y, "Shell") ..

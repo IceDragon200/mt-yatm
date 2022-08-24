@@ -14,7 +14,7 @@ local function get_computer_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local meta = minetest.get_meta(pos)
 
-  return yatm.formspec_render_split_inv_panel(user, 4, 4, { bg = "computer" }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "computer" }, function (loc, rect)
     if loc == "main_body" then
       return ""
     elseif loc == "footer" then

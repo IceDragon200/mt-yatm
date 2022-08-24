@@ -20,7 +20,7 @@ local function locksmiths_table_get_formspec(pos, user, assigns)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   assigns.tab = assigns.tab or 1
 
-  return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = "wood" }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "wood" }, function (loc, rect)
     if loc == "main_body" then
       local formspec =
         fspec.tabheader(0, 0, nil, nil, "tab", {"Lock Installation", "Chip Installation", "Key Duplication"}, assigns.tab)

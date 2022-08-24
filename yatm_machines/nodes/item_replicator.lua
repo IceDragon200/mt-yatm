@@ -29,12 +29,12 @@ local item_replicator_yatm_network = {
   },
 }
 
-local function get_item_replicator_formspec(pos, user)
+local function render_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
 
-  return yatm.formspec_render_split_inv_panel(user, 6, 2, { bg = "machine" }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(user, nil, 2, { bg = "machine" }, function (loc, rect)
     if loc == "main_body" then
       return fspec.list(node_inv_name, "input_slot", rect.x, rect.y, 1, 1) ..
         fspec.list(node_inv_name, "output_slot", rect.x + cio(2), rect.y, 1, 1)
@@ -136,7 +136,7 @@ yatm.devices.register_stateful_network_device({
     minetest.show_formspec(
       user:get_player_name(),
       "yatm_machines:item_replicator",
-      get_item_replicator_formspec(pos, user)
+      render_formspec(pos, user)
     )
   end,
 }, {

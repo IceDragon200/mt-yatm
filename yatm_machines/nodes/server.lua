@@ -67,12 +67,13 @@ local server_yatm_network = {
 }
 
 function server_yatm_network:work(ctx)
+  local dtime = ctx.dtime
   --data_network:mark_ready_to_receive(pos, 1)
   --data_network:mark_ready_to_receive(pos, 2)
   --data_network:mark_ready_to_receive(pos, 3)
   --data_network:mark_ready_to_receive(pos, 4)
   --data_network:mark_ready_to_receive(pos, 5)
-  return 50
+  return 50 * dtime
 end
 
 local function render_formspec(pos, user, state)
@@ -82,13 +83,13 @@ local function render_formspec(pos, user, state)
   local cis = fspec.calc_inventory_size
   local meta = minetest.get_meta(pos)
 
-  return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = "machine" }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine" }, function (loc, rect)
     if loc == "main_body" then
       return energy_fspec.render_meta_energy_gauge(
-          rect.x + cis(7),
+          rect.x + rect.w - cio(1),
           rect.y,
           1,
-          cis(4),
+          rect.h,
           meta,
           yatm.devices.ENERGY_BUFFER_KEY,
           yatm.devices.get_energy_capacity(pos, state.node)

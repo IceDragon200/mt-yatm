@@ -465,7 +465,7 @@ local function get_scavenger_drone_formspec(user, assigns)
 
   if assigns.tab == 1 then
     formspec =
-      yatm.formspec_render_split_inv_panel(user, 8, 5, { bg = "machine" }, function (slot, rect)
+      yatm.formspec_render_split_inv_panel(user, nil, 5, { bg = "machine" }, function (slot, rect)
         if slot == "header" then
           return tabheader
         elseif slot == "main_body" then
@@ -488,7 +488,7 @@ local function get_scavenger_drone_formspec(user, assigns)
       end)
   else
     formspec =
-      yatm.formspec_render_split_inv_panel(user, 8, 5, { bg = "machine" }, function (slot, rect)
+      yatm.formspec_render_split_inv_panel(user, nil, 5, { bg = "machine" }, function (slot, rect)
         if slot == "header" then
           return tabheader
         elseif slot == "main_body" then

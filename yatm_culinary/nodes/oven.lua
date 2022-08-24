@@ -9,7 +9,7 @@ local function get_oven_formspec(pos, user)
   local meta = minetest.get_meta(pos)
   local cio = fspec.calc_inventory_offset
 
-  return yatm.formspec_render_split_inv_panel(user, 7, 1, { bg = "machine_heated" }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine_heated" }, function (loc, rect)
     if loc == "main_body" then
       return fspec.list(node_inv_name, "fuel_slot", rect.x, rect.y, 1, 1) ..
         fspec.list(node_inv_name, "input_slot", rect.x + cio(2), rect.y, 1, 1) ..

@@ -33,7 +33,7 @@ local function render_formspec(pos, user, assigns)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
 
-  return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = "machine" }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine" }, function (loc, rect)
     if loc == "main_body" then
       return fspec.list(node_inv_name, "batteries", rect.x, rect.y, 4, 4) ..
              fspec.dropdown(rect.x + cio(4), rect.y, 4, 1, "mode", { "node", "i", "o", "io" }, mode_to_index[mode] or 1)

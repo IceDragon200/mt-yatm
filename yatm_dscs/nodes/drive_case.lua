@@ -25,7 +25,7 @@ local function get_drive_case_formspec(pos, player_name, _assigns)
   local player = assert(player_service:get_player_by_name(player_name))
   local player_inv_frag, dims = yatm.player_inventory_lists_fragment(player, padding, padding + 5)
 
-  return yatm.formspec_render_split_inv_panel(player, 2, 4, { bg = "dscs" }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(player, nil, 4, { bg = "dscs" }, function (loc, rect)
     if loc == "main_body" then
       return fspec.list(node_inv_name, "drive_bay", rect.x, rect.y, 2, 4)
     elseif loc == "footer" then

@@ -23,7 +23,7 @@ local function get_formspec(pos, user, assigns)
 
   assigns.tab = assigns.tab or 1
 
-  return yatm.formspec_render_split_inv_panel(user, 2, 4, { bg = "dscs" }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "dscs" }, function (loc, rect)
     if loc == "header" then
       return fspec.tabheader(0, 0, nil, nil, "tab", { "Items", "Fluids" }, assigns.tab)
     elseif loc == "main_body" then

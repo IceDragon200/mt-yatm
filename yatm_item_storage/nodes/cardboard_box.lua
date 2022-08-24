@@ -8,7 +8,7 @@ function get_cardboard_box_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
   local formspec =
-    yatm.formspec_render_split_inv_panel(user, 8, 5, { bg = "cardboard" }, function (slot, rect)
+    yatm.formspec_render_split_inv_panel(user, nil, 5, { bg = "cardboard" }, function (slot, rect)
       if slot == "main_body" then
         return fspec.label(rect.x, rect.y, "Cardboard Box") ..
                fspec.list("nodemeta:" .. spos, MAIN_INVENTORY_NAME, rect.x, rect.y + 0.5, 4, 4)

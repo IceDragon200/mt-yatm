@@ -199,7 +199,7 @@ local function render_formspec(pos, user, state)
   local cis = fspec.calc_inventory_size
   local meta = minetest.get_meta(pos)
 
-  return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = "machine_electric" }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine_electric" }, function (loc, rect)
     if loc == "main_body" then
       local steam_stack = FluidMeta.get_fluid_stack(meta, STEAM_TANK)
       local water_stack = FluidMeta.get_fluid_stack(meta, WATER_TANK)
@@ -208,7 +208,7 @@ local function render_formspec(pos, user, state)
           rect.x,
           rect.y,
           1,
-          cis(4),
+          rect.h,
           steam_stack,
           TANK_CAPACITY
         ) ..
@@ -216,15 +216,15 @@ local function render_formspec(pos, user, state)
           rect.x + cio(1),
           rect.y,
           1,
-          cis(4),
+          rect.h,
           water_stack,
           TANK_CAPACITY
         ) ..
         energy_fspec.render_meta_energy_gauge(
-          rect.x + cis(7),
+          rect.x + rect.w - cio(1),
           rect.y,
           1,
-          cis(4),
+          rect.h,
           meta,
           yatm.devices.ENERGY_BUFFER_KEY,
           yatm.devices.get_energy_capacity(pos, state.node)

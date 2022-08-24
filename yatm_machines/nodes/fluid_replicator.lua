@@ -137,7 +137,7 @@ local function render_formspec(pos, user, state)
   local cis = fspec.calc_inventory_size
   local meta = minetest.get_meta(pos)
 
-  return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = "machine" }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine" }, function (loc, rect)
     if loc == "main_body" then
       local fluid_stack = FluidMeta.get_fluid_stack(meta, TANK_NAME)
 

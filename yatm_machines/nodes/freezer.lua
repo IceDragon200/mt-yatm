@@ -237,9 +237,7 @@ function yatm_network:work(ctx)
   return 100 * dtime
 end
 
-local function on_construct(pos)
-  local meta = minetest.get_meta(pos)
-
+local function maybe_initialize_inventory(meta)
   local inv = meta:get_inventory()
   inv:set_size("input_items", ITEM_INV_SIZE)
   inv:set_size("output_items", ITEM_INV_SIZE)
@@ -248,6 +246,12 @@ local function on_construct(pos)
     meta:set_int("input_time_" .. i, -1)
     meta:set_int("input_duration_" .. i, -1)
   end
+end
+
+local function on_construct(pos)
+  local meta = minetest.get_meta(pos)
+
+  maybe_initialize_inventory(meta)
 
   yatm.devices.device_on_construct(pos)
 end
@@ -259,15 +263,15 @@ local function render_formspec(pos, user, state)
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
 
-  return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = "machine_cooled" }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine_cooled" }, function (loc, rect)
     if loc == "main_body" then
       return fspec.list(node_inv_name, "input_items", rect.x, rect.y, 3, 3) ..
         fspec.list(node_inv_name, "output_items", rect.x + cio(3.5), rect.y, 3, 3) ..
         energy_fspec.render_meta_energy_gauge(
-          rect.x + cis(7),
+          rect.x + rect.w - cio(1),
           rect.y,
           1,
-          cis(4),
+          rect.h,
           meta,
           yatm.devices.ENERGY_BUFFER_KEY,
           yatm.devices.get_energy_capacity(pos, state.node)
@@ -305,6 +309,9 @@ local function on_rightclick(pos, node, user)
     pos = pos,
     node = node,
   }
+  local meta = minetest.get_meta(pos)
+  maybe_initialize_inventory(meta)
+
   local formspec = render_formspec(pos, user, state)
 
   nokore.formspec_bindings:show_formspec(

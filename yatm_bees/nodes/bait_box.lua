@@ -34,7 +34,7 @@ local function render_formspec(pos, user, _state)
     bg = "default"
   end
 
-  return yatm.formspec_render_split_inv_panel(user, 6, 4, { bg = bg }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = bg }, function (loc, rect)
     if loc == "main_body" then
       local formspec =
         fspec.list(my_inv_name, "bait_slot", rect.x, rect.y, 1, 1) ..

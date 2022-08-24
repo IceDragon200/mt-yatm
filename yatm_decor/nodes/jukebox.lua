@@ -9,11 +9,11 @@ local jukebox_node_box = {
   }
 }
 
-local function get_jukebox_formspec(pos, user)
+local function render_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
 
-  return yatm.formspec_render_split_inv_panel(user, 8, 4, { bg = "default" }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "default" }, function (loc, rect)
     if loc == "main_body" then
       return fspec.list(node_inv_name, "input_disc", rect.x, rect.y, 1, 1)
     elseif loc == "footer" then
@@ -41,7 +41,7 @@ yatm.register_stateful_node("yatm_decor:jukebox", {
     minetest.show_formspec(
       user:get_player_name(),
       "yatm_decor:jukebox",
-      get_jukebox_formspec(pos, user)
+      render_formspec(pos, user)
     )
   end,
 }, {
