@@ -61,7 +61,7 @@ end
 local function new_ballistics(params)
   local ballistics = {
     path = "linear",
-    type = 'hitscan',
+    type = "hitscan",
     sounds = params.sounds,
   }
   return ballistics

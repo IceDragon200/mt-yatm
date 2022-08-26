@@ -290,7 +290,7 @@ function yatm_armoury.on_use_firearm(item_stack, player, pointed_thing)
 
   play_sound(itemdef.ballistics.sounds.fire)
 
-  yatm_armoury.handle_bullet_ballistics("S", item_stack, player, pointed_thing)
+  yatm_armoury.handle_firearm_ballistics("S", item_stack, player, pointed_thing)
 end
 
 local function player_on_projectile_hit(player, hit_data)
@@ -313,43 +313,42 @@ end
 
 local function node_on_projectile_hit(pos, node, hit_data)
   local nodedef = minetest.registered_nodes[node.name]
-  print("Projectile Hit", node.name, dump(pos))
-  if nodedef.on_projectile_hit then
-    nodedef.on_projectile_hit(pos, node, hit_data)
-  else
-    -- default to stopping on node hit
-    hit_data.stop = true
+  if nodedef then
+    print("Projectile Hit", node.name, dump(pos))
+    if nodedef.on_projectile_hit then
+      nodedef.on_projectile_hit(pos, node, hit_data)
+    else
+      -- default to stopping on node hit
+      hit_data.stop = true
+    end
   end
 end
 
-function yatm_armoury.handle_bullet_ballistics(ammunition_code, item_stack, player, _pointed_thing)
-  local calibre = yatm_armoury.get_item_stack_calibre(item_stack)
-
-  local ammunition_class = yatm_armoury:get_ammunition_class_by_code(ammunition_code)
-  local calibre_class = yatm_armoury:get_calibre_class(calibre)
-
+function yatm_armoury.handle_projectile_ballistics(item_stack, player, pointed_thing, data)
   local look_dir = player:get_look_dir()
-  local effective_range = vector.multiply(look_dir, calibre_class.range)
-  local origin_min = vector.add(look_dir, { x = 0, y = 1, z = 0 })
+  local player_properties = player:get_properties()
+  local effective_range = vector.multiply(look_dir, data.range)
+  local origin_min = vector.add(look_dir, { x = 0, y = player_properties.eye_height, z = 0 })
   local origin_pos = vector.add(player:get_pos(), origin_min)
   local target_pos = vector.add(origin_pos, effective_range)
   local include_objects = true
   local include_liquids = false
-  local raycast = minetest.raycast(origin_pos,
-                                   target_pos,
-                                   include_objects,
-                                   include_liquids)
+  local raycast = minetest.raycast(
+    origin_pos,
+    target_pos,
+    include_objects,
+    include_liquids
+  )
 
   local hit_data = {
     kind = "bullet",
     shooter = player,
+    item_stack = item_stack,
     origin = origin_pos,
     target = target_pos,
     pointed_thing = pointed_thing,
     stop = false,
-    data = {
-      ammunition = ammunition_class,
-    }
+    data = data,
   }
 
   for pointed_thing in raycast do
@@ -374,6 +373,30 @@ function yatm_armoury.handle_bullet_ballistics(ammunition_code, item_stack, play
   return item_stack
 end
 
+local handle_projectile_ballistics = yatm_armoury.handle_projectile_ballistics
+
+function yatm_armoury.handle_firearm_ballistics(ammunition_code, item_stack, player, pointed_thing)
+  local calibre = yatm_armoury.get_item_stack_calibre(item_stack)
+
+  local ammunition_class = yatm_armoury:get_ammunition_class_by_code(ammunition_code)
+  local calibre_class = yatm_armoury:get_calibre_class(calibre)
+
+  return handle_projectile_ballistics(item_stack, player, pointed_thing, {
+    range = calibre_class.range,
+    ammunition = ammunition_class,
+    calibre = calibre_class,
+  })
+end
+
+function yatm_armoury.peek_cartridge(item_stack)
+  local meta = item_stack:get_meta()
+
+  local cartridge_index = meta:get_int("cartridge_index")
+  local ammunition_code = yatm_armoury.get_firearm_cartridge_at(item_stack, cartridge_index)
+
+  return ammunition_code, item_stack
+end
+
 function yatm_armoury.pop_cartridge(item_stack)
   local meta = item_stack:get_meta()
 
@@ -391,7 +414,7 @@ function yatm_armoury.firearm_action(item_stack, player, pointed_thing)
   local code, item_stack = yatm_armoury.pop_cartridge(item_stack)
 
   if code then
-    return yatm_armoury.handle_bullet_ballistics(code, item_stack, player, pointed_thing)
+    return yatm_armoury.handle_firearm_ballistics(code, item_stack, player, pointed_thing)
   else
     return item_stack
   end
