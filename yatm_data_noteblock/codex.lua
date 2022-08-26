@@ -8,7 +8,7 @@ yatm.codex.register_demo("yatm_data_noteblock:data_noteblock_demo_1", {
   end,
 
   build = function (self, pos, assigns)
-    local cuboid = yatm.Cuboid:new(-2, -1, -2, 5, 3, 5):translate(pos)
+    local cuboid = foundation.com.Cuboid:new(-2, -1, -2, 5, 3, 5):translate(pos)
     yatm.codex.fill_cuboid(cuboid, { name = "air" })
 
     local base_name

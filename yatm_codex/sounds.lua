@@ -1,1 +1,1 @@
-yatm_core.sounds:register("codex_entry", "yatm_codex_entry", {})
+yatm.sounds:register("codex_entry", "yatm_codex_entry", {})

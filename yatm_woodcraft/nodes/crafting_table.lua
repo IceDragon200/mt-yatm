@@ -8,7 +8,7 @@
 --
 local mod = yatm_woodcraft
 local fspec = assert(foundation.com.formspec.api)
-local Cuboid = yatm_core.Cuboid
+local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 
 local table_nodebox = {

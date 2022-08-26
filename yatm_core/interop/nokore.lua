@@ -2,7 +2,7 @@ minetest.log("info", "yatm is running in a nokore environment, checking this isn
 
 if nokore.VERSION then
   minetest.log("info", "appears to be a legit nokore environment version=" .. nokore.VERSION)
-  local node_sounds = assert(yatm_core.node_sounds)
+  local node_sounds = assert(yatm.node_sounds)
   -- do stuff
   node_sounds:register("base", {
     sounds = {

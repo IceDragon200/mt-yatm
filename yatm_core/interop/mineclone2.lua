@@ -1,6 +1,6 @@
 minetest.log("info", "yatm is running in a mineclone2 environment")
 
-local node_sounds = assert(yatm_core.node_sounds)
+local node_sounds = assert(yatm.node_sounds)
 
 node_sounds:register("base", {
   sounds = {

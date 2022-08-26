@@ -3,7 +3,7 @@
 -- The MoldingRegistry contains recipes for the molders
 --
 -- @class MoldingRegistry
-local MoldingRegistry = yatm_core.Class:extends("yatm_foundry.MoldingRegistry")
+local MoldingRegistry = foundation.com.Class:extends("yatm_foundry.MoldingRegistry")
 local ic = assert(MoldingRegistry.instance_class)
 
 -- @spec #initialize(): void

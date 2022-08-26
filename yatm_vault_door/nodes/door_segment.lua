@@ -1,6 +1,6 @@
 local mod = yatm_vault_door
 local Directions = assert(foundation.com.Directions)
-local Cuboid = assert(yatm_core.Cuboid)
+local Cuboid = assert(foundation.com.Cuboid)
 local ng = assert(Cuboid.new_fast_node_box)
 
 local VARIANTS = {

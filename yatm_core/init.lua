@@ -1,17 +1,14 @@
 --
 -- YATM Core
 --
-local mod = foundation.new_module("yatm_core", "2.1.0")
+local mod = foundation.new_module("yatm_core", "2.2.0")
 
 -- This is yatm's shared namespace, use the apis from this instead of the module's name when possible
-yatm = mod
+yatm = rawget(_G, "yatm") or {}
 yatm.config = yatm.config or {}
 
 mod:require("config.lua")
 mod:require("errors.lua")
-
--- Classes, yadda, yadda, OOP is evil, yeah I get it, just use OOP sparingly.
-yatm_core.Class = foundation.com.Class
 
 -- Utility
 mod:require("changeset.lua")
@@ -20,7 +17,7 @@ mod:require("measurable.lua") -- similar to energy, but has a name field too
 
 -- Sounds
 mod:require("sounds.lua")
-mod.node_sounds = assert(foundation.com.node_sounds)
+yatm.node_sounds = assert(foundation.com.node_sounds)
 
 -- API
 mod:require("api.lua")

@@ -32,4 +32,4 @@ sounds:register("sharp_boop0", "yatm_sharp_boop0", {})
 sounds:register("short_circuit", "yatm_short_circuit", {})
 sounds:register("stop_read", "yatm_stop_read", {})
 
-yatm_core.sounds = sounds
+yatm.sounds = sounds

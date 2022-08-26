@@ -25,8 +25,6 @@ yatm.Vector2 = foundation.com.Vector2
 yatm.Vector3 = foundation.com.Vector3
 -- @alias Vector4 = foundation.com.Vector4
 yatm.Vector4 = foundation.com.Vector4
--- @alias Cuboid = foundation.com.Cuboid
-yatm.Cuboid = foundation.com.Cuboid
 
 local nokore_player_inv = rawget(_G, "nokore_player_inv")
 
