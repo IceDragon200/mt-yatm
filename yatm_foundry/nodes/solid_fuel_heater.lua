@@ -7,23 +7,6 @@ local cluster_thermal = assert(yatm.cluster.thermal)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local fspec = assert(foundation.com.formspec.api)
 
-local function is_item_solid_fuel(item_stack)
-  if not item_stack or item_stack:get_count() == 0 then
-    return false
-  end
-  local ingredient_stack = ItemStack(item_stack)
-  ingredient_stack:set_count(1)
-
-  local recipe, decremented_input =
-    minetest.get_craft_result({
-      method = "fuel",
-      width = 1,
-      items = { ingredient_stack }
-    })
-
-  return recipe.time > 0
-end
-
 local function get_solid_fuel_heater_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
@@ -60,7 +43,7 @@ local function solid_fuel_heater_on_rightclick(pos, node, user)
 end
 
 local function solid_fuel_heater_allow_metadata_inventory_put(pos, listname, index, item_stack, player)
-  if is_item_solid_fuel(item_stack) then
+  if yatm.is_item_solid_fuel(item_stack) then
     return item_stack:get_count()
   else
     return 0
@@ -145,7 +128,7 @@ function solid_fuel_heater_item_interface:on_insert_item(pos, dir, item_stack)
 end
 
 function solid_fuel_heater_item_interface:allow_insert_item(pos, dir, item_stack)
-  if is_item_solid_fuel(item_stack) then
+  if yatm.is_item_solid_fuel(item_stack) then
     return true
   else
     print("Cannot insert", minetest.pos_to_string(pos), inspect_axis(dir), itemstack_inspect(item_stack))

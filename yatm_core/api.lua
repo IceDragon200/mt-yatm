@@ -5,6 +5,7 @@
 ]]
 local table_merge = assert(foundation.com.table_merge)
 local fspec = assert(foundation.com.formspec.api)
+local Groups = assert(foundation.com.Groups)
 
 -- @namespace yatm
 
@@ -104,6 +105,30 @@ function yatm.register_stateful_craftitem(basename, base, states)
     result[name] = {craftitem_name, craftitemdef}
   end
   return result
+end
+
+function yatm.is_item_solid_fuel(item_stack)
+  if not item_stack or item_stack:is_empty() then
+    return false
+  end
+
+  local itemdef = item_stack:get_definition()
+
+  if Groups.has_group(itemdef, "solid_fuel") then
+    local ingredient_stack = ItemStack(item_stack)
+    ingredient_stack:set_count(1)
+
+    local recipe, decremented_input =
+      minetest.get_craft_result({
+        method = "fuel",
+        width = 1,
+        items = { ingredient_stack }
+      })
+
+    return recipe.time > 0
+  end
+
+  return false
 end
 
 yatm_core:require("api/wrench.lua")
