@@ -6,7 +6,6 @@ local Directions = assert(foundation.com.Directions)
 local is_blank = assert(foundation.com.is_blank)
 local itemstack_is_blank = assert(foundation.com.itemstack_is_blank)
 local format_pretty_time = assert(foundation.com.format_pretty_time)
-local metaref_dec_float = assert(foundation.com.metaref_dec_float)
 local cluster_devices = assert(yatm.cluster.devices)
 local Energy = assert(yatm.energy)
 local ItemInterface = assert(yatm.items.ItemInterface)
@@ -65,13 +64,14 @@ local yatm_network = {
   }
 }
 
+-- @spec &work(WorkContext): (energy_consumed: Number)
 function yatm_network:work(ctx)
   local pos = ctx.pos
   local node = ctx.node
   local meta = ctx.meta
   local dtime = ctx.dtime
+  local total_stored_energy = ctx.total_stored_energy
 
-  local energy_consumed = 0
   local inv = meta:get_inventory()
 
   do
@@ -79,12 +79,12 @@ function yatm_network:work(ctx)
     if itemstack_is_blank(processing_stack) then
       local input_stack = inv:get_stack("roller_input", 1)
       if not itemstack_is_blank(input_stack) then
-        local recipe = RollerRegistry:get_roller_recipe(input_stack)
+        local recipe = rolling_registry:get_roller_recipe(input_stack)
         if recipe then
           local consumed_stack = input_stack:peek_item(recipe.required_count)
           print("Taking", consumed_stack:to_string(), "for recipe", recipe.result:to_string())
           -- FIXME: once the deltas are being used instead of fixed time, this can be changed
-          meta:set_float("recipe_time", recipe.duration)
+          --meta:set_float("recipe_time", 0)
           meta:set_float("recipe_time_max", recipe.duration)
           inv:remove_item("roller_input", consumed_stack)
           inv:set_stack("roller_processing", 1, consumed_stack)
@@ -95,23 +95,40 @@ function yatm_network:work(ctx)
     end
   end
 
+  local energy_consumed = 0
+
   do
     local processing_stack = inv:get_stack("roller_processing", 1)
     if not itemstack_is_blank(processing_stack) then
-      if metaref_dec_float(meta, "recipe_time", dtime) <= 0 then
-        local recipe = RollerRegistry:get_roller_recipe(processing_stack)
+      -- energy per second
+      local eps = 20
+
+      local work_energy = math.min(eps * dtime, total_stored_energy)
+
+      -- calculate work time based on the energy to be consumed
+      local work_time = work_energy / eps
+
+      local recipe_time_max = meta:get_float("recipe_time_max")
+      local recipe_time = meta:get_float("recipe_time")
+
+      if recipe_time < recipe_time_max then
+        recipe_time = recipe_time + work_time
+      end
+
+      if recipe_time >= recipe_time_max then
+        local recipe = rolling_registry:get_roller_recipe(processing_stack)
         if recipe then
           if inv:room_for_item("roller_output", recipe.result) then
             print("Adding to roller_output", recipe.result:to_string())
             inv:add_item("roller_output", recipe.result)
             inv:set_stack("roller_processing", 1, ItemStack(nil))
-            meta:set_float("recipe_time", 0)
+            meta:set_float("recipe_time", recipe_time - recipe_time_max)
             meta:set_float("recipe_time_max", 0)
             yatm.queue_refresh_infotext(pos, node)
           end
         end
       else
-        energy_consumed = energy_consumed + 5
+        meta:set_float("recipe_time", recipe_time)
       end
     end
   end
