@@ -10,10 +10,14 @@ local player_service = assert(nokore.player_service)
 local function refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
 
+  local burn_time = meta:get_float("burn_time")
+  local burn_time_max = meta:get_float("burn_time_max")
+
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     cluster_energy:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
+    "Burn Time: " .. math.floor(burn_time) .. " / " .. math.floor(burn_time_max) .. "\n" ..
+    "EN/t: " .. meta:get_float("last_energy_produced")
 
   meta:set_string("infotext", infotext)
 end
@@ -39,13 +43,81 @@ local yatm_network = {
   }
 }
 
-function yatm_network.energy.produce_energy(pos, node, dtime, ot)
-  return 0
+-- @spec energy.produce_energy(
+--   pos: Vector3,
+--   node: NodeRef,
+--   dtime: Float,
+--   trace: Trace
+-- ): (energy: Number)
+function yatm_network.energy.produce_energy(pos, node, dtime, trace)
+  local meta = minetest.get_meta(pos)
+
+  local burn_time = meta:get_float("burn_time")
+  local burn_time_max = meta:get_float("burn_time_max")
+
+  if burn_time_max <= 0 then
+    local inv = meta:get_inventory()
+
+    local stack = inv:get_stack("fuel_slot", 1)
+
+    if yatm.is_item_solid_fuel(stack) then
+      local output, decremented_input =
+        minetest.get_craft_result{
+          method = "fuel",
+          width = 1,
+          items = {stack}
+        }
+
+      if output.time and output.time > 0 then
+        meta:set_float("burn_time_max", output.time)
+        inv:set_stack("fuel_slot", 1, decremented_input.items[1])
+      end
+    end
+  end
+
+  local en_amount = 0
+
+  if burn_time_max > 0 then
+    local new_burn_time = math.min(burn_time + dtime, burn_time_max)
+    local used_dtime = new_burn_time - burn_time
+
+    if used_dtime > 0 then
+      en_amount = math.round(used_dtime * 40)
+    end
+
+    if burn_time >= burn_time_max then
+      meta:set_float("burn_time", 0.0)
+      meta:set_float("burn_time_max", 0.0)
+    else
+      meta:set_float("burn_time", new_burn_time)
+    end
+  end
+
+  meta:set_float("last_energy_produced", en_amount)
+
+  yatm.queue_refresh_infotext(pos, node)
+
+  return en_amount
 end
 
-function yatm_network.update(pos, node, ot)
+-- @spec update(pos: Vector3, node: NodeRef, dtime: Float, trace: Trace): void
+function yatm_network.update(pos, node, dtime, trace)
+  --
 end
 
+local function maybe_initialize_inventory(meta)
+  local inv = meta:get_inventory()
+
+  inv:set_size("fuel_slot", 1)
+end
+
+local function on_construct(pos)
+  local meta = minetest.get_meta(pos)
+
+  maybe_initialize_inventory(meta)
+end
+
+-- @spec.private render_formspec(pos: Vector3, user: PlayerRef, state: Table): String
 local function render_formspec(pos, user, state)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
@@ -55,17 +127,41 @@ local function render_formspec(pos, user, state)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine_electric" }, function (loc, rect)
     if loc == "main_body" then
-      return yatm_fspec.render_meta_energy_gauge(
-        rect.x + rect.w - cio(1),
-        rect.y,
-        1,
-        rect.h,
-        meta,
-        yatm.devices.ENERGY_BUFFER_KEY,
-        yatm.devices.get_energy_capacity(pos, state.node)
-      )
+      -- return yatm_fspec.render_meta_energy_gauge(
+      --   rect.x + rect.w - cio(1),
+      --   rect.y,
+      --   1,
+      --   rect.h,
+      --   meta,
+      --   yatm.devices.ENERGY_BUFFER_KEY,
+      --   yatm.devices.get_energy_capacity(pos, state.node)
+      -- )
+
+      local burn_time = meta:get_float("burn_time")
+      local burn_time_max = meta:get_float("burn_time_max")
+
+      return fspec.list(
+          node_inv_name,
+          "fuel_slot",
+          rect.x,
+          rect.y,
+          1,
+          1
+        ) ..
+        yatm_fspec.render_gauge{
+          x = rect.x + cio(1),
+          y = rect.y,
+          w = rect.w - cis(1),
+          h = 1,
+          amount = burn_time,
+          max = burn_time_max,
+          is_horz = true,
+          gauge_colors = {"#FFFFFF", "#077f74"},
+          border_name = "yatm_item_border_progress.png",
+        }
     elseif loc == "footer" then
-      return ""
+      return fspec.list_ring("current_player", "main") ..
+        fspec.list_ring(node_inv_name, "fuel_slot")
     end
     return ""
   end)
@@ -94,7 +190,10 @@ local function on_rightclick(pos, node, user)
     pos = pos,
     node = node,
   }
+  local meta = minetest.get_meta(pos)
   local formspec = render_formspec(pos, user, state)
+
+  maybe_initialize_inventory(meta)
 
   nokore.formspec_bindings:show_formspec(
     user:get_player_name(),
@@ -106,7 +205,7 @@ local function on_rightclick(pos, node, user)
       timers = {
         -- routinely update the formspec
         refresh = {
-          every = 1,
+          every = 0.25,
           action = on_refresh_timer,
         },
       },
@@ -146,6 +245,7 @@ yatm.devices.register_stateful_network_device({
 
   refresh_infotext = refresh_infotext,
 
+  on_construct = on_construct,
   on_rightclick = on_rightclick,
 }, {
   on = {
