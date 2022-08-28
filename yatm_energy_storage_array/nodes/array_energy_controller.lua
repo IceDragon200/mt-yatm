@@ -213,13 +213,15 @@ local function render_formspec(pos, user, state)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine_electric" }, function (loc, rect)
     if loc == "main_body" then
-      return yatm_fspec.render_meta_energy_gauge(
-          rect.x + cio(7),
+      local en = array_get_stored_energy(pos)
+
+      return yatm_fspec.render_energy_gauge(
+          rect.x - rect.w + cis(1),
           rect.y,
           1,
           cis(4),
           meta,
-          yatm.devices.ENERGY_BUFFER_KEY,
+          en,
           yatm.devices.get_energy_capacity(pos, state.node)
         )
     elseif loc == "footer" then
