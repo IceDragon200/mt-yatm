@@ -41,7 +41,7 @@ function formspec.render_energy_gauge(x, y, w, h, amount, capacity, is_horz)
     w = w,
     h = h,
     gauge_color = color,
-    border = "yatm_item_border_energy.png",
+    border_name = "yatm_item_border_energy.png",
     amount = amount,
     max = capacity,
     is_horz = is_horz,

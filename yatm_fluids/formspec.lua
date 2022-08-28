@@ -45,7 +45,7 @@ function formspec.render_fluid_tank(x, y, w, h, fluid_name, amount, max, is_horz
     w = w,
     h = h,
     gauge_color = fluid_color,
-    border = "yatm_item_border_liquid.png",
+    border_name = "yatm_item_border_liquid.png",
     amount = amount,
     max = max,
     is_horz = is_horz,

@@ -173,7 +173,7 @@ yatm.formspec_render_split_inv_panel = yatm.formspec.render_split_inv_panel
 --   is_horz: Boolean,
 --   base_color: ColorSpec,
 --   gauge_color: ColorSpec,
---   border: String,
+--   border_name: String,
 --   tooltip: String,
 -- }): String
 function yatm.formspec.render_gauge(options)
@@ -190,23 +190,39 @@ function yatm.formspec.render_gauge(options)
     base_color = maybe_to_colorstring(options.base_color)
   end
 
-  local gauge_color = "#FFFFFF"
+  local gauge_color1 = "#FFFFFF"
   if options.gauge_color then
-    gauge_color = maybe_to_colorstring(options.gauge_color)
+    gauge_color1 = maybe_to_colorstring(options.gauge_color)
   end
 
-  local border = "yatm_item_border_default.png"
-  if options.border ~= nil then
-    border = options.border
+  local gauge_color2
+
+  if options.gauge_colors then
+    gauge_color1 = options.gauge_colors[1]
+    gauge_color2 = options.gauge_colors[2]
+  end
+
+  local gauge_color = gauge_color1
+  if gauge_color2 then
+    gauge_color = Color.maybe_to_colorstring(Color.lerp(
+      Color.maybe_to_color(gauge_color1),
+      Color.maybe_to_color(gauge_color2),
+      amount / max
+    ))
+  end
+
+  local border_name = "yatm_item_border_default.png"
+  if options.border_name ~= nil then
+    border_name = options.border_name
   end
 
   local tooltip = options.tooltip
 
   local gauge_dim
   if is_horz then
-    gauge_dim = h * amount / max
-  else
     gauge_dim = w * amount / max
+  else
+    gauge_dim = h * amount / max
   end
 
   local gauge_w = w
@@ -240,10 +256,10 @@ function yatm.formspec.render_gauge(options)
       fspec.tooltip_area(x, y, w, h, tooltip)
   end
 
-  if border then
+  if border_name then
     formspec =
       formspec ..
-      fspec.image(x, y, w, h, border .. "^[multiply:" .. Color.to_string32(overlay_color), 16)
+      fspec.image(x, y, w, h, border_name .. "^[multiply:" .. Color.to_string32(overlay_color), 16)
   end
 
   return formspec
