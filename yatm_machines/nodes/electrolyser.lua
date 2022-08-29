@@ -19,6 +19,7 @@ local yatm_network = {
   states = {
     conflict = "yatm_machines:electrolyser_error",
     error = "yatm_machines:electrolyser_error",
+    idle = "yatm_machines:electrolyser_idle",
     off = "yatm_machines:electrolyser_off",
     on = "yatm_machines:electrolyser_on",
   },
@@ -134,6 +135,16 @@ yatm.devices.register_stateful_network_device({
       "yatm_electrolyser_side.error.png^[transformFX",
       "yatm_electrolyser_back.png",
       "yatm_electrolyser_front.error.png",
+    },
+  },
+  idle = {
+    tiles = {
+      "yatm_electrolyser_top.idle.png",
+      "yatm_electrolyser_bottom.png",
+      "yatm_electrolyser_side.idle.png",
+      "yatm_electrolyser_side.idle.png^[transformFX",
+      "yatm_electrolyser_back.png",
+      "yatm_electrolyser_front.idle.png",
     },
   },
   on = {
