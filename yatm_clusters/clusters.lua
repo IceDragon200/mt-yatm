@@ -3,6 +3,7 @@
 --
 local is_table_empty = assert(foundation.com.is_table_empty)
 local table_length = assert(foundation.com.table_length)
+local table_copy = assert(foundation.com.table_copy)
 local Vector3 = assert(foundation.com.Vector3)
 local List = assert(foundation.com.List)
 
@@ -160,15 +161,15 @@ do
       end
     end
 
-    self.m_nodes[node_id] = {
+    local node_entry = {
       id = node_id,
-      pos = pos,
-      node = node,
+      pos = Vector3.copy(pos),
+      node = table_copy(node),
       groups = groups or {},
       assigns = {}
     }
 
-    local node_entry = self.m_nodes[node_id]
+    self.m_nodes[node_id] = node_entry
     self:_refresh_node_entry(node_entry)
 
     self:on_node_added(node_entry)
@@ -179,6 +180,11 @@ do
   function ic:get_node(pos)
     local node_id = hash_pos(pos)
 
+    return self.m_nodes[node_id]
+  end
+
+  -- @spec #get_node_by_id(id: Integer): nil | ClusterNode
+  function ic:get_node_by_id(node_id)
     return self.m_nodes[node_id]
   end
 
@@ -203,26 +209,26 @@ do
 
     if old_node_entry then
       for group_name,group_value in pairs(old_node_entry.groups) do
-        if self.m_group_nodes[group_name] then
-          self.m_group_nodes[group_name][node_id] = nil
-        end
-
-        if self.m_group_nodes[group_name] then
-          self.m_group_nodes[group_name] = nil
+        local group_nodes = self.m_group_nodes[group_name]
+        if group_nodes then
+          group_nodes[node_id] = nil
+          if not next(group_nodes) then
+            self.m_group_nodes[group_name] = nil
+          end
         end
       end
 
-      self.m_nodes[node_id] = {
+      local node_entry = {
         id = node_id,
-        pos = pos,
-        node = node,
+        pos = Vector3.copy(pos),
+        node = table_copy(node),
 
         groups = groups or {},
 
-        assigns = old_node_entry.assigns
+        assigns = old_node_entry.assigns or {}
       }
 
-      local node_entry = self.m_nodes[node_id]
+      self.m_nodes[node_id] = node_entry
       self:_refresh_node_entry(node_entry)
 
       self:on_node_updated(node_entry, old_node_entry)
@@ -241,10 +247,10 @@ do
     if node_entry then
       -- remove from groups
       for group_name,group_value in pairs(node_entry.groups) do
-        if self.m_group_nodes[group_name] then
-          self.m_group_nodes[group_name][node_id] = nil
-
-          if is_table_empty(self.m_group_nodes[group_name]) then
+        local group_nodes = self.m_group_nodes[group_name]
+        if group_nodes then
+          group_nodes[node_id] = nil
+          if not next(group_nodes) then
             self.m_group_nodes[group_name] = nil
           end
         end
@@ -777,15 +783,14 @@ do
     return nil
   end
 
-  function ic:reduce_node_clusters(pos, acc, reducer)
-    assert(pos, "expected a position")
-    local node_id = minetest.hash_node_position(pos)
-
+  -- @spec #reduce_node_clusters_by_id(node_id: Integer, acc: Any, reducer: Function/2): (acc: Any)
+  function ic:reduce_node_clusters_by_id(node_id, acc, reducer)
     local node_clusters = self.m_node_clusters[node_id]
     if node_clusters then
       local continue_reduce = true
+      local cluster
       for cluster_id, _ in pairs(node_clusters) do
-        local cluster = self:get_cluster(cluster_id)
+        cluster = self:get_cluster(cluster_id)
 
         if cluster then
           continue_reduce, acc = reducer(cluster, acc)
@@ -800,9 +805,18 @@ do
     return acc
   end
 
+  -- @spec #reduce_node_clusters(pos: Vector3, acc: Any, reducer: Function/2): (acc: Any)
+  function ic:reduce_node_clusters(pos, acc, reducer)
+    assert(pos, "expected a position")
+    local node_id = minetest.hash_node_position(pos)
+    return self:reduce_node_clusters_by_id(node_id, acc, reducer)
+  end
+
   --
   -- System Management
   --
+
+  -- @spec register_system(cluster_group: String, system_id: String, update: Function/1): void
   function ic:register_system(cluster_group, system_id, update)
     if self.m_systems[system_id] then
       error("a system system_id=" .. system_id .. " is already registered")
@@ -822,6 +836,8 @@ do
   --
   -- Update
   --
+
+  -- @spec #update(dtime: Float, trace: Trace): void
   function ic:update(dtime, trace)
     self.m_counter = self.m_counter + 1
 

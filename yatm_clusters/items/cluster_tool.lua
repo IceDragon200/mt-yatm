@@ -9,6 +9,9 @@ local fspec = assert(foundation.com.formspec.api)
 local function get_cluster_summary_formspec(user, assigns)
   local w = 20
   local h = 15
+
+  local cio = fspec.calc_inventory_offset
+
   local formspec =
     fspec.formspec_version(6) ..
     fspec.size(w, h) ..

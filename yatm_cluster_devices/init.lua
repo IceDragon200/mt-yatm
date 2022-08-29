@@ -37,11 +37,12 @@ end
 
 function ic:get_node_groups(node)
   local nodedef = minetest.registered_nodes[node.name]
+
   if nodedef and nodedef.yatm_network then
     return nodedef.yatm_network.groups or {}
-  else
-    return {}
   end
+
+  return {}
 end
 
 function ic:handle_node_event(cls, generation_id, event, node_clusters, trace)

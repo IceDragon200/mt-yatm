@@ -33,27 +33,27 @@ local EnergyDevices = {}
 
 local function get_energy_interface_function(pos, node, function_name)
   local nodedef = minetest.registered_nodes[node.name]
-  if nodedef then
-    local ym = nodedef.yatm_network
-    if ym then
-      local en = nodedef.yatm_network.energy
-      if en then
-        local func = en[function_name]
-        if func then
-          return func
-        else
-          error("expected yatm_network.energy." .. function_name .. " to be defined for node `" ..
-                node.name .. "`")
-        end
-      else
-        error("expected a yatm_network.energy interface for node `" .. node.name .. "`")
-      end
-    else
-      error("expected a yatm_network configuration for node `" .. node.name .. "`")
-    end
-  else
+  if not nodedef then
     error("expected a registered node for " .. node.name)
   end
+
+  local ym = nodedef.yatm_network
+  if not ym then
+    error("expected a yatm_network configuration for node `" .. node.name .. "`")
+  end
+
+  local en = nodedef.yatm_network.energy
+  if not en then
+    error("expected a yatm_network.energy interface for node `" .. node.name .. "`")
+  end
+
+  local func = en[function_name]
+  if not func then
+    error("expected yatm_network.energy." .. function_name .. " to be defined for node `" ..
+          node.name .. "`")
+  end
+
+  return func
 end
 
 -- Requests the target node/device return the amount of energy it will generate for this tick.

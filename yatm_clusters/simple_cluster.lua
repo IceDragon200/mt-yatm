@@ -41,6 +41,7 @@ do
     end
   end
 
+  -- @spec #terminate(reason: Any): void
   function ic:terminate(reason)
     self:log("terminated")
     self.terminated = true
@@ -54,14 +55,14 @@ do
     }
   end
 
+  -- @spec &register_system(id: String, update: Function/3): void
   function ic:register_system(id, update)
     clusters:register_system(self.m_cluster_group, id, update)
   end
 
+  -- @spec #get_node_cluster(pos: Vector3): nil | Cluster
   function ic:get_node_cluster(pos)
     assert(pos, "expected node position")
-
-    local node_id = minetest.hash_node_position(pos)
 
     return clusters:reduce_node_clusters(pos, nil, function (cluster, acc)
       if cluster.groups[self.m_cluster_group] then
@@ -70,6 +71,39 @@ do
         return true, acc
       end
     end)
+  end
+
+  -- @spec #get_node_cluster_by_id(id: Integer): nil | Cluster
+  function ic:get_node_cluster_by_id(id)
+    return clusters:reduce_node_clusters_by_id(id, nil, function (cluster, acc)
+      if cluster.groups[self.m_cluster_group] then
+        return false, cluster
+      else
+        return true, acc
+      end
+    end)
+  end
+
+  -- @spec #get_node(pos: Vector3): nil | ClusterNode
+  function ic:get_node(pos)
+    local cluster = self:get_node_cluster(pos)
+
+    if cluster then
+      return cluster:get_node(pos)
+    end
+
+    return nil
+  end
+
+  -- @spec #get_node_by_id(id: Integer): nil | ClusterNode
+  function ic:get_node_by_id(id)
+    local cluster = self:get_node_cluster_by_id(id)
+
+    if cluster then
+      return cluster:get_node_by_id(id)
+    end
+
+    return nil
   end
 
   function ic:get_node_infotext(pos)
