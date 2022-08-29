@@ -1,6 +1,8 @@
 local hash_node_position = assert(minetest.hash_node_position)
 local fspec = assert(foundation.com.formspec.api)
-local metaref_int_list_to_table = assert(foundation.com.metaref_int_list_to_table)
+local metaref_string_list_to_table = assert(foundation.com.metaref_string_list_to_table)
+
+local string_to_pos = assert(minetest.string_to_pos)
 
 local get_inventory_controller_def = assert(yatm.dscs.get_inventory_controller_def)
 
@@ -28,7 +30,7 @@ function my_fspec.render_inventory_controller_at(options)
 
   if ivc_node_entry then
     return fspec.item_image(x, y, w, h, ivc_node_entry.node.name) ..
-      fspec.tooltip_area(x, y, w, h, minetest.pos_to_string(invc_node_entry.pos))
+      fspec.tooltip_area(x, y, w, h, minetest.pos_to_string(ivc_node_entry.pos))
   end
 
   return ""
@@ -56,6 +58,10 @@ function my_fspec.render_inventory_controller_children_at(options)
 
   local formspec = ""
 
+  if not cluster then
+    return formspec
+  end
+
   local node_entry = cluster:get_node_by_id(node_id)
 
   if not node_entry then
@@ -71,7 +77,7 @@ function my_fspec.render_inventory_controller_children_at(options)
   end
 
   local count, list =
-    metaref_int_list_to_table(
+    metaref_string_list_to_table(
       meta,
       inv_con.child_key_prefix,
       inv_con.max_children
@@ -90,10 +96,10 @@ function my_fspec.render_inventory_controller_children_at(options)
         local dx = x + cio(col - 1)
         local dy = y + cio(row - 1)
 
-        local child_id = list[i]
+        local child_pos = string_to_pos(list[i] or "")
 
-        if child_id then
-          local child_node_entry = cluster:get_node_by_id(child_id)
+        if child_pos then
+          local child_node_entry = cluster:get_node(child_pos)
 
           if child_node_entry then
             formspec =
@@ -109,14 +115,12 @@ function my_fspec.render_inventory_controller_children_at(options)
           else
             formspec =
               formspec ..
-              fspec.label(dx, dy, "Missing Child " .. child_id)
+              fspec.label(dx, dy, "Missing Child " .. list[i])
           end
         end
       end
     end
   end
-
-  print(formspec)
 
   return formspec
 end

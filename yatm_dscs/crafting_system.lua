@@ -3,15 +3,18 @@
 --
 local path_join = assert(foundation.com.path_join)
 local Groups = assert(foundation.com.Groups)
-local metaref_int_list_to_table = assert(foundation.com.metaref_int_list_to_table)
-local metaref_int_list_push = assert(foundation.com.metaref_int_list_push)
-local metaref_int_list_lazy_clear = assert(foundation.com.metaref_int_list_lazy_clear)
+local metaref_string_list_to_table = assert(foundation.com.metaref_string_list_to_table)
+local metaref_string_list_push = assert(foundation.com.metaref_string_list_push)
+local metaref_string_list_lazy_clear = assert(foundation.com.metaref_string_list_lazy_clear)
+
+local pos_to_string = assert(minetest.pos_to_string)
+local string_to_pos = assert(minetest.string_to_pos)
 
 local get_inventory_controller_def = assert(yatm.dscs.get_inventory_controller_def)
 
 -- @namespace yatm_dscs
 
-local function try_register_to_inventory_controller(pos, node, child_id)
+local function try_register_to_inventory_controller(pos, node, child_pos)
   local inv_con, err = get_inventory_controller_def(pos, node)
   if not inv_con then
     return false, err
@@ -21,11 +24,11 @@ local function try_register_to_inventory_controller(pos, node, child_id)
 
   -- grab the child count
   local count =
-    metaref_int_list_push(
+    metaref_string_list_push(
       meta,
       inv_con.child_key_prefix,
       inv_con.max_children,
-      child_id
+      pos_to_string(child_pos)
     )
 
   if not count then
@@ -46,16 +49,21 @@ local function handle_dscs_storage_module(_clusters, cluster, dtime, node_entry)
     local meta = minetest.get_meta(node_entry.pos)
 
     local has_controller = meta:get_int("has_inv_controller")
-    local controller_id = meta:get_int("inv_controller_id")
+    local controller_pos
 
     local has_valid_controller = has_controller
 
     if has_controller > 0 then
-      local controller_node_entry = cluster:get_node_by_id(controller_id)
+      controller_pos = string_to_pos(meta:get_string("inv_controller_pos"))
+      if controller_pos then
+        local controller_node_entry = cluster:get_node(controller_pos)
 
-      if controller_node_entry then
-        if Groups.has_group(controller_node_entry, "dscs_inventory_controller") then
-          has_valid_controller = 1
+        if controller_node_entry then
+          if Groups.has_group(controller_node_entry, "dscs_inventory_controller") then
+            has_valid_controller = 1
+          else
+            has_valid_controller = 0
+          end
         else
           has_valid_controller = 0
         end
@@ -71,32 +79,35 @@ local function handle_dscs_storage_module(_clusters, cluster, dtime, node_entry)
       local err
 
       -- find a new controller
-      controller_id =
+      controller_pos =
         cluster:reduce_nodes_of_group("dscs_inventory_controller", nil, function (invc_node_entry, acc)
           registered, err =
             try_register_to_inventory_controller(
               invc_node_entry.pos,
               invc_node_entry.node,
-              node_entry.id
+              node_entry.pos
             )
 
           if registered then
-            return false, invc_node_entry.id
+            return false, invc_node_entry.pos
           else
             return true, acc
           end
         end)
 
-      if controller_id then
+      if controller_pos then
         has_valid_controller = 1
       else
         has_valid_controller = 0
-        controller_id = 0
       end
     end
 
     meta:set_int("has_inv_controller", has_valid_controller)
-    meta:set_int("inv_controller_id", controller_id)
+    if controller_pos then
+      meta:set_string("inv_controller_pos", pos_to_string(controller_pos))
+    else
+      meta:set_string("inv_controller_pos", "")
+    end
   end
 end
 
@@ -115,9 +126,9 @@ local function handle_dscs_inventory_controller(_clusters, cluster, dtime, node_
     local prefix = inv_con.child_key_prefix
     local max = inv_con.max_children
 
-    local count, list = metaref_int_list_to_table(meta, prefix, max)
+    local count, list = metaref_string_list_to_table(meta, prefix, max)
 
-    metaref_int_list_lazy_clear(meta, prefix, max)
+    metaref_string_list_lazy_clear(meta, prefix, max)
 
     if count > 0 then
       local seen = {}
@@ -127,7 +138,7 @@ local function handle_dscs_inventory_controller(_clusters, cluster, dtime, node_
 
         if not seen[item] then
           seen[item] = true
-          metaref_int_list_push(meta, prefix, max, item)
+          metaref_string_list_push(meta, prefix, max, item)
         end
       end
     end
