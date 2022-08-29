@@ -18,6 +18,7 @@ local compute_module_yatm_network = {
   states = {
     conflict = "yatm_dscs:compute_module_error",
     error = "yatm_dscs:compute_module_error",
+    idle = "yatm_dscs:compute_module_idle",
     off = "yatm_dscs:compute_module_off",
     on = "yatm_dscs:compute_module_on",
   },
@@ -77,6 +78,9 @@ yatm.devices.register_stateful_network_device({
         length = 1.0
       },
     }},
+  },
+  idle = {
+    tiles = {"yatm_compute_module_side.idle.png"},
   },
   error = {
     tiles = {"yatm_compute_module_side.error.png"},

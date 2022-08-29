@@ -103,3 +103,47 @@ end
 function yatm.dscs.is_item_stack_item_drive(item_stack)
   return Groups.has_group(item_stack:get_definition(), "item_drive")
 end
+
+function yatm.dscs.get_inventory_controller_node_entry_by_id(id)
+  local node_entry = yatm.cluster.devices:get_node_by_id(id)
+
+  if node_entry then
+    local meta = minetest.get_meta(node_entry.pos)
+
+    if meta:get_int("has_inv_controller") > 0 then
+      local inv_controller_id = meta:get_int("inv_controller_id")
+
+      return yatm.cluster.devices:get_node_by_id(inv_controller_id)
+    end
+  end
+
+  return nil
+end
+
+function yatm.dscs.get_inventory_controller_def(pos, node)
+  local nodedef = minetest.registered_nodes[node.name]
+
+  if not nodedef then
+    return nil, "no nodedef"
+  end
+
+  local yatm_network = nodedef.yatm_network
+  if not yatm_network then
+    return nil, "not a yatm network device"
+  end
+
+  if not Groups.has_group(yatm_network, "dscs_inventory_controller") then
+    return nil, "not an inventory controller"
+  end
+
+  if not yatm_network.dscs then
+    return nil, "missing dscs definition"
+  end
+
+  local inv_con = yatm_network.dscs.inventory_controller
+  if not inv_con then
+    return nil, "missing dscs inventory_controller definition"
+  end
+
+  return inv_con
+end

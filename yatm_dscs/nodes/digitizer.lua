@@ -19,6 +19,7 @@ local digitizer_yatm_network = {
   states = {
     conflict = "yatm_dscs:digitizer_error",
     error = "yatm_dscs:digitizer_error",
+    idle = "yatm_dscs:digitizer_idle",
     off = "yatm_dscs:digitizer_off",
     on = "yatm_dscs:digitizer_on",
   },
@@ -153,7 +154,10 @@ yatm.devices.register_stateful_network_device({
       },
     }},
   },
+  idle = {
+    tiles = {"yatm_digitizer_side.idle.png"},
+  },
   error = {
     tiles = {"yatm_digitizer_side.error.png"},
-  }
+  },
 })

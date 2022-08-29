@@ -17,6 +17,7 @@ local materializer_yatm_network = {
   states = {
     conflict = "yatm_dscs:materializer_error",
     error = "yatm_dscs:materializer_error",
+    idle = "yatm_dscs:materializer_idle",
     off = "yatm_dscs:materializer_off",
     on = "yatm_dscs:materializer_on",
   },
@@ -87,7 +88,10 @@ yatm.devices.register_stateful_network_device({
       },
     }},
   },
+  idle = {
+    tiles = {"yatm_materializer_side.idle.png"},
+  },
   error = {
     tiles = {"yatm_materializer_side.error.png"},
-  }
+  },
 })

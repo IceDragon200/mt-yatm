@@ -18,6 +18,7 @@ local assembler_yatm_network = {
   states = {
     conflict = "yatm_dscs:assembler_error",
     error = "yatm_dscs:assembler_error",
+    idle = "yatm_dscs:assembler_idle",
     off = "yatm_dscs:assembler_off",
     on = "yatm_dscs:assembler_on",
   },

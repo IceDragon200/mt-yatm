@@ -5,29 +5,44 @@
   Actually that gives me an idea, a drive rack!
 
 ]]
+local Energy = assert(yatm.energy)
 local Vector3 = assert(foundation.com.Vector3)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
-local Energy = assert(yatm.energy)
 local fspec = assert(foundation.com.formspec.api)
+local yatm_fspec = assert(yatm.formspec)
 local player_service = assert(nokore.player_service)
 
 local DRIVE_BAY_SIZE = 8
 
-local function get_formspec_name(pos)
-  return "yatm_dscs:drive_case:" .. minetest.pos_to_string(pos)
-end
-
-local function get_drive_case_formspec(pos, player_name, _assigns)
+-- @spec.private render_formspec(pos: Vector3, user: PlayerRef, state: Table): String
+local function render_formspec(pos, user, state)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
-  local padding = 0.5
-  local player = assert(player_service:get_player_by_name(player_name))
-  local player_inv_frag, dims = yatm.player_inventory_lists_fragment(player, padding, padding + 5)
+  local cio = fspec.calc_inventory_offset
+  local cis = fspec.calc_inventory_size
+  local meta = minetest.get_meta(pos)
 
-  return yatm.formspec_render_split_inv_panel(player, nil, 4, { bg = "dscs" }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "dscs" }, function (loc, rect)
     if loc == "main_body" then
-      return fspec.list(node_inv_name, "drive_bay", rect.x, rect.y, 2, 4)
+      return fspec.list(node_inv_name, "drive_bay", rect.x, rect.y, 2, 4) ..
+        yatm.dscs.formspec.render_inventory_controller_at{
+          pos = pos,
+          node = state.node,
+          x = rect.x + cio(3),
+          y = rect.y,
+          w = 1,
+          h = 1
+        } ..
+        yatm_fspec.render_meta_energy_gauge(
+          rect.x + rect.w - cio(1),
+          rect.y,
+          1,
+          rect.h,
+          meta,
+          yatm.devices.ENERGY_BUFFER_KEY,
+          yatm.devices.get_energy_capacity(pos, state.node)
+        )
     elseif loc == "footer" then
       return fspec.list_ring(node_inv_name, "drive_bay") ..
         fspec.list_ring("current_player", "main")
@@ -36,12 +51,64 @@ local function get_drive_case_formspec(pos, player_name, _assigns)
   end)
 end
 
-local function refresh_formspec(pos, player)
-  minetest.after(0, function ()
-    yatm_core.refresh_player_formspec(player, get_formspec_name(pos), function (player_name, assigns)
-      return get_drive_case_formspec(assigns.pos, player_name, assigns)
-    end)
-  end)
+local function on_receive_fields(player, formname, fields, assigns)
+  local meta = minetest.get_meta(assigns.pos)
+  local inv = meta:get_inventory()
+  local needs_refresh = false
+
+  -- TODO: do stuff
+
+  return true
+end
+
+local function make_formspec_name(pos)
+  return "yatm_dscs:drive_case:" .. minetest.pos_to_string(pos)
+end
+
+local function refresh_formspec(pos, _player)
+  nokore.formspec_bindings:trigger_form_timer(make_formspec_name(pos), "refresh")
+end
+
+local function on_refresh_timer(player_name, form_name, state)
+  local player = player_service:get_player_by_name(player_name)
+  return {
+    {
+      type = "refresh_formspec",
+      value = render_formspec(state.pos, player, state),
+    }
+  }
+end
+
+-- @spec.private on_rightclick(
+--   pos: Vector3,
+--   node: NodeRef,
+--   user: PlayerRef,
+--   item_stack: ItemStack,
+--   pointed_thing: PointedThing
+-- ): void
+local function on_rightclick(pos, node, user, item_stack, pointed_thing)
+  local state = {
+    pos = pos,
+    node = node
+  }
+  local formspec = render_formspec(pos, user, state)
+
+  nokore.formspec_bindings:show_formspec(
+    user:get_player_name(),
+    make_formspec_name(pos),
+    formspec,
+    {
+      state = state,
+      on_receive_fields = on_receive_fields,
+      timers = {
+        -- routinely update the formspec
+        refresh = {
+          every = 1,
+          action = on_refresh_timer,
+        },
+      },
+    }
+  )
 end
 
 local function refresh_infotext(pos, node)
@@ -68,6 +135,7 @@ local drive_case_yatm_network = {
   states = {
     conflict = "yatm_dscs:drive_case_error",
     error = "yatm_dscs:drive_case_error",
+    idle = "yatm_dscs:drive_case_idle",
     off = "yatm_dscs:drive_case_off",
     on = "yatm_dscs:drive_case_on",
   },
@@ -199,16 +267,6 @@ local function on_metadata_inventory_take(pos, listname, index, stack, player)
   end
 end
 
-local function receive_fields(player, formname, fields, assigns)
-  local meta = minetest.get_meta(assigns.pos)
-  local inv = meta:get_inventory()
-  local needs_refresh = false
-
-  -- TODO: do stuff
-
-  return true
-end
-
 function drive_case_yatm_network.on_load(pos, node)
   -- reload fluid inventories
   local meta = minetest.get_meta(pos)
@@ -280,16 +338,7 @@ yatm.devices.register_stateful_network_device({
     inv:set_size("drive_bay", DRIVE_BAY_SIZE)
   end,
 
-  on_rightclick = function (pos, node, user, item_stack, pointed_thing)
-    local assigns = { pos = pos, node = node }
-    local formspec = get_drive_case_formspec(pos, user:get_player_name(), assigns)
-    local formspec_name = get_formspec_name(pos)
-
-    nokore.formspec_bindings:show_formspec(user:get_player_name(), formspec_name, formspec, {
-      state = assigns,
-      on_receive_fields = receive_fields
-    })
-  end,
+  on_rightclick = on_rightclick,
 
   allow_metadata_inventory_move = allow_metadata_inventory_move,
   allow_metadata_inventory_put = allow_metadata_inventory_put,
@@ -316,6 +365,16 @@ yatm.devices.register_stateful_network_device({
       "yatm_drive_case_side.on.png^[transformFX",
       "yatm_drive_case_back.on.png",
       "yatm_drive_case_front.on.png"
+    },
+  },
+  idle = {
+    tiles = {
+      "yatm_drive_case_top.idle.png",
+      "yatm_drive_case_bottom.png",
+      "yatm_drive_case_side.idle.png",
+      "yatm_drive_case_side.idle.png^[transformFX",
+      "yatm_drive_case_back.idle.png",
+      "yatm_drive_case_front.idle.png"
     },
   },
   error = {

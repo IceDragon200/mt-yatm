@@ -89,6 +89,7 @@ local void_chest_yatm_network = {
   kind = "machine",
   groups = {
     dscs_device = 1,
+    dscs_storage_module = 1,
     energy_consumer = 1,
   },
   default_state = "off",
