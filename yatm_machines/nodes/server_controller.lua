@@ -47,6 +47,7 @@ local server_controller_yatm_network = {
   groups = {
     machine_worker = 1,
     energy_consumer = 1,
+    dscs_server = 1,
   },
   default_state = "off",
   states = {

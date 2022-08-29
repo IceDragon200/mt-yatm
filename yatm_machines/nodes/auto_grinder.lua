@@ -50,10 +50,11 @@ function yatm_network:work(ctx)
   local pos = ctx.pos
   local meta = ctx.meta
   local node = ctx.node
+  local dtime = ctx.dtime
 
   local inv = meta:get_inventory()
 
-  local consumed = 0
+  local energy_consumed = 0
 
   if is_blank(meta:get_string("active_recipe")) then
     -- check for recipe
@@ -64,6 +65,7 @@ function yatm_network:work(ctx)
       meta:set_string("active_recipe", recipe.name)
       meta:set_float("duration", recipe.duration)
       meta:set_float("work_time", recipe.duration)
+
       local processing_stack, rest = itemstack_split(input_stack, 1)
       inv:add_item("grinder_processing", processing_stack)
       inv:set_stack("grinder_input", 1, rest)
@@ -80,7 +82,7 @@ function yatm_network:work(ctx)
       meta:set_float("work_time", work_time)
       -- should probably be optional
       yatm.queue_refresh_infotext(pos, node)
-      consumed = consumed + 10
+      energy_consumed = energy_consumed + 10
     else
       local input_stack = inv:get_stack("grinder_processing", 1)
       local recipe = grinding_registry:find_grinding_recipe(input_stack)
@@ -124,7 +126,7 @@ function yatm_network:work(ctx)
     end
   end
 
-  return consumed
+  return energy_consumed
 end
 
 local function refresh_infotext(pos)

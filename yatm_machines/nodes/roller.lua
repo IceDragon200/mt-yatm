@@ -3,7 +3,6 @@
 --
 local mod = yatm_machines
 local Directions = assert(foundation.com.Directions)
-local is_blank = assert(foundation.com.is_blank)
 local itemstack_is_blank = assert(foundation.com.itemstack_is_blank)
 local format_pretty_time = assert(foundation.com.format_pretty_time)
 local cluster_devices = assert(yatm.cluster.devices)

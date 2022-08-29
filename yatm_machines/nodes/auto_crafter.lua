@@ -30,6 +30,7 @@ local yatm_network = {
   },
 }
 
+-- @spec &work(WorkContext): (energy_consumed: Number)
 function yatm_network:work(ctx)
   return 0
 end
