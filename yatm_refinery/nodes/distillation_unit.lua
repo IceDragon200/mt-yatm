@@ -259,7 +259,7 @@ local function render_formspec(pos, user, state)
           TANK_CAPACITY
         ) ..
         yatm_fspec.render_meta_energy_gauge(
-          rect.x + rect.w - cis(1),
+          rect.x + rect.w - cio(1),
           rect.y,
           1,
           rect.h,
