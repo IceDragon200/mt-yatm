@@ -43,22 +43,25 @@ end
 -- @spec device_on_destruct(pos: Vector3): void
 function devices.device_on_destruct(pos)
   --
+  local node = minetest.get_node(pos)
+  local nodedef = minetest.registered_nodes[node.name]
+
+  if nodedef.groups['yatm_cluster_device'] then
+    cluster_devices:schedule_remove_node(pos, node)
+  end
+
+  if nodedef.groups['yatm_cluster_energy'] then
+    cluster_energy:schedule_remove_node(pos, node)
+  end
+
+  if nodedef.groups['yatm_cluster_thermal'] then
+    cluster_thermal:schedule_remove_node(pos, node)
+  end
 end
 
 -- @spec device_after_destruct(pos: Vector3, old_node: NodeRef): void
 function devices.device_after_destruct(pos, old_node)
-  local nodedef = minetest.registered_nodes[old_node.name]
-  if nodedef.groups['yatm_cluster_device'] then
-    cluster_devices:schedule_remove_node(pos, old_node)
-  end
-
-  if nodedef.groups['yatm_cluster_energy'] then
-    cluster_energy:schedule_remove_node(pos, old_node)
-  end
-
-  if nodedef.groups['yatm_cluster_thermal'] then
-    cluster_thermal:schedule_remove_node(pos, old_node)
-  end
+  --
 end
 
 -- @spec device_after_place_node(

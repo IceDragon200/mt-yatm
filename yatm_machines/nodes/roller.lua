@@ -3,15 +3,15 @@
 --
 local mod = yatm_machines
 local Directions = assert(foundation.com.Directions)
+local Energy = assert(yatm.energy)
+local Vector3 = assert(foundation.com.Vector3)
 local itemstack_is_blank = assert(foundation.com.itemstack_is_blank)
 local format_pretty_time = assert(foundation.com.format_pretty_time)
 local cluster_devices = assert(yatm.cluster.devices)
-local Energy = assert(yatm.energy)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local rolling_registry = assert(yatm.rolling.rolling_registry)
 local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
-local Vector3 = assert(foundation.com.Vector3)
 local player_service = assert(nokore.player_service)
 
 local device_get_node_infotext = assert(cluster_devices.get_node_infotext)

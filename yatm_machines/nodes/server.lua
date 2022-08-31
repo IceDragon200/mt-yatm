@@ -4,7 +4,6 @@
 local mod = yatm_machines
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
-local data_network = assert(yatm.data_network)
 local Energy = assert(yatm.energy)
 local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
@@ -14,7 +13,6 @@ local player_service = assert(nokore.player_service)
 local device_get_node_infotext = assert(cluster_devices.get_node_infotext)
 local energy_get_node_infotext = assert(cluster_energy.get_node_infotext)
 local energy_meta_to_infotext = assert(Energy.meta_to_infotext)
-local data_network_get_infotext = assert(data_network.get_infotext)
 
 local ENERGY_BUFFER_KEY = yatm.devices.ENERGY_BUFFER_KEY
 
@@ -24,25 +22,9 @@ local function server_refresh_infotext(pos, node)
   local infotext =
     device_get_node_infotext(cluster_devices, pos) .. "\n" ..
     energy_get_node_infotext(cluster_energy, pos) .. "\n" ..
-    "Energy: " .. energy_meta_to_infotext(meta, ENERGY_BUFFER_KEY) .. "\n" ..
-    data_network_get_infotext(data_network, pos)
+    "Energy: " .. energy_meta_to_infotext(meta, ENERGY_BUFFER_KEY)
 
   meta:set_string("infotext", infotext)
-end
-
-local function server_after_place_node(pos, _placer, _item_stack, _pointed_thing)
-  local node = minetest.get_node(pos)
-  data_network:add_node(pos, node)
-  yatm.devices.device_after_place_node(pos, node)
-end
-
-local function server_on_destruct(pos)
-  yatm.devices.device_on_destruct(pos)
-end
-
-local function server_after_destruct(pos, old_node)
-  data_network:unregister_member(pos, old_node)
-  yatm.devices.device_after_destruct(pos, old_node)
 end
 
 local server_yatm_network = {
@@ -69,11 +51,6 @@ local server_yatm_network = {
 
 function server_yatm_network:work(ctx)
   local dtime = ctx.dtime
-  --data_network:mark_ready_to_receive(pos, 1)
-  --data_network:mark_ready_to_receive(pos, 2)
-  --data_network:mark_ready_to_receive(pos, 3)
-  --data_network:mark_ready_to_receive(pos, 4)
-  --data_network:mark_ready_to_receive(pos, 5)
   return 50 * dtime
 end
 
@@ -154,7 +131,6 @@ yatm.devices.register_stateful_network_device({
 
   groups = {
     cracky = 1,
-    yatm_data_device = 1,
     yatm_network_device = 1,
     yatm_energy_device = 1,
   },
@@ -189,23 +165,7 @@ yatm.devices.register_stateful_network_device({
 
   yatm_network = server_yatm_network,
 
-  data_network_device = {
-    type = "device",
-  },
-  data_interface = {
-    on_load = function (self, pos, node)
-      --
-    end,
-
-    receive_pdu = function (self, pos, node, dir, port, value)
-      print("received a pdu", minetest.pos_to_string(pos), node.name, dir, port, value)
-    end,
-  },
   refresh_infotext = server_refresh_infotext,
-
-  after_place_node = server_after_place_node,
-  on_destruct = server_on_destruct,
-  after_destruct = server_after_destruct,
 
   on_rightclick = on_rightclick,
 }, {

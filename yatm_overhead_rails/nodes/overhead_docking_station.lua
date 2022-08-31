@@ -207,7 +207,9 @@ local function on_construct(pos)
   end
 end
 
-local function after_destruct(pos, node)
+local function on_destruct(pos)
+  local node = minetest.get_node_or_nil(pos)
+
   if data_network then
     data_network:remove_node(pos, node)
   end
@@ -223,6 +225,10 @@ local function after_destruct(pos, node)
   if cluster_thermal then
     cluster_thermal:schedule_remove_node(pos, node)
   end
+end
+
+local function after_destruct(pos, node)
+
 end
 
 local function transition_device_state(pos, node, state)
@@ -468,6 +474,7 @@ minetest.register_node("yatm_overhead_rails:overhead_docking_station", {
   paramtype = "light",
 
   on_construct = on_construct,
+  on_destruct = on_destruct,
   after_destruct = after_destruct,
 
   data_network_device = data_network_device,

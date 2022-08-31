@@ -43,10 +43,19 @@ local function set_node_to_air(pos)
   minetest.set_node(pos, { name = "air" })
 end
 
+local function random_pos()
+  return {
+    x = math.random(0xFFFF) - 0x8000,
+    y = math.random(0xFFFF) - 0x8000,
+    z = math.random(0xFFFF) - 0x8000,
+  }
+end
+
 yatm_machines.autotest_suite.utils = {
   random_energy_provider = random_energy_provider,
   wait_for_next_tick_on_clusters = wait_for_next_tick_on_clusters,
   set_node_to_air = set_node_to_air,
+  random_pos = random_pos,
 }
 
 yatm_machines.autotest_suite:define_property("is_network_controller_like", {
@@ -59,7 +68,7 @@ yatm_machines.autotest_suite:define_property("is_network_controller_like", {
   setup = function (suite, state)
     suite:clear_test_area()
 
-    state.pos = vector.new(0, 0, 0)
+    state.pos = random_pos()
     state.node_id = hash_node_position(state.pos)
     minetest.set_node(state.pos, assert(state.node))
 
@@ -103,7 +112,7 @@ yatm_machines.autotest_suite:define_property("is_network_controller_like", {
   },
 
   teardown = function (suite, state)
-    suite:clear_test_area()
+    suite:clear_test_area(state.pos)
 
     wait_for_next_tick_on_clusters(suite, state, 1.0)
   end,
@@ -118,7 +127,7 @@ yatm_machines.autotest_suite:define_property("is_network_controller", {
   setup = function (suite, state)
     suite:clear_test_area()
 
-    state.pos = vector.new(0, 0, 0)
+    state.pos = random_pos()
     state.node_id = hash_node_position(state.pos)
     minetest.set_node(state.pos, assert(state.node))
 
@@ -161,7 +170,7 @@ yatm_machines.autotest_suite:define_property("is_network_controller", {
   },
 
   teardown = function (suite, state)
-    suite:clear_test_area()
+    suite:clear_test_area(state.pos)
 
     wait_for_next_tick_on_clusters(suite, state, 1.0)
   end,
