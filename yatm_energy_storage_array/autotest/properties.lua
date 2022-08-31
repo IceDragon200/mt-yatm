@@ -10,6 +10,7 @@ local EnergyDevices = assert(yatm.energy.EnergyDevices)
 -- local random_energy_provider = yatm_machines.autotest_suite.utils.random_energy_provider
 local wait_for_next_tick_on_clusters = yatm_machines.autotest_suite.utils.wait_for_next_tick_on_clusters
 local set_node_to_air = yatm_machines.autotest_suite.utils.set_node_to_air
+local random_pos = yatm_machines.autotest_suite.utils.random_pos
 
 yatm_energy_storage_array.autotest_suite:define_property("is_array_energy_controller", {
   description = "Is Array Energy Controller",
@@ -18,9 +19,7 @@ yatm_energy_storage_array.autotest_suite:define_property("is_array_energy_contro
   ]],
 
   setup = function (suite, state)
-    suite:clear_test_area()
-
-    state.pos = vector.new(0, 0, 0)
+    state.pos = random_pos()
     state.node_id = hash_node_position(state.pos)
     minetest.set_node(state.pos, assert(state.node))
 
@@ -29,6 +28,17 @@ yatm_energy_storage_array.autotest_suite:define_property("is_array_energy_contro
 
   tests = {
     ["Will create a device network on construction"] = function (suite, state)
+      -- so the controller will need at least one cell to be considered "up" for leadership
+      -- for this test, the creative cell is being used, since it will always report having
+      -- energy
+      local cell_name = "yatm_energy_storage_array:array_energy_cell_creative"
+      local cell_pos = Vector3.add({}, state.pos, { x = 0, y = 0, z = 1 })
+
+      minetest.set_node(cell_pos, { name = cell_name })
+
+      -- wait for network - to resolve first stage events
+      wait_for_next_tick_on_clusters(suite, state, 2.0)
+      -- wait for network again - to resolve refresh stage events
       wait_for_next_tick_on_clusters(suite, state, 2.0)
 
       local cluster = cluster_devices:get_node_cluster(state.pos)
@@ -37,8 +47,32 @@ yatm_energy_storage_array.autotest_suite:define_property("is_array_energy_contro
         error("device cluster not available")
       end
 
+      if cluster:size() ~= 2 then
+        error("expected only 2 devices to be in cluster")
+      end
+
+      local node_entry = cluster:get_node(state.pos)
+      local nodedef = minetest.registered_nodes[node_entry.node.name]
+
+      if not nodedef.groups.yatm_cluster_device then
+        error("expected to be part of the yatm_cluster_device node group")
+      end
+
+      if not node_entry.groups["device_controller"] then
+        error("invalid array energy controller, expected to be in device_controller group")
+      end
+
+      if cluster.assigns.controller_state ~= "up" then
+        error("cluster is expected to be up (got " .. cluster.assigns.controller_state .. ")")
+      end
+
+      if not cluster.assigns.controller_id then
+        error("expected a controller_id to be present")
+      end
+
       if cluster.assigns.controller_id ~= state.node_id then
-        error("device node was expected to be controller of cluster")
+        error("device node was expected to be controller of cluster (expected " ..
+          state.node_id .. ", got " .. cluster.assigns.controller_id .. ")")
       end
     end,
 
@@ -51,14 +85,22 @@ yatm_energy_storage_array.autotest_suite:define_property("is_array_energy_contro
         error("device cluster not available")
       end
 
+      wait_for_next_tick_on_clusters(suite, state, 2.0)
+
       set_node_to_air(state.pos)
 
       wait_for_next_tick_on_clusters(suite, state, 2.0)
 
-      local cluster = cluster_devices:get_node_cluster(state.pos)
+      local node = minetest.get_node(state.pos)
+
+      if node.name ~= "air" then
+        error("node should have been air (got " .. node.name .. " instead)")
+      end
+
+      cluster = cluster_devices:get_node_cluster(state.pos)
 
       if cluster then
-        error("cluster should have been removed")
+        error("cluster should have been removed (id " .. cluster.id .. ")")
       end
     end,
 
@@ -92,11 +134,17 @@ yatm_energy_storage_array.autotest_suite:define_property("is_array_energy_contro
 
       en = EnergyDevices.get_usable_stored_energy(state.pos, node)
       assert(en == 90, "expected the same amount of energy that was received to be stored")
+
+      en = EnergyDevices.use_stored_energy(state.pos, node, 90, 1.0)
+      assert(en == 90, "expected the same amount of energy that was stored to be used")
+
+      en = EnergyDevices.get_usable_stored_energy(state.pos, node)
+      assert(en == 0, "expected no energy to be stored after using it")
     end,
   },
 
   teardown = function (suite, state)
-    suite:clear_test_area()
+    suite:clear_test_area(state.pos)
 
     wait_for_next_tick_on_clusters(suite, state, 1.0)
   end,
