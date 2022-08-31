@@ -5,6 +5,7 @@ local path_join = assert(foundation.com.path_join)
 local Groups = assert(foundation.com.Groups)
 local metaref_string_list_to_table = assert(foundation.com.metaref_string_list_to_table)
 local metaref_string_list_push = assert(foundation.com.metaref_string_list_push)
+local metaref_string_list_index_of = assert(foundation.com.metaref_string_list_index_of)
 local metaref_string_list_lazy_clear = assert(foundation.com.metaref_string_list_lazy_clear)
 
 local pos_to_string = assert(minetest.pos_to_string)
@@ -14,6 +15,11 @@ local get_inventory_controller_def = assert(yatm.dscs.get_inventory_controller_d
 
 -- @namespace yatm_dscs
 
+-- @spec.private try_register_to_inventory_controller(
+--   pos: Vector3,
+--   node: NodeRef,
+--   child_pos: Vector3
+-- ): Boolean
 local function try_register_to_inventory_controller(pos, node, child_pos)
   local inv_con, err = get_inventory_controller_def(pos, node)
   if not inv_con then
@@ -22,20 +28,49 @@ local function try_register_to_inventory_controller(pos, node, child_pos)
 
   local meta = minetest.get_meta(pos)
 
+  local value = pos_to_string(child_pos)
+
+  local prefix = inv_con.child_key_prefix
+  local max = inv_con.max_children
+  local index = metaref_string_list_index_of(meta, prefix, max, value)
+
+  if index then
+    return true
+  end
+
   -- grab the child count
   local count =
     metaref_string_list_push(
       meta,
-      inv_con.child_key_prefix,
-      inv_con.max_children,
-      pos_to_string(child_pos)
+      prefix,
+      max,
+      value
     )
 
-  if not count then
-    return false, "no space for more children"
+  if count then
+    return true
   end
 
-  return true
+  return false, "no space for more children"
+end
+
+local function is_registered_to_inventory_controller(pos, node, child_pos)
+  local inv_con, err = get_inventory_controller_def(pos, node)
+  if not inv_con then
+    return false, err
+  end
+
+  local meta = minetest.get_meta(pos)
+  local value = pos_to_string(child_pos)
+  local index =
+    metaref_string_list_index_of(
+      meta,
+      inv_con.child_key_prefix,
+      inv_con.max_children,
+      value
+    )
+
+  return index ~= nil
 end
 
 local function handle_dscs_storage_module(_clusters, cluster, dtime, node_entry)
@@ -53,6 +88,9 @@ local function handle_dscs_storage_module(_clusters, cluster, dtime, node_entry)
 
     local has_valid_controller = has_controller
 
+    local registered
+    local err
+
     if has_controller > 0 then
       controller_pos = string_to_pos(meta:get_string("inv_controller_pos"))
       if controller_pos then
@@ -60,7 +98,18 @@ local function handle_dscs_storage_module(_clusters, cluster, dtime, node_entry)
 
         if controller_node_entry then
           if Groups.has_group(controller_node_entry, "dscs_inventory_controller") then
-            has_valid_controller = 1
+            registered, err =
+              is_registered_to_inventory_controller(
+                controller_node_entry.pos,
+                controller_node_entry.node,
+                node_entry.pos
+              )
+
+            if registered then
+              has_valid_controller = 1
+            else
+              has_valid_controller = 0
+            end
           else
             has_valid_controller = 0
           end
@@ -74,9 +123,6 @@ local function handle_dscs_storage_module(_clusters, cluster, dtime, node_entry)
 
     if has_valid_controller == 0 then
       -- there is no valid controller at the moment, start looking for a new one
-
-      local registered
-      local err
 
       -- find a new controller
       controller_pos =
@@ -109,6 +155,10 @@ local function handle_dscs_storage_module(_clusters, cluster, dtime, node_entry)
       meta:set_string("inv_controller_pos", "")
     end
   end
+end
+
+local function handle_dscs_assembler_module(_clusters, cluster, dtime, node_entry)
+
 end
 
 local function handle_dscs_inventory_controller(_clusters, cluster, dtime, node_entry)
@@ -175,7 +225,8 @@ function ic:update(cls, cluster, dtime)
   end)
 
   cluster:reduce_nodes_of_group("dscs_assembler_module", 0, function (node_entry, acc)
-    --print(dump(pos), dump(node))
+    handle_dscs_assembler_module(cls, cluster, dtime, node_entry)
+
     return true, acc + 1
   end)
 
