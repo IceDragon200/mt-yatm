@@ -40,7 +40,7 @@ local function calc_array_capacity(pos)
 
   if cluster then
     return cluster:reduce_nodes_of_group("array_energy_cell", 0, function (node_entry, acc)
-      local cell_node = minetest.get_node(node_entry.pos)
+      local cell_node = node_entry.node
       local intf = get_array_energy_interface(cell_node)
       if intf then
         return true, acc + intf.capacity(node_entry.pos, cell_node)
@@ -60,7 +60,7 @@ local function array_receive_energy(pos, energy_left, dtime, ot)
     local count = cluster:count_nodes_of_group("array_energy_cell")
 
     return cluster:reduce_nodes_of_group("array_energy_cell", 0, function (node_entry, acc)
-      local cell_node = minetest.get_node(node_entry.pos)
+      local cell_node = node_entry.node
       local intf = get_array_energy_interface(cell_node)
       if intf then
         local energy_received =
@@ -88,7 +88,7 @@ local function array_get_stored_energy(pos)
 
   if cluster then
     return cluster:reduce_nodes_of_group("array_energy_cell", 0, function (node_entry, acc)
-      local cell_node = minetest.get_node(node_entry.pos)
+      local cell_node = node_entry.node
       local intf = get_array_energy_interface(cell_node)
       if intf then
         return true, acc + intf.get_stored_energy(node_entry.pos, cell_node)
@@ -106,7 +106,7 @@ local function array_get_usable_stored_energy(pos)
 
   if cluster then
     return cluster:reduce_nodes_of_group("array_energy_cell", 0, function (node_entry, acc)
-      local cell_node = minetest.get_node(node_entry.pos)
+      local cell_node = node_entry.node
       local intf = get_array_energy_interface(cell_node)
       if intf then
         return true, acc + intf.get_usable_stored_energy(node_entry.pos, cell_node)
@@ -124,7 +124,7 @@ local function array_use_stored_energy(pos, energy_to_use)
 
   if cluster then
     return cluster:reduce_nodes_of_group("array_energy_cell", 0, function (node_entry, acc)
-      local cell_node = minetest.get_node(node_entry.pos)
+      local cell_node = node_entry.node
       local intf = get_array_energy_interface(cell_node)
       if intf then
         local energy_used = intf.use_stored_energy(node_entry.pos, cell_node, energy_to_use)
@@ -215,15 +215,14 @@ local function render_formspec(pos, user, state)
     if loc == "main_body" then
       local en = array_get_stored_energy(pos)
 
-      return yatm_fspec.render_energy_gauge(
-          rect.x - rect.w + cis(1),
-          rect.y,
-          1,
-          cis(4),
-          meta,
-          en,
-          yatm.devices.get_energy_capacity(pos, state.node)
-        )
+      return yatm_fspec.render_energy_gauge{
+          x = rect.x + rect.w - cio(1),
+          y = rect.y,
+          w = 1,
+          h = cis(4),
+          amount = en,
+          max = yatm.devices.get_energy_capacity(pos, state.node)
+        }
     elseif loc == "footer" then
       return ""
     end
@@ -282,7 +281,7 @@ yatm.devices.register_stateful_network_device({
   drop = yatm_network.states.off,
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
     array_energy_cell_controller = 1,
     yatm_network_device = 1,
     yatm_energy_device = 1,

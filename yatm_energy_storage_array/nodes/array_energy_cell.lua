@@ -1,3 +1,5 @@
+local mod = assert(yatm_energy_storage_array)
+
 local cluster_devices = assert(yatm.cluster.devices)
 local Energy = assert(yatm.energy)
 
@@ -24,10 +26,10 @@ end
 local node_name = "yatm_energy_storage_array:array_energy_cell_creative"
 
 minetest.register_node(node_name, yatm.devices.patch_device_nodedef(node_name, {
-  description = "Array Energy Cell [Creative]",
+  description = mod.S("Array Energy Cell [Creative]"),
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
     yatm_cluster_device = 1,
   },
 
@@ -93,14 +95,14 @@ minetest.register_node(node_name, yatm.devices.patch_device_nodedef(node_name, {
 
 local node_name = "yatm_energy_storage_array:array_energy_cell"
 yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_name, {
-  base_description = "Array Energy Cell",
+  base_description = mod.S("Array Energy Cell"),
 
-  description = "Array Energy Cell",
+  description = mod.S("Array Energy Cell"),
 
   drop = node_name .. "_stage0",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
     yatm_cluster_device = 1,
   },
 
@@ -141,7 +143,16 @@ yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_na
 
       use_stored_energy = function (pos, node, energy_to_use)
         local meta = minetest.get_meta(pos)
-        local consumed_energy = Energy.consume_meta_energy(meta, ENERGY_KEY, energy_to_use, BANDWIDTH, CAPACITY, true)
+        local consumed_energy =
+          Energy.consume_meta_energy(
+            meta,
+            ENERGY_KEY,
+            energy_to_use,
+            BANDWIDTH,
+            CAPACITY,
+            true
+          )
+
         if consumed_energy > 0 then
           yatm.queue_refresh_infotext(pos, node)
         end
