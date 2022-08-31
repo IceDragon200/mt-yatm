@@ -31,26 +31,40 @@
 -- @namespace yatm_cluster_energy.EnergyDevices
 local EnergyDevices = {}
 
-local function get_energy_interface_function(pos, node, function_name)
+local function get_energy_interface_function_safe(pos, node, function_name)
   local nodedef = minetest.registered_nodes[node.name]
   if not nodedef then
-    error("expected a registered node for " .. node.name)
+    return nil, "expected a registered node"
   end
 
   local ym = nodedef.yatm_network
   if not ym then
-    error("expected a yatm_network configuration for node `" .. node.name .. "`")
+    return nil, "expected a yatm_network configuration for node"
   end
 
   local en = nodedef.yatm_network.energy
   if not en then
-    error("expected a yatm_network.energy interface for node `" .. node.name .. "`")
+    return nil, "expected a yatm_network.energy interface for node"
   end
 
   local func = en[function_name]
   if not func then
-    error("expected yatm_network.energy." .. function_name .. " to be defined for node `" ..
-          node.name .. "`")
+    return nil, "expected yatm_network.energy." .. function_name .. " to be defined for node"
+  end
+
+  return func
+end
+
+local function get_energy_interface_function(pos, node, function_name)
+  local func, err = get_energy_interface_function_safe(pos, node, function_name)
+
+  if not func then
+    error(
+      "get_energy_interface_function error:\n\t" ..
+      err ..
+      "\n\tpos: " .. minetest.pos_to_string(pos) ..
+      "\n\tnode: " .. node.name
+    )
   end
 
   return func
@@ -115,7 +129,7 @@ function EnergyDevices.consume_energy(pos, node, energy_available, dtime, trace)
   )(pos, node, energy_available, dtime, trace)
 end
 
--- Requests that the target node consume it's 'stored' energy, this is only used for nodes that
+-- Requests that the target node consume its 'stored' energy, this is only used for nodes that
 -- reported a device group of `energy_storage`, the system does not track who contributed what to
 -- the previous pool created with get_usable_stored_energy/4, so devices that didn't contribute can
 -- be expected to be drained as well if possible.

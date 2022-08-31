@@ -77,9 +77,20 @@ do
     minetest.bulk_set_node(positions, node)
   end
 
-  function ic:clear_test_area()
+  function ic:clear_test_area(center_pos)
+    center_pos = center_pos or { x = 0, y = 0, z = 0 }
     minetest.chat_send_all("Clearing area 16x32x16 for next test")
-    self:set_cuboid(Cuboid.new(-8, 0, -8, 16, 32, 16), { name = "air" })
+    local cuboid =
+      Cuboid.new(
+        center_pos.x - 8,
+        center_pos.y - 8,
+        center_pos.z - 8,
+        16,
+        32,
+        16
+      )
+
+    self:set_cuboid(cuboid, { name = "air" })
   end
 
   function ic:yield(...)
@@ -166,10 +177,18 @@ do
   -- @spec #initialize(): void
   function ic:initialize()
     self.suites = {}
+    self.only = nil
     self.active = false
     self.running = false
     self.fiber = nil
     self.wait_time = 0
+  end
+
+  function ic:only_run(name)
+    if not self.only then
+      self.only = {}
+    end
+    table.insert(self.only, name)
   end
 
   function ic:activate()
@@ -193,17 +212,32 @@ do
       for _,suite in pairs(active_suites) do
         minetest.chat_send_all("Running autotest suite: " .. suite.name)
 
-        print(suite.name)
+        local should_run = true
 
-        local success, err = xpcall(function ()
-          suite:main(1)
-        end, debug.traceback)
+        if self.only then
+          should_run = false
 
-        if success then
-          -- nothing to do here
-          print("\tSUITE OK")
-        else
-          print("\tSUITE FAILED: " .. err)
+          for _, name in ipairs(self.only) do
+            if suite.name == name then
+              should_run = true
+              break
+            end
+          end
+        end
+
+        if should_run then
+          print(suite.name)
+
+          local success, err = xpcall(function ()
+            suite:main(1)
+          end, debug.traceback)
+
+          if success then
+            -- nothing to do here
+            print("\tSUITE OK")
+          else
+            print("\tSUITE FAILED: " .. err)
+          end
         end
       end
 

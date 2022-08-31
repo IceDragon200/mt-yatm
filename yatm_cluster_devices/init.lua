@@ -9,8 +9,8 @@ local ic = DeviceCluster.instance_class
 function ic:initialize(cluster_group)
   ic._super.initialize(self, {
     cluster_group = cluster_group,
-    log_group = 'yatm.cluster.device',
-    node_group = 'yatm_cluster_device'
+    log_group = "yatm.cluster.device",
+    node_group = "yatm_cluster_device"
   })
 end
 
@@ -20,7 +20,7 @@ function ic:get_node_infotext(pos)
   local cluster = self:get_node_cluster(pos)
 
   if cluster then
-    local state_string = cluster.assigns.state or 'unknown'
+    local state_string = cluster.assigns.state or "unknown"
     local controller_id = cluster.assigns.controller_id
     if controller_id then
       if controller_id == node_id then
@@ -32,7 +32,7 @@ function ic:get_node_infotext(pos)
     return "Device Cluster: " .. cluster.id .. " (" .. state_string .. ")"
   end
 
-  return ''
+  return ""
 end
 
 function ic:get_node_groups(node)
@@ -46,10 +46,10 @@ function ic:get_node_groups(node)
 end
 
 function ic:handle_node_event(cls, generation_id, event, node_clusters, trace)
-  if event.event_name == 'refresh_controller' then
+  if event.event_name == "refresh_controller" then
     self:_handle_refresh_controller(cls, generation_id, event, node_clusters)
 
-  elseif event.event_name == 'transition_state' then
+  elseif event.event_name == "transition_state" then
     self:_handle_transition_state(cls, generation_id, event, node_clusters)
 
   else
@@ -72,31 +72,53 @@ function ic:_handle_load_node(cls, generation_id, event, node_clusters)
 end
 
 function ic:_handle_add_node(cls, generation_id, event, node_clusters)
-  local cluster = ic._super._handle_add_node(self, cls, generation_id, event, node_clusters)
+  local cluster =
+    ic._super._handle_add_node(
+      self,
+      cls,
+      generation_id,
+      event,
+      node_clusters
+    )
+
   cls:schedule_node_event(
     self.m_cluster_group,
-    'refresh_controller',
+    "refresh_controller",
     event.pos,
     event.node,
-    { cluster_id = cluster.id, generation_id = generation_id }
+    {
+      cluster_id = cluster.id,
+      generation_id = generation_id
+    }
   )
   return cluster
 end
 
 function ic:on_cluster_branch_changed(cls, generation_id, event, cluster)
-  cls:schedule_node_event(self.m_cluster_group, 'refresh_controller',
-                           event.pos, event.node,
-                           { cluster_id = cluster.id, generation_id = generation_id })
+  cls:schedule_node_event(
+    self.m_cluster_group,
+    "refresh_controller",
+    event.pos,
+    event.node,
+    {
+      cluster_id = cluster.id,
+      generation_id = generation_id
+    }
+  )
 end
 
 function ic:transition_cluster_state(cls, cluster, generation_id, event, state)
-  cls:schedule_node_event(self.m_cluster_group, 'transition_state',
-                          event.pos, event.node,
-                          {
-                            state = state,
-                            cluster_id = cluster.id,
-                            generation_id = generation_id
-                          })
+  cls:schedule_node_event(
+    self.m_cluster_group,
+    "transition_state",
+    event.pos,
+    event.node,
+    {
+      state = state,
+      cluster_id = cluster.id,
+      generation_id = generation_id
+    }
+  )
 end
 
 function ic:_handle_refresh_controller(cls, generation_id, event, node_clusters)
@@ -110,22 +132,22 @@ function ic:_handle_refresh_controller(cls, generation_id, event, node_clusters)
       -- it seems our generation is stale, refresh for real
       cluster.assigns.generation_id = generation_id
 
-      local tiered_nodes = {}
-
-      cluster:reduce_nodes_of_group("device_controller", tiered_nodes, function (node_entry, acc)
-        local tier = node_entry.groups['device_controller']
-        if not acc[tier] then
-          acc[tier] = {}
-        end
-        acc[tier][node_entry.id] = node_entry
-        return true, acc
-      end)
+      local tiered_nodes =
+        cluster:reduce_nodes_of_group("device_controller", {}, function (node_entry, acc)
+          local tier = node_entry.groups["device_controller"]
+          if not acc[tier] then
+            acc[tier] = {}
+          end
+          acc[tier][node_entry.id] = node_entry
+          return true, acc
+        end)
 
       if is_table_empty(tiered_nodes) then
-        -- just choose the first one, it's the leader for now.
+        -- no controllers or eligible leaders
         cluster.assigns.controller_id = nil
+        cluster.assigns.controller_state = "down"
 
-        self:transition_cluster_state(cls, cluster, generation_id, event, 'down')
+        self:transition_cluster_state(cls, cluster, generation_id, event, "down")
       else
         local tier1_nodes = tiered_nodes[1]
 
@@ -134,16 +156,19 @@ function ic:_handle_refresh_controller(cls, generation_id, event, node_clusters)
           if table_length(tier1_nodes) > 1 then
             -- ho boi, we have a problem
             cluster.assigns.controller_id = nil
+            cluster.assigns.controller_state = "conflict"
 
-            self:transition_cluster_state(cls, cluster, generation_id, event, 'conflict')
+            self:transition_cluster_state(cls, cluster, generation_id, event, "conflict")
           else
             local node_id, _node_entry = next(tier1_nodes)
 
             cluster.assigns.controller_id = node_id
+            cluster.assigns.controller_state = "up"
 
-            self:transition_cluster_state(cls, cluster, generation_id, event, 'up')
+            self:transition_cluster_state(cls, cluster, generation_id, event, "up")
           end
         else
+          -- just choose the first one, it's the leader for now.
           local tiers = table_keys(tiered_nodes)
           local highest_tier = 100
           for tier, _nodes in pairs(tiered_nodes) do
@@ -156,8 +181,9 @@ function ic:_handle_refresh_controller(cls, generation_id, event, node_clusters)
           local node_id, _node_entry = next(nodes)
 
           cluster.assigns.controller_id = node_id
+          cluster.assigns.controller_state = "up"
 
-          self:transition_cluster_state(cls, cluster, generation_id, event, 'up')
+          self:transition_cluster_state(cls, cluster, generation_id, event, "up")
         end
       end
     end
@@ -172,8 +198,14 @@ function ic:_handle_transition_state(cls, generation_id, event, node_clusters)
   if cluster then
     cluster.assigns.state = assert(event.params.state)
     cluster:reduce_nodes(0, function (node_entry, acc)
-      local nodedef = minetest.registered_nodes[node_entry.node.name]
-      nodedef.transition_device_state(node_entry.pos, node_entry.node, cluster.assigns.state)
+      -- fetch the _actual_ node, instead of the cluster's state
+      local node = minetest.get_node_or_nil(node_entry.pos)
+      if node then
+        local nodedef = minetest.registered_nodes[node.name]
+        if nodedef.transition_device_state then
+          nodedef.transition_device_state(node_entry.pos, node, cluster.assigns.state)
+        end
+      end
       return true, acc + 1
     end)
   else

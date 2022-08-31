@@ -129,12 +129,19 @@ do
     end
   end
 
+  -- @spec #schedule_add_node(pos: Vector3, node: NodeRef): void
   function ic:schedule_add_node(pos, node)
-    self:log('schedule_add_node', minetest.pos_to_string(pos), node.name)
+    self:log("schedule_add_node", minetest.pos_to_string(pos), node.name)
     local nodedef = minetest.registered_nodes[node.name]
     if nodedef.groups[self.m_node_group] then
       local groups = self:get_node_groups(node)
-      clusters:schedule_node_event(self.m_cluster_group, 'add_node', pos, node, { groups = groups })
+      clusters:schedule_node_event(
+        self.m_cluster_group,
+        "add_node",
+        pos,
+        node,
+        { groups = groups }
+      )
     else
       error("node violation: " .. node.name .. " does not belong to " .. self.m_node_group .. " group")
     end
@@ -149,55 +156,75 @@ do
   -- * `node` - the NodeRef
   -- * `new_state` - some kind of identifier for the new state, could be anything
   function ic:schedule_transition_node(pos, node, new_state)
-    self:log('schedule_transition_node', minetest.pos_to_string(pos), node.name)
+    self:log("schedule_transition_node", minetest.pos_to_string(pos), node.name)
     local groups = self:get_node_groups(node)
-    clusters:schedule_node_event(self.m_cluster_group,
-                                 'transition_node',
-                                 pos,
-                                 node,
-                                 { state = new_state })
+    clusters:schedule_node_event(
+      self.m_cluster_group,
+      "transition_node",
+      pos,
+      node,
+      { state = new_state }
+    )
   end
 
   function ic:schedule_load_node(pos, node)
-    self:log('schedule_load_node', minetest.pos_to_string(pos), node.name)
+    self:log("schedule_load_node", minetest.pos_to_string(pos), node.name)
     local groups = self:get_node_groups(node)
-    clusters:schedule_node_event(self.m_cluster_group, 'load_node', pos, node, { groups = groups })
+    clusters:schedule_node_event(
+      self.m_cluster_group,
+      "load_node",
+      pos,
+      node,
+      { groups = groups }
+    )
   end
 
   function ic:schedule_update_node(pos, node)
-    self:log('schedule_update_node', minetest.pos_to_string(pos), node.name)
+    self:log("schedule_update_node", minetest.pos_to_string(pos), node.name)
     local groups = self:get_node_groups(node)
-    clusters:schedule_node_event(self.m_cluster_group, 'update_node', pos, node, { groups = groups })
+    clusters:schedule_node_event(
+      self.m_cluster_group,
+      "update_node",
+      pos,
+      node,
+      { groups = groups }
+    )
   end
 
   function ic:schedule_remove_node(pos, node)
-    self:log('schedule_remove_node', minetest.pos_to_string(pos), node.name)
-    clusters:schedule_node_event(self.m_cluster_group, 'remove_node', pos, node, { })
+    self:log("schedule_remove_node", minetest.pos_to_string(pos), node.name)
+    clusters:schedule_node_event(
+      self.m_cluster_group,
+      "remove_node",
+      pos,
+      node,
+      {}
+    )
   end
 
   function ic:handle_node_event(cls, generation_id, event, cluster_ids, trace)
     local span
 
-    self:log('event', event.event_name, generation_id, minetest.pos_to_string(event.pos))
+    self:log("event", event.event_name, generation_id, minetest.pos_to_string(event.pos))
 
     if trace then
       span = trace:span_start(event.event_name)
     end
 
-    if event.event_name == 'load_node' then
+    if event.event_name == "load_node" then
       -- treat loads like adding a node
       self:_handle_load_node(cls, generation_id, event, cluster_ids)
 
-    elseif event.event_name == 'add_node' then
+    elseif event.event_name == "add_node" then
       self:_handle_add_node(cls, generation_id, event, cluster_ids)
 
-    elseif event.event_name == 'update_node' then
+    elseif event.event_name == "update_node" then
       self:_handle_update_node(cls, generation_id, event, cluster_ids)
 
-    elseif event.event_name == 'remove_node' then
+    elseif event.event_name == "remove_node" then
       self:_handle_remove_node(cls, generation_id, event, cluster_ids)
 
-    elseif event.event_name == 'transition_node' then
+    elseif event.event_name == "transition_node" then
       self:_handle_transition_node(cls, generation_id, event, cluster_ids)
 
     else
@@ -327,7 +354,12 @@ do
     end
 
     if cluster then
-      cls:update_node_in_cluster(cluster.id, event.pos, event.node, event.params.groups)
+      local updated, err =
+        cls:update_node_in_cluster(cluster.id, event.pos, event.node, event.params.groups)
+
+      if not updated then
+        print("failed to update node ", dump(event), err)
+      end
     end
     return cluster
   end
@@ -443,18 +475,11 @@ do
 
   function ic:_handle_remove_node(cls, generation_id, event, _cluster_ids)
     self:log('_handle_remove_node', minetest.pos_to_string(event.pos))
-    -- TODO:
-    local current_cluster_id =
-      cls:reduce_node_clusters(event.pos, nil, function (cluster, acc)
-        if cluster.groups[self.m_cluster_group] then
-          return false, cluster.id
-        else
-          return true, acc
-        end
-      end)
 
-    if current_cluster_id then
-      cls:remove_node_from_cluster(current_cluster_id, event.pos, event.node)
+    local current_cluster = self:get_node_cluster(event.pos)
+
+    if current_cluster then
+      cls:remove_node_from_cluster(current_cluster.id, event.pos, event.node)
     end
 
     local branches = self:scan_for_branches(event.pos, event.node)

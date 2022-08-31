@@ -516,18 +516,27 @@ do
 
   function ic:schedule_node_event(cluster_group, event_name, pos, node, params)
     assert(pos, "need a position")
-    --print("clusters", "schedule_node_event", cluster_group, event_name, minetest.pos_to_string(pos), node.name)
+    -- print(
+    --   "clusters",
+    --   "schedule_node_event",
+    --   cluster_group,
+    --   event_name,
+    --   minetest.pos_to_string(pos),
+    --   node.name
+    -- )
     local node_id = minetest.hash_node_position(pos)
     local node_name = "N/A"
     if node then
       node_name = node.name
     end
 
-    --print("pushing_node_event",
-    --  "node_id:", node_id,
-    --  "event_name:", event_name,
-    --  "from_node:", node_name,
-    --  "params: ", dump(params))
+    -- print(
+    --   "pushing_node_event",
+    --   "node_id:", node_id,
+    --   "event_name:", event_name,
+    --   "from_node:", node_name,
+    --   "params: ", dump(params)
+    -- )
 
     self.m_queued_node_events:push({
       cluster_group = cluster_group,
@@ -564,13 +573,15 @@ do
   --
   -- Cluster Management
   --
+
+  -- @spec #create_cluster(groups: Table): Cluster
   function ic:create_cluster(groups)
     groups = groups or {}
     self.m_cluster_id = self.m_cluster_id + 1
     local cluster_id = self.m_cluster_id
 
-    self.m_clusters[cluster_id] = Cluster:new(cluster_id, groups)
-    local cluster = self.m_clusters[cluster_id]
+    local cluster = Cluster:new(cluster_id, groups)
+    self.m_clusters[cluster_id] = cluster
 
     -- print("clusters", "create_cluster", cluster.id)
 
@@ -588,9 +599,11 @@ do
     -- print("clusters", "merge_clusters", table.concat(cluster_ids, ", "))
 
     local result_cluster = self:create_cluster()
+    local cluster
 
     for _,cluster_id in ipairs(cluster_ids) do
-      local cluster = self:remove_cluster(cluster_id)
+      cluster = self:remove_cluster_by_id(cluster_id)
+
       if cluster then
         result_cluster:merge(cluster)
       end
@@ -609,7 +622,11 @@ do
       return true, acc + 1
     end)
 
-    -- print("clusters", "merged_clusters", table.concat(cluster_ids, ", "), " into cluster_id=" .. result_cluster.id)
+    -- print(
+    --   "clusters",
+    --   "merged_clusters",
+    --   table.concat(cluster_ids, ", "), " into cluster_id=" .. result_cluster.id
+    -- )
 
     return result_cluster
   end
@@ -643,29 +660,38 @@ do
     return self
   end
 
-  function ic:remove_cluster(cluster_id)
+  -- @spec #remove_cluster_by_id(cluster_id: Integer): Cluster
+  function ic:remove_cluster_by_id(cluster_id)
     -- print("clusters", "remove_cluster", cluster_id)
 
     local cluster = self.m_clusters[cluster_id]
-    self:_cleanup_cluster(cluster)
+    if cluster then
+      self:_cleanup_cluster(cluster)
+      self.m_clusters[cluster_id] = nil
+    end
 
-    self.m_clusters[cluster_id] = nil
     return cluster
   end
 
+  -- @spec
   function ic:_cleanup_cluster(cluster)
+    local group_clusters
     for group_name, _group_value in pairs(cluster.groups) do
-      if self.m_group_clusters[group_name] then
-        self.m_group_clusters[group_name][cluster.id] = nil
-      end
-
-      if is_table_empty(self.m_group_clusters[group_name]) then
-        self.m_group_clusters[group_name] = nil
+      group_clusters = self.m_group_clusters[group_name]
+      if group_clusters then
+        group_clusters[cluster.id] = nil
+        if is_table_empty(group_clusters) then
+          self.m_group_clusters[group_name] = nil
+        end
       end
     end
 
     cluster:reduce_nodes(0, function (node_entry, acc)
-      self:_remove_node_from_cluster_groups(cluster.id, node_entry.pos, node_entry.node)
+      self:_remove_node_from_cluster_groups(
+        cluster.id,
+        node_entry.pos,
+        node_entry.node
+      )
       return true, acc + 1
     end)
   end
@@ -673,9 +699,9 @@ do
   function ic:destroy_cluster(cluster_id, reason)
     -- print("clusters", "destroy_cluster", cluster_id)
 
-    local cluster = self:remove_cluster(cluster_id)
+    local cluster = self:remove_cluster_by_id(cluster_id)
     if cluster then
-      cluster:terminate(reason or 'destroy')
+      cluster:terminate(reason or "destroy")
       self:_on_cluster_destroyed(cluster)
     end
 
@@ -737,9 +763,15 @@ do
     self.m_node_clusters[node_id][cluster_id] = true
   end
 
+  -- @spec update_node_in_cluster(
+  --   cluster_id: ID,
+  --   pos: Vector3,
+  --   node: NodeRef,
+  --   groups: Table
+  -- ): (updated: Boolean, error: String)
   function ic:update_node_in_cluster(cluster_id, pos, node, groups)
     local cluster = self.m_clusters[cluster_id]
-    cluster:update_node(pos, node, groups)
+    return cluster:update_node(pos, node, groups)
   end
 
   function ic:remove_node_from_cluster(cluster_id, pos, node)
@@ -943,6 +975,7 @@ do
       local node_event_queue = self.m_queued_node_events:data()
       local len = self.m_queued_node_events:size()
       self.m_queued_node_events:clear()
+
       local handlers
       local cluster_ids
       local handler_trace
@@ -950,16 +983,20 @@ do
 
       for index = 1,len do
         event = node_event_queue[index]
-        handlers = self.m_node_event_handlers[event.cluster_group]
+        local cluster_group = event.cluster_group
 
-        --print("processing event", dump(event), dump(handlers))
+        handlers = self.m_node_event_handlers[cluster_group]
+
+        -- print("processing event", dump(event), "handlers", dump(handlers))
 
         if handlers then
           for callback_name, callback in pairs(handlers) do
             if span then
               handler_trace = span:span_start(callback_name)
             end
-            cluster_ids = self.m_group_clusters[event.cluster_group]
+            cluster_ids = self.m_group_clusters[cluster_group]
+
+            -- print(callback_name, callback, dump(event))
 
             callback(self, self.m_counter, event, cluster_ids, handler_trace)
 

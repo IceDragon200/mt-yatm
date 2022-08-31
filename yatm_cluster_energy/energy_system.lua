@@ -65,7 +65,13 @@ function ic:calc_energy_stored(cluster, dtime, trace)
     cluster:reduce_nodes_of_group("energy_storage", 0, function (node_entry, accumulated_energy_stored)
       node = get_node_or_nil(node_entry.pos)
       if node then
-        amount_stored = EnergyDevices.get_usable_stored_energy(node_entry.pos, node, dtime, span)
+        amount_stored =
+          EnergyDevices.get_usable_stored_energy(
+            node_entry.pos,
+            node,
+            dtime,
+            span
+          )
 
         if amount_stored then
           accumulated_energy_stored = accumulated_energy_stored + amount_stored

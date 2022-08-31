@@ -21,7 +21,7 @@ function formspec.set_default_energy_color(color)
   }
 end
 
--- @spec render_energy_gauge(
+-- @spec render_energy_gauge({
 --   x: Number,
 --   y: Number,
 --   w: Number,
@@ -29,9 +29,17 @@ end
 --   amount: Number,
 --   capacity: Number,
 --   is_horz: Boolean
--- ): String
-function formspec.render_energy_gauge(x, y, w, h, amount, capacity, is_horz)
-  local gauge_h = h * amount / capacity
+-- }): String
+function formspec.render_energy_gauge(options)
+  local x = options.x
+  local y = options.y
+  local w = options.w
+  local h = options.h
+  local amount = assert(options.amount)
+  local max = assert(options.max)
+  local is_horz = options.is_horz
+
+  local gauge_h = h * amount / max
 
   local color = DEFAULT_ENERGY_COLOR.color
 
@@ -43,9 +51,9 @@ function formspec.render_energy_gauge(x, y, w, h, amount, capacity, is_horz)
     gauge_color = color,
     border_name = "yatm_item_border_energy.png",
     amount = amount,
-    max = capacity,
+    max = max,
     is_horz = is_horz,
-    tooltip = "Energy " .. amount .. " / " .. capacity,
+    tooltip = "Energy " .. amount .. " / " .. max,
   }
 end
 
@@ -59,16 +67,16 @@ end
 --   capacity: Number,
 --   is_horz: Boolean
 -- ): String
-function formspec.render_meta_energy_gauge(x, y, w, h, meta, key, capacity, is_horz)
+function formspec.render_meta_energy_gauge(x, y, w, h, meta, key, max, is_horz)
   assert(type(key) == "string")
-  assert(type(capacity) == "number", "expected capacity to be number")
-  return formspec.render_energy_gauge(
-    x,
-    y,
-    w,
-    h,
-    get_meta_energy(meta, key),
-    capacity,
-    is_horz
-  )
+  assert(type(max) == "number", "expected max to be number")
+  return formspec.render_energy_gauge{
+    x = x,
+    y = y,
+    w = w,
+    h = h,
+    amount = get_meta_energy(meta, key),
+    max = max,
+    is_horz = is_horz
+  }
 end
