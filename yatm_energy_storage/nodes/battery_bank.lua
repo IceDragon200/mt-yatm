@@ -251,21 +251,21 @@ local function render_formspec(pos, user, state)
         fspec.dropdown(
           rect.x + cio(4),
           rect.y,
-          4,
+          3,
           1,
           "mode",
           { "node", "i", "o", "io" },
           mode_to_index[mode] or 1
         ) ..
-        yatm_fspec.render_meta_energy_gauge(
-          rect.x + rect.w - cio(1),
-          rect.y,
-          1,
-          rect.h,
-          meta,
-          "energy",
-          yatm.devices.get_energy_capacity(pos, state.node)
-        )
+        yatm_fspec.render_energy_gauge{
+          x = rect.x + rect.w - cio(1),
+          y = rect.y,
+          w = 1,
+          h = rect.h,
+          amount = meta:get_int("energy"),
+          max = yatm.devices.get_energy_capacity(pos, state.node),
+          is_horz = false
+        }
     elseif loc == "footer" then
       return fspec.list_ring(node_inv_name, "batteries") ..
         fspec.list_ring("current_player", "main")
