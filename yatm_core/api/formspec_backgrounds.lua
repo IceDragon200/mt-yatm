@@ -185,6 +185,14 @@ function yatm.formspec.render_gauge(options)
   local max = options.max
   local is_horz = options.is_horz
 
+  local rate
+
+  if max > 0 then
+    rate = amount / max
+  else
+    rate = 0.0
+  end
+
   local base_color = "#292729"
   if options.base_color then
     base_color = maybe_to_colorstring(options.base_color)
@@ -207,7 +215,7 @@ function yatm.formspec.render_gauge(options)
     gauge_color = Color.maybe_to_colorstring(Color.lerp(
       Color.maybe_to_color(gauge_color1),
       Color.maybe_to_color(gauge_color2),
-      amount / max
+      rate
     ))
   end
 
@@ -220,9 +228,9 @@ function yatm.formspec.render_gauge(options)
 
   local gauge_dim
   if is_horz then
-    gauge_dim = w * amount / max
+    gauge_dim = w * rate
   else
-    gauge_dim = h * amount / max
+    gauge_dim = h * rate
   end
 
   local gauge_w = w
