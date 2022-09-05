@@ -21,7 +21,7 @@ yatm.register_stateful_node("yatm_data_to_mesecon:data_to_mesecon", {
   description = "Data Switcher",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
     data_programmable = 1,
     yatm_data_device = 1,
   },
@@ -172,7 +172,7 @@ yatm.register_stateful_node("yatm_data_to_mesecon:data_to_mesecon", {
   },
   on = {
     groups = {
-      cracky = 1,
+      cracky = nokore.dig_class("copper"),
       data_programmable = 1,
       yatm_data_device = 1,
       not_in_creative_inventory = 1,

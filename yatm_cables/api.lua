@@ -99,7 +99,9 @@ function yatm_cables.register_cable_state(params, size)
     table.insert(connects_to, name)
   end
 
-  local groups = {cracky = 1}
+  local groups = {
+    cracky = nokore.dig_class("copper"),
+  }
   if params.groups then
     groups = params.groups
   end

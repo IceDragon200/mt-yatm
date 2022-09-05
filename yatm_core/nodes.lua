@@ -1,7 +1,10 @@
 minetest.register_node("yatm_core:face_debug", {
   description = "Face Debug",
 
-  groups = {cracky = 1},
+  groups = {
+    cracky = nokore.dig_class("wme"),
+    oddly_breakable_by_hand = nokore.dig_class("hand"),
+  },
 
   tiles = {
     "yatm_face_debug_yp.png", -- +Y
@@ -22,7 +25,10 @@ minetest.register_node("yatm_core:face_debug", {
 minetest.register_node("yatm_core:grid_block", {
   description = "GRID\nDummy Block",
 
-  groups = {cracky = 1},
+  groups = {
+    cracky = nokore.dig_class("wme"),
+    oddly_breakable_by_hand = nokore.dig_class("hand"),
+  },
 
   tiles = {
     "yatm_grid.png",

@@ -3,7 +3,9 @@ minetest.register_node("yatm_machines:wireless_receiver", {
 
   description = "Wireless Receiver",
 
-  groups = {cracky = 1},
+  groups = {
+    cracky = nokore.dig_class("copper"),
+  },
 
   tiles = {
     "yatm_wireless_receiver_top.on.png",

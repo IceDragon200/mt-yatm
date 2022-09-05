@@ -28,8 +28,9 @@ mod:register_node("wood_basin", {
   description = "Wood Basin",
 
   groups = {
+    choppy = nokore.dig_class("wme"),
+    --
     basin = 1,
-    choppy = 1,
   },
 
   tiles = {

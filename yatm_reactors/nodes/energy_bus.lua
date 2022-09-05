@@ -53,7 +53,8 @@ yatm_reactors.register_stateful_reactor_node({
 
   description = "Reactor Energy Bus",
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     yatm_energy_device = 1,
     yatm_cluster_energy = 1,
   },

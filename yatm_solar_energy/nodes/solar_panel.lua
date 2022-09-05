@@ -133,7 +133,7 @@ yatm.devices.register_stateful_network_device({
   codex_entry_id = mod:make_name("solar_panel"),
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
     yatm_energy_device = 1,
   },
 

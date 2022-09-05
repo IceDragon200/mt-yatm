@@ -328,7 +328,8 @@ yatm.devices.register_stateful_network_device({
   drop = distillation_unit_yatm_network.states.off,
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     fluid_interface_in = 1,
     fluid_interface_out = 1,
     yatm_energy_device = 1,

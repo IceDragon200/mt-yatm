@@ -117,7 +117,8 @@ yatm.devices.register_stateful_network_device({
   drop = item_receiver_yatm_network.states.off,
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     item_interface_out = 1,
     item_interface_in = 1, -- required to interact with the teleporter
     addressable_spacetime_device = 1,

@@ -9,7 +9,8 @@ minetest.register_node("yatm_data_logic:data_buffer", {
   codex_entry_id = "yatm_data_logic:data_buffer",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     data_programmable = 1,
     yatm_data_device = 1,
   },

@@ -23,7 +23,12 @@ minetest.register_node("yatm_fluid_pipes:inserter_fluid_pipe", {
 
   codex_entry_id = "yatm_fluid_pipes:inserter_fluid_pipe",
 
-  groups = { cracky = 1, fluid_network_device = 1, inserter_fluid_pipe = 1, inserter_fluid_device = 1 },
+  groups = {
+    cracky = nokore.dig_class("copper"),
+    fluid_network_device = 1,
+    inserter_fluid_pipe = 1,
+    inserter_fluid_device = 1,
+  },
 
   sounds = yatm.node_sounds:build("metal"),
 

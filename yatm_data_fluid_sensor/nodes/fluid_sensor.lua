@@ -220,7 +220,7 @@ local connects_to = {
 }
 
 local groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
   yatm_data_device = 1,
 }
 

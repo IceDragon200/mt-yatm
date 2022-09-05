@@ -146,7 +146,8 @@ local function on_rightclick(pos, node, user, item_stack, pointed_thing)
 end
 
 local groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
+  --
   yatm_network_device = 1,
   yatm_energy_device = 1,
   yatm_inventory_controller = 1,

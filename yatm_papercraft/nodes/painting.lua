@@ -24,7 +24,9 @@ local function register_painting(name, cols, rows, def)
     basename = name,
 
     groups = table_merge(def.groups or {}, {
-      snappy = 3,
+      snappy = nokore.dig_class("wme"),
+      oddly_breakable_by_hand = nokore.dig_class("hand"),
+      --
       painting = 1,
       -- It's apart of the painting canvas group, allowing the changing of the painting
       painting_canvas = 1,

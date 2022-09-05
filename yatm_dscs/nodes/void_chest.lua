@@ -108,7 +108,8 @@ local void_chest_yatm_network = {
 }
 
 local groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
+  --
   item_interface_out = 1,
   item_interface_in = 1,
   yatm_energy_device = 1,

@@ -16,7 +16,8 @@ for i = 0,13 do
   lamp_levels[i] = name
 
   local groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     data_programmable = 1,
     yatm_data_device = 1,
   }

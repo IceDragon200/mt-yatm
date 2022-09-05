@@ -106,14 +106,15 @@ for cell_type, cell_config in pairs(cell_types) do
 
   for stage = 0,7 do
     groups = {
-      oddly_breakable_by_hand = 1,
-      cracky = 1,
+      cracky = nokore.dig_class("copper"),
+      oddly_breakable_by_hand = nokore.dig_class("hand"),
       yatm_energy_device = 1,
     }
 
     if stage > 0 then
       groups.not_in_creative_inventory = 1
     end
+
     yatm.devices.register_network_device(energy_cell_yatm_network.basename .. "_" .. stage, {
       codex_entry_id = energy_cell_yatm_network.basename,
 
@@ -184,8 +185,8 @@ for cell_type, cell_config in pairs(cell_types) do
     description = mod.S("Energy Cell ("..cell_type..") [Creative]"),
 
     groups = {
-      oddly_breakable_by_hand = 1,
-      cracky = 1,
+      cracky = nokore.dig_class("copper"),
+      oddly_breakable_by_hand = nokore.dig_class("hand"),
       yatm_energy_device = 1,
     },
     is_ground_content = false,

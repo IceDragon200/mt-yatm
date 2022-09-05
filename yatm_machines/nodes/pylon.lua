@@ -63,7 +63,9 @@ yatm.devices.register_stateful_network_device({
 
   description = mod.S("Pylon"),
 
-  groups = {cracky = 1},
+  groups = {
+    cracky = nokore.dig_class("copper"),
+  },
 
   use_texture_alpha = "opaque",
   tiles = {

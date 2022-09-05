@@ -86,7 +86,8 @@ local item_interface = yatm.items.ItemInterface.new_simple("main")
 local fluid_interface = yatm.fluids.FluidInterface.new_simple("tank", 4000)
 
 local groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
+  --
   yatm_dscs_device = 1,
   yatm_network_device = 1,
   yatm_energy_device = 1,

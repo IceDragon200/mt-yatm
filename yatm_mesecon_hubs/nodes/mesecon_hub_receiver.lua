@@ -70,7 +70,8 @@ minetest.register_node("yatm_mesecon_hubs:mesecon_hub_receiver_off", {
 
   description = "Mesecon Receiver Hub",
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     addressable_hub_device = 1,
     listening_hub_device = 1
   },
@@ -110,7 +111,8 @@ minetest.register_node("yatm_mesecon_hubs:mesecon_hub_receiver_on", {
 
   description = "Mesecon Receiver Hub",
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     addressable_hub_device = 1,
     listening_hub_device = 1,
     not_in_creative_inventory = 1,

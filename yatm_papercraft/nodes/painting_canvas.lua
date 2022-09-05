@@ -6,7 +6,7 @@ minetest.register_node("yatm_papercraft:painting_canvas", {
   description = "Painting Canvas",
 
   groups = {
-    snappy = 3,
+    snappy = nokore.dig_class("wme"),
     flammable = 3,
     blank_canvas = 1,
     painting_canvas = 1

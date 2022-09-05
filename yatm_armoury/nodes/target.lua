@@ -7,7 +7,8 @@ mod:register_node("target", {
   description = "Target",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("wme"),
+    oddly_breakable_by_hand = nokore.dig_class("hand"),
   },
 
   tiles = {

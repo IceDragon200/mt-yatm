@@ -243,7 +243,7 @@ minetest.register_node("yatm_frames:frame_motor_default_off", {
   description = "Frame Motor",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
     frame_motor = 1,
   },
 
@@ -272,7 +272,7 @@ minetest.register_node("yatm_frames:frame_motor_default_on", {
   codex_entry_id = "yatm_frames:frame_motor",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
     frame_motor = 1,
     not_in_creative_inventory = 1,
   },
@@ -329,7 +329,7 @@ if mesecon then
     codex_entry_id = "yatm_frames:frame_motor_mesecon",
 
     groups = {
-      cracky = 1,
+      cracky = nokore.dig_class("copper"),
       frame_motor = 1,
     },
 
@@ -360,7 +360,7 @@ if mesecon then
     codex_entry_id = "yatm_frames:frame_motor_mesecon",
 
     groups = {
-      cracky = 1,
+      cracky = nokore.dig_class("copper"),
       frame_motor = 1,
       not_in_creative_inventory = 1,
     },
@@ -526,7 +526,7 @@ if yatm_data_logic then
   }, {
     off = {
       groups = {
-        cracky = 1,
+        cracky = nokore.dig_class("copper"),
         frame_motor = 1,
         yatm_data_device = 1,
         data_programmable = 1,
@@ -544,7 +544,7 @@ if yatm_data_logic then
     },
     on = {
       groups = {
-        cracky = 1,
+        cracky = nokore.dig_class("copper"),
         frame_motor = 1,
         yatm_data_device = 1,
         data_programmable = 1,

@@ -29,7 +29,9 @@ yatm.register_stateful_node("yatm_decor:jukebox", {
 
   description = "Jukebox",
 
-  groups = {cracky = 1},
+  groups = {
+    cracky = nokore.dig_class("copper"),
+  },
 
   paramtype = "none",
   paramtype2 = "facedir",
@@ -57,7 +59,10 @@ yatm.register_stateful_node("yatm_decor:jukebox", {
     use_texture_alpha = "opaque",
   },
   on = {
-    groups = {cracky = 1, not_in_creative_inventory = 1},
+    groups = {
+      cracky = nokore.dig_class("copper"),
+      not_in_creative_inventory = 1,
+    },
 
     tiles = {
       "yatm_jukebox_top.on.png",

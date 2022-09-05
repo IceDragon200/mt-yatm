@@ -138,7 +138,8 @@ yatm.devices.register_stateful_network_device({
   codex_entry_id = "yatm_oku:floppy_disk_drive",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     yatm_data_device = 1,
     yatm_network_device = 1,
     yatm_energy_device = 1,

@@ -28,7 +28,7 @@ yatm.devices.register_stateful_network_device({
 
   description = "Hub (Element)",
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
   },
   drop = yatm_network.states.off,
 

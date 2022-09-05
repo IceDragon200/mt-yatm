@@ -79,7 +79,9 @@ yatm.devices.register_stateful_network_device({
 
   description = mod.S("Hub (Card)"),
 
-  groups = {cracky = 1},
+  groups = {
+    cracky = nokore.dig_class("copper"),
+  },
 
   drop = yatm_network.states.off,
 
@@ -147,7 +149,7 @@ yatm.devices.register_stateful_network_device({
   description = mod.S("Hub (Card) [Loaded]"),
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
     not_in_creative_inventory = 1,
   },
 

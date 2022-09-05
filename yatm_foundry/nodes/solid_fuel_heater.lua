@@ -137,7 +137,8 @@ function solid_fuel_heater_item_interface:allow_insert_item(pos, dir, item_stack
 end
 
 local groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
+  --
   item_interface_in = 1,
   item_interface_out = 1,
   heater_device = 1,

@@ -25,9 +25,8 @@ minetest.register_node("yatm_packs:mana_pack_empty", {
   description = "Mana Pack (Empty)",
 
   groups = {
-    snappy = 2,
-    choppy = 2,
-    oddly_breakable_by_hand = 3,
+    oddly_breakable_by_hand = nokore.dig_class("hand"),
+    --
     mana_pack = 1,
   },
 
@@ -66,9 +65,7 @@ minetest.register_node("yatm_packs:mana_pack", {
   description = "Mana Pack",
 
   groups = {
-    snappy = 2,
-    choppy = 2,
-    oddly_breakable_by_hand = 3,
+    oddly_breakable_by_hand = nokore.dig_class("hand"),
     mana_pack = 1,
   },
 

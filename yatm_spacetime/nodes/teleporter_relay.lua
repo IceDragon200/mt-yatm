@@ -54,7 +54,8 @@ yatm.devices.register_stateful_network_device({
   codex_entry_id = "yatm_spacetime:teleporter_relay",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     spacetime_device = 1,
     teleporter_relay = 1
   },

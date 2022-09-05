@@ -6,7 +6,7 @@ minetest.register_node("yatm_armoury:turret_base", {
   description = "Turret Base",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
   },
 
   drawtype = "nodebox",

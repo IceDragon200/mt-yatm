@@ -30,7 +30,8 @@ minetest.register_node("yatm_culinary:pie_8", {
   description = "Pie",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("wme"),
+    oddly_breakable_by_hand = nokore.dig_class("hand"),
   },
 
   tiles = {
@@ -69,7 +70,9 @@ for i = 1,7 do
     description = "Pie",
 
     groups = {
-      cracky = 1,
+      cracky = nokore.dig_class("wme"),
+      oddly_breakable_by_hand = nokore.dig_class("hand"),
+      --
       not_in_creative_inventory = 1,
     },
 

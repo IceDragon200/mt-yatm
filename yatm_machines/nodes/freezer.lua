@@ -347,7 +347,8 @@ local function on_blast(pos, node)
 end
 
 local groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
+  --
   yatm_energy_device = 1,
   yatm_network_device = 1,
   fluid_interface_in = 1,

@@ -166,8 +166,9 @@ for _,row in ipairs(yatm.colors_with_default) do
     description = "Aging Barrel (Wood / " .. color_name .. ")",
 
     groups = {
+      cracky = nokore.dig_class("wme"),
+      --
       aging_barrel = 1,
-      cracky = 1,
       fluid_interface_in = 1,
       fluid_interface_out = 1,
     },

@@ -23,7 +23,12 @@ for _,row in ipairs(yatm.colors_with_default) do
   local color_name = row.description
 
   local colored_group_name = "transporter_fluid_pipe_" .. color_basename
-  local groups = { cracky = 1, fluid_network_device = 1, transporter_fluid_pipe = 1, [colored_group_name] = 1 }
+  local groups = {
+    cracky = nokore.dig_class("copper"),
+    fluid_network_device = 1,
+    transporter_fluid_pipe = 1,
+    [colored_group_name] = 1,
+  }
 
   local node_name = "yatm_fluid_pipes:transporter_fluid_pipe_" .. color_basename
   local connects_to = {

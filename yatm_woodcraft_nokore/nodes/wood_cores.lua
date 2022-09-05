@@ -101,7 +101,11 @@ for wood_basename, wood_config in pairs(wood_types) do
   nokore_stairs.build_and_register_nodes(":yatm_woodcraft:" .. wood_basename .. "_core", {
     -- base
     _ = {
-      groups = {cracky = 3, stone = 2},
+      groups = {
+        choppy = nokore.dig_class("wme"),
+        --
+        stone = 2,
+      },
       tiles = tiles,
       sounds = sounds,
     },

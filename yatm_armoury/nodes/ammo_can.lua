@@ -37,7 +37,8 @@ minetest.register_node("yatm_armoury:ammo_can", {
   description = "Ammo Can",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     ammo_can = 1,
     item_interface_in = 1,
     item_interface_out = 1,

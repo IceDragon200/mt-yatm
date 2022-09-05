@@ -130,7 +130,8 @@ function micro_controller_data_interface.receive_pdu(self, pos, node, dir, port,
 end
 
 local groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
+  --
   yatm_data_device = 1,
   yatm_computer = 1,
 }

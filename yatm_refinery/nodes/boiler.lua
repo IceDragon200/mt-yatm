@@ -289,7 +289,7 @@ yatm.devices.register_stateful_network_device({
   codex_entry_id = "yatm_refinery:boiler",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
     fluid_interface_out = 1,
     fluid_interface_in = 1,
     yatm_energy_device = 1,

@@ -12,7 +12,8 @@ yatm.register_stateful_node("yatm_data_logic:data_momentary_button", {
   drop = "yatm_data_logic:data_momentary_button_off",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     data_programmable = 1,
     yatm_data_device = 1,
   },
@@ -161,7 +162,8 @@ yatm.register_stateful_node("yatm_data_logic:data_momentary_button", {
 
   on = {
     groups = {
-      cracky = 1,
+      cracky = nokore.dig_class("copper"),
+      --
       data_programmable = 1,
       yatm_data_device = 1,
       not_in_creative_inventory = 1,

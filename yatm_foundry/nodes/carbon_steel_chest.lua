@@ -16,7 +16,7 @@ for _,row in ipairs(yatm.colors) do
     description = yatm_foundry.S(color_name .. " Carbon Steel Chest"),
 
     groups = {
-      cracky = 1,
+      cracky = nokore.dig_class("iron"),
       chest = 1,
       carbon_steel = 1,
       metallic = 1,

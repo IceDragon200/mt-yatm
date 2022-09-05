@@ -53,7 +53,7 @@ for _,row in ipairs(yatm.colors) do
       codex_entry_id = "yatm_foundry:concrete",
 
       groups = {
-        cracky = 1,
+        cracky = nokore.dig_class("copper"),
         concrete = 1,
       },
 
@@ -71,7 +71,7 @@ for _,row in ipairs(yatm.colors) do
     yatm.register_decor_nodes(concrete_basename, {
       _ = {
         groups = {
-          cracky = 1,
+          cracky = nokore.dig_class("copper"),
           concrete = 1,
         },
         use_texture_alpha = "opaque",

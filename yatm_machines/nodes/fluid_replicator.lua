@@ -241,7 +241,7 @@ local function on_metadata_inventory_put(pos, list, index, item_stack, player)
 end
 
 local groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
   yatm_energy_device = 1,
   fluid_interface_out = 1,
 }

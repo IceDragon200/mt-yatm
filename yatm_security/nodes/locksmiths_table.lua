@@ -377,7 +377,10 @@ minetest.register_node("yatm_security:locksmiths_table_wood", {
 
   codex_entry_id = "yatm_security:locksmiths_table",
 
-  groups = { locksmiths_table = 1, cracky = 1 },
+  groups = {
+    cracky = nokore.dig_class("copper"),
+    locksmiths_table = 1,
+  },
 
   use_texture_alpha = "opaque",
   tiles = {

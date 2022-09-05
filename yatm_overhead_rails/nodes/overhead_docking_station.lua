@@ -422,7 +422,8 @@ end
 
 -- without the corresponding interface, the groups are a no-op
 local groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
+  --
   overhead_docking_station = 1,
 
   -- data cluster & interface

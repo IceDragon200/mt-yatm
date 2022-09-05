@@ -66,7 +66,7 @@ minetest.register_node("yatm_mesecon_hubs:mesecon_hub_flip_flop_left", {
 
   description = "Mesecon Flip Flop (Left)",
   groups = {
-    cracky = 1
+    cracky = nokore.dig_class("copper"),
   },
 
   tiles = {
@@ -109,7 +109,7 @@ minetest.register_node("yatm_mesecon_hubs:mesecon_hub_flip_flop_right", {
 
   description = "Mesecon Flip Flop (Right)",
   groups = {
-    cracky = 1
+    cracky = nokore.dig_class("copper"),
   },
 
   tiles = {

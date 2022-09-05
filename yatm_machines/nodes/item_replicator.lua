@@ -90,7 +90,8 @@ end
 local item_interface = ItemInterface.new_simple("output_slot")
 
 local groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
+  --
   yatm_energy_device = 1,
   item_interface_out = 1,
 }

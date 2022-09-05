@@ -111,7 +111,7 @@ yatm.devices.register_stateful_network_device({
   description = mod.S("Electrolyser"),
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
   },
   tiles = {
     "yatm_electrolyser_top.off.png",

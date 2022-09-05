@@ -130,7 +130,7 @@ local function smelter_on_timer(pos, dtime)
 end
 
 local groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
   item_interface_in = 1,
   item_interface_out = 1,
   fluid_interface_out = 1,

@@ -7,7 +7,8 @@ local Energy = assert(yatm.energy)
 local fspec = assert(foundation.com.formspec.api)
 
 local groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
+  --
   monitor = 1,
   yatm_energy_device = 1,
   yatm_network_device = 1,

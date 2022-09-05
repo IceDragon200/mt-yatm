@@ -216,7 +216,8 @@ yatm.devices.register_stateful_network_device({
   drop = yatm_network.states.off,
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     item_interface_out = 1,
   },
 

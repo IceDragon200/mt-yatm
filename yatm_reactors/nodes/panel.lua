@@ -38,7 +38,11 @@ for variant, variant_texture_name in pairs({
     basename = "yatm_reactors:reactor_panel",
 
     description = "Reactor Panel (" .. variant .. ")",
-    groups = {cracky = 1, reactor_panel = 1, reactor_structure = 1},
+    groups = {
+      cracky = nokore.dig_class("copper"),
+      reactor_panel = 1,
+      reactor_structure = 1,
+    },
     drop = panel_reactor_device.states._default,
     tiles = {
       "yatm_reactor_panel." .. variant_texture_name .. ".png",
@@ -73,7 +77,11 @@ for variant, variant_texture_name in pairs({
     basename = "yatm_reactors:reactor_casing",
 
     description = "Reactor Casing (" .. variant .. ")",
-    groups = {cracky = 1, reactor_panel = 1, reactor_structure = 1},
+    groups = {
+      cracky = nokore.dig_class("copper"),
+      reactor_panel = 1,
+      reactor_structure = 1,
+    },
     drop = casing_reactor_device.states._default,
     tiles = {
       --"yatm_reactor_layers_border-1-1_16." .. variant_texture_name .. ".png",

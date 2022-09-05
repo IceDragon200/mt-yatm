@@ -5,7 +5,7 @@ minetest.register_node("yatm_mining:quarry_wall", {
   description = "Quarry Wall",
 
   groups = {
-    snappy = 1,
+    snappy = nokore.dig_class("stone"),
   },
 
   tiles = {

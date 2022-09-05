@@ -107,7 +107,9 @@ yatm.devices.register_stateful_network_device({
 
   description = "Server Rack",
 
-  groups = {cracky = 1},
+  groups = {
+    cracky = nokore.dig_class("copper"),
+  },
 
   drop = yatm_network.states.off,
 

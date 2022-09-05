@@ -18,7 +18,7 @@ minetest.register_node("yatm_mesecon_hubs:mesecon_hub_bus_off", {
 
   description = "Mesecon Bus Hub",
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
   },
   drop = "yatm_mesecon_hubs:mesecon_hub_bus_off",
 
@@ -55,7 +55,7 @@ minetest.register_node("yatm_mesecon_hubs:mesecon_hub_bus_on", {
 
   description = "Mesecon Bus Hub",
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
     not_in_creative_inventory = 1
   },
   drop = "yatm_mesecon_hubs:mesecon_hub_bus_off",

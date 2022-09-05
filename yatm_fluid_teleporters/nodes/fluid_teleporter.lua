@@ -141,7 +141,8 @@ local node_box = {
 }
 
 local groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
+  --
   fluid_interface_in = 1,
   addressable_spacetime_device = 1,
   yatm_energy_device = 1,

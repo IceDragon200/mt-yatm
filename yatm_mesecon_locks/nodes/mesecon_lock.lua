@@ -52,7 +52,8 @@ for _,row in ipairs(yatm.colors) do
   local color_name = row.description
 
   local groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     mesecon_needs_receiver = 1,
     lockable_object = 1,
   }

@@ -76,7 +76,8 @@ local function dust_bin_on_rightclick(pos, node, clicker, item_stack, _pointed_t
 end
 
 local groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
+  --
   dust_bin = 1, -- so neighbour nodes what it is.
   item_interface_in = 1, -- in just for the bins
   item_interface_out = 1,

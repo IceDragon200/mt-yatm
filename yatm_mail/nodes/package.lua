@@ -116,7 +116,8 @@ minetest.register_node("yatm_mail:package", {
   codex_entry_id = "yatm_mail:package",
 
   groups = {
-    cracky = 1,
+    oddly_breakable_by_hand = nokore.dig_class("hand"),
+    --
     package = 1,
   },
 
@@ -158,7 +159,8 @@ for _,row in ipairs(yatm.colors) do
     codex_entry_id = "yatm_mail:package",
 
     groups = {
-      cracky = 1,
+      oddly_breakable_by_hand = nokore.dig_class("hand"),
+      --
       package = 1,
       package_with_ribbon = 1,
     },

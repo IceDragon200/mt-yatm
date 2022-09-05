@@ -144,7 +144,8 @@ local flat_monitor_nodebox = {
 }
 
 local monitor_groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
+  --
   monitor = 1,
   yatm_energy_device = 1,
   yatm_network_device = 1,
@@ -275,7 +276,8 @@ local flat_monitor_console_yatm_network = {
 }
 
 local flat_monitor_groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
+  --
   monitor = 1,
   yatm_energy_device = 1,
   yatm_network_device = 1,

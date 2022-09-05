@@ -1,3 +1,5 @@
+local mod = yatm_refinery
+
 local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
 local Directions = assert(foundation.com.Directions)
@@ -221,12 +223,12 @@ end
 yatm.devices.register_stateful_network_device({
   basename = "yatm_refinery:pump",
 
-  description = "Pump",
+  description = mod.S("Pump"),
 
   codex_entry_id = "yatm_refinery:pump",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
     fluid_interface_out = 1,
     yatm_energy_device = 1,
   },

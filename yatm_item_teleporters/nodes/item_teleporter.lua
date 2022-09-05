@@ -144,7 +144,8 @@ local teleporter_node_box = {
 }
 
 local groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
+  --
   item_interface_in = 1,
   addressable_spacetime_device = 1,
 }

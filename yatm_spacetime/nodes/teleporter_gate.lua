@@ -4,7 +4,7 @@ local nb = Cuboid.new_fast_node_box
 local mod = yatm_spacetime
 
 local groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
 }
 
 mod:register_node("teleporter_gate_corner", {

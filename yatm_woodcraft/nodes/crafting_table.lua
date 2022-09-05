@@ -77,8 +77,8 @@ mod:register_node("crafting_table_wood", {
   codex_entry_id = "yatm_woodcraft:crafting_table",
 
   groups = {
+    choppy = nokore.dig_class("wme"),
     crafting_table = 1,
-    cracky = 1,
   },
 
   tiles = {

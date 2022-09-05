@@ -147,7 +147,7 @@ local thermal_interface = {
 
 local groups = {
   -- Tool groups
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
   -- Node type
   kettle = 1,
   -- Item Interface groups

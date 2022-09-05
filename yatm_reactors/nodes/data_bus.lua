@@ -36,7 +36,10 @@ for _, variant in ipairs({"hazard", "coolant", "signal"}) do
     basename = "yatm_reactors:reactor_data_bus_" .. variant,
 
     description = "Reactor DATA Bus [" .. variant .. "]",
-    groups = {cracky = 1, yatm_data_device = 1},
+    groups = {
+      cracky = nokore.dig_class("copper"),
+      yatm_data_device = 1,
+    },
     drop = data_bus_reactor_device.states.off,
     tiles = {
       "yatm_reactor_casing.plain.png",

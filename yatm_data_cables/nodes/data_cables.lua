@@ -185,7 +185,8 @@ for _,row in ipairs(colors) do
 
   local colored_group_name = "data_cable_bracket_straight_" .. color_basename
   local groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     data_cable = 1,
     data_cable_bracket_straight = 1,
     ["data_cable_" .. color_basename] = 1,
@@ -246,7 +247,8 @@ for _,row in ipairs(colors) do
 
   local colored_group_name = "data_cable_bracket_corner_" .. color_basename
   local groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     data_cable = 1,
     data_cable_bracket_corner = 1,
     ["data_cable_" .. color_basename] = 1,
@@ -306,7 +308,8 @@ for _,row in ipairs(colors) do
 
   local colored_group_name = "data_cable_bracket_tee_" .. color_basename
   local groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     data_cable = 1,
     data_cable_bracket_tee = 1,
     ["data_cable_" .. color_basename] = 1,
@@ -367,7 +370,8 @@ for _,row in ipairs(colors) do
 
   local colored_group_name = "data_cable_bracket_cross_" .. color_basename
   local groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     data_cable = 1,
     data_cable_bracket_cross = 1,
     ["data_cable_" .. color_basename] = 1,
@@ -429,7 +433,8 @@ for _,row in ipairs(colors) do
 
   local colored_group_name = "data_cable_bracket_riser_" .. color_basename
   local groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     data_cable = 1,
     data_cable_bracket_riser = 1,
     ["data_cable_" .. color_basename] = 1,
@@ -489,7 +494,8 @@ for _,row in ipairs(colors) do
 
   local colored_group_name = "data_cable_bus_bracket_straight_" .. color_basename
   local groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     data_cable_bus = 1,
     data_cable_bus_bracket_straight = 1,
     ["data_cable_bus_" .. color_basename] = 1,
@@ -550,7 +556,8 @@ for _,row in ipairs(colors) do
 
   local colored_group_name = "data_cable_bus_bracket_corner_" .. color_basename
   local groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     data_cable_bus = 1,
     data_cable_bus_bracket_corner = 1,
     ["data_cable_bus_" .. color_basename] = 1,
@@ -610,7 +617,8 @@ for _,row in ipairs(colors) do
 
   local colored_group_name = "data_cable_bus_bracket_tee_" .. color_basename
   local groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     data_cable_bus = 1,
     data_cable_bus_bracket_tee = 1,
     ["data_cable_bus_" .. color_basename] = 1,
@@ -671,7 +679,8 @@ for _,row in ipairs(colors) do
 
   local colored_group_name = "data_cable_bus_bracket_cross_" .. color_basename
   local groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     data_cable_bus = 1,
     data_cable_bus_bracket_cross = 1,
     ["data_cable_bus_" .. color_basename] = 1,
@@ -733,7 +742,8 @@ for _,row in ipairs(colors) do
   --
   local colored_group_name = "data_cable_" .. color_basename
   local groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     data_cable = 1,
     [colored_group_name] = 1
   }
@@ -803,7 +813,8 @@ for _,row in ipairs(colors) do
 
   local colored_group_name = "data_cable_bus_" .. color_basename
   local groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     data_cable_bus = 1,
     [colored_group_name] = 1
   }

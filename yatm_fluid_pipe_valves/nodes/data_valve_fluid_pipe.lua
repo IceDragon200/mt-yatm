@@ -131,7 +131,8 @@ for _,row in ipairs(yatm.colors_with_default) do
 
   local colored_group_name = "valve_fluid_pipe_" .. color_basename
   local groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     fluid_network_device = 1,
     valve_fluid_pipe = 1,
     [colored_group_name] = 1,

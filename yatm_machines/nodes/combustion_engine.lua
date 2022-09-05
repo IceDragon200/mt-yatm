@@ -256,7 +256,8 @@ yatm.devices.register_stateful_network_device({
   description = mod.S("Combustion Engine"),
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     fluid_interface_in = 1,
     yatm_energy_device = 1,
   },
@@ -371,7 +372,8 @@ yatm.devices.register_stateful_network_device({
   description = mod.S("Creative Engine"),
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     yatm_energy_device = 1,
   },
 

@@ -27,7 +27,8 @@ yatm.register_stateful_node("yatm_data_logic:data_pulser", {
   codex_entry_id = "yatm_data_logic:data_pulser",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     data_programmable = 1,
     yatm_data_device = 1,
   },

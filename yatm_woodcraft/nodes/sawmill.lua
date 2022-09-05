@@ -86,7 +86,8 @@ minetest.register_node("yatm_woodcraft:sawmill", {
   codex_entry_id = "yatm_woodcraft:sawmill",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     item_interface_out = 1,
   },
 

@@ -20,9 +20,7 @@ minetest.register_node("yatm_packs:health_pack_empty", {
   description = "Health Pack (Empty)",
 
   groups = {
-    snappy = 2,
-    choppy = 2,
-    oddly_breakable_by_hand = 3,
+    oddly_breakable_by_hand = nokore.dig_class("hand"),
     health_pack = 1,
   },
 
@@ -61,9 +59,7 @@ minetest.register_node("yatm_packs:health_pack", {
   description = "Health Pack",
 
   groups = {
-    snappy = 2,
-    choppy = 2,
-    oddly_breakable_by_hand = 3,
+    oddly_breakable_by_hand = nokore.dig_class("hand"),
     health_pack = 1,
   },
 

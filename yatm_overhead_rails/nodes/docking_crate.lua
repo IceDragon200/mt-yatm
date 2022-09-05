@@ -15,7 +15,8 @@ local ng = Cuboid.new_fast_node_box
 local table_merge = foundation.com.table_merge
 
 local groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
+  --
   docking_crate = 1,
 }
 

@@ -456,7 +456,8 @@ local function refresh_formspec(pos, player)
 end
 
 local groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
+  --
   data_programmable = 1,
   yatm_data_device = 1,
 }

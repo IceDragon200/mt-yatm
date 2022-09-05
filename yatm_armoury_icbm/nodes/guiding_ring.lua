@@ -37,7 +37,7 @@ minetest.register_node("yatm_armoury_icbm:icbm_guiding_ring", {
   codex_entry_id = "yatm_armoury_icbm:icbm_guiding_ring",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
     icbm_guiding_ring = 1,
   },
 
@@ -69,7 +69,7 @@ minetest.register_node("yatm_armoury_icbm:icbm_guiding_ring_single", {
   codex_entry_id = "yatm_armoury_icbm:icbm_guiding_ring",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
     icbm_guiding_ring = 1,
   },
 
@@ -101,7 +101,7 @@ minetest.register_node("yatm_armoury_icbm:icbm_guiding_ring_warning_strips", {
   codex_entry_id = "yatm_armoury_icbm:icbm_guiding_ring",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
     icbm_guiding_ring = 1,
   },
 
@@ -133,7 +133,7 @@ minetest.register_node("yatm_armoury_icbm:icbm_guiding_ring_single_warning_strip
   codex_entry_id = "yatm_armoury_icbm:icbm_guiding_ring",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
     icbm_guiding_ring = 1,
   },
 

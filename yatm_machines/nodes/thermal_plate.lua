@@ -168,7 +168,9 @@ yatm.devices.register_stateful_network_device({
 
   description = "Thermal Plate (heating)",
 
-  groups = {cracky = 1},
+  groups = {
+    cracky = nokore.dig_class("copper"),
+  },
 
   drop = thermal_plate_heating_yatm_network.states.off,
 
@@ -236,7 +238,9 @@ yatm.devices.register_stateful_network_device({
 
   description = "Thermal Plate (cooling)",
 
-  groups = {cracky = 1},
+  groups = {
+    cracky = nokore.dig_class("copper"),
+  },
 
   drop = thermal_plate_cooling_yatm_network.states.off,
 
@@ -309,7 +313,10 @@ yatm.devices.register_stateful_network_device({
 
   description = "Thermal Plate (nuclear)",
 
-  groups = {cracky = 1, nuclear_plate = 1},
+  groups = {
+    cracky = nokore.dig_class("copper"),
+    nuclear_plate = 1,
+  },
 
   drop = thermal_plate_nuclear_yatm_network.states.off,
 

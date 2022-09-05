@@ -483,7 +483,9 @@ mod:register_node("bee_box_metal", {
 
   description = mod.S("Bee Box (Metal)"),
 
-  groups = table_merge(groups, { cracky = 1 }),
+  groups = table_merge(groups, {
+    cracky = nokore.dig_class("copper")
+  }),
 
   paramtype = "none",
   paramtype2 = "facedir",

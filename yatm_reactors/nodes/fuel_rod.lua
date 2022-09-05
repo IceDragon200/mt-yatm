@@ -31,7 +31,7 @@ local fuel_rod_open_reactor_device = {
 yatm_reactors.register_reactor_node("yatm_reactors:fuel_rod_case_open", {
   description = "Fuel Rod Case (Unoccupied)",
   groups = {
-    cracky = 1
+    cracky = nokore.dig_class("copper"),
   },
 
   drop = fuel_rod_open_reactor_device.states.off,
@@ -85,7 +85,8 @@ for _, variant in ipairs({"uranium", "plutonium", "radium", "redranium"}) do
     description = "Reactor Fuel Rod (" .. variant .. ")",
 
     groups = {
-      cracky = 1,
+      cracky = nokore.dig_class("copper"),
+      --
       nuclear_fuel_rod = 1,
       ["nuclear_fuel_rod_" .. variant] = 1,
     },

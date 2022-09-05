@@ -307,7 +307,8 @@ yatm.devices.register_stateful_network_device({
   description = "Drive Case",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     yatm_energy_device = 1,
     yatm_network_device = 1,
   },

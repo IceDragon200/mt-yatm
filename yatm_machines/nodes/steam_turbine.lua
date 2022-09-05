@@ -279,7 +279,8 @@ local function on_rightclick(pos, node, user)
 end
 
 local groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
+  --
   device_cluster_controller = 2,
   fluid_interface_in = 1,
   fluid_interface_out = 1,

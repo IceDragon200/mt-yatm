@@ -207,7 +207,7 @@ yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_na
     description = "Array Energy Cell [Stage 1]",
 
     groups = {
-      cracky = 1,
+      cracky = nokore.dig_class("copper"),
       yatm_cluster_device = 1,
       not_in_creative_inventory = 1,
     },
@@ -217,7 +217,7 @@ yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_na
     description = "Array Energy Cell [Stage 2]",
 
     groups = {
-      cracky = 1,
+      cracky = nokore.dig_class("copper"),
       yatm_cluster_device = 1,
       not_in_creative_inventory = 1,
     },
@@ -227,7 +227,7 @@ yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_na
     description = "Array Energy Cell [Stage 3]",
 
     groups = {
-      cracky = 1,
+      cracky = nokore.dig_class("copper"),
       yatm_cluster_device = 1,
       not_in_creative_inventory = 1,
     },
@@ -237,7 +237,7 @@ yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_na
     description = "Array Energy Cell [Stage 4]",
 
     groups = {
-      cracky = 1,
+      cracky = nokore.dig_class("copper"),
       yatm_cluster_device = 1,
       not_in_creative_inventory = 1,
     },
@@ -247,7 +247,7 @@ yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_na
     description = "Array Energy Cell [Stage 5]",
 
     groups = {
-      cracky = 1,
+      cracky = nokore.dig_class("copper"),
       yatm_cluster_device = 1,
       not_in_creative_inventory = 1,
     },
@@ -257,7 +257,7 @@ yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_na
     description = "Array Energy Cell [Stage 6]",
 
     groups = {
-      cracky = 1,
+      cracky = nokore.dig_class("copper"),
       yatm_cluster_device = 1,
       not_in_creative_inventory = 1,
     },
@@ -267,7 +267,7 @@ yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_na
     description = "Array Energy Cell [Stage 7]",
 
     groups = {
-      cracky = 1,
+      cracky = nokore.dig_class("copper"),
       yatm_cluster_device = 1,
       not_in_creative_inventory = 1,
     },

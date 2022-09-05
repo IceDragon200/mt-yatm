@@ -32,7 +32,8 @@ minetest.register_node("yatm_culinary:pie_dish", {
   description = "Pie Dish",
 
   groups = {
-    cracky = 3
+    cracky = nokore.dig_class("copper"),
+    oddly_breakable_by_hand = nokore.dig_class("hand"),
   },
 
   use_texture_alpha = "opaque",

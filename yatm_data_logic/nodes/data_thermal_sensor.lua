@@ -16,7 +16,8 @@ minetest.register_node("yatm_data_logic:data_thermal_sensor", {
   codex_entry_id = "yatm_data_logic:data_thermal_sensor",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     data_programmable = 1,
     yatm_cluster_thermal = 1,
     heatable_device = 1,

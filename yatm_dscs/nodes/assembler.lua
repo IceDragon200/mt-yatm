@@ -71,7 +71,7 @@ local assembler_selection_box = {
 }
 
 local groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
   yatm_dscs_device = 1,
   yatm_data_device = 1,
   yatm_network_device = 1,

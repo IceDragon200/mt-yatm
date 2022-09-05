@@ -1,7 +1,8 @@
 local mod = yatm_foundry
 
 local groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("iron"),
+  --
   carbon_steel = 1,
   magnetic = 1,
 }

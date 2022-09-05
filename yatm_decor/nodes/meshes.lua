@@ -1,7 +1,9 @@
 minetest.register_node("yatm_decor:mesh_dense", {
   description = "Dense Mesh",
 
-  groups = {cracky = 1},
+  groups = {
+    cracky = nokore.dig_class("copper"),
+  },
 
   sounds = yatm.node_sounds:build("metal"),
 
@@ -18,7 +20,9 @@ minetest.register_node("yatm_decor:mesh_dense", {
 minetest.register_node("yatm_decor:mesh_wide", {
   description = "Wide Mesh",
 
-  groups = {cracky = 1},
+  groups = {
+    cracky = nokore.dig_class("copper"),
+  },
 
   sounds = yatm.node_sounds:build("metal"),
 

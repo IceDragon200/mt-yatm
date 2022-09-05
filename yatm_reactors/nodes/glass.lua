@@ -28,7 +28,7 @@ for variant, variant_texture_name in pairs({
     description = "Decorative Reactor Glass (" .. variant .. ")",
     note = "Safe to use for decor",
     groups = {
-      cracky = 3,
+      cracky = nokore.dig_class("copper"),
     },
     sounds = glass_sounds,
     tiles = {
@@ -67,7 +67,7 @@ for variant, variant_texture_name in pairs({
 
     description = "Reactor Glass (" .. variant .. ")",
     groups = {
-      cracky = 3,
+      cracky = nokore.dig_class("copper"),
       reactor_glass = 1,
       reactor_structure = 1
     },

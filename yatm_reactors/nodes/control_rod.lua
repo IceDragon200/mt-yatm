@@ -32,7 +32,9 @@ yatm_reactors.register_stateful_reactor_node({
   basename = "yatm_reactors:control_rod_case",
 
   description = "Control Rod",
-  groups = {cracky = 1},
+  groups = {
+    cracky = nokore.dig_class("copper"),
+  },
 
   drop = control_rod_open_reactor_device.states.off,
 

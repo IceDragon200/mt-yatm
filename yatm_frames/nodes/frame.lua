@@ -29,7 +29,8 @@ minetest.register_node("yatm_frames:frame", {
   codex_entry_id = "yatm_frames:frame",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     node_frame = 1,
   },
 
@@ -54,7 +55,8 @@ minetest.register_node("yatm_frames:frame_sticky_one", {
   codex_entry_id = "yatm_frames:frame_sticky",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     node_frame = 1,
     node_frame_sticky = 1,
   },
@@ -84,7 +86,8 @@ minetest.register_node("yatm_frames:frame_sticky_two", {
   codex_entry_id = "yatm_frames:frame_sticky",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     node_frame = 1,
     node_frame_sticky = 1,
   },
@@ -114,7 +117,8 @@ minetest.register_node("yatm_frames:frame_sticky_three", {
   codex_entry_id = "yatm_frames:frame_sticky",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     node_frame = 1,
     node_frame_sticky = 1,
   },
@@ -145,7 +149,8 @@ minetest.register_node("yatm_frames:frame_sticky_four", {
   codex_entry_id = "yatm_frames:frame_sticky",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     node_frame = 1,
     node_frame_sticky = 1,
   },
@@ -175,7 +180,8 @@ minetest.register_node("yatm_frames:frame_sticky_cross_axle", {
   codex_entry_id = "yatm_frames:frame_sticky",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     node_frame = 1,
     node_frame_sticky = 1,
   },
@@ -205,7 +211,8 @@ minetest.register_node("yatm_frames:frame_sticky_five", {
   codex_entry_id = "yatm_frames:frame_sticky",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     node_frame = 1,
     node_frame_sticky = 1,
   },
@@ -235,7 +242,8 @@ minetest.register_node("yatm_frames:frame_sticky", {
   codex_entry_id = "yatm_frames:frame_sticky",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     node_frame = 1,
     node_frame_sticky = 1,
   },
@@ -261,7 +269,8 @@ minetest.register_node("yatm_frames:frame_sticky_axle", {
   codex_entry_id = "yatm_frames:frame_sticky",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     node_frame = 1,
     node_frame_sticky = 1,
   },
@@ -292,7 +301,8 @@ minetest.register_node("yatm_frames:frame_wire_one", {
   codex_entry_id = "yatm_frames:frame_wire",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     node_frame = 1,
     node_frame_wire = 1,
   },
@@ -322,7 +332,8 @@ minetest.register_node("yatm_frames:frame_wire", {
   codex_entry_id = "yatm_frames:frame_wire",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     node_frame = 1,
     node_frame_wire = 1,
   },
@@ -347,7 +358,8 @@ minetest.register_node("yatm_frames:frame_wire_axle", {
   codex_entry_id = "yatm_frames:frame_wire",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     node_frame = 1,
     node_frame_wire = 1,
   },
@@ -377,7 +389,8 @@ minetest.register_node("yatm_frames:frame_wire_and_sticky_axle", {
   codex_entry_id = "yatm_frames:frame_wire_and_sticky",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     node_frame = 1,
     node_frame_wire = 1,
     node_frame_sticky = 1,
@@ -409,7 +422,8 @@ minetest.register_node("yatm_frames:frame_wire_and_sticky_cross_axle_1", {
   codex_entry_id = "yatm_frames:frame_wire_and_sticky",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     node_frame = 1,
     node_frame_wire = 1,
     node_frame_sticky = 1,
@@ -441,7 +455,8 @@ minetest.register_node("yatm_frames:frame_wire_and_sticky_cross_axle_2", {
   codex_entry_id = "yatm_frames:frame_wire_and_sticky",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     node_frame = 1,
     node_frame_wire = 1,
     node_frame_sticky = 1,

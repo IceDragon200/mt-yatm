@@ -62,7 +62,7 @@ yatm.register_stateful_node("yatm_mesecon_card_readers:mesecon_card_reader", {
   drop = "yatm_mesecon_card_readers:mesecon_card_reader_off",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
     chippable_object = 1,
     mesecon_needs_receiver = 1,
   },
@@ -131,7 +131,7 @@ yatm.register_stateful_node("yatm_mesecon_card_readers:mesecon_card_reader", {
   },
   on = {
     groups = {
-      cracky = 1,
+      cracky = nokore.dig_class("copper"),
       mesecon_needs_receiver = 1,
       not_in_creative_inventory = 1,
     },
@@ -161,7 +161,7 @@ yatm.register_stateful_node("yatm_mesecon_card_readers:mesecon_card_reader", {
   },
   error = {
     groups = {
-      cracky = 1,
+      cracky = nokore.dig_class("copper"),
       mesecon_needs_receiver = 1,
       not_in_creative_inventory = 1,
     },

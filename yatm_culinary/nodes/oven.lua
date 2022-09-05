@@ -167,7 +167,8 @@ yatm.register_stateful_node("yatm_culinary:oven", {
   description = "Oven",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     heatable_device = 1,
     yatm_cluster_thermal = 1,
   },
@@ -232,7 +233,8 @@ yatm.register_stateful_node("yatm_culinary:oven", {
 
   on = {
     groups = {
-      cracky = 1,
+      cracky = nokore.dig_class("copper"),
+      --
       not_in_creative_inventory = 1,
       heatable_device = 1,
       yatm_cluster_thermal = 1,

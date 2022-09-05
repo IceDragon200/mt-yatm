@@ -19,7 +19,7 @@ for variant_basename, variant_name in pairs(variants) do
     description = "Shoji Panel Block " .. variant_name,
 
     groups = {
-      cracky = 1,
+      snappy = nokore.dig_class("wme"),
     },
 
     tiles = {
@@ -39,7 +39,7 @@ for variant_basename, variant_name in pairs(variants) do
     description = "Shoji Panel " .. variant_name,
 
     groups = {
-      cracky = 1,
+      snappy = nokore.dig_class("wme"),
     },
 
     tiles = {

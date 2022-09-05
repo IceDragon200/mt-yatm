@@ -88,7 +88,9 @@ minetest.register_node("yatm_item_storage:cardboard_box", {
   codex_entry_id = "yatm_item_storage:cardboard_box",
 
   groups = {
-    cracky = 1,
+    snappy = nokore.dig_class("wme"),
+    oddly_breakable_by_hand = nokore.dig_class("hand"),
+    --
     cardboard = 1,
     cardboard_box = 1,
     item_interface_in = 1,
@@ -145,7 +147,9 @@ minetest.register_node("yatm_item_storage:super_cardboard_box", {
   codex_entry_id = "yatm_item_storage:super_cardboard_box",
 
   groups = {
-    cracky = 1,
+    snappy = nokore.dig_class("wme"),
+    oddly_breakable_by_hand = nokore.dig_class("hand"),
+    --
     cardboard = 1,
     cardboard_box = 1,
     item_interface_in = 1,

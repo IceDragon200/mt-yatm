@@ -33,7 +33,7 @@ local states = {}
 for ascii_code, new_ascii_code in pairs(ASCII_TABLE) do
   if not states[new_ascii_code] then
     local groups = {
-      cracky = 1,
+      cracky = nokore.dig_class("copper"),
       data_programmable = 1,
       yatm_data_device = 1,
     }

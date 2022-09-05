@@ -55,7 +55,8 @@ yatm.devices.register_stateful_network_device({
   description =  "Ammo Belt Loader",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     item_interface_in = 1,
     item_interface_out = 1,
   },

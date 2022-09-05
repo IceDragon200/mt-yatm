@@ -3,7 +3,10 @@ minetest.register_node("yatm_machines:wireless_emitter", {
 
   description = "Wireless Emitter",
 
-  groups = {cracky = 1},
+  groups = {
+    cracky = nokore.dig_class("copper"),
+    --
+  },
 
   tiles = {
     "yatm_wireless_emitter_top.on.png",

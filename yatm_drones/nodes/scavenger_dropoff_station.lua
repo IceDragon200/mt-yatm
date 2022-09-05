@@ -88,7 +88,7 @@ yatm.devices.register_stateful_network_device({
   drop = dropoff_station_yatm_network.states.off,
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
     -- So scavengers know what to look for when docking
     scavenger_dropoff_station = 1,
     yatm_network_device = 1,

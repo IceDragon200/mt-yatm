@@ -76,7 +76,7 @@ for interval,duration in pairs(INTERVALS) do
     end
 
     local groups = {
-      cracky = 1,
+      cracky = nokore.dig_class("copper"),
     }
 
     if name ~= drop then

@@ -287,8 +287,9 @@ for _,row in ipairs(yatm.colors_with_default) do
     material_basename = "wood",
 
     groups = {
+      snappy = nokore.dig_class("wme"),
+      --
       mailbox = 1,
-      cracky = 1,
       lockable_object = 1,
       chippable_object = 1,
       item_interface_in = 1,
@@ -342,8 +343,9 @@ for _,row in ipairs(yatm.colors_with_default) do
     material_basename = "metal",
 
     groups = {
+      cracky = nokore.dig_class("copper"),
+      --
       mailbox = 1,
-      cracky = 1,
       chippable_object = 1,
       lockable_object = 1,
       item_interface_in = 1,

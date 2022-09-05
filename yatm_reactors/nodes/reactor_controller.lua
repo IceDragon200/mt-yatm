@@ -82,7 +82,9 @@ yatm_reactors.register_stateful_reactor_node({
 
   codex_entry_id = "yatm_reactors:reactor_controller",
 
-  groups = {cracky = 1},
+  groups = {
+    cracky = nokore.dig_class("copper"),
+  },
 
   drop = reactor_controller_reactor_device.states.off,
 

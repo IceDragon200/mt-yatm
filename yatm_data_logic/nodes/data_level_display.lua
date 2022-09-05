@@ -19,7 +19,7 @@ yatm.register_stateful_node("yatm_data_logic:data_level_display_decor_panel", {
   codex_entry_id = "yatm_data_logic:data_level_display",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
   },
 
   paramtype = "light",
@@ -138,7 +138,8 @@ yatm.register_stateful_node("yatm_data_logic:data_level_display", {
   codex_entry_id = "yatm_data_logic:data_level_display",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     data_level_display = 1,
     data_programmable = 1,
     yatm_data_device = 1,

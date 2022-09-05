@@ -18,7 +18,9 @@ for _,color in ipairs(colors) do
       base_description = "Warning Checkers",
 
       description = "Warning Checkers " .. size .. " (" .. color .. ")",
-      groups = {cracky = 1},
+      groups = {
+        cracky = nokore.dig_class("copper"),
+      },
       tiles = {
         "yatm_warning_checkers_" .. size .. "_" .. color .. "_15.png",
       },
@@ -32,7 +34,9 @@ for _,color in ipairs(colors) do
       base_description = "Warning Checkers Slab",
 
       description = "Warning Checkers Slab " .. size .. " (" .. color .. ")",
-      groups = {cracky = 1},
+      groups = {
+        cracky = nokore.dig_class("copper"),
+      },
       tiles = {
         "yatm_warning_checkers_" .. size .. "_" .. color .. "_15.png",
       },
@@ -49,7 +53,9 @@ for _,color in ipairs(colors) do
       base_description = "Warning Checkers Panel",
 
       description = "Warning Checkers Panel " .. size .. " (" .. color .. ")",
-      groups = {cracky = 1},
+      groups = {
+        cracky = nokore.dig_class("copper"),
+      },
       tiles = {
         "yatm_warning_checkers_" .. size .. "_" .. color .. "_15.png",
       },

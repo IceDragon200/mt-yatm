@@ -41,7 +41,7 @@ local core_size = 12 / 16 / 2
 local nub_size = 10 / 16 / 2
 
 local groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
   yatm_cluster_thermal = 1,
   heater_device = 1,
 }

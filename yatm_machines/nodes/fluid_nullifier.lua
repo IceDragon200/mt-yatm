@@ -29,7 +29,7 @@ mod:register_node("fluid_nullifier", {
   description = mod.S("Fluid Nullifier"),
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
     fluid_interface_in = 1,
   },
 

@@ -7,7 +7,8 @@ local table_merge = assert(foundation.com.table_merge)
 local size = 8 / 16 / 2
 
 local groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
+  --
   yatm_cluster_thermal = 1,
   heatable_device = 1,
   heater_device = 1,

@@ -45,7 +45,8 @@ local monitor_crafting_yatm_network = {
 }
 
 local groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
+  --
   monitor = 1,
   crafting_monitor = 1,
 }

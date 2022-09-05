@@ -46,7 +46,10 @@ minetest.register_node("yatm_mesecon_hubs:mesecon_hub_emitter_off", {
   basename = "yatm_mesecon_hubs:mesecon_hub_emitter",
 
   description = "Mesecon Emitter Hub",
-  groups = {cracky = 1, addressable_hub_device = 1},
+  groups = {
+    cracky = nokore.dig_class("copper"),
+    addressable_hub_device = 1,
+  },
   drop = "yatm_mesecon_hubs:mesecon_hub_emitter_off",
   tiles = {
     "yatm_mesecon_hub_top.emitter.off.png",
@@ -83,7 +86,11 @@ minetest.register_node("yatm_mesecon_hubs:mesecon_hub_emitter_on", {
   basename = "yatm_mesecon_hubs:mesecon_hub_emitter",
 
   description = "Mesecon Emitter Hub",
-  groups = {cracky = 1, addressable_hub_device = 1, not_in_creative_inventory = 1},
+  groups = {
+    cracky = nokore.dig_class("copper"),
+    addressable_hub_device = 1,
+    not_in_creative_inventory = 1,
+  },
   drop = "yatm_mesecon_hubs:mesecon_hub_emitter_off",
   tiles = {
     {

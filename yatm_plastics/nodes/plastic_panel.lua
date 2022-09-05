@@ -6,7 +6,7 @@ minetest.register_node("yatm_plastics:plastic_panel_plain_block", {
   description = "Plain Plastic Panel Block",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
     plastic_block = 1,
   },
 
@@ -23,7 +23,7 @@ yatm.register_stateful_node("yatm_plastics:plastic_panel_plain_block", {
   base_description = "Plain Plastic Panel Block",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
     plastic_block = 1,
   },
 
@@ -52,7 +52,7 @@ minetest.register_node("yatm_plastics:plastic_panel_notched_block", {
   description = "Notched Plastic Panel Block",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
     plastic_block = 1,
   },
 
@@ -69,7 +69,7 @@ yatm.register_stateful_node("yatm_plastics:plastic_panel_notched_block", {
   base_description = "Notched Plastic Panel Block",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
     plastic_block = 1,
   },
 
@@ -99,7 +99,7 @@ minetest.register_node("yatm_plastics:plastic_panel_hollow_block", {
   description = "Hollow Plastic Panel Block",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
     plastic_block = 1,
   },
 
@@ -118,7 +118,7 @@ yatm.register_stateful_node("yatm_plastics:plastic_panel_hollow_block", {
   base_description = "Hollow Plastic Panel Block",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
     plastic_block = 1,
   },
 
@@ -150,7 +150,7 @@ yatm.register_stateful_node("yatm_plastics:plastic_panel_checker_block", {
   base_description = "Checker Plastic Panel Block",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
     plastic_block = 1,
   },
 

@@ -40,7 +40,8 @@ local function refresh_infotext(pos, node)
 end
 
 local groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
+  --
   yatm_network_device = 1,
   yatm_energy_device = 1,
 }

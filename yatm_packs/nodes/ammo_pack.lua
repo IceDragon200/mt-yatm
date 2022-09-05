@@ -2,9 +2,8 @@ minetest.register_node("yatm_packs:ammo_pack", {
   description = "Ammo Pack",
 
   groups = {
-    snappy = 2,
-    choppy = 2,
-    oddly_breakable_by_hand = 3,
+    oddly_breakable_by_hand = nokore.dig_class("hand"),
+    --
     ammo_pack = 1,
   },
 

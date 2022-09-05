@@ -42,8 +42,9 @@ minetest.register_node("yatm_foundry:stonecutters_table_wood", {
   codex_entry_id = "yatm_foundry:stonecutters_table_wood",
 
   groups = {
+    snappy = nokore.dig_class("wme"),
+    --
     stonecutters_table = 1,
-    cracky = 1
   },
 
   use_texture_alpha = "opaque",

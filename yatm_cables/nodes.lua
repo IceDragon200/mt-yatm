@@ -15,7 +15,8 @@ yatm_cables.register_cable({
   states =  {"on", "off", "error"},
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     any_cable = 1,
     energy_cable = 1,
     network_cable = 1,
@@ -46,7 +47,8 @@ yatm_cables.register_cable({
   states =  {"on", "off", "error"},
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     any_cable = 1,
     energy_cable = 1,
     network_cable = 1,
@@ -79,7 +81,8 @@ yatm_cables.register_cable({
   states =  {"on", "off", "error"},
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     any_cable = 1,
     energy_cable = 1,
     network_cable = 1,
@@ -113,7 +116,8 @@ yatm_cables.register_cable({
   sounds = glass_sounds,
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     any_cable = 1,
     glass_cable = 1,
     yatm_cluster_cable = 1,
@@ -141,7 +145,8 @@ yatm_cables.register_cable({
   sounds = glass_sounds,
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     any_cable = 1,
     glass_cable = 1,
     yatm_cluster_cable = 1,
@@ -169,7 +174,8 @@ yatm_cables.register_cable({
   sounds = glass_sounds,
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     any_cable = 1,
     glass_cable = 1,
     yatm_cluster_cable = 1,
@@ -197,7 +203,8 @@ yatm_cables.register_cable({
   states = false,
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     any_cable = 1,
     energy_cable = 1,
     yatm_cluster_energy = 1,
@@ -223,7 +230,8 @@ yatm_cables.register_cable({
   states = false,
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     any_cable = 1,
     energy_cable = 1,
     yatm_cluster_energy = 1,
@@ -252,7 +260,8 @@ yatm_cables.register_cable({
   states = false,
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     copper_cable = 1,
     copper_cable_uninsulated = 1,
     energy_cable = 1,
@@ -275,7 +284,8 @@ do
 
     local colored_group_name = "copper_cable_" .. color_basename
     local groups = {
-      cracky = 1,
+      cracky = nokore.dig_class("copper"),
+      --
       copper_cable = 1,
       [colored_group_name] = 1,
       energy_cable = 1,

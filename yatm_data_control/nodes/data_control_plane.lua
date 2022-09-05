@@ -375,7 +375,8 @@ yatm.register_stateful_node("yatm_data_control:data_control_plane", {
   codex_entry_id = "yatm_data_control:data_control_plane",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     data_programmable = 1,
     yatm_data_device = 1,
   },

@@ -212,7 +212,9 @@ mod:register_node("bait_box_wood", {
 mod:register_node("bait_box_metal", {
   description = "Bait Box (Metal)",
 
-  groups = table_merge(groups, { cracky = 1 }),
+  groups = table_merge(groups, {
+    cracky = nokore.dig_class("copper"),
+  }),
 
   paramtype = "none",
   paramtype2 = "facedir",

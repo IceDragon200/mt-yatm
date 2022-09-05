@@ -22,7 +22,9 @@ for _,color in ipairs(colors) do
 
         description = "Warning Stripes " .. size .. " (" .. color .. ")",
 
-        groups = {cracky = 1},
+        groups = {
+          cracky = nokore.dig_class("copper"),
+        },
 
         tiles = {
           "yatm_warning_stripes_" .. size .. "_" .. color .. "_15.png",
@@ -40,7 +42,9 @@ for _,color in ipairs(colors) do
 
         description = "Warning Stripes Slab " .. size .. " (" .. color .. ")",
 
-        groups = {cracky = 1},
+        groups = {
+          cracky = nokore.dig_class("copper"),
+        },
 
         tiles = {
           "yatm_warning_stripes_" .. size .. "_" .. color .. "_15.png",
@@ -61,7 +65,9 @@ for _,color in ipairs(colors) do
 
         description = "Warning Stripes Panel " .. size .. " (" .. color .. ")",
 
-        groups = {cracky = 1},
+        groups = {
+          cracky = nokore.dig_class("copper"),
+        },
 
         tiles = {
           "yatm_warning_stripes_" .. size .. "_" .. color .. "_15.png",

@@ -37,7 +37,9 @@ for _, variant_pair in ipairs(variants) do
     }
   }
 
-  local groups = {cracky = 1}
+  local groups = {
+    cracky = nokore.dig_class("copper"),
+  }
   if variant_basename == "hazard" or variant_basename == "coolant" then
     groups.fluid_interface_in = 1
   elseif variant_basename == "signal" then

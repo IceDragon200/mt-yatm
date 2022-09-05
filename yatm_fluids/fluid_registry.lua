@@ -95,7 +95,8 @@ function FluidRegistry.register_fluid_tank(modname, fluid_name, nodedef)
   )
 
   local groups = table_merge({
-    cracky = 1,
+    cracky = nokore.dig_class("wood"),
+    --
     fluid_tank = 1,
     filled_fluid_tank = 1,
     fluid_interface_in = 1,

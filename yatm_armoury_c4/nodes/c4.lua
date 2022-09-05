@@ -2,8 +2,9 @@ minetest.register_node("yatm_armoury_c4:c4_tripwired", {
   description = "C4 (Tripwire Operated)",
 
   groups = {
-    oddly_breakable_by_hand = 1,
-    cracky = 1,
+    cracky = nokore.dig_class("wme"),
+    oddly_breakable_by_hand = nokore.dig_class("hand"),
+    --
     c4 = 1,
     explosive = 1,
     trip_node = 1,
@@ -35,8 +36,9 @@ minetest.register_node("yatm_armoury_c4:c4_remote", {
   description = "C4 (Remote Operated)",
 
   groups = {
-    oddly_breakable_by_hand = 1,
-    cracky = 1,
+    cracky = nokore.dig_class("wme"),
+    oddly_breakable_by_hand = nokore.dig_class("hand"),
+    --
     c4 = 1,
     explosive = 1,
     remote_operated = 1,

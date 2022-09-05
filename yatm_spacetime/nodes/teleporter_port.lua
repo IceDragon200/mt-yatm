@@ -89,7 +89,8 @@ yatm.devices.register_stateful_network_device({
   codex_entry_id = "yatm_spacetime:teleporter_port",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     spacetime_device = 1,
     addressable_spacetime_device = 1
   },
@@ -200,7 +201,8 @@ yatm.devices.register_stateful_network_device({
   codex_entry_id = "yatm_spacetime:teleporter_port_data",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     spacetime_device = 1,
     addressable_spacetime_device = 1,
     yatm_data_device = 1,

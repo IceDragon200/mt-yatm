@@ -140,7 +140,8 @@ local function on_timer(pos, elapsed)
 end
 
 local groups = {
-  cracky = 1,
+  cracky = nokore.dig_class("copper"),
+  --
   yatm_cluster_thermal = 1,
   heatable_device = 1,
   fluid_interface_in = 1,

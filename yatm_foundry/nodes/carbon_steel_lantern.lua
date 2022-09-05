@@ -34,8 +34,9 @@ for _,row in ipairs(yatm.colors) do
     description = yatm_foundry.S(color_name .. " Carbon Steel Lantern"),
 
     groups = {
-      oddly_breakable_by_hand = 3,
-      cracky = 1,
+      cracky = nokore.dig_class("iron"),
+      oddly_breakable_by_hand = nokore.dig_class("hand"),
+      --
       lantern = 1,
       carbon_steel = 1,
       metallic = 1,

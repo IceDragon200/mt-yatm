@@ -37,7 +37,7 @@ for _, variant_pair in ipairs(variants) do
   }
 
   local groups = {
-    cracky = 1
+    cracky = nokore.dig_class("copper")
   }
 
   if variant_basename == "hazard" or variant_basename == "coolant" then

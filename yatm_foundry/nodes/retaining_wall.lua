@@ -65,7 +65,8 @@ for _,row in ipairs(yatm.colors) do
     codex_entry_id = "yatm_foundry:concrete_retaining_wall",
 
     groups = {
-      cracky = 1,
+      cracky = nokore.dig_class("copper"),
+      --
       concrete = 1,
       wall = 1,
     },
@@ -115,7 +116,8 @@ for _,row in ipairs(yatm.colors) do
     codex_entry_id = "yatm_foundry:concrete_retaining_wall_corner",
 
     groups = {
-      cracky = 1,
+      cracky = nokore.dig_class("copper"),
+      --
       concrete = 1,
       wall_corner = 1,
     },

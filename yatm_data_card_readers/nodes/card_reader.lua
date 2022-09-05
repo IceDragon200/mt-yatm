@@ -85,7 +85,8 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_reader", {
   drop = "yatm_data_card_readers:data_card_reader_off",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     chippable_object = 1,
     yatm_data_device = 1,
     data_programmable = 1,
@@ -197,7 +198,8 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_reader", {
 
   on = {
     groups = {
-      cracky = 1,
+      cracky = nokore.dig_class("copper"),
+      --
       yatm_data_device = 1,
       not_in_creative_inventory = 1,
     },
@@ -220,7 +222,8 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_reader", {
 
   error = {
     groups = {
-      cracky = 1,
+      cracky = nokore.dig_class("copper"),
+      --
       yatm_data_device = 1,
       not_in_creative_inventory = 1,
     },

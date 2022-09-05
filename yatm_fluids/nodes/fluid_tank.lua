@@ -20,7 +20,8 @@ minetest.register_node("yatm_fluids:fluid_tank", {
   description = "Fluid Tank",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     fluid_tank = 1,
     fluid_interface_in = 1,
     fluid_interface_out = 1,
@@ -86,7 +87,8 @@ minetest.register_node("yatm_fluids:steel_fluid_tank", {
   description = "Steel Fluid Tank",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     fluid_tank = 1,
     filled_fluid_tank = 1,
     fluid_interface_in = 1,
