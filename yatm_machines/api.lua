@@ -74,51 +74,73 @@ function devices.device_after_place_node(pos, placer, item_stack, pointed_thing)
   --
 end
 
-function devices.device_transition_device_state(pos, node, state)
-  --print("yatm_machines", "device_transition_device_state", minetest.pos_to_string(pos), "node=" .. node.name, "state=" .. state)
-
+function devices.device_swap_node_by_state(pos, node, new_state)
   local nodedef = minetest.registered_nodes[node.name]
 
-  if nodedef.yatm_network.states then
-    local new_node_name
+  if nodedef and nodedef.yatm_network.states then
+    local new_node_name = nodedef.yatm_network.states[new_state]
 
-    if state == "down" then
-      new_node_name = nodedef.yatm_network.states['off']
-    elseif state == "up" then
-      if nodedef.state == "idle" then
-        new_node_name = nodedef.yatm_network.states['idle']
-      else
-        new_node_name = nodedef.yatm_network.states['on']
-      end
-    elseif state == "conflict" then
-      new_node_name = nodedef.yatm_network.states['conflict']
-    else
-      error("unhandled state=" .. state)
-    end
+    local changed = false
 
     if new_node_name then
       node = minetest.get_node(pos)
 
       if node.name ~= new_node_name then
-        node.name = new_node_name
-        minetest.swap_node(pos, node)
+        local new_node = {
+          name = new_node_name,
+          param1 = node.param1,
+          param2 = node.param2,
+        }
 
-        if nodedef.groups['yatm_cluster_device'] then
-          cluster_devices:schedule_update_node(pos, node)
+        minetest.swap_node(pos, new_node)
+
+        if nodedef.groups["yatm_cluster_device"] then
+          cluster_devices:schedule_update_node(pos, new_node)
         end
 
-        if nodedef.groups['yatm_cluster_energy'] then
-          cluster_energy:schedule_update_node(pos, node)
+        if nodedef.groups["yatm_cluster_energy"] then
+          cluster_energy:schedule_update_node(pos, new_node)
         end
 
-        if nodedef.groups['yatm_cluster_thermal'] then
-          cluster_thermal:schedule_update_node(pos, node)
+        if nodedef.groups["yatm_cluster_thermal"] then
+          cluster_thermal:schedule_update_node(pos, new_node)
         end
+
+        changed = true
       end
+    else
+      minetest.log("warning", "missing node name for state=" .. new_state .. " node=" .. node.name)
     end
 
-    yatm.queue_refresh_infotext(pos, node, REASON_TRANSITION)
+    if changed then
+      yatm.queue_refresh_infotext(pos, node, REASON_TRANSITION)
+    end
+
+    return changed
   end
+
+  return false
+end
+
+function devices.device_transition_device_state(pos, node, dev_state)
+  local meta = minetest.get_meta(pos)
+  local state
+  if dev_state == "down" then
+    state = "off"
+  elseif dev_state == "up" then
+    local up_state = meta:get_string("up_state")
+    if not up_state or up_state == "" then
+      state = "on"
+    else
+      state = up_state
+    end
+  elseif dev_state == "conflict" then
+    state = "conflict"
+  else
+    error("unhandled dev_state=" .. dev_state)
+  end
+
+  return devices.device_swap_node_by_state(pos, node, state)
 end
 
 -- @spec get_energy_capacity(Vector3, NodeRef): Number
@@ -301,18 +323,23 @@ function ic:run()
 
   self:precalculate()
 
+  if ym.state == "conflict" then
+    return
+  end
+
   if ym.state == "off" then
     -- the state was known to be off, see if it can startup
     if self.total_stored_energy >= ym.energy.startup_threshold then
       -- yes it could be start up
-      self.nodedef.transition_device_state(self.pos, self.node, "up")
-      self:refresh_node()
-      ym = assert(self.nodedef.yatm_network)
-      self:precalculate()
+      if self.nodedef.transition_device_state(self.pos, self.node, "up") then
+        self:refresh_node()
+        ym = assert(self.nodedef.yatm_network)
+        self:precalculate()
+      end
     end
   end
 
-  if ym.state == "on" then
+  if ym.state == "on" or ym.state == "idle" then
     local idle_time = self.meta:get_float("idle_time")
     idle_time = math.max(0, idle_time - self.dtime)
 
@@ -363,6 +390,18 @@ function ic:run()
   self.total_stored_energy = Energy.get_meta_energy(self.meta, devices.ENERGY_BUFFER_KEY)
   if self.total_stored_energy <= 0 then
     self.nodedef.transition_device_state(self.pos, self.node, "down")
+  end
+end
+
+-- Sets the node's expected UP state (usually "on" or "idle")
+--
+-- @spec #set_up_state(state: String): void
+function ic:set_up_state(state)
+  self.meta:set_string("up_state", state)
+  if self.nodedef.yatm_network.state ~= state then
+    if self.nodedef.transition_device_state(self.pos, self.node, "up") then
+      self:refresh_node()
+    end
   end
 end
 
