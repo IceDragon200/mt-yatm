@@ -223,11 +223,13 @@ function yatm.shelves.shelf_on_rightclick(pos, node, user)
 end
 
 function yatm.shelves.register_shelf(name, def)
+  local groups = def.groups or {}
+  def.groups = nil
+
   minetest.register_node(name, table_merge({
-    groups = {
-      cracky = 1,
+    groups = table_merge({
       item_shelf = 1,
-    },
+    }, groups),
 
     paramtype = "light",
     paramtype2 = "facedir",

@@ -61,6 +61,10 @@ local shelf_materials = {
   wood = {
     name = "Wood",
     texture_basename = "wood",
+    groups = {
+      snappy = nokore.dig_class("wme"),
+      wooden = 1,
+    },
     configurations = {
       {
         cols = 1,
@@ -87,6 +91,10 @@ local shelf_materials = {
   carbon_steel = {
     name = "Carbon Steel",
     texture_basename = "metal",
+    groups = {
+      cracky = nokore.dig_class("iron"),
+      metallic = 1,
+    },
     configurations = {
       {
         cols = 1,
@@ -129,6 +137,8 @@ for material_basename, def in pairs(shelf_materials) do
 
       description = def.name .. " " .. x .. " Shelf",
 
+      groups = def.groups,
+
       codex_entry_id = "yatm_item_shelves:shelf",
 
       tiles = {
@@ -154,6 +164,8 @@ for material_basename, def in pairs(shelf_materials) do
       material_basename = material_basename,
 
       description = def.name .. " " .. x .. " Half Shelf",
+
+      groups = def.groups,
 
       tiles = {
         "yatm_shelf_" .. def.texture_basename .. "_top_half.png",
