@@ -34,7 +34,7 @@ local function render_formspec(pos, user)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
 
-  return yatm.formspec_render_split_inv_panel(user, nil, 2, { bg = "machine" }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine" }, function (loc, rect)
     if loc == "main_body" then
       return fspec.list(node_inv_name, "input_slot", rect.x, rect.y, 1, 1) ..
         fspec.list(node_inv_name, "output_slot", rect.x + cio(2), rect.y, 1, 1)
