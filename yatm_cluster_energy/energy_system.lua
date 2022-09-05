@@ -17,6 +17,8 @@ local ic = EnergySystem.instance_class
 -- @spec #initialize(): void
 function ic:initialize()
   ic._super.initialize(self)
+
+  self.m_time = 0
 end
 
 -- @spec #calc_energy_produced(Cluster, dtime: Float, trace: Trace): Integer
@@ -33,9 +35,9 @@ function ic:calc_energy_produced(cluster, dtime, trace)
   local energy_produced =
     cluster:reduce_nodes_of_group("energy_producer", 0, function (node_entry, acc)
       node = get_node_or_nil(node_entry.pos)
-      --print(LOG_GROUP, "produce energy", node_entry.pos.x, node_entry.pos.y, node_entry.pos.z, node.name)
       if node then
         amount_produced = EnergyDevices.produce_energy(node_entry.pos, node, dtime, span)
+        node_entry.assigns.last_energy_produced = amount_produced
         if amount_produced then
           acc = acc + amount_produced
         end
@@ -62,7 +64,7 @@ function ic:calc_energy_stored(cluster, dtime, trace)
   local amount_stored
 
   local energy_stored =
-    cluster:reduce_nodes_of_group("energy_storage", 0, function (node_entry, accumulated_energy_stored)
+    cluster:reduce_nodes_of_group("energy_storage", 0, function (node_entry, acc)
       node = get_node_or_nil(node_entry.pos)
       if node then
         amount_stored =
@@ -74,10 +76,10 @@ function ic:calc_energy_stored(cluster, dtime, trace)
           )
 
         if amount_stored then
-          accumulated_energy_stored = accumulated_energy_stored + amount_stored
+          acc = acc + amount_stored
         end
       end
-      return true, accumulated_energy_stored
+      return true, acc
     end)
 
   if span then
@@ -247,7 +249,10 @@ function ic:run_has_update(cluster, dtime, trace)
   end
 end
 
+-- @spec #update(Clusters, Cluster, dtime: Number, trace?: Trace): void
 function ic:update(cls, cluster, dtime, trace)
+  self.m_time = self.m_time + dtime
+
   local sys_trace
   local step_trace
 
@@ -268,24 +273,34 @@ function ic:update(cls, cluster, dtime, trace)
 
   -- Second highest priority, how much energy is stored in the network right now
   -- This is combined with the produced to determine how much is available
-  -- The node is allowed to lie about it's contents, to cause energy trickle or gating
+  -- The node is allowed to lie about its contents, to cause energy trickle or gating
   local energy_stored = self:calc_energy_stored(cluster, dtime, step_trace)
 
+  -- The total available energy is the stored + produced
   local total_energy_available = energy_stored + energy_produced
+
+  -- energy currently available = total
   local energy_available = total_energy_available
 
   local energy_consumed
 
-  energy_consumed, energy_available = self:run_consume_energy(energy_available, cluster, dtime, step_trace)
+  energy_consumed, energy_available =
+    self:run_consume_energy(energy_available, cluster, dtime, step_trace)
 
   --print(LOG_GROUP, "energy_consumed", energy_consumed)
-  self:run_use_stored_energy(energy_consumed - energy_produced, cluster, dtime, step_trace)
+  local energy_store_used = energy_consumed - energy_produced
+  if energy_store_used > 0 then
+    self:run_use_stored_energy(energy_store_used, cluster, dtime, step_trace)
+  end
 
   -- how much extra energy is left, note the stored is subtracted from the available
   -- if it falls below 0 then there is no extra energy.
-  local energy_left = energy_available - energy_consumed
-
-  self:run_receive_energy(energy_left, cluster, dtime, step_trace)
+  if energy_available > 0 then
+    local energy_left = energy_produced - energy_consumed
+    if energy_left > 0 then
+      self:run_receive_energy(energy_left, cluster, dtime, step_trace)
+    end
+  end
 
   self:run_has_update(cluster, dtime, step_trace)
 
