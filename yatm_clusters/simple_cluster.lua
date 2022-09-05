@@ -552,6 +552,8 @@ do
     end
   end
 
+  local fspec = assert(foundation.com.formspec.api)
+
   --
   -- Helper function for rendering cluster members in the cluster tool
   --
@@ -568,11 +570,19 @@ do
   function ic:cluster_tool_render(cluster, formspec, render_state)
     local registered_nodes_with_count =
       cluster:reduce_nodes({}, function (node_entry, acc)
-        acc[node_entry.node.name] = (acc[node_entry.node.name] or 0) + 1
+        if not acc[node_entry.node.name] then
+          acc[node_entry.node.name] = {
+            count = 0,
+          }
+        end
+        local item = acc[node_entry.node.name]
+        item.count = (item.count or 0) + 1
+        item.last_entry = node_entry
+
         return true, acc
       end)
 
-    local cols = 4
+    local cols = 6
     local colsize = render_state.w / cols
     local item_size = colsize * 0.6
     local label_size = colsize * 0.6
@@ -580,16 +590,19 @@ do
     local x
     local y
 
-    for node_name, count in pairs(registered_nodes_with_count) do
+    local last_energy_produced
+
+    for node_name, item in pairs(registered_nodes_with_count) do
       x = math.floor(i % cols) * colsize
       y = math.floor(i / cols) * colsize
 
+      last_energy_produced = item.last_entry.assigns.last_energy_produced or "N/A"
+
       formspec =
         formspec ..
-        "item_image[" .. x .. "," .. y .. ";" ..
-                    item_size .. "," .. item_size .. ";" ..
-                    node_name .. "]" ..
-        "label[" .. x + label_size .. "," .. y.. ";" .. count .."]"
+        fspec.item_image(x, 0.5 + y, item_size, item_size, node_name) ..
+        fspec.label(x + label_size, y, item.count) ..
+        fspec.tooltip_area(x, y, item_size, item_size, last_energy_produced)
 
       i = i + 1
     end
