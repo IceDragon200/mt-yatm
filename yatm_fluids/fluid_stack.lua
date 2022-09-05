@@ -135,6 +135,7 @@ function FluidStack.dec_amount(fluid_stack, amount)
   return FluidStack.inc_amount(fluid_stack, -amount)
 end
 
+-- @spec merge(FluidStack, ...FluidStack): FluidStack
 function FluidStack.merge(a, ...)
   assert(a, "expected a fluid stack")
   local result = {
@@ -150,6 +151,7 @@ function FluidStack.merge(a, ...)
   return result
 end
 
+-- @spec normalize(FluidStack): FluidStack
 function FluidStack.normalize(stack)
   return {
     name = fluid_registry.normalize_fluid_name(stack.name),
@@ -157,6 +159,7 @@ function FluidStack.normalize(stack)
   }
 end
 
+-- @spec presence(FluidStack): FluidStack | nil
 function FluidStack.presence(fluid_stack)
   if fluid_stack and fluid_stack.amount > 0 then
     return fluid_stack
@@ -164,6 +167,7 @@ function FluidStack.presence(fluid_stack)
   return nil
 end
 
+-- @spec is_empty(FluidStack): Boolean
 function FluidStack.is_empty(fluid_stack)
   if fluid_stack and fluid_stack.amount > 0 then
     return false
