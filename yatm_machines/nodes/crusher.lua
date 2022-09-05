@@ -19,6 +19,7 @@ local yatm_network = {
   states = {
     conflict = "yatm_machines:crusher_error",
     error = "yatm_machines:crusher_error",
+    idle = "yatm_machines:crusher_idle",
     off = "yatm_machines:crusher_off",
     on = "yatm_machines:crusher_on",
   },
@@ -168,6 +169,16 @@ yatm.devices.register_stateful_network_device({
       },
     },
   },
+  idle = {
+    tiles = {
+      "yatm_crusher_top.idle.png",
+      "yatm_crusher_bottom.png",
+      "yatm_crusher_side.idle.png",
+      "yatm_crusher_side.idle.png^[transformFX",
+      "yatm_crusher_back.idle.png",
+      "yatm_crusher_front.idle.png",
+    },
+  },
   error = {
     tiles = {
       "yatm_crusher_top.error.png",
@@ -177,5 +188,5 @@ yatm.devices.register_stateful_network_device({
       "yatm_crusher_back.error.png",
       "yatm_crusher_front.error.png",
     },
-  }
+  },
 })

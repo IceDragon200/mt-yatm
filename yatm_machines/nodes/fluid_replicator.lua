@@ -19,8 +19,9 @@ local fluid_replicator_yatm_network = {
   },
   default_state = "off",
   states = {
-    error = "yatm_machines:fluid_replicator_error",
     conflict = "yatm_machines:fluid_replicator_error",
+    error = "yatm_machines:fluid_replicator_error",
+    idle = "yatm_machines:fluid_replicator_idle",
     off = "yatm_machines:fluid_replicator_off",
     on = "yatm_machines:fluid_replicator_on",
   },
@@ -113,6 +114,12 @@ function fluid_replicator_yatm_network:work(ctx)
   local pos = ctx.pos
   local meta = ctx.meta
   local node = ctx.node
+
+  if FluidMeta.is_empty(meta, fluid_interface._private.tank_name) then
+    ctx:set_up_state("idle")
+  else
+    ctx:set_up_state("on")
+  end
 
   local energy_consumed = 0
 
@@ -284,6 +291,16 @@ yatm.devices.register_stateful_network_device({
       "yatm_fluid_replicator_side.error.png^[transformFX",
       "yatm_fluid_replicator_back.error.png",
       "yatm_fluid_replicator_front.error.png",
+    },
+  },
+  idle = {
+    tiles = {
+      "yatm_fluid_replicator_top.idle.png",
+      "yatm_fluid_replicator_bottom.png",
+      "yatm_fluid_replicator_side.idle.png",
+      "yatm_fluid_replicator_side.idle.png^[transformFX",
+      "yatm_fluid_replicator_back.idle.png",
+      "yatm_fluid_replicator_front.idle.png",
     },
   },
   on = {

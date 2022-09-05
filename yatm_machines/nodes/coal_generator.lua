@@ -6,6 +6,7 @@ local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
 local Vector3 = assert(foundation.com.Vector3)
 local player_service = assert(nokore.player_service)
+local device_swap_node_by_state = assert(yatm.devices.device_swap_node_by_state)
 
 local function refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
@@ -102,6 +103,16 @@ end
 
 -- @spec update(pos: Vector3, node: NodeRef, dtime: Float, trace: Trace): void
 function yatm_network.update(pos, node, dtime, trace)
+  local meta = minetest.get_meta(pos)
+
+  local inv = meta:get_inventory()
+
+  if inv:is_empty("fuel_slot") or meta:get_float("burn_time_max") <= 0 then
+    device_swap_node_by_state(pos, node, "idle")
+  else
+    device_swap_node_by_state(pos, node, "on")
+  end
+
   --
 end
 

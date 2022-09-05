@@ -12,6 +12,7 @@ local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local Vector3 = assert(foundation.com.Vector3)
 local player_service = assert(nokore.player_service)
+local device_swap_node_by_state = assert(yatm.devices.device_swap_node_by_state)
 
 --
 -- Steam turbines produce energy by consuming steam, they have the byproduct of water which can be cycled again into a boiler.
@@ -201,7 +202,7 @@ function yatm_network.update(pos, node, ot)
   end
 
   if FluidMeta.is_empty(meta, STEAM_TANK) then
-    devices.device_swap_node_by_state(pos, node, "idle")
+    device_swap_node_by_state(pos, node, "idle")
   end
 end
 

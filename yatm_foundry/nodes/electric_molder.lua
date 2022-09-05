@@ -153,6 +153,8 @@ function yatm_network:work(ctx)
     else
       energy_consumed = energy_consumed + 5
     end
+  else
+    ctx:set_up_state("idle")
   end
 
   return energy_consumed

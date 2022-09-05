@@ -18,6 +18,7 @@ local crystal_cauldron_yatm_network = {
   states = {
     conflict = "yatm_machines:crystal_cauldron_error",
     error = "yatm_machines:crystal_cauldron_error",
+    idle = "yatm_machines:crystal_cauldron_idle",
     off = "yatm_machines:crystal_cauldron_off",
     on = "yatm_machines:crystal_cauldron_on",
   },
@@ -30,6 +31,7 @@ local crystal_cauldron_yatm_network = {
 }
 
 function crystal_cauldron_yatm_network:work(ctx)
+  ctx:set_up_state("idle")
   return 0
 end
 
@@ -152,6 +154,26 @@ yatm.devices.register_stateful_network_device({
 
   on_rightclick = on_rightclick,
 }, {
+  error = {
+    tiles = {
+      "yatm_crystal_cauldron_top.png",
+      "yatm_crystal_cauldron_bottom.png",
+      "yatm_crystal_cauldron_side.error.png",
+      "yatm_crystal_cauldron_side.error.png",
+      "yatm_crystal_cauldron_side.error.png",
+      "yatm_crystal_cauldron_side.error.png",
+    },
+  },
+  idle = {
+    tiles = {
+      "yatm_crystal_cauldron_top.png",
+      "yatm_crystal_cauldron_bottom.png",
+      "yatm_crystal_cauldron_side.idle.png",
+      "yatm_crystal_cauldron_side.idle.png",
+      "yatm_crystal_cauldron_side.idle.png",
+      "yatm_crystal_cauldron_side.idle.png",
+    },
+  },
   on = {
     tiles = {
       "yatm_crystal_cauldron_top.png",
@@ -162,14 +184,4 @@ yatm.devices.register_stateful_network_device({
       "yatm_crystal_cauldron_side.on.png",
     },
   },
-  error = {
-    tiles = {
-      "yatm_crystal_cauldron_top.png",
-      "yatm_crystal_cauldron_bottom.png",
-      "yatm_crystal_cauldron_side.error.png",
-      "yatm_crystal_cauldron_side.error.png",
-      "yatm_crystal_cauldron_side.error.png",
-      "yatm_crystal_cauldron_side.error.png",
-    },
-  }
 })

@@ -86,7 +86,8 @@ function yatm_network:work(ctx)
 
   local energy_consumed = 0
 
-  yatm.devices.set_idle(meta, 1)
+  local worked = false
+
   -- Drain water from adjacent tanks
   for _, dir in ipairs(Directions.DIR4) do
     local water_tank_dir = Directions.facedir_to_face(node.param2, dir)
@@ -109,6 +110,7 @@ function yatm_network:work(ctx)
           if filled_stack and filled_stack.amount > 0 then
             FluidTanks.drain_fluid(water_tank_pos, target_dir, filled_stack, true)
             energy_consumed = energy_consumed + 1
+            worked = true
           end
         end
       end
@@ -152,6 +154,7 @@ function yatm_network:work(ctx)
         )
 
         energy_consumed = energy_consumed + filled_stack.amount
+        worked = true
       end
     end
   end
@@ -186,9 +189,16 @@ function yatm_network:work(ctx)
         if filled_stack and filled_stack.amount > 0 then
           FluidTanks.drain_fluid(pos, steam_tank_dir, filled_stack, true)
           energy_consumed = energy_consumed + 1
+          worked = true
         end
       end
     end
+  end
+
+  if worked then
+    ctx:set_up_state("on")
+  else
+    ctx:set_up_state("idle")
   end
 
   return energy_consumed

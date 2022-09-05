@@ -26,9 +26,9 @@ local vapourizer_yatm_network = {
   states = {
     conflict = "yatm_refinery:vapourizer_error",
     error = "yatm_refinery:vapourizer_error",
+    idle = "yatm_refinery:vapourizer_idle",
     off = "yatm_refinery:vapourizer_off",
     on = "yatm_refinery:vapourizer_on",
-    idle = "yatm_refinery:vapourizer_idle",
   },
   energy = {
     passive_lost = 0,
@@ -82,24 +82,28 @@ function vapourizer_yatm_network:work(ctx)
   local node = ctx.node
   local dtime = ctx.dtime
 
+  local worked = false
+
   if auto_transfer then
     -- Fluid transfer from input
     local input_tank_dir = Directions.facedir_to_face(node.param2, Directions.D_DOWN)
     local input_tank_pos = vector.add(pos, Directions.DIR6_TO_VEC3[input_tank_dir])
 
-    local fs = FluidExchange.transfer_from_tank_to_meta(
-      input_tank_pos, Directions.invert_dir(input_tank_dir),
-      FluidStack.new_wildcard(1000),
-      meta, {
-        tank_name = FLUID_TANK,
-        capacity = fluid_interface._private.capacity,
-        bandwidth = fluid_interface._private.bandwidth
-      },
-      true
-    )
+    local fs =
+      FluidExchange.transfer_from_tank_to_meta(
+        input_tank_pos, Directions.invert_dir(input_tank_dir),
+        FluidStack.new_wildcard(1000),
+        meta, {
+          tank_name = FLUID_TANK,
+          capacity = fluid_interface._private.capacity,
+          bandwidth = fluid_interface._private.bandwidth
+        },
+        true
+      )
 
     if fs and fs.amount > 0 then
       need_refresh = true
+      worked = true
     end
   end
 
@@ -136,9 +140,10 @@ function vapourizer_yatm_network:work(ctx)
 
           need_refresh = true
           energy_consumed = energy_consumed + math.max(math.floor(drained_stack.amount / 100), 1)
+          worked = true
         end
       end
-      meta:set_string("error_text", nil)
+      meta:set_string("error_text", "")
     else
       meta:set_string("error_text", "no recipe")
       need_refresh = true
@@ -172,6 +177,7 @@ function vapourizer_yatm_network:work(ctx)
 
         if fs and fs.amount > 0 then
           need_refresh = true
+          worked = true
         end
       end
     end
@@ -179,6 +185,12 @@ function vapourizer_yatm_network:work(ctx)
 
   if need_refresh then
     yatm.queue_refresh_infotext(pos, node)
+  end
+
+  if worked then
+    ctx:set_up_state("on")
+  else
+    ctx:set_up_state("idle")
   end
 
   return energy_consumed

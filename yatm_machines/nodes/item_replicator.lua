@@ -16,8 +16,9 @@ local item_replicator_yatm_network = {
   },
   default_state = "off",
   states = {
-    error = "yatm_machines:item_replicator_error",
     conflict = "yatm_machines:item_replicator_error",
+    error = "yatm_machines:item_replicator_error",
+    idle = "yatm_machines:item_replicator_idle",
     off = "yatm_machines:item_replicator_off",
     on = "yatm_machines:item_replicator_on",
   },
@@ -75,13 +76,16 @@ function item_replicator_yatm_network:work(ctx)
     if inv:room_for_item("output_slot", replicate_stack) then
       inv:add_item("output_slot", replicate_stack)
       energy_consumed = energy_consumed + 10
+      ctx:set_up_state("on")
       yatm.queue_refresh_infotext(ctx.pos, ctx.node)
     else
       yatm.devices.set_idle(meta, 1)
+      ctx:set_up_state("idle")
       --print("WARN", minetest.pos_to_string(pos), "No room for stack in output", itemstack_inspect(replicate_stack))
     end
   else
     yatm.devices.set_idle(meta, 1)
+    ctx:set_up_state("idle")
     --print("WARN", minetest.pos_to_string(pos), "No stack to replicate")
   end
   return energy_consumed
@@ -149,6 +153,16 @@ yatm.devices.register_stateful_network_device({
       "yatm_item_replicator_side.error.png^[transformFX",
       "yatm_item_replicator_back.error.png",
       "yatm_item_replicator_front.error.png",
+    },
+  },
+  idle = {
+    tiles = {
+      "yatm_item_replicator_top.idle.png",
+      "yatm_item_replicator_bottom.png",
+      "yatm_item_replicator_side.idle.png",
+      "yatm_item_replicator_side.idle.png^[transformFX",
+      "yatm_item_replicator_back.idle.png",
+      "yatm_item_replicator_front.idle.png",
     },
   },
   on = {

@@ -71,12 +71,14 @@ function yatm_network:work(ctx)
       inv:set_stack("grinder_input", 1, rest)
 
       yatm.queue_refresh_infotext(pos, node)
+      ctx:set_up_state("on")
     else
       -- to idle
       yatm.devices.set_idle(meta, 1)
       ctx:set_up_state("idle")
     end
   else
+    ctx:set_up_state("on")
     local work_time = meta:get_float("work_time")
     work_time = work_time - dtime
     if work_time > 0 then

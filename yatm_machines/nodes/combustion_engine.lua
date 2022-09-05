@@ -13,6 +13,7 @@ local FluidMeta = assert(yatm.fluids.FluidMeta)
 local fluid_registry = assert(yatm.fluids.fluid_registry)
 local player_service = assert(nokore.player_service)
 local Vector3 = assert(foundation.com.Vector3)
+local device_swap_node_by_state = assert(yatm.devices.device_swap_node_by_state)
 
 local combustion_engine_nodebox = {
   type = "fixed",
@@ -95,20 +96,20 @@ function yatm_network.energy.produce_energy(pos, node, dtime, ot)
         if consumed_stack and consumed_stack.amount > 0 then
           energy_produced = energy_produced + consumed_stack.amount * energy_per_unit
           need_refresh = should_commit
-          new_state = 'on'
+          new_state = "on"
         end
       else
-        new_state = 'idle'
+        new_state = "idle"
       end
     else
-      new_state = 'idle'
+      new_state = "idle"
     end
   else
-    new_state = 'idle'
+    new_state = "idle"
   end
 
   if nodedef.yatm_network.state ~= new_state then
-    cluster_devices:schedule_transition_node(pos, node, new_state)
+    device_swap_node_by_state(pos, node, new_state)
   end
 
   meta:set_int("last_energy_produced", energy_produced)

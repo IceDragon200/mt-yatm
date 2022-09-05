@@ -32,6 +32,7 @@ local yatm_network = {
 
 -- @spec &work(WorkContext): (energy_consumed: Number)
 function yatm_network:work(ctx)
+  ctx:set_up_state("idle")
   return 0
 end
 

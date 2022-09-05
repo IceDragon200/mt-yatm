@@ -15,6 +15,7 @@ local yatm_network = {
   states = {
     conflict = "yatm_machines:mixer_error",
     error = "yatm_machines:mixer_error",
+    idle = "yatm_machines:mixer_idle",
     off = "yatm_machines:mixer_off",
     on = "yatm_machines:mixer_on",
   },
@@ -164,6 +165,16 @@ yatm.devices.register_stateful_network_device({
       "yatm_mixer_side.error.png^[transformFX",
       "yatm_mixer_back.png",
       "yatm_mixer_front.error.png",
+    },
+  },
+  idle = {
+    tiles = {
+      "yatm_mixer_top.idle.png",
+      "yatm_mixer_bottom.png",
+      "yatm_mixer_side.idle.png",
+      "yatm_mixer_side.idle.png^[transformFX",
+      "yatm_mixer_back.png",
+      "yatm_mixer_front.idle.png",
     },
   },
   on = {

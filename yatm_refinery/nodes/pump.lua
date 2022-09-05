@@ -23,6 +23,7 @@ local pump_yatm_network = {
   states = {
     conflict = "yatm_refinery:pump_error",
     error = "yatm_refinery:pump_error",
+    idle = "yatm_refinery:pump_idle",
     off = "yatm_refinery:pump_off",
     on = "yatm_refinery:pump_on",
   },
@@ -86,26 +87,58 @@ function pump_yatm_network:work(ctx)
 
   local capacity = nodedef.fluid_interface._private.capacity
 
+  local worked = false
+
   if fluid_name then
     -- try filling internal tank with fluid from node
-    local used_stack = FluidMeta.fill_fluid(meta, TANK_NAME, FluidStack.new(fluid_name, 1000), capacity, capacity, true)
+    local used_stack =
+      FluidMeta.fill_fluid(
+        meta,
+        TANK_NAME,
+        FluidStack.new(fluid_name, 1000),
+        capacity,
+        capacity,
+        true
+      )
+
     if used_stack and used_stack.amount > 0 then
       energy_consumed = energy_consumed + math.floor(100 * used_stack.amount / 1000)
       minetest.remove_node(target_pos)
+      worked = true
     end
   else
     -- try extracting fluid from connected node
     local inverted_dir = Directions.invert_dir(pump_dir)
-    local drained_stack = FluidTanks.drain_fluid(target_pos, inverted_dir, FluidStack.new_wildcard(1000), false)
+    local drained_stack =
+      FluidTanks.drain_fluid(
+        target_pos,
+        inverted_dir,
+        FluidStack.new_wildcard(1000),
+        false
+      )
+
     if drained_stack and drained_stack.amount > 0 then
       local existing = FluidTanks.get_fluid(pos, pump_dir)
-      local filled_stack = FluidMeta.fill_fluid(meta, "tank", drained_stack, capacity, capacity, true)
+      local filled_stack =
+        FluidMeta.fill_fluid(
+          meta,
+          "tank",
+          drained_stack,
+          capacity,
+          capacity,
+          true
+        )
 
       if filled_stack and filled_stack.amount > 0 then
-        FluidTanks.drain_fluid(target_pos,
+        FluidTanks.drain_fluid(
+          target_pos,
           inverted_dir,
-          filled_stack, true)
+          filled_stack,
+          true
+        )
+
         energy_consumed = energy_consumed + math.floor(100 * filled_stack.amount / 1000)
+        worked = true
       end
     end
   end
@@ -135,8 +168,16 @@ function pump_yatm_network:work(ctx)
           capacity,
           true
         )
+
+        worked = true
       end
     end
+  end
+
+  if worked then
+    ctx:set_up_state("on")
+  else
+    ctx:set_up_state("idle")
   end
 
   return energy_consumed
@@ -261,6 +302,16 @@ yatm.devices.register_stateful_network_device({
       "yatm_pump_side.error.png^[transformFX",
       "yatm_pump_back.error.png",
       "yatm_pump_front.error.png"
+    },
+  },
+  idle = {
+    tiles = {
+      "yatm_pump_top.png",
+      "yatm_pump_bottom.png",
+      "yatm_pump_side.idle.png",
+      "yatm_pump_side.idle.png^[transformFX",
+      "yatm_pump_back.idle.png",
+      "yatm_pump_front.idle.png"
     },
   },
   on = {

@@ -28,6 +28,7 @@ local electric_smelter_yatm_network = {
   states = {
     conflict = "yatm_foundry:electric_smelter_error",
     error = "yatm_foundry:electric_smelter_error",
+    idle = "yatm_foundry:electric_smelter_idle",
     off = "yatm_foundry:electric_smelter_off",
     on = "yatm_foundry:electric_smelter_on",
   },
@@ -106,7 +107,9 @@ function electric_smelter_yatm_network:work(ctx)
   end
 
   local processing_item_stack = inv:get_stack("processing_slot",  1)
-  if not itemstack_is_blank(processing_item_stack) then
+  if itemstack_is_blank(processing_item_stack) then
+    ctx:set_up_state("idle")
+  else
     if metaref_dec_float(meta, "recipe_time", dtime) <= 0 then
       local recipe = smelting_registry:get_smelting_recipe(processing_item_stack)
       if recipe then

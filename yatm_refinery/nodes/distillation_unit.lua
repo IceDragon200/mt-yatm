@@ -30,6 +30,7 @@ local distillation_unit_yatm_network = {
     on = "yatm_refinery:distillation_unit_on",
     off = "yatm_refinery:distillation_unit_off",
     error = "yatm_refinery:distillation_unit_error",
+    idle = "yatm_refinery:distillation_unit_idle",
     conflict = "yatm_refinery:distillation_unit_conflict",
   },
 
@@ -96,6 +97,8 @@ function distillation_unit_yatm_network:work(ctx)
 
   local fluid_stack = FluidMeta.get_fluid_stack(meta, INPUT_STEAM_TANK)
 
+  local worked = false
+
   if not FluidStack.is_empty(fluid_stack) then
     -- limit the stack to only 100 units of fluid
     fluid_stack.amount = math.min(fluid_stack.amount, 100)
@@ -133,9 +136,11 @@ function distillation_unit_yatm_network:work(ctx)
 
           meta:set_string("error_text", nil)
           need_refresh = true
+          worked = true
         else
           meta:set_string("error_text", "distilled output amount mismatch")
           need_refresh = true
+          worked = true
         end
       else
         meta:set_string("error_text", "no output or distilled fluid")
@@ -161,6 +166,7 @@ function distillation_unit_yatm_network:work(ctx)
 
     if fluid_stack and fluid_stack.amount > 0 then
       need_refresh = true
+      worked = true
     end
   end
 
@@ -181,12 +187,19 @@ function distillation_unit_yatm_network:work(ctx)
 
       if fluid_stack and fluid_stack.amount > 0 then
         need_refresh = true
+        worked = true
       end
     end
   end
 
   if need_refresh then
     yatm.queue_refresh_infotext(pos, node)
+  end
+
+  if worked then
+    ctx:set_up_state("on")
+  else
+    ctx:set_up_state("idle")
   end
 
   return energy_consumed
@@ -376,6 +389,16 @@ yatm.devices.register_stateful_network_device({
       "yatm_distillation_unit_side.error.png",
       "yatm_distillation_unit_side.error.png",
       "yatm_distillation_unit_side.error.png",
+    },
+  },
+  idle = {
+    tiles = {
+      "yatm_distillation_unit_top.idle.png",
+      "yatm_distillation_unit_bottom.idle.png",
+      "yatm_distillation_unit_side.idle.png",
+      "yatm_distillation_unit_side.idle.png",
+      "yatm_distillation_unit_side.idle.png",
+      "yatm_distillation_unit_side.idle.png",
     },
   },
   on = {
