@@ -22,7 +22,7 @@ local heater_yatm_network = {
     on = "yatm_foundry:electric_heater_on",
   },
   energy = {
-    passive_lost = 0,
+    passive_lost = 100,
     capacity = 32000,
     network_charge_bandwidth = 500,
     startup_threshold = 1000,

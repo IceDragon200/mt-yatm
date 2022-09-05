@@ -191,7 +191,7 @@ local teleporter_yatm_network = {
     inactive = "yatm_spacetime:teleporter_inactive",
   },
   energy = {
-    passive_lost = 5,
+    passive_lost = 100,
   },
 }
 
@@ -342,7 +342,7 @@ local teleporter_data_yatm_network = {
     inactive = "yatm_spacetime:teleporter_data_inactive",
   },
   energy = {
-    passive_lost = 5,
+    passive_lost = 100,
   },
 }
 

@@ -129,7 +129,7 @@ local computer_yatm_network = {
   },
   energy = {
     capacity = 4000,
-    passive_lost = 0,
+    passive_lost = 100,
     startup_threshold = 100,
     network_charge_bandwidth = 500,
   }
