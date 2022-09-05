@@ -8,54 +8,12 @@ local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
 local EnergyDevices = assert(yatm.energy.EnergyDevices)
+local Vector3 = assert(foundation.com.Vector3)
 local fspec = assert(foundation.com.formspec.api)
+local yatm_fspec = assert(yatm.formspec)
+local player_service = assert(nokore.player_service)
 
-local function num_round(value)
-  local d = value - math.floor(value)
-  if d > 0.5 then
-    return math.ceil(value)
-  else
-    return math.floor(value)
-  end
-end
-
-local mode_to_index = {
-  none = 1,
-  i = 2,
-  o = 3,
-  io = 4
-}
-
-local function render_formspec(pos, user, assigns)
-  local spos = pos.x .. "," .. pos.y .. "," .. pos.z
-  local meta = minetest.get_meta(pos)
-  local mode = meta:get_string("mode")
-  local node_inv_name = "nodemeta:" .. spos
-  local cio = fspec.calc_inventory_offset
-
-  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine" }, function (loc, rect)
-    if loc == "main_body" then
-      return fspec.list(node_inv_name, "batteries", rect.x, rect.y, 4, 4) ..
-             fspec.dropdown(rect.x + cio(4), rect.y, 4, 1, "mode", { "node", "i", "o", "io" }, mode_to_index[mode] or 1)
-    elseif loc == "footer" then
-      return fspec.list_ring(node_inv_name, "batteries") ..
-        fspec.list_ring("current_player", "main")
-    end
-    return ""
-  end)
-end
-
-local function on_receive_fields(player, formname, fields, assigns)
-  local meta = minetest.get_meta(assigns.pos)
-
-  if fields["mode"] then
-    meta:set_string("mode", fields["mode"])
-  end
-
-  return true
-end
-
-local function battery_bank_refresh_infotext(pos)
+local function refresh_infotext(pos)
   -- despite this saying infotext, it can also be used to refresh the node state
   -- no hard or fast rules here
 
@@ -82,7 +40,7 @@ local function battery_bank_refresh_infotext(pos)
   local i = 0
 
   if capacity > 0 then
-    i = math.min(math.max(num_round(4 * energy / capacity), 0), 4)
+    i = math.min(math.max(math.round(4 * energy / capacity), 0), 4)
   end
 
   local new_node_name
@@ -108,7 +66,7 @@ local function battery_bank_refresh_infotext(pos)
   end
 end
 
-local battery_bank_yatm_network = {
+local yatm_network = {
   kind = "energy_storage",
 
   groups = {
@@ -140,7 +98,7 @@ local invbat = assert(yatm.energy.inventory_batteries)
 
 local function refresh_battery_bank_capacity(pos)
   local meta = minetest.get_meta(pos)
-  local node = minetest.get_node(pos)
+  local node = minetest.get_node_or_nil(pos)
 
   local inv = meta:get_inventory()
   local capacity = invbat.calc_capacity(inv, "batteries")
@@ -152,14 +110,14 @@ local function refresh_battery_bank_capacity(pos)
   yatm.queue_refresh_infotext(pos, node)
 end
 
-function battery_bank_yatm_network.energy.capacity(pos, node)
+function yatm_network.energy.capacity(pos, node)
   local meta = minetest.get_meta(pos)
 
   -- this value gets refreshed when the inventory changes and it rescans
   return meta:get_int("energy_capacity")
 end
 
-function battery_bank_yatm_network.energy.receive_energy(pos, node, energy_left, dtime, ot)
+function yatm_network.energy.receive_energy(pos, node, energy_left, dtime, ot)
   local meta = minetest.get_meta(pos)
   local mode = meta:get_string("mode")
 
@@ -176,7 +134,7 @@ function battery_bank_yatm_network.energy.receive_energy(pos, node, energy_left,
   return 0
 end
 
-function battery_bank_yatm_network.energy.get_usable_stored_energy(pos, node)
+function yatm_network.energy.get_usable_stored_energy(pos, node)
   local meta = minetest.get_meta(pos)
   local mode = meta:get_string("mode")
   if mode == "io" or mode == "o" then
@@ -185,7 +143,7 @@ function battery_bank_yatm_network.energy.get_usable_stored_energy(pos, node)
   return 0
 end
 
-function battery_bank_yatm_network.energy.use_stored_energy(pos, node, energy_to_use)
+function yatm_network.energy.use_stored_energy(pos, node, energy_to_use)
   local meta = minetest.get_meta(pos)
   local mode = meta:get_string("mode")
 
@@ -203,7 +161,7 @@ function battery_bank_yatm_network.energy.use_stored_energy(pos, node, energy_to
   return 0
 end
 
-local function battery_bank_on_construct(pos)
+local function on_construct(pos)
   local meta = minetest.get_meta(pos)
   local inv = meta:get_inventory()
 
@@ -214,18 +172,14 @@ local function battery_bank_on_construct(pos)
   yatm.devices.device_on_construct(pos)
 end
 
-local function battery_bank_on_rightclick(pos, node, user)
-  local formspec_name = "yatm_energy_storage:battery_bank:" .. minetest.pos_to_string(pos)
-  local assigns = { pos = pos, node = node }
-  local formspec = render_formspec(pos, user, assigns)
+local mode_to_index = {
+  none = 1,
+  i = 2,
+  o = 3,
+  io = 4
+}
 
-  nokore.formspec_bindings:show_formspec(user:get_player_name(), formspec_name, formspec, {
-    state = assigns,
-    on_receive_fields = on_receive_fields
-  })
-end
-
-local function battery_bank_on_dig(pos, node, digger)
+local function on_dig(pos, node, digger)
   local meta = minetest.get_meta(pos)
   local inv = meta:get_inventory()
 
@@ -236,7 +190,7 @@ local function battery_bank_on_dig(pos, node, digger)
   return false
 end
 
-local function battery_bank_transition_device_state(pos, node, state)
+local function transition_device_state(pos, node, state)
   local meta = minetest.get_meta(pos)
   meta:set_string("network_state", state)
   yatm.queue_refresh_infotext(pos, node)
@@ -275,6 +229,98 @@ local function on_metadata_inventory_take(pos, listname, index, stack, player)
   if listname == "batteries" then
     refresh_battery_bank_capacity(pos)
   end
+end
+
+local function render_formspec(pos, user, assigns)
+  local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+  local meta = minetest.get_meta(pos)
+  local mode = meta:get_string("mode")
+  local node_inv_name = "nodemeta:" .. spos
+  local cio = fspec.calc_inventory_offset
+
+  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine" }, function (loc, rect)
+    if loc == "main_body" then
+      return fspec.list(
+          node_inv_name,
+          "batteries",
+          rect.x,
+          rect.y,
+          4,
+          4
+        ) ..
+        fspec.dropdown(
+          rect.x + cio(4),
+          rect.y,
+          4,
+          1,
+          "mode",
+          { "node", "i", "o", "io" },
+          mode_to_index[mode] or 1
+        ) ..
+        yatm_fspec.render_meta_energy_gauge(
+          rect.x + rect.w - cio(1),
+          rect.y,
+          1,
+          rect.h,
+          meta,
+          "energy",
+          yatm.devices.get_energy_capacity(pos, state.node)
+        )
+    elseif loc == "footer" then
+      return fspec.list_ring(node_inv_name, "batteries") ..
+        fspec.list_ring("current_player", "main")
+    end
+    return ""
+  end)
+end
+
+local function on_receive_fields(player, formname, fields, assigns)
+  local meta = minetest.get_meta(assigns.pos)
+
+  if fields["mode"] then
+    meta:set_string("mode", fields["mode"])
+  end
+
+  return true
+end
+
+local function make_formspec_name(pos)
+  return "yatm_energy_storage:battery_bank:"..Vector3.to_string(pos)
+end
+
+local function on_refresh_timer(player_name, form_name, state)
+  local player = player_service:get_player_by_name(player_name)
+  return {
+    {
+      type = "refresh_formspec",
+      value = render_formspec(state.pos, player, state),
+    }
+  }
+end
+
+local function on_rightclick(pos, node, user)
+  local state = {
+    pos = pos,
+    node = node,
+  }
+  local formspec = render_formspec(pos, user, state)
+
+  nokore.formspec_bindings:show_formspec(
+    user:get_player_name(),
+    make_formspec_name(pos),
+    formspec,
+    {
+      state = state,
+      on_receive_fields = on_receive_fields,
+      timers = {
+        -- routinely update the formspec
+        refresh = {
+          every = 1,
+          action = on_refresh_timer,
+        },
+      },
+    }
+  )
 end
 
 local sub_states = {}
@@ -318,11 +364,11 @@ yatm.devices.register_stateful_network_device({
   description = mod.S("Battery Bank"),
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
     yatm_energy_device = 1,
   },
 
-  drop = battery_bank_yatm_network.states.off,
+  drop = yatm_network.states.off,
 
   sounds = yatm.node_sounds:build("metal"),
 
@@ -338,9 +384,9 @@ yatm.devices.register_stateful_network_device({
   paramtype = "none",
   paramtype2 = "facedir",
 
-  on_construct = battery_bank_on_construct,
-  on_rightclick = battery_bank_on_rightclick,
-  on_dig = battery_bank_on_dig,
+  on_construct = on_construct,
+  on_rightclick = on_rightclick,
+  on_dig = on_dig,
 
   allow_metadata_inventory_move = allow_metadata_inventory_move,
   allow_metadata_inventory_put = allow_metadata_inventory_put,
@@ -349,8 +395,8 @@ yatm.devices.register_stateful_network_device({
   on_metadata_inventory_put = on_metadata_inventory_put,
   on_metadata_inventory_take = on_metadata_inventory_take,
 
-  yatm_network = battery_bank_yatm_network,
+  yatm_network = yatm_network,
 
-  refresh_infotext = battery_bank_refresh_infotext,
-  transition_device_state = battery_bank_transition_device_state,
+  refresh_infotext = refresh_infotext,
+  transition_device_state = transition_device_state,
 }, sub_states)
