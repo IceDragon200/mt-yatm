@@ -8,3 +8,7 @@ mod:require("items.lua")
 mod:require("nodes.lua")
 
 mod:require("migrations.lua")
+
+if minetest.global_exists("yatm_autotest") then
+  mod:require("autotest.lua")
+end

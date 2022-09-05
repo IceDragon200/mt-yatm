@@ -14,7 +14,7 @@ __Inventory Batteries__
 --
 local invbat = yatm.energy.inventory_batteries
 
-...
+-- ...
 local inv = meta:get_inventory() -- any inventory
 
 local list_name = "batteries"

@@ -231,7 +231,7 @@ local function on_metadata_inventory_take(pos, listname, index, stack, player)
   end
 end
 
-local function render_formspec(pos, user, assigns)
+local function render_formspec(pos, user, state)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local meta = minetest.get_meta(pos)
   local mode = meta:get_string("mode")
@@ -274,8 +274,8 @@ local function render_formspec(pos, user, assigns)
   end)
 end
 
-local function on_receive_fields(player, formname, fields, assigns)
-  local meta = minetest.get_meta(assigns.pos)
+local function on_receive_fields(player, formname, fields, state)
+  local meta = minetest.get_meta(state.pos)
 
   if fields["mode"] then
     meta:set_string("mode", fields["mode"])
