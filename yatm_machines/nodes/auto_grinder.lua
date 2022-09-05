@@ -74,6 +74,7 @@ function yatm_network:work(ctx)
     else
       -- to idle
       yatm.devices.set_idle(meta, 1)
+      ctx:set_up_state("idle")
     end
   else
     local work_time = meta:get_float("work_time")
@@ -100,8 +101,8 @@ function yatm_network:work(ctx)
 
           inv:remove_item("grinder_processing", input_stack)
 
-          meta:set_string("active_recipe", nil)
-          meta:set_string("error", nil)
+          meta:set_string("active_recipe", "")
+          meta:set_string("error", "")
           meta:set_float("duration", 0)
           meta:set_float("work_time", 0)
 
@@ -116,8 +117,8 @@ function yatm_network:work(ctx)
         inv:add_item("grinder_rejected", input_stack)
         inv:remove_item("grinder_processing", input_stack)
 
-        meta:set_string("active_recipe", nil)
-        meta:set_string("error", nil)
+        meta:set_string("active_recipe", "")
+        meta:set_string("error", "")
         meta:set_float("duration", 0)
         meta:set_float("work_time", 0)
 

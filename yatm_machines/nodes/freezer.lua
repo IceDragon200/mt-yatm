@@ -62,7 +62,7 @@ local yatm_network = {
   },
   energy = {
     capacity = 8000,
-    passive_lost = 0,
+    passive_lost = 100,
     network_charge_bandwidth = 200,
     startup_threshold = 100,
   },

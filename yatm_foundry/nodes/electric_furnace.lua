@@ -33,6 +33,7 @@ local yatm_network = {
   states = {
     conflict = "yatm_foundry:electric_furnace_error",
     error = "yatm_foundry:electric_furnace_error",
+    idle = "yatm_foundry:electric_furnace_idle",
     off = "yatm_foundry:electric_furnace_off",
     on = "yatm_foundry:electric_furnace_on",
   },
@@ -45,6 +46,7 @@ local yatm_network = {
 }
 
 function yatm_network:work(ctx)
+  ctx:set_up_state("idle")
   return 0
 end
 
@@ -171,7 +173,16 @@ yatm.devices.register_stateful_network_device({
       "yatm_electric_furnace_front.error.png"
     },
   },
-
+  idle = {
+    tiles = {
+      "yatm_electric_furnace_top.idle.png",
+      "yatm_electric_furnace_bottom.png",
+      "yatm_electric_furnace_side.idle.png",
+      "yatm_electric_furnace_side.idle.png^[transformFX",
+      "yatm_electric_furnace_back.png",
+      "yatm_electric_furnace_front.idle.png"
+    },
+  },
   on = {
     tiles = {
       "yatm_electric_furnace_top.on.png",

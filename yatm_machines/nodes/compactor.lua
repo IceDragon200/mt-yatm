@@ -72,6 +72,7 @@ function yatm_network:work(ctx)
       if input_item:is_empty() then
         -- go idle
         yatm.devices.set_idle(meta, 1)
+        ctx:set_up_state("idle")
         break
       else
         local recipe = compacting_registry:find_compacting_recipe(input_item)
@@ -84,6 +85,7 @@ function yatm_network:work(ctx)
           meta:set_float("duration", recipe.duration)
         else
           yatm.devices.set_idle(meta, 1)
+          ctx:set_up_state("idle")
           break
         end
       end
@@ -92,8 +94,9 @@ function yatm_network:work(ctx)
     local processing_item = inv:get_stack("processing_items", 1)
     if processing_item:is_empty() then
       -- no item to process
-      break
+      ctx:set_up_state("idle")
     else
+      ctx:set_up_state("on")
       local time = meta:get_float("time")
       local used_time = math.min(time, remaining_dtime)
 

@@ -76,6 +76,9 @@ function condenser_yatm_network:work(ctx)
   local node = ctx.node
 
   local gas_fluid_stack = FluidMeta.get_fluid_stack(meta, GAS_TANK_NAME)
+
+  ctx:set_up_state("idle")
+
   return 0
 end
 

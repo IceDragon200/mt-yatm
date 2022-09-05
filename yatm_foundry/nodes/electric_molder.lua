@@ -27,6 +27,7 @@ local yatm_network = {
   states = {
     conflict = "yatm_foundry:electric_molder_error",
     error = "yatm_foundry:electric_molder_error",
+    idle = "yatm_foundry:electric_molder_idle",
     off = "yatm_foundry:electric_molder_off",
     on = "yatm_foundry:electric_molder_on",
   },
@@ -326,7 +327,16 @@ yatm.devices.register_stateful_network_device({
       "yatm_electric_molder_side.error.png"
     },
   },
-
+  idle = {
+    tiles = {
+      "yatm_electric_molder_top.idle.png",
+      "yatm_electric_molder_bottom.idle.png",
+      "yatm_electric_molder_side.idle.png",
+      "yatm_electric_molder_side.idle.png",
+      "yatm_electric_molder_side.idle.png",
+      "yatm_electric_molder_side.idle.png"
+    },
+  },
   on = {
     tiles = {
       "yatm_electric_molder_top.on.png",

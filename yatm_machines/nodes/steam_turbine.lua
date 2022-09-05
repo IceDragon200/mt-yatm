@@ -114,7 +114,7 @@ function yatm_network.energy.produce_energy(pos, node, dtime, ot)
       )
 
       need_refresh = true
-      energy_produced = energy_produced +  filled_stack.amount
+      energy_produced = energy_produced + filled_stack.amount
     end
   end
 
@@ -161,10 +161,16 @@ function yatm_network.update(pos, node, ot)
   local meta = minetest.get_meta(pos)
 
   do -- Deposit water to a bottom tank
-    local stack, new_amount = FluidMeta.drain_fluid(meta,
-      WATER_TANK,
-      FluidStack.new("group:water", 1000),
-      TANK_CAPACITY, TANK_CAPACITY, false)
+    local stack, new_amount =
+      FluidMeta.drain_fluid(
+        meta,
+        WATER_TANK,
+        FluidStack.new("group:water", 1000),
+        TANK_CAPACITY,
+        TANK_CAPACITY,
+        false
+      )
+
     -- Was any water drained?
     if stack then
       local tank_dir = Directions.facedir_to_face(node.param2, Directions.D_DOWN)
@@ -175,10 +181,14 @@ function yatm_network.update(pos, node, ot)
         if Groups.get_item(tank_nodedef, "fluid_tank") then
           local drained_stack, new_amount = FluidTanks.fill_fluid(tank_pos, Directions.invert_dir(tank_dir), stack, true)
           if drained_stack and drained_stack.amount > 0 then
-            FluidMeta.drain_fluid(meta,
+            FluidMeta.drain_fluid(
+              meta,
               WATER_TANK,
               FluidStack.set_amount(stack, drained_stack.amount),
-              TANK_CAPACITY, TANK_CAPACITY, true)
+              TANK_CAPACITY,
+              TANK_CAPACITY,
+              true
+            )
             need_refresh = true
           end
         end
@@ -188,6 +198,10 @@ function yatm_network.update(pos, node, ot)
 
   if need_refresh then
     yatm.queue_refresh_infotext(pos, node)
+  end
+
+  if FluidMeta.is_empty(meta, STEAM_TANK) then
+    devices.device_swap_node_by_state(pos, node, "idle")
   end
 end
 

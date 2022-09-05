@@ -52,6 +52,7 @@ local yatm_network = {
   states = {
     conflict = "yatm_machines:roller_error",
     error = "yatm_machines:roller_error",
+    idle = "yatm_machines:roller_idle",
     off = "yatm_machines:roller_off",
     on = "yatm_machines:roller_on",
   },
@@ -98,7 +99,10 @@ function yatm_network:work(ctx)
 
   do
     local processing_stack = inv:get_stack("roller_processing", 1)
-    if not itemstack_is_blank(processing_stack) then
+    if itemstack_is_blank(processing_stack) then
+      ctx:set_up_state("idle")
+    else
+      ctx:set_up_state("on")
       -- energy per second
       local eps = 20
 
@@ -274,6 +278,16 @@ yatm.devices.register_stateful_network_device({
       "yatm_roller_side.error.png^[transformFX",
       "yatm_roller_back.error.png",
       "yatm_roller_front.error.png"
+    },
+  },
+  idle = {
+    tiles = {
+      "yatm_roller_top.idle.png",
+      "yatm_roller_bottom.png",
+      "yatm_roller_side.idle.png",
+      "yatm_roller_side.idle.png^[transformFX",
+      "yatm_roller_back.idle.png",
+      "yatm_roller_front.idle.png"
     },
   },
   on = {
