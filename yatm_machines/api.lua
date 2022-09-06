@@ -180,6 +180,10 @@ function devices.device_passive_consume_energy(pos, node, total_available, dtime
 
   local remaining = total_available - consumed
   if remaining > 0 then
+    if not energy.network_charge_bandwidth then
+      error("missing network_charge_bandwidth for device name=" .. node.name)
+    end
+
     local charge_bandwidth = energy.network_charge_bandwidth * dtime
 
     if charge_bandwidth and charge_bandwidth > 0 then
