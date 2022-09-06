@@ -86,24 +86,25 @@ function fluid_interface:allow_fill(pos, dir, fluid_stack)
   return false
 end
 
+-- @spec work(WorkContext): (energy_consumed: Number)
 function distillation_unit_yatm_network:work(ctx)
   local pos = ctx.pos
   local meta = ctx.meta
   local node = ctx.node
+  local dtime = ctx.dtime
 
   local energy_consumed = 0
   local need_refresh = false
-  meta:set_int("work_counter", (meta:get_int("work_counter") or 0) + 1)
 
   local fluid_stack = FluidMeta.get_fluid_stack(meta, INPUT_STEAM_TANK)
 
   local worked = false
 
   if not FluidStack.is_empty(fluid_stack) then
-    -- limit the stack to only 100 units of fluid
-    fluid_stack.amount = math.min(fluid_stack.amount, 100)
-    local fluid_name = fluid_stack.name
-    local recipe = distillation_registry:find_distillation_recipe(fluid_name)
+    -- limit the stack to only 200 units/s of fluid
+    fluid_stack.amount = math.min(fluid_stack.amount, 200) --* dtime
+
+    local recipe = distillation_registry:find_distillation_recipe(fluid_stack.name)
 
     if recipe then
       local input_vapour_ratio = recipe.ratios[1]
@@ -112,35 +113,64 @@ function distillation_unit_yatm_network:work(ctx)
       -- how many units or blocks of fluid can be converted at the moment
       local units = math.floor(fluid_stack.amount / input_vapour_ratio)
 
-      local distilled_fluid_stack = FluidStack.new(recipe.distilled_fluid_name, units * distill_ratio)
-      local output_vapour_fluid_stack = FluidStack.new(recipe.output_vapour_name, units * output_vapour_ratio)
+      local distilled_fluid_stack =
+        FluidStack.new(
+          recipe.distilled_fluid_name,
+          units * distill_ratio
+        )
 
-      -- Since the distillation unit has to deal with multiple fluids, the filling is not committed but instead done as a kind of transaction
+      local output_vapour_fluid_stack =
+        FluidStack.new(
+          recipe.output_vapour_name,
+          units * output_vapour_ratio
+        )
+
+      -- Since the distillation unit has to deal with multiple fluids,
+      -- the filling is not committed but instead done as a kind of transaction.
       -- Where we simulate adding the fluid
       local used_distilled_stack, new_distilled_stack =
-        FluidMeta.fill_fluid(meta, DISTILLED_TANK, distilled_fluid_stack, fluid_interface._private.capacity, fluid_interface._private.capacity, false)
+        FluidMeta.fill_fluid(
+          meta,
+          DISTILLED_TANK,
+          distilled_fluid_stack,
+          TANK_CAPACITY,
+          TANK_CAPACITY,
+          false
+        )
+
       local used_output_stack, new_output_stack =
-        FluidMeta.fill_fluid(meta, OUTPUT_STEAM_TANK, output_vapour_fluid_stack, fluid_interface._private.capacity, fluid_interface._private.capacity, false)
+        FluidMeta.fill_fluid(
+          meta,
+          OUTPUT_STEAM_TANK,
+          output_vapour_fluid_stack,
+          TANK_CAPACITY,
+          TANK_CAPACITY,
+          false
+        )
 
       if used_output_stack and used_distilled_stack then
         -- All the fluid must be used
         if used_distilled_stack.amount == distilled_fluid_stack.amount and
            used_output_stack.amount == output_vapour_fluid_stack.amount then
           local used_amount = units * input_vapour_ratio
-          local new_input_stack = FluidStack.set_amount(fluid_stack, fluid_stack.amount - used_amount)
+          local new_input_stack =
+            FluidStack.set_amount(
+              fluid_stack,
+              fluid_stack.amount - used_amount
+            )
+
           FluidMeta.set_fluid(meta, INPUT_STEAM_TANK, new_input_stack, true)
           FluidMeta.set_fluid(meta, DISTILLED_TANK, new_distilled_stack, true)
           FluidMeta.set_fluid(meta, OUTPUT_STEAM_TANK, new_output_stack, true)
 
           energy_consumed = energy_consumed + math.max(used_amount / 100, 1)
 
-          meta:set_string("error_text", nil)
+          meta:set_string("error_text", "")
           need_refresh = true
           worked = true
         else
           meta:set_string("error_text", "distilled output amount mismatch")
           need_refresh = true
-          worked = true
         end
       else
         meta:set_string("error_text", "no output or distilled fluid")
@@ -157,12 +187,18 @@ function distillation_unit_yatm_network:work(ctx)
     local output_tank_dir = Directions.facedir_to_face(node.param2, Directions.D_UP)
     local output_tank_pos = vector.add(pos, Directions.DIR6_TO_VEC3[output_tank_dir])
 
-    fluid_stack = FluidExchange.transfer_from_meta_to_tank(
-      meta, { tank_name = OUTPUT_STEAM_TANK, capacity = fluid_interface._private.capacity, bandwidth = fluid_interface._private.capacity },
-      FluidStack.new_wildcard(100),
-      output_tank_pos, Directions.invert_dir(output_tank_dir),
-      true
-    )
+    fluid_stack =
+      FluidExchange.transfer_from_meta_to_tank(
+        meta,
+        {
+          tank_name = OUTPUT_STEAM_TANK,
+          capacity = TANK_CAPACITY,
+          bandwidth = TANK_CAPACITY,
+        },
+        FluidStack.new_wildcard(100),
+        output_tank_pos, Directions.invert_dir(output_tank_dir),
+        true
+      )
 
     if fluid_stack and fluid_stack.amount > 0 then
       need_refresh = true
@@ -178,12 +214,19 @@ function distillation_unit_yatm_network:work(ctx)
       output_tank_dir = Directions.facedir_to_face(node.param2, dir_code)
       output_tank_pos = vector.add(pos, Directions.DIR6_TO_VEC3[output_tank_dir])
 
-      fluid_stack = FluidExchange.transfer_from_meta_to_tank(
-        meta, { tank_name = DISTILLED_TANK, capacity = fluid_interface._private.capacity, bandwidth = fluid_interface._private.capacity },
-        FluidStack.new_wildcard(100),
-        output_tank_pos, Directions.invert_dir(output_tank_dir),
-        true
-      )
+      fluid_stack =
+        FluidExchange.transfer_from_meta_to_tank(
+          meta,
+          {
+            tank_name = DISTILLED_TANK,
+            capacity = TANK_CAPACITY,
+            bandwidth = TANK_CAPACITY,
+          },
+          FluidStack.new_wildcard(100),
+          output_tank_pos,
+          Directions.invert_dir(output_tank_dir),
+          true
+        )
 
       if fluid_stack and fluid_stack.amount > 0 then
         need_refresh = true
@@ -213,10 +256,9 @@ function refresh_infotext(pos)
   local distilled_fluid_stack = FluidMeta.get_fluid_stack(meta, DISTILLED_TANK)
 
   local error_text = meta:get_string("error_text")
-  local work_counter = meta:get_int("work_counter")
 
   local infotext =
-    cluster_devices:get_node_infotext(pos) .. " [" .. work_counter .. "]"
+    cluster_devices:get_node_infotext(pos)
 
   if error_text then
     infotext = infotext .. " (" .. error_text .. ")"
