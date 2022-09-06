@@ -5,6 +5,7 @@ local Vector3 = assert(foundation.com.Vector3)
 local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
 local player_service = assert(nokore.player_service)
+local drill_node_to_meta_inventory = assert(yatm.mining.drill_node_to_meta_inventory)
 
 local function maybe_initialize_inventory(meta)
   local inv = meta:get_inventory()
@@ -30,6 +31,7 @@ local surface_drill_yatm_network = {
   states = {
     conflict = "yatm_mining:surface_drill_error",
     error = "yatm_mining:surface_drill_error",
+    idle = "yatm_mining:surface_drill_idle",
     off = "yatm_mining:surface_drill_off",
     on = "yatm_mining:surface_drill_on",
   },
@@ -56,7 +58,7 @@ local function update_bit(pos, node)
     if mine_node.name == "air" then
       --print("SET NODE", mine_pos.x, mine_pos.y, mine_pos.z, bit_node.name, bit_node.param2)
       minetest.set_node(mine_pos, bit_node)
-      break
+      return true
     else
       local mine_nodedef = minetest.registered_nodes[mine_node.name]
       if mine_nodedef then
@@ -65,27 +67,39 @@ local function update_bit(pos, node)
           -- TODO check if the bit belongs to the surface drill
         else
           --print("DIGGING", mine_pos.x, mine_pos.y, mine_pos.z, mine_node.name)
-          minetest.dig_node(mine_pos)
-          break
+          drill_node_to_meta_inventory(mine_pos, meta, "main")
+          return true
         end
       else
-        break
+        return false
       end
     end
   end
 end
 
 function surface_drill_yatm_network:work(ctx)
-  if ctx.available_energy > 200 then
-    local meta = ctx.meta
-    local node = ctx.node
-    local pos = ctx.pos
+  local meta = ctx.meta
+  local node = ctx.node
+  local pos = ctx.pos
+  local dtime = ctx.dtime
 
-    local timer = meta:get_int("work_timer")
+  local worked = false
+
+  local energy_consumed = 0
+
+  local cooldown = meta:get_float("cooldown")
+  if cooldown > 0 then
+    worked = true
+    cooldown = cooldown - dtime
+    ctx:set_up_state("on")
+    return energy_consumed
+  end
+
+  if ctx.available_energy > 100 then
     local new_face = Directions.facedir_to_face(node.param2, Directions.D_UP)
     assert(new_face)
     local up_dirv3 = Directions.DIR6_TO_VEC3[new_face]
-    local decr = 1
+    local segments = 1
     local ext_pos = pos
     -- Count all the attached extensions
     local ext_node
@@ -98,7 +112,7 @@ function surface_drill_yatm_network:work(ctx)
       if ext_nodedef then
         --print("node def", ext_pos.x, ext_pos.y, ext_pos.z, ext_node.name)
         if ext_nodedef.groups.surface_drill_ext then
-          decr = decr + 1
+          segments = segments + 1
         else
           break
         end
@@ -108,20 +122,23 @@ function surface_drill_yatm_network:work(ctx)
       end
     end
 
-    if timer <= 0 then
-      update_bit(pos, node)
-      timer = 20
-    else
-      --print("decr timer", decr, pos.x, pos.y, pos.z, node.name)
-      timer = timer - decr
+    if update_bit(pos, node) then
+      cooldown = cooldown + math.max(0.25, 1 / segments)
+      meta:set_float("cooldown", cooldown)
+      meta:set_float("cooldown_max", cooldown)
+
+      energy_consumed = 100
+      worked = true
     end
-
-    meta:set_int("work_timer", timer)
-
-    return 200
   end
 
-  return 0
+  if worked then
+    ctx:set_up_state("on")
+  else
+    ctx:set_up_state("idle")
+  end
+
+  return energy_consumed
 end
 
 local function render_formspec(pos, user, state)
@@ -133,8 +150,30 @@ local function render_formspec(pos, user, state)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine" }, function (loc, rect)
     if loc == "main_body" then
-      return yatm_fspec.render_meta_energy_gauge(
-          rect.x + rect.w - cio(1),
+      local cooldown = math.max(meta:get_float("cooldown"), 0)
+      local cooldown_max = math.max(meta:get_float("cooldown_max"), 0)
+
+      return fspec.list(
+          node_inv_name,
+          "main",
+          rect.x,
+          rect.y,
+          2,
+          2
+        ) ..
+        yatm_fspec.render_gauge{
+          x = rect.x,
+          y = rect.y + rect.h - cis(1),
+          w = rect.w - cio(1),
+          h = 1,
+          amount = cooldown,
+          max = cooldown_max,
+          is_horz = true,
+          gauge_colors = {"#FFFFFF", "#077f74"},
+          border_name = "yatm_item_border_progress.png",
+        } ..
+        yatm_fspec.render_meta_energy_gauge(
+          rect.x + rect.w - cis(1),
           rect.y,
           1,
           rect.h,
@@ -172,6 +211,8 @@ local function on_rightclick(pos, node, user)
     pos = pos,
     node = node,
   }
+  local meta = minetest.get_meta(pos)
+  maybe_initialize_inventory(meta)
   local formspec = render_formspec(pos, user, state)
 
   nokore.formspec_bindings:show_formspec(
@@ -233,6 +274,16 @@ yatm.devices.register_stateful_network_device({
       "yatm_surface_drill_front.error.png"
     },
   },
+  idle = {
+    tiles = {
+      "yatm_surface_drill_top.idle.png",
+      "yatm_surface_drill_bottom.png",
+      "yatm_surface_drill_side.idle.png",
+      "yatm_surface_drill_side.idle.png^[transformFX",
+      "yatm_surface_drill_back.idle.png",
+      "yatm_surface_drill_front.idle.png"
+    },
+  },
   on = {
     tiles = {
       "yatm_surface_drill_top.on.png",
@@ -260,7 +311,10 @@ local surface_drill_ext_yatm_network = {
     on = "yatm_mining:surface_drill_ext_on",
   },
   energy = {
+    capacity = 4000,
     passive_lost = 10,
+    network_charge_bandwidth = 500,
+    startup_threshold = 100,
   },
 }
 
