@@ -7,14 +7,10 @@ all:
 luacheck:
 	luacheck .
 
-.PHONY: release
-release:
-	git archive --format tar --output "${BUILD_DIR}/yatm.tar" master
-
 # Release step specifically when the modpack is under a game, this will copy
 # the modpack to the TMP_DIR
-.PHONY: release.game
-release.game:
+.PHONY: prepare.release
+prepare.release:
 	mkdir -p "${RELEASE_DIR}"
 
 	cp -r --parents yatm_armoury "${RELEASE_DIR}"
@@ -70,6 +66,7 @@ release.game:
 	cp -r --parents yatm_mesecon_sequencer "${RELEASE_DIR}"
 	cp -r --parents yatm_mining "${RELEASE_DIR}"
 	cp -r --parents yatm_oku "${RELEASE_DIR}"
+	rm -rf "${RELEASE_DIR}/yatm_oku/ext"
 	cp -r --parents yatm_overhead_rails "${RELEASE_DIR}"
 	cp -r --parents yatm_packs "${RELEASE_DIR}"
 	cp -r --parents yatm_papercraft "${RELEASE_DIR}"
@@ -85,7 +82,7 @@ release.game:
 	cp -r --parents yatm_thermal_ducts "${RELEASE_DIR}"
 	cp -r --parents yatm_vault_door "${RELEASE_DIR}"
 	cp -r --parents yatm_woodcraft "${RELEASE_DIR}"
-	# cp -r --parents yatm_woodcraft_default "${RELEASE_DIR}"
+	cp -r --parents yatm_woodcraft_default "${RELEASE_DIR}"
 	cp -r --parents yatm_woodcraft_nokore "${RELEASE_DIR}"
 
 	cp CREDITS.md "${RELEASE_DIR}"
