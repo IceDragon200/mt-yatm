@@ -4,13 +4,15 @@
 -- Cuts up given wood blocks when right clicked on
 -- It's pretty much instant, so have fun!
 --
+local mod = assert(yatm_woodcraft)
+
 local Directions = assert(foundation.com.Directions)
 local Groups = assert(foundation.com.Groups)
 
 local ItemDevice = assert(yatm.items.ItemDevice)
 local sawing_registry = assert(yatm.sawing.sawing_registry)
 
-local function sawmill_on_construct(pos)
+local function on_construct(pos)
   -- Originally I was going to do a inventory + formspec version
   -- But then I thought "wouldn't it be fun to just rightclick with the material?"
   local meta = minetest.get_meta(pos)
@@ -21,7 +23,7 @@ local function sawmill_on_construct(pos)
   inv:set_size("residue_items", 1)
 end
 
-local function sawmill_on_rightclick(pos, node, clicker, itemstack, _pointed_thing)
+local function on_rightclick(pos, node, clicker, itemstack, _pointed_thing)
   local recipe = sawing_registry:find_sawing_recipe(itemstack)
 
   if recipe then
@@ -78,10 +80,10 @@ local function sawmill_on_rightclick(pos, node, clicker, itemstack, _pointed_thi
   end
 end
 
-minetest.register_node("yatm_woodcraft:sawmill", {
-  basename = "yatm_woodcraft:sawmill",
+mod:register_node("sawmill", {
+  basename = mod:make_name("sawmill"),
 
-  description = "Sawmill",
+  description = mod.S("Sawmill"),
 
   codex_entry_id = "yatm_woodcraft:sawmill",
 
@@ -127,7 +129,9 @@ minetest.register_node("yatm_woodcraft:sawmill", {
   paramtype = "none",
   paramtype2 = "facedir",
 
-  on_construct = sawmill_on_construct,
+  on_construct = on_construct,
 
-  on_rightclick = sawmill_on_rightclick,
+  on_rightclick = on_rightclick,
+
+  sounds = nokore.node_sounds:build("wood"),
 })

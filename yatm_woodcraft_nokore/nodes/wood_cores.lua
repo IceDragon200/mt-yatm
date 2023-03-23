@@ -80,12 +80,12 @@ for wood_basename, wood_config in pairs(wood_types) do
 
   minetest.register_node(":yatm_woodcraft:" .. wood_basename .. "_core", {
     basename = "yatm_woodcraft:wood_core",
-    base_description = "Tree Core",
+    base_description = mod.S("Tree Core"),
 
     description = mod.S(wood_config.name .. " Core"),
 
     groups = {
-      choppy = 1,
+      choppy = nokore.dig_class("wme"),
       wood = 1,
     },
 
@@ -104,7 +104,7 @@ for wood_basename, wood_config in pairs(wood_types) do
       groups = {
         choppy = nokore.dig_class("wme"),
         --
-        stone = 2,
+        wood = 1,
       },
       tiles = tiles,
       sounds = sounds,

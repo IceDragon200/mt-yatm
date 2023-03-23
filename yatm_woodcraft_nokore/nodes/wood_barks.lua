@@ -76,7 +76,7 @@ for wood_basename, wood_config in pairs(wood_types) do
     description = yatm_woodcraft.S(wood_config.name .. " Bark"),
 
     groups = {
-      choppy = 1,
+      choppy = nokore.dig_class("wme"),
     },
 
     tiles = {

@@ -1,4 +1,4 @@
-if yatm_machines then
+if foundation.is_module_present("yatm_machines") then
   local compacting_registry = assert(yatm.compacting.compacting_registry)
   local reg = compacting_registry:method("register_compacting_recipe")
 

@@ -6,7 +6,8 @@
 -- It can also be coupled with a cardboard box or other compatible inventory to
 -- grab items
 --
-local mod = yatm_woodcraft
+local mod = assert(yatm_woodcraft)
+
 local fspec = assert(foundation.com.formspec.api)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
@@ -50,7 +51,7 @@ local function get_crafting_table_formspec(pos, user)
   end)
 end
 
-local function crafting_table_on_construct(pos)
+local function on_construct(pos)
   local meta = minetest.get_meta(pos)
   local inv = meta:get_inventory()
 
@@ -59,7 +60,7 @@ local function crafting_table_on_construct(pos)
   inv:set_size("result_items", 4)
 end
 
-local function crafting_table_on_rightclick(pos, node, user)
+local function on_rightclick(pos, node, user)
   local formspec_name = "yatm_woodcraft:crafting_table_formspec:" .. minetest.pos_to_string(pos)
 
   minetest.show_formspec(
@@ -96,10 +97,10 @@ mod:register_node("crafting_table_wood", {
 
   sounds = yatm.node_sounds:build("wood"),
 
-  on_construct = crafting_table_on_construct,
+  on_construct = on_construct,
   --on_destruct = crafting_table_on_destruct,
 
-  on_rightclick = crafting_table_on_rightclick,
+  on_rightclick = on_rightclick,
   --allow_metadata_inventory_move = crafting_table_allow_metadata_inventory_move,
   --allow_metadata_inventory_put = crafting_table_allow_metadata_inventory_put,
   --allow_metadata_inventory_take = crafting_table_allow_metadata_inventory_take,

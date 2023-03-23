@@ -1,10 +1,12 @@
-minetest.register_node("yatm_woodcraft:sawdust_block", {
-  description = "Sawdust Block",
+local mod = assert(yatm_woodcraft)
+
+mod:register_node("sawdust_block", {
+  description = mod.S("Sawdust Block"),
 
   drop = "yatm_woodcraft:sawdust 9",
 
   groups = {
-    choppy = 2,
+    choppy = nokore.dig_class("wme"),
   },
 
   tiles = {
@@ -14,4 +16,6 @@ minetest.register_node("yatm_woodcraft:sawdust_block", {
   paramtype = "none",
   paramtype2 = "facedir",
   place_param2 = 0,
+
+  sounds = nokore.node_sounds:build("wood"),
 })

@@ -3,6 +3,7 @@
 --
 -- For now it only connects to the sawmill
 local mod = assert(yatm_woodcraft)
+
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local Groups = assert(foundation.com.Groups)
@@ -12,14 +13,14 @@ local Directions = assert(foundation.com.Directions)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local ItemDevice = assert(yatm.items.ItemDevice)
 
-local dust_bin_item_interface = ItemInterface.new_simple("main")
+local item_interface = ItemInterface.new_simple("main")
 
-function dust_bin_item_interface:allow_insert_item(pos, dir, item_stack)
+function item_interface:allow_insert_item(pos, dir, item_stack)
   local def = item_stack:get_definition()
   return Groups.has_group(def, "dust")
 end
 
-function dust_bin_item_interface:on_insert_item(pos, dir, item_stack)
+function item_interface:on_insert_item(pos, dir, item_stack)
   local meta = minetest.get_meta(pos)
   local inv = meta:get_inventory()
 
@@ -33,7 +34,7 @@ function dust_bin_item_interface:on_insert_item(pos, dir, item_stack)
   end
 end
 
-function dust_bin_item_interface:on_extract_item(pos, dir, count_or_item_stack)
+function item_interface:on_extract_item(pos, dir, count_or_item_stack)
   local meta = minetest.get_meta(pos)
   local inv = meta:get_inventory()
 
@@ -47,14 +48,14 @@ function dust_bin_item_interface:on_extract_item(pos, dir, count_or_item_stack)
   end
 end
 
-local function dust_bin_on_construct(pos)
+local function on_construct(pos)
   local meta = minetest.get_meta(pos)
   local inv = meta:get_inventory()
 
   inv:set_size("main", 9)
 end
 
-local function dust_bin_on_rightclick(pos, node, clicker, item_stack, _pointed_thing)
+local function on_rightclick(pos, node, clicker, item_stack, _pointed_thing)
   if item_stack:is_empty() then
     -- extract any item from self, we don't care, just give us something
     local saw_dust = ItemDevice.extract_item(pos, Directions.D_UP, 1, true)
@@ -78,8 +79,8 @@ end
 local groups = {
   cracky = nokore.dig_class("copper"),
   --
-  dust_bin = 1, -- so neighbour nodes what it is.
-  item_interface_in = 1, -- in just for the bins
+  dust_bin = 1, -- so neighbour nodes know what it is.
+  item_interface_in = 1, -- in, just for the bins
   item_interface_out = 1,
 }
 
@@ -97,10 +98,12 @@ yatm.register_stateful_node("yatm_woodcraft:dust_bin", {
 
   drawtype = "nodebox",
 
-  item_interface = dust_bin_item_interface,
+  item_interface = item_interface,
 
-  on_construct = dust_bin_on_construct,
-  on_rightclick = dust_bin_on_rightclick,
+  on_construct = on_construct,
+  on_rightclick = on_rightclick,
+
+  sounds = nokore.node_sounds:build("metal"),
 }, {
   empty = {
     description = mod.S("Dust Bin [Empty]"),
