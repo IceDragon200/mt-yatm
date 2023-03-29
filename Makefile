@@ -51,6 +51,7 @@ prepare.release:
 	cp -r --parents yatm_fluid_pipe_valves "${RELEASE_DIR}"
 	cp -r --parents yatm_fluid_pipes "${RELEASE_DIR}"
 	cp -r --parents yatm_fluid_teleporters "${RELEASE_DIR}"
+	cp -r --parents yatm_fluids "${RELEASE_DIR}"
 	cp -r --parents yatm_foundry "${RELEASE_DIR}"
 	cp -r --parents yatm_frames "${RELEASE_DIR}"
 	cp -r --parents yatm_item_ducts "${RELEASE_DIR}"
