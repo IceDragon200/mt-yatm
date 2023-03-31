@@ -23,16 +23,20 @@ mod:require("oku.lua")
 mod:require("lib/elf.lua")
 mod:require("computers.lua")
 
-mod:require("api.lua")
+if yatm_oku.computers then
+  mod:require("api.lua")
 
-mod:require("nodes.lua")
-mod:require("items.lua")
+  mod:require("nodes.lua")
+  mod:require("items.lua")
 
-mod:require("hooks.lua")
+  mod:require("hooks.lua")
 
-if foundation.com.Luna then
-  mod:require("tests.lua")
+  if foundation.com.Luna then
+    mod:require("tests.lua")
+  end
+
+  mod.ffi = nil
+  mod.bit = nil
+else
+  minetest.log("warning", "oku failed to initialize properly")
 end
-
-mod.ffi = nil
-mod.bit = nil

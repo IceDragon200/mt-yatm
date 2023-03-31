@@ -1,6 +1,6 @@
 local Groups = assert(foundation.com.Groups)
 
-yatm.computers = yatm_oku.computers
+yatm.computers = assert(yatm_oku.computers)
 
 function yatm_oku.get_floppy_disk_size(item_stack)
   if item_stack then
