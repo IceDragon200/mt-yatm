@@ -45,8 +45,8 @@ local yatm_network = {
   },
 
   energy = {
-    capacity = 16000,
-    network_charge_bandwidth = 2000,
+    capacity = 32000,
+    network_charge_bandwidth = 10000,
     startup_threshold = 1000,
     passive_lost = 0,
   }
@@ -304,6 +304,7 @@ yatm.devices.register_stateful_network_device({
     cracky = nokore.dig_class("copper"),
     --
     item_interface_out = 1,
+    yatm_energy_device = 1,
   },
 
   tiles = {
