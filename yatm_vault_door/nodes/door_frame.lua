@@ -6,7 +6,7 @@ local Directions = assert(foundation.com.Directions)
 -- time.
 
 
--- Toggle Slides fill move their entire door frame as far as possible in their direction
+-- Toggle Slides will move their entire door frame as far as possible in their direction
 -- They are called 'toggle' slides since they are triggered by activating the door segments directly
 -- Toggle steps move their door segments one step in their specified direction,
 -- they only change their state once all the segments can no longer move in their specified direction.
