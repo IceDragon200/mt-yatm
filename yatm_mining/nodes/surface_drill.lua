@@ -43,7 +43,11 @@ local surface_drill_yatm_network = {
   },
 }
 
-local function update_bit(pos, node)
+local function update_bit(ctx)
+  local pos = ctx.pos
+  local node = ctx.node
+  local meta = ctx.meta
+
   local new_face = Directions.facedir_to_face(node.param2, Directions.D_DOWN)
   assert(new_face)
   local mine_dirv3 = Directions.DIR6_TO_VEC3[new_face]
@@ -122,7 +126,7 @@ function surface_drill_yatm_network:work(ctx)
       end
     end
 
-    if update_bit(pos, node) then
+    if update_bit(ctx) then
       cooldown = cooldown + math.max(0.25, 1 / segments)
       meta:set_float("cooldown", cooldown)
       meta:set_float("cooldown_max", cooldown)
@@ -243,7 +247,8 @@ yatm.devices.register_stateful_network_device({
   groups = {
     cracky = nokore.dig_class("iron"),
     --
-    surface_drill = 1
+    surface_drill = 1,
+    yatm_energy_device = 1,
   },
 
   drop = surface_drill_yatm_network.states.off,
