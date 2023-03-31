@@ -17,5 +17,5 @@ mod:register_node("sawdust_block", {
   paramtype2 = "facedir",
   place_param2 = 0,
 
-  sounds = nokore.node_sounds:build("wood"),
+  sounds = yatm.node_sounds:build("wood"),
 })

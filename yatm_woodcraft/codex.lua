@@ -20,7 +20,7 @@ yatm.codex.register_entry(mod:make_name("dust_bin"), {
     {
       heading_item = {
         context = true,
-        default = mod:make_name("yatm_woodcraft:dust_bin_sawdust"),
+        default = mod:make_name("dust_bin_sawdust"),
       },
       heading = mod.S("Dust Bin"),
       lines = {

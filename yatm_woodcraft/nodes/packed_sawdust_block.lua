@@ -17,7 +17,7 @@ mod:register_node("packed_sawdust_block", {
   paramtype2 = "facedir",
   place_param2 = 0,
 
-  sounds = nokore.node_sounds:build("wood"),
+  sounds = yatm.node_sounds:build("wood"),
 })
 
 if foundation.is_module_present("nokore_stairs") then

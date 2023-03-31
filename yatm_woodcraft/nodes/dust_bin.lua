@@ -103,7 +103,7 @@ yatm.register_stateful_node("yatm_woodcraft:dust_bin", {
   on_construct = on_construct,
   on_rightclick = on_rightclick,
 
-  sounds = nokore.node_sounds:build("metal"),
+  sounds = yatm.node_sounds:build("metal"),
 }, {
   empty = {
     description = mod.S("Dust Bin [Empty]"),

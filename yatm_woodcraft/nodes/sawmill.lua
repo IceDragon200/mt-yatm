@@ -133,5 +133,5 @@ mod:register_node("sawmill", {
 
   on_rightclick = on_rightclick,
 
-  sounds = nokore.node_sounds:build("wood"),
+  sounds = yatm.node_sounds:build("wood"),
 })
