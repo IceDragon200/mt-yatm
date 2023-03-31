@@ -67,6 +67,8 @@ yatm.devices.register_stateful_network_device({
     cracky = nokore.dig_class("copper"),
   },
 
+  drop = mod:make_name("pylon_off"),
+
   use_texture_alpha = "opaque",
   tiles = {
     "yatm_pylon_top.off.png",
