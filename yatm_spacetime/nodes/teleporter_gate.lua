@@ -1,14 +1,14 @@
+local mod = assert(yatm_spacetime)
+
 local Cuboid = assert(foundation.com.Cuboid)
 local nb = Cuboid.new_fast_node_box
-
-local mod = yatm_spacetime
 
 local groups = {
   cracky = nokore.dig_class("copper"),
 }
 
 mod:register_node("teleporter_gate_corner", {
-  description = "Teleporter Gate Corner",
+  description = mod.S("Teleporter Gate Corner"),
 
   groups = groups,
 
@@ -38,7 +38,7 @@ mod:register_node("teleporter_gate_corner", {
 })
 
 mod:register_node("teleporter_gate_body", {
-  description = "Teleporter Gate Body",
+  description = mod.S("Teleporter Gate Body"),
 
   groups = groups,
 

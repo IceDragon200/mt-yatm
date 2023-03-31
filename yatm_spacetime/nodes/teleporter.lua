@@ -1,3 +1,5 @@
+local mod = assert(yatm_spacetime)
+
 local FakeMetaRef = assert(foundation.com.FakeMetaRef)
 local list_sample = assert(foundation.com.list_sample)
 local table_keys = assert(foundation.com.table_keys)
@@ -191,14 +193,16 @@ local teleporter_yatm_network = {
     inactive = "yatm_spacetime:teleporter_inactive",
   },
   energy = {
+    capacity = 10000,
     passive_lost = 100,
+    network_charge_bandwidth = 1000,
   },
 }
 
 yatm.devices.register_stateful_network_device({
   basename = "yatm_spacetime:teleporter",
 
-  description = "Teleporter",
+  description = mod.S("Teleporter"),
 
   codex_entry_id = "yatm_spacetime:teleporter",
 
@@ -207,6 +211,7 @@ yatm.devices.register_stateful_network_device({
     --
     spacetime_device = 1,
     addressable_spacetime_device = 1,
+    yatm_energy_device = 1,
   },
 
   drop = teleporter_yatm_network.states.off,
@@ -343,6 +348,7 @@ local teleporter_data_yatm_network = {
   },
   energy = {
     passive_lost = 100,
+    network_charge_bandwidth = 1000,
   },
 }
 
@@ -432,7 +438,7 @@ end
 yatm.devices.register_stateful_network_device({
   basename = "yatm_spacetime:teleporter_data",
 
-  description = "Teleporter [DATA]",
+  description = mod.S("Teleporter [DATA]"),
 
   codex_entry_id = "yatm_spacetime:teleporter_data",
 
@@ -441,6 +447,7 @@ yatm.devices.register_stateful_network_device({
     --
     spacetime_device = 1,
     addressable_spacetime_device = 1,
+    yatm_energy_device = 1,
     yatm_data_device = 1,
     data_programmable = 1,
   },

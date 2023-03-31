@@ -1,3 +1,5 @@
+local mod = assert(yatm_spacetime)
+
 local FakeMetaRef = assert(foundation.com.FakeMetaRef)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
@@ -74,7 +76,7 @@ local teleporter_port_yatm_network = {
     inactive = "yatm_spacetime:teleporter_port_inactive",
   },
   energy = {
-    capacity = 100,
+    capacity = 10000,
     passive_lost = 5,
     network_charge_bandwidth = 10,
     startup_threshold = 20,
@@ -84,7 +86,7 @@ local teleporter_port_yatm_network = {
 yatm.devices.register_stateful_network_device({
   basename = "yatm_spacetime:teleporter_port",
 
-  description = "Teleporter Port",
+  description = mod.S("Teleporter Port"),
 
   codex_entry_id = "yatm_spacetime:teleporter_port",
 
@@ -92,7 +94,8 @@ yatm.devices.register_stateful_network_device({
     cracky = nokore.dig_class("copper"),
     --
     spacetime_device = 1,
-    addressable_spacetime_device = 1
+    addressable_spacetime_device = 1,
+    yatm_energy_device = 1,
   },
 
   drop = teleporter_port_yatm_network.states.off,
@@ -196,7 +199,7 @@ local teleporter_port_data_yatm_network = {
 yatm.devices.register_stateful_network_device({
   basename = "yatm_spacetime:teleporter_port_data",
 
-  description = "Teleporter Port [DATA]",
+  description = mod.S("Teleporter Port [DATA]"),
 
   codex_entry_id = "yatm_spacetime:teleporter_port_data",
 
@@ -205,6 +208,7 @@ yatm.devices.register_stateful_network_device({
     --
     spacetime_device = 1,
     addressable_spacetime_device = 1,
+    yatm_energy_device = 1,
     yatm_data_device = 1,
   },
 

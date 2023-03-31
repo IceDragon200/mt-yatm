@@ -3,6 +3,8 @@
   Teleporter relays are neutral nodes that are placed adjacent to a teleporter to expand it's teleportation effect range
 
 ]]
+local mod = assert(yatm_spacetime)
+
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
@@ -49,7 +51,7 @@ local teleporter_relay_yatm_network = {
 yatm.devices.register_stateful_network_device({
   basename = "yatm_spacetime:teleporter_relay",
 
-  description = "Teleporter Relay",
+  description = mod.S("Teleporter Relay"),
 
   codex_entry_id = "yatm_spacetime:teleporter_relay",
 
@@ -57,7 +59,8 @@ yatm.devices.register_stateful_network_device({
     cracky = nokore.dig_class("copper"),
     --
     spacetime_device = 1,
-    teleporter_relay = 1
+    teleporter_relay = 1,
+    yatm_energy_device = 1,
   },
 
   drop = teleporter_relay_yatm_network.states.off,
