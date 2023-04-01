@@ -161,6 +161,13 @@ function yatm.formspec.render_split_inv_panel(player, main_cols, main_rows, opti
   return formspec
 end
 
+--- @spec formspec_render_split_inv_panel(
+---   PlayerRef,
+---   cols: Integer | nil,
+---   rows: Integer | nil,
+---   options: Table,
+---   callback: FUnction/2
+--- ): String
 yatm.formspec_render_split_inv_panel = yatm.formspec.render_split_inv_panel
 
 -- @spec render_gauge({
