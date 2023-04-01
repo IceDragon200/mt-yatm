@@ -1,3 +1,5 @@
+local mod = assert(yatm_item_storage)
+
 local is_blank = assert(foundation.com.is_blank)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local fspec = assert(foundation.com.formspec.api)
@@ -8,7 +10,7 @@ function get_cardboard_box_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
   local formspec =
-    yatm.formspec_render_split_inv_panel(user, nil, 5, { bg = "cardboard" }, function (slot, rect)
+    yatm.formspec_render_split_inv_panel(user, 4, 5, { bg = "cardboard" }, function (slot, rect)
       if slot == "main_body" then
         return fspec.label(rect.x, rect.y, "Cardboard Box") ..
                fspec.list("nodemeta:" .. spos, MAIN_INVENTORY_NAME, rect.x, rect.y + 0.5, 4, 4)
@@ -25,11 +27,19 @@ end
 function get_super_cardboard_box_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
+  local cols = 16
+  local rows = 4
+
+  if rawget(_G, "nokore_player_inv") then
+    cols = nokore_player_inv.player_hotbar_size
+    rows = math.ceil(64 / cols)
+  end
+
   local formspec =
-    yatm.formspec_render_split_inv_panel(user, 16, 5, { bg = "cardboard" }, function (slot, rect)
+    yatm.formspec_render_split_inv_panel(user, cols, rows + 1, { bg = "cardboard" }, function (slot, rect)
       if slot == "main_body" then
         return fspec.label(rect.x, rect.y, "Cardboard Box") ..
-               fspec.list("nodemeta:" .. spos, MAIN_INVENTORY_NAME, rect.x, rect.y + 0.5, 16, 4)
+               fspec.list("nodemeta:" .. spos, MAIN_INVENTORY_NAME, rect.x, rect.y + 0.5, cols, rows)
       elseif slot == "footer" then
         return fspec.list_ring("nodemeta:" .. spos, MAIN_INVENTORY_NAME) ..
                fspec.list_ring("current_player", "main")
@@ -74,6 +84,17 @@ local function cardboard_box_preserve_metadata(pos, old_node, _old_meta_table, d
   new_meta:set_string("description", description)
 end
 
+local function cardboard_box_on_dig(pos, node, puncher)
+  local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
+
+  if not inv:is_empty("main") then
+    return false
+  end
+
+  return minetest.node_dig(pos, node, puncher)
+end
+
 local function cardboard_box_on_blast(pos)
   local drops = {}
   foundation.com.get_inventory_drops(pos, MAIN_INVENTORY_NAME, drops)
@@ -82,10 +103,10 @@ local function cardboard_box_on_blast(pos)
   return drops
 end
 
-minetest.register_node("yatm_item_storage:cardboard_box", {
-  description = "Cardboard Box",
+minetest.register_node(mod:make_name("cardboard_box"), {
+  description = mod.S("Cardboard Box"),
 
-  codex_entry_id = "yatm_item_storage:cardboard_box",
+  codex_entry_id = mod:make_name("cardboard_box"),
 
   groups = {
     snappy = nokore.dig_class("wme"),
@@ -131,6 +152,7 @@ minetest.register_node("yatm_item_storage:cardboard_box", {
 
   after_place_node = cardboard_box_after_place_node,
   preserve_metadata = cardboard_box_preserve_metadata,
+  on_dig = cardboard_box_on_dig,
   on_blast = cardboard_box_on_blast,
 
   on_rightclick = function (pos, node, user)
@@ -141,10 +163,10 @@ minetest.register_node("yatm_item_storage:cardboard_box", {
   end,
 })
 
-minetest.register_node("yatm_item_storage:super_cardboard_box", {
-  description = "SUPER Cardboard Box\nFor when a regular one isn't good enough",
+minetest.register_node(mod:make_name("super_cardboard_box"), {
+  description = mos.S("SUPER Cardboard Box\nFor when a regular one isn't good enough"),
 
-  codex_entry_id = "yatm_item_storage:super_cardboard_box",
+  codex_entry_id = mod:make_name("super_cardboard_box"),
 
   groups = {
     snappy = nokore.dig_class("wme"),
@@ -186,6 +208,7 @@ minetest.register_node("yatm_item_storage:super_cardboard_box", {
 
   after_place_node = cardboard_box_after_place_node,
   preserve_metadata = cardboard_box_preserve_metadata,
+  on_dig = cardboard_box_on_dig,
   on_blast = cardboard_box_on_blast,
 
   on_rightclick = function (pos, node, user)
