@@ -164,7 +164,7 @@ minetest.register_node(mod:make_name("cardboard_box"), {
 })
 
 minetest.register_node(mod:make_name("super_cardboard_box"), {
-  description = mos.S("SUPER Cardboard Box\nFor when a regular one isn't good enough"),
+  description = mod.S("SUPER Cardboard Box\nFor when a regular one isn't good enough"),
 
   codex_entry_id = mod:make_name("super_cardboard_box"),
 
