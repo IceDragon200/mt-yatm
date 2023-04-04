@@ -21,17 +21,44 @@ local is_table_empty = assert(foundation.com.is_table_empty)
 local ItemDevice = assert(yatm_item_storage.ItemDevice)
 
 local ItemTransportNetwork = GenericTransportNetwork:extends()
-local m = assert(ItemTransportNetwork.instance_class)
+local ic = assert(ItemTransportNetwork.instance_class)
 
-function m:initialize(options)
-  m._super.initialize(self, options)
+function ic:initialize(options)
+  ic._super.initialize(self, options)
 
   yatm.clusters:observe('on_block_expired', 'item_transport_network/block_unloader', function (block_id)
     self:unload_block(block_id)
   end)
 end
 
-function m:update_extractor_duct(network, extractor_hash, extractor, items_available)
+--- @spec #update_hopper(network: Network, hopper_hash: Integer, hopper: NetworkMember): void
+function ic:update_hopper(network, hopper_hash, hopper)
+  -- hoppers typically use facedir for paramtype2 so this will help find the UP and DOWN faces
+  local hopper_dest_dir = Directions.D_DOWN
+  if hopper.subtype == "side" then
+    hopper_dest_dir = Directions.D_WEST
+  end
+  local source_dir = Directions.facedir_to_local_face(hopper.param2, Directions.D_UP)
+  local dest_dir = Directions.facedir_to_local_face(hopper.param2, hopper_dest_dir)
+
+  local source_pos = vector.add(hopper.pos, Directions.DIR6_TO_VEC3[source_dir])
+  local dest_pos = vector.add(hopper.pos, Directions.DIR6_TO_VEC3[dest_dir])
+
+  local stack
+  local err
+  stack, err = ItemDevice.extract_item(source_pos, invert_dir(source_dir), 1, false)
+
+  if stack and not stack:is_empty() then
+    local leftover
+    leftover, err = ItemDevice.insert_item(dest_pos, invert_dir(dest_dir), stack, true)
+
+    if leftover and leftover:is_empty() then
+      stack, err = ItemDevice.extract_item(source_pos, invert_dir(source_dir), 1, true)
+    end
+  end
+end
+
+function ic:update_extractor_duct(network, extractor_hash, extractor, items_available)
   for dir, v3 in pairs(DIR6_TO_VEC3) do
     local new_pos = vector.add(extractor.pos, v3)
     local node_face_dir = invert_dir(dir)
@@ -64,7 +91,7 @@ function m:update_extractor_duct(network, extractor_hash, extractor, items_avail
   end
 end
 
-function m:update_inserter_duct(network, inserter_hash, inserter, items_available)
+function ic:update_inserter_duct(network, inserter_hash, inserter, items_available)
   local new_items_available = items_available
   for dir, v3 in pairs(DIR6_TO_VEC3) do
     if is_table_empty(new_items_available) then
@@ -138,7 +165,16 @@ function m:update_inserter_duct(network, inserter_hash, inserter, items_availabl
   return new_items_available
 end
 
-function m:update_network(network, counter, delta)
+function ic:update_network(network, counter, delta)
+  local hoppers = network.members_by_type["hopper"]
+  if hoppers then
+    for hopper_hash,hopper in pairs(hoppers) do
+      if self:check_network_member(hopper, network) then
+        self:update_hopper(network, hopper_hash, hopper)
+      end
+    end
+  end
+
   local extractors = network.members_by_type["extractor"]
   local inserters = network.members_by_type["inserter"]
 
