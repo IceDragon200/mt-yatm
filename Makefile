@@ -55,6 +55,7 @@ prepare.release:
 	cp -r --parents yatm_foundry "${RELEASE_DIR}"
 	cp -r --parents yatm_frames "${RELEASE_DIR}"
 	cp -r --parents yatm_item_ducts "${RELEASE_DIR}"
+	cp -r --parents yatm_item_hoppers "${RELEASE_DIR}"
 	cp -r --parents yatm_item_shelves "${RELEASE_DIR}"
 	cp -r --parents yatm_item_storage "${RELEASE_DIR}"
 	cp -r --parents yatm_item_teleporters "${RELEASE_DIR}"
