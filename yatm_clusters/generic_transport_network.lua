@@ -11,24 +11,22 @@ local Directions = assert(foundation.com.Directions)
 local is_table_empty = assert(foundation.com.is_table_empty)
 local random_string16 = assert(foundation.com.random_string16)
 local table_keys = assert(foundation.com.table_keys)
+local table_copy = assert(foundation.com.table_copy)
 
 local GenericTransportNetwork = foundation.com.Class:extends("GenericTransportNetwork")
 local m = assert(GenericTransportNetwork.instance_class)
 
---[[
-@type config_options :: {
-  -- A name for the network, only used for logging
-  description = String.t,
-  -- The name of the of the interface key in the node definition
-  node_interface_name = String.t,
-  -- A short abbreviated name for the network, will be used when generating ids
-  abbr = String.t,
-}
-]]
+--- @type config_options :: {
+---   -- A name for the network, only used for logging
+---   description = String.t,
+---   -- The name of the of the interface key in the node definition
+---   node_interface_name = String.t,
+---   -- A short abbreviated name for the network, will be used when generating ids
+---   abbr = String.t,
+--- }
 
---[[
-@spec m:initialize(config :: config_options) :: void
-]]
+---
+--- @spec #initialize(config :: config_options) :: void
 function m:initialize(config)
   -- abbreviation
   self.m_abbr = config.abbr
@@ -134,7 +132,10 @@ function m:update_member(pos, node, is_register)
     id = node_id,
     block_id = 0,
     pos = pos,
+    node = table_copy(node),
     name = node.name,
+    param1 = node.param1,
+    param2 = node.param2,
     device_type = device_type,
     device_subtype = device_type,
     groups = interface.groups,
