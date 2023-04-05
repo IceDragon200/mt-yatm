@@ -1,3 +1,6 @@
-dofile(yatm_mining.modpath .. "/nodes/quarry.lua")
-dofile(yatm_mining.modpath .. "/nodes/quarry_wall.lua")
-dofile(yatm_mining.modpath .. "/nodes/surface_drill.lua")
+local mod = assert(yatm_mining)
+
+mod:require("nodes/quarry.lua")
+mod:require("nodes/quarry_wall.lua")
+mod:require("nodes/surface_drill.lua")
+mod:require("nodes/mining_drone.lua")
