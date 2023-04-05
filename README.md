@@ -8,15 +8,18 @@ Check each mod for it's own README on what it does.
 
 ## Requirements
 
-* Minetest 5.4.x (optionally with LuaJIT for some mods (needed for bit and ffi modules))
+* Minetest 5.4.x (optionally with LuaJIT for some mods (needed for `bit` and `ffi` modules))
 
 ## Dependencies
 
 * [`foundation`](https://github.com/IceDragon200/mt-foundation)
+* [`nokore`](https://github.com/IceDragon200/mt-nokore-mods)
 
 ## Optional
 
 * `mesecons`
+* `mobkit`
+* `default`
 
 ## Tests
 
