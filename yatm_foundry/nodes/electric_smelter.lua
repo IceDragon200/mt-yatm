@@ -62,7 +62,7 @@ fluid_interface.allow_drain = fluid_interface.allow_replace
 
 local item_interface = ItemInterface.new_simple("input_slot")
 
-function electric_smelter_refresh_infotext(pos)
+local function refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
   local node = minetest.get_node(pos)
 
@@ -250,7 +250,7 @@ yatm.devices.register_stateful_network_device({
   fluid_interface = fluid_interface,
   item_interface = item_interface,
 
-  refresh_infotext = electric_smelter_refresh_infotext,
+  refresh_infotext = refresh_infotext,
 
   on_construct = function (pos)
     yatm.devices.device_on_construct(pos)
