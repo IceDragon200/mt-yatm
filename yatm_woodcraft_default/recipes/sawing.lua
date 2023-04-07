@@ -83,7 +83,7 @@ reg("yatm_woodcraft:aspen_core_to_planks",
     0.25)
 
 -- Planks to Slabs
-if stairs then
+if rawget(_G, "stairs") then
   reg("yatm_woodcraft:oak_planks_to_slabs",
       ItemStack("default:wood"),
       {
@@ -123,7 +123,7 @@ end
 -- Slabs to Panels
 -- Slabs are half of a plank, which doing the math, is 8px tall
 -- Panels or Plates are 2px tall, so `slab > panel` should produce 4 panels.
-if stairs then
+if rawget(_G, "stairs") then
   reg("yatm_woodcraft:oak_slabs_to_panels",
       ItemStack("stairs:slab_wood"),
       {
@@ -161,7 +161,7 @@ if stairs then
 end
 
 -- Fallback Plank to Panels
-if not stairs then
+if not rawget(_G, "stairs") then
   yatm.info("Falling back to plank to panel recipes")
 
   reg("yatm_woodcraft:oak_planks_to_panels",
