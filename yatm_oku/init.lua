@@ -1,12 +1,13 @@
 --
 -- OKU - Octet Kompute Unit
 --
--- Is a 32-bit computer for YATM, it offers some control over some YATM
+-- Is a 8/16/32-bit computer for YATM, it offers some control over some YATM
 -- features using the data network.
 --
--- The machine is programmed in actual assembly, and emulated in lua.
+-- The machine is programmed in actual assembly, and emulated in lua or a native extension if
+-- available.
 --
-local mod = foundation.new_module("yatm_oku", "0.4.0")
+local mod = foundation.new_module("yatm_oku", "0.5.0")
 
 local insec = minetest.request_insecure_environment()
 if insec then
@@ -16,7 +17,7 @@ end
 mod.bit = assert(foundation.com.bit)
 
 if not mod.ffi then
-  yatm.error("yatm_oku requires LuaJIT's FFI, please add yatm_oku to your trusted mods list if you use LuaJIT, or disable yatm_oku otherwise.")
+  yatm.warn("yatm_oku works better with FFI, please add yatm_oku to your trusted mods list if you use LuaJIT, or leave it untrusted to fallback to pure lua implementation of some modules.")
 end
 
 mod:require("oku.lua")

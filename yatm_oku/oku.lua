@@ -13,8 +13,7 @@ yatm_oku.OKU.isa = {}
 yatm_oku:require("lib/oku/registers.lua")
 yatm_oku:require("lib/oku/token_buffer.lua")
 yatm_oku:require("lib/oku/memory.lua")
-yatm_oku:require("lib/oku/isa/riscv.lua")
-yatm_oku:require("lib/oku/isa/mos_6502.lua")
+yatm_oku:require("lib/oku/isa.lua")
 
 local OKU = yatm_oku.OKU
 local Memory

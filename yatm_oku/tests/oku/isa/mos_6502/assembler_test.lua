@@ -45,7 +45,6 @@ do
       t3:assert_eq("", rest)
 
       local blob = string_hex_escape(object, "all")
-      print(dump(blob))
     end)
   end)
 
