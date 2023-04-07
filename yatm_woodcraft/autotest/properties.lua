@@ -17,28 +17,6 @@ yatm_woodcraft.autotest_suite.utils = {
   random_pos = random_pos,
 }
 
-local function assert_and_remove_item_stack_in_inventory(inv, name, item_stack)
-  local leftover = inv:remove_item(name, item_stack)
-
-  if leftover:get_name() ~= item_stack:get_name() then
-    error("expected " .. item_stack:inspect() .. " (got " .. leftover:inspect() .. ")")
-  end
-
-  if leftover:get_count() ~= item_stack:get_count() then
-    error("incorrect number of items removed expected " .. item_stack:inspect() .. " (got " .. leftover:inspect() .. ")")
-  end
-
-  assert(item_stack:equals(leftover), "expected given item to be removed")
-end
-
-local function assert_inventory_is_empty(inv, name)
-  if not inv:is_empty(name) then
-    error("expected inventory " .. name .. " to be empty (got " .. inv:inspect() .. ")")
-  end
-
-  return true
-end
-
 yatm_woodcraft.autotest_suite:define_property("is_sawmill", {
   description = "Is Sawmill",
   detail = [[
