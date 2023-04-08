@@ -91,7 +91,7 @@ function m:update_member(pos, node, is_register)
   end
 
   local node_id = minetest.hash_node_position(pos)
-  local nodedef = minetest.registered_nodes[node.name]
+  local nodedef = assert(minetest.registered_nodes[node.name])
   local interface = assert(nodedef[self.m_node_interface_name])
   local device_type = assert(interface.type)
   local device_subtype = interface.subtype
@@ -136,8 +136,8 @@ function m:update_member(pos, node, is_register)
     name = node.name,
     param1 = node.param1,
     param2 = node.param2,
-    device_type = device_type,
-    device_subtype = device_type,
+    device_type = assert(device_type),
+    device_subtype = device_subtype,
     groups = interface.groups,
     counter = -1,
     interface = interface,
