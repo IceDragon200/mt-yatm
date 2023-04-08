@@ -95,12 +95,20 @@ local function cardboard_box_on_dig(pos, node, puncher)
   return minetest.node_dig(pos, node, puncher)
 end
 
-local function cardboard_box_on_blast(pos)
+--- @spec cardboard_box_on_blast(pos: Vector3, intensity: Float): Table
+local function cardboard_box_on_blast(pos, _intensity)
   local drops = {}
   foundation.com.get_inventory_drops(pos, MAIN_INVENTORY_NAME, drops)
-  drops[#drops+1] = "default:" .. name
+  table.insert(drops, mod:make_name("cardboard_box"))
   minetest.remove_node(pos)
   return drops
+end
+
+--- Super Cardboard Boxes are blast resistant and will not react to being blown up.
+---
+--- @spec super_cardboard_box_on_blast(pos: Vector3, intensity: Float): Table
+local function super_cardboard_box_on_blast(_pos, _intensity)
+  return {}
 end
 
 minetest.register_node(mod:make_name("cardboard_box"), {
@@ -209,12 +217,13 @@ minetest.register_node(mod:make_name("super_cardboard_box"), {
   after_place_node = cardboard_box_after_place_node,
   preserve_metadata = cardboard_box_preserve_metadata,
   on_dig = cardboard_box_on_dig,
-  on_blast = cardboard_box_on_blast,
+  on_blast = super_cardboard_box_on_blast,
 
   on_rightclick = function (pos, node, user)
     minetest.show_formspec(
       user:get_player_name(),
       "yatm_item_storage:super_cardboard_box",
-      get_super_cardboard_box_formspec(pos, user))
+      get_super_cardboard_box_formspec(pos, user)
+    )
   end,
 })
