@@ -15,7 +15,10 @@ yatm.cluster.thermal:register_system(
   yatm_cluster_thermal.thermal_system:method("update")
 )
 
-yatm.cluster_tool.register_cluster_tool_render(CLUSTER_GROUP, yatm.cluster.thermal:method("cluster_tool_render"))
+yatm.cluster_tool.register_cluster_tool_render(
+  CLUSTER_GROUP,
+  yatm.cluster.thermal:method("cluster_tool_render")
+)
 
 minetest.register_lbm({
   name = "yatm_cluster_thermal:cluster_device_lbm",
