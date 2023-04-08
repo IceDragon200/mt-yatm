@@ -24,8 +24,6 @@ yatm_woodcraft.autotest_suite:define_property("is_sawmill", {
   ]],
 
   setup = function (suite, state)
-    suite:clear_test_area()
-
     local player = assert(minetest.get_player_by_name("singleplayer"))
 
     state.player = player
@@ -35,6 +33,7 @@ yatm_woodcraft.autotest_suite:define_property("is_sawmill", {
     state.old_list = stash_inventory_list(inv, "main")
 
     state.pos = random_pos()
+    suite:clear_test_area(state.pos)
     state.node_id = hash_node_position(state.pos)
     minetest.set_node(state.pos, assert(state.node))
 
