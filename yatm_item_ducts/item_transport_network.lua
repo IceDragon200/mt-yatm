@@ -35,9 +35,14 @@ end
 function ic:update_hopper(network, hopper_hash, hopper)
   -- hoppers typically use facedir for paramtype2 so this will help find the UP and DOWN faces
   local hopper_dest_dir = Directions.D_DOWN
-  if hopper.subtype == "side" then
-    hopper_dest_dir = Directions.D_WEST
+  if hopper.device_subtype == "side" then
+    hopper_dest_dir = Directions.D_EAST
+  elseif hopper.device_subtype == "down" then
+    -- okay
+  else
+    error("invalid hopper: hopper=" .. dump(hopper))
   end
+
   local source_dir = Directions.facedir_to_local_face(hopper.param2, Directions.D_UP)
   local dest_dir = Directions.facedir_to_local_face(hopper.param2, hopper_dest_dir)
 
@@ -167,7 +172,7 @@ end
 
 function ic:update_network(network, counter, delta)
   local hoppers = network.members_by_type["hopper"]
-  if hoppers then
+  if hoppers and next(hoppers) then
     for hopper_hash,hopper in pairs(hoppers) do
       if self:check_network_member(hopper, network) then
         self:update_hopper(network, hopper_hash, hopper)
@@ -178,7 +183,7 @@ function ic:update_network(network, counter, delta)
   local extractors = network.members_by_type["extractor"]
   local inserters = network.members_by_type["inserter"]
 
-  if extractors and inserters then
+  if extractors and next(extractors) and inserters and next(inserters) then
     local items_available = {}
 
     for extractor_hash,extractor in pairs(extractors) do

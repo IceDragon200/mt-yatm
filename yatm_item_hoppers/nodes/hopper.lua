@@ -14,6 +14,10 @@ local function after_destruct(pos, _old_node)
   item_transport_network:unregister_member(pos)
 end
 
+local function after_rotate_node(pos, node)
+  item_transport_network:update_member(pos, node)
+end
+
 mod:register_node("wood_hopper_down", {
   description = mod.S("Wood Hopper [Down]"),
 
@@ -23,7 +27,7 @@ mod:register_node("wood_hopper_down", {
     item_hopper = 1,
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   drawtype = "nodebox",
@@ -59,6 +63,8 @@ mod:register_node("wood_hopper_down", {
 
   after_place_node = after_place_node,
   after_destruct = after_destruct,
+
+  after_rotate_node = after_rotate_node,
 })
 
 mod:register_node("wood_hopper_side", {
@@ -70,7 +76,7 @@ mod:register_node("wood_hopper_side", {
     item_hopper = 1,
   },
 
-  paramtype = "light",
+  paramtype = "none",
   paramtype2 = "facedir",
 
   drawtype = "nodebox",
@@ -106,4 +112,6 @@ mod:register_node("wood_hopper_side", {
 
   after_place_node = after_place_node,
   after_destruct = after_destruct,
+
+  after_rotate_node = after_rotate_node,
 })
