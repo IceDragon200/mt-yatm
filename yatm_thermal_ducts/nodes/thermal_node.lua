@@ -3,7 +3,7 @@ local cluster_thermal = assert(yatm.cluster.thermal)
 local table_length = assert(foundation.com.table_length)
 local table_merge = assert(foundation.com.table_merge)
 
-local function get_thermal_node_formspec(pos, user, assigns)
+local function get_thermal_node_formspec(pos, player, assigns)
   local meta = minetest.get_meta(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
@@ -20,8 +20,7 @@ local function get_thermal_node_formspec(pos, user, assigns)
 
   return yatm.formspec_render_split_inv_panel(player, 4, 1, { bg = background_type }, function (loc, rect)
     if loc == "main_body" then
-      return fspec.label(rect.x, rect.y, "Thermal Node")
-        .. fspec.field(rect.x, rect.y + 0.5, rect.w, 1, "heat", "Heat", heat)
+      return fspec.field_area(rect.x, rect.y, rect.w, 1, "heat", "Heat", heat)
     elseif loc == "footer" then
       return ""
     end
@@ -85,12 +84,12 @@ yatm.register_stateful_node("yatm_thermal_ducts:thermal_node", {
     cluster_thermal:schedule_remove_node(pos, node)
   end,
 
-  on_rightclick = function (pos, node, user)
+  on_rightclick = function (pos, node, player)
     local assigns = { pos = pos, node = node }
-    local formspec = get_thermal_node_formspec(pos, user, assigns)
+    local formspec = get_thermal_node_formspec(pos, player, assigns)
     local formspec_name = "yatm_thermal_ducts:thermal_node:" .. minetest.pos_to_string(pos)
 
-    nokore.formspec_bindings:show_formspec(user:get_player_name(), formspec_name, formspec, {
+    nokore.formspec_bindings:show_formspec(player:get_player_name(), formspec_name, formspec, {
       state = assigns,
       on_receive_fields = receive_fields
     })
