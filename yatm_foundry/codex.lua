@@ -1,3 +1,5 @@
+local mod = assert(yatm_foundry)
+
 local Cuboid = assert(foundation.com.Cuboid)
 
 yatm.codex.register_demo("yatm_foundry:concrete_showcase", {
@@ -96,3 +98,5 @@ yatm.codex.register_entry("yatm_foundry:concrete", {
     },
   },
 })
+
+mod:require("codex/furnace.lua")
