@@ -191,6 +191,7 @@ function ItemInterface.new_simple(inventory_name)
 end
 
 function ItemInterface.new_directional(dir_to_inventory_name)
+  assert(type(dir_to_inventory_name) == "function", "expected dir_to_inventory_name to be function")
   local item_interface = ItemInterface.new()
 
   item_interface.dir_to_inventory_name = dir_to_inventory_name
