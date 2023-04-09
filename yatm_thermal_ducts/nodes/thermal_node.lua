@@ -1,3 +1,4 @@
+local fspec = assert(foundation.com.formspec.api)
 local cluster_thermal = assert(yatm.cluster.thermal)
 local table_length = assert(foundation.com.table_length)
 local table_merge = assert(foundation.com.table_merge)
@@ -17,13 +18,15 @@ local function get_thermal_node_formspec(pos, user, assigns)
     background_type = "machine"
   end
 
-  local formspec =
-    "size[8,9]" ..
-    yatm.formspec_bg_for_player(user:get_player_name(), background_type) ..
-    "label[0,0;Thermal Node]" ..
-    "field[0.25,1;8,1;heat;Heat;" .. heat .. "]"
-
-  return formspec
+  return yatm.formspec_render_split_inv_panel(player, 4, 1, { bg = background_type }, function (loc, rect)
+    if loc == "main_body" then
+      return fspec.label(rect.x, rect.y, "Thermal Node")
+        .. fspec.field(rect.x, rect.y + 0.5, rect.w, 1, "heat", "Heat", heat)
+    elseif loc == "footer" then
+      return ""
+    end
+    return ""
+  end)
 end
 
 local function receive_fields(player, formname, fields, assigns)
