@@ -58,6 +58,24 @@ end
 local fluid_interface = FluidInterface.new_directional(get_fluid_tank_name)
 fluid_interface._private.capacity = TANK_CAPACITY
 
+--- @spec #allow_fill(pos: Vector3, dir: Integer, FluidStack): Boolean
+function fluid_interface:allow_fill(pos, dir, fluid_stack)
+  local node = minetest.get_node(pos)
+  local new_dir = Directions.facedir_to_face(node.param2, dir)
+
+  if new_dir == Directions.D_DOWN then
+    return false
+  elseif new_dir == Directions.D_EAST or
+         new_dir == Directions.D_WEST or
+         new_dir == Directions.D_NORTH or
+         new_dir == Directions.D_SOUTH then
+    if fluid_stack then
+      return FluidStack.is_member_of_group(fluid_stack, "steam")
+    end
+  end
+  return false
+end
+
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
   local node = minetest.get_node(pos)
   yatm.queue_refresh_infotext(pos, node)
