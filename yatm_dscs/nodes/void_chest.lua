@@ -246,6 +246,26 @@ local function on_rightclick(pos, node, user, item_stack, pointed_thing)
   )
 end
 
+local function on_dig(pos, node, player)
+  local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
+
+  if not inv:is_empty("drive_slot") then
+    return false
+  end
+
+  return minetest.node_dig(pos, node, player)
+end
+
+local function on_blast(pos, intensity)
+  local drops = {}
+  persist_drive_contents(pos)
+  foundation.com.get_inventory_drops(pos, "drive_slot", drops)
+  table.insert(drops, mod:make_name("void_chest_off"))
+  minetest.remove_node(pos)
+  return drops
+end
+
 yatm.devices.register_stateful_network_device({
   basename = "yatm_dscs:void_chest",
 
@@ -286,16 +306,8 @@ yatm.devices.register_stateful_network_device({
   on_metadata_inventory_put = on_metadata_inventory_put,
   on_metadata_inventory_take = on_metadata_inventory_take,
 
-  on_dig = function (pos, node, digger)
-    local meta = minetest.get_meta(pos)
-    local inv = meta:get_inventory()
-
-    if inv:is_empty("drive_slot") then
-      return minetest.node_dig(pos, node, digger)
-    end
-
-    return false
-  end,
+  on_dig = on_dig,
+  on_blast = on_blast,
 
   yatm_network = void_chest_yatm_network,
 
