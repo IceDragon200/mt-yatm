@@ -4,35 +4,35 @@
 local fluid_registry = assert(yatm_fluids.fluid_registry)
 local FluidUtils = assert(yatm_fluids.Utils)
 
--- @namespace yatm_fluids.FluidStack
+--- @namespace yatm_fluids.FluidStack
 local FluidStack = {}
 
--- @spec new(name: String, amount: Integer): FluidStack
+--- @spec new(name: String, amount: Integer): FluidStack
 function FluidStack.new(name, amount)
   return { name = name, amount = amount or 0 }
 end
 
--- @spec new_empty(): FluidStack
+--- @spec new_empty(): FluidStack
 function FluidStack.new_empty()
   return FluidStack.new(nil, 0)
 end
 
--- @spec new_group(group_name: String, amount: Integer): FluidStack
+--- @spec new_group(group_name: String, amount: Integer): FluidStack
 function FluidStack.new_group(group_name, amount)
   return FluidStack.new("group:" .. group_name, amount)
 end
 
--- @spec new_wildcard(amount: Integer): FluidStack
+--- @spec new_wildcard(amount: Integer): FluidStack
 function FluidStack.new_wildcard(amount)
   return FluidStack.new("*", amount)
 end
 
--- @spec copy(fluid_stack: FluidStack): FluidStack
+--- @spec copy(fluid_stack: FluidStack): FluidStack
 function FluidStack.copy(fluid_stack)
   return { name = fluid_stack.name, amount = fluid_stack.amount }
 end
 
--- @spec copy(a?: FluidStack, b?: FluidStack): Boolean
+--- @spec same_fluid(a?: FluidStack, b?: FluidStack): Boolean
 function FluidStack.same_fluid(a, b)
   if a and b then
     return FluidUtils.matches(a.name, b.name)
@@ -41,6 +41,7 @@ function FluidStack.same_fluid(a, b)
   return false
 end
 
+--- @spec same_fluid_or_replacable_by(FluidStack, FluidStack): Boolean
 function FluidStack.same_fluid_or_replacable_by(base, replacement)
   if not base then
     return replacement ~= nil
@@ -48,6 +49,7 @@ function FluidStack.same_fluid_or_replacable_by(base, replacement)
   return FluidStack.same_fluid(base, replacement)
 end
 
+--- @spec equals(FluidStack, FluidStack): Boolean
 function FluidStack.equals(a, b)
   if a == b then
     return true
@@ -62,6 +64,7 @@ function FluidStack.equals(a, b)
   return false
 end
 
+--- @spec get_fluid(FluidStack): Fluid
 function FluidStack.get_fluid(fluid_stack)
   if fluid_stack and fluid_stack.name then
     return fluid_registry.get_fluid(fluid_stack.name)

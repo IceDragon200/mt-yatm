@@ -274,7 +274,7 @@ local function check_register_definition(definition)
   end
 end
 
--- @spec register(modname: String, fluid_basename: String, definition: Table): void
+--- @spec register(modname: String, fluid_basename: String, definition: Table): void
 function FluidRegistry.register(modname, fluid_basename, definition)
   local fluid_name = modname .. ":" .. fluid_basename
   local node_basename = fluid_name
@@ -362,23 +362,23 @@ function FluidRegistry.register(modname, fluid_basename, definition)
   end
 end
 
--- @spec get_fluid(fluid_name: String): Fluid
+--- @spec get_fluid(fluid_name: String): Fluid
 function FluidRegistry.get_fluid(fluid_name)
   return FluidRegistry.members[fluid_name]
 end
 
--- @spec normalize_fluid_name(fluid_name: String): String
+--- @spec normalize_fluid_name(fluid_name: String): String
 function FluidRegistry.normalize_fluid_name(fluid_name)
   return FluidRegistry.aliases[fluid_name] or fluid_name
 end
 
---
--- @spec item_name_to_fluid_name(item_name: String): String
+---
+--- @spec item_name_to_fluid_name(item_name: String): String
 function FluidRegistry.item_name_to_fluid_name(item_name)
   return FluidRegistry.m_item_name_to_fluid_name[item_name]
 end
 
--- @spec fluid_name_to_tank_name(fluid_name: String): String
+--- @spec fluid_name_to_tank_name(fluid_name: String): String
 function FluidRegistry.fluid_name_to_tank_name(fluid_name)
   fluid_name = FluidRegistry.normalize_fluid_name(fluid_name)
   return FluidRegistry.m_fluid_name_to_tank_name[fluid_name]

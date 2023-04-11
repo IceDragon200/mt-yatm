@@ -1,4 +1,4 @@
-local mod = foundation.new_module("yatm_fluids", "2.2.0")
+local mod = foundation.new_module("yatm_fluids", "2.3.0")
 
 mod:require("fluid_registry.lua")
 mod:require("utils.lua")
@@ -22,6 +22,10 @@ mod:require("items.lua")
 
 if foundation.com.Luna then
   mod:require("tests.lua")
+end
+
+if foundation.is_module_present("yatm_autotest") then
+  mod:require("autotest.lua")
 end
 
 mod:require("migrations.lua")

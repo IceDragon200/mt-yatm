@@ -1,29 +1,29 @@
--- @namespace yatm_fluids.FluidExchange
+--- @namespace yatm_fluids.FluidExchange
 
--- FluidExchange is a utility module built upon FluidMeta and FluidTanks
---
--- It provides functions for transfering from one to the other, as well as swapping.
+--- FluidExchange is a utility module built upon FluidMeta and FluidTanks
+---
+--- It provides functions for transfering from one to the other, as well as swapping.
 
--- @type FluidMetaConfig: {
---   tank_name: String,
---   capacity: Integer,
---   bandwidth: Integer,
--- }
+--- @type FluidMetaConfig: {
+---   tank_name: String,
+---   capacity: Integer,
+---   bandwidth: Integer,
+--- }
 
 local FluidMeta = assert(yatm_fluids.FluidMeta)
 local FluidTanks = assert(yatm_fluids.FluidTanks)
 
 local FluidExchange = {}
 
---
--- @spec transfer_from_meta_to_tank(
---   Vector3,
---   Direction.code,
---   FluidStack,
---   Vector3,
---   Direction.code,
---   Boolean
--- ): FluidStack
+---
+--- @spec transfer_from_meta_to_tank(
+---   Vector3,
+---   Direction.code,
+---   FluidStack,
+---   Vector3,
+---   Direction.code,
+---   Boolean
+--- ): FluidStack
 function FluidExchange.transfer_from_tank_to_tank(
   from_pos,
   from_face,
@@ -47,15 +47,15 @@ function FluidExchange.transfer_from_tank_to_tank(
   return nil
 end
 
---
--- @spec transfer_from_meta_to_tank(
---   IMetaRef,
---   FluidMetaConfig,
---   FluidStack,
---   Vector3,
---   Direction.code,
---   Boolean
--- ): FluidStack
+---
+--- @spec transfer_from_meta_to_tank(
+---   IMetaRef,
+---   FluidMetaConfig,
+---   FluidStack,
+---   Vector3,
+---   Direction.code,
+---   Boolean
+--- ): FluidStack
 function FluidExchange.transfer_from_meta_to_tank(meta, meta_config, fluid_stack,
                                                   tank_pos, tank_face, commit)
   -- the first drain is always a non-commit,
@@ -76,15 +76,15 @@ function FluidExchange.transfer_from_meta_to_tank(meta, meta_config, fluid_stack
   return nil
 end
 
---
--- @spec transfer_from_tank_to_meta(
---   Vector3,
---   Direction.code,
---   FluidStack,
---   IMetaRef,
---   FluidMetaConfig,
---   commit: Boolean
--- ): FluidStack
+---
+--- @spec transfer_from_tank_to_meta(
+---   Vector3,
+---   Direction.code,
+---   FluidStack,
+---   IMetaRef,
+---   FluidMetaConfig,
+---   commit: Boolean
+--- ): FluidStack
 function FluidExchange.transfer_from_tank_to_meta(tank_pos, tank_face, fluid_stack,
                                                   meta, meta_config, commit)
   local sdrained_fluid = FluidTanks.drain_fluid(tank_pos, tank_face, fluid_stack, false)
@@ -99,16 +99,16 @@ function FluidExchange.transfer_from_tank_to_meta(tank_pos, tank_face, fluid_sta
   return nil
 end
 
---
---
--- @spec transfer_from_meta_to_meta(
---   from_meta: MetaRef,
---   from_meta_config: FluidMetaConfig,
---   fluid_stack: FluidStack,
---   to_meta: MetaRef,
---   to_meta_config: FluidMetaConfig,
---   commit: Boolean
--- ): FluidStack
+---
+---
+--- @spec transfer_from_meta_to_meta(
+---   from_meta: MetaRef,
+---   from_meta_config: FluidMetaConfig,
+---   fluid_stack: FluidStack,
+---   to_meta: MetaRef,
+---   to_meta_config: FluidMetaConfig,
+---   commit: Boolean
+--- ): FluidStack
 function FluidExchange.transfer_from_meta_to_meta(from_meta, from_meta_config, fluid_stack,
                                                   to_meta, to_meta_config, commit)
   local sdrained_fluid = FluidMeta.drain_fluid(from_meta,

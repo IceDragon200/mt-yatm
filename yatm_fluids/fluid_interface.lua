@@ -1,43 +1,43 @@
--- @namespace yatm_fluids.FluidInterface
---
--- FluidInterface
--- @version "1.1.0"
---
--- @since "1.0.0"
--- @type get: function(self, pos, dir, node) => FluidStack
---
--- @since "1.1.0"
--- @type get_capacity: function(self, pos, dir, node) => Integer
---
--- @since "1.0.0"
--- @type replace: function(
---   self: Any,
---   pos: Vector3,
---   dir: DirectionCode,
---   fluid_stack: FluidStack,
---   commit: Boolean
--- ) => (FluidStack, error?: String)
---
--- @since "1.0.0"
--- @type fill: function(
---   self: Any,
---   pos: Vector3,
---   dir: DirectionCode,
---   fluid_stack: FluidStack,
---   commit: Boolean
--- ) => (FluidStack, error?: String)
---
--- @since "1.0.0"
--- @type drain: function(
---   self: Any,
---   pos: Vector3,
---   dir: DirectionCode,
---   fluid_stack: FluidStack,
---   commit: Boolean
--- ) => (FluidStack, error?: String)
---
--- @since "1.0.0"
--- @type on_fluid_changed: function(self, pos, dir, fluid_stack: FluidStack) => void
+--- @namespace yatm_fluids.FluidInterface
+---
+--- FluidInterface
+--- @version "1.1.0"
+---
+--- @since "1.0.0"
+--- @type get: function(self, pos, dir, node) => FluidStack
+---
+--- @since "1.1.0"
+--- @type get_capacity: function(self, pos, dir, node) => Integer
+---
+--- @since "1.0.0"
+--- @type replace: function(
+---   self: Any,
+---   pos: Vector3,
+---   dir: DirectionCode,
+---   fluid_stack: FluidStack,
+---   commit: Boolean
+--- ) => (FluidStack, error?: String)
+---
+--- @since "1.0.0"
+--- @type fill: function(
+---   self: Any,
+---   pos: Vector3,
+---   dir: DirectionCode,
+---   fluid_stack: FluidStack,
+---   commit: Boolean
+--- ) => (FluidStack, error?: String)
+---
+--- @since "1.0.0"
+--- @type drain: function(
+---   self: Any,
+---   pos: Vector3,
+---   dir: DirectionCode,
+---   fluid_stack: FluidStack,
+---   commit: Boolean
+--- ) => (FluidStack, error?: String)
+---
+--- @since "1.0.0"
+--- @type on_fluid_changed: function(self, pos, dir, fluid_stack: FluidStack) => void
 local FluidMeta = assert(yatm_fluids.FluidMeta)
 
 local FluidInterface = {
