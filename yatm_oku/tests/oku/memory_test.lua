@@ -31,6 +31,16 @@ for _,m in ipairs(modules) do
     end)
   end)
 
+  case:describe("#w_blob", function (t2)
+    t2:test("can write a blob to memory", function (t3)
+      local mem = m:new(256)
+
+      mem:w_blob(0, "Hello, World")
+
+      t3:assert_eq(mem:r_blob(0, 12), "Hello, World")
+    end)
+  end)
+
   case:describe("#r_i8", function (t2)
     t2:test("can address bytes at location", function (t3)
       local mem = m:new(256) -- really small memory for testing

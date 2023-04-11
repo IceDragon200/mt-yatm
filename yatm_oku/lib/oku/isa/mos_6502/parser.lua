@@ -4,6 +4,7 @@ local string_pad_leading = assert(foundation.com.string_pad_leading)
 local string_rsub = assert(foundation.com.string_rsub)
 local string_hex_pair_to_byte = assert(foundation.com.string_hex_pair_to_byte)
 
+--- @namespace yatm_oku.OKU.isa.MOS6502.Parser
 local Parser = {}
 local m = Parser
 
@@ -270,6 +271,7 @@ local function parse_ins(token_buf, result)
   return false
 end
 
+--- @spec parse(Buffer): TokenBuffer
 function m.parse(token_buf)
   local result = TokenBuffer:new({}, 'w')
 

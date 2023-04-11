@@ -40,6 +40,38 @@ do
     -- print("oku", "Lua.Memory", "allocated size=" .. self.m_size)
   end
 
+  --- @spec #r_slice(index: Integer, size: Integer): Table
+  function ic:r_slice(index, size)
+    assert(index, "expected an index")
+    assert(size, "expected a size")
+    index = self:check_and_adjust_index(index, size)
+
+    local result = {}
+    for i = 1,size do
+      result[i] = self.m_data[index + i - 1]
+    end
+
+    return result
+  end
+
+  --- @spec #r_blob(index: Integer, size: Integer): String
+  function ic:r_blob(index, size)
+    local slice = self:r_slice(index, size)
+    return string.char(unpack(slice))
+  end
+
+  --- @spec #w_blob(index: Integer, blob: String): self
+  function ic:w_blob(index, blob)
+    assert(index, "expected an index")
+    assert(blob, "expected a string blob")
+    local size = #blob
+    index = self:check_and_adjust_index(index, size)
+    for i = 1,size do
+      self.m_data[index + i - 1] = string.byte(blob, i)
+    end
+    return self
+  end
+
   local types = {
     i8 = 1,
     i16 = 2,
@@ -57,6 +89,9 @@ do
 
   --- @spec #w_i8(index: Integer, value: Integer): self
   function ic:w_i8(index, value)
+    assert(index, "expected index")
+    assert(value, "expected value")
+
     index = self:check_and_adjust_index(index, 1)
     if value < 0 then
       value = value + 256
