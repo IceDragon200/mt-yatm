@@ -1,3 +1,7 @@
+# 2.4.0
+
+* Can now register its own buckets instead of relying on `buckets`
+
 # 2.3.0
 
 * Fixup function specs

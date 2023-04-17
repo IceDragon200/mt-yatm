@@ -7,6 +7,11 @@ local FluidStack = assert(yatm_fluids.FluidStack)
 local Measurable = assert(yatm.Measurable)
 local FluidMeta = {}
 
+--- @spec get_amount(MetaRef, key: String): Integer
+function FluidMeta.get_amount(meta, key)
+  return Measurable.get_measurable_amount(meta, key)
+end
+
 function FluidMeta.set_amount(meta, key, amount, commit)
   local existing_amount = Measurable.get_measurable_amount(meta, key)
   local new_amount = math.max(amount, 0);

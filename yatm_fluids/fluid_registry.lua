@@ -1,14 +1,18 @@
 --
 -- The fluid registry
 --
+local mod = assert(yatm_fluids)
+
 local Measurable = assert(yatm.Measurable)
 local Groups = assert(foundation.com.Groups)
 local table_merge = assert(foundation.com.table_merge)
 local Directions = assert(foundation.com.Directions)
 local Color = assert(foundation.com.Color)
 
--- @namespace yatm_fluids.fluid_registry
+--- @namespace yatm_fluids.fluid_registry
 local FluidRegistry = {
+  m_buckets = {},
+  m_fluid_name_to_bucket_name = {},
   m_item_name_to_fluid_name = {},
   m_fluid_name_to_tank_name = {},
   m_tank_name_to_fluid_name = {},
@@ -52,23 +56,130 @@ function FluidRegistry.register_fluid(fluid_name, def)
   Measurable.register(FluidRegistry, fluid_name, def)
 end
 
--- @spec register_fluid_bucket(bucket_name: String, bucket_def: Table): void
+local function on_use_bucket(item_stack, user, pointed_thing)
+  if pointed_thing.type ~= "node" then
+    -- skip
+    return nil
+  end
+
+  local node = minetest.get_node_or_nil(pointed_thing.under)
+  if node then
+    local nodedef = minetest.registered_nodes[node.name]
+
+    local is_sneaking = user and user:is_player() and user:get_player_control().sneak
+
+    if nodedef and nodedef.on_rightclick and not is_sneaking then
+      return nodedef.on_rightclick(
+        pointed_thing.under,
+        node,
+        user,
+        itemstack
+      )
+    end
+
+    local item_def = item_stack:get_definition()
+
+    if item_def then
+      if item_def.fluid_bucket then
+        local fluid_bucket_def = item_def.fluid_bucket
+
+        local pos
+
+        -- Check if pointing to a buildable node
+        if ndef and ndef.buildable_to then
+          -- buildable; replace the node
+          pos = pointed_thing.under
+        else
+          -- not buildable to; place the liquid above
+          -- check if the node above can be replaced
+
+          pos = pointed_thing.above
+          node = minetest.get_node_or_nil(pos)
+          local above_ndef = node and minetest.registered_nodes[node.name]
+
+          if not above_ndef or not above_ndef.buildable_to then
+            -- do not remove the bucket with the liquid
+            return nil
+          end
+        end
+
+        if minetest.is_protected(pointed_thing.under, user:get_player_name()) then
+          minetest.record_protection_violation(pos, name)
+          return nil
+        end
+
+        minetest.set_node(pos, {
+          name = fluid_bucket_def.nodes.source,
+        })
+
+        return ItemStack(mod:make_name("empty_bucket"))
+      end
+    end
+  end
+
+  return nil
+end
+
+--- @spec register_fluid_bucket(bucket_name: String, bucket_def: Table): void
 function FluidRegistry.register_fluid_bucket(bucket_name, bucket_def)
-  assert(bucket_def.nodes)
-  if bucket then
+  assert(bucket_def.nodes, "exepcted bucket_def to have nodes")
+
+  bucket_def.name = bucket_name
+  bucket_def.force_renew = bucket_def.force_renew or false
+  bucket_def.groups = bucket_def.groups or {}
+  bucket_def.description = bucket_def.description or bucket_name
+  if bucket_def.texture == true then
+    bucket_def.texture = "yatm_bucket_empty.png^(yatm_bucket_fluid.mask.png^[multiply:"..bucket_def.fluid_color..")"
+  end
+
+  if rawget(_G, "bucket") and rawget(_G, "default") then
     bucket.register_liquid(
       assert(bucket_def.nodes.source),
       assert(bucket_def.nodes.flowing),
       bucket_name,
       assert(bucket_def.texture),
-      (bucket_def.description or bucket_name),
-      (bucket_def.groups or {}),
-      (bucket_def.force_renew or false)
+      bucket_def.description,
+      bucket_def.groups,
+      bucket_def.force_renew
     )
+  else
+    FluidRegistry.m_buckets[bucket_name] = bucket_def
+    FluidRegistry.m_fluid_name_to_bucket_name[bucket_def.fluid_name] = bucket_name
+
+    minetest.register_tool(bucket_name, {
+      description = bucket_def.description or bucket_name,
+
+      groups = bucket_def.groups or {},
+
+      liquids_pointable = true,
+
+      stack_max = 1,
+
+      inventory_image = bucket_def.texture,
+
+      fluid_bucket = {
+        fluid_name = bucket_def.fluid_name,
+        fluid_nodes = table.copy(bucket_def.nodes),
+      },
+
+      on_use = on_use_bucket,
+    })
   end
 end
 
--- @private.spec get_fluid_tile(fluid: Fluid): String
+--- @spec fluid_item_to_bucket(item_name: String): (bucket_name: String)
+function FluidRegistry.fluid_item_to_bucket(item_name)
+  local fluid_name = FluidRegistry.m_item_name_to_fluid_name[item_name]
+  if fluid_name then
+    local bucket_name = FluidRegistry.m_fluid_name_to_bucket_name[fluid_name]
+    if bucket_name then
+      return FluidRegistry.m_buckets[bucket_name]
+    end
+  end
+  return nil
+end
+
+--- @private.spec get_fluid_tile(fluid: Fluid): String
 local function get_fluid_tile(fluid)
   if fluid.tiles then
     return assert(fluid.tiles.source)
@@ -317,6 +428,8 @@ function FluidRegistry.register(modname, fluid_basename, definition)
       description = definition.bucket.description or (description .. " Bucket"),
       groups = (definition.bucket.groups or {}),
       force_renew = definition.bucket.force_renew or false,
+      fluid_color = fluid_def.color,
+      fluid_name = fluid_name,
     }
     if fluid_def.nodes then
       bucket_def.nodes = {

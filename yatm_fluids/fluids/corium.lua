@@ -23,7 +23,7 @@ yatm.fluids.fluid_registry.register("yatm_fluids", "corium", {
   },
 
   bucket = {
-    texture = "yatm_bucket_corium.png",
+    texture = true,
     groups = { corium_bucket = 1, radioactive = 1, corrosive = 1 },
     force_renew = false,
   },

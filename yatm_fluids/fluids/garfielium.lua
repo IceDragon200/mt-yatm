@@ -25,7 +25,7 @@ yatm.fluids.fluid_registry.register("yatm_fluids", "garfielium", {
   },
 
   bucket = {
-    texture = "yatm_bucket_garfielium.png",
+    texture = true,
     groups = {
       garfielium_bucket = 1,
     },

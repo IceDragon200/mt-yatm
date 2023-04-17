@@ -20,7 +20,7 @@ yatm.fluids.fluid_registry.register("yatm_fluids", "ice_slurry", {
   },
 
   bucket = {
-    texture = "yatm_bucket_ice_slurry.png",
+    texture = true,
     groups = { ice_slurry_bucket = 1, freezing = 1 },
     force_renew = false,
   },

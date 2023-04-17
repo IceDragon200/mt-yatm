@@ -33,7 +33,7 @@ yatm.fluids.fluid_registry.register("yatm_fluids", "light_oil", {
   },
 
   bucket = {
-    texture = "yatm_bucket_light_oil.png",
+    texture = true,
     groups = { light_oil_bucket = 1 },
     force_renew = false,
   },
