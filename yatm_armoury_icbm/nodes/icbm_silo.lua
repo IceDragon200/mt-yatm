@@ -414,8 +414,8 @@ local function render_formspec(pos, player, assigns)
   end)
 end
 
-function on_receive_fields(user, form_name, fields, assigns)
-  local meta = minetest.get_meta(assigns.pos)
+local function on_receive_fields(player, form_name, fields, state)
+  local meta = minetest.get_meta(state.pos)
   print("on_receive_fields", dump(fields))
   if fields["offset_x"] then
     meta:set_int("offset_x", tonumber(fields["offset_x"]))
@@ -443,9 +443,10 @@ function on_receive_fields(user, form_name, fields, assigns)
     launch_icbm(assigns.pos, assigns.node)
   end
 
-  return true
+  return true, nil
 end
 
+--- @spec refresh_formspec(pos: Vector3, player: PlayerRef): void
 local function refresh_formspec(pos, player)
   minetest.after(0, function ()
     yatm_core.refresh_player_formspec(player, get_formspec_name(pos), function (player_name, assigns)
@@ -453,6 +454,25 @@ local function refresh_formspec(pos, player)
       return render_formspec(assigns.pos, player, assigns)
     end)
   end)
+end
+
+local function on_rightclick(pos, node, player, item_stack, pointed_thing)
+  local state = {
+    pos = assert(vector.copy(pos)),
+    node = assert(node)
+  }
+  local formspec = render_formspec(pos, player, assigns)
+  local formspec_name = get_formspec_name(pos)
+
+  nokore.formspec_bindings:show_formspec(
+    player:get_player_name(),
+    formspec_name,
+    formspec,
+    {
+      state = state,
+      on_receive_fields = on_receive_fields
+    }
+  )
 end
 
 local groups = {
@@ -635,24 +655,7 @@ minetest.register_node("yatm_armoury_icbm:icbm_silo", {
     secondary = "inventory"
   },
 
-  on_rightclick = function (pos, node, user, item_stack, pointed_thing)
-    local assigns = {
-      pos = pos,
-      node = node
-    }
-    local formspec = render_formspec(pos, user, assigns)
-    local formspec_name = get_formspec_name(pos)
-
-    nokore.formspec_bindings:show_formspec(
-      user:get_player_name(),
-      formspec_name,
-      formspec,
-      {
-        state = assigns,
-        on_receive_fields = on_receive_fields
-      }
-    )
-  end,
+  on_rightclick = on_rightclick,
 
   refresh_infotext = refresh_infotext,
 })
