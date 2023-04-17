@@ -21,7 +21,7 @@ yatm.fluids.fluid_registry.register("yatm_bees", "synthetic_honey", {
   },
 
   bucket = {
-    texture = "yatm_bucket_synthetic_honey.png",
+    texture = true,
     groups = { synthetic_honey_bucket = 1, honey_like_bucket = 1 },
     force_renew = false,
   },
