@@ -18,6 +18,11 @@ local function create_inventory(self)
   local inv =
     minetest.create_detached_inventory(inventory_name, {
       allow_move = function(inv, from_list, from_index, to_list, to_index, count, player)
+        if to_list == "upgrades" then
+          return 1
+        elseif to_list == "batteries" then
+          return 1
+        end
         return count
       end,
 
@@ -38,6 +43,11 @@ local function create_inventory(self)
       end,
 
       allow_take = function(inv, listname, index, stack, player)
+        if listname == "upgrades" then
+          return 1
+        elseif listname == "batteries" then
+          return 1
+        end
         return stack:get_count()
       end,
 
@@ -58,8 +68,8 @@ local function create_inventory(self)
     })
 
   inv:set_size("main", 4*4)
-  inv:set_size("upgrades", 4)
-  inv:set_size("batteries", 2)
+  inv:set_size("upgrades", 6)
+  inv:set_size("batteries", 4)
 
   self.inventory_name = "yatm_drones:drone_inventory_" .. g_inventory_id
   return inv
@@ -398,7 +408,7 @@ local function drone_logic(self)
           elseif mobkit.recall(self, "need_dropoff") then
             -- Need to find a dropoff station
             mobkit.clear_queue_high(self)
-            local search_radius = 32
+            local search_radius = 64
             hq_find_dropoff_station(self, 20, search_radius)
             self:change_action_text("dropping off items")
             self:change_state("dropoff")
@@ -431,7 +441,7 @@ local function drone_logic(self)
         else
           -- find a docking station ASAP
           mobkit.clear_queue_high(self)
-          local search_radius = 32
+          local search_radius = 64
           hq_find_docking_station(self, 50, search_radius, true)
           self:change_action_text("docking")
           mobkit.forget(self, "idle_time")
@@ -449,8 +459,8 @@ local function drone_logic(self)
   end
 end
 
--- @private.spec get_scavenger_drone_formspec(PlayerRef, assigns: Any): String
-local function get_scavenger_drone_formspec(user, assigns)
+--- @private.spec render_formspec(PlayerRef, assigns: Any): String
+local function render_formspec(user, assigns)
   local entity = assigns.entity
   local cio = fspec.calc_inventory_offset
 
@@ -464,31 +474,35 @@ local function get_scavenger_drone_formspec(user, assigns)
   local tabheader = fspec.tabheader(0, 0, nil, nil, "drone_tab", tabs, assigns.tab)
 
   if assigns.tab == 1 then
+    local list_name = "detached:"..entity.inventory_name
+
     formspec =
-      yatm.formspec_render_split_inv_panel(user, nil, 5, { bg = "machine" }, function (slot, rect)
+      yatm.formspec_render_split_inv_panel(user, 8, 5, { bg = "machine" }, function (slot, rect)
         if slot == "header" then
           return tabheader
         elseif slot == "main_body" then
-          return fspec.label(rect.x, rect.y + 0.5, "Inventory") ..
-            fspec.list("detached:"..entity.inventory_name, "main", rect.x, rect.y + 1, 4, 4) ..
-            fspec.label(rect.x + cio(4), rect.y + 0.5, "Upgrades") ..
-            fspec.list("detached:"..entity.inventory_name, "upgrades", rect.x + cio(4), rect.y + 1, 4, 1) ..
-            fspec.label(rect.x + cio(4), rect.y + 2.5, "Batteries") ..
-            fspec.list("detached:"..entity.inventory_name, "batteries", rect.x + cio(4), rect.y + cio(3), 2, 1)
+          return ""
+            .. fspec.label(rect.x, rect.y + 0.25, "Inventory")
+            .. fspec.list(list_name, "main", rect.x, rect.y + 0.5, 4, 4)
+            .. fspec.label(rect.x + cio(5), rect.y + 0.25, "Upgrades")
+            .. fspec.list(list_name, "upgrades", rect.x + cio(5), rect.y + 0.5, 3, 2)
+            .. fspec.label(rect.x + cio(5), rect.y + 3, "Batteries")
+            .. fspec.list(list_name, "batteries", rect.x + cio(5), rect.y + 3.25, 2, 2)
         elseif slot == "footer" then
-          return fspec.list_ring("detached:" .. entity.inventory_name, "main") ..
-            fspec.list_ring("current_player", "main") ..
-            fspec.list_ring("detached:" .. entity.inventory_name, "upgrades") ..
-            fspec.list_ring("current_player", "main") ..
-            fspec.list_ring("detached:" .. entity.inventory_name, "batteries") ..
-            fspec.list_ring("current_player", "main")
+          return ""
+            .. fspec.list_ring("detached:" .. entity.inventory_name, "main")
+            .. fspec.list_ring("current_player", "main")
+            .. fspec.list_ring("detached:" .. entity.inventory_name, "upgrades")
+            .. fspec.list_ring("current_player", "main")
+            .. fspec.list_ring("detached:" .. entity.inventory_name, "batteries")
+            .. fspec.list_ring("current_player", "main")
         end
 
         return ""
       end)
   else
     formspec =
-      yatm.formspec_render_split_inv_panel(user, nil, 5, { bg = "machine" }, function (slot, rect)
+      yatm.formspec_render_split_inv_panel(user, 8, 5, { bg = "machine" }, function (slot, rect)
         if slot == "header" then
           return tabheader
         elseif slot == "main_body" then
@@ -522,7 +536,7 @@ end
 local function get_scavenger_drone_on_receive_fields(user, form_name, fields, assigns)
   if fields.drone_tab then
     assigns.tab = math.max(1, math.min(2, tonumber(fields.drone_tab)))
-    return true, get_scavenger_drone_formspec(user, assigns)
+    return true, render_formspec(user, assigns)
   end
   return true
 end
@@ -536,6 +550,10 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
     collisionbox = ng(2, 0, 2, 12, 6, 12),
     mesh = "scavenger_drone.b3d",
     textures = {"yatm_scavenger_drone.off.png"},
+  },
+
+  groups = {
+    nameable = 1,
   },
 
   weight = 100,
@@ -622,7 +640,7 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
         elseif Groups.has_group(item, "solar_charge_upgrade") then
           solar_charge_rate = solar_charge_rate + 0.25
         elseif Groups.has_group(item, "teleportation_upgrade") then
-          teleport_range = teleport_range + 16
+          teleport_range = teleport_range + 32
         elseif Groups.has_group(item, "voodoo_upgrade") then
           voodoo_range = voodoo_range + 8
         end
@@ -710,7 +728,7 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
     nokore.formspec_bindings:show_formspec(
       user:get_player_name(),
       "yatm_drones:scavenger_drone",
-      get_scavenger_drone_formspec(user, assigns),
+      render_formspec(user, assigns),
       {
         state = assigns,
         on_receive_fields = get_scavenger_drone_on_receive_fields,
