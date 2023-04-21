@@ -1,6 +1,39 @@
+local Vector2 = assert(foundation.com.Vector2)
+
+--- @namespace yatm.codex
 yatm.codex = yatm.codex or {}
 
+--- A table containing some additional header information, if context is set the item_name will
+--- be whatever item was pointed at to trigger the codex.
+--- `default` can be provided to default to that specific item if the codex is viewed outside of
+--- normal operation.
+---
+--- @type HeadingItem: {
+---   context: Boolean,
+---   default: String,
+--- }
+
+--- A single page in a codex entry.
+--- `heading_item` is the name of an item or a table with further details about the items:
+---   Example: "yatm_core:wrench"
+---   Example.2: { context = true, default = "yatm_foundry:concrete_white" }
+---
+--- @type CodeEntryPage: {
+---   heading_item: String | HeadingItem,
+---   heading: String,
+---   lines: String[]
+--- }
+
+--- A registered CodexEntry
+---
+--- @type CodexEntry: {
+---   pages: CodeEntryPage[],
+--- }
+
+--- @const registered_entries: { [name: String]: CodexEntry }
 yatm.codex.registered_entries = {}
+
+--- @const registered_demos: { [name: String]: CodexDemo }
 yatm.codex.registered_demos = {}
 
 local function default_demo_check_space(self, pos)
@@ -20,15 +53,21 @@ end
 local function default_demo_finalize(self, pos, assigns)
 end
 
+--- @spec register_entry(name: String, def: CodexEntry): void
 function yatm.codex.register_entry(name, def)
-  assert(def.pages, "expected to have pages")
+  assert(type(name) == "string", "expected entry name to be a string")
+  assert(type(def) == "table", "expected codex entry to be a table")
+  assert(type(def.pages) == "table", "expected to have pages")
+  assert(#def.pages > 0, "expected at least 1 page")
   yatm.codex.registered_entries[name] = def
 end
 
+--- @spec get_entry(name: String): CodexEntry | nil
 function yatm.codex.get_entry(name)
   return yatm.codex.registered_entries[name]
 end
 
+--- @spec register_demo(name: String, CodexDemo): void
 function yatm.codex.register_demo(name, def)
   def.check_space = def.check_space or default_demo_check_space
   def.init = def.init or default_demo_init
@@ -39,6 +78,7 @@ function yatm.codex.register_demo(name, def)
   yatm.codex.registered_demos[name] = def
 end
 
+--- @spec get_demo(name: String): CodexDemo | nil
 function yatm.codex.get_demo(name)
   return yatm.codex.registered_demos[name]
 end
@@ -58,8 +98,6 @@ function yatm.codex.fill_cuboid(cuboid, node)
 
   minetest.bulk_set_node(positions, node)
 end
-
-local Vector2 = assert(foundation.com.Vector2)
 
 local function place_layer(origin, palette, dim, layer)
   for y = 0,(dim.y - 1) do

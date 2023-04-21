@@ -1,27 +1,30 @@
 local sounds = assert(yatm.sounds)
 local fspec = assert(foundation.com.formspec.api)
 
-local function get_codex_entry_formspec(entity, assigns)
-  local w = yatm.get_player_hotbar_size(entity)
+---
+---
+--- @spec render_codex_entry_formspec(entity: PlayerRef, state: Table): String
+local function render_codex_entry_formspec(entity, state)
+  local w = math.max(yatm.get_player_hotbar_size(entity), 10)
   local h = 10
   local formspec =
-    fspec.formspec_version(6) ..
-    fspec.size(w, h) ..
-    yatm.formspec_bg_for_player(
+    fspec.formspec_version(6)
+    .. fspec.size(w, h)
+    .. yatm.formspec_bg_for_player(
       entity:get_player_name(),
       "codex",
       0, 0,
       w, h
     )
 
-  local page = assert(assigns.codex_entry.pages[assigns.page_id])
+  local page = assert(state.codex_entry.pages[state.page_id])
 
   if page.heading_item then
     local item_name
     local heading_type = type(page.heading_item)
     if heading_type == "table" then
       if page.heading_item.context then
-        item_name = assigns.context.item_name
+        item_name = state.context.item_name
       end
 
       if not item_name then
@@ -34,18 +37,16 @@ local function get_codex_entry_formspec(entity, assigns)
     end
 
     formspec =
-      formspec ..
-      -- For the love of code, WTF, last time I put the grid before it, it appeared above it!
-      -- this gives the illusion of a grid around the item
-      fspec.item_image(0, 0.25, 1.5, 1.5, "yatm_core:grid_block") ..
-      fspec.item_image(0, 0.25, 1.5, 1.5, item_name)
+      formspec
+      .. fspec.item_image(0.25, 0.25, 2, 2, "yatm_core:grid_block")
+      .. fspec.item_image(0.25, 0.25, 2, 2, item_name)
   end
 
-  if page.heading then
-    local x = 0
+  if page.heading and page.heading ~= "" then
+    local x = 0.25
 
     if page.heading_item then
-      x = 1.5
+      x = x + 2
     end
 
     formspec =
@@ -53,23 +54,15 @@ local function get_codex_entry_formspec(entity, assigns)
       fspec.label(x, 0.5, page.heading)
   end
 
-  local y = 1.5
+  local y = 2.5
 
   local dy = y
   if page.lines then
     for i, line in ipairs(page.lines) do
       dy = y + (i - 1) * 1.0
       formspec =
-        formspec ..
-        -- For 5.1.x
-        --   0.125 vertical spacing is a bit too compact
-        --   0.2 the sweet spot
-        --   0.25 vertical spacing has adequate spacing, but can only fit 16 lines
-        --   But in all honestly it's like the inventory based sizing doesn't even apply to hypertext...
-        -- As of 5.2.0-1db3d252
-        --   Elements seem to behave like normal now, instead of the weird line spacing they had before.
-        -- As of 5.4.0 back to the weird
-        fspec.hypertext(0.25, dy, w, 1.2, "line"..i, line)
+        formspec
+        .. fspec.hypertext(0.25, dy, w, 1.2, "line"..i, line)
     end
   end
 
@@ -78,33 +71,33 @@ local function get_codex_entry_formspec(entity, assigns)
     for i, demo_name in ipairs(page.demos) do
       dy = y + (i) * 0.2
       formspec =
-        formspec ..
-        fspec.button(0.125, dy, w - 0.25, 1, "demo", demo_name)
+        formspec
+        .. fspec.button(0.25, dy, w - 0.50, 1, "demo", demo_name)
     end
   end
 
-  if assigns.page_count > 1 then
-    if assigns.page_id > 1 then
+  if state.page_count > 1 then
+    if state.page_id > 1 then
       formspec =
-        formspec ..
-        fspec.button(0.125, h - 1, 2, 1, "prev_page", "<")
+        formspec
+        .. fspec.button(0.25, h - 1.25, 2, 1, "prev_page", "<")
     end
 
-    if assigns.page_id < assigns.page_count then
+    if state.page_id < state.page_count then
       formspec =
-        formspec ..
-        fspec.button(w - 0.25, h - 1, 2, 1, "next_page", ">")
+        formspec
+        .. fspec.button(w - 2.25, h - 1.25, 2, 1, "next_page", ">")
     end
   end
 
   return formspec
 end
 
-local function receive_codex_fields(user, form_name, fields, assigns)
+local function receive_codex_fields(user, form_name, fields, state)
   if fields.prev_page then
-    assigns.page_id = ((assigns.page_id - 2) % assigns.page_count) + 1
+    state.page_id = ((state.page_id - 2) % state.page_count) + 1
   elseif fields.next_page then
-    assigns.page_id = ((assigns.page_id) % assigns.page_count) + 1
+    state.page_id = ((state.page_id) % state.page_count) + 1
   end
 
   if fields.demo then
@@ -119,20 +112,20 @@ local function receive_codex_fields(user, form_name, fields, assigns)
     sounds:play("action_close", { to_player = user:get_player_name() })
   end
 
-  return true, get_codex_entry_formspec(user, assigns)
+  return true, render_codex_entry_formspec(user, state)
 end
 
 local function show_codex_entry(user, codex_entry_id, codex_entry, context)
-  local assigns = { original_codex_entry_id = codex_entry_id,
+  local state = { original_codex_entry_id = codex_entry_id,
                     codex_entry = codex_entry,
                     page_id = 1,
                     page_count = #codex_entry.pages,
                     context = context }
-  local formspec = get_codex_entry_formspec(user, assigns)
+  local formspec = render_codex_entry_formspec(user, state)
   local formspec_name = "yatm_codex:codex"
 
   nokore.formspec_bindings:show_formspec(user:get_player_name(), formspec_name, formspec, {
-    state = assigns,
+    state = state,
     on_receive_fields = receive_codex_fields
   })
 end
