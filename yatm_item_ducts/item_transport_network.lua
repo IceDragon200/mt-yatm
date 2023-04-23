@@ -133,19 +133,21 @@ function ic:update_inserter_duct(network, inserter_hash, inserter, items_availab
           else
             if remaining:is_empty() then
               local extracted, err = ItemDevice.extract_item(entry.pos, entry.dir, stack, true)
-              if network.debug then
-                print(self.m_description, "inserted item", minetest.pos_to_string(target_pos), inspect_axis(insert_dir), itemstack_inspect(stack))
-                print(self.m_description, "remaining item", minetest.pos_to_string(target_pos), inspect_axis(insert_dir), itemstack_inspect(remaining))
-              end
+              if extracted then
+                if network.debug then
+                  print(self.m_description, "inserted item", minetest.pos_to_string(target_pos), inspect_axis(insert_dir), itemstack_inspect(stack))
+                  print(self.m_description, "remaining item", minetest.pos_to_string(target_pos), inspect_axis(insert_dir), itemstack_inspect(remaining))
+                end
 
-              local new_stack = ItemStack(entry.stack)
-              new_stack:take_item(extracted:get_count())
+                local new_stack = ItemStack(entry.stack)
+                new_stack:take_item(extracted:get_count())
 
-              if new_stack:is_empty() then
-                --
-              else
-                entry.stack = new_stack
-                new_entries[entry_hash] = entry
+                if new_stack:is_empty() then
+                  --
+                else
+                  entry.stack = new_stack
+                  new_entries[entry_hash] = entry
+                end
               end
             else
               if network.debug then
