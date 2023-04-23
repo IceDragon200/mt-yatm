@@ -1,3 +1,5 @@
+local mod = assert(yatm_data_logic)
+
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local sounds = assert(yatm.sounds)
@@ -20,11 +22,12 @@ local function on_node_pulsed(pos, node)
   end
 end
 
-yatm.register_stateful_node("yatm_data_logic:data_pulser", {
-  basename = "yatm_data_logic:data_pulser",
-  description = "DATA Pulser",
+local basename = mod:make_name("data_pulser")
+yatm.register_stateful_node(basename, {
+  basename = basename,
+  description = mod.S("DATA Pulser"),
 
-  codex_entry_id = "yatm_data_logic:data_pulser",
+  codex_entry_id = basename,
 
   groups = {
     cracky = nokore.dig_class("copper"),

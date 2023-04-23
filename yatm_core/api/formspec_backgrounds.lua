@@ -53,20 +53,20 @@ yatm.bg9_name.cardboard = "yatm_gui_formbg_cardboard.9s.png"
 yatm.bg9_name.dscs = "yatm_gui_formbg_dscs.9s.png"
 yatm.bg9_name.inventory = "yatm_gui_formbg_inventory.9s.png"
 
--- @const formspec: Table
+--- @const formspec: Table
 yatm.formspec = yatm.formspec or {}
 
--- @namespace yatm.formspec
+--- @namespace yatm.formspec
 
--- @spec bg_for_player(
---   player_name: String,
---   background_id: String,
---   x?: Number,
---   y?: Number,
---   w?: Number,
---   h?: Number,
---   auto_clip?: Boolean
--- ): String
+--- @spec bg_for_player(
+---   player_name: String,
+---   background_id: String,
+---   x?: Number,
+---   y?: Number,
+---   w?: Number,
+---   h?: Number,
+---   auto_clip?: Boolean
+--- ): String
 function yatm.formspec.bg_for_player(player_name, background_id, x, y, w, h, auto_clip)
   assert(type(player_name) == "string", "expected player_name as string")
 
@@ -95,13 +95,13 @@ end
 
 yatm.formspec_bg_for_player = yatm.formspec.bg_for_player
 
--- @spec render_split_inv_panel(
---   Player,
---   main_cols: Integer | nil,
---   main_rows: Integer | nil,
---   options: Table,
---   callback: function (slot: String, rect: Rect) => String
--- ): String
+--- @spec render_split_inv_panel(
+---   Player,
+---   main_cols: Integer | nil,
+---   main_rows: Integer | nil,
+---   options: Table,
+---   callback: function (slot: String, rect: Rect) => String
+--- ): String
 function yatm.formspec.render_split_inv_panel(player, main_cols, main_rows, options, callback)
   assert(player, "expected player")
   -- assert(type(main_cols) == "number", "expected a column count")
@@ -170,19 +170,19 @@ end
 --- ): String
 yatm.formspec_render_split_inv_panel = yatm.formspec.render_split_inv_panel
 
--- @spec render_gauge({
---   x: Number,
---   y: Number,
---   w: Number,
---   h: Number,
---   amount: Number,
---   max: Number,
---   is_horz: Boolean,
---   base_color: ColorSpec,
---   gauge_color: ColorSpec,
---   border_name: String,
---   tooltip: String,
--- }): String
+--- @spec render_gauge({
+---   x: Number,
+---   y: Number,
+---   w: Number,
+---   h: Number,
+---   amount: Number,
+---   max: Number,
+---   is_horz: Boolean,
+---   base_color: ColorSpec,
+---   gauge_color: ColorSpec,
+---   border_name: String,
+---   tooltip: String,
+--- }): String
 function yatm.formspec.render_gauge(options)
   local x = options.x
   local y = options.y
@@ -278,4 +278,48 @@ function yatm.formspec.render_gauge(options)
   end
 
   return formspec
+end
+
+--- Renders a small switch button.
+--- * width (`w`) and height (`h`) are optional.
+--- * `state` affects whether the button is up or down (0 is down, non-zero is up).
+--- * `texture_name` can be specified to override the texture completely (regardless of state)
+--- * `color_name` can be specified to choose one of the available button colors, this will respect
+--- `state`.
+--- * `name` standard formspec element name
+--- * `label` standard formspec element label
+---
+--- @spec render_small_switch({
+---   x: Number,
+---   y: Number,
+---   w: Number = 0.5,
+---   h: Number = 1,
+---   state: Integer = 0,
+---   texture_name: String,
+---   color_name: String,
+---   name: String,
+---   label: String,
+--- }): String
+function yatm.formspec.render_small_switch(options)
+  local x = options.x
+  local y = options.y
+  local w = options.w or 0.5
+  local h = options.h or 1
+
+  local state = options.state or 0
+
+  local texture_name = options.texture_name
+  if not texture_name then
+    local color_name = options.color_name or "white"
+
+    local state_name = "down"
+    if state ~= 0 then
+      state_name = "up"
+    end
+    texture_name = "yatm_small_switch_" .. color_name .. "." .. state_name .. ".png"
+  end
+  local name = options.name
+  local label = options.label
+
+  return fspec.image_button(x, y, w, h, texture_name, name, label, false, false)
 end
