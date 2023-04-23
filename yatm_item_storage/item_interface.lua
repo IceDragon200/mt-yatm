@@ -153,7 +153,7 @@ local function directional_extract_item(self, pos, dir, item_stack_or_count, com
       local new_list, extracted = InventoryList.extract_stack(list, item_stack_or_count)
       if commit then
         inv:set_list(inventory_name, new_list)
-        self:on_extract_item(pos, dir, item_stack_or_count)
+        self:on_extract_item(pos, dir, extracted)
       end
       return extracted
     else
