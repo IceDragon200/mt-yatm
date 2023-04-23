@@ -97,8 +97,8 @@ local function on_timer(pos, dt)
         inv:set_stack("processing_slot", 1, result.item)
 
         craft_error = ERROR_OK
-        time = result.time
         time_max = result.time
+        time = time_max
         craft_state = STATE_CRAFTING
       end
 
@@ -132,7 +132,7 @@ local function on_timer(pos, dt)
       end
 
     else
-      minetest.log("warning", "unexpected state=" .. craft_state)
+      minetest.log("warning", "unexpected furnace state=" .. craft_state)
       craft_state = STATE_NEW
     end
   end
