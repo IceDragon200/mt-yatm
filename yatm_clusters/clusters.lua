@@ -18,7 +18,7 @@ local hash_pos = minetest.hash_node_position
 --   assigns: Table,
 -- }
 
--- @class Cluster
+--- @class Cluster
 local Cluster = foundation.com.Class:extends("YATM.Cluster")
 do
   local ic = Cluster.instance_class
@@ -37,21 +37,24 @@ do
     self.terminate_reason = false
   end
 
-  -- @spec #terminate(reason: String): void
+  --- @spec #terminate(reason: String): void
   function ic:terminate(reason)
     -- print("Terminating Cluster cluster_id=" .. self.id .. " reason=" .. reason)
     self.terminate_reason = reason
     self.terminated = true
   end
 
+  --- @spec #size(): Integer
   function ic:size()
     return table_length(self.m_nodes)
   end
 
+  --- @spec #is_empty(): Boolean
   function ic:is_empty()
     return is_table_empty(self.m_nodes)
   end
 
+  --- @spec #inspect(): String
   function ic:inspect()
     return dump({
       id = self.id,
@@ -64,7 +67,7 @@ do
     })
   end
 
-  -- @spec #merge(Cluster): self
+  --- @spec #merge(Cluster): self
   function ic:merge(other_cluster)
     assert(other_cluster, "expected a cluster")
 
@@ -102,10 +105,12 @@ do
     return self
   end
 
+  --- @spec #move_nodes_from_cluster(Cluster, Table): String
   function ic:move_nodes_from_cluster(other_cluster, nodes_to_transfer)
     assert(other_cluster, "expected other cluster")
+    local node_entry
     for node_id, _ in pairs(nodes_to_transfer) do
-      local node_entry = other_cluster.m_nodes[node_id]
+      node_entry = other_cluster.m_nodes[node_id]
       assert(type(node_entry) == "table", "expected node entry to be a table")
       self.m_nodes[node_id] = node_entry
       other_cluster.m_nodes[node_id] = nil
@@ -138,7 +143,7 @@ do
     self.m_block_nodes[block_id][node_entry.id] = true
   end
 
-  -- @spec #add_node(pos: Vector3, node: ClusterNode, groups: Table<String, Integer>): Boolean
+  --- @spec #add_node(pos: Vector3, node: ClusterNode, groups: Table<String, Integer>): Boolean
   function ic:add_node(pos, node, groups)
     local node_id = hash_pos(pos)
 
@@ -176,19 +181,19 @@ do
     return true
   end
 
-  -- @spec #get_node(Vector3): ClusterNode
+  --- @spec #get_node(Vector3): ClusterNode
   function ic:get_node(pos)
     local node_id = hash_pos(pos)
 
     return self.m_nodes[node_id]
   end
 
-  -- @spec #get_node_by_id(id: Integer): nil | ClusterNode
+  --- @spec #get_node_by_id(id: Integer): nil | ClusterNode
   function ic:get_node_by_id(node_id)
     return self.m_nodes[node_id]
   end
 
-  -- @spec #get_node_group(pos: Vector3, group_name: String): Integer
+  --- @spec #get_node_group(pos: Vector3, group_name: String): Integer
   function ic:get_node_group(pos, group_name)
     local entry = self:get_node(pos)
 
@@ -198,18 +203,19 @@ do
     return 0
   end
 
-  -- @spec #update_node(
-  --   pos: Vector3,
-  --   node: ClusterNode,
-  --   groups: Table<String, Integer>
-  -- ): (Boolean, error: String)
+  --- @spec #update_node(
+  ---   pos: Vector3,
+  ---   node: ClusterNode,
+  ---   groups: Table<String, Integer>
+  --- ): (Boolean, error: String)
   function ic:update_node(pos, node, groups)
     local node_id = hash_pos(pos)
     local old_node_entry = self.m_nodes[node_id]
 
     if old_node_entry then
+      local group_nodes
       for group_name,group_value in pairs(old_node_entry.groups) do
-        local group_nodes = self.m_group_nodes[group_name]
+        group_nodes = self.m_group_nodes[group_name]
         if group_nodes then
           group_nodes[node_id] = nil
           if not next(group_nodes) then
@@ -239,15 +245,16 @@ do
     end
   end
 
-  -- @spec #remove_node(pos: Vector3, node: ClusterNode, reason: String): (Boolean, error: String)
+  --- @spec #remove_node(pos: Vector3, node: ClusterNode, reason: String): (Boolean, error: String)
   function ic:remove_node(pos, node, reason)
     local node_id = hash_pos(pos)
 
     local node_entry = self.m_nodes[node_id]
     if node_entry then
       -- remove from groups
+      local group_nodes
       for group_name,group_value in pairs(node_entry.groups) do
-        local group_nodes = self.m_group_nodes[group_name]
+        group_nodes = self.m_group_nodes[group_name]
         if group_nodes then
           group_nodes[node_id] = nil
           if not next(group_nodes) then
@@ -277,29 +284,30 @@ do
     end
   end
 
-  -- @spec #on_node_added(node_entry: ClusterNode): void
+  --- @spec #on_node_added(node_entry: ClusterNode): void
   function ic:on_node_added(node_entry)
     --
   end
 
-  -- @spec #on_node_updated(new_node_entry: ClusterNode, old_node_entry: ClusterNode): void
+  --- @spec #on_node_updated(new_node_entry: ClusterNode, old_node_entry: ClusterNode): void
   function ic:on_node_updated(new_node_entry, old_node_entry)
     --
   end
 
-  -- @spec #on_node_removed(node_entry: ClusterNode, reason: String): void
+  --- @spec #on_node_removed(node_entry: ClusterNode, reason: String): void
   function ic:on_node_removed(node_entry, reason)
     --
   end
 
-  -- @spec #on_block_expired(block_id: String): void
+  --- @spec #on_block_expired(block_id: String): void
   function ic:on_block_expired(block_id)
     if self.m_block_nodes[block_id] then
       local old_nodes = self.m_block_nodes[block_id]
       self.m_block_nodes[block_id] = nil
 
+      local node_entry
       for node_id, _ in pairs(old_nodes) do
-        local node_entry = self.m_nodes[node_id]
+        node_entry = self.m_nodes[node_id]
         if node_entry then
           self:remove_node(node_entry.pos, node_entry.node, 'block_expired')
         end
@@ -307,12 +315,12 @@ do
     end
   end
 
-  --
-  -- @type ReducerFunction: function(node_entry: NodeEntry, acc: Any) =>
-  --         (continue_reduce: Boolean, acc: Any)
-  --
+  ---
+  --- @type ReducerFunction: function(node_entry: NodeEntry, acc: Any) =>
+  ---         (continue_reduce: Boolean, acc: Any)
+  ---
 
-  -- @spec #reduce_nodes(acc: Table, reducer: ReducerFunction): Table
+  --- @spec #reduce_nodes(acc: Table, reducer: ReducerFunction): Table
   function ic:reduce_nodes(acc, reducer)
     local continue_reduce = true
     for node_id, node_entry in pairs(self.m_nodes) do
@@ -324,18 +332,19 @@ do
     return acc
   end
 
-  -- @spec #reduce_nodes_in_block(
-  --   block_id: String,
-  --   acc: Table,
-  --   reducer: ReducerFunction
-  -- ): (acc: Any)
+  --- @spec #reduce_nodes_in_block(
+  ---   block_id: String,
+  ---   acc: Table,
+  ---   reducer: ReducerFunction
+  --- ): (acc: Any)
   function ic:reduce_nodes_in_block(block_id, acc, reducer)
     assert(type(block_id) == "number", "expected block_id to be a number")
     local continue_reduce = true
     local node_ids = self.m_block_nodes[block_id]
     if node_ids then
+      local node_entry
       for node_id, _ in pairs(node_ids) do
-        local node_entry = self.m_nodes[node_id]
+        node_entry = self.m_nodes[node_id]
         if node_entry then
           continue_reduce, acc = reducer(node_entry, acc)
           if not continue_reduce then
@@ -350,7 +359,7 @@ do
     return acc
   end
 
-  -- @spec #reduce_nodes_of_groups(groups: String[], acc: Any, ReducerFunction): (acc: Any)
+  --- @spec #reduce_nodes_of_groups(groups: String[], acc: Any, ReducerFunction): (acc: Any)
   function ic:reduce_nodes_of_groups(groups, acc, reducer)
     if type(groups) == "string" then
       groups = {groups}
@@ -399,9 +408,10 @@ do
     return acc
   end
 
-  --
-  -- Optimized version of reduce_nodes_of_groups, targets only a single group
-  --
+  ---
+  --- Optimized version of reduce_nodes_of_groups, targets only a single group
+  ---
+  --- @spec #reduce_nodes_of_group(group: String, acc: Any, reducer: Function/2): Any
   function ic:reduce_nodes_of_group(group, acc, reducer)
     local primary_list = self.m_group_nodes[group]
 
@@ -426,8 +436,8 @@ do
     return acc
   end
 
-  --
-  -- @spec get_nodes_of_group(group_name: String): ClusterNode[]
+  ---
+  --- @spec get_nodes_of_group(group_name: String): ClusterNode[]
   function ic:get_nodes_of_group(group_name)
     local member_list = self.m_group_nodes[group_name]
     local result = {}
@@ -467,7 +477,7 @@ end
 --
 local MAP_BLOCK_SIZE3 = Vector3.new(16, 16, 16)
 
--- @class Clusters
+--- @class Clusters
 local Clusters = foundation.com.Class:extends("YATM.Clusters")
 do
   local ic = Clusters.instance_class
@@ -801,8 +811,9 @@ do
 
     local cluster_ids = self.m_node_clusters[node_id]
     if cluster_ids then
+      local cluster
       for cluster_id, _ in pairs(cluster_ids) do
-        local cluster = self:get_cluster(cluster_id)
+        cluster = self:get_cluster(cluster_id)
 
         if cluster then
           if cluster.groups[group_name] then
@@ -815,7 +826,7 @@ do
     return nil
   end
 
-  -- @spec #reduce_node_clusters_by_id(node_id: Integer, acc: Any, reducer: Function/2): (acc: Any)
+  --- @spec #reduce_node_clusters_by_id(node_id: Integer, acc: Any, reducer: Function/2): (acc: Any)
   function ic:reduce_node_clusters_by_id(node_id, acc, reducer)
     local node_clusters = self.m_node_clusters[node_id]
     if node_clusters then
@@ -837,7 +848,7 @@ do
     return acc
   end
 
-  -- @spec #reduce_node_clusters(pos: Vector3, acc: Any, reducer: Function/2): (acc: Any)
+  --- @spec #reduce_node_clusters(pos: Vector3, acc: Any, reducer: Function/2): (acc: Any)
   function ic:reduce_node_clusters(pos, acc, reducer)
     assert(pos, "expected a position")
     local node_id = minetest.hash_node_position(pos)
@@ -848,7 +859,7 @@ do
   -- System Management
   --
 
-  -- @spec register_system(cluster_group: String, system_id: String, update: Function/1): void
+  --- @spec register_system(cluster_group: String, system_id: String, update: Function/1): void
   function ic:register_system(cluster_group, system_id, update)
     if self.m_systems[system_id] then
       error("a system system_id=" .. system_id .. " is already registered")
@@ -981,9 +992,10 @@ do
       local handler_trace
       local event
 
+      local cluster_group
       for index = 1,len do
         event = node_event_queue[index]
-        local cluster_group = event.cluster_group
+        cluster_group = event.cluster_group
 
         handlers = self.m_node_event_handlers[cluster_group]
 
@@ -1086,11 +1098,11 @@ do
     end
   end
 
-  --
-  -- Invokes all recently registered next_tick callbacks
-  -- The callbacks are cleared afterwards
-  --
-  -- @spec _handle_next_tick_calls(dtime: Float): void
+  ---
+  --- Invokes all recently registered next_tick callbacks
+  --- The callbacks are cleared afterwards
+  ---
+  --- @spec _handle_next_tick_calls(dtime: Float): void
   function ic:_handle_next_tick_calls(dtime)
     if not self.m_next_tick_callbacks:is_empty() then
       local data = self.m_next_tick_callbacks:data()
@@ -1098,8 +1110,9 @@ do
 
       -- allows the callbacks to register another next_tick
       self.m_next_tick_callbacks:clear()
+      local item
       for i = 1,size do
-        local item = data[i]
+        item = data[i]
         item(self, dtime)
       end
     end

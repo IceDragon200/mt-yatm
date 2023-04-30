@@ -8,18 +8,21 @@ local table_keys = assert(foundation.com.table_keys)
 local table_merge = assert(foundation.com.table_merge)
 local DIR6_TO_VEC3 = assert(foundation.com.Directions.DIR6_TO_VEC3)
 local clusters = assert(yatm.clusters)
+local list = assert(foundation.com.List)
 
 local SimpleCluster = foundation.com.Class:extends("SimpleCluster")
 do
   local ic = SimpleCluster.instance_class
 
-  --
-  -- Options:
-  -- * `cluster_group` - the name of the group this simple cluster will register as in the clusters
-  --                     system
-  -- * `node_group` - the group the node MUST be apart of to be successfully registered in the
-  --                  cluster
-  -- * `log_group` - a prefix used when logging information from the cluster
+  ---
+  --- Options:
+  --- * `cluster_group` - the name of the group this simple cluster will register as in the clusters
+  ---                     system
+  --- * `node_group` - the group the node MUST be apart of to be successfully registered in the
+  ---                  cluster
+  --- * `log_group` - a prefix used when logging information from the cluster
+  ---
+  --- @spec #initialize(options: Table): void
   function ic:initialize(options)
     if type(options) ~= "table" then
       error("expected options to be a table (got " .. type(options) .. ")")
@@ -35,19 +38,21 @@ do
     self.terminate_reason = false
   end
 
+  --- @spec #log(...): void
   function ic:log(...)
     if self.m_enable_logs then
       print(self.m_log_group, ...)
     end
   end
 
-  -- @spec #terminate(reason: Any): void
+  --- @spec #terminate(reason: Any): void
   function ic:terminate(reason)
     self:log("terminated")
     self.terminated = true
     self.terminate_reason = reason or 'shutdown'
   end
 
+  --- @spec #get_cluster_groups(): Table
   function ic:get_cluster_groups()
     return {
       [self.m_cluster_group] = 1,
@@ -55,12 +60,12 @@ do
     }
   end
 
-  -- @spec &register_system(id: String, update: Function/3): void
-  function ic:register_system(id, update)
-    clusters:register_system(self.m_cluster_group, id, update)
+  --- @spec &register_system(id: String, callback: Function/3): void
+  function ic:register_system(id, callback)
+    clusters:register_system(self.m_cluster_group, id, callback)
   end
 
-  -- @spec #get_node_cluster(pos: Vector3): nil | Cluster
+  --- @spec #get_node_cluster(pos: Vector3): nil | Cluster
   function ic:get_node_cluster(pos)
     assert(pos, "expected node position")
 
@@ -73,7 +78,7 @@ do
     end)
   end
 
-  -- @spec #get_node_cluster_by_id(id: Integer): nil | Cluster
+  --- @spec #get_node_cluster_by_id(id: Integer): nil | Cluster
   function ic:get_node_cluster_by_id(id)
     return clusters:reduce_node_clusters_by_id(id, nil, function (cluster, acc)
       if cluster.groups[self.m_cluster_group] then
@@ -84,7 +89,7 @@ do
     end)
   end
 
-  -- @spec #get_node(pos: Vector3): nil | ClusterNode
+  --- @spec #get_node(pos: Vector3): nil | ClusterNode
   function ic:get_node(pos)
     local cluster = self:get_node_cluster(pos)
 
@@ -95,7 +100,7 @@ do
     return nil
   end
 
-  -- @spec #get_node_by_id(id: Integer): nil | ClusterNode
+  --- @spec #get_node_by_id(id: Integer): nil | ClusterNode
   function ic:get_node_by_id(id)
     local cluster = self:get_node_cluster_by_id(id)
 
@@ -106,6 +111,8 @@ do
     return nil
   end
 
+  --- @overridable
+  --- @spec #get_node_infotext(Vector3): String
   function ic:get_node_infotext(pos)
     assert(pos, "expected node position")
 
@@ -120,6 +127,7 @@ do
     end)
   end
 
+  --- @overridable
   function ic:get_node_groups(node)
     local nodedef = minetest.registered_nodes[node.name]
     if nodedef and nodedef.simple_network then
@@ -129,7 +137,7 @@ do
     end
   end
 
-  -- @spec #schedule_add_node(pos: Vector3, node: NodeRef): void
+  --- @spec #schedule_add_node(pos: Vector3, node: NodeRef): void
   function ic:schedule_add_node(pos, node)
     self:log("schedule_add_node", minetest.pos_to_string(pos), node.name)
     local nodedef = minetest.registered_nodes[node.name]
@@ -554,19 +562,19 @@ do
 
   local fspec = assert(foundation.com.formspec.api)
 
-  --
-  -- Helper function for rendering cluster members in the cluster tool
-  --
-  -- Usage:
-  --   yatm.cluster_tool.register_cluster_tool_render(
-  --     CLUSTER_GROUP,
-  --     simple_cluster_instance:method("cluster_tool_render")
-  --   )
-  --
-  -- Args:
-  -- * `cluster` - a Clusters.Cluster instance
-  -- * `formspec` - the formspec from the cluster tool render process
-  -- * `render_state` - state map containing the cluster information
+  ---
+  --- Helper function for rendering cluster members in the cluster tool
+  ---
+  --- Usage:
+  ---   yatm.cluster_tool.register_cluster_tool_render(
+  ---     CLUSTER_GROUP,
+  ---     simple_cluster_instance:method("cluster_tool_render")
+  ---   )
+  ---
+  --- Args:
+  --- * `cluster` - a Clusters.Cluster instance
+  --- * `formspec` - the formspec from the cluster tool render process
+  --- * `render_state` - state map containing the cluster information
   function ic:cluster_tool_render(cluster, formspec, render_state)
     local registered_nodes_with_count =
       cluster:reduce_nodes({}, function (node_entry, acc)
