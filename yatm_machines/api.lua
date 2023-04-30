@@ -6,7 +6,7 @@ local cluster_thermal = assert(yatm.cluster.thermal)
 local Energy = assert(yatm.energy)
 local en_receive_meta_energy = assert(Energy.receive_meta_energy)
 
--- @namespace yatm.devices
+--- @namespace yatm.devices
 local devices = {
   ENERGY_BUFFER_KEY = "energy_buffer",
   HEAT_MODIFIER_KEY = "heat_modifier",
@@ -22,7 +22,7 @@ local REASON_STORED_ENERGY = { reason = "stored_energy" }
 local REASON_CONSUMED_ENERGY = { reason = "consumed_energy" }
 local REASON_IDLE = { reason = "idle" }
 
--- @spec device_on_construct(pos: Vector3): void
+--- @spec device_on_construct(pos: Vector3): void
 function devices.device_on_construct(pos)
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
@@ -40,7 +40,7 @@ function devices.device_on_construct(pos)
   end
 end
 
--- @spec device_on_destruct(pos: Vector3): void
+--- @spec device_on_destruct(pos: Vector3): void
 function devices.device_on_destruct(pos)
   --
   local node = minetest.get_node(pos)
@@ -59,17 +59,17 @@ function devices.device_on_destruct(pos)
   end
 end
 
--- @spec device_after_destruct(pos: Vector3, old_node: NodeRef): void
+--- @spec device_after_destruct(pos: Vector3, old_node: NodeRef): void
 function devices.device_after_destruct(pos, old_node)
   --
 end
 
--- @spec device_after_place_node(
---   pos: Vector3,
---   placer: PlayerRef,
---   item_stack: ItemStack,
---   pointed_thing: PointedThing
--- ): void
+--- @spec device_after_place_node(
+---   pos: Vector3,
+---   placer: PlayerRef,
+---   item_stack: ItemStack,
+---   pointed_thing: PointedThing
+--- ): void
 function devices.device_after_place_node(pos, placer, item_stack, pointed_thing)
   --
 end
@@ -122,6 +122,7 @@ function devices.device_swap_node_by_state(pos, node, new_state)
   return false
 end
 
+--- @spec device_transition_device_state(Vector3, NodeRef, dev_state: String): Boolean
 function devices.device_transition_device_state(pos, node, dev_state)
   local meta = minetest.get_meta(pos)
   local state
@@ -143,7 +144,7 @@ function devices.device_transition_device_state(pos, node, dev_state)
   return devices.device_swap_node_by_state(pos, node, state)
 end
 
--- @spec get_energy_capacity(Vector3, NodeRef): Number
+--- @spec get_energy_capacity(Vector3, NodeRef): Number
 function devices.get_energy_capacity(pos, node)
   local nodedef = minetest.registered_nodes[node.name]
   local en = nodedef.yatm_network.energy
@@ -157,9 +158,9 @@ function devices.get_energy_capacity(pos, node)
   end
 end
 
---
---
--- @spec device_passive_consume_energy(Vector3, Node, Integer, dtime: Float, Trace): Integer
+---
+---
+--- @spec device_passive_consume_energy(Vector3, Node, Integer, dtime: Float, Trace): Integer
 function devices.device_passive_consume_energy(pos, node, total_available, dtime, trace)
   local span
   if trace then
@@ -217,25 +218,25 @@ function devices.set_idle(meta, duration_sec)
   meta:set_float("idle_time", duration_sec)
 end
 
--- A WorkContext contains the current node information on the worker node as well as some preloaded
--- structures, its purpose is to provide all the necessary information for a #work/1 function which,
--- replaces the &work/5+ function.
---
--- @class WorkContext
+--- A WorkContext contains the current node information on the worker node as well as some preloaded
+--- structures, its purpose is to provide all the necessary information for a #work/1 function which,
+--- replaces the &work/5+ function.
+---
+--- @class WorkContext
 local WorkContext = foundation.com.Class:extends("yatm.devices.WorkContext")
 local ic = WorkContext.instance_class
 
--- Initialize a new WorkContext.
---
--- @spec #initialize(): void
+--- Initialize a new WorkContext.
+---
+--- @spec #initialize(): void
 function ic:initialize()
   --
 end
 
--- Initialize a new WorkContext given the position, node reference, elapsed time and an optional
--- trace context.
---
--- @spec #setup(pos: Vector3, node: NodeRef, dtime: Float, trace?: Trace): self
+--- Initialize a new WorkContext given the position, node reference, elapsed time and an optional
+--- trace context.
+---
+--- @spec #setup(pos: Vector3, node: NodeRef, dtime: Float, trace?: Trace): self
 function ic:setup(pos, node, dtime, trace)
   -- @member pos: Vector3
   self.pos = pos
@@ -260,8 +261,8 @@ function ic:setup(pos, node, dtime, trace)
   return self
 end
 
---
--- @spec #refresh_node(): void
+---
+--- @spec #refresh_node(): void
 function ic:refresh_node()
   -- refresh the node
   self.node = minetest.get_node_or_nil(self.pos)
@@ -271,56 +272,56 @@ function ic:refresh_node()
   self.meta = minetest.get_meta(self.pos, self.node)
 end
 
--- @spec #precalculate(): void
+--- @spec #precalculate(): void
 function ic:precalculate()
-  -- affects how much work is done by a machine per tick (higher = better)
-  -- higher the rate, the more work can be done using the same amount of energy
-  -- work rate is also affected by the machine's preferred thermal profile, and any
-  -- upgrades that may be installed
-  --
-  -- @member work_rate: Float
+  --- affects how much work is done by a machine per tick (higher = better)
+  --- higher the rate, the more work can be done using the same amount of energy
+  --- work rate is also affected by the machine's preferred thermal profile, and any
+  --- upgrades that may be installed
+  ---
+  --- @member work_rate: Float
   self.work_rate = 1.0
 
-  -- The heat modifier is the machine's current thermal profile
-  -- the higher the modifier, the hotter the machine is, this works well for
-  -- machines like ovens, furnaces and compactors.
-  -- While the modifier is negative, the machine will be colder which works well
-  -- for machines like condensers, freezers etc...
-  -- The heat modifier is affected by the machine's work itself and thermal
-  -- plates that may be attached.
-  --
-  -- @member heat_modifier: Float
+  --- The heat modifier is the machine's current thermal profile
+  --- the higher the modifier, the hotter the machine is, this works well for
+  --- machines like ovens, furnaces and compactors.
+  --- While the modifier is negative, the machine will be colder which works well
+  --- for machines like condensers, freezers etc...
+  --- The heat modifier is affected by the machine's work itself and thermal
+  --- plates that may be attached.
+  ---
+  --- @member heat_modifier: Float
   self.heat_modifier = self.meta:get_float(devices.HEAT_MODIFIER_KEY)
 
-  -- Nuclear protection affects how much radioactivty a machine can safely absorb
-  -- this decreases the radioactivity in the block as well.
-  -- This value ranges between NUCLEAR_PROTECTION_MIN and NUCLEAR_PROTECTION_MAX:
-  --   NUCLEAR_PROTECTION_MIN means the node has a tendency to absorb more radiation than normal,
-  --     this will likely have negative consequences on the machine's contents.
-  --   0 being no protection at all, machines with no protection are subject to radiation damage,
-  --     this can affect the machine's contents and transforms them in dangerous ways.
-  --   NUCLEAR_PROTECTION_MAX being the highest.
-  -- This value will decrement every tick unless increased by a nuclear thermal plate
-  -- or a nuclear upgrade.
-  -- This value will also decrement every time it has to absorb radiation
-  -- If by absorbing radiation it hits negative a `&on_radiation_damage/5` will take place
-  --
-  -- @member nuclear_protection: Integer
+  --- Nuclear protection affects how much radioactivty a machine can safely absorb
+  --- this decreases the radioactivity in the block as well.
+  --- This value ranges between NUCLEAR_PROTECTION_MIN and NUCLEAR_PROTECTION_MAX:
+  ---   NUCLEAR_PROTECTION_MIN means the node has a tendency to absorb more radiation than normal,
+  ---     this will likely have negative consequences on the machine's contents.
+  ---   0 being no protection at all, machines with no protection are subject to radiation damage,
+  ---     this can affect the machine's contents and transforms them in dangerous ways.
+  ---   NUCLEAR_PROTECTION_MAX being the highest.
+  --- This value will decrement every tick unless increased by a nuclear thermal plate
+  --- or a nuclear upgrade.
+  --- This value will also decrement every time it has to absorb radiation
+  --- If by absorbing radiation it hits negative a `&on_radiation_damage/5` will take place
+  ---
+  --- @member nuclear_protection: Integer
   self.nuclear_protection = self.meta:get_int(devices.NUCLEAR_PROTECTION_KEY)
 
-  -- affects how much energy is used per tick (lower = better)
-  -- the higher the rate, the more energy is used for the same unit of work
-  --
-  -- @member energy_rate: Float
+  --- affects how much energy is used per tick (lower = better)
+  --- the higher the rate, the more energy is used for the same unit of work
+  ---
+  --- @member energy_rate: Float
   self.energy_rate = 1.0
 
-  -- determine the total stored energy
-  --
-  -- @member total_stored_energy: Integer
+  --- determine the total stored energy
+  ---
+  --- @member total_stored_energy: Integer
   self.total_stored_energy = Energy.get_meta_energy(self.meta, devices.ENERGY_BUFFER_KEY)
 end
 
--- @spec #run(): void
+--- @spec #run(): void
 function ic:run()
   -- extract the yatm network definition from the node definition, and ensure it exists
   local ym = assert(self.nodedef.yatm_network)
@@ -397,9 +398,9 @@ function ic:run()
   end
 end
 
--- Sets the node's expected UP state (usually "on" or "idle")
---
--- @spec #set_up_state(state: String): void
+--- Sets the node's expected UP state (usually "on" or "idle")
+---
+--- @spec #set_up_state(state: String): void
 function ic:set_up_state(state)
   self.meta:set_string("up_state", state)
   if self.nodedef.yatm_network.state ~= state then
@@ -409,12 +410,12 @@ function ic:set_up_state(state)
   end
 end
 
--- @namespace yatm.devices
+--- @namespace yatm.devices
 devices.WorkContext = WorkContext
 
 local ctx = WorkContext:new()
 
--- @spec worker_update(pos: Vector3, node: NodeRef, dtime: Float, trace: Trace): void
+--- @spec worker_update(pos: Vector3, node: NodeRef, dtime: Float, trace: Trace): void
 function devices.worker_update(pos, node, dtime, ot)
   --local ctx = WorkContext:new():setup(pos, node, dtime, ot)
   ctx:setup(pos, node, dtime, ot)

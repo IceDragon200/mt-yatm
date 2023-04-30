@@ -314,7 +314,46 @@ yatm_machines.autotest_suite:define_property("has_rightclick_formspec", {
 
       wait_for_next_tick_on_clusters(suite, state, 2.0)
 
-      assert(trigger_rightclick_on_node(subject_pos, state.player), "expected rightclick to trigger")
+      assert(trigger_rightclick_on_pos(subject_pos, state.player), "expected rightclick to trigger")
+
+      -- wait three seconds, this will usually refresh the formspec at least three times
+      -- for most cases
+      suite:wait(3)
+    end,
+  },
+
+  teardown = function (suite, state)
+    minetest.close_formspec(state.player:get_player_name(), "")
+    suite:clear_test_area()
+    wait_for_next_tick_on_clusters(suite, state, 1.0)
+  end,
+})
+
+yatm_machines.autotest_suite:define_property("is_steam_turbine", {
+  description = "Is Steam Turbine",
+  detail = [[
+  The device behaves like a steam turbine.
+  ]],
+
+  setup = function (suite, state)
+    local player = assert(minetest.get_player_by_name("singleplayer"))
+
+    state.player = player
+
+    return state
+  end,
+
+  tests = {
+    ["Will show a formspec when right-clicked"] = function (suite, state)
+      suite:clear_test_area()
+
+      local subject_pos = vector.new(0, 0, 0)
+
+      minetest.set_node(subject_pos, assert(state.node))
+
+      wait_for_next_tick_on_clusters(suite, state, 2.0)
+
+      assert(trigger_rightclick_on_pos(subject_pos, state.player), "expected rightclick to trigger")
 
       -- wait three seconds, this will usually refresh the formspec at least three times
       -- for most cases

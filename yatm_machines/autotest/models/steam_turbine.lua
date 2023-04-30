@@ -10,5 +10,8 @@ yatm_machines.autotest_suite:define_model("steam_turbine", {
     {
       property = "has_rightclick_formspec",
     },
+    {
+      property = "is_steam_turbine",
+    },
   }
 })
