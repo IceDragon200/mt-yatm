@@ -61,6 +61,8 @@ yatm.devices.register_stateful_network_device({
     spacetime_device = 1,
     teleporter_relay = 1,
     yatm_energy_device = 1,
+    yatm_cluster_device = 1,
+    yatm_cluster_energy = 1,
   },
 
   drop = teleporter_relay_yatm_network.states.off,

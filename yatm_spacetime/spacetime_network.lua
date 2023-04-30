@@ -1,3 +1,7 @@
+--
+-- Spacetime Network, not to be confused with Gate Network which is used specifically for managing
+-- Teleporter groups.
+--
 local is_blank = assert(foundation.com.is_blank)
 local is_table_empty = assert(foundation.com.is_table_empty)
 
@@ -6,7 +10,10 @@ local SpacetimeMeta = assert(yatm_spacetime.SpacetimeMeta)
 local SpacetimeNetwork = foundation.com.Class:extends("SpacetimeNetwork")
 local ic = SpacetimeNetwork.instance_class
 
+--- @spec #initialize(description: String): void
 function ic:initialize(description)
+  ic._super.initialize(self)
+
   self.m_description = description
   self.m_members = {}
   self.m_members_by_address = {}
@@ -169,9 +176,9 @@ function ic:unload_block(block_id)
   local block_members = self.m_members_by_block[block_id]
   if block_members then
     self.m_members_by_block[block_id] = nil
-
+    local member
     for member_id,_ in pairs(block_members) do
-      local member = self.m_members[member_id]
+      member = self.m_members[member_id]
       self:unregister_device(member.pos)
     end
   end

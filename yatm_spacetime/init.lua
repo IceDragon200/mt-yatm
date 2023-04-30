@@ -6,21 +6,12 @@ local mod = foundation.new_module("yatm_spacetime", "1.1.0")
 mod:require("util.lua")
 mod:require("spacetime_meta.lua")
 mod:require("spacetime_network.lua")
+mod:require("gate_cluster.lua")
+mod:require("hooks.lua")
 mod:require("api.lua")
 
 mod:require("nodes.lua")
 mod:require("items.lua")
-
-minetest.register_lbm({
-  name = "yatm_spacetime:addressable_spacetime_device_lbm",
-  nodenames = {
-    "group:addressable_spacetime_device",
-  },
-  run_at_every_load = true,
-  action = function (pos, node)
-    yatm_spacetime.network:maybe_update_node(pos, node)
-  end,
-})
 
 if foundation.com.Luna then
   mod:require("tests.lua")

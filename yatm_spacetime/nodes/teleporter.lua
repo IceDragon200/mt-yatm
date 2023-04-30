@@ -10,7 +10,7 @@ local Directions = assert(foundation.com.Directions)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
-local Network = assert(yatm.spacetime.network)
+local spacetime_network = assert(yatm.spacetime.network)
 local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
 
 local teleporter_node_box = {
@@ -36,17 +36,21 @@ local function find_all_connected_relays(pos, collected)
     visited[hash] = vpos
   end
 
+  local old_to_visit
+  local vhash
+  local node
+  local nodedef
   while not is_table_empty(to_visit) do
-    local old_to_visit = to_visit
+    old_to_visit = to_visit
     to_visit = {}
 
     for _,vpos in ipairs(old_to_visit) do
-      local vhash = minetest.hash_node_position(vpos)
+      vhash = minetest.hash_node_position(vpos)
       if not visited[vhash] then
         visited[vhash] = vpos
-        local node = minetest.get_node(vpos)
+        node = minetest.get_node(vpos)
         if node then
-          local nodedef = minetest.registered_nodes[node.name]
+          nodedef = minetest.registered_nodes[node.name]
           if nodedef then
             if nodedef.groups.teleporter_relay then
               collected[vhash] = vpos
@@ -72,7 +76,7 @@ local function maybe_teleport_all_players_on_teleporter(pos, node)
     local hash = minetest.hash_node_position(pos)
     local positions = {}
 
-    Network:each_member_in_group_by_address("player_teleporter_destination", address, function (member_hash, member)
+    spacetime_network:each_member_in_group_by_address("player_teleporter_destination", address, function (member_hash, member)
       if member_hash ~= hash then
         positions[member_hash] = member.pos
       end
@@ -84,12 +88,15 @@ local function maybe_teleport_all_players_on_teleporter(pos, node)
     else
       local all_sources = find_all_connected_relays(pos, { [hash] = pos })
       local hashes = table_keys(positions)
+      local objects
+      local h
+      local target_pos
       for _,source_pos in pairs(all_sources) do
-        local objects = minetest.get_objects_inside_radius(source_pos, 1)
+        objects = minetest.get_objects_inside_radius(source_pos, 1)
         for _,object in ipairs(objects) do
           if object:is_player() then
-            local h = list_sample(hashes)
-            local target_pos = positions[h]
+            h = list_sample(hashes)
+            target_pos = positions[h]
             object:set_pos(target_pos)
           end
         end
@@ -141,13 +148,13 @@ local function teleporter_after_place_node(pos, placer, itemstack, pointed_thing
 
   local address = SpacetimeMeta.patch_address(new_meta)
   local node = minetest.get_node(pos)
-  Network:maybe_register_node(pos, node)
+  spacetime_network:maybe_register_node(pos, node)
 
   yatm.devices.device_after_place_node(pos, placer, itemstack, pointed_thing)
 end
 
 local function teleporter_on_destruct(pos)
-  Network:unregister_device(pos)
+  spacetime_network:unregister_device(pos)
   yatm.devices.device_on_destruct(pos)
 end
 
@@ -212,9 +219,12 @@ yatm.devices.register_stateful_network_device({
     spacetime_device = 1,
     addressable_spacetime_device = 1,
     yatm_energy_device = 1,
+    yatm_cluster_device = 1,
+    yatm_cluster_energy = 1,
   },
 
   drop = teleporter_yatm_network.states.off,
+  use_texture_alpha = "opaque",
   tiles = {
     "yatm_teleporter_top.off.png",
     "yatm_teleporter_bottom.png",
@@ -223,7 +233,6 @@ yatm.devices.register_stateful_network_device({
     "yatm_teleporter_side.off.png",
     "yatm_teleporter_side.off.png",
   },
-  use_texture_alpha = "opaque",
 
   drawtype = "nodebox",
   paramtype = "light",
@@ -261,7 +270,7 @@ yatm.devices.register_stateful_network_device({
 
     if new_node.name ~= node.name then
       minetest.swap_node(pos, new_node)
-      Network:maybe_update_node(pos, new_node)
+      spacetime_network:maybe_update_node(pos, new_node)
     end
     yatm.queue_refresh_infotext(pos, new_node)
 
@@ -433,6 +442,7 @@ local on_construct = function (pos)
   local node = minetest.get_node(pos)
 
   data_network:add_node(pos, node)
+  yatm.devices.device_on_construct(pos)
 end
 
 yatm.devices.register_stateful_network_device({
@@ -503,7 +513,7 @@ yatm.devices.register_stateful_network_device({
     if new_node.name ~= node.name then
       minetest.swap_node(pos, new_node)
       data_network:upsert_member(pos, new_node)
-      Network:maybe_update_node(pos, new_node)
+      spacetime_network:maybe_update_node(pos, new_node)
     end
 
     yatm.queue_refresh_infotext(pos, new_node)
