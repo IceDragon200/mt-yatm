@@ -42,7 +42,7 @@ yatm_woodcraft.autotest_suite:define_property("is_sawmill", {
 
   tests = {
     ["Will do nothing if given nothing"] = function (suite, state)
-      assert(trigger_rightclick_on_node(state.pos, state.player))
+      assert(trigger_rightclick_on_pos(state.pos, state.player))
 
       local inv = state.player:get_inventory()
       -- print(inv:inspect())
@@ -52,7 +52,7 @@ yatm_woodcraft.autotest_suite:define_property("is_sawmill", {
     ["Will convert logs to cores"] = function (suite, state)
       local item_stack = ItemStack("nokore_world_tree_oak:oak_log")
       state.player:get_inventory():set_stack("main", state.player.hotbar_index, item_stack)
-      assert(trigger_rightclick_on_node(state.pos, state.player))
+      assert(trigger_rightclick_on_pos(state.pos, state.player))
 
       local inv = state.player:get_inventory()
       assert(not inv:is_empty("main"))
@@ -74,7 +74,7 @@ yatm_woodcraft.autotest_suite:define_property("is_sawmill", {
     ["Will convert cores to planks"] = function (suite, state)
       local item_stack = ItemStack("yatm_woodcraft:oak_log_core")
       state.player:get_inventory():set_stack("main", state.player.hotbar_index, item_stack)
-      assert(trigger_rightclick_on_node(state.pos, state.player))
+      assert(trigger_rightclick_on_pos(state.pos, state.player))
 
       local inv = state.player:get_inventory()
       assert(not inv:is_empty("main"))
@@ -91,7 +91,7 @@ yatm_woodcraft.autotest_suite:define_property("is_sawmill", {
     ["Will convert planks to slabs"] = function (suite, state)
       local item_stack = ItemStack("nokore_world_tree_oak:oak_planks")
       state.player:get_inventory():set_stack("main", state.player.hotbar_index, item_stack)
-      assert(trigger_rightclick_on_node(state.pos, state.player))
+      assert(trigger_rightclick_on_pos(state.pos, state.player))
 
       local inv = state.player:get_inventory()
       assert(not inv:is_empty("main"))
@@ -108,7 +108,7 @@ yatm_woodcraft.autotest_suite:define_property("is_sawmill", {
     ["Will convert slabs to panels"] = function (suite, state)
       local item_stack = ItemStack("nokore_world_tree_oak:oak_planks_slab")
       state.player:get_inventory():set_stack("main", state.player.hotbar_index, item_stack)
-      assert(trigger_rightclick_on_node(state.pos, state.player))
+      assert(trigger_rightclick_on_pos(state.pos, state.player))
 
       local inv = state.player:get_inventory()
       assert(not inv:is_empty("main"))
