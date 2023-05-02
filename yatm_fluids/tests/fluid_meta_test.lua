@@ -1,4 +1,4 @@
-local MetaRef = assert(foundation.com.FakeMetaRef)
+local HeadlessMetaDataRef = assert(foundation.com.headless.MetaDataRef)
 local Luna = assert(yatm.Luna)
 
 local m = assert(yatm.fluids.FluidMeta)
@@ -8,7 +8,7 @@ local case = Luna:new("yatm.fluids.FluidMeta")
 
 case:describe("set_fluid/4", function (t2)
   t2:test("will not modify meta if commit is false", function (t3)
-    local meta = MetaRef:new()
+    local meta = HeadlessMetaDataRef:new()
 
     m.set_fluid(meta, "tank", FluidStack.new("yatm_fluids:steam", 1000), false)
 
@@ -16,7 +16,7 @@ case:describe("set_fluid/4", function (t2)
   end)
 
   t2:test("will modify meta if commit is true", function (t3)
-    local meta = MetaRef:new()
+    local meta = HeadlessMetaDataRef:new()
 
     m.set_fluid(meta, "tank", FluidStack.new("yatm_fluids:steam", 1000), true)
 
@@ -28,7 +28,7 @@ case:describe("set_fluid/4", function (t2)
   end)
 
   t2:test("can modify meta and replace fluid if commit is true", function (t3)
-    local meta = MetaRef:new()
+    local meta = HeadlessMetaDataRef:new()
 
     m.set_fluid(meta, "tank", FluidStack.new("yatm_fluids:steam", 1000), true)
 
@@ -42,7 +42,7 @@ case:describe("set_fluid/4", function (t2)
   end)
 
   t2:test("can set multiple keys", function (t3)
-    local meta = MetaRef:new()
+    local meta = HeadlessMetaDataRef:new()
 
     m.set_fluid(meta, "water_tank", FluidStack.new("yatm_fluids:steam", 1000), true)
     m.set_fluid(meta, "steam_tank", FluidStack.new("yatm_fluids:steam", 4000), true)
@@ -62,7 +62,7 @@ end)
 
 case:describe("drain_fluid/6", function (t2)
   t2:test("will not modify meta if commit is false", function (t3)
-    local meta = MetaRef:new()
+    local meta = HeadlessMetaDataRef:new()
 
     m.set_fluid(meta, "water_tank", FluidStack.new("yatm_fluids:steam", 1000), true)
 
@@ -83,7 +83,7 @@ case:describe("drain_fluid/6", function (t2)
   end)
 
   t2:test("will modify meta if commit is true", function (t3)
-    local meta = MetaRef:new()
+    local meta = HeadlessMetaDataRef:new()
 
     m.set_fluid(meta, "water_tank", FluidStack.new("yatm_fluids:steam", 1000), true)
 
@@ -104,7 +104,7 @@ end)
 
 case:describe("fill_fluid/6", function (t2)
   t2:test("will not modify meta if commit is false", function (t3)
-    local meta = MetaRef:new()
+    local meta = HeadlessMetaDataRef:new()
 
     local used_stack, new_stack = m.fill_fluid(meta, "water_tank", FluidStack.new("yatm_fluids:steam", 1000), 1000, 1000, false)
 
@@ -121,7 +121,7 @@ case:describe("fill_fluid/6", function (t2)
   end)
 
   t2:test("will modify meta if commit is true", function (t3)
-    local meta = MetaRef:new()
+    local meta = HeadlessMetaDataRef:new()
 
     local used_stack, new_stack = m.fill_fluid(meta, "water_tank", FluidStack.new("yatm_fluids:steam", 1000), 1000, 1000, true)
 

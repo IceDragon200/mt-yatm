@@ -1,5 +1,5 @@
 local Directions = assert(foundation.com.Directions)
-local FakeMetaRef = assert(foundation.com.FakeMetaRef)
+local HeadlessMetaDataRef = assert(foundation.com.headless.MetaDataRef)
 local table_merge = assert(foundation.com.table_merge)
 
 local lock_dirs = {
@@ -24,7 +24,7 @@ end
 local function mesecon_lock_preserve_metadata(pos, oldnode, old_meta_table, drops)
   local stack = drops[1]
 
-  local old_meta = FakeMetaRef:new(old_meta_table)
+  local old_meta = HeadlessMetaDataRef:new(old_meta_table)
   local new_meta = stack:get_meta()
   yatm_security.copy_lockable_object_pubkey(old_meta, new_meta)
   new_meta:set_string(old_meta:get_string("description"))

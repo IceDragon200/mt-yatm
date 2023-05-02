@@ -8,7 +8,7 @@ local cluster_gate = assert(yatm.cluster.gate)
 local Energy = assert(yatm.energy)
 local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
 local spacetime_network = assert(yatm.spacetime.network)
-local FakeMetaRef = assert(foundation.com.FakeMetaRef)
+local HeadlessMetaDataRef = assert(foundation.com.headless.MetaDataRef)
 
 local yatm_network = {
   kind = "machine",
@@ -87,7 +87,7 @@ end
 local function preserve_metadata(pos, oldnode, old_meta_table, drops)
   local stack = drops[1]
 
-  local old_meta = FakeMetaRef:new(old_meta_table)
+  local old_meta = HeadlessMetaDataRef:new(old_meta_table)
   local new_meta = stack:get_meta()
   SpacetimeMeta.copy_address(old_meta, new_meta)
 end

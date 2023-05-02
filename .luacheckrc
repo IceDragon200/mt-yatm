@@ -96,6 +96,16 @@ globals = {
       com = {
         fields = {
           --
+          -- Namespaces
+          --
+          headless = {
+            MetaDataRef = {
+              fields = {
+                new = {},
+              },
+            },
+          },
+          --
           -- Modules
           --
           Color = {
@@ -126,11 +136,6 @@ globals = {
           Class = {
             fields = {
               extends = {},
-            },
-          },
-          FakeMetaRef = {
-            fields = {
-              new = {},
             },
           },
           Luna = {

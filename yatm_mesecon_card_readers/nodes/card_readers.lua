@@ -1,6 +1,6 @@
 local is_blank = assert(foundation.com.is_blank)
 local Groups = assert(foundation.com.Groups)
-local FakeMetaRef = assert(foundation.com.FakeMetaRef)
+local HeadlessMetaDataRef = assert(foundation.com.headless.MetaDataRef)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 
@@ -22,7 +22,7 @@ end
 local function card_reader_preserve_metadata(pos, oldnode, old_meta_table, drops)
   local stack = drops[1]
 
-  local old_meta = FakeMetaRef:new(old_meta_table)
+  local old_meta = HeadlessMetaDataRef:new(old_meta_table)
   local new_meta = stack:get_meta()
 
   yatm_security.copy_chipped_object(old_meta, new_meta)

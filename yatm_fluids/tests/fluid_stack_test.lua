@@ -1,4 +1,3 @@
-local MetaRef = assert(foundation.com.FakeMetaRef)
 local Luna = assert(foundation.com.Luna)
 
 local FluidStack = assert(yatm_fluids.FluidStack)
