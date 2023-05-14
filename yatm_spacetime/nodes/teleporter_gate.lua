@@ -413,13 +413,13 @@ end
 
 local function on_construct(pos)
   local node = minetest.get_node(pos)
-  yatm.clusters.gate:schedule_add_node(pos, node)
+  yatm.cluster.gate:schedule_add_node(pos, node)
   yatm.devices.device_on_construct(pos)
 end
 
 local function on_destruct(pos)
   local node = minetest.get_node(pos)
-  yatm.clusters.gate:schedule_remove_node(pos, node)
+  yatm.cluster.gate:schedule_remove_node(pos, node)
   yatm.devices.device_on_destruct(pos)
 end
 
