@@ -451,9 +451,9 @@ do
     return self:remove_node(pos, node)
   end
 
-  -- @spec #remove_node(Vector3, Node): self
-  function ic:remove_node(pos, node)
-    self:_internal_remove_node(pos, node)
+  --- @spec #remove_node(pos: Vector3): self
+  function ic:remove_node(pos)
+    self:_internal_remove_node(pos)
     self:_queue_refresh(pos, "removed node")
     return self
   end
@@ -660,7 +660,7 @@ do
     return self
   end
 
-  function ic:_internal_remove_node(pos, node)
+  function ic:_internal_remove_node(pos)
     self:log("unregister_member", minetest.pos_to_string(pos))
     local member_id = hash_node_position(pos)
     local entry = self.m_members[member_id]
@@ -1001,7 +1001,7 @@ do
     for device_type, devices in pairs(found) do
       for member_id, pos in pairs(devices) do
         -- go through the unregistration process, in case the node wasn't already unregistered
-        self:_internal_remove_node(pos, nil)
+        self:_internal_remove_node(pos)
 
         local member_entry = self.m_members[member_id] or {}
 
