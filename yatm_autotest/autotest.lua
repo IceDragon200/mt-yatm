@@ -20,7 +20,7 @@ local AutotestSuite = foundation.com.Class:extends("AutotestSuite")
 do
   local ic = AutotestSuite.instance_class
 
-  -- @spec #initialize(): void
+  --- @spec #initialize(): void
   function ic:initialize(name)
     ic._super.initialize(self)
 
@@ -37,7 +37,7 @@ do
     self.m_models = {}
   end
 
-  -- @spec #define_property(name: String, def: Table): void
+  --- @spec #define_property(name: String, def: Table): void
   function ic:define_property(name, def)
     assert(type(name) == "string", "expected a property name")
 
@@ -48,14 +48,20 @@ do
     self.m_properties[name] = def
   end
 
-  -- @spec import_properties(AutotestSuite): void
+  --- @spec #import_properties(AutotestSuite): void
   function ic:import_properties(other)
     for property_name, property in pairs(other.m_properties) do
       self.m_properties[property_name] = property
     end
   end
 
-  -- @spec #define_model(name: String, def: Table): void
+  --- @spec #import_property(AutotestSuite, name: String): void
+  function ic:import_property(other, property_name)
+    local prop = assert(other.m_properties[property_name])
+    self.m_properties[property_name] = prop
+  end
+
+  --- @spec #define_model(name: String, def: Table): void
   function ic:define_model(name, def)
     assert(type(name) == "string", "expected a model name")
     self.m_models[name] = def
