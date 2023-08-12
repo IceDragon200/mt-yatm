@@ -212,6 +212,7 @@ do
     return bytes_written, nil
   end
 
+  --- @spec #binload(Stream): (self, bytes_read: Integer)
   function ic:binload(stream)
     local bytes_read = 0
 

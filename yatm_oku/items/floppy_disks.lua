@@ -1,12 +1,15 @@
+local mod = assert(yatm_oku)
+
 for _,row in ipairs(yatm.colors) do
   local color_basename = row.name
   local color_name = row.description
 
-  minetest.register_craftitem("yatm_oku:floppy_disk_" .. color_basename, {
-    basename = "yatm_oku:floppy_disk",
-    base_description = "Floppy Disk",
+  mod:register_craftitem("floppy_disk_" .. color_basename, {
+    basename = mod:make_name("floppy_disk"),
 
-    description = "Floppy Disk [" .. color_name .. "]",
+    base_description = mod.S("Floppy Disk"),
+
+    description = mod.S("Floppy Disk [" .. color_name .. "]"),
 
     groups = {
       floppy_disk = 1,

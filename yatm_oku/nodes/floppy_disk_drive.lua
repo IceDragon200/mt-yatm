@@ -361,7 +361,7 @@ yatm.devices.register_stateful_network_device({
       secret = random_string62(8)
       meta:set_string("secret", "flpd." .. secret)
     end
-    yatm.computers:upsert_computer(pos, node, meta:get_string("secret"), {
+    yatm.computers:upsert_computer_at_pos(pos, node, meta:get_string("secret"), {
       memory_size = MAX_DISK_SIZE,
     })
   end,

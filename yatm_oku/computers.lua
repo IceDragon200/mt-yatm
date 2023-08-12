@@ -140,7 +140,7 @@ do
       --        and the file closed properly.
       -- Read the state header
       local state, br
-      state, br = ComputerStateHeaderSchemaBase:read(stream, {})
+      state, br = ComputerStateHeaderBaseSchema:read(stream, {})
 
       if state.version == 1 then
         state, br = ComputerStateHeaderSchemaV1:read(stream, {})
@@ -310,7 +310,7 @@ do
 
       if computer.active > 0 then
         local steps_taken, err = computer.oku:step(clock_speed)
-        print("STEPS", ct.name, steps_taken, err)
+        print("STEPS", computer.label, steps_taken, err)
       end
 
       if trace then

@@ -12,7 +12,7 @@ do
   local case = Luna:new("yatm_oku.OKU.isa.MOS6502.Assembler")
 
   case:describe(".parse/1", function (t2)
-    t2:test("test can parse an assembly program", function (t3)
+    t2:test("can parse an assembly program", function (t3)
       local prog =
         "main:\n" ..
         "  LDA #$00\n" ..
