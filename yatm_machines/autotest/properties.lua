@@ -66,9 +66,9 @@ yatm_machines.autotest_suite:define_property("is_network_controller_like", {
   ]],
 
   setup = function (suite, state)
-    suite:clear_test_area()
-
     state.pos = random_pos()
+    suite:clear_test_area(state.pos)
+
     state.node_id = hash_node_position(state.pos)
     minetest.set_node(state.pos, assert(state.node))
 
@@ -125,9 +125,9 @@ yatm_machines.autotest_suite:define_property("is_network_controller", {
   ]],
 
   setup = function (suite, state)
-    suite:clear_test_area()
-
     state.pos = random_pos()
+    suite:clear_test_area(state.pos)
+
     state.node_id = hash_node_position(state.pos)
     minetest.set_node(state.pos, assert(state.node))
 
@@ -182,17 +182,22 @@ yatm_machines.autotest_suite:define_property("is_machine_like", {
   The device exhibits normal machine behaviour, that is it is not a controller nor energy producer
   ]],
 
+  setup = function (suite, state)
+    state.pos = random_pos()
+    suite:clear_test_area(state.pos)
+
+    state.node_id = hash_node_position(state.pos)
+
+    return state
+  end,
+
   tests = {
     ["Will create a device network on construction"] = function (suite, state)
-      suite:clear_test_area()
-
-      local subject_pos = vector.new(0, 0, 0)
-
-      minetest.set_node(subject_pos, assert(state.node))
+      minetest.set_node(state.pos, assert(state.node))
 
       wait_for_next_tick_on_clusters(suite, state, 2.0)
 
-      local cluster = cluster_devices:get_node_cluster(subject_pos)
+      local cluster = cluster_devices:get_node_cluster(state.pos)
 
       if not cluster then
         error("device cluster not available")
@@ -202,7 +207,7 @@ yatm_machines.autotest_suite:define_property("is_machine_like", {
         error("node was expected to not be controller of cluster")
       end
 
-      cluster = cluster_energy:get_node_cluster(subject_pos)
+      cluster = cluster_energy:get_node_cluster(state.pos)
 
       if not cluster then
         error("energy cluster not available")
@@ -210,25 +215,21 @@ yatm_machines.autotest_suite:define_property("is_machine_like", {
     end,
 
     ["Will teardown network upon node removal"] = function (suite, state)
-      suite:clear_test_area()
-
-      local subject_pos = vector.new(0, 0, 0)
-
-      minetest.set_node(subject_pos, assert(state.node))
+      minetest.set_node(state.pos, assert(state.node))
 
       wait_for_next_tick_on_clusters(suite, state, 2.0)
 
-      local cluster = cluster_devices:get_node_cluster(subject_pos)
+      local cluster = cluster_devices:get_node_cluster(state.pos)
 
       if not cluster then
         error("device cluster not available")
       end
 
-      minetest.set_node(subject_pos, { name = "air" })
+      minetest.set_node(state.pos, { name = "air" })
 
       wait_for_next_tick_on_clusters(suite, state, 2.0)
 
-      local cluster = cluster_devices:get_node_cluster(subject_pos)
+      local cluster = cluster_devices:get_node_cluster(state.pos)
 
       if cluster then
         error("cluster should have been removed")
@@ -236,15 +237,11 @@ yatm_machines.autotest_suite:define_property("is_machine_like", {
     end,
 
     ["Will be in default state without energy"] = function (suite, state)
-      suite:clear_test_area()
-
-      local subject_pos = vector.new(0, 0, 0)
-
-      minetest.set_node(subject_pos, assert(state.node))
+      minetest.set_node(state.pos, assert(state.node))
 
       wait_for_next_tick_on_clusters(suite, state, 2.0)
 
-      local node = assert(minetest.get_node_or_nil(subject_pos), "expected node at subject position")
+      local node = assert(minetest.get_node_or_nil(state.pos), "expected node at subject position")
       local nodedef = assert(minetest.registered_nodes[node.name], "expected a node def")
 
       assert(nodedef.yatm_network, "expected nodedef to define yatm_network field")
@@ -252,23 +249,19 @@ yatm_machines.autotest_suite:define_property("is_machine_like", {
       assert(nodedef.yatm_network.default_state, "expected nodedef to have a default_state")
 
       if nodedef.yatm_network.state ~= nodedef.yatm_network.default_state then
-        error("expected node's current state to be its default_state got state=" .. nodedef.yatm_network.state)
+        error("expected node's current state to be its default_state="..nodedef.yatm_network.default_state.." but got state=" .. nodedef.yatm_network.state)
       end
     end,
 
     ["Will be in idle or on state with energy"] = function (suite, state)
-      suite:clear_test_area()
-
-      local subject_pos = vector.new(0, 0, 0)
-
-      minetest.set_node(subject_pos, assert(state.node))
+      minetest.set_node(state.pos, assert(state.node))
       local provider = random_energy_provider()
 
-      provider.setup(subject_pos)
+      provider.setup(state.pos)
 
       wait_for_next_tick_on_clusters(suite, state, 2.0)
 
-      local node = assert(minetest.get_node_or_nil(subject_pos), "expected node at subject position")
+      local node = assert(minetest.get_node_or_nil(state.pos), "expected node at subject position")
       local nodedef = assert(minetest.registered_nodes[node.name], "expected a node def")
 
       assert(nodedef.yatm_network, "expected nodedef to define yatm_network field")
@@ -278,13 +271,13 @@ yatm_machines.autotest_suite:define_property("is_machine_like", {
       local is_on = nodedef.yatm_network.state == "on" or nodedef.yatm_network.state == "idle"
 
       if not is_on then
-        error("expected node's current state to be its default_state got state=" .. nodedef.yatm_network.state)
+        error("expected node's current state to be its `on` state but state="..nodedef.yatm_network.state)
       end
     end,
   },
 
   teardown = function (suite, state)
-    suite:clear_test_area()
+    suite:clear_test_area(state.pos)
 
     wait_for_next_tick_on_clusters(suite, state, 1.0)
   end,
@@ -299,6 +292,9 @@ yatm_machines.autotest_suite:define_property("has_rightclick_formspec", {
   setup = function (suite, state)
     local player = assert(minetest.get_player_by_name("singleplayer"))
 
+    state.pos = random_pos()
+    suite:clear_test_area(state.pos)
+
     state.player = player
 
     return state
@@ -306,15 +302,11 @@ yatm_machines.autotest_suite:define_property("has_rightclick_formspec", {
 
   tests = {
     ["Will show a formspec when right-clicked"] = function (suite, state)
-      suite:clear_test_area()
-
-      local subject_pos = vector.new(0, 0, 0)
-
-      minetest.set_node(subject_pos, assert(state.node))
+      minetest.set_node(state.pos, assert(state.node))
 
       wait_for_next_tick_on_clusters(suite, state, 2.0)
 
-      assert(trigger_rightclick_on_pos(subject_pos, state.player), "expected rightclick to trigger")
+      assert(trigger_rightclick_on_pos(state.pos, state.player), "expected rightclick to trigger")
 
       -- wait three seconds, this will usually refresh the formspec at least three times
       -- for most cases
@@ -324,7 +316,7 @@ yatm_machines.autotest_suite:define_property("has_rightclick_formspec", {
 
   teardown = function (suite, state)
     minetest.close_formspec(state.player:get_player_name(), "")
-    suite:clear_test_area()
+    suite:clear_test_area(state.pos)
     wait_for_next_tick_on_clusters(suite, state, 1.0)
   end,
 })
@@ -338,6 +330,9 @@ yatm_machines.autotest_suite:define_property("is_steam_turbine", {
   setup = function (suite, state)
     local player = assert(minetest.get_player_by_name("singleplayer"))
 
+    state.pos = random_pos()
+    suit:clear_test_area(state.pos)
+
     state.player = player
 
     return state
@@ -345,15 +340,13 @@ yatm_machines.autotest_suite:define_property("is_steam_turbine", {
 
   tests = {
     ["Will show a formspec when right-clicked"] = function (suite, state)
-      suite:clear_test_area()
+      suite:clear_test_area(state.pos)
 
-      local subject_pos = vector.new(0, 0, 0)
-
-      minetest.set_node(subject_pos, assert(state.node))
+      minetest.set_node(state.pos, assert(state.node))
 
       wait_for_next_tick_on_clusters(suite, state, 2.0)
 
-      assert(trigger_rightclick_on_pos(subject_pos, state.player), "expected rightclick to trigger")
+      assert(trigger_rightclick_on_pos(state.pos, state.player), "expected rightclick to trigger")
 
       -- wait three seconds, this will usually refresh the formspec at least three times
       -- for most cases
@@ -363,7 +356,7 @@ yatm_machines.autotest_suite:define_property("is_steam_turbine", {
 
   teardown = function (suite, state)
     minetest.close_formspec(state.player:get_player_name(), "")
-    suite:clear_test_area()
+    suite:clear_test_area(state.pos)
     wait_for_next_tick_on_clusters(suite, state, 1.0)
   end,
 })
