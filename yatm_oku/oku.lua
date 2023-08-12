@@ -1,4 +1,4 @@
--- @namespace yatm_oku
+--- @namespace yatm_oku
 local ByteBuf = assert(foundation.com.ByteBuf.little)
 
 local ffi = yatm_oku.ffi
@@ -6,7 +6,7 @@ if not ffi then
   minetest.log("warn", "OKU requires ffi for some components, trying to initialize anyway")
 end
 
--- @class OKU
+--- @class OKU
 yatm_oku.OKU = foundation.com.Class:extends('OKU')
 yatm_oku.OKU.isa = {}
 
@@ -26,19 +26,23 @@ else
   return
 end
 
--- @const DEFAULT_ARCH: String = "mos6502"
+--- @const DEFAULT_ARCH: String = "mos6502"
 OKU.DEFAULT_ARCH = "mos6502"
 
--- @const AVAILABLE_ARCH: { [String]: Any }
+--- @const AVAILABLE_ARCH: { [String]: Any }
 OKU.AVAILABLE_ARCH = {
   mos6502 = yatm_oku.OKU.isa.MOS6502,
   rv32i = yatm_oku.OKU.isa.RISCV,
   ["8086"] = yatm_oku.OKU.isa.I8086,
 }
 
--- Determines if a specified architecture is available
---
--- @spec &has_arch(arch: String): Boolean
+OKU.ERR_OK = 0
+OKU.ERR_DISPOSED = 1
+OKU.ERR_NO_MEMORY = 2
+
+--- Determines if a specified architecture is available
+---
+--- @spec &has_arch(arch: String): Boolean
 function OKU:has_arch(arch)
   if OKU.AVAILABLE_ARCH[arch] then
     return true
@@ -57,19 +61,19 @@ local function check_memory_size(memory_size)
   end
 end
 
---
--- @type Options: {
---   arch: String,
---   label: String,
---   memory_size: Integer,
--- }
+---
+--- @type Options: {
+---   arch: String,
+---   label: String,
+---   memory_size: Integer,
+--- }
 
--- Options:
--- * `arch` - "mos6502" or "rv32i"
--- * `label` -
--- * `memory_size` -
---
--- @spec #initialize(Options): void
+--- Options:
+--- * `arch` - "mos6502" or "rv32i"
+--- * `label` -
+--- * `memory_size` -
+---
+--- @spec #initialize(Options): void
 function ic:initialize(options)
   options = options or {}
 
@@ -99,10 +103,10 @@ function ic:initialize(options)
   self:_init_isa()
 end
 
--- Invokes function on given ARCH module
--- The method must accept the OKU state and ISA assigns as it's first 2 arguments.
---
--- @spec #call_arch(method_name: String, ...: [term]) :: term
+--- Invokes function on given ARCH module
+--- The method must accept the OKU state and ISA assigns as it's first 2 arguments.
+---
+--- @spec #call_arch(method_name: String, ...: [term]): Any
 function ic:call_arch(method_name, ...)
   local mod = OKU.AVAILABLE_ARCH[self.arch]
   if mod then
@@ -112,81 +116,87 @@ function ic:call_arch(method_name, ...)
   end
 end
 
+--- @spec #_init_isa(): Any
 function ic:_init_isa()
   return self:call_arch('init')
 end
 
--- @spec #dispose(): void
+--- @spec #dispose(): void
 function ic:dispose()
   self:call_arch('dispose')
   self.memory = nil
   self.disposed = true
 end
 
--- (see Memory:set_circular_access for details)
---
--- @spec #set_memory_circular_access(Boolean): self
+--- (see Memory:set_circular_access for details)
+---
+--- @spec #set_memory_circular_access(Boolean): self
 function ic:set_memory_circular_access(bool)
   self.memory:set_circular_access(bool)
   return self
 end
 
--- @spec #reset(): self
+--- @spec #reset(): self
 function ic:reset()
   self:call_arch('reset')
   return self
 end
 
--- @spec #step(steps: Integer): (steps: Integer, err?: Any)
+--- @spec #step(steps: Integer): (steps: Integer, error: Integer)
 function ic:step(steps)
   if self.disposed then
-    return 0, "disposed"
+    return 0, OKU.ERR_DISPOSED
+  end
+
+  if not self.memory then
+    return 0, OKU.ERR_NO_MEMORY
   end
 
   assert(steps, "expected steps to a number")
 
+  local okay, err
   for step_i = 1,steps do
-    local okay, err
     okay, err = self:call_arch('step')
 
     if not okay then
       return step_i, err
     end
   end
-  return steps, nil
+
+  return steps, OKU.ERR_OK
 end
 
--- @spec #get_memory_i8(index: Integer): Integer/8
+--- @spec #get_memory_i8(index: Integer): Integer/8
 
--- @spec #get_memory_i16(index: Integer): Integer/16
+--- @spec #get_memory_i16(index: Integer): Integer/16
 
--- @spec #get_memory_i32(index: Integer): Integer/32
+--- @spec #get_memory_i32(index: Integer): Integer/32
 
--- @spec #get_memory_i64(index: Integer): Integer/64
+--- @spec #get_memory_i64(index: Integer): Integer/64
 
--- @spec #get_memory_u8(index: Integer): Integer/8
+--- @spec #get_memory_u8(index: Integer): Integer/8
 
--- @spec #get_memory_u16(index: Integer): Integer/16
+--- @spec #get_memory_u16(index: Integer): Integer/16
 
--- @spec #get_memory_u32(index: Integer): Integer/32
+--- @spec #get_memory_u32(index: Integer): Integer/32
 
--- @spec #get_memory_u64(index: Integer): Integer/64
+--- @spec #get_memory_u64(index: Integer): Integer/64
 
--- @spec #put_memory_i8(index: Integer, value: Integer/8): Integer/8
+--- @spec #put_memory_i8(index: Integer, value: Integer/8): Integer/8
 
--- @spec #put_memory_i16(index: Integer, value: Integer/16): Integer/16
+--- @spec #put_memory_i16(index: Integer, value: Integer/16): Integer/16
 
--- @spec #put_memory_i32(index: Integer, value: Integer/32): Integer/32
+--- @spec #put_memory_i32(index: Integer, value: Integer/32): Integer/32
 
--- @spec #put_memory_i64(index: Integer, value: Integer/64): Integer/64
+--- @spec #put_memory_i64(index: Integer, value: Integer/64): Integer/64
 
--- @spec #put_memory_u8(index: Integer, value: Integer/8): Integer/8
+--- @spec #put_memory_u8(index: Integer, value: Integer/8): Integer/8
 
--- @spec #put_memory_u16(index: Integer, value: Integer/16): Integer/16
+--- @spec #put_memory_u16(index: Integer, value: Integer/16): Integer/16
 
--- @spec #put_memory_u32(index: Integer, value: Integer/32): Integer/32
+--- @spec #put_memory_u32(index: Integer, value: Integer/32): Integer/32
 
--- @spec #put_memory_u64(index: Integer, value: Integer/64): Integer/64
+--- @spec #put_memory_u64(index: Integer, value: Integer/64): Integer/64
 
 for _,key in ipairs({"i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64"}) do
   ic["get_memory_" .. key] = function (self, index)
@@ -226,10 +236,10 @@ function ic:upload_memory(blob)
   return self
 end
 
---
--- Binary Serialization
---
--- @spec #bindump(Stream): (bytes_written: Integer, err?: Any)
+---
+--- Binary Serialization
+---
+--- @spec #bindump(Stream): (bytes_written: Integer, err?: Any)
 function ic:bindump(stream)
   local bytes_written = 0
   local bw, err
@@ -285,7 +295,7 @@ function ic:bindump(stream)
   return bytes_written, nil
 end
 
--- @spec #binload(Stream): (self, bytes_read: Integer)
+--- @spec #binload(Stream): (self, bytes_read: Integer)
 function ic:binload(stream)
   self.isa_assigns = {}
   self.exec_counter = 0
@@ -359,14 +369,14 @@ function ic:binload(stream)
   return self, bytes_read
 end
 
--- @spec &binload(Stream): OKU
+--- @spec &binload(Stream): OKU
 function OKU:binload(stream)
   local oku = self:alloc()
   local oku, br = oku:binload(stream)
   return oku, br
 end
 
--- @spec #_bindump_memory(Stream): (bytes_written: Integer, err?: Any)
+--- @spec #_bindump_memory(Stream): (bytes_written: Integer, err?: Any)
 function ic:_bindump_memory(stream)
   local bytes_written = 0
   local bw, err = ByteBuf:w_u32(stream, self.memory:size())

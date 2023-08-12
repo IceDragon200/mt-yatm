@@ -48,6 +48,28 @@ case:describe("#step", function (t2)
   end)
 end)
 
+case:describe("#step with 6502 test", function (t2)
+  t2:test("can execute 6502 tests", function (t3)
+    -- https://github.com/Klaus2m5/6502_65C02_functional_tests
+    local f = io.open(mod.modpath .. "/data/6502_functional_test.bin", "r")
+    local blob = f:read()
+    io.close(f)
+
+    local memory = Memory:new(0xFFFF)
+
+    memory:w_blob(0, blob)
+    local chip = subject:new({
+      memory = memory,
+    })
+
+    run_startup(t3, chip)
+
+    print(dump(chip.m_chip))
+
+    t3:assert_eq(chip:step(), isa.OK_CODE)
+  end)
+end)
+
 case:execute()
 case:display_stats()
 case:maybe_error()

@@ -5,7 +5,7 @@ local ByteBuf = assert(foundation.com.ByteBuf.little)
 ---
 --- Memory model used by OKU
 ---
---- @class Memory
+--- @class LuaMemory
 local LuaMemory = yatm_oku.OKU.MemoryBase:extends("oku.LuaMemory")
 LuaMemory.Endian = {
   LITTLE = 0,

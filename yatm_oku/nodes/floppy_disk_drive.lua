@@ -67,7 +67,7 @@ local function floppy_disk_drive_on_construct(pos)
   local secret = random_string(8)
   meta:set_string("secret", "flpd." .. secret)
 
-  yatm.computers:create_computer(pos, node, secret, {
+  yatm.computers:create_computer_at_pos(pos, node, secret, {
     memory_size = MAX_DISK_SIZE, -- 64k
   })
 end
@@ -85,7 +85,7 @@ local function floppy_disk_drive_after_destruct(pos, old_node)
   data_network:remove_node(pos, old_node)
   -- no this is not a typo, the floppy disk drive is using the computers API
   -- for its memory module, AND only for the memory.
-  yatm.computers:destroy_computer(pos, old_node)
+  yatm.computers:destroy_computer_at_pos(pos)
   yatm.devices.device_after_destruct(pos, old_node)
 end
 
@@ -210,7 +210,7 @@ yatm.devices.register_stateful_network_device({
         if has_floppy_disk(pos) then
           -- reminder that address offset is a 0-offset
           local seek_offset = meta:get_int("seek_offset")
-          local computer = yatm.computers:get_computer(pos, node)
+          local computer = yatm.computers:get_computer_at_pos(pos)
           if computer then
             computer.oku:set_memory_circular_access(true)
             computer.oku:w_memory_blob(seek_offset, blob)
@@ -229,7 +229,7 @@ yatm.devices.register_stateful_network_device({
         -- reads can only happen if a disk is present
         if has_floppy_disk(pos) then
           local length = ByteDecoder:d_u8(blob)
-          local computer = yatm.computers:get_computer(pos, node)
+          local computer = yatm.computers:get_computer_at_pos(pos)
           -- yet another reminder that address offset is a 0-offset
           local seek_offset = meta:get_int("seek_offset")
 
@@ -393,7 +393,7 @@ yatm.devices.register_stateful_network_device({
       local data = meta:get_string("data")
       local blob = string_hex_unescape(data)
 
-      local computer = yatm.computers:get_computer(pos)
+      local computer = yatm.computers:get_computer_at_pos(pos)
       computer.oku:fill_memory(0)
       computer.oku:w_memory_blob(0, string.sub(blob, 1, 0x10000))
 
@@ -404,7 +404,7 @@ yatm.devices.register_stateful_network_device({
 
   on_metadata_inventory_take = function(pos, listname, index, stack, player)
     if listname == "floppy_disk" then
-      local computer = yatm.computers:get_computer(pos)
+      local computer = yatm.computers:get_computer_at_pos(pos)
       computer.oku:fill_memory(0)
     end
   end,

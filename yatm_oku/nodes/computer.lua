@@ -1,6 +1,8 @@
 --
 --
 --
+local mod = assert(yatm_oku)
+
 local random_string62 = assert(foundation.com.random_string62)
 local random_string = assert(foundation.com.random_string)
 
@@ -10,7 +12,7 @@ local data_network = assert(yatm.data_network)
 local Energy = assert(yatm.energy)
 local fspec = assert(foundation.com.formspec.api)
 
-local function get_computer_formspec(pos, user)
+local function render_formspec(pos, user, assigns)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local meta = minetest.get_meta(pos)
 
@@ -24,7 +26,7 @@ local function get_computer_formspec(pos, user)
   end)
 end
 
-local function computer_on_receive_fields(player, formname, fields, assigns)
+local function on_receive_fields(player, formname, fields, assigns)
   local meta = minetest.get_meta(assigns.pos)
 
   --[[for i = 1,16 do
@@ -38,7 +40,7 @@ local function computer_on_receive_fields(player, formname, fields, assigns)
   return true
 end
 
-local function computer_refresh_infotext(pos, node)
+local function refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
@@ -49,26 +51,22 @@ local function computer_refresh_infotext(pos, node)
   meta:set_string("infotext", infotext)
 end
 
-local function computer_after_place_node(pos, _placer, _item_stack, _pointed_thing)
+local function on_construct(pos)
   local node = minetest.get_node(pos)
   local meta = minetest.get_meta(pos)
 
   local secret = random_string62(8)
   meta:set_string("secret", "comp." .. secret)
 
-  yatm.computers:create_computer(pos, node, secret, {})
+  yatm.devices.device_on_construct(pos)
+  yatm.computers:create_computer_at_pos(pos, node, secret, {})
   data_network:add_node(pos, node)
-  yatm.devices.device_after_place_node(pos, node)
 end
 
-local function computer_on_destruct(pos)
+local function on_destruct(pos)
+  data_network:remove_node(pos)
+  yatm.computers:destroy_computer_at_pos(pos)
   yatm.devices.device_on_destruct(pos)
-end
-
-local function computer_after_destruct(pos, old_node)
-  data_network:remove_node(pos, old_node)
-  yatm.computers:destroy_computer(pos, old_node)
-  yatm.devices.device_after_destruct(pos, old_node)
 end
 
 local computer_data_interface = {
@@ -122,10 +120,10 @@ local computer_yatm_network = {
   },
   default_state = "off",
   states = {
-    conflict = "yatm_oku:computer_error",
-    error = "yatm_oku:computer_error",
-    off = "yatm_oku:computer_off",
-    on = "yatm_oku:computer_on",
+    conflict = mod:make_name("computer_error"),
+    error = mod:make_name("computer_error"),
+    off = mod:make_name("computer_off"),
+    on = mod:make_name("computer_on"),
   },
   energy = {
     capacity = 4000,
@@ -153,11 +151,11 @@ local groups = {
 }
 
 yatm.devices.register_stateful_network_device({
-  basename = "yatm_oku:computer",
+  basename = mod:make_name("computer"),
 
-  description = "Computer",
+  description = mod.S("Computer"),
 
-  codex_entry_id = "yatm_oku:computer",
+  codex_entry_id = mod:make_name("computer"),
 
   groups = groups,
 
@@ -182,21 +180,25 @@ yatm.devices.register_stateful_network_device({
 
   data_interface = computer_data_interface,
 
-  refresh_infotext = computer_refresh_infotext,
+  refresh_infotext = refresh_infotext,
 
-  after_place_node = computer_after_place_node,
-  on_destruct = computer_on_destruct,
-  after_destruct = computer_after_destruct,
+  on_construct = on_construct,
+  on_destruct = on_destruct,
 
   on_rightclick = function (pos, node, user)
     local formspec_name = "yatm_oku:computer:" .. minetest.pos_to_string(pos)
     local assigns = { pos = pos, node = node }
-    local formspec = get_computer_formspec(pos, user)
+    local formspec = render_formspec(pos, user, assigns)
 
-    nokore.formspec_bindings:show_formspec(user:get_player_name(), formspec_name, formspec, {
-      state = assigns,
-      on_receive_fields = computer_on_receive_fields
-    })
+    nokore.formspec_bindings:show_formspec(
+      user:get_player_name(),
+      formspec_name,
+      formspec,
+      {
+        state = assigns,
+        on_receive_fields = on_receive_fields
+      }
+    )
   end,
 
   register_computer = function (pos, node)
@@ -206,7 +208,7 @@ yatm.devices.register_stateful_network_device({
       secret = random_string(8)
       meta:set_string("secret", "comp." .. secret)
     end
-    yatm.computers:upsert_computer(pos, node, meta:get_string("secret"), {})
+    yatm.computers:upsert_computer_at_pos(pos, node, meta:get_string("secret"), {})
   end,
 }, {
   error = {

@@ -7,6 +7,10 @@ local bit = assert(foundation.com.bit)
 isa.LuaChip = foundation.com.Class:extends("yatm_oku.OKU.isa.MOS6502.LuaChip")
 local ic = isa.LuaChip.instance_class
 
+--- @type StepCode: Integer
+
+--- @type CpuState: Integer
+
 local OK_CODE = isa.OK_CODE
 local INVALID_CODE = isa.INVALID_CODE
 local HALT_CODE = isa.HALT_CODE
@@ -45,10 +49,12 @@ function ic:initialize(options)
   self.m_mem = options.memory
 end
 
+--- @spec #dispose(): void
 function ic:dispose()
   --
 end
 
+--- @spec #step(): StepCode
 function ic:step()
   local chip = self.m_chip
   local step_state = bit.band(chip.state, 0x0F)
@@ -63,105 +69,128 @@ function ic:step()
   end
 end
 
+--- @spec #set_memory(MemoryBase): self
 function ic:set_memory(memory)
   self.m_mem = memory
   return self
 end
 
+--- @spec #get_state(): CpuState
 function ic:get_state()
   return self.m_chip.state
 end
 
+--- @spec #set_state(state: CpuState): self
 function ic:set_state(state)
   self.m_chip.state = state
   return self
 end
 
+--- @spec #get_cycles(): Integer
 function ic:get_cycles()
   return self.m_chip.cycles
 end
 
+--- @spec #set_cycles(cycles: Integer): self
 function ic:set_cycles(cycles)
   self.m_chip.cycles = cycles
   return self
 end
 
+--- @spec #get_operand(): Integer
 function ic:get_operand()
   return self.m_chip.operand
 end
 
+--- @spec #set_operand(operand: Integer): self
 function ic:set_operand(operand)
   self.m_chip.operand = operand
   return self
 end
 
+--- @spec #get_register_ab(): Integer
 function ic:get_register_ab()
   return self.m_chip.ab
 end
 
+--- @spec #set_register_ab(ab: Integer): self
 function ic:set_register_ab(ab)
   self.m_chip.ab = ab
   return self
 end
 
+--- @spec #get_register_pc(): Integer
 function ic:get_register_pc()
   return self.m_chip.pc
 end
 
+--- @spec #set_register_pc(pc: Integer): self
 function ic:set_register_pc(pc)
   self.m_chip.pc = pc
   return self
 end
 
+--- @spec #get_register_sp(): Integer
 function ic:get_register_sp()
   return self.m_chip.sp
 end
 
+--- @spec #set_register_sp(sp: Integer): self
 function ic:set_register_sp(sp)
   self.m_chip.sp = sp
   return self
 end
 
+--- @spec #get_register_ir(): Integer
 function ic:get_register_ir()
   return self.m_chip.ir
 end
 
+--- @spec #set_register_ir(ir: Integer): self
 function ic:set_register_ir(ir)
   self.m_chip.ir = ir
   return self
 end
 
+--- @spec #get_register_a(): Integer
 function ic:get_register_a()
   return self.m_chip.a
 end
 
+--- @spec #set_register_a(a: Integer): self
 function ic:set_register_a(a)
   self.m_chip.a = a
   return self
 end
 
+--- @spec #get_register_x(): Integer
 function ic:get_register_x()
   return self.m_chip.x
 end
 
+--- @spec #set_register_x(x: Integer): self
 function ic:set_register_x(x)
   self.m_chip.x = x
   return self
 end
 
+--- @spec #get_register_y(): Integer
 function ic:get_register_y()
   return self.m_chip.y
 end
 
+--- @spec #set_register_y(y: Integer): self
 function ic:set_register_y(y)
   self.m_chip.y = y
   return self
 end
 
+--- @spec #get_register_sr(): Integer
 function ic:get_register_sr()
   return self.m_chip.sr
 end
 
+--- @spec #set_register_sr(sr: Integer): self
 function ic:set_register_sr(sr)
   self.m_chip.sr = sr
   return self
@@ -431,11 +460,13 @@ function ic:_chip_read_pc_mem_u8()
   return self:_chip_read_mem_u8(chip.pc)
 end
 
+--- @spec #_chip_read_pc_mem_u16(): (status: Integer, byte: Integer)
 function ic:_chip_read_pc_mem_u16()
   local chip = self.m_chip
   return self:_chip_read_mem_u16(chip.pc)
 end
 
+--- @spec #_chip_read_pc_mem_i16(): (status: Integer, byte: Integer)
 function ic:_chip_read_pc_mem_i16()
   local chip = self.m_chip
   return self:_chip_read_mem_i16(chip.pc)
@@ -456,6 +487,7 @@ end
 --
 -- Stack
 --
+--- @spec #_chip_push_stack_u8(value: Integer): (status: Integer)
 function ic:_chip_push_stack_u8(value)
   local chip = self.m_chip
   local status = self:_chip_write_mem_u8(chip.sp + 0x100, value)

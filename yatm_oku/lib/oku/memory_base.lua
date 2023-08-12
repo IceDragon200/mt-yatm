@@ -6,10 +6,14 @@ local MemoryBase = foundation.com.Class:extends("oku.MemoryBase")
 do
   local ic = assert(MemoryBase.instance_class)
 
+  --- @spec #initialize(): void
   function ic:initialize()
     ic._super.initialize(self)
 
+    --- @member is_lua: Boolean
     self.is_lua = false
+
+    --- @member is_ffi: Boolean
     self.is_ffi = false
   end
 

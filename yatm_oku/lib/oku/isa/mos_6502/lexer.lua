@@ -173,7 +173,7 @@ local function tokenize_value(buf, result)
   return false
 end
 
---- @spec tokenize(String): (TokenBuffer, String)
+--- @spec tokenize(String): (TokenBuffer, rest: String)
 function Lexer.tokenize(str)
   local buf = StringBuffer:new(str, 'r')
 

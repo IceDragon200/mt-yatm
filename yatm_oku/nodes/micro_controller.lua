@@ -74,7 +74,7 @@ local micro_controller_data_network_device = {
   }
 }
 
-local function micro_controller_after_place_node(pos, _placer, _item_stack, _pointed_thing)
+local function on_construct(pos)
   local node = minetest.get_node(pos)
   local meta = minetest.get_meta(pos)
 
@@ -101,18 +101,14 @@ local function micro_controller_after_place_node(pos, _placer, _item_stack, _poi
   meta:set_string("secret", "mctl." .. secret)
   data_network:add_node(pos, node)
 
-  yatm.computers:create_computer(pos, node, secret, {
+  yatm.computers:create_computer_at_pos(pos, node, secret, {
     memory_size = MEMORY_SIZE,
   })
 end
 
-local function micro_controller_on_destruct(pos)
-  --
-end
-
-local function micro_controller_after_destruct(pos, old_node)
-  data_network:remove_node(pos, old_node)
-  yatm.computers:destroy_computer(pos, old_node)
+local function on_destruct(pos)
+  data_network:remove_node(pos)
+  yatm.computers:destroy_computer_at_pos(pos)
 end
 
 local micro_controller_data_interface = {}
@@ -206,9 +202,8 @@ minetest.register_node("yatm_oku:oku_micro_controller", {
 
   refresh_infotext = micro_controller_refresh_infotext,
 
-  after_place_node = micro_controller_after_place_node,
-  on_destruct = micro_controller_on_destruct,
-  after_destruct = micro_controller_after_destruct,
+  on_construct = on_construct,
+  on_destruct = on_destruct,
 
   on_rightclick = function (pos, node, user)
     local formspec_name = "yatm_oku:oku_micro_controller:" .. minetest.pos_to_string(pos)
@@ -228,7 +223,7 @@ minetest.register_node("yatm_oku:oku_micro_controller", {
       secret = random_string62(8)
       meta:set_string("secret", "mctl." .. secret)
     end
-    yatm.computers:upsert_computer(pos, node, meta:get_string("secret"), {
+    yatm.computers:upsert_computer_at_pos(pos, node, meta:get_string("secret"), {
       arch = "mos6502",
       memory_size = MEMORY_SIZE,
     })

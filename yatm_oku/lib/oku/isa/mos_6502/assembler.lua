@@ -12,14 +12,14 @@ yatm_oku:require("lib/oku/isa/mos_6502/nmos_assembly.lua")
 local NMOS_Assembly = assert(yatm_oku.OKU.isa.MOS6502.NMOS_Assembly)
 local AssemblyBuilder = assert(yatm_oku.OKU.isa.MOS6502.Builder)
 
--- @namespace yatm_oku.OKU.isa.MOS6502.Assembler
+--- @namespace yatm_oku.OKU.isa.MOS6502.Assembler
 
--- @type AssemblerContext: {
---   pos: Integer,
---   jump_table: {
---     [label: String]: Integer
---   }
--- }
+--- @type AssemblerContext: {
+---   pos: Integer,
+---   jump_table: {
+---     [label: String]: Integer
+---   }
+--- }
 
 local Assembler = {
   Lexer = Lexer,
@@ -28,14 +28,14 @@ local Assembler = {
 
 local m = Assembler
 
--- @spec parse(String): (TokenBuffer, rest: String)
+--- @spec parse(String): (TokenBuffer, rest: String)
 function m.parse(prog)
   local token_buf, rest = m.Lexer.tokenize(prog)
   token_buf:open('r')
   return m.Parser.parse(token_buf), rest
 end
 
--- @spec assemble_tokens(TokenBuffer): (blob: String, AssemblerContext)
+--- @spec assemble_tokens(TokenBuffer): (blob: String, AssemblerContext)
 function m.assemble_tokens(token_buf)
   local tokens = token_buf:to_list()
 
@@ -94,7 +94,7 @@ function m.assemble_tokens(token_buf)
   return table.concat(result), context
 end
 
--- @spec assemble(String): (binary: String, error: String)
+--- @spec assemble(String): (binary: String, error: String)
 function m.assemble(prog)
   local tokens, rest = m.parse(prog)
 
@@ -102,7 +102,7 @@ function m.assemble(prog)
   return blob, context, rest
 end
 
--- @spec assemble_safe(String): (Boolean, binary: String, error: String)
+--- @spec assemble_safe(String): (Boolean, binary: String, error: String)
 function m.assemble_safe(prog)
   local result, blob, context, rest =
     pcall(function ()
