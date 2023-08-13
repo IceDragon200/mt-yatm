@@ -310,7 +310,7 @@ do
 
       if computer.active > 0 then
         local steps_taken, err = computer.oku:step(clock_speed)
-        print("STEPS", computer.label, steps_taken, err)
+        -- print("STEPS", computer.label, steps_taken, err)
       end
 
       if trace then
