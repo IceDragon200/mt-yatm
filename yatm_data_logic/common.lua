@@ -181,10 +181,10 @@ function yatm_data_logic.mark_all_inputs_for_active_receive(pos, options)
   end
 end
 
---
--- Treats the specified value as a vector, that is each value in the string is outputted on a different port
---
--- @spec emit_output_data_vector(pos: Vector, vector_value: String, options: Table) :: boolean
+---
+--- Treats the specified value as a vector, that is each value in the string is outputted on a different port
+---
+--- @spec emit_output_data_vector(pos: Vector, vector_value: String, options: Table): Boolean
 function yatm_data_logic.emit_output_data_vector(pos, vector_value, options)
   options = options or {}
   local meta = minetest.get_meta(pos)
@@ -324,7 +324,7 @@ function yatm_data_logic.emit_value(pos, local_port, value)
   return did_output
 end
 
-local function set_vector(meta, basename, dir, value, vector, changed)
+local function set_vector(meta, basename, dir, value, vector, changes)
   local items = string_split(value, ",")
 
   for i = 1,vector do
@@ -332,15 +332,41 @@ local function set_vector(meta, basename, dir, value, vector, changed)
     local new_value = tonumber(items[i]) or base_value
 
     if new_value ~= base_value then
-      if not changed[dir] then
-        changed[dir] = {}
+      if not changes[dir] then
+        changes[dir] = {}
       end
-      changed[dir][i] = {new_value, base_value}
+      changes[dir][i] = {new_value, base_value}
       meta:set_int(basename .. "_" .. dir .. "_" .. i, new_value)
     end
   end
 end
 
+local function set_port_from_bits(fields, meta, prefix, value, changes)
+  local prefix_bit = prefix.."_bit_"
+  local old_value = meta:get_int(prefix)
+  local value = old_value
+
+  for i=1,8 do
+    local fbit = fields[prefix_bit..i]
+    if fbit then
+      value = toggle_bit(value, i-1)
+    end
+  end
+
+  if value ~= old_value then
+    meta:set_int(prefix, value)
+    changes.value = value
+    changes.old_value = old_value
+  end
+end
+
+--- @spec handle_prefix_port(
+---   pos: Vector3,
+---   fields: Table,
+---   meta: MetaRef,
+---   prefix: String,
+---   settings: Table
+--- ): (any_changes: Boolean, changes: Table)
 function yatm_data_logic.handle_prefix_port(pos, fields, meta, prefix, settings)
   local any_change = false
   local changes = {}
@@ -381,25 +407,10 @@ function yatm_data_logic.handle_prefix_port(pos, fields, meta, prefix, settings)
   else
     if vector_size then
       for i = 1,vector_size do
-
+        set_port_from_bits(fields, meta, prefix.."_"..i, value, changes)
       end
     else
-      local prefix_bit = prefix.."_bit_"
-      local old_value = meta:get_int(prefix)
-      local value = old_value
-
-      for i=1,8 do
-        local fbit = fields[prefix_bit..i]
-        if fbit then
-          value = toggle_bit(value, i-1)
-        end
-      end
-
-      if value ~= old_value then
-        meta:set_int(prefix, value)
-        changes.value = value
-        changes.old_value = old_value
-      end
+      set_port_from_bits(fields, meta, prefix, value, changes)
     end
   end
 
@@ -410,7 +421,8 @@ function yatm_data_logic.handle_prefix_ports(pos, fields, meta, prefixes)
   local changes = {}
   local any_change = false
   for prefix, settings in pairs(prefixes) do
-    local _any_change, new_changes = yatm_data_logic.handle_prefix_port(pos, fields, meta, prefix, settings)
+    local _any_change, new_changes =
+      yatm_data_logic.handle_prefix_port(pos, fields, meta, prefix, settings)
 
     if not is_table_empty(new_changes) then
       changes[prefix] = new_changes
@@ -421,6 +433,7 @@ function yatm_data_logic.handle_prefix_ports(pos, fields, meta, prefixes)
   return any_change, changes
 end
 
+--- @spec handle_directional_prefix_ports(pos: Vector3, fields: Table, meta: MetaRef, prefixes: Table)
 function yatm_data_logic.handle_directional_prefix_ports(pos, fields, meta, prefixes)
   assert(pos, "expected a position")
   --local sub_network_ids = data_network:get_sub_network_ids(pos)
@@ -432,7 +445,14 @@ function yatm_data_logic.handle_directional_prefix_ports(pos, fields, meta, pref
   for _, dir in ipairs(Directions.DIR6) do
     local dir_changes = {}
     for prefix, settings in pairs(prefixes) do
-      local _any_change, new_changes = yatm_data_logic.handle_prefix_port(pos, fields, meta, prefix.."_"..dir, settings)
+      local _any_change, new_changes =
+        yatm_data_logic.handle_prefix_port(
+          pos,
+          fields,
+          meta,
+          prefix.."_"..dir,
+          settings
+        )
 
       if not is_table_empty(new_changes) then
         dir_changes[prefix] = new_changes
@@ -455,6 +475,7 @@ end
 --                             and should be assigned to multiple fields in the meta
 --   output_vector :: integer - tells the function that any values obtained are a vector
 --                              and should be assigned to multiple fields in the meta
+--- @spec handle_io_port_fields(pos: Vector3, fields: Table, meta: MetaRef, mode: String, options: Table):
 function yatm_data_logic.handle_io_port_fields(pos, fields, meta, mode, options)
   local prefixes = {}
 

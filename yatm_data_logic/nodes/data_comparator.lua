@@ -83,7 +83,7 @@ local data_interface = {
         formspec ..
         "label[0,0;Port Configuration]"
 
-      local io_formspec = yatm_data_logic.get_io_port_formspec(pos, meta, "io")
+      local io_formspec = yatm_data_logic.render_io_port_formspec(pos, meta, "io")
 
       formspec =
         formspec ..

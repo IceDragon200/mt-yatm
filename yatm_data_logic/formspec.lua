@@ -146,7 +146,8 @@ function yatm_data_logic.get_port_matrix_formspec(pos, meta, options)
   return formspec
 end
 
-function yatm_data_logic.get_io_port_formspec(pos, meta, mode, options)
+--- @spec render_io_port_formspec(pos: Vector3, meta: MetaRef, mode: String, options: Table): String
+function yatm_data_logic.render_io_port_formspec(pos, meta, mode, options)
   options = options or {}
   mode = mode or "io"
   local sub_network_ids = data_network:get_sub_network_ids(pos)
@@ -194,7 +195,7 @@ function yatm_data_logic.get_io_port_formspec(pos, meta, mode, options)
       local bits = 8
 
       if color then
-        item_name = "yatm_data_network:data_cable_bus_" .. color
+        item_name = "yatm_data_cables:data_cable_bus_" .. color
         --item_name = "yatm_data_network:data_cable_bus_bracket_cross_" .. color
         local range = DataNetwork.COLOR_RANGE[color].range
 

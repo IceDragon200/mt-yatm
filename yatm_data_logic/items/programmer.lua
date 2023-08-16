@@ -36,7 +36,7 @@ local function render_port(row, rect, pos, player, pointed_thing, assigns)
 
   local meta = minetest.get_meta(pos)
 
-  --local formspec, r = yatm_data_logic.get_io_port_formspec(pos, meta, row.mode, options)
+  --local formspec, r = yatm_data_logic.render_io_port_formspec(pos, meta, row.mode, options)
 
   --r.x = rect.x
   --r.w = rect.w
@@ -56,7 +56,7 @@ local function render_io_ports(row, rect, pos, player, pointed_thing, assigns)
 
   local meta = minetest.get_meta(pos)
 
-  local formspec, r = yatm_data_logic.get_io_port_formspec(pos, meta, row.mode, options)
+  local formspec, r = yatm_data_logic.render_io_port_formspec(pos, meta, row.mode, options)
 
   r.x = rect.x
   r.w = rect.w
@@ -347,7 +347,13 @@ local function on_receive_fields(player, form_name, fields, assigns)
             }
 
             local any_changes, changes =
-              yatm_data_logic.handle_io_port_fields(assigns.pos, fields, meta, component.mode, options)
+              yatm_data_logic.handle_io_port_fields(
+                assigns.pos,
+                fields,
+                meta,
+                component.mode,
+                options
+              )
 
             for _dir, prefixes in pairs(changes) do
               for prefix, _ in pairs(prefixes) do
@@ -358,9 +364,9 @@ local function on_receive_fields(player, form_name, fields, assigns)
                 end
               end
             end
-          elseif component.component == "field" then
+          elseif component.component == "field" or component.component == "dropdown" then
             local value = fields[component.name]
-            if value then
+            if value ~= nil then
               if component.meta then
                 if component.type == "integer" then
                   local new_value = tonumber(value)

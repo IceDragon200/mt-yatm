@@ -50,7 +50,7 @@ yatm.register_stateful_node("yatm_data_logic:data_momentary_button", {
           formspec ..
           "label[0,0;Port Configuration]"
 
-        local io_formspec = yatm_data_logic.get_io_port_formspec(pos, meta, "o")
+        local io_formspec = yatm_data_logic.render_io_port_formspec(pos, meta, "o")
 
         formspec =
           formspec ..

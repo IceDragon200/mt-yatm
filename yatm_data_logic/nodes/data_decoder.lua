@@ -19,7 +19,7 @@ local VECTOR_CONFIG = {
 }
 
 -- Input formats determine how individual values are read from a pdu
--- by default, they are treated as char (or u8)
+-- by default, they are treated as char
 local INPUT_FORMATS = {
   [1] = "char",
   [2] = "u8",
@@ -203,7 +203,8 @@ minetest.register_node("yatm_data_logic:data_decoder", {
             {
               component = "io_ports",
               mode = "io",
-            }
+              output_vector = VECTOR_CONFIG.output_vector,
+            },
           },
         },
         {
@@ -216,6 +217,15 @@ minetest.register_node("yatm_data_logic:data_decoder", {
               items = {
                 {
                   component = "dropdown",
+                  label = "Input Format",
+                  name = "input_format",
+                  type = "string",
+                  meta = true,
+                  items = INPUT_FORMATS,
+                  index = INPUT_FORMATS_TO_INDEX,
+                },
+                {
+                  component = "dropdown",
                   label = "Decode Format",
                   name = "decode_format",
                   type = "string",
@@ -223,18 +233,9 @@ minetest.register_node("yatm_data_logic:data_decoder", {
                   items = DECODE_FORMATS,
                   index = DECODE_FORMATS_TO_INDEX,
                 },
-                {
-                  component = "dropdown",
-                  label = "Input Format",
-                  name = "input_format",
-                  type = "string",
-                  meta = true,
-                  items = INPUT_FORMATS,
-                  index = INPUT_FORMATS_TO_INDEX,
-                }
-              }
-            }
-          }
+              },
+            },
+          },
         }
       }
     },
@@ -244,8 +245,12 @@ minetest.register_node("yatm_data_logic:data_decoder", {
       tabs = {
         {
           components = {
-            {component = "io_ports", mode = "o"}
-          }
+            {
+              component = "io_ports",
+              mode = "io",
+              output_vector = VECTOR_CONFIG.output_vector,
+            },
+          },
         },
         {
           components = {
