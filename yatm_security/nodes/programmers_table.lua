@@ -33,7 +33,7 @@ local function generate_prog_data_hex(byte_count)
   return string_hex_encode(bytes)
 end
 
-local function get_formspec(pos, user, assigns)
+local function render_formspec(pos, user, assigns)
   local meta = minetest.get_meta(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
@@ -237,7 +237,7 @@ local function handle_receive_fields(user, formname, fields, assigns)
   end
 
   if needs_refresh then
-    return true, get_formspec(assigns.pos, user, assigns)
+    return true, render_formspec(assigns.pos, user, assigns)
   else
     return true
   end
@@ -410,7 +410,7 @@ yatm.devices.register_stateful_network_device({
   on_rightclick = function (pos, node, user, item_stack, pointed_thing)
     local formspec_name = "yatm_security:programmers_table:" .. minetest.pos_to_string(pos)
     local assigns = { pos = pos, node = node }
-    local formspec = get_formspec(pos, user, assigns)
+    local formspec = render_formspec(pos, user, assigns)
 
     nokore.formspec_bindings:show_formspec(user:get_player_name(), formspec_name, formspec, {
       state = assigns,

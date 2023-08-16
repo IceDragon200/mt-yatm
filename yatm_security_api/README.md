@@ -13,8 +13,8 @@ security = {
   -- Slots tell the security system what meta reference keys to look at to find the
   -- information needed for the system, it may just be a prefix
   -- if a MetaSchema is used to represent it
-  slots = {"yatmsec_primary", "yatmsec_secondary"}, -- would default to just "yatmsec" if not specified
-  slots = function (pos, node) -- a function could be used instead as well
+  slot_ids = {"yatmsec_primary", "yatmsec_secondary"}, -- would default to just "yatmsec" if not specified
+  slot_ids = function (pos, node) -- a function could be used instead as well
     return {"yatmsec_primary", "yatmsec_secondary"}
   end,
 
@@ -42,14 +42,14 @@ __Defining security types__
 ```lua
 -- An example of registering a security type for mechanical locks
 -- Mechanical locks would include the default carbon steel lock and keys as the unlocking mechanism
-yatm.security.register_security_feature("yatm:mechanical_lock", {
+yatm.security:register_security_feature("yatm:mechanical_lock", {
   description = "Mechanical Lock",
 
   -- This function can report different states
   -- First, it can report that a lock can be bypassed (i.e. it's okay)
   -- Second, it can report that a lock cannot be bypassed (e.g. it's locked, or simply denying access)
   -- Thirdly, it can report a delayed, or 'needs' action state (e.g. the player needs to complete a prompt)
-  -- yatm_security will provide all these return options as constants in it's API module for ease
+  -- yatm_security will provide all these return options as constants in its API module for ease
   -- yatm.security.OK, yatm.security.REJECT, yatm.security.NEEDS_ACTION
   check_node_lock = function (self, pos, node, player, slot_id, slot_data, data)
     -- player is the player entity that is triggering the lock check, it could also be a different entity, but it likely will be a player for the most part.
@@ -95,7 +95,7 @@ local function prompt_for_password(pos, node, player, slot_id, slot_data, data, 
   )
 end
 
-yatm.security.register_security_feature("yatm:password_lock", {
+yatm.security:register_security_feature("yatm:password_lock", {
   description = "Password Lock",
 
   _check_password = function (self, data, slot_data)
@@ -131,7 +131,7 @@ __Example of security checks__
 
 ```lua
 -- Below is an example of performing security checks on DATA style node
--- The node requires that both it's security slots grant access
+-- The node requires that both its security slots grant access
 minetest.register_node("my_mod:my_node", {
   description = "DATA My Node",
 
@@ -150,8 +150,8 @@ minetest.register_node("my_mod:my_node", {
 
     -- A function that will be added to data programmer
     check_formspec_access = function (self, pos, user, pointed_thing, assigns, callback)
-      -- this node will just check all of it's security features before allowing itself to be programmed
-      yatm.security.execute_check_node_locks(pos, callback)
+      -- this node will just check all of its security features before allowing itself to be programmed
+      yatm.security:check_node_locks(pos, nil, callback)
     end,
   },
 
@@ -161,7 +161,7 @@ minetest.register_node("my_mod:my_node", {
 })
 
 -- Below is an example of performing security checks on another DATA style node
--- This node however split's it's slots for different access checks
+-- This node however splits its slots for different access checks
 minetest.register_node("my_mod:my_node", {
   description = "DATA My Node",
 
@@ -181,13 +181,13 @@ minetest.register_node("my_mod:my_node", {
     -- A function that will be added to data programmer
     check_formspec_access = function (self, pos, user, pointed_thing, assigns, callback)
       -- this node will only check it's yatmsec_dataprog feature on programming
-      yatm.security.execute_check_nod_locks(pos, "yatmsec_dataprog", callback)
+      yatm.security:check_node_locks(pos, {"yatmsec_dataprog"}, callback)
     end,
   },
 
   on_rightclick = function (pos, node, user, itemstack, pointed_thing)
-    -- this node will only check it's yatmsec_operation feature on right click
-    yatm.security.execute_check_nod_locks(pos, "yatmsec_operation", function ()
+    -- this node will only check its yatmsec_operation feature on right click
+    yatm.security:check_node_locks(pos, {"yatmsec_operation"}, function ()
       -- display default formspec here, or perform some modification to the node
     end)
   end,
