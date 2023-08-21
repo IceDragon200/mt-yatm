@@ -189,6 +189,7 @@ do
     end
   end
 
+  --- @spec #step(): (AccessFlag, extra: Any)
   function ic:step()
     -- TODO: this entire function should likely be rewritten as a coroutine
     if not self.held then
