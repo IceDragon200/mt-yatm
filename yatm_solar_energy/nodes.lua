@@ -1,1 +1,1 @@
-dofile(yatm_solar_energy.modpath .. "/nodes/solar_panel.lua")
+yatm_solar_energy:require("nodes/solar_panel.lua")
