@@ -264,9 +264,9 @@ do
     return nil
   end
 
-  --
-  -- Retrieve the color for the specified direction.
-  --
+  ---
+  --- Retrieve the color for the specified direction.
+  ---
   function ic:get_attached_color(pos, dir)
     assert(pos, "expected a position")
     local attached_colors = self:get_attached_colors(pos)
@@ -276,9 +276,9 @@ do
     return nil
   end
 
-  --
-  -- Retrieves all the sub network ids at specified location
-  --
+  ---
+  --- Retrieves all the sub network ids at specified location
+  ---
   function ic:get_sub_network_ids(pos)
     assert(pos, "expected a position")
     local member = self:get_member_at_pos(pos)
@@ -316,7 +316,7 @@ do
     return result
   end
 
-  -- @spec #get_data_interface(Vector3): (nil | DataInterface, nil | String)
+  --- @spec #get_data_interface(Vector3): (nil | DataInterface, nil | String)
   function ic:get_data_interface(pos)
     local member = self:get_member_at_pos(pos)
     if member then
@@ -340,7 +340,7 @@ do
     return self
   end
 
-  -- @spec #add_node(Vector3, NodeRef): self
+  --- @spec #add_node(Vector3, NodeRef): self
   function ic:add_node(pos, node)
     self:log("add_node", minetest.pos_to_string(pos), node.name)
     local member_id = hash_node_position(pos)
@@ -385,10 +385,10 @@ do
     return true
   end
 
-  -- Call this function when the physical node has changed in order to keep the
-  -- information up to date, an example would be after a minetest.swap_node call.
-  --
-  -- @spec #update_member(Vector3, NodeRef, Boolean): self
+  --- Call this function when the physical node has changed in order to keep the
+  --- information up to date, an example would be after a minetest.swap_node call.
+  ---
+  --- @spec #update_member(Vector3, NodeRef, Boolean): self
   function ic:update_member(pos, node, force_refresh)
     self:log("update_member/3 pos=" .. minetest.pos_to_string(pos) ..
                            " name=" .. node.name ..
@@ -574,8 +574,8 @@ do
     return self
   end
 
-  -- Generates a pseodo 4 segment, colon seperated ID, each segment is a base32 encoded value.
-  -- Don't even try to decode it, it's actually just a random string...
+  --- Generates a pseodo 4 segment, colon seperated ID. Each segment is a base32 encoded value.
+  --- Don't even try to decode it, it's actually just a random string...
   function ic:generate_network_id()
     local result = {}
     for i = 1,4 do
@@ -686,10 +686,10 @@ do
     return self
   end
 
-  --
-  -- Clusters observation hook when a block is unloaded, triggers the removal of members from
-  -- parts of the network or complete shutdown of some parts.
-  --
+  ---
+  --- Clusters observation hook when a block is unloaded, triggers the removal of members from
+  --- parts of the network or complete shutdown of some parts.
+  ---
   function ic:unload_block(block_id)
     local member_ids = self.m_block_members[block_id]
 
@@ -707,9 +707,9 @@ do
     end
   end
 
-  --
-  -- Removes a network, with no craps given, please don't use this unless you know what you're doing.
-  --
+  ---
+  --- Removes a network, with no craps given, please don't use this unless you know what you're doing.
+  ---
   function ic:remove_network(network_id)
     -- I hope you weren't expecting something spectacular.
     self.m_networks[network_id] = nil
