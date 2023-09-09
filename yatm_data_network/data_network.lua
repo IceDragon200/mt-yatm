@@ -1197,7 +1197,7 @@ do
   function ic:_explore_nodes_from_position(network, origin_pos)
     local seen = {}
 
-    local explore = {origin_pos}
+    local explore = {assert(origin_pos)}
     local nodes = {}
 
     local old_explore
@@ -1208,7 +1208,7 @@ do
     local other_hash
     local other_member
 
-    while not is_table_empty(explore) do
+    while next(explore) do
       old_explore = explore
       explore = {}
 
@@ -1259,7 +1259,7 @@ do
     local dir
     local vec
 
-    local sub_network_id = sub_network.id
+    local sub_network_id = assert(sub_network.id)
 
     for member_id, _ in pairs(sub_network.cables) do
       member = self.m_members[member_id]
@@ -1302,7 +1302,7 @@ do
   end
 
   function ic:_build_sub_network(network, origin_pos)
-    local nodes = self._explore_nodes_from_position(network, origin_pos)
+    local nodes = self:_explore_nodes_from_position(network, origin_pos)
 
     local sub_network_id = self:generate_network_id()
     while network.sub_networks[sub_network_id] do
@@ -1320,6 +1320,8 @@ do
     network.sub_networks[sub_network_id] = sub_network
 
     self:_populate_sub_network(network, sub_network)
+
+    print(dump(network))
   end
 end
 
