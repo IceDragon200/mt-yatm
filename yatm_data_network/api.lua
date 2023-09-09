@@ -1,7 +1,8 @@
-yatm.DataNetwork = yatm_data_network.DataNetwork
+--- @namespace yatm_data_network
 
--- An instance
-yatm_data_network.data_network = yatm.DataNetwork:new()
+--- Primary instance of the yatm_data_network.DataNetwork
+--- @const data_network: yatm_data_network.DataNetwork
+yatm_data_network.data_network = yatm_data_network.DataNetwork:new(yatm.clusters)
 
 do
   -- the usual hooks
@@ -39,4 +40,10 @@ do
   })
 end
 
-yatm.data_network = yatm_data_network.data_network
+--- @namespace yatm
+
+--- @const DataNetwork = yatm_data_network.DataNetwork
+yatm.DataNetwork = assert(yatm_data_network.DataNetwork)
+
+--- @const data_network = yatm_data_network.data_network
+yatm.data_network = assert(yatm_data_network.data_network)

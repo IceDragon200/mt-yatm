@@ -60,8 +60,8 @@ DataNetwork.COLOR_RANGE = {
 do
   local ic = assert(DataNetwork.instance_class)
 
-  --- @spec #initialize(): void
-  function ic:initialize()
+  --- @spec #initialize(clusters: yatm.Clusters): void
+  function ic:initialize(clusters)
     self.terminated = false
     self.terminate_reason = false
 
@@ -77,9 +77,11 @@ do
     self.m_block_members = {}
     self.m_resolution_id = 0
 
-    yatm.clusters:observe('on_block_expired', -- event
-                          'yatm_data_network/block_unloader', -- this service's id
-                          self:method("unload_block"))
+    clusters:observe(
+      'on_block_expired', -- event
+      'yatm_data_network/block_unloader', -- this service's id
+      self:method("unload_block")
+    )
   end
 
   function ic:init()
