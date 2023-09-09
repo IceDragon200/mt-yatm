@@ -429,4 +429,3 @@ do
 end
 
 yatm_oku.Computers = Computers
-yatm_oku.computers = Computers:new()

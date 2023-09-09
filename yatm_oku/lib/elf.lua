@@ -222,52 +222,53 @@ yatm_oku.elf = {
 }
 
 local Prog = foundation.com.Class:extends("ELF.Program")
+do
+  local ic = Prog.instance_class
 
-local ic = Prog.instance_class
-
-function ic:initialize(options)
-  ic._super.initialize(self)
-  self.m_ehdr = options.ehdr
-  self.m_sections = options.sections
-  self.m_prog_segments = options.prog_segments
-end
-
-function ic:inspect()
-  return dump({
-    ehdr = self.m_ehdr,
-    sections = self.m_sections,
-    prog_segments = self.m_prog_segments,
-  })
-end
-
-function ic:reduce_sections(acc, fn)
-  return list_reduce(self.m_sections, acc, fn)
-end
-
-function ic:get_section(name)
-  for _,section in pairs(self.m_sections) do
-    if section.name == name then
-      return section
-    end
+  function ic:initialize(options)
+    ic._super.initialize(self)
+    self.m_ehdr = options.ehdr
+    self.m_sections = options.sections
+    self.m_prog_segments = options.prog_segments
   end
-  return nil
-end
 
-function ic:reduce_segments(acc, fn)
-  return list_reduce(self.m_prog_segments, acc, fn)
-end
-
-function ic:get_prog_segment(name)
-  for _,segment in pairs(self.m_prog_segments) do
-    if segment.name == name then
-      return segment
-    end
+  function ic:inspect()
+    return dump({
+      ehdr = self.m_ehdr,
+      sections = self.m_sections,
+      prog_segments = self.m_prog_segments,
+    })
   end
-  return nil
-end
 
-function ic:get_entry_vaddr()
-  return self.m_ehdr.entry
+  function ic:reduce_sections(acc, fn)
+    return list_reduce(self.m_sections, acc, fn)
+  end
+
+  function ic:get_section(name)
+    for _,section in pairs(self.m_sections) do
+      if section.name == name then
+        return section
+      end
+    end
+    return nil
+  end
+
+  function ic:reduce_segments(acc, fn)
+    return list_reduce(self.m_prog_segments, acc, fn)
+  end
+
+  function ic:get_prog_segment(name)
+    for _,segment in pairs(self.m_prog_segments) do
+      if segment.name == name then
+        return segment
+      end
+    end
+    return nil
+  end
+
+  function ic:get_entry_vaddr()
+    return self.m_ehdr.entry
+  end
 end
 
 function yatm_oku.elf:read(stream)

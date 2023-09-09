@@ -2,6 +2,8 @@
 
 local Groups = assert(foundation.com.Groups)
 
+local Computers = assert(yatm_oku.Computers)
+yatm_oku.computers = Computers:new()
 yatm.computers = assert(yatm_oku.computers)
 
 --- @spec get_floppy_disk_size(ItemStack): Integer
