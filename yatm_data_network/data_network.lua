@@ -25,7 +25,6 @@
 local is_table_empty = assert(foundation.com.is_table_empty)
 local table_equals = assert(foundation.com.table_equals)
 local table_copy = assert(foundation.com.table_copy)
-local table_bury = assert(foundation.com.table_bury)
 local random_string32 = assert(foundation.com.random_string32)
 local Directions = assert(foundation.com.Directions)
 local hash_node_position = assert(minetest.hash_node_position)
@@ -477,7 +476,26 @@ do
           local sub_network_id = member.sub_network_ids[dir]
 
           if sub_network_id then
-            table_bury(network.ready_to_send, {sub_network_id, global_port, member_id, dir}, value)
+            local parent
+            local child
+
+            parent = network.ready_to_send[sub_network_id]
+            if not parent then
+              parent = {}
+              network.ready_to_send[sub_network_id] = parent
+            end
+            child = parent[global_port]
+            if not child then
+              child = {}
+              parent[global_port] = child
+            end
+            parent = child
+            child = parent[member_id]
+            if not child then
+              child = {}
+              parent[member_id] = child
+            end
+            child[dir] = value
           end
         else
           self:log(member.node.name, "port out of range",
@@ -562,7 +580,26 @@ do
           local sub_network_id = member.sub_network_ids[dir]
 
           if sub_network_id then
-            table_bury(network.ready_to_receive, {sub_network_id, global_port, member_id, dir}, state)
+            local parent
+            local child
+
+            parent = network.ready_to_receive[sub_network_id]
+            if not parent then
+              parent = {}
+              network.ready_to_receive[sub_network_id] = parent
+            end
+            child = parent[global_port]
+            if not child then
+              child = {}
+              parent[global_port] = child
+            end
+            parent = child
+            child = parent[member_id]
+            if not child then
+              child = {}
+              parent[member_id] = child
+            end
+            child[dir] = state
           end
         else
           self:log(member.node.name, "port out of range", local_port, "expected to be between 1 and " .. port_offset.range)
@@ -718,15 +755,27 @@ do
 
   function ic:handle_network_dispatch(network, dt)
     local attempts = 0
-    while not is_table_empty(network.ready_to_send) and
-          not is_table_empty(network.ready_to_receive) do
+    local old_ready_to_send
+    local old_ready_to_receive
+    local subnet_receivers
+    local port_receivers
+    local new_receiver_dirs
+    local receiver
+    local receiver_node
+    local nodedef
+    local local_port
+
+    local parent
+    local child
+
+    while next(network.ready_to_send) and next(network.ready_to_receive) do
       if attempts > 16 then
         break
       end
       attempts = attempts + 1
 
-      local old_ready_to_send = network.ready_to_send
-      local old_ready_to_receive = network.ready_to_receive
+      old_ready_to_send = network.ready_to_send
+      old_ready_to_receive = network.ready_to_receive
 
       network.ready_to_send = {}
       network.ready_to_receive = {}
@@ -736,42 +785,64 @@ do
           for member_id, dirs in pairs(members) do
             for dir, state in pairs(dirs) do
               if state == "active" then
-                table_bury(network.ready_to_receive, {sub_network_id, port, member_id, dir}, state)
+                --- this is effectively table_bury, but expanded for performance
+                parent = network.ready_to_receive[sub_network_id]
+                if not parent then
+                  parent = {}
+                  network.ready_to_receive[sub_network_id] = parent
+                end
+                child = parent[port]
+                if not child then
+                  child = {}
+                  parent[port] = child
+                end
+                parent = child
+                child = parent[member_id]
+                if not child then
+                  child = {}
+                  parent[member_id] = child
+                end
+                child[dir] = state
               end
             end
           end
         end
       end
 
+      print("old_ready_to_send", dump(old_ready_to_send))
+
       -- yes, this purposely doesn't support multiple members sending on the same port.
       for sub_network_id, sub_network_ports in pairs(old_ready_to_send) do
-        local subnet_receivers = old_ready_to_receive[sub_network_id]
+        subnet_receivers = old_ready_to_receive[sub_network_id]
 
         if subnet_receivers then
           for port, members in pairs(sub_network_ports) do
-            local port_receivers = subnet_receivers[port]
+            port_receivers = subnet_receivers[port]
 
             if port_receivers then
               for member_id, dirs in pairs(members) do
                 for _dir, value in pairs(dirs) do
                   for receiver_member_id, receiver_dirs in pairs(port_receivers) do
-                    local new_receiver_dirs = {}
+                    new_receiver_dirs = {}
                     for receiver_dir, receiver_state in pairs(receiver_dirs) do
                       if receiver_state == "active" then
                         new_receiver_dirs[receiver_dir] = receiver_state
                       else
                         new_receiver_dirs[receiver_dir] = false
                       end
-                      local receiver = self.m_members[receiver_member_id]
+                      receiver = self.m_members[receiver_member_id]
 
                       if receiver then
-                        local receiver_node = minetest.get_node_or_nil(receiver.pos)
+                        receiver_node = minetest.get_node_or_nil(receiver.pos)
 
                         if receiver_node then
-                          local nodedef = minetest.registered_nodes[receiver_node.name]
+                          nodedef = minetest.registered_nodes[receiver_node.name]
 
                           if nodedef.data_interface then
-                            local local_port = self:net_port_to_local_port(port, receiver.attached_colors_by_dir[receiver_dir])
+                            local_port = self:net_port_to_local_port(
+                              port,
+                              receiver.attached_colors_by_dir[receiver_dir]
+                            )
                             nodedef.data_interface:receive_pdu(receiver.pos,
                                                                receiver_node,
                                                                receiver_dir,
@@ -1054,17 +1125,24 @@ do
       self:log("new data network", network.id)
       self.m_networks[network.id] = network
 
+      local member
+      local node
+      local nodedef
+      local other_pos
+      local other_hash
+      local other_member
+
       for member_id, _ in pairs(network.members) do
-        local member = self.m_members[member_id]
+        member = self.m_members[member_id]
         self:do_register_member_groups(member)
 
         if member.type == "device" then
           for dir,v3 in pairs(Directions.DIR6_TO_VEC3) do
-            local other_pos = vector.add(member.pos, v3)
-            local other_hash = hash_node_position(other_pos)
+            other_pos = vector.add(member.pos, v3)
+            other_hash = hash_node_position(other_pos)
 
             if network.members[other_hash] then
-              local other_member = self.m_members[other_hash]
+              other_member = self.m_members[other_hash]
               if other_member.type == "bus" or
                  other_member.type == "mounted_bus" then
                 -- the color is used to determine what port range is usable
@@ -1085,9 +1163,9 @@ do
       self:_build_sub_networks(network)
 
       for member_id, _ in pairs(network.members) do
-        local member = self.m_members[member_id]
-        local node = minetest.get_node(member.pos)
-        local nodedef = minetest.registered_nodes[node.name]
+        member = self.m_members[member_id]
+        node = minetest.get_node(member.pos)
+        nodedef = minetest.registered_nodes[node.name]
 
         if nodedef then
           if nodedef.data_interface then
@@ -1102,8 +1180,9 @@ do
   end
 
   function ic:_build_sub_networks(network)
+    local member
     for member_id, _ in pairs(network.members) do
-      local member = self.m_members[member_id]
+      member = self.m_members[member_id]
 
       -- Create subnets by buses
       if member.type == "bus" or
@@ -1115,23 +1194,31 @@ do
     end
   end
 
-  function ic:_build_sub_network(network, origin_pos)
+  function ic:_explore_nodes_from_position(network, origin_pos)
     local seen = {}
 
     local explore = {origin_pos}
     local nodes = {}
 
+    local old_explore
+    local hash
+    local member
+    local vec
+    local other_pos
+    local other_hash
+    local other_member
+
     while not is_table_empty(explore) do
-      local old_explore = explore
+      old_explore = explore
       explore = {}
 
       for _, pos in ipairs(old_explore) do
-        local hash = hash_node_position(pos)
+        hash = hash_node_position(pos)
 
         if not seen[hash] then
           seen[hash] = true
           if network.members[hash] then
-            local member = self.m_members[hash]
+            member = self.m_members[hash]
 
             if member.type == "bus" or
                member.type == "cable" or
@@ -1140,12 +1227,12 @@ do
               nodes[hash] = true
 
               for dir, _ in pairs(Directions.DIR6_TO_VEC3) do
-                local vec = Directions.DIR6_TO_VEC3[dir]
-                local other_pos = vector.add(pos, vec)
-                local other_hash = hash_node_position(other_pos)
+                vec = Directions.DIR6_TO_VEC3[dir]
+                other_pos = vector.add(pos, vec)
+                other_hash = hash_node_position(other_pos)
 
                 if network.members[other_hash] then
-                  local other_member = self.m_members[other_hash]
+                  other_member = self.m_members[other_hash]
                   if other_member then
                     if can_connect_to(pos, member.node, member, dir,
                                       other_pos, other_member.node, other_member) then
@@ -1160,12 +1247,69 @@ do
       end
     end
 
+    return nodes
+  end
+
+  function ic:_populate_sub_network(network, sub_network)
+    local member
+    local pos
+    local hash
+    local other_member
+    local other_dir
+    local dir
+    local vec
+
+    local sub_network_id = sub_network.id
+
+    for member_id, _ in pairs(sub_network.cables) do
+      member = self.m_members[member_id]
+      member.sub_network_id = sub_network_id
+
+      if member.type == "bus" then
+        for dir, vec in pairs(Directions.DIR6_TO_VEC3) do
+          pos = vector.add(member.pos, vec)
+          hash = hash_node_position(pos)
+
+          if network.members[hash] then
+            other_member = self.m_members[hash]
+            if other_member and other_member.type == "device" then
+              sub_network.devices[hash] = true
+              other_dir = Directions.invert_dir(dir)
+              other_member.attached_colors_by_dir[other_dir] = member.color
+              other_member.sub_network_ids[other_dir] = sub_network_id
+            end
+          end
+        end
+      elseif member.type == "mounted_bus" then
+        for origin_dir, _ in pairs(member.accessible_dirs) do
+          dir = Directions.facedir_to_face(member.node.param2, origin_dir)
+          vec = Directions.DIR6_TO_VEC3[dir]
+          pos = vector.add(member.pos, vec)
+          hash = hash_node_position(pos)
+
+          if network.members[hash] then
+            other_member = self.m_members[hash]
+            if other_member and other_member.type == "device" then
+              sub_network.devices[hash] = true
+              other_dir = Directions.invert_dir(dir)
+              other_member.attached_colors_by_dir[other_dir] = member.color
+              other_member.sub_network_ids[other_dir] = sub_network_id
+            end
+          end
+        end
+      end
+    end
+  end
+
+  function ic:_build_sub_network(network, origin_pos)
+    local nodes = self._explore_nodes_from_position(network, origin_pos)
+
     local sub_network_id = self:generate_network_id()
     while network.sub_networks[sub_network_id] do
       sub_network_id = self:generate_network_id()
     end
 
-    network.sub_networks[sub_network_id] = {
+    local sub_network = {
       id = sub_network_id,
       cables = nodes,
       devices = {}
@@ -1173,46 +1317,9 @@ do
 
     self:log("new sub network", "network_id=" .. network.id, "sub_network_id=" .. sub_network_id)
 
-    local sub_network = network.sub_networks[sub_network_id]
+    network.sub_networks[sub_network_id] = sub_network
 
-    for member_id, _ in pairs(nodes) do
-      local member = self.m_members[member_id]
-      member.sub_network_id = sub_network_id
-
-      if member.type == "bus" then
-        for dir, vec in pairs(Directions.DIR6_TO_VEC3) do
-          local pos = vector.add(member.pos, vec)
-          local hash = hash_node_position(pos)
-
-          if network.members[hash] then
-            local other_member = self.m_members[hash]
-            if other_member and other_member.type == "device" then
-              sub_network.devices[hash] = true
-              local new_dir = Directions.invert_dir(dir)
-              other_member.attached_colors_by_dir[new_dir] = member.color
-              other_member.sub_network_ids[new_dir] = sub_network_id
-            end
-          end
-        end
-      elseif member.type == "mounted_bus" then
-        for origin_dir, _ in pairs(member.accessible_dirs) do
-          local dir = Directions.facedir_to_face(member.node.param2, origin_dir)
-          local vec = Directions.DIR6_TO_VEC3[dir]
-          local pos = vector.add(member.pos, vec)
-          local hash = hash_node_position(pos)
-
-          if network.members[hash] then
-            local other_member = self.m_members[hash]
-            if other_member and other_member.type == "device" then
-              sub_network.devices[hash] = true
-              local inverted_dir = Directions.invert_dir(dir)
-              other_member.attached_colors_by_dir[inverted_dir] = member.color
-              other_member.sub_network_ids[inverted_dir] = sub_network_id
-            end
-          end
-        end
-      end
-    end
+    self:_populate_sub_network(network, sub_network)
   end
 end
 
