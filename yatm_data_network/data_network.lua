@@ -809,8 +809,6 @@ do
         end
       end
 
-      print("old_ready_to_send", dump(old_ready_to_send))
-
       -- yes, this purposely doesn't support multiple members sending on the same port.
       for sub_network_id, sub_network_ports in pairs(old_ready_to_send) do
         subnet_receivers = old_ready_to_receive[sub_network_id]
