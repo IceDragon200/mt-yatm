@@ -1320,8 +1320,6 @@ do
     network.sub_networks[sub_network_id] = sub_network
 
     self:_populate_sub_network(network, sub_network)
-
-    print(dump(network))
   end
 end
 
