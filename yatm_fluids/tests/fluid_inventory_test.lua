@@ -6,7 +6,7 @@ local FluidStack = assert(yatm.fluids.FluidStack)
 
 local case = Luna:new("yatm.fluids.FluidInventory")
 
-case:describe("new/3", function (t2)
+case:describe("#new/3", function (t2)
   t2:test("creates a new fluid inventory object", function (t3)
     local fi = FluidInventory:new("yatm_fluids:test_inventory", 256, 16000)
 
@@ -14,7 +14,7 @@ case:describe("new/3", function (t2)
   end)
 end)
 
-case:describe("is_empty/0", function (t2)
+case:describe("#is_empty/0", function (t2)
   t2:test("reports if a fluid inventory is empty", function (t3)
     local fi = FluidInventory:new("yatm_fluids:test_inventory")
 
@@ -38,7 +38,7 @@ case:describe("is_empty/0", function (t2)
   end)
 end)
 
-case:describe("set_fluid_stack/2", function (t2)
+case:describe("#set_fluid_stack/2", function (t2)
   t2:test("set fluid stack at specified index", function (t3)
     local fi = FluidInventory:new("yatm_fluids:test_inventory")
     fi:set_size("main", 256)
@@ -68,7 +68,7 @@ case:describe("set_fluid_stack/2", function (t2)
   end)
 end)
 
-case:describe("add_fluid_stack/1", function (t2)
+case:describe("#add_fluid_stack/1", function (t2)
   t2:test("will add a fluid stack fo an inventory", function (t3)
     local fi = FluidInventory:new("yatm_fluids:test_inventory")
     fi:set_size("main", 256)
@@ -116,6 +116,7 @@ case:describe("add_fluid_stack/1", function (t2)
   end)
 
   t2:test("will rollover if amount exceeds available capacity", function (t3)
+    local fs
     local fi = FluidInventory:new("yatm_fluids:test_inventory")
     fi:set_size("main", 256)
     fi:set_max_stack_size("main", 16000)
@@ -123,14 +124,24 @@ case:describe("add_fluid_stack/1", function (t2)
     fi:add_fluid_stack("main", FluidStack.new("yatm_fluids:crude_oil", 12000))
     fi:add_fluid_stack("main", FluidStack.new("yatm_fluids:crude_oil", 12000))
 
-    local fs = fi:get_fluid_stack("main", 1)
+    fs = fi:get_fluid_stack("main", 1)
 
     t3:assert_eq("yatm_fluids:crude_oil", fs.name)
     t3:assert_eq(16000, fs.amount)
 
-    local fs = fi:get_fluid_stack("main", 2)
+    fs = fi:get_fluid_stack("main", 2)
     t3:assert_eq("yatm_fluids:crude_oil", fs.name)
     t3:assert_eq(8000, fs.amount)
+  end)
+end)
+
+case:describe("#to_table/0", function (t2)
+  t2:test("can dump a FluidInventory to a table", function (t3)
+    local fi = FluidInventory:new("yatm_fluids:test_inventory")
+
+    local tab = fi:to_table()
+
+    t3:assert_eq(type(tab), "table")
   end)
 end)
 

@@ -58,26 +58,38 @@ local function fluid_tank_drain_sync_2(pos, node)
     end
 
     local item_has_group = Groups.item_has_group
+
+    local lowest_tank
+    local current_fluid
+    local other_fluid
+    local low_filled_stack
+    local used_stack
+    local npos
+    local ndir
+    local nnode
+
     -- Do we have anything left?
     while draining_stack and draining_stack.amount > 0 do
-      local touched_any = false
-
-      local lowest_tank
+      lowest_tank = nil
 
       for dir, vpos in pairs(Directions.DIR4_TO_VEC3) do
-        local current_fluid = FluidTanks.get_fluid(pos, Directions.D_NONE)
+        current_fluid = FluidTanks.get_fluid(pos, Directions.D_NONE)
 
-        local npos = vector.add(pos, vpos)
-        local nnode = minetest.get_node(npos)
+        npos = vector.add(pos, vpos)
+        nnode = minetest.get_node(npos)
 
         if item_has_group(nnode.name, "fluid_tank") then
-          local other_fluid = FluidTanks.get_fluid(npos, Directions.D_NONE)
+          other_fluid = FluidTanks.get_fluid(npos, Directions.D_NONE)
 
           if FluidStack.same_fluid_or_replacable_by(other_fluid, current_fluid) then
             if not other_fluid or current_fluid.amount > other_fluid.amount then
               if lowest_tank then
                 if not other_fluid or lowest_tank.amount > other_fluid.amount then
-                  lowest_tank = {amount = other_fluid.amount, pos = npos, dir = dir}
+                  lowest_tank = {
+                    amount = other_fluid.amount,
+                    pos = npos,
+                    dir = dir
+                  }
                 end
               else
                 lowest_tank = {
@@ -92,14 +104,14 @@ local function fluid_tank_drain_sync_2(pos, node)
       end
 
       if lowest_tank then
-        local npos = lowest_tank.pos
-        local ndir = assert(lowest_tank.dir)
+        npos = lowest_tank.pos
+        ndir = assert(lowest_tank.dir)
 
-        local low_filled_stack =
+        low_filled_stack =
           FluidTanks.fill_fluid(npos, Directions.invert_dir(ndir), draining_stack, true)
 
         if low_filled_stack and low_filled_stack.amount > 0 then
-          local used_stack = FluidTanks.drain_fluid(npos, Directions.D_NONE, low_filled_stack, true)
+          used_stack = FluidTanks.drain_fluid(npos, Directions.D_NONE, low_filled_stack, true)
           draining_stack.amount = draining_stack.amount - used_stack.amount
         else
           break
