@@ -10,5 +10,8 @@ yatm_dscs.autotest_suite:define_model("void_crate", {
     {
       property = "has_rightclick_formspec",
     },
+    {
+      property = "is_void_crate",
+    },
   }
 })

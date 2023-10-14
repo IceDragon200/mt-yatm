@@ -6,17 +6,17 @@ local string_to_pos = assert(minetest.string_to_pos)
 
 local get_inventory_controller_def = assert(yatm.dscs.get_inventory_controller_def)
 
--- @namepsace yatm.dscs.formspec
+--- @namepsace yatm.dscs.formspec
 local my_fspec = {}
 
--- @spec #render_inventory_controller_at({
---   pos: Vector3,
---   node: NodeRef,
---   x: Number,
---   y: Number,
---   w: Number,
---   h: Number
--- }): String
+--- @spec #render_inventory_controller_at({
+---   pos: Vector3,
+---   node: NodeRef,
+---   x: Number,
+---   y: Number,
+---   w: Number,
+---   h: Number
+--- }): String
 function my_fspec.render_inventory_controller_at(options)
   local pos = assert(options.pos)
   local node = assert(options.node)
@@ -36,14 +36,14 @@ function my_fspec.render_inventory_controller_at(options)
   return ""
 end
 
--- @spec render_inventory_controller_children_at({
---   pos: Vector3,
---   node: NodeRef,
---   x: Number,
---   y: Number,
---   cols: Integer,
---   rows: Integer,
--- }): String
+--- @spec render_inventory_controller_children_at({
+---   pos: Vector3,
+---   node: NodeRef,
+---   x: Number,
+---   y: Number,
+---   cols: Integer,
+---   rows: Integer,
+--- }): String
 function my_fspec.render_inventory_controller_children_at(options)
   local pos = options.pos
   local node = options.node

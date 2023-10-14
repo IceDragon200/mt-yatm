@@ -113,13 +113,13 @@ local function on_refresh_timer(player_name, form_name, state)
   }
 end
 
--- @spec.private on_rightclick(
---   pos: Vector3,
---   node: NodeRef,
---   user: PlayerRef,
---   item_stack: ItemStack,
---   pointed_thing: PointedThing
--- ): void
+--- @spec.private on_rightclick(
+---   pos: Vector3,
+---   node: NodeRef,
+---   user: PlayerRef,
+---   item_stack: ItemStack,
+---   pointed_thing: PointedThing
+--- ): void
 local function on_rightclick(pos, node, user, item_stack, pointed_thing)
   local state = {
     pos = pos,

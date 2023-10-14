@@ -13,13 +13,13 @@ local string_to_pos = assert(minetest.string_to_pos)
 
 local get_inventory_controller_def = assert(yatm.dscs.get_inventory_controller_def)
 
--- @namespace yatm_dscs
+--- @namespace yatm_dscs
 
--- @spec.private try_register_to_inventory_controller(
---   pos: Vector3,
---   node: NodeRef,
---   child_pos: Vector3
--- ): Boolean
+--- @spec.private try_register_to_inventory_controller(
+---   pos: Vector3,
+---   node: NodeRef,
+---   child_pos: Vector3
+--- ): Boolean
 local function try_register_to_inventory_controller(pos, node, child_pos)
   local inv_con, err = get_inventory_controller_def(pos, node)
   if not inv_con then
@@ -182,9 +182,10 @@ local function handle_dscs_inventory_controller(_clusters, cluster, dtime, node_
 
     if count > 0 then
       local seen = {}
+      local item
 
       for i = 1,count do
-        local item = list[i]
+        item = list[i]
 
         if not seen[item] then
           seen[item] = true
@@ -195,59 +196,64 @@ local function handle_dscs_inventory_controller(_clusters, cluster, dtime, node_
   end
 end
 
--- @class CraftingSystem
+--- @class CraftingSystem
 local CraftingSystem = foundation.com.Class:extends("YATM.DSCS.CraftingSystem")
-local ic = CraftingSystem.instance_class
+do
+  local ic = CraftingSystem.instance_class
 
--- @spec #initialize(): void
-function ic:initialize()
-  self.m_root_dir = path_join(minetest.get_worldpath(), "/yatm/dscs")
-  minetest.mkdir(self.m_root_dir)
-end
+  --- @spec #initialize(): void
+  function ic:initialize()
+    self.m_root_dir = path_join(minetest.get_worldpath(), "/yatm/dscs")
+    minetest.mkdir(self.m_root_dir)
+  end
 
--- @spec #persist_network_inventory_state(Cluster): void
-function ic:persist_network_inventory_state(cluster)
-  cluster:reduce_group_members("dscs_inventory_controller", 0, function (pos, node, acc)
-    local basename = string.format("inv-controller-%08x.bin", minetest.hash_node_position(pos))
-    local filename = path_join(self.m_root_dir, basename)
-    minetest.safe_file_write(filename)
-    return true, acc + 1
-  end)
-end
+  --- @spec #persist_network_inventory_state(Cluster): void
+  function ic:persist_network_inventory_state(cluster)
+    local basename
+    local filename
 
--- @spec #update(Clusters, Cluster, dtime: Float): void
-function ic:update(cls, cluster, dtime)
-  --print("Updating Cluster", network.id)
-  cluster:reduce_nodes_of_group("dscs_storage_module", 0, function (node_entry, acc)
-    handle_dscs_storage_module(cls, cluster, dtime, node_entry)
+    cluster:reduce_group_members("dscs_inventory_controller", 0, function (pos, node, acc)
+      basename = string.format("inv-controller-%08x.bin", minetest.hash_node_position(pos))
+      filename = path_join(self.m_root_dir, basename)
+      minetest.safe_file_write(filename)
+      return true, acc + 1
+    end)
+  end
 
-    return true, acc + 1
-  end)
+  --- @spec #update(Clusters, Cluster, dtime: Float): void
+  function ic:update(cls, cluster, dtime)
+    --print("Updating Cluster", network.id)
+    cluster:reduce_nodes_of_group("dscs_storage_module", 0, function (node_entry, acc)
+      handle_dscs_storage_module(cls, cluster, dtime, node_entry)
 
-  cluster:reduce_nodes_of_group("dscs_assembler_module", 0, function (node_entry, acc)
-    handle_dscs_assembler_module(cls, cluster, dtime, node_entry)
+      return true, acc + 1
+    end)
 
-    return true, acc + 1
-  end)
+    cluster:reduce_nodes_of_group("dscs_assembler_module", 0, function (node_entry, acc)
+      handle_dscs_assembler_module(cls, cluster, dtime, node_entry)
 
-  cluster:reduce_nodes_of_group("dscs_inventory_controller", 0, function (node_entry, acc)
-    handle_dscs_inventory_controller(cls, cluster, dtime, node_entry)
+      return true, acc + 1
+    end)
 
-    return true, acc + 1
-  end)
+    cluster:reduce_nodes_of_group("dscs_inventory_controller", 0, function (node_entry, acc)
+      handle_dscs_inventory_controller(cls, cluster, dtime, node_entry)
 
-  cluster:reduce_nodes_of_group("dscs_compute_module", 0, function (node_entry, acc)
-    --print(dump(pos), dump(node))
-    return true, acc + 1
-  end)
+      return true, acc + 1
+    end)
 
-  cluster:reduce_nodes_of_group("dscs_server", 0, function (node_entry, acc)
-    --print(dump(pos), dump(node))
-    return true, acc + 1
-  end)
+    cluster:reduce_nodes_of_group("dscs_compute_module", 0, function (node_entry, acc)
+      --print(dump(pos), dump(node))
+      return true, acc + 1
+    end)
+
+    cluster:reduce_nodes_of_group("dscs_server", 0, function (node_entry, acc)
+      --print(dump(pos), dump(node))
+      return true, acc + 1
+    end)
+  end
 end
 
 yatm_dscs.CraftingSystem = CraftingSystem
 
--- @const crafting_system: CraftingSystem
+--- @const crafting_system: CraftingSystem
 yatm_dscs.crafting_system = CraftingSystem:new()

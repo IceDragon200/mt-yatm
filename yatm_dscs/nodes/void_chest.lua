@@ -7,12 +7,99 @@ local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local player_service = assert(nokore.player_service)
 local fspec = assert(foundation.com.formspec.api)
+local yatm_fspec = assert(yatm.formspec)
 
+--- @spec.private migrate(pos: Vector3): void
+local function migrate(pos)
+  local meta = minetest.get_meta(pos)
+
+  local inv = meta:get_inventory()
+  inv:set_size("drive_slot", 1)
+  inv:set_size("drive_slot_input", 1)
+end
+
+--- @spec.private persist_drive_contents(pos: Vector3): void
+local function persist_drive_contents(pos)
+  local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
+
+  local drive_stack = inv:get_stack("drive_slot", 1)
+  if not drive_stack:is_empty() then
+    local list = inv:get_list("drive_contents")
+    drive_stack = yatm.dscs.persist_inventory_list_to_drive(drive_stack, list)
+    inv:set_stack("drive_slot", 1, drive_stack)
+  end
+end
+
+--- @spec get_formspec_name(pos: Vector3): String
 local function get_formspec_name(pos)
   return "yatm_dscs:void_chest:" .. minetest.pos_to_string(pos)
 end
 
-local function get_formspec(pos, user, assigns)
+--- @spec.private refresh_item_inventory(pos: Vector3): void
+local function refresh_item_inventory(pos)
+  local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
+
+  local drive_stack = inv:get_stack("drive_slot", 1)
+  if drive_stack:is_empty() then
+    inv:set_size("drive_contents", 0)
+    meta:set_string("drive_label", "")
+  else
+    local list, capacity = yatm.dscs.load_inventory_list_from_drive(drive_stack)
+
+    inv:set_size("drive_contents", capacity)
+    inv:set_list("drive_contents", list)
+
+    meta:set_string("drive_label", yatm.dscs.get_drive_label(drive_stack))
+  end
+end
+
+--- @spec.private destroy_item_inventory(pos: Vector3): void
+local function destroy_item_inventory(pos)
+  local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
+
+  inv:set_size("drive_contents", 0)
+  meta:set_string("drive_label", "")
+end
+
+--- @spec.private swap_drives(pos: Vector3): void
+local function swap_drives(pos)
+  local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
+
+  local installed_stack = inv:get_stack("drive_slot", 1)
+  local input_stack = inv:get_stack("drive_slot_input", 1)
+
+  --- persist existing drive (if applicable)
+  persist_drive_contents(pos)
+  destroy_item_inventory(pos)
+
+  -- swap the drives
+  inv:set_stack("drive_slot", 1, input_stack)
+  inv:set_stack("drive_slot_input", 1, installed_stack)
+
+  -- rebuild the item inventory using the new drive (if possible)
+  refresh_item_inventory(pos)
+end
+
+--- @spec.private set_drive_label(pos: Vector3, label: String): void
+local function set_drive_label(pos, label)
+  local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
+  local stack = inv:get_stack("drive_slot", 1)
+  if not stack:is_empty() then
+    if yatm.dscs.is_item_stack_item_drive(stack) then
+      yatm.dscs.set_drive_label(stack, label)
+
+      inv:set_stack("drive_slot", 1, stack)
+    end
+  end
+end
+
+--- @spec.private render_formspec(pos: Vector3, user: PlayerRef, assigns: Table): String
+local function render_formspec(pos, user, assigns)
   assert(pos, "expected a node position")
   assert(user, "expected a user")
   assert(assigns, "expected assigns")
@@ -21,10 +108,16 @@ local function get_formspec(pos, user, assigns)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
+  local cis = fspec.calc_inventory_size
   local inv = meta:get_inventory()
   local stack = inv:get_stack("drive_slot", 1)
   local label = ""
   local capacity = 0
+
+  if yatm.dscs.is_item_stack_item_drive(stack) then
+    capacity = stack:get_definition().drive_capacity
+    label = stack:get_meta():get_string("drive_label")
+  end
 
   local cols = yatm.get_player_hotbar_size(user)
   local rows = 4
@@ -38,34 +131,60 @@ local function get_formspec(pos, user, assigns)
 
   local row_offset = assigns.drive_contents_offset * page_size
 
-  if yatm.dscs.is_item_stack_item_drive(stack) then
-    capacity = stack:get_definition().drive_capacity
-    label = stack:get_meta():get_string("drive_label")
-  end
-
-  return yatm.formspec_render_split_inv_panel(user, cols + 1, rows + 1, { bg = "dscs" }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(user, cols + 2, rows + 1, { bg = "dscs" }, function (loc, rect)
     if loc == "main_body" then
-      local blob = fspec.list(node_inv_name, "drive_slot", rect.x, rect.y, 1, 1)
+      local blob =
+        fspec.list(node_inv_name, "drive_slot_input", rect.x, rect.y, 1, 1)
+        .. fspec.button(rect.x + cio(1), rect.y, cis(1), cis(1), "swap_drives", "<->")
+        .. fspec.list(node_inv_name, "drive_slot", rect.x + cio(2), rect.y, 1, 1)
 
       if capacity > 0 then
-        local fw = rect.w - 1
-        local fh = 1
+        local fw = rect.w - cio(4)
+        local fh = cis(1)
 
         blob =
-          blob ..
-          fspec.field_area(rect.x + 1, rect.y, fw, fh, "drive_label", "Drive Label", label) ..
-          fspec.list(node_inv_name, "drive_contents", rect.x, rect.y + cio(1), cols, rows, row_offset)
+          blob
+          .. fspec.field_area(
+            rect.x + cio(3),
+            rect.y,
+            fw,
+            fh,
+            "drive_label",
+            "Drive Label",
+            label
+          )
+          .. fspec.list(
+            node_inv_name,
+            "drive_contents",
+            rect.x,
+            rect.y + cio(1),
+            cols,
+            rows,
+            row_offset
+          )
       end
 
       if row_count > 1 then
-        local px = rect.x + w - 1
+        local px = rect.x + rect.w - cis(1)
 
         blob =
-          blob ..
-          fspec.button(px, rect.y + cio(1), 1, 1, "pgup", "Up") ..
-          fspec.label(px, rect.y + cio(2), (assigns.drive_contents_offset + 1) .. "/" .. row_count) ..
-          fspec.button(px, rect.y + cio(3), 1, 1, "pgdown", "Down")
+          blob
+          .. fspec.button(px, rect.y + cio(1), 1, 1, "pgup", "Up")
+          .. fspec.label(px, rect.y + cio(2), (assigns.drive_contents_offset + 1) .. "/" .. row_count)
+          .. fspec.button(px, rect.y + cio(3), 1, 1, "pgdown", "Down")
       end
+
+      blob =
+        blob
+        .. yatm_fspec.render_meta_energy_gauge(
+          rect.x + rect.w - cio(1),
+          rect.y,
+          cis(1),
+          rect.h,
+          meta,
+          yatm.devices.ENERGY_BUFFER_KEY,
+          yatm.devices.get_energy_capacity(pos, assigns.node)
+        )
 
       return blob
     elseif loc == "footer" then
@@ -81,7 +200,7 @@ end
 local function refresh_formspec(pos)
   nokore.formspec_bindings:refresh_formspecs(get_formspec_name(pos), function (player_name, assigns)
     local player = player_service:get_player_by_name(player_name)
-    return get_formspec(pos, player, assigns)
+    return render_formspec(pos, player, assigns)
   end)
 end
 
@@ -110,20 +229,22 @@ local void_chest_yatm_network = {
 local groups = {
   cracky = nokore.dig_class("copper"),
   --
-  item_interface_out = 1,
-  item_interface_in = 1,
+  dscs_item_storage = 1,
+  dscs_item_provider = 1,
   yatm_energy_device = 1,
   yatm_network_device = 1,
 }
 
 local function allow_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
-  if from_list == "drive_slot" then
+  if from_list == "drive_slot" or to_list("drive_slot") then
+    return 0
+  elseif from_list == "drive_slot_input" then
     if to_list == "drive_contents" then
       return 0
     end
     return count
   elseif from_list == "drive_contents" then
-    if to_list == "drive_slot" then
+    if to_list == "drive_slot_input" then
       return 0
     end
     return count
@@ -132,7 +253,7 @@ local function allow_metadata_inventory_move(pos, from_list, from_index, to_list
 end
 
 local function allow_metadata_inventory_put(pos, listname, index, stack, player)
-  if listname == "drive_slot" then
+  if listname == "drive_slot_input" then
     if yatm.dscs.is_item_stack_item_drive(stack) then
       return 1
     end
@@ -142,16 +263,13 @@ local function allow_metadata_inventory_put(pos, listname, index, stack, player)
   return 0
 end
 
-local function persist_drive_contents(pos)
-  local meta = minetest.get_meta(pos)
-  local inv = meta:get_inventory()
-
-  local drive_stack = inv:get_stack("drive_slot", 1)
-  if not drive_stack:is_empty() then
-    local list = inv:get_list("drive_contents")
-    drive_stack = yatm.dscs.persist_inventory_list_to_drive(drive_stack, list)
-    inv:set_stack("drive_slot", 1, drive_stack)
+local function allow_metadata_inventory_take(pos, listname, index, stack, player)
+  if listname == "drive_slot_input" then
+    return 1
+  elseif listname == "drive_contents" then
+    return stack:get_count()
   end
+  return 0
 end
 
 local function on_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
@@ -161,20 +279,9 @@ local function on_metadata_inventory_move(pos, from_list, from_index, to_list, t
 end
 
 local function on_metadata_inventory_put(pos, listname, index, item_stack, player)
-  if listname == "drive_slot" then
+  if listname == "drive_slot_input" then
     if yatm.dscs.is_item_stack_item_drive(item_stack) then
-      local meta = minetest.get_meta(pos)
-      local inv = meta:get_inventory()
-
-      local list, capacity = yatm.dscs.load_inventory_list_from_drive(item_stack)
-
-      inv:set_size("drive_contents", capacity)
-      inv:set_list("drive_contents", list)
-      meta:set_string("drive_label", yatm.dscs.get_drive_label(item_stack))
-
-      refresh_formspec(pos)
-
-      minetest.log("action", player:get_player_name() .. " installed a drive")
+      minetest.log("action", player:get_player_name() .. " placed a drive for installation")
     end
   elseif listname == "drive_contents" then
     persist_drive_contents(pos)
@@ -182,17 +289,9 @@ local function on_metadata_inventory_put(pos, listname, index, item_stack, playe
 end
 
 local function on_metadata_inventory_take(pos, listname, index, item_stack, player)
-  if listname == "drive_slot" then
+  if listname == "drive_slot_input" then
     if yatm.dscs.is_item_stack_item_drive(item_stack) then
-      local meta = minetest.get_meta(pos)
-      local inv = meta:get_inventory()
-
-      inv:set_size("drive_contents", 0)
-      meta:set_string("drive_label", "")
-
-      refresh_formspec(pos)
-
-      minetest.log("action", player:get_player_name() .. " removed a drive")
+      minetest.log("action", player:get_player_name() .. " removed a drive from input")
     end
   end
 end
@@ -203,14 +302,13 @@ local function receive_fields(player, formname, fields, assigns)
   local needs_refresh = false
 
   if fields["drive_label"] then
-    local stack = inv:get_stack("drive_slot", 1)
-    if not stack:is_empty() then
-      if yatm.dscs.is_item_stack_item_drive(stack) then
-        yatm.dscs.set_drive_label(stack, fields["drive_label"])
+    set_drive_label(assigns.pos, fields["drive_label"])
+    -- needs_refresh = false
+  end
 
-        inv:set_stack("drive_slot", 1, stack)
-      end
-    end
+  if fields["swap_drives"] then
+    swap_drives(assigns.pos)
+    needs_refresh = true
   end
 
   if fields["pgup"] then
@@ -224,15 +322,17 @@ local function receive_fields(player, formname, fields, assigns)
   end
 
   if needs_refresh then
-    return true, get_formspec(assigns.pos, player, assigns)
+    return true, render_formspec(assigns.pos, player, assigns)
   else
     return true
   end
 end
 
 local function on_rightclick(pos, node, user, item_stack, pointed_thing)
+  migrate(pos)
+
   local assigns = { pos = pos, node = node }
-  local formspec = get_formspec(pos, user, assigns)
+  local formspec = render_formspec(pos, user, assigns)
   local formspec_name = get_formspec_name(pos)
 
   nokore.formspec_bindings:show_formspec(
@@ -290,17 +390,14 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
 
   on_construct = function (pos)
-    local node = minetest.get_node(pos)
-
     yatm.devices.device_on_construct(pos)
-    local meta = minetest.get_meta(pos)
 
-    local inv = meta:get_inventory()
-    inv:set_size("drive_slot", 1)
+    migrate(pos)
   end,
 
   allow_metadata_inventory_move = allow_metadata_inventory_move,
   allow_metadata_inventory_put = allow_metadata_inventory_put,
+  allow_metadata_inventory_take = allow_metadata_inventory_take,
 
   on_metadata_inventory_move = on_metadata_inventory_move,
   on_metadata_inventory_put = on_metadata_inventory_put,
@@ -315,11 +412,18 @@ yatm.devices.register_stateful_network_device({
 
   refresh_infotext = function (pos)
     local meta = minetest.get_meta(pos)
+    local inv = meta:get_inventory()
 
     local infotext =
       "Void Chest\n" ..
       cluster_devices:get_node_infotext(pos) .. "\n" ..
       cluster_energy:get_node_infotext(pos) .. " [" .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "]\n"
+
+    local stack = inv:get_stack("drive_slot", 1)
+    if not stack:is_empty() then
+      local label = stack:get_meta():get_string("drive_label")
+      infotext = infotext .. "Drive Label: " .. label
+    end
 
     meta:set_string("infotext", infotext)
   end,

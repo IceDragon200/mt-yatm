@@ -6,7 +6,7 @@ local string_to_pos = assert(minetest.string_to_pos)
 -- @namespace yatm.dscs
 yatm.dscs = yatm.dscs or {}
 
--- @spec get_drive_capacity(ItemStack): Integer
+--- @spec get_drive_capacity(ItemStack): Integer
 function yatm.dscs.get_drive_capacity(item_stack)
   return item_stack:get_definition().drive_capacity
 end
@@ -15,11 +15,12 @@ end
 -- Only Ele and Fluid drives
 -- This denotes the stack size of each cell.
 --
+--- @spec get_drive_stack_size(ItemStack): Integer
 function yatm.dscs.get_drive_stack_size(item_stack)
   return item_stack:get_definition().drive_stack_size
 end
 
--- @spec set_drive_label(ItemStack, drive_label: String): ItemStack
+--- @spec set_drive_label(ItemStack, drive_label: String): ItemStack
 function yatm.dscs.set_drive_label(item_stack, drive_label)
   local meta = item_stack:get_meta()
   meta:set_string("drive_label", drive_label)
@@ -31,8 +32,9 @@ function yatm.dscs.set_drive_label(item_stack, drive_label)
   return item_stack
 end
 
--- @spec get_drive_label(ItemStack): String
+--- @spec get_drive_label(item_stack: ItemStack): String
 function yatm.dscs.get_drive_label(item_stack)
+  assert(item_stack, "expected an item stack")
   local meta = item_stack:get_meta()
   return meta:get_string("drive_label")
 end
