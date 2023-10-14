@@ -24,7 +24,7 @@ mod:require("oku.lua")
 mod:require("lib/elf.lua")
 mod:require("computers.lua")
 
-if yatm_oku.computers then
+if yatm_oku.Computers then
   mod:require("api.lua")
 
   mod:require("nodes.lua")
@@ -39,7 +39,7 @@ if yatm_oku.computers then
   mod.ffi = nil
   mod.bit = nil
 else
-  minetest.log("warning", "oku failed to initialize properly")
+  minetest.log("warning", "oku failed to initialize properly: computers are unavailable")
 end
 
 if minetest.global_exists("yatm_codex") then
