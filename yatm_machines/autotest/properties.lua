@@ -4,6 +4,7 @@ local cluster_energy = assert(yatm.cluster.energy)
 local hash_node_position = assert(minetest.hash_node_position)
 local table_sample = assert(foundation.com.table_sample)
 local Vector3 = assert(foundation.com.Vector3)
+local fparser = assert(foundation.com.formspec.parser)
 
 local ENERGY_PROVIDERS = {}
 
@@ -176,6 +177,7 @@ yatm_machines.autotest_suite:define_property("is_network_controller", {
   end,
 })
 
+--- @autotest_property is_machine_like
 yatm_machines.autotest_suite:define_property("is_machine_like", {
   description = "Is Machine Like",
   detail = [[
@@ -283,6 +285,7 @@ yatm_machines.autotest_suite:define_property("is_machine_like", {
   end,
 })
 
+--- @autotest_property has_rightclick_formspec
 yatm_machines.autotest_suite:define_property("has_rightclick_formspec", {
   description = "Has Right-Click Formspec",
   detail = [[
@@ -306,11 +309,21 @@ yatm_machines.autotest_suite:define_property("has_rightclick_formspec", {
 
       wait_for_next_tick_on_clusters(suite, state, 2.0)
 
-      assert(trigger_rightclick_on_pos(state.pos, state.player), "expected rightclick to trigger")
+      local triggered, reason = trigger_rightclick_on_pos(state.pos, state.player)
+
+      assert(triggered, "expected rightclick to trigger error="..reason)
 
       -- wait three seconds, this will usually refresh the formspec at least three times
       -- for most cases
       suite:wait(3)
+
+      local form = get_player_current_formspec(state.player:get_player_name())
+
+      assert(form, "the player is not currently viewing a formspec trigger_reason="..reason)
+
+      local items = fparser.parse(assert(form.spec, "there is no formspec currently active"))
+
+      -- print(dump(items))
     end,
   },
 
