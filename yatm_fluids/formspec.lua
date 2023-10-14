@@ -3,43 +3,49 @@ local FluidStack = assert(yatm_fluids.FluidStack)
 local fluid_registry = assert(yatm_fluids.fluid_registry)
 local Color = assert(foundation.com.Color)
 
-local formspec = yatm.formspec
+--- @namespace yatm.formspec
+local mod = yatm.formspec
 
 local DEFAULT_FLUID_COLOR = {
   last_set_by = "yatm_fluids",
   color = "#FFFFFF",
 }
 
---
--- Sets the default color used by render_fluid_tank
---
--- @spec set_default_fluid_color(Color): void
-function formspec.set_default_fluid_color(color)
+---
+--- Sets the default color used by render_fluid_tank
+---
+--- @spec set_default_fluid_color(Color): void
+function mod.set_default_fluid_color(color)
   DEFAULT_FLUID_COLOR = {
     last_set_by = minetest.get_current_modname(),
     color = assert(color),
   }
 end
 
--- @spec render_fluid_tank(
---   x: Number,
---   y: Number,
---   w: Number,
---   h: Number,
---   fluid_name: String,
---   amount: Number,
---   is_horz: Boolean
--- ): String
-function formspec.render_fluid_tank(x, y, w, h, fluid_name, amount, max, is_horz)
-  local fluid = fluid_registry.get_fluid(fluid_name)
+--- @spec render_fluid_tank(
+---   x: Number,
+---   y: Number,
+---   w: Number,
+---   h: Number,
+---   fluid_name: String,
+---   amount: Number,
+---   is_horz: Boolean
+--- ): String
+function mod.render_fluid_tank(x, y, w, h, fluid_name, amount, max, is_horz)
+  local fluid
+
+  if fluid_name then
+    fluid = fluid_registry.get_fluid(fluid_name)
+  end
 
   local fluid_color = DEFAULT_FLUID_COLOR.color
+  local tooltip = (fluid_name or "") .. " " .. amount .. " / " .. max
 
   if fluid and fluid.color then
     fluid_color = fluid.color
   end
 
-  return formspec.render_gauge{
+  return mod.render_gauge{
     x = x,
     y = y,
     w = w,
@@ -49,23 +55,23 @@ function formspec.render_fluid_tank(x, y, w, h, fluid_name, amount, max, is_horz
     amount = amount,
     max = max,
     is_horz = is_horz,
-    tooltip = fluid_name .. " " .. amount .. " / " .. max,
+    tooltip = tooltip,
   }
 end
 
---
---
---
--- @spec render_fluid_stack(
---   x: Number,
---   y: Number,
---   w: Number,
---   h: Number,
---   fluid_stack: FluidStack,
---   max: Number,
---   is_horz: Boolean
--- )
-function formspec.render_fluid_stack(x, y, w, h, fluid_stack, max, is_horz)
+---
+---
+---
+--- @spec render_fluid_stack(
+---   x: Number,
+---   y: Number,
+---   w: Number,
+---   h: Number,
+---   fluid_stack: FluidStack,
+---   max: Number,
+---   is_horz: Boolean
+--- ): String
+function mod.render_fluid_stack(x, y, w, h, fluid_stack, max, is_horz)
   local fluid_name = ""
   local fluid_amount = 0
 
@@ -74,7 +80,7 @@ function formspec.render_fluid_stack(x, y, w, h, fluid_stack, max, is_horz)
     fluid_amount = fluid_stack.amount
   end
 
-  return formspec.render_fluid_tank(
+  return mod.render_fluid_tank(
     x,
     y,
     w,
@@ -86,4 +92,54 @@ function formspec.render_fluid_stack(x, y, w, h, fluid_stack, max, is_horz)
   )
 end
 
-yatm_fluids.formspec = formspec
+--- @spec render_fluid_inventory(
+---   fluid_inventory: FluidInventory,
+---   list_name: String,
+---   is_horz: Boolean,
+---   x: Number,
+---   y: Number,
+---   cw: Number | nil,
+---   ch: Number | nil,
+---   cols: Number,
+---   rows: Number,
+---   start_index?: Number
+--- ): String
+function mod.render_fluid_inventory(inv, list_name, is_horz, x, y, cw, ch, cols, rows, start_index)
+  local cio = fspec.calc_inventory_offset
+  local cis = fspec.calc_inventory_size
+
+  cw = cw or cis(1)
+  ch = ch or cw
+
+  start_index = start_index or 0
+
+  local blob = ""
+
+  local inv_size = inv:get_size(list_name)
+  local stack_size = inv:get_max_stack_size(list_name)
+  local cx
+  local cy
+  local fluid_stack
+
+  local max_size = math.min(cols * rows, inv_size)
+  if max_size > 0 then
+    local rel_i
+    for i = start_index,max_size-1 do
+      rel_i = i - start_index
+      fluid_stack = inv:get_fluid_stack(list_name, i+1)
+      cx = x + cio(rel_i % cols)
+      cy = y + cio(math.floor(rel_i / cols))
+
+      blob =
+        blob
+        .. mod.render_fluid_stack(cx, cy, cw, ch, fluid_stack, stack_size, is_horz)
+    end
+  end
+
+  return blob
+end
+
+--- @namespace yatm_fluids
+
+--- @const formspec = yatm.formspec
+yatm_fluids.formspec = mod

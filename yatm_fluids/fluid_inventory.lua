@@ -56,6 +56,20 @@ do
     return true, ErrorCodes.ERR_OK
   end
 
+  --- Retrieve the size of an inventory list
+  ---
+  --- @spec #get_size(list_name: String): (Integer, yatm_fluids.ErrorCode)
+  function ic:get_size(list_name)
+    assert(list_name, "expected a list name")
+
+    local list = self.m_lists[list_name]
+    if list then
+      return list.size, ErrorCodes.ERR_OK
+    end
+
+    return 0, ErrorCodes.ERR_LIST_NOT_FOUND
+  end
+
   --- @spec #set_max_stack_size(
   ---   list_name: String,
   ---   max_stack_size: Integer
@@ -67,6 +81,17 @@ do
       return true, ErrorCodes.ERR_OK
     end
     return false, ErrorCodes.ERR_LIST_NOT_FOUND
+  end
+
+  --- @spec #get_max_stack_size(
+  ---   list_name: String
+  --- ): (Integer, yatm_fluids.ErrorCode)
+  function ic:get_max_stack_size(list_name)
+    local list = self.m_lists[list_name]
+    if list then
+      return list.max_stack_size, ErrorCodes.ERR_OK
+    end
+    return 0, ErrorCodes.ERR_LIST_NOT_FOUND
   end
 
   --- @spec #is_empty(list_name: String): (Boolean, yatm_fluids.ErrorCode)
@@ -256,13 +281,19 @@ do
     return self.m_inventories[name]
   end
 
+  --- @spec #get_fluid_inventory(name: String): FluidInventory | nil
   function ic:get_fluid_inventory(name)
     return self.m_inventories[name]
   end
 
+  --- @spec #destroy_fluid_inventory(name: String): self
   function ic:destroy_fluid_inventory(name)
-    print("Destroyed Fluid Inventory name=" .. name)
-    self.m_inventories[name] = nil
+    if self.m_inventories[name] then
+      print("Destroyed Fluid Inventory name=`" .. name .. "`")
+      self.m_inventories[name] = nil
+    else
+      print("Fluid Inventory name=`" .. name .. "` was to be destroyed, but it does not exist")
+    end
     return self
   end
 
