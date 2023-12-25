@@ -12,3 +12,5 @@ mod:require("hooks.lua")
 if foundation.is_module_present("yatm_autotest") then
   mod:require("autotest.lua")
 end
+
+mod:require("tests.lua")

@@ -2,7 +2,10 @@
 
 --- Primary instance of the yatm_data_network.DataNetwork
 --- @const data_network: yatm_data_network.DataNetwork
-yatm_data_network.data_network = yatm_data_network.DataNetwork:new(yatm.clusters)
+yatm_data_network.data_network = yatm_data_network.DataNetwork:new{
+  world = minetest,
+  clusters = yatm.clusters
+}
 
 do
   -- the usual hooks

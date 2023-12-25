@@ -27,6 +27,7 @@ local table_equals = assert(foundation.com.table_equals)
 local table_copy = assert(foundation.com.table_copy)
 local random_string32 = assert(foundation.com.random_string32)
 local Directions = assert(foundation.com.Directions)
+local pos_to_string = assert(minetest.pos_to_string)
 local hash_node_position = assert(minetest.hash_node_position)
 
 --- @namespace yatm_data_network
@@ -59,8 +60,21 @@ DataNetwork.COLOR_RANGE = {
 do
   local ic = assert(DataNetwork.instance_class)
 
-  --- @spec #initialize(clusters: yatm.Clusters): void
-  function ic:initialize(clusters)
+  --- @type InitOptions: {
+  ---   clusters: yatm_clusters.Clusters,
+  ---   world: Minetest,
+  --- }
+
+  --- Initializes a DataNetwork, the options must have a reference to the clusters instance and
+  --- a world-like object.
+  --- `clusters` will be used to subscribe to block expiration events.
+  --- `world` acts as the primary target for the get/set node functions.
+  ---
+  --- @spec #initialize(options: InitOptions): void
+  function ic:initialize(options)
+    local clusters = assert(options.clusters, "clusters instance is required")
+    local world = assert(options.world, "a world instance is required")
+    self.world = world
     self.terminated = false
     self.terminate_reason = false
 
@@ -76,9 +90,10 @@ do
     self.m_block_members = {}
     self.m_resolution_id = 0
 
-    clusters:observe(
-      'on_block_expired', -- event
-      'yatm_data_network/block_unloader', -- this service's id
+    local service_id = "yatm_data_network:DataNetwork#unload_block"
+    self.disregard_clusters = clusters:observe(
+      "on_block_expired", -- event
+      service_id,
       self:method("unload_block")
     )
   end
@@ -92,6 +107,8 @@ do
     --
     self:log("terminating", reason)
     -- release everything
+    self.disregard_clusters()
+    self.disregard_clusters = nil
     self.m_queued_refreshes = {}
     self.m_networks = {}
     self.m_members = {}
@@ -113,7 +130,7 @@ do
 
       for hash, event in pairs(old_queued_refreshes) do
         if not event.cancelled then
-          --self:log("refreshing from position", minetest.pos_to_string(event.pos))
+          --self:log("refreshing from position", pos_to_string(event.pos))
           self:refresh_from_pos(event.pos)
         end
       end
@@ -196,7 +213,7 @@ do
   -- Call this from a node to emit a value unto it's network on a specified port
   -- You can emit on any port, doesn't mean anyone will receive your value.
   function ic:send_value(pos, dir, local_port, value)
-    --self:log("send_value", minetest.pos_to_string(pos), dir, local_port, dump(value))
+    --self:log("send_value", pos_to_string(pos), dir, local_port, dump(value))
     local member_id = hash_node_position(pos)
     local member = self.m_members[member_id]
     if member and member.network_id then
@@ -319,7 +336,7 @@ do
   function ic:get_data_interface(pos)
     local member = self:get_member_at_pos(pos)
     if member then
-      local node = minetest.get_node_or_nil(member.pos)
+      local node = self.world.get_node_or_nil(member.pos)
       if node then
         local nodedef = minetest.registered_nodes[node.name]
         return nodedef.data_interface
@@ -341,11 +358,11 @@ do
 
   --- @spec #add_node(Vector3, NodeRef): self
   function ic:add_node(pos, node)
-    self:log("add_node", minetest.pos_to_string(pos), node.name)
+    self:log("add_node", pos_to_string(pos), node.name)
     local member_id = hash_node_position(pos)
     local member = self.m_members[member_id]
     if member then
-      minetest.log("error", "cannot register " .. minetest.pos_to_string(pos) .. " " ..
+      minetest.log("error", "cannot register " .. pos_to_string(pos) .. " " ..
                                   node.name .. " it was already registered by " ..
                                   member.node.name)
       return false
@@ -354,12 +371,11 @@ do
     local nodedef = minetest.registered_nodes[node.name]
 
     -- hah dungeons and dragons... I'll see myself out
-    if not nodedef.data_network_device then
+    local dnd = nodedef.data_network_device
+    if not dnd then
       minetest.log("error", "cannot register " .. node.name .. " it does not have a data_network_device field defined")
       return false
     end
-
-    local dnd = assert(nodedef.data_network_device)
 
     member = {
       id = member_id,
@@ -389,7 +405,7 @@ do
   ---
   --- @spec #update_member(Vector3, NodeRef, Boolean): self
   function ic:update_member(pos, node, force_refresh)
-    self:log("update_member/3 pos=" .. minetest.pos_to_string(pos) ..
+    self:log("update_member/3 pos=" .. pos_to_string(pos) ..
                            " name=" .. node.name ..
                            " force_refresh=" .. dump(force_refresh))
     local member_id = hash_node_position(pos)
@@ -427,16 +443,16 @@ do
         self:_queue_refresh(pos, "node updated")
       end
     else
-      error("no such member " .. minetest.pos_to_string(pos))
+      error("no such member " .. pos_to_string(pos))
     end
     return self
   end
 
-  -- If the node is already registered this function will call update_member, if it then add_node.
-  --
-  -- @spec #upsert_member(Vector3, NodeRef, Boolean): self
+  --- If the node is already registered this function will call update_member, if it then add_node.
+  ---
+  --- @spec #upsert_member(Vector3, NodeRef, Boolean): self
   function ic:upsert_member(pos, node, force_refresh)
-    self:log("upsert_member", minetest.pos_to_string(pos), node.name)
+    self:log("upsert_member", pos_to_string(pos), node.name)
     local member_id = hash_node_position(pos)
     local member = self.m_members[member_id]
     if member then
@@ -446,7 +462,7 @@ do
     end
   end
 
-  -- @spec #unregister_member(Vector3, Node | nil): self
+  --- @spec #unregister_member(Vector3, Node | nil): self
   function ic:unregister_member(pos, node)
     self:log("unregister_member/2", "is deprecated please use remove_node/2 instead")
     return self:remove_node(pos, node)
@@ -622,7 +638,7 @@ do
   end
 
   function ic:_queue_refresh(base_pos, reason)
-    self:log("queue_refresh", minetest.pos_to_string(base_pos), reason)
+    self:log("queue_refresh", pos_to_string(base_pos), reason)
     local base_hash = hash_node_position(base_pos)
     self.m_queued_refreshes[base_hash] = {
       pos = base_pos,
@@ -700,7 +716,7 @@ do
   end
 
   function ic:_internal_remove_node(pos)
-    self:log("unregister_member", minetest.pos_to_string(pos))
+    self:log("unregister_member", pos_to_string(pos))
     local member_id = hash_node_position(pos)
     local entry = self.m_members[member_id]
     if entry then
@@ -831,7 +847,7 @@ do
                       receiver = self.m_members[receiver_member_id]
 
                       if receiver then
-                        receiver_node = minetest.get_node_or_nil(receiver.pos)
+                        receiver_node = self.world.get_node_or_nil(receiver.pos)
 
                         if receiver_node then
                           nodedef = minetest.registered_nodes[receiver_node.name]
@@ -888,11 +904,15 @@ do
         if member then
           nodedef = minetest.registered_nodes[member.node.name]
           if nodedef.data_interface then
-            node = minetest.get_node(member.pos)
-            nodedef.data_interface:update(member.pos, node, dt)
+            node = self.world.get_node_or_nil(member.pos)
+            if node then
+              nodedef.data_interface:update(member.pos, node, dt)
+            else
+              needs_fix = true
+            end
           else
             self:log("WARN: Node cannot be subject to updatable group without a data_interface",
-                  minetest.pos_to_string(member.pos), member.node.name)
+                  pos_to_string(member.pos), member.node.name)
           end
         else
           self:log("WARN: Network contains invalid member", member_id)
@@ -961,8 +981,8 @@ do
     local to_dir = Directions.facedir_to_local_face(to_node.param2, origin_dir)
 
     print(table.concat({
-          "FROM", minetest.pos_to_string(from_pos), from_node.name, from_node.param2, from_device.type,
-          "TO", minetest.pos_to_string(to_pos), to_node.name, to_node.param2, to_device.type,
+          "FROM", pos_to_string(from_pos), from_node.name, from_node.param2, from_device.type,
+          "TO", pos_to_string(to_pos), to_node.name, to_node.param2, to_device.type,
           "origin=" .. Directions.DIR_TO_STRING[origin_dir],
           "from_local=" .. Directions.DIR_TO_STRING[from_dir],
           "to_local=" .. Directions.DIR_TO_STRING[to_dir],
@@ -990,7 +1010,7 @@ do
   end
 
   function ic:refresh_from_pos(base_pos)
-    --print("refresh_from_pos", minetest.pos_to_string(base_pos))
+    --print("refresh_from_pos", pos_to_string(base_pos))
     local origin_member_id = hash_node_position(base_pos)
     local origin_member = self.m_members[origin_member_id]
     if origin_member then
@@ -1004,42 +1024,55 @@ do
     local found = {}
     local to_check = {base_pos}
 
+    local v3
+    local old_to_check
+    local hash
+    local node
+    local nodedef
+    local device
+    local other_pos
+    local other_node
+    local other_nodedef
+    local other_device
+    local valid
+    local err
+
     while not is_table_empty(to_check) do
-      local old_to_check = to_check
+      old_to_check = to_check
       to_check = {}
 
       for _, pos in ipairs(old_to_check) do
-        local hash = hash_node_position(pos)
+        hash = hash_node_position(pos)
 
         if not seen[hash] then
           seen[hash] = true
 
-          local node = minetest.get_node(pos)
-          local nodedef = minetest.registered_nodes[node.name]
+          node = self.world.get_node(pos)
+          nodedef = minetest.registered_nodes[node.name]
 
           if nodedef then
-            local device = nodedef.data_network_device
+            device = nodedef.data_network_device
 
             if device then
               found[device.type] = found[device.type] or {}
               found[device.type][hash] = pos
 
               for dir,_ in pairs(Directions.DIR6_TO_VEC3) do
-                local v3 = Directions.DIR6_TO_VEC3[dir]
-                local other_pos = vector.add(pos, v3)
-                local other_node = minetest.get_node(other_pos)
-                local other_nodedef = minetest.registered_nodes[other_node.name]
+                v3 = Directions.DIR6_TO_VEC3[dir]
+                other_pos = vector.add(pos, v3)
+                other_node = self.world.get_node(other_pos)
+                other_nodedef = minetest.registered_nodes[other_node.name]
 
                 if other_nodedef then
-                  local other_device = other_nodedef.data_network_device
+                  other_device = other_nodedef.data_network_device
                   if other_device then
-                    local valid, err = can_connect_to(pos, node, device, dir,
+                    valid, err = can_connect_to(pos, node, device, dir,
                                                       other_pos, other_node, other_device)
                     if valid then
                       table.insert(to_check, other_pos)
                     else
                       if err then
-                        self:log(minetest.pos_to_string(pos), minetest.pos_to_string(other_pos), err)
+                        self:log(pos_to_string(pos), pos_to_string(other_pos), err)
                       end
                     end
                   end
@@ -1069,53 +1102,61 @@ do
       ready_to_receive = {},
     }
 
-    for device_type, devices in pairs(found) do
-      for member_id, pos in pairs(devices) do
-        -- go through the unregistration process, in case the node wasn't already unregistered
-        self:_internal_remove_node(pos)
+    do
+      local member
+      local node
+      local nodedef
+      local block_id
+      local dnd
 
-        local member_entry = self.m_members[member_id] or {}
+      for device_type, devices in pairs(found) do
+        for member_id, pos in pairs(devices) do
+          -- go through the unregistration process, in case the node wasn't already unregistered
+          self:_internal_remove_node(pos)
 
-        local node = minetest.get_node(pos)
-        local nodedef = minetest.registered_nodes[node.name]
-        local dnd = assert(nodedef.data_network_device)
+          member = self.m_members[member_id] or {}
 
-        local block_id = yatm.clusters:mark_node_block(pos, node)
+          node = self.world.get_node(pos)
+          nodedef = minetest.registered_nodes[node.name]
+          dnd = assert(nodedef.data_network_device)
 
-        member_entry.id = member_id
-        member_entry.block_id = block_id
-        member_entry.pos = member_entry.pos or pos
-        member_entry.node = table_copy(node)
-        member_entry.type = dnd.type
-        if dnd.accessible_dirs then
-          member_entry.accessible_dirs = table_copy(dnd.accessible_dirs)
-        else
-          member_entry.accessible_dirs = nil
+          block_id = yatm.clusters:mark_node_block(pos, node)
+
+          member.id = member_id
+          member.block_id = block_id
+          member.pos = member.pos or pos
+          member.node = table_copy(node)
+          member.type = dnd.type
+          if dnd.accessible_dirs then
+            member.accessible_dirs = table_copy(dnd.accessible_dirs)
+          else
+            member.accessible_dirs = nil
+          end
+          member.color = dnd.color
+          member.groups = dnd.groups or {}
+          member.resolution_id = self.m_resolution_id
+          member.network_id = network.id
+          if member.attached_colors_by_dir then
+            member.attached_colors_by_dir = table_copy(member.attached_colors_by_dir)
+          else
+            member.attached_colors_by_dir = {}
+          end
+          member.sub_network_id = nil
+          member.sub_network_ids = {}
+
+          -- Now to re-register it without the register_member function
+          -- Since that includes the side effect of causing yet another refresh...
+          --
+          -- members are indexed by their member_id (i.e the hash)
+          self.m_members[member_id] = member
+
+          if not self.m_block_members[block_id] then
+            self.m_block_members[block_id] = {}
+          end
+          self.m_block_members[block_id][member_id] = true
+
+          network.members[member_id] = true
         end
-        member_entry.color = dnd.color
-        member_entry.groups = dnd.groups or {}
-        member_entry.resolution_id = self.m_resolution_id
-        member_entry.network_id = network.id
-        if member_entry.attached_colors_by_dir then
-          member_entry.attached_colors_by_dir = table_copy(member_entry.attached_colors_by_dir)
-        else
-          member_entry.attached_colors_by_dir = {}
-        end
-        member_entry.sub_network_id = nil
-        member_entry.sub_network_ids = {}
-
-        -- Now to re-register it without the register_member function
-        -- Since that includes the side effect of causing yet another refresh...
-        --
-        -- members are indexed by their member_id (i.e the hash)
-        self.m_members[member_id] = member_entry
-
-        if not self.m_block_members[block_id] then
-          self.m_block_members[block_id] = {}
-        end
-        self.m_block_members[block_id][member_id] = true
-
-        network.members[member_id] = true
       end
     end
 
@@ -1162,7 +1203,7 @@ do
 
       for member_id, _ in pairs(network.members) do
         member = self.m_members[member_id]
-        node = minetest.get_node(member.pos)
+        node = self.world.get_node(member.pos)
         nodedef = minetest.registered_nodes[node.name]
 
         if nodedef then
