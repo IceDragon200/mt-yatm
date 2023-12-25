@@ -1236,6 +1236,7 @@ do
   function ic:_explore_nodes_from_position(network, origin_pos)
     local seen = {}
 
+    local ei = 0
     local explore = {assert(origin_pos)}
     local nodes = {}
 
@@ -1250,6 +1251,7 @@ do
     while next(explore) do
       old_explore = explore
       explore = {}
+      ei = 0
 
       for _, pos in ipairs(old_explore) do
         hash = hash_node_position(pos)
@@ -1275,7 +1277,8 @@ do
                   if other_member then
                     if can_connect_to(pos, member.node, member, dir,
                                       other_pos, other_member.node, other_member) then
-                      table.insert(explore, other_pos)
+                      ei = ei + 1
+                      explore[ei] = other_pos
                     end
                   end
                 end
