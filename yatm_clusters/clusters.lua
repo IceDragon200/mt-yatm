@@ -7,16 +7,17 @@ local table_copy = assert(foundation.com.table_copy)
 local Vector3 = assert(foundation.com.Vector3)
 local List = assert(foundation.com.List)
 
-local hash_pos = minetest.hash_node_position
--- @namespace yatm_clusters
+local hash_node_position = assert(minetest.hash_node_position)
+local pos_to_string = assert(minetest.pos_to_string)
+--- @namespace yatm_clusters
 
--- @type ClusterNode: {
---   id: Integer,
---   pos: Vector3,
---   node: NodeRef,
---   groups: Table<String, Integer>,
---   assigns: Table,
--- }
+--- @type ClusterNode: {
+---   id: Integer,
+---   pos: Vector3,
+---   node: NodeRef,
+---   groups: Table<String, Integer>,
+---   assigns: Table,
+--- }
 
 --- @class Cluster
 local Cluster = foundation.com.Class:extends("YATM.Cluster")
@@ -127,7 +128,7 @@ do
       --[[
       print("clusters.cluster", "cluster_id=" .. self.id,
                                 "node=" .. node_entry.node.name,
-                                "pos=" .. minetest.pos_to_string(node_entry.pos),
+                                "pos=" .. pos_to_string(node_entry.pos),
                                 "group=" .. group_id,
                                 "adding to group")]]
 
@@ -145,7 +146,7 @@ do
 
   --- @spec #add_node(pos: Vector3, node: ClusterNode, groups: Table<String, Integer>): Boolean
   function ic:add_node(pos, node, groups)
-    local node_id = hash_pos(pos)
+    local node_id = hash_node_position(pos)
 
     if self.m_nodes[node_id] then
       print(debug.traceback())
@@ -154,14 +155,14 @@ do
         minetest.log("warning", "duplicate node registration detected" ..
                               " cluster_id=" .. self.id ..
                               " node_id=" .. node_id ..
-                              " pos=" .. minetest.pos_to_string(pos) ..
+                              " pos=" .. pos_to_string(pos) ..
                               " name=" .. node.name)
         return false, "duplicate node registration"
       else
         minetest.log("warning", "dangerous node replacement" ..
                                 " cluster_id=" .. self.id ..
                                 " node_id=" .. node_id ..
-                                " pos=" .. minetest.pos_to_string(pos) ..
+                                " pos=" .. pos_to_string(pos) ..
                                 " name=" .. node.name)
       end
     end
@@ -183,7 +184,7 @@ do
 
   --- @spec #get_node(Vector3): ClusterNode
   function ic:get_node(pos)
-    local node_id = hash_pos(pos)
+    local node_id = hash_node_position(pos)
 
     return self.m_nodes[node_id]
   end
@@ -209,7 +210,7 @@ do
   ---   groups: Table<String, Integer>
   --- ): (Boolean, error: String)
   function ic:update_node(pos, node, groups)
-    local node_id = hash_pos(pos)
+    local node_id = hash_node_position(pos)
     local old_node_entry = self.m_nodes[node_id]
 
     if old_node_entry then
@@ -247,7 +248,7 @@ do
 
   --- @spec #remove_node(pos: Vector3, node: ClusterNode, reason: String): (Boolean, error: String)
   function ic:remove_node(pos, node, reason)
-    local node_id = hash_pos(pos)
+    local node_id = hash_node_position(pos)
 
     local node_entry = self.m_nodes[node_id]
     if node_entry then
@@ -451,10 +452,10 @@ do
     return result
   end
 
-  --
-  -- Counts all nodes present in the specified group of the cluster
-  --
-  -- @spec #count_nodes_of_group(group_name: String): Integer
+  ---
+  --- Counts all nodes present in the specified group of the cluster
+  ---
+  --- @spec #count_nodes_of_group(group_name: String): Integer
   function ic:count_nodes_of_group(group_name)
     local member_list = self.m_group_nodes[group_name]
     if member_list then
@@ -482,8 +483,13 @@ local Clusters = foundation.com.Class:extends("YATM.Clusters")
 do
   local ic = Clusters.instance_class
 
-  -- @spec #initialize(): void
-  function ic:initialize()
+  --- @type InitOptions: {
+  ---   world: Minetest,
+  --- }
+
+  --- @spec #initialize(InitOptions): void
+  function ic:initialize(options)
+    self.world = assert(options.world, "expected a world instance")
     self.m_counter = 0
 
     self.m_acc_dtime = 0
@@ -499,7 +505,7 @@ do
     -- Node ID > {Cluster ID}
     self.m_node_clusters = {}
 
-    -- @member m_queued_node_events: List<Event>
+    --- @member m_queued_node_events: List<Event>
     self.m_queued_node_events = List:new()
 
     -- A life-cycle system, this determines if a mapblock is still loaded
@@ -517,7 +523,7 @@ do
     self.m_next_tick_callbacks = List:new()
   end
 
-  -- @spec #terminate(): void
+  --- @spec #terminate(): void
   function ic:terminate()
     print("clusters", "terminating")
     self:_send_to_observers('terminate', nil)
@@ -531,10 +537,10 @@ do
     --   "schedule_node_event",
     --   cluster_group,
     --   event_name,
-    --   minetest.pos_to_string(pos),
+    --   pos_to_string(pos),
     --   node.name
     -- )
-    local node_id = minetest.hash_node_position(pos)
+    local node_id = hash_node_position(pos)
     local node_name = "N/A"
     if node then
       node_name = node.name
@@ -565,9 +571,9 @@ do
     assert(pos, "expected a node position")
     assert(node, "expected a node")
     local block_pos = Vector3.idiv({}, pos, MAP_BLOCK_SIZE3)
-    local block_hash = minetest.hash_node_position(block_pos)
+    local block_hash = hash_node_position(block_pos)
 
-    --self:log("info", "clusters mark_node_block/2", minetest.pos_to_string(pos), dump(node.name))
+    --self:log("info", "clusters mark_node_block/2", pos_to_string(pos), dump(node.name))
 
     -- mark the block as still active
     self.m_active_blocks[block_hash] = {
@@ -584,7 +590,7 @@ do
   -- Cluster Management
   --
 
-  -- @spec #create_cluster(groups: Table): Cluster
+  --- @spec #create_cluster(groups: Table): Cluster
   function ic:create_cluster(groups)
     groups = groups or {}
     self.m_cluster_id = self.m_cluster_id + 1
@@ -670,7 +676,7 @@ do
     return self
   end
 
-  -- @spec #remove_cluster_by_id(cluster_id: Integer): Cluster
+  --- @spec #remove_cluster_by_id(cluster_id: Integer): Cluster
   function ic:remove_cluster_by_id(cluster_id)
     -- print("clusters", "remove_cluster", cluster_id)
 
@@ -683,7 +689,6 @@ do
     return cluster
   end
 
-  -- @spec
   function ic:_cleanup_cluster(cluster)
     local group_clusters
     for group_name, _group_value in pairs(cluster.groups) do
@@ -762,7 +767,7 @@ do
   end
 
   function ic:_add_node_to_cluster_groups(pos, node, cluster_id)
-    local node_id = minetest.hash_node_position(pos)
+    local node_id = hash_node_position(pos)
     self:_add_node_id_to_cluster_groups(node_id, cluster_id)
   end
 
@@ -773,12 +778,12 @@ do
     self.m_node_clusters[node_id][cluster_id] = true
   end
 
-  -- @spec update_node_in_cluster(
-  --   cluster_id: ID,
-  --   pos: Vector3,
-  --   node: NodeRef,
-  --   groups: Table
-  -- ): (updated: Boolean, error: String)
+  --- @spec update_node_in_cluster(
+  ---   cluster_id: ID,
+  ---   pos: Vector3,
+  ---   node: NodeRef,
+  ---   groups: Table
+  --- ): (updated: Boolean, error: String)
   function ic:update_node_in_cluster(cluster_id, pos, node, groups)
     local cluster = self.m_clusters[cluster_id]
     return cluster:update_node(pos, node, groups)
@@ -792,7 +797,7 @@ do
   end
 
   function ic:_remove_node_from_cluster_groups(cluster_id, pos, node)
-    local node_id = minetest.hash_node_position(pos)
+    local node_id = hash_node_position(pos)
     self:_remove_node_id_from_cluster_groups(cluster_id, node_id)
   end
 
@@ -807,7 +812,7 @@ do
   end
 
   function ic:get_cluster_by_pos_and_group(pos, group_name)
-    local node_id = minetest.hash_node_position(pos)
+    local node_id = hash_node_position(pos)
 
     local cluster_ids = self.m_node_clusters[node_id]
     if cluster_ids then
@@ -851,7 +856,7 @@ do
   --- @spec #reduce_node_clusters(pos: Vector3, acc: Any, reducer: Function/2): (acc: Any)
   function ic:reduce_node_clusters(pos, acc, reducer)
     assert(pos, "expected a position")
-    local node_id = minetest.hash_node_position(pos)
+    local node_id = hash_node_position(pos)
     return self:reduce_node_clusters_by_id(node_id, acc, reducer)
   end
 
@@ -880,7 +885,7 @@ do
   -- Update
   --
 
-  -- @spec #update(dtime: Float, trace: Trace): void
+  --- @spec #update(dtime: Float, trace: Trace): void
   function ic:update(dtime, trace)
     self.m_counter = self.m_counter + 1
 
@@ -924,7 +929,7 @@ do
 
     for block_hash,entry in pairs(self.m_active_blocks) do
       if (self.m_counter - entry.counter) > 3 then
-        if minetest.get_node_or_nil(entry.pos) then
+        if self.world.get_node_or_nil(entry.pos) then
           entry.counter = self.m_counter
         else
           entry.expired = true
@@ -938,7 +943,7 @@ do
       self.m_active_blocks = {}
       for block_hash,entry in pairs(old_blocks) do
         if entry.expired then
-          -- print("clusters", "block expired", entry.id, minetest.pos_to_string(entry.pos))
+          -- print("clusters", "block expired", entry.id, pos_to_string(entry.pos))
           -- block expiration hooks
           self:_send_to_observers("pre_block_expired", entry)
 
@@ -1131,6 +1136,7 @@ do
   --
   -- Observation Hooks
   --
+  --- @spec #observe(group: String, id: String, callback: Function/1): Function/0
   function ic:observe(group, id, callback)
     assert(group, "requires a group")
     assert(id, "requires a id")
@@ -1140,6 +1146,9 @@ do
       self.m_observers[group] = {}
     end
     self.m_observers[group][id] = callback
+    return function ()
+      self:disregard(group, id)
+    end
   end
 
   function ic:disregard(group, id)
@@ -1168,4 +1177,3 @@ do
 end
 
 yatm_clusters.Clusters = Clusters
-yatm_clusters.clusters = Clusters:new()

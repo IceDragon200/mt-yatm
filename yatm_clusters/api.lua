@@ -13,6 +13,15 @@ yatm.explore_nodes = assert(yatm_clusters.explore_nodes)
 --
 -- Modules
 --
+--- @const yatm.Clusters = yatm_clusters.Clusters
+yatm.Clusters = assert(yatm_clusters.Clusters)
+
+--- @const yatm_clusters.clusters: yatm_clusters.Clusters
+yatm_clusters.clusters = yatm.Clusters:new{
+  world = minetest,
+}
+
+--- @const yatm.clusters: yatm_clusters.Clusters
 yatm.clusters = assert(yatm_clusters.clusters)
 
 local clusters = assert(yatm.clusters)

@@ -3,7 +3,7 @@
 --
 -- Handles node registration and general house keeping of node clusters.
 --
-local mod = foundation.new_module("yatm_clusters", "1.0.0")
+local mod = foundation.new_module("yatm_clusters", "1.1.0")
 
 -- Networks
 mod:require("clusters.lua")
