@@ -4,10 +4,12 @@ local string_split = assert(foundation.com.string_split)
 local data_network = assert(yatm.data_network)
 local bit = assert(foundation.com.bit)
 local is_table_empty = assert(foundation.com.is_table_empty)
+local table_freeze = assert(foundation.com.table_freeze)
 
--- @namespace yatm_data_logic
-local NO_SETTINGS = {}
+--- @namespace yatm_data_logic
+local NO_SETTINGS = table_freeze({})
 
+--- @const INTERVAL_LIST: [{ value: String, duration: Float }]
 yatm_data_logic.INTERVAL_LIST = {
   {
     value = "60",
@@ -102,8 +104,8 @@ local function toggle_bit(value, pos)
   return bit.bxor(value, bit.lshift(1, pos))
 end
 
--- @spec encode_varuint(value: Integer, length: Integer) :: String
-function yatm_data_logic.encode_varuint(value, length)
+--- @spec le_encode_varuint(value: Integer, length: Integer): String
+function yatm_data_logic.le_encode_varuint(value, length)
   local now = value
   local result = {}
   local j = 0
@@ -115,24 +117,44 @@ function yatm_data_logic.encode_varuint(value, length)
   return table.concat(result)
 end
 
--- @spec encode_u8(value: Integer) :: String
-function yatm_data_logic.encode_u8(value)
-  return yatm_data_logic.encode_varuint(value, 1)
+--- @spec le_encode_u8(value: Integer): String
+function yatm_data_logic.le_encode_u8(value)
+  return yatm_data_logic.le_encode_varuint(value, 1)
 end
 
--- @spec encode_u16(value: Integer) :: String
-function yatm_data_logic.encode_u16(value)
-  return yatm_data_logic.encode_varuint(value, 2)
+--- @spec le_encode_u16(value: Integer): String
+function yatm_data_logic.le_encode_u16(value)
+  return yatm_data_logic.le_encode_varuint(value, 2)
 end
 
--- @spec encode_u24(value: Integer) :: String
-function yatm_data_logic.encode_u24(value)
-  return yatm_data_logic.encode_varuint(value, 3)
+--- @spec le_encode_u24(value: Integer): String
+function yatm_data_logic.le_encode_u24(value)
+  return yatm_data_logic.le_encode_varuint(value, 3)
 end
 
--- @spec encode_u32(value: Integer) :: String
-function yatm_data_logic.encode_u32(value)
-  return yatm_data_logic.encode_varuint(value, 4)
+--- @spec le_encode_u32(value: Integer): String
+function yatm_data_logic.le_encode_u32(value)
+  return yatm_data_logic.le_encode_varuint(value, 4)
+end
+
+--- @spec le_encode_u40(value: Integer): String
+function yatm_data_logic.le_encode_u40(value)
+  return yatm_data_logic.le_encode_varuint(value, 5)
+end
+
+--- @spec le_encode_u48(value: Integer): String
+function yatm_data_logic.le_encode_u48(value)
+  return yatm_data_logic.le_encode_varuint(value, 6)
+end
+
+--- @spec le_encode_u56(value: Integer): String
+function yatm_data_logic.le_encode_u56(value)
+  return yatm_data_logic.le_encode_varuint(value, 7)
+end
+
+--- @spec le_encode_u64(value: Integer): String
+function yatm_data_logic.le_encode_u64(value)
+  return yatm_data_logic.le_encode_varuint(value, 8)
 end
 
 --
@@ -504,15 +526,19 @@ end
 
 function yatm_data_logic.handle_port_matrix_fields(pos, fields, meta, options)
   local result = {}
+  local port_name
+  local field_name
+  local old_value
+  local value
   for _, dir in ipairs(Directions.DIR6) do
     for section_index, section in ipairs(options.sections) do
       for port_id = 1, section.port_count do
-        local port_name = section.port_names[port_id] or port_id
-        local field_name = section.name .. "_" .. dir .. "_" .. port_name
+        port_name = section.port_names[port_id] or port_id
+        field_name = section.name .. "_" .. dir .. "_" .. port_name
 
         if fields[field_name] then
-          local old_value = meta:get_int(field_name)
-          local value = tonumber(fields[field_name])
+          old_value = meta:get_int(field_name)
+          value = tonumber(fields[field_name])
 
           if value and old_value ~= value then
             meta:set_int(field_name, value)

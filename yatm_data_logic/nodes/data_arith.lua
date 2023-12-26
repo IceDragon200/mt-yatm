@@ -19,7 +19,10 @@ local data_network = assert(yatm.data_network)
 local fspec = assert(foundation.com.formspec.api)
 local data_math = assert(yatm_data_logic.data_math)
 
-local OPERAND_NAMES = {"A", "B"}
+local OPERAND_A = 1
+local OPERAND_X = 2
+local OPERAND_Y = 3
+local OPERAND_NAMES = {OPERAND_A, OPERAND_X, OPERAND_Y}
 local OPERATORS = {
   "identity",
   "add",
@@ -103,12 +106,26 @@ local function get_input_values(pos)
 end
 
 local function get_operand_value(meta, place)
-  local operand_name = meta:get_string("operand_" .. place)
-  if operand_name == "B" then
-    return meta:get_string("operand_b_value")
-  else
+  local operand_id = meta:get_int("operand_" .. place)
+  if operand_id == OPERAND_A then
     return meta:get_string("operand_a_value")
+  elseif operand_id == OPERAND_X then
+    return meta:get_string("operand_x_value")
+  elseif operand_id == OPERAND_Y then
+    return meta:get_string("operand_y_value")
   end
+end
+
+--- @local.spec operand_to_image(operand: Integer): String
+local function operand_to_image(operand)
+  if operand == OPERAND_A then
+    return "yatm_data_arith_stamps_a.png"
+  elseif operand == OPERAND_X then
+    return "yatm_data_arith_stamps_x.png"
+  elseif operand == OPERAND_Y then
+    return "yatm_data_arith_stamps_y.png"
+  end
+  error("invalid operand " .. operand)
 end
 
 local data_interface = {
@@ -170,8 +187,15 @@ local data_interface = {
               {
                 component = "field",
                 type = "string",
-                label = "Operand B Value",
-                name = "operand_b_value",
+                label = "Operand X Value",
+                name = "operand_x_value",
+                meta = true,
+              },
+              {
+                component = "field",
+                type = "string",
+                label = "Operand X Value",
+                name = "operand_y_value",
                 meta = true,
               },
             },
@@ -184,11 +208,7 @@ local data_interface = {
 
               local operator_image = OPERATOR_NODE_TO_STAMP[node.name]
 
-              local image_a = "yatm_data_arith_stamps_a.png"
-              local image_b = "yatm_data_arith_stamps_b.png"
-
-              local operand_left_image
-              local operand_right_image
+              local image_a = "yatm_data_arith_stamps_down_a.png"
 
               local vector_image = "yatm_data_arith_stamps_blank.png"
 
@@ -199,17 +219,8 @@ local data_interface = {
               local current_operand_left = meta:get_string("operand_left")
               local current_operand_right = meta:get_string("operand_right")
 
-              if current_operand_left == "B" then
-                operand_left_image = image_b
-              else
-                operand_left_image = image_a
-              end
-
-              if current_operand_right == "B" then
-                operand_right_image = image_b
-              else
-                operand_right_image = image_a
-              end
+              local operand_left_image = operand_to_image(current_operand_left)
+              local operand_right_image = operand_to_image(current_operand_right)
 
               local formspec = ""
 
@@ -220,18 +231,34 @@ local data_interface = {
               rect.y = rect.y + 0.75
               rect.h = rect.h - 0.75
 
+              local no_label = ""
+              local noclip = false
+              local draw_border = false
+
               formspec =
                 formspec ..
-                fspec.image_button(rect.x, rect.y, 1, 1,
-                  vector_image, "vector_mode_change", "", false, false, vector_image) ..
-                fspec.image_button(rect.x + 1, rect.y, 1, 1,
-                  operand_left_image, "operand_left_change", "", false, false, operand_left_image) ..
-                fspec.image_button(rect.x + 2, rect.y, 1, 1,
-                  operator_image, "operator_change", "", false, false, operator_image) ..
-                fspec.image_button(rect.x + 3, rect.y, 1, 1,
-                  operand_right_image, "operand_right_change", "", false, false, operand_right_image) ..
-                fspec.image(rect.x + 4, rect.y, 1, 1, "yatm_data_arith_stamps_down_equal.png") ..
-                fspec.image(rect.x + 5, rect.y, 1, 1, "yatm_data_arith_stamps_down_c.png")
+                fspec.image_button(
+                  rect.x, rect.y, 1, 1,
+                  vector_image, "vector_mode_change", no_label,
+                  noclip, draw_border, vector_image
+                ) ..
+                fspec.image(rect.x + 1, rect.y, 1, 1, image_a) ..
+                fspec.image(rect.x + 2, rect.y, 1, 1, "yatm_data_arith_stamps_down_equal.png") ..
+                fspec.image_button(
+                  rect.x + 3, rect.y, 1, 1,
+                  operand_left_image, "operand_left_change", no_label,
+                  noclip, draw_border, operand_left_image
+                ) ..
+                fspec.image_button(
+                  rect.x + 4, rect.y, 1, 1,
+                  operator_image, "operator_change", no_label,
+                  noclip, draw_border, operator_image
+                ) ..
+                fspec.image_button(
+                  rect.x + 5, rect.y, 1, 1,
+                  operand_right_image, "operand_right_change", no_label,
+                  noclip, draw_border, operand_right_image
+                )
 
               rect.y = rect.y + 1
               rect.h = rect.h - 1
@@ -265,7 +292,13 @@ local data_interface = {
           },
           {
             component = "field",
-            name = "operand_b_value",
+            name = "operand_x_value",
+            type = "string",
+            meta = true,
+          },
+          {
+            component = "field",
+            name = "operand_y_value",
             type = "string",
             meta = true,
           },
@@ -295,12 +328,14 @@ local data_interface = {
               end
 
               if fields["operand_left_change"] then
-                meta:set_string("operand_left", list_get_next(OPERAND_NAMES, meta:get_string("operand_left")))
+                local operand = list_get_next(OPERAND_NAMES, meta:get_int("operand_left"))
+                meta:set_int("operand_left", operand)
                 should_refresh = true
               end
 
               if fields["operand_right_change"] then
-                meta:set_string("operand_right", list_get_next(OPERAND_NAMES, meta:get_string("operand_right")))
+                local operand = list_get_next(OPERAND_NAMES, meta:get_int("operand_right"))
+                meta:set_int("operand_right", operand)
                 should_refresh = true
               end
 
@@ -311,10 +346,9 @@ local data_interface = {
 
                 if next_node then
                   node.name = next_node
-
                   minetest.swap_node(pos, node)
+                  should_refresh = true
                 end
-                should_refresh = true
               end
 
               return should_refresh

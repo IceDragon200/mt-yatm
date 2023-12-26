@@ -77,16 +77,16 @@ minetest.register_node("yatm_data_logic:data_clock", {
         local output_data
         if precision == 2 then
           value = scale_value(timeofday, 0xFFFF)
-          output_data = string_hex_escape(yatm_data_logic.encode_u16(value))
+          output_data = string_hex_escape(yatm_data_logic.le_encode_u16(value))
         elseif precision == 3 then
           value = scale_value(timeofday, 0xFFFFFF)
-          output_data = string_hex_escape(yatm_data_logic.encode_u24(value))
+          output_data = string_hex_escape(yatm_data_logic.le_encode_u24(value))
         elseif precision == 4 then
           value = scale_value(timeofday, 0xFFFFFFFF)
-          output_data = string_hex_escape(yatm_data_logic.encode_u32(value))
+          output_data = string_hex_escape(yatm_data_logic.le_encode_u32(value))
         else
           value = scale_value(timeofday, 0xFF)
-          output_data = string_hex_escape(yatm_data_logic.encode_u8(value))
+          output_data = string_hex_escape(yatm_data_logic.le_encode_u8(value))
         end
 
         yatm_data_logic.emit_output_data_value(pos, output_data)
