@@ -25,10 +25,10 @@
 local is_table_empty = assert(foundation.com.is_table_empty)
 local table_equals = assert(foundation.com.table_equals)
 local table_copy = assert(foundation.com.table_copy)
-local random_string32 = assert(foundation.com.random_string32)
 local Directions = assert(foundation.com.Directions)
 local pos_to_string = assert(minetest.pos_to_string)
 local hash_node_position = assert(minetest.hash_node_position)
+local generate_network_id = assert(yatm_data_network.utils.generate_network_id)
 
 --- @namespace yatm_data_network
 
@@ -98,11 +98,13 @@ do
     )
   end
 
+  --- @spec #init(): void
   function ic:init()
     self:log("initializing")
     self:log("initialized")
   end
 
+  --- @spec #terminate(reason: String): void
   function ic:terminate(reason)
     --
     self:log("terminating", reason)
@@ -118,6 +120,7 @@ do
     self:log("terminated")
   end
 
+  --- @spec #update(dt: Float): void
   function ic:update(dt)
     self.m_elapsed = self.m_elapsed + dt
     self.m_counter = self.m_counter + 1
@@ -125,10 +128,10 @@ do
       self.m_resolution_id = self.m_resolution_id + 1
       self:log("starting queued refreshes", "resolution_id=" .. self.m_resolution_id)
 
-      local old_queued_refreshes = self.m_queued_refreshes
+      local queued_refreshes = self.m_queued_refreshes
       self.m_queued_refreshes = {}
 
-      for hash, event in pairs(old_queued_refreshes) do
+      for hash, event in pairs(queued_refreshes) do
         if not event.cancelled then
           --self:log("refreshing from position", pos_to_string(event.pos))
           self:refresh_from_pos(event.pos)
@@ -143,6 +146,7 @@ do
     end
   end
 
+  --- @spec #log(...String): void
   function ic:log(...)
     --print("yatm.data_network", self.m_counter, ...)
   end
@@ -210,8 +214,10 @@ do
     return "Data.N: " .. network_id_str
   end
 
-  -- Call this from a node to emit a value unto it's network on a specified port
-  -- You can emit on any port, doesn't mean anyone will receive your value.
+  --- Call this from a node to emit a value unto it's network on a specified port
+  --- You can emit on any port, doesn't mean anyone will receive your value.
+  ---
+  --- @spec #send_value(pos: Vector3, dir: Direction, local_port: Integer, value: String): self
   function ic:send_value(pos, dir, local_port, value)
     --self:log("send_value", pos_to_string(pos), dir, local_port, dump(value))
     local member_id = hash_node_position(pos)
@@ -241,10 +247,12 @@ do
     return self
   end
 
+  --- @spec #get_member(member_id: Integer): nil | DataNetworkMember
   function ic:get_member(member_id)
     return self.m_members[member_id]
   end
 
+  --- @spec #get_member_at_pos(pos: Vector3): nil | DataNetworkMember
   function ic:get_member_at_pos(pos)
     local member_id = hash_node_position(pos)
     return self:get_member(member_id)
@@ -625,16 +633,6 @@ do
       end
     end
     return self
-  end
-
-  --- Generates a pseodo 4 segment, colon seperated ID. Each segment is a base32 encoded value.
-  --- Don't even try to decode it, it's actually just a random string...
-  function ic:generate_network_id()
-    local result = {}
-    for i = 1,4 do
-      table.insert(result, random_string32(2))
-    end
-    return table.concat(result, ":")
   end
 
   function ic:_queue_refresh(base_pos, reason)
@@ -1086,11 +1084,11 @@ do
 
     -- take found nodes, and then remove their registrations if any
     -- then add the new ones
-    local network_id = self:generate_network_id()
+    local network_id = generate_network_id()
     -- make sure we don't already have that network
     -- I mean, what are the chances of that happening?
     while self.m_networks[network_id] do
-      network_id = self:generate_network_id()
+      network_id = generate_network_id()
     end
 
     local network = {
@@ -1346,9 +1344,9 @@ do
   function ic:_build_sub_network(network, origin_pos)
     local nodes = self:_explore_nodes_from_position(network, origin_pos)
 
-    local sub_network_id = self:generate_network_id()
+    local sub_network_id = generate_network_id()
     while network.sub_networks[sub_network_id] do
-      sub_network_id = self:generate_network_id()
+      sub_network_id = generate_network_id()
     end
 
     local sub_network = {
