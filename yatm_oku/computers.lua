@@ -159,7 +159,7 @@ do
       end
       if trace then
         trace:span_end() -- close trace
-        trace:inspect()
+        print(trace:inspect())
       end
 
       local state_pos = vector.new(state.x, state.y, state.z)
@@ -252,7 +252,7 @@ do
 
     span:span_end()
     if not trace then
-      span:inspect()
+      print(span:inspect())
     end
     return bytes_written, nil
   end
@@ -284,7 +284,7 @@ do
     end
     if trace then
       trace:span_end()
-      trace:inspect()
+      print(trace:inspect())
     end
   end
 
