@@ -344,7 +344,7 @@ yatm_machines.autotest_suite:define_property("is_steam_turbine", {
     local player = assert(minetest.get_player_by_name("singleplayer"))
 
     state.pos = random_pos()
-    suit:clear_test_area(state.pos)
+    suite:clear_test_area(state.pos)
 
     state.player = player
 

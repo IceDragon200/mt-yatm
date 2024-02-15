@@ -4,6 +4,7 @@
 local mod = yatm_machines
 local Groups = assert(foundation.com.Groups)
 local fspec = assert(foundation.com.formspec.api)
+local table_freeze = assert(foundation.com.table_freeze)
 local yatm_fspec = assert(yatm.formspec)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
@@ -14,6 +15,9 @@ local fluid_registry = assert(yatm.fluids.fluid_registry)
 local player_service = assert(nokore.player_service)
 local Vector3 = assert(foundation.com.Vector3)
 local device_swap_node_by_state = assert(yatm.devices.device_swap_node_by_state)
+
+local REASON_FLUID_CHANGED = table_freeze({ reason = "fluid has changed" })
+local REASON_PRODUCED_ENERGY = table_freeze({ reason = "produced energy" })
 
 local combustion_engine_nodebox = {
   type = "fixed",
@@ -61,7 +65,7 @@ local fluid_interface = yatm.fluids.FluidInterface.new_simple(TANK_NAME, TANK_CA
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
   local node = minetest.get_node(pos)
-  yatm.queue_refresh_infotext(pos, node)
+  yatm.queue_refresh_infotext(pos, node, REASON_FLUID_CHANGED)
 end
 
 function yatm_network.energy.produce_energy(pos, node, dtime, ot)
@@ -115,7 +119,7 @@ function yatm_network.energy.produce_energy(pos, node, dtime, ot)
   meta:set_int("last_energy_produced", energy_produced)
 
   if need_refresh then
-    yatm.queue_refresh_infotext(pos, node)
+    yatm.queue_refresh_infotext(pos, node, REASON_PRODUCED_ENERGY)
   end
 
   return energy_produced
@@ -346,11 +350,11 @@ local creative_engine_yatm_network = {
   }
 }
 
-function creative_engine_yatm_network.energy.produce_energy(pos, node, dtime, ot)
+function creative_engine_yatm_network.energy.produce_energy(pos, node, dtime, trace)
   local meta = minetest.get_meta(pos)
   local energy_produced = 4096 * dtime
   meta:set_int("last_energy_produced", energy_produced)
-  yatm.queue_refresh_infotext(pos)
+  yatm.queue_refresh_infotext(pos, node, REASON_PRODUCED_ENERGY)
   return energy_produced
 end
 
@@ -366,9 +370,9 @@ function creative_engine_refresh_infotext(pos)
 end
 
 yatm.devices.register_stateful_network_device({
-  codex_entry_id = "yatm_machines:creative_engine",
+  codex_entry_id = mod:make_name("creative_engine"),
 
-  basename = "yatm_machines:creative_engine",
+  basename = mod:make_name("creative_engine"),
 
   description = mod.S("Creative Engine"),
 

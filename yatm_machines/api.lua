@@ -1,3 +1,4 @@
+local table_freeze = assert(foundation.com.table_freeze)
 local table_merge = assert(foundation.com.table_merge)
 local table_deep_merge = assert(foundation.com.table_deep_merge)
 local cluster_devices = assert(yatm.cluster.devices)
@@ -17,10 +18,10 @@ local devices = {
   NUCLEAR_PROTECTION_MAX = -1000,
 }
 
-local REASON_TRANSITION = { reason = "transition_state" }
-local REASON_STORED_ENERGY = { reason = "stored_energy" }
-local REASON_CONSUMED_ENERGY = { reason = "consumed_energy" }
-local REASON_IDLE = { reason = "idle" }
+local REASON_TRANSITION = table_freeze({ reason = "transition_state" })
+local REASON_STORED_ENERGY = table_freeze({ reason = "stored_energy" })
+local REASON_CONSUMED_ENERGY = table_freeze({ reason = "consumed_energy" })
+local REASON_IDLE = table_freeze({ reason = "idle" })
 
 --- @spec device_on_construct(pos: Vector3): void
 function devices.device_on_construct(pos)
@@ -148,10 +149,11 @@ end
 function devices.get_energy_capacity(pos, node)
   local nodedef = minetest.registered_nodes[node.name]
   local en = nodedef.yatm_network.energy
+  local ty = type(en.capacity)
 
-  if type(en.capacity) == "number" then
+  if ty == "number" then
     return en.capacity
-  elseif type(en.capacity) == "function" then
+  elseif ty == "function" then
     return en.capacity(pos, node)
   else
     return 0
@@ -164,7 +166,7 @@ end
 function devices.device_passive_consume_energy(pos, node, total_available, dtime, trace)
   local span
   if trace then
-    span = trace:span_start("device_passive_consume_energy")
+    span = trace:span_start("device_passive_consume_energy:" .. node.name)
   end
 
   local consumed = 0
@@ -224,188 +226,191 @@ end
 ---
 --- @class WorkContext
 local WorkContext = foundation.com.Class:extends("yatm.devices.WorkContext")
-local ic = WorkContext.instance_class
+do
+  local ic = WorkContext.instance_class
 
---- Initialize a new WorkContext.
----
---- @spec #initialize(): void
-function ic:initialize()
-  --
-end
-
---- Initialize a new WorkContext given the position, node reference, elapsed time and an optional
---- trace context.
----
---- @spec #setup(pos: Vector3, node: NodeRef, dtime: Float, trace?: Trace): self
-function ic:setup(pos, node, dtime, trace)
-  -- @member pos: Vector3
-  self.pos = pos
-
-  -- @member node: NodeRef
-  self.node = node
-
-  -- @member dtime: Float
-  self.dtime = dtime
-
-  -- @member trace?: Trace
-  self.trace = trace
-
-  -- retrieve and cache the node definition
-  -- @member nodedef: NodeDefinition
-  self.nodedef = minetest.registered_nodes[self.node.name]
-
-  -- retrieve and cache the metaref
-  -- @member meta: MetaRef
-  self.meta = minetest.get_meta(self.pos, self.node)
-
-  return self
-end
-
----
---- @spec #refresh_node(): void
-function ic:refresh_node()
-  -- refresh the node
-  self.node = minetest.get_node_or_nil(self.pos)
-  -- refresh the nodedef
-  self.nodedef = minetest.registered_nodes[self.node.name]
-  -- retrieve and cache the metaref
-  self.meta = minetest.get_meta(self.pos, self.node)
-end
-
---- @spec #precalculate(): void
-function ic:precalculate()
-  --- affects how much work is done by a machine per tick (higher = better)
-  --- higher the rate, the more work can be done using the same amount of energy
-  --- work rate is also affected by the machine's preferred thermal profile, and any
-  --- upgrades that may be installed
+  --- Initialize a new WorkContext.
   ---
-  --- @member work_rate: Float
-  self.work_rate = 1.0
-
-  --- The heat modifier is the machine's current thermal profile
-  --- the higher the modifier, the hotter the machine is, this works well for
-  --- machines like ovens, furnaces and compactors.
-  --- While the modifier is negative, the machine will be colder which works well
-  --- for machines like condensers, freezers etc...
-  --- The heat modifier is affected by the machine's work itself and thermal
-  --- plates that may be attached.
-  ---
-  --- @member heat_modifier: Float
-  self.heat_modifier = self.meta:get_float(devices.HEAT_MODIFIER_KEY)
-
-  --- Nuclear protection affects how much radioactivty a machine can safely absorb
-  --- this decreases the radioactivity in the block as well.
-  --- This value ranges between NUCLEAR_PROTECTION_MIN and NUCLEAR_PROTECTION_MAX:
-  ---   NUCLEAR_PROTECTION_MIN means the node has a tendency to absorb more radiation than normal,
-  ---     this will likely have negative consequences on the machine's contents.
-  ---   0 being no protection at all, machines with no protection are subject to radiation damage,
-  ---     this can affect the machine's contents and transforms them in dangerous ways.
-  ---   NUCLEAR_PROTECTION_MAX being the highest.
-  --- This value will decrement every tick unless increased by a nuclear thermal plate
-  --- or a nuclear upgrade.
-  --- This value will also decrement every time it has to absorb radiation
-  --- If by absorbing radiation it hits negative a `&on_radiation_damage/5` will take place
-  ---
-  --- @member nuclear_protection: Integer
-  self.nuclear_protection = self.meta:get_int(devices.NUCLEAR_PROTECTION_KEY)
-
-  --- affects how much energy is used per tick (lower = better)
-  --- the higher the rate, the more energy is used for the same unit of work
-  ---
-  --- @member energy_rate: Float
-  self.energy_rate = 1.0
-
-  --- determine the total stored energy
-  ---
-  --- @member total_stored_energy: Integer
-  self.total_stored_energy = Energy.get_meta_energy(self.meta, devices.ENERGY_BUFFER_KEY)
-end
-
---- @spec #run(): void
-function ic:run()
-  -- extract the yatm network definition from the node definition, and ensure it exists
-  local ym = assert(self.nodedef.yatm_network)
-
-  self:precalculate()
-
-  if ym.state == "conflict" then
-    return
+  --- @spec #initialize(): void
+  function ic:initialize()
+    --
   end
 
-  if ym.state == "off" then
-    -- the state was known to be off, see if it can startup
-    if self.total_stored_energy >= ym.energy.startup_threshold then
-      -- yes it could be start up
+  --- Initialize a new WorkContext given the position, node reference, elapsed time and an optional
+  --- trace context.
+  ---
+  --- @spec #setup(pos: Vector3, node: NodeRef, dtime: Float, trace?: Trace): self
+  function ic:setup(pos, node, dtime, trace)
+    --- @member pos: Vector3
+    self.pos = pos
+
+    --- @member node: NodeRef
+    self.node = node
+
+    --- @member dtime: Float
+    self.dtime = dtime
+
+    --- @member trace?: Trace
+    self.trace = trace
+
+    --- retrieve and cache the node definition
+    --- @member nodedef: NodeDefinition
+    self.nodedef = minetest.registered_nodes[self.node.name]
+
+    --- retrieve and cache the metaref
+    --- @member meta: MetaRef
+    self.meta = minetest.get_meta(self.pos, self.node)
+
+    return self
+  end
+
+  ---
+  --- @spec #refresh_node(): void
+  function ic:refresh_node()
+    -- refresh the node
+    self.node = minetest.get_node_or_nil(self.pos)
+    -- refresh the nodedef
+    self.nodedef = minetest.registered_nodes[self.node.name]
+    -- retrieve and cache the metaref
+    self.meta = minetest.get_meta(self.pos, self.node)
+  end
+
+  --- @spec #precalculate(): void
+  function ic:precalculate()
+    --- affects how much work is done by a machine per tick (higher = better)
+    --- higher the rate, the more work can be done using the same amount of energy
+    --- work rate is also affected by the machine's preferred thermal profile, and any
+    --- upgrades that may be installed
+    ---
+    --- @member work_rate: Float
+    self.work_rate = 1.0
+
+    --- The heat modifier is the machine's current thermal profile
+    --- the higher the modifier, the hotter the machine is, this works well for
+    --- machines like ovens, furnaces and compactors.
+    --- While the modifier is negative, the machine will be colder which works well
+    --- for machines like condensers, freezers etc...
+    --- The heat modifier is affected by the machine's work itself and thermal
+    --- plates that may be attached.
+    ---
+    --- @member heat_modifier: Float
+    self.heat_modifier = self.meta:get_float(devices.HEAT_MODIFIER_KEY)
+
+    --- Nuclear protection affects how much radioactivty a machine can safely absorb
+    --- this decreases the radioactivity in the block as well.
+    --- This value ranges between NUCLEAR_PROTECTION_MIN and NUCLEAR_PROTECTION_MAX:
+    ---   NUCLEAR_PROTECTION_MIN means the node has a tendency to absorb more radiation than normal,
+    ---     this will likely have negative consequences on the machine's contents.
+    ---   0 being no protection at all, machines with no protection are subject to radiation damage,
+    ---     this can affect the machine's contents and transforms them in dangerous ways.
+    ---   NUCLEAR_PROTECTION_MAX being the highest.
+    --- This value will decrement every tick unless increased by a nuclear thermal plate
+    --- or a nuclear upgrade.
+    --- This value will also decrement every time it has to absorb radiation
+    --- If by absorbing radiation it hits negative a `&on_radiation_damage/5` will take place
+    ---
+    --- @member nuclear_protection: Integer
+    self.nuclear_protection = self.meta:get_int(devices.NUCLEAR_PROTECTION_KEY)
+
+    --- affects how much energy is used per tick (lower = better)
+    --- the higher the rate, the more energy is used for the same unit of work
+    ---
+    --- @member energy_rate: Float
+    self.energy_rate = 1.0
+
+    --- determine the total stored energy
+    ---
+    --- @member total_stored_energy: Integer
+    self.total_stored_energy = Energy.get_meta_energy(self.meta, devices.ENERGY_BUFFER_KEY)
+  end
+
+  --- @spec #run(): void
+  function ic:run()
+    -- extract the yatm network definition from the node definition, and ensure it exists
+    local ym = assert(self.nodedef.yatm_network)
+
+    self:precalculate()
+
+    if ym.state == "conflict" then
+      return
+    end
+
+    if ym.state == "off" then
+      -- the state was known to be off, see if it can startup
+      if self.total_stored_energy >= ym.energy.startup_threshold then
+        -- yes it could be start up
+        if self.nodedef.transition_device_state(self.pos, self.node, "up") then
+          self:refresh_node()
+          ym = assert(self.nodedef.yatm_network)
+          self:precalculate()
+        end
+      end
+    end
+
+    if ym.state == "on" or ym.state == "idle" then
+      local idle_time = self.meta:get_float("idle_time")
+      idle_time = math.max(0, idle_time - self.dtime)
+
+      self.meta:set_float("idle_time", idle_time)
+
+      if idle_time <= 0 then
+        local capacity = devices.get_energy_capacity(self.pos, self.node)
+        local bandwidth = ym.work_energy_bandwidth or capacity
+
+        local thresh = ym.work_rate_energy_threshold
+        if thresh and thresh > 0 then
+          self.work_rate = self.total_stored_energy / thresh
+        end
+
+        -- TODO: there are multiple factors that affect the work rate, including the energy
+        --       available, thermal settings (i.e. thermal plates attached) and upgrades
+
+        --- The amount of energy that is actually available
+        --- @member available_energy: Integer
+        self.available_energy =
+          Energy.consume_meta_energy(
+            self.meta,
+            devices.ENERGY_BUFFER_KEY,
+            bandwidth,
+            bandwidth,
+            capacity,
+            false
+          )
+
+        local consumed = ym:work(self)
+
+        if consumed > 0 then
+          Energy.consume_meta_energy(
+            self.meta,
+            devices.ENERGY_BUFFER_KEY,
+            consumed,
+            bandwidth,
+            capacity,
+            true
+          )
+
+          yatm.queue_refresh_infotext(self.pos, self.node, REASON_CONSUMED_ENERGY)
+        end
+      else
+        yatm.queue_refresh_infotext(self.pos, self.node, REASON_IDLE)
+      end
+    end
+
+    self.total_stored_energy = Energy.get_meta_energy(self.meta, devices.ENERGY_BUFFER_KEY)
+    if self.total_stored_energy <= 0 then
+      self.nodedef.transition_device_state(self.pos, self.node, "down")
+    end
+  end
+
+  --- Sets the node's expected UP state (usually "on" or "idle")
+  ---
+  --- @spec #set_up_state(state: String): void
+  function ic:set_up_state(state)
+    self.meta:set_string("up_state", state)
+    if self.nodedef.yatm_network.state ~= state then
       if self.nodedef.transition_device_state(self.pos, self.node, "up") then
         self:refresh_node()
-        ym = assert(self.nodedef.yatm_network)
-        self:precalculate()
       end
-    end
-  end
-
-  if ym.state == "on" or ym.state == "idle" then
-    local idle_time = self.meta:get_float("idle_time")
-    idle_time = math.max(0, idle_time - self.dtime)
-
-    self.meta:set_float("idle_time", idle_time)
-
-    if idle_time <= 0 then
-      local capacity = devices.get_energy_capacity(self.pos, self.node)
-      local bandwidth = ym.work_energy_bandwidth or capacity
-      local work_rate = 1.0
-
-      local thresh = ym.work_rate_energy_threshold
-      if thresh and thresh > 0 then
-        work_rate = self.total_stored_energy / thresh
-      end
-
-      -- TODO: there are multiple factors that affect the work rate, including the energy
-      --       available, thermal settings (i.e. thermal plates attached) and upgrades
-
-      self.available_energy =
-        Energy.consume_meta_energy(
-          self.meta,
-          devices.ENERGY_BUFFER_KEY,
-          bandwidth,
-          bandwidth,
-          capacity,
-          false
-        )
-
-      local consumed = ym:work(self)
-
-      if consumed > 0 then
-        Energy.consume_meta_energy(
-          self.meta,
-          devices.ENERGY_BUFFER_KEY,
-          consumed,
-          bandwidth,
-          capacity,
-          true
-        )
-
-        yatm.queue_refresh_infotext(self.pos, self.node, REASON_CONSUMED_ENERGY)
-      end
-    else
-      yatm.queue_refresh_infotext(self.pos, self.node, REASON_IDLE)
-    end
-  end
-
-  self.total_stored_energy = Energy.get_meta_energy(self.meta, devices.ENERGY_BUFFER_KEY)
-  if self.total_stored_energy <= 0 then
-    self.nodedef.transition_device_state(self.pos, self.node, "down")
-  end
-end
-
---- Sets the node's expected UP state (usually "on" or "idle")
----
---- @spec #set_up_state(state: String): void
-function ic:set_up_state(state)
-  self.meta:set_string("up_state", state)
-  if self.nodedef.yatm_network.state ~= state then
-    if self.nodedef.transition_device_state(self.pos, self.node, "up") then
-      self:refresh_node()
     end
   end
 end

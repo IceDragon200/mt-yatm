@@ -7,6 +7,21 @@ local Energy = assert(yatm.energy)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local fspec = assert(foundation.com.formspec.api)
 
+local function refresh_infotext(pos)
+  local meta = minetest.get_meta(pos)
+  local inv = meta:get_inventory()
+
+  local stack = inv:get_stack("input_slot", 1)
+
+  local infotext =
+    cluster_devices:get_node_infotext(pos) .. "\n" ..
+    cluster_energy:get_node_infotext(pos) .. "\n" ..
+    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
+    "Replicating: " .. itemstack_inspect(stack)
+
+  meta:set_string("infotext", infotext)
+end
+
 local item_replicator_yatm_network = {
   kind = "machine",
   groups = {
@@ -37,31 +52,40 @@ local function render_formspec(pos, user)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine" }, function (loc, rect)
     if loc == "main_body" then
-      return fspec.list(node_inv_name, "input_slot", rect.x, rect.y, 1, 1) ..
-        fspec.list(node_inv_name, "output_slot", rect.x + cio(2), rect.y, 1, 1)
+      local formspec =
+        fspec.list(node_inv_name, "input_slot", rect.x, rect.y, 1, 1)
+        .. fspec.list(node_inv_name, "output_slot", rect.x + cio(2), rect.y, 1, 1)
+
+      return formspec
     elseif loc == "footer" then
-      return fspec.list_ring(node_inv_name, "input_slot") ..
-        fspec.list_ring("current_player", "main") ..
-        fspec.list_ring(node_inv_name, "output_slot") ..
-        fspec.list_ring("current_player", "main")
+      local formspec =
+        fspec.list_ring(node_inv_name, "input_slot")
+        .. fspec.list_ring("current_player", "main")
+        .. fspec.list_ring(node_inv_name, "output_slot")
+        .. fspec.list_ring("current_player", "main")
+
+      return formspec
     end
     return ""
   end)
 end
 
-function item_replicator_refresh_infotext(pos)
+local function on_construct(pos)
+  yatm.devices.device_on_construct(pos)
+
   local meta = minetest.get_meta(pos)
   local inv = meta:get_inventory()
 
-  local stack = inv:get_stack("input_slot", 1)
+  inv:set_size("input_slot", 1)
+  inv:set_size("output_slot", 1)
+end
 
-  local infotext =
-    cluster_devices:get_node_infotext(pos) .. "\n" ..
-    cluster_energy:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
-    "Replicating: " .. itemstack_inspect(stack)
-
-  meta:set_string("infotext", infotext)
+local function on_rightclick(pos, node, user)
+  minetest.show_formspec(
+    user:get_player_name(),
+    "yatm_machines:item_replicator",
+    render_formspec(pos, user)
+  )
 end
 
 function item_replicator_yatm_network:work(ctx)
@@ -125,25 +149,11 @@ yatm.devices.register_stateful_network_device({
   yatm_network = item_replicator_yatm_network,
   item_interface = item_interface,
 
-  refresh_infotext = item_replicator_refresh_infotext,
+  refresh_infotext = refresh_infotext,
 
-  on_construct = function (pos)
-    yatm.devices.device_on_construct(pos)
+  on_construct = on_construct,
 
-    local meta = minetest.get_meta(pos)
-    local inv = meta:get_inventory()
-
-    inv:set_size("input_slot", 1)
-    inv:set_size("output_slot", 1)
-  end,
-
-  on_rightclick = function (pos, node, user)
-    minetest.show_formspec(
-      user:get_player_name(),
-      "yatm_machines:item_replicator",
-      render_formspec(pos, user)
-    )
-  end,
+  on_rightclick = on_rightclick,
 }, {
   error = {
     tiles = {
