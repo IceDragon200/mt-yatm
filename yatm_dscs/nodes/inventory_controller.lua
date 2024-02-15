@@ -4,6 +4,7 @@
 -- Inventory controllers are required in a yatm network to store recipes
 -- And management automatic crafting, the node in question will remember
 -- all active requests.
+local mod = assert(yatm_dscs)
 local Energy = assert(yatm.energy)
 local Vector3 = assert(foundation.com.Vector3)
 local cluster_devices = assert(yatm.cluster.devices)
@@ -12,7 +13,7 @@ local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
 local player_service = assert(nokore.player_service)
 
-local inventory_controller_yatm_network = {
+local yatm_network = {
   kind = "machine",
   groups = {
     energy_consumer = 1,
@@ -20,11 +21,11 @@ local inventory_controller_yatm_network = {
   },
   default_state = "off",
   states = {
-    conflict = "yatm_dscs:inventory_controller_error",
-    error = "yatm_dscs:inventory_controller_error",
-    idle = "yatm_dscs:inventory_controller_idle",
-    off = "yatm_dscs:inventory_controller_off",
-    on = "yatm_dscs:inventory_controller_on",
+    conflict = mod:make_name("inventory_controller_error"),
+    error = mod:make_name("inventory_controller_error"),
+    idle = mod:make_name("inventory_controller_idle"),
+    off = mod:make_name("inventory_controller_off"),
+    on = mod:make_name("inventory_controller_on"),
   },
   energy = {
     capacity = 4000,
@@ -85,6 +86,7 @@ local function render_formspec(pos, user, state)
   end)
 end
 
+--- @spec.private on_receive_fields(player: PlayerRef, formname: String, fields: Table, assigns: Table): Boolean
 local function on_receive_fields(player, formname, fields, assigns)
   local meta = minetest.get_meta(assigns.pos)
   local inv = meta:get_inventory()
@@ -95,14 +97,17 @@ local function on_receive_fields(player, formname, fields, assigns)
   return true
 end
 
+--- @spec.private make_formspec_name(pos: Vector3): String
 local function make_formspec_name(pos)
   return "yatm_dscs:inventory_controller:" .. minetest.pos_to_string(pos)
 end
 
+--- @spec.private refresh_formspec(pos: Vector3, player: PlayerRef): void
 local function refresh_formspec(pos, _player)
   nokore.formspec_bindings:trigger_form_timer(make_formspec_name(pos), "refresh")
 end
 
+--- @spec.private on_refresh_timer(player_name: String, form_name: String, state: Table): Table
 local function on_refresh_timer(player_name, form_name, state)
   local player = player_service:get_player_by_name(player_name)
   return {
@@ -148,20 +153,23 @@ end
 local groups = {
   cracky = nokore.dig_class("copper"),
   --
+  yatm_inventory_controller = 1,
+  --
+  yatm_dscs_device = 1,
   yatm_network_device = 1,
   yatm_energy_device = 1,
-  yatm_inventory_controller = 1,
 }
 
 yatm.devices.register_stateful_network_device({
-  basename = "yatm_dscs:inventory_controller",
+  basename = mod:make_name("inventory_controller"),
 
   codex_entry_id = "yatm_dscs:inventory_controller",
-  description = "Inventory Controller",
+  base_description = mod.S("Inventory Controller"),
+  description = mod.S("Inventory Controller"),
 
   groups = groups,
 
-  drop = inventory_controller_yatm_network.states.off,
+  drop = yatm_network.states.off,
 
   use_texture_alpha = "opaque",
   tiles = {
@@ -171,7 +179,7 @@ yatm.devices.register_stateful_network_device({
   paramtype = "none",
   paramtype2 = "facedir",
 
-  yatm_network = inventory_controller_yatm_network,
+  yatm_network = yatm_network,
 
   refresh_infotext = refresh_infotext,
 

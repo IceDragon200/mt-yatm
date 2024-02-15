@@ -3,8 +3,18 @@ local InventorySerializer = assert(yatm.items.InventorySerializer)
 
 local string_to_pos = assert(minetest.string_to_pos)
 
--- @namespace yatm.dscs
+--- @namespace yatm.dscs
 yatm.dscs = yatm.dscs or {}
+
+--- @spec make_flat_monitor_node_box(): Table
+function yatm.dscs.make_flat_monitor_node_box()
+  return {
+    type = "fixed",
+    fixed = {
+      {-0.5, -0.5, 0.25, 0.5, 0.5, 0.5},
+    }
+  }
+end
 
 --- @spec get_drive_capacity(ItemStack): Integer
 function yatm.dscs.get_drive_capacity(item_stack)

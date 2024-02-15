@@ -413,6 +413,7 @@ local groups = {
   --
   dscs_fluid_storage = 1,
   dscs_fluid_provider = 1,
+  yatm_dscs_device = 1,
   yatm_energy_device = 1,
   yatm_network_device = 1,
 }

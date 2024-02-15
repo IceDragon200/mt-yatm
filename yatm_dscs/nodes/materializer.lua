@@ -49,6 +49,7 @@ local groups = {
   yatm_dscs_device = 1,
   yatm_network_device = 1,
   yatm_energy_device = 1,
+  --
   item_interface_out = 1,
   fluid_interface_out = 1,
 }

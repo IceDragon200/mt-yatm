@@ -300,18 +300,21 @@ function drive_case_yatm_network.on_unload(pos, node)
   end
 end
 
+local groups = {
+  cracky = nokore.dig_class("copper"),
+  --
+  yatm_dscs_device = 1,
+  yatm_energy_device = 1,
+  yatm_network_device = 1,
+}
+
 yatm.devices.register_stateful_network_device({
   basename = "yatm_dscs:drive_case",
 
   codex_entry_id = "yatm_dscs:drive_case",
   description = "Drive Case",
 
-  groups = {
-    cracky = nokore.dig_class("copper"),
-    --
-    yatm_energy_device = 1,
-    yatm_network_device = 1,
-  },
+  groups = groups,
 
   drop = drive_case_yatm_network.states.off,
 

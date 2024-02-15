@@ -1,6 +1,7 @@
 --
--- Inventory DSCS Monitor
+-- Inventory DSCS Inventory Monitors
 --
+local table_merge = assert(foundation.com.table_merge)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
@@ -10,6 +11,8 @@ local groups = {
   cracky = nokore.dig_class("copper"),
   --
   monitor = 1,
+  inventory_monitor = 1,
+  yatm_dscs_device = 1,
   yatm_energy_device = 1,
   yatm_network_device = 1,
 }
@@ -88,12 +91,12 @@ local monitor_inventory_yatm_network = {
 }
 
 yatm.devices.register_stateful_network_device({
-  basename = "yatm_dscs:monitor_ele",
+  basename = "yatm_dscs:monitor_inventory",
 
   codex_entry_id = "yatm_dscs:inventory_monitor",
   description = "Monitor (inventory)",
 
-  groups = groups,
+  groups = table_merge(groups, {}),
 
   drop = monitor_inventory_yatm_network.states.off,
 
@@ -141,13 +144,6 @@ yatm.devices.register_stateful_network_device({
 --
 -- Inventory Monitor
 --
-local flat_monitor_nodebox = {
-  type = "fixed",
-  fixed = {
-    {-0.5, -0.5, 0.25, 0.5, 0.5, 0.5}, -- NodeBox1
-  }
-}
-
 local flat_monitor_inventory_yatm_network = {
   kind = "monitor",
   groups = {
@@ -175,7 +171,7 @@ yatm.devices.register_stateful_network_device({
   codex_entry_id = "yatm_dscs:monitor_inventory",
   description = "Flat Monitor (inventory)",
 
-  groups = groups,
+  groups = table_merge(groups, {}),
 
   drop = flat_monitor_inventory_yatm_network.states.off,
 
@@ -190,7 +186,7 @@ yatm.devices.register_stateful_network_device({
   },
 
   drawtype = "nodebox",
-  node_box = flat_monitor_nodebox,
+  node_box = yatm.dscs.make_flat_monitor_node_box(),
 
   paramtype = "light",
   paramtype2 = "facedir",

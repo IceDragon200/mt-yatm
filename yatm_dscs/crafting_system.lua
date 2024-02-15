@@ -220,36 +220,68 @@ do
     end)
   end
 
-  --- @spec #update(Clusters, Cluster, dtime: Float): void
-  function ic:update(cls, cluster, dtime)
+  --- @spec #update(Clusters, Cluster, dtime: Float, trace: Trace): void
+  function ic:update(cls, cluster, dtime, trace)
     --print("Updating Cluster", network.id)
+    local span
+
+    if trace then
+      span = trace:span_start("dscs_storage_module")
+    end
     cluster:reduce_nodes_of_group("dscs_storage_module", 0, function (node_entry, acc)
-      handle_dscs_storage_module(cls, cluster, dtime, node_entry)
+      handle_dscs_storage_module(cls, cluster, dtime, node_entry, span)
 
       return true, acc + 1
     end)
+    if span then
+      span:span_end()
+    end
 
+    if trace then
+      span = trace:span_start("dscs_assembler_module")
+    end
     cluster:reduce_nodes_of_group("dscs_assembler_module", 0, function (node_entry, acc)
       handle_dscs_assembler_module(cls, cluster, dtime, node_entry)
 
       return true, acc + 1
     end)
+    if span then
+      span:span_end()
+    end
 
+    if trace then
+      span = trace:span_start("dscs_inventory_controller")
+    end
     cluster:reduce_nodes_of_group("dscs_inventory_controller", 0, function (node_entry, acc)
       handle_dscs_inventory_controller(cls, cluster, dtime, node_entry)
 
       return true, acc + 1
     end)
+    if span then
+      span:span_end()
+    end
 
+    if trace then
+      span = trace:span_start("dscs_compute_module")
+    end
     cluster:reduce_nodes_of_group("dscs_compute_module", 0, function (node_entry, acc)
       --print(dump(pos), dump(node))
       return true, acc + 1
     end)
+    if span then
+      span:span_end()
+    end
 
+    if trace then
+      span = trace:span_start("dscs_server")
+    end
     cluster:reduce_nodes_of_group("dscs_server", 0, function (node_entry, acc)
       --print(dump(pos), dump(node))
       return true, acc + 1
     end)
+    if span then
+      span:span_end()
+    end
   end
 end
 

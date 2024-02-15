@@ -42,6 +42,7 @@ end
 local groups = {
   cracky = nokore.dig_class("copper"),
   --
+  yatm_dscs_device = 1,
   yatm_network_device = 1,
   yatm_energy_device = 1,
 }
