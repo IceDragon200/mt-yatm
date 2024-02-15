@@ -112,7 +112,7 @@ local function on_timer(pos, elapsed)
 
       node.name = "yatm_culinary:oven_on"
       minetest.swap_node(pos, node)
-      yatm.queue_refresh_infotext(pos)
+      yatm.queue_refresh_infotext(pos, node)
     else
       meta:set_float("fuel_time", 0)
       meta:set_float("fuel_time_max", 0)
