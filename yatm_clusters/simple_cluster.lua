@@ -6,6 +6,8 @@
 local is_table_empty = assert(foundation.com.is_table_empty)
 local table_keys = assert(foundation.com.table_keys)
 local table_merge = assert(foundation.com.table_merge)
+local copy_node = assert(foundation.com.copy_node)
+local node_to_string = assert(foundation.com.node_to_string)
 local DIR6_TO_VEC3 = assert(foundation.com.Directions.DIR6_TO_VEC3)
 local clusters = assert(yatm.clusters)
 local list = assert(foundation.com.List)
@@ -147,11 +149,11 @@ do
         self.m_cluster_group,
         "add_node",
         pos,
-        node,
+        copy_node(node),
         { groups = groups }
       )
     else
-      error("node violation: " .. node.name .. " does not belong to " .. self.m_node_group .. " group")
+      error("node violation: " .. node_to_string(node) .. " does not belong to " .. self.m_node_group .. " group")
     end
   end
 
@@ -170,7 +172,7 @@ do
       self.m_cluster_group,
       "transition_node",
       pos,
-      node,
+      copy_node(node),
       { state = new_state }
     )
   end
@@ -182,7 +184,7 @@ do
       self.m_cluster_group,
       "load_node",
       pos,
-      node,
+      copy_node(node),
       { groups = groups }
     )
   end
@@ -194,7 +196,7 @@ do
       self.m_cluster_group,
       "update_node",
       pos,
-      node,
+      copy_node(node),
       { groups = groups }
     )
   end
@@ -205,7 +207,7 @@ do
       self.m_cluster_group,
       "remove_node",
       pos,
-      node,
+      copy_node(node),
       {}
     )
   end
@@ -351,23 +353,25 @@ do
   function ic:_handle_update_node(cls, generation_id, event, given_cluster_ids)
     self:log('_handle_update_node', minetest.pos_to_string(event.pos))
     local cluster
-    local ncluster
+    local other_cluster
 
+    local group_value
     for cluster_id, _ in pairs(given_cluster_ids) do
-      ncluster = cls:get_cluster(cluster_id)
-      if ncluster and ncluster.groups[self.m_cluster_group] then
-        cluster = ncluster
+      other_cluster = cls:get_cluster(cluster_id)
+      group_value = other_cluster.groups[self.m_cluster_group]
+      if other_cluster and group_value and group_value > 0 then
+        cluster = other_cluster
         break
       end
     end
 
     if cluster then
-      local updated, err =
+      -- local updated, err =
         cls:update_node_in_cluster(cluster.id, event.pos, event.node, event.params.groups)
 
-      if not updated then
-        print("failed to update node ", dump(event), err)
-      end
+      -- if not updated then
+        -- minetest.log("warning", "failed to update node " .. dump(event) .. err)
+      -- end
     end
     return cluster
   end

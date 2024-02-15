@@ -1,3 +1,4 @@
+local copy_node = assert(foundation.com.copy_node)
 local is_table_empty = assert(foundation.com.is_table_empty)
 local table_keys = assert(foundation.com.table_keys)
 local table_length = assert(foundation.com.table_length)
@@ -84,8 +85,8 @@ function ic:_handle_add_node(cls, generation_id, event, node_clusters)
   cls:schedule_node_event(
     self.m_cluster_group,
     "refresh_controller",
-    event.pos,
-    event.node,
+    vector.copy(event.pos),
+    copy_node(event.node),
     {
       cluster_id = cluster.id,
       generation_id = generation_id
@@ -98,8 +99,8 @@ function ic:on_cluster_branch_changed(cls, generation_id, event, cluster)
   cls:schedule_node_event(
     self.m_cluster_group,
     "refresh_controller",
-    event.pos,
-    event.node,
+    vector.copy(event.pos),
+    copy_node(event.node),
     {
       cluster_id = cluster.id,
       generation_id = generation_id
@@ -111,8 +112,8 @@ function ic:transition_cluster_state(cls, cluster, generation_id, event, state)
   cls:schedule_node_event(
     self.m_cluster_group,
     "transition_state",
-    event.pos,
-    event.node,
+    vector.copy(event.pos),
+    copy_node(event.node),
     {
       state = state,
       cluster_id = cluster.id,
@@ -209,11 +210,11 @@ function ic:_handle_transition_state(cls, generation_id, event, node_clusters)
       return true, acc + 1
     end)
   else
-    self:log("cluster requested a transition_state but it no longer exists cluster_id=" .. event.params.cluster_id)
+    self:log("cluster requested a transition_state but it does not exist cluster_id=" .. event.params.cluster_id)
   end
 end
 
-local CLUSTER_GROUP = 'yatm_device'
+local CLUSTER_GROUP = "yatm_device"
 
 --
 -- Called before a block is expired and removed from the clusters

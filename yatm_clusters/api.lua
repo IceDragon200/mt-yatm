@@ -7,6 +7,7 @@
 --
 -- Functions
 --
+--- @spec yatm.queue_refresh_infotext(pos: Vector3, node: NodeRef, params: Any): void
 yatm.queue_refresh_infotext = assert(yatm_clusters.queue_refresh_infotext)
 yatm.explore_nodes = assert(yatm_clusters.explore_nodes)
 

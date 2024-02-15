@@ -3,7 +3,9 @@
 --
 local is_table_empty = assert(foundation.com.is_table_empty)
 local table_length = assert(foundation.com.table_length)
-local table_copy = assert(foundation.com.table_copy)
+local copy_node = assert(foundation.com.copy_node)
+local node_to_string = assert(foundation.com.node_to_string)
+local value_inspect = assert(foundation.com.value_inspect)
 local Vector3 = assert(foundation.com.Vector3)
 local List = assert(foundation.com.List)
 
@@ -72,6 +74,8 @@ do
   function ic:merge(other_cluster)
     assert(other_cluster, "expected a cluster")
 
+    -- minetest.log("debug", "merging clusters " .. other_cluster.id .. " into " .. self.id)
+
     for group_id, group_value in pairs(other_cluster.groups) do
       self.groups[group_id] = group_value
     end
@@ -81,22 +85,22 @@ do
       self.m_nodes[node_id] = node_entry
     end
 
+    local my_block_nodes
     for block_id, block_nodes in pairs(other_cluster.m_block_nodes) do
-      if not self.m_block_nodes[block_id] then
-        self.m_block_nodes[block_id] = {}
-      end
+      my_block_nodes = self.m_block_nodes[block_id] or {}
       for node_id,value in pairs(block_nodes) do
-        self.m_block_nodes[block_id][node_id] = value
+        my_block_nodes[node_id] = value
       end
+      self.m_block_nodes[block_id] = my_block_nodes
     end
 
+    local my_group_nodes
     for group_id, group_nodes in pairs(other_cluster.m_group_nodes) do
-      if not self.m_group_nodes[group_id] then
-        self.m_group_nodes[group_id] = {}
-      end
+      my_group_nodes = self.m_group_nodes[group_id] or {}
       for node_id,value in pairs(group_nodes) do
-        self.m_group_nodes[group_id][node_id] = value
+        my_group_nodes[node_id] = value
       end
+      self.m_group_nodes[group_id] = my_group_nodes
     end
 
     for key, value in pairs(other_cluster.assigns) do
@@ -150,27 +154,27 @@ do
 
     if self.m_nodes[node_id] then
       print(debug.traceback())
-      local old_node = self.m_nodes[node_id]
-      if old_node.node.name == node.name then
+      local old_entry = self.m_nodes[node_id]
+      if old_entry.node.name == node.name then
         minetest.log("warning", "duplicate node registration detected" ..
                               " cluster_id=" .. self.id ..
                               " node_id=" .. node_id ..
                               " pos=" .. pos_to_string(pos) ..
-                              " name=" .. node.name)
+                              " node=" .. node_to_string(node))
         return false, "duplicate node registration"
       else
         minetest.log("warning", "dangerous node replacement" ..
                                 " cluster_id=" .. self.id ..
                                 " node_id=" .. node_id ..
                                 " pos=" .. pos_to_string(pos) ..
-                                " name=" .. node.name)
+                                " node=" .. node_to_string(node))
       end
     end
 
     local node_entry = {
       id = node_id,
-      pos = Vector3.copy(pos),
-      node = table_copy(node),
+      pos = vector.copy(pos),
+      node = copy_node(node),
       groups = groups or {},
       assigns = {}
     }
@@ -227,11 +231,9 @@ do
 
       local node_entry = {
         id = node_id,
-        pos = Vector3.copy(pos),
-        node = table_copy(node),
-
+        pos = vector.copy(pos),
+        node = copy_node(node),
         groups = groups or {},
-
         assigns = old_node_entry.assigns or {}
       }
 
@@ -242,7 +244,7 @@ do
 
       return true
     else
-      return false, "node not found"
+      return false, "node not found in cluster"
     end
   end
 
@@ -416,24 +418,27 @@ do
   function ic:reduce_nodes_of_group(group, acc, reducer)
     local primary_list = self.m_group_nodes[group]
 
-    if primary_list then
-      local continue_reduce = true
-      local should_continue
-      local node_entry
+    if not primary_list then
+      return acc
+    end
 
-      for node_id,group_value in pairs(primary_list) do
-        should_continue = true
+    local continue_reduce = true
+    local should_continue
+    local node_entry
 
-        if should_continue then
-          node_entry = self.m_nodes[node_id]
-          continue_reduce, acc = reducer(node_entry, acc)
-        end
+    for node_id,group_value in pairs(primary_list) do
+      should_continue = true
 
-        if not continue_reduce then
-          break
-        end
+      if should_continue then
+        node_entry = self.m_nodes[node_id]
+        continue_reduce, acc = reducer(node_entry, acc)
+      end
+
+      if not continue_reduce then
+        break
       end
     end
+
     return acc
   end
 
@@ -516,7 +521,7 @@ do
     self.m_observers = {}
 
     -- A list of systems that should execute against the clusters
-    self.m_systems = {}
+    self.m_systems = List:new()
 
     self.m_node_event_handlers = {}
 
@@ -530,36 +535,35 @@ do
     print("clusters", "terminated")
   end
 
+  --- @spec #schedule_node_event(
+  ---   cluster_group: String,
+  ---   event_name: String,
+  ---   pos: Vector3,
+  ---   node: NodeRef,
+  ---   params: Table
+  --- ): void
   function ic:schedule_node_event(cluster_group, event_name, pos, node, params)
     assert(pos, "need a position")
-    -- print(
-    --   "clusters",
-    --   "schedule_node_event",
-    --   cluster_group,
-    --   event_name,
-    --   pos_to_string(pos),
-    --   node.name
-    -- )
     local node_id = hash_node_position(pos)
     local node_name = "N/A"
-    if node then
-      node_name = node.name
-    end
+    -- if cluster_group ~= "refresh_infotext" then
+    --   minetest.log("debug",
+    --     "[" .. self.m_counter .. "] CLUSTERS schedule_node_event " .. cluster_group .. " " .. event_name .. " " ..
+    --     pos_to_string(pos) .. " " .. node_to_string(node) .. " " .. value_inspect(params)
+    --   )
+    -- end
 
-    -- print(
-    --   "pushing_node_event",
-    --   "node_id:", node_id,
-    --   "event_name:", event_name,
-    --   "from_node:", node_name,
-    --   "params: ", dump(params)
-    -- )
+    local new_node
+    if node then
+      new_node = copy_node(node)
+    end
 
     self.m_queued_node_events:push({
       cluster_group = cluster_group,
       event_name = event_name,
-      pos = pos,
+      pos = vector.copy(pos),
       node_id = node_id,
-      node = node,
+      node = new_node,
       params = params,
     })
   end
@@ -578,7 +582,7 @@ do
     -- mark the block as still active
     self.m_active_blocks[block_hash] = {
       id = block_hash,
-      pos = pos,
+      pos = vector.copy(pos),
       mapblock_pos = block_pos,
       expired = false,
       counter = self.m_counter
@@ -864,21 +868,26 @@ do
   -- System Management
   --
 
-  --- @spec register_system(cluster_group: String, system_id: String, update: Function/1): void
+  --- @spec #register_system(cluster_group: String, system_id: String, update: Function/1): void
   function ic:register_system(cluster_group, system_id, update)
-    if self.m_systems[system_id] then
+    local old_entry = self.m_systems:find(nil, function (item)
+      return item.id == system_id
+    end)
+
+    if old_entry then
       error("a system system_id=" .. system_id .. " is already registered")
     else
-      self.m_systems[system_id] = {
+      self.m_systems:push({
+        id = system_id,
         cluster_group = cluster_group,
-        update = update
-      }
+        update = update,
+      })
     end
   end
 
   -- default = 1 / 4 -- (every 250ms)
-  -- local STEP_INTERVAL = 1 / 60 -- every 16ms
-  local STEP_INTERVAL = 1 / 20 -- every 50ms
+  local STEP_INTERVAL = 1 / 60 -- every 16ms
+  -- local STEP_INTERVAL = 1 / 20 -- every 50ms
   --local STEP_INTERVAL = 1 / 10 -- every 100ms
 
   --
@@ -992,8 +1001,9 @@ do
       local len = self.m_queued_node_events:size()
       self.m_queued_node_events:clear()
 
+      local node_id
       local handlers
-      local cluster_ids
+      local group_cluster_ids
       local handler_trace
       local event
 
@@ -1001,7 +1011,7 @@ do
       for index = 1,len do
         event = node_event_queue[index]
         cluster_group = event.cluster_group
-
+        group_cluster_ids = self.m_group_clusters[cluster_group]
         handlers = self.m_node_event_handlers[cluster_group]
 
         -- print("processing event", dump(event), "handlers", dump(handlers))
@@ -1011,12 +1021,7 @@ do
             if span then
               handler_trace = span:span_start(callback_name)
             end
-            cluster_ids = self.m_group_clusters[cluster_group]
-
-            -- print(callback_name, callback, dump(event))
-
-            callback(self, self.m_counter, event, cluster_ids, handler_trace)
-
+            callback(self, self.m_counter, event, group_cluster_ids, handler_trace)
             if handler_trace then
               handler_trace:span_end()
             end
@@ -1041,31 +1046,37 @@ do
       func_trace = mod_trace:span_start("_update_systems")
     end
 
-    for system_id, system in pairs(self.m_systems) do
-      if func_trace then
-        sys_trace = func_trace:span_start(system_id)
-      end
+    local size = self.m_systems:size()
+    if size > 0 then
+      local systems = self.m_systems:data()
+      local system
+      for i = 1,size do
+        system = systems[i]
+        if func_trace then
+          sys_trace = func_trace:span_start(system.id)
+        end
 
-      cluster_ids = self.m_group_clusters[system.cluster_group]
-      if cluster_ids then
-        for cluster_id, _ in pairs(cluster_ids) do
-          cluster = self.m_clusters[cluster_id]
-          if cluster then
-            if sys_trace then
-              cls_trace = sys_trace:span_start(cluster_id)
+        cluster_ids = self.m_group_clusters[system.cluster_group]
+        if cluster_ids and next(cluster_ids) then
+          for cluster_id, _ in pairs(cluster_ids) do
+            cluster = self.m_clusters[cluster_id]
+            if cluster then
+              if sys_trace then
+                cls_trace = sys_trace:span_start(cluster_id)
+              end
+              system.update(self, cluster, dtime, cls_trace)
+              if cls_trace then
+                cls_trace:span_end()
+              end
+            else
+              print("clusters", "WARN", "missing cluster cluster_id=" .. cluster_id)
             end
-            system.update(self, cluster, dtime, cls_trace)
-            if cls_trace then
-              cls_trace:span_end()
-            end
-          else
-            print("clusters", "WARN", "missing cluster cluster_id=" .. cluster_id)
           end
         end
-      end
 
-      if sys_trace then
-        sys_trace:span_end()
+        if sys_trace then
+          sys_trace:span_end()
+        end
       end
     end
 

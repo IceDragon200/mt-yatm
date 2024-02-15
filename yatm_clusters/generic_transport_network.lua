@@ -11,7 +11,7 @@ local Directions = assert(foundation.com.Directions)
 local is_table_empty = assert(foundation.com.is_table_empty)
 local random_string16 = assert(foundation.com.random_string16)
 local table_keys = assert(foundation.com.table_keys)
-local table_copy = assert(foundation.com.table_copy)
+local copy_node = assert(foundation.com.copy_node)
 
 local GenericTransportNetwork = foundation.com.Class:extends("GenericTransportNetwork")
 local m = assert(GenericTransportNetwork.instance_class)
@@ -132,7 +132,7 @@ function m:update_member(pos, node, is_register)
     id = node_id,
     block_id = 0,
     pos = pos,
-    node = table_copy(node),
+    node = copy_node(node),
     name = node.name,
     param1 = node.param1,
     param2 = node.param2,
