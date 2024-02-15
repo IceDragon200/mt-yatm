@@ -3,6 +3,41 @@ local cluster_thermal = assert(yatm.cluster.thermal)
 local table_length = assert(foundation.com.table_length)
 local table_merge = assert(foundation.com.table_merge)
 
+local function refresh_infotext(pos, node)
+  local meta = minetest.get_meta(pos)
+  local available_heat = meta:get_float("heat")
+
+  local infotext =
+    cluster_thermal:get_node_infotext(pos) .. "\n" ..
+    "Heat: " .. math.floor(available_heat)
+
+  meta:set_string("infotext", infotext)
+
+  local new_name
+  if math.floor(available_heat) > 0 then
+    new_name = "yatm_thermal_ducts:thermal_duct_heating"
+  elseif math.floor(available_heat) < 0 then
+    new_name = "yatm_thermal_ducts:thermal_duct_cooling"
+  else
+    new_name = "yatm_thermal_ducts:thermal_duct_off"
+  end
+
+  if node.name ~= new_name then
+    node.name = new_name
+    minetest.swap_node(pos, node)
+  end
+end
+
+local function on_construct(pos)
+  local node = minetest.get_node(pos)
+
+  cluster_thermal:schedule_add_node(pos, node)
+end
+
+local function after_destruct(pos, node)
+  cluster_thermal:schedule_remove_node(pos, node)
+end
+
 -- A very thick duct
 local size = 8 / 16 / 2
 
@@ -13,6 +48,25 @@ local groups = {
   heatable_device = 1,
   heater_device = 1,
   thermal_duct = 1,
+}
+
+local thermal_interface = {
+  groups = {
+    duct = 1,
+    thermal_producer = 1, -- not actually, but it works like one
+  },
+
+  get_heat = function (self, pos, node)
+    local meta = minetest.get_meta(pos)
+    return meta:get_float("heat")
+  end,
+
+  update_heat = function (self, pos, node, heat, dtime)
+    local meta = minetest.get_meta(pos)
+    if yatm.thermal.update_heat(meta, "heat", heat, 10, dtime) then
+      yatm.queue_refresh_infotext(pos, node)
+    end
+  end,
 }
 
 yatm.register_stateful_node("yatm_thermal_ducts:thermal_duct", {
@@ -44,59 +98,13 @@ yatm.register_stateful_node("yatm_thermal_ducts:thermal_duct", {
     connect_right  = {-size, -size, -size, 0.5,   size, size}, -- x+
   },
 
-  on_construct = function (pos)
-    local node = minetest.get_node(pos)
+  on_construct = on_construct,
 
-    cluster_thermal:schedule_add_node(pos, node)
-  end,
+  after_destruct = after_destruct,
 
-  after_destruct = function (pos, node)
-    cluster_thermal:schedule_remove_node(pos, node)
-  end,
+  thermal_interface = thermal_interface,
 
-  thermal_interface = {
-    groups = {
-      duct = 1,
-      thermal_producer = 1, -- not actually, but it works like one
-    },
-
-    get_heat = function (self, pos, node)
-      local meta = minetest.get_meta(pos)
-      return meta:get_float("heat")
-    end,
-
-    update_heat = function (self, pos, node, heat, dtime)
-      local meta = minetest.get_meta(pos)
-      if yatm.thermal.update_heat(meta, "heat", heat, 10, dtime) then
-        yatm.queue_refresh_infotext(pos, node)
-      end
-    end,
-  },
-
-  refresh_infotext = function (pos, node)
-    local meta = minetest.get_meta(pos)
-    local available_heat = meta:get_float("heat")
-
-    local infotext =
-      cluster_thermal:get_node_infotext(pos) .. "\n" ..
-      "Heat: " .. math.floor(available_heat)
-
-    meta:set_string("infotext", infotext)
-
-    local new_name
-    if math.floor(available_heat) > 0 then
-      new_name = "yatm_thermal_ducts:thermal_duct_heating"
-    elseif math.floor(available_heat) < 0 then
-      new_name = "yatm_thermal_ducts:thermal_duct_cooling"
-    else
-      new_name = "yatm_thermal_ducts:thermal_duct_off"
-    end
-
-    if node.name ~= new_name then
-      node.name = new_name
-      minetest.swap_node(pos, node)
-    end
-  end,
+  refresh_infotext = refresh_infotext,
 }, {
   off = {
     tiles = {
