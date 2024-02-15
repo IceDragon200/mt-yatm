@@ -1,3 +1,4 @@
+local mod = yatm_foundry
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
@@ -5,12 +6,30 @@ local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
 local player_service = assert(nokore.player_service)
 local Vector3 = assert(foundation.com.Vector3)
+local ItemInterface = assert(yatm.items.ItemInterface)
+
+local STATE_NEW = 0
+local STATE_CRAFTING = 1
+local STATE_OUTPUT = 2
+
+local ERROR_OK = 0
+local ERROR_INPUT_IS_EMPTY = 10
+local ERROR_OUTPUT_IS_FULL = 20
+local ERROR_LEFTOVER_IS_FULL = 30
+local ERROR_NOT_ENOUGH_ENERGY = 40
+
+--- Ensures that the inventory is up to date, triggered on construction and whenever the
+--- formspec is shown.
+local function upsert_inventory_by_meta(meta)
+  local inv = meta:get_inventory()
+  inv:set_size("input_slot", 1)
+  inv:set_size("processing_slot", 1)
+  inv:set_size("output_slot", 1)
+  inv:set_size("leftover_slot", 1)
+end
 
 local function refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
-
-  -- We only really care about the integral heat, it's only a float because of the dtime.
-  local heat = math.floor(meta:get_float("heat"))
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
@@ -31,11 +50,11 @@ local yatm_network = {
   },
   default_state = "off",
   states = {
-    conflict = "yatm_foundry:electric_furnace_error",
-    error = "yatm_foundry:electric_furnace_error",
-    idle = "yatm_foundry:electric_furnace_idle",
-    off = "yatm_foundry:electric_furnace_off",
-    on = "yatm_foundry:electric_furnace_on",
+    conflict = mod:make_name("electric_furnace_error"),
+    error = mod:make_name("electric_furnace_error"),
+    idle = mod:make_name("electric_furnace_idle"),
+    off = mod:make_name("electric_furnace_off"),
+    on = mod:make_name("electric_furnace_on"),
   },
   energy = {
     passive_lost = 0,
@@ -45,9 +64,100 @@ local yatm_network = {
   },
 }
 
+--- @spec yatm_network#work(ctx: WorkContext): (energy_consumed: Integer)
 function yatm_network:work(ctx)
-  ctx:set_up_state("idle")
-  return 0
+  local dtime = ctx.dtime
+  local energy_consumed = 0
+  local node = ctx.node
+  local meta = ctx.meta
+  local inv = meta:get_inventory()
+
+  local time = meta:get_float("time")
+  local time_max = meta:get_float("time_max")
+  local craft_state = meta:get_int("craft_state")
+  local craft_error = meta:get_int("craft_error")
+
+  while true do
+    if craft_state == STATE_NEW then
+      local input_list = inv:get_list("input_slot")
+      local leftover_list = inv:get_list("leftover_slot")
+
+      local result, leftovers =
+        minetest.get_craft_result({
+          method = "cooking",
+          width = 1,
+          items = input_list
+        })
+
+      if result.item:is_empty() then
+        craft_error = ERROR_INPUT_IS_EMPTY
+        break
+      else
+        local leftover_stack = result.replacements[1]
+        if next(result.replacements) then
+          if inv:room_for_item("leftover_slot", leftover_stack) then
+            inv:add_item("leftover_slot", leftover_stack)
+          else
+            -- revert
+            inv:set_list("leftover_slot", leftover_list)
+            craft_error = ERROR_LEFTOVER_IS_FULL
+            break
+          end
+        end
+
+        inv:set_list("input_slot", leftovers.items)
+
+        inv:set_stack("processing_slot", 1, result.item)
+
+        craft_error = ERROR_OK
+        time_max = result.time
+        time = time_max
+        craft_state = STATE_CRAFTING
+      end
+
+    elseif craft_state == STATE_CRAFTING then
+      if ctx.energy_available >= 0 then
+        if time > 0 then
+          time = time - dtime
+        end
+        craft_error = ERROR_OK
+      else
+        craft_error = ERROR_NOT_ENOUGH_ENERGY
+      end
+
+      if time <= 0 then
+        craft_state = STATE_OUTPUT
+      else
+        break
+      end
+
+    elseif craft_state == STATE_OUTPUT then
+      local stack = inv:get_stack("processing_slot", 1)
+
+      if inv:room_for_item("output_slot", stack) then
+        inv:set_stack("processing_slot", 1, ItemStack())
+        inv:add_item("output_slot", stack)
+        craft_state = STATE_NEW
+        craft_error = ERROR_OK
+      else
+        craft_error = ERROR_OUTPUT_IS_FULL
+        break
+      end
+
+    else
+      minetest.log("warning", "unexpected electric furnace state=" .. craft_state)
+      craft_state = STATE_NEW
+    end
+  end
+
+  meta:set_float("time", time)
+  meta:set_float("time_max", time_max)
+  meta:set_int("craft_state", craft_state)
+  meta:set_int("craft_error", craft_error)
+
+  -- ctx:set_up_state("idle")
+
+  return energy_consumed
 end
 
 local function render_formspec(pos, user, state)
@@ -59,7 +169,40 @@ local function render_formspec(pos, user, state)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine_heated" }, function (loc, rect)
     if loc == "main_body" then
-      return yatm_fspec.render_meta_energy_gauge(
+      return ""
+        .. fspec.list(
+          node_inv_name,
+          "input_slot",
+          rect.x,
+          rect.y,
+          1,
+          1
+        )
+        .. fspec.list(
+          node_inv_name,
+          "processing_slot",
+          rect.x + cio(2),
+          rect.y,
+          1,
+          1
+        )
+        .. fspec.list(
+          node_inv_name,
+          "output_slot",
+          rect.x + cio(3),
+          rect.y,
+          1,
+          1
+        )
+        .. fspec.list(
+          node_inv_name,
+          "leftover_slot",
+          rect.x + cio(3),
+          rect.y + cio(1),
+          1,
+          1
+        )
+        .. yatm_fspec.render_meta_energy_gauge(
           rect.x + rect.w - cio(1),
           rect.y,
           1,
@@ -69,7 +212,10 @@ local function render_formspec(pos, user, state)
           yatm.devices.get_energy_capacity(pos, state.node)
         )
     elseif loc == "footer" then
-      return ""
+      return fspec.list_ring(node_inv_name, "input_slot")
+        .. fspec.list_ring("current_player", "main")
+        .. fspec.list_ring(node_inv_name, "output_slot")
+        .. fspec.list_ring("current_player", "main")
     end
     return ""
   end)
@@ -80,7 +226,7 @@ local function on_receive_fields(player, form_name, fields, state)
 end
 
 local function make_formspec_name(pos)
-  return "yatm_foundry:electric_heater:"..Vector3.to_string(pos)
+  return "yatm_foundry:electric_furnace:"..Vector3.to_string(pos)
 end
 
 local function on_refresh_timer(player_name, form_name, state)
@@ -93,7 +239,17 @@ local function on_refresh_timer(player_name, form_name, state)
   }
 end
 
+local function on_construct(pos)
+  yatm.devices.device_on_construct(pos)
+
+  local meta = minetest.get_meta(pos)
+  upsert_inventory_by_meta(meta)
+end
+
 local function on_rightclick(pos, node, user)
+  local meta = minetest.get_meta(pos)
+  upsert_inventory_by_meta(meta)
+
   local state = {
     pos = pos,
     node = node,
@@ -118,6 +274,45 @@ local function on_rightclick(pos, node, user)
   )
 end
 
+local item_interface =
+  ItemInterface.new_directional(function (self, pos, dir)
+    local node = minetest.get_node(pos)
+    local new_dir = Directions.facedir_to_face(node.param2, dir)
+
+    if new_dir == Directions.D_DOWN then
+      return "leftover_slot"
+    elseif new_dir == Directions.D_UP then
+      return "input_slot"
+    else
+      return "output_slot"
+    end
+  end)
+
+function item_interface:allow_insert_item(pos, dir, item_stack)
+  local node = minetest.get_node(pos)
+  local new_dir = Directions.facedir_to_face(node.param2, dir)
+
+  if new_dir == Directions.D_UP then
+    -- input_slot
+    local result, leftovers =
+      minetest.get_craft_result({
+        method = "cooking",
+        width = 1,
+        items = {item_stack}
+      })
+
+    return not result.item:is_empty()
+  end
+
+  -- only the input can be inserted to
+  return false
+end
+
+function item_interface:allow_extract_item(pos, dir, item_stack)
+  -- All directions can be extracted from
+  return true
+end
+
 local groups = {
   cracky = nokore.dig_class("copper"),
   --
@@ -127,11 +322,11 @@ local groups = {
 }
 
 yatm.devices.register_stateful_network_device({
-  basename = "yatm_foundry:electric_furnace",
+  basename = mod:make_name("electric_furnace"),
 
-  description = "Electric Furnace",
+  description = mod.S("Electric Furnace"),
 
-  codex_entry_id = "yatm_foundry:electric_furnace",
+  codex_entry_id = mod:make_name("electric_furnace"),
 
   groups = groups,
 
@@ -153,15 +348,11 @@ yatm.devices.register_stateful_network_device({
 
   refresh_infotext = refresh_infotext,
 
-  on_construct = function (pos)
-    yatm.devices.device_on_construct(pos)
-    local meta = minetest.get_meta(pos)
-    local inv = meta:get_inventory()
-    --inv:set_size("input_slot", 1)
-    --inv:set_size("processing_slot", 1)
-  end,
+  on_construct = on_construct,
 
   on_rightclick = on_rightclick,
+
+  item_interface = item_interface,
 }, {
   error = {
     tiles = {

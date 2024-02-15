@@ -8,6 +8,16 @@ local Vector3 = assert(foundation.com.Vector3)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local player_service = assert(nokore.player_service)
 
+local STATE_NEW = 0
+local STATE_CRAFTING = 1
+local STATE_OUTPUT = 2
+
+local ERROR_OK = 0
+local ERROR_INPUT_IS_EMPTY = 10
+local ERROR_OUTPUT_IS_FULL = 20
+local ERROR_LEFTOVER_IS_FULL = 30
+local ERROR_NOT_ENOUGH_HEAT = 40
+
 --- @spec refresh_infotext(Vector3): void
 local function refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
@@ -41,16 +51,6 @@ end
 local function after_destruct(pos, old_node)
   cluster_thermal:schedule_remove_node(pos, old_node)
 end
-
-local STATE_NEW = 0
-local STATE_CRAFTING = 1
-local STATE_OUTPUT = 2
-
-local ERROR_OK = 0
-local ERROR_INPUT_IS_EMPTY = 10
-local ERROR_OUTPUT_IS_FULL = 20
-local ERROR_LEFTOVER_IS_FULL = 30
-local ERROR_NOT_ENOUGH_HEAT = 40
 
 --- @spec on_timer(Vector3, dt: Float): Boolean
 local function on_timer(pos, dt)
@@ -103,7 +103,7 @@ local function on_timer(pos, dt)
       end
 
     elseif craft_state == STATE_CRAFTING then
-      if heat > 100 then
+      if heat >= 100 then
         if time > 0 then
           time = time - dt
         end
@@ -112,7 +112,7 @@ local function on_timer(pos, dt)
         craft_error = ERROR_NOT_ENOUGH_HEAT
       end
 
-      if time < 0 then
+      if time <= 0 then
         craft_state = STATE_OUTPUT
       else
         break
@@ -263,7 +263,14 @@ function item_interface:allow_insert_item(pos, dir, item_stack)
 
   if new_dir == Directions.D_UP then
     -- input_slot
-    return true
+    local result, leftovers =
+      minetest.get_craft_result({
+        method = "cooking",
+        width = 1,
+        items = {item_stack}
+      })
+
+    return not result.item:is_empty()
   end
 
   -- only the input can be inserted to

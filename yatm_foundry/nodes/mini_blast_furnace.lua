@@ -6,10 +6,11 @@ local function mini_blast_furnace_refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
   local heat = meta:get_float("heat")
 
-  meta:set_string("infotext",
+  local infotext =
     cluster_thermal:get_node_infotext(pos) .. "\n" ..
     "Heat: " .. math.floor(heat)
-  )
+
+  meta:set_string("infotext", infotext)
 end
 
 local groups = {

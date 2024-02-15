@@ -1,3 +1,4 @@
+local mod = assert(yatm_foundry)
 local table_merge = assert(foundation.com.table_merge)
 local itemstack_inspect = assert(foundation.com.itemstack_inspect)
 local format_pretty_time = assert(foundation.com.format_pretty_time)
@@ -156,7 +157,7 @@ local node_box = {
 yatm.register_stateful_node("yatm_foundry:solid_fuel_heater", {
   basename = "yatm_foundry:solid_fuel_heater",
 
-  description = "Solid Fuel Heater",
+  description = mod.S("Solid Fuel Heater"),
 
   codex_entry_id = "yatm_foundry:solid_fuel_heater",
 
