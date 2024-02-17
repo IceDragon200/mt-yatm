@@ -12,6 +12,7 @@ local is_table_empty = assert(foundation.com.is_table_empty)
 local random_string16 = assert(foundation.com.random_string16)
 local table_keys = assert(foundation.com.table_keys)
 local copy_node = assert(foundation.com.copy_node)
+local node_to_string = assert(foundation.com.node_to_string)
 
 local GenericTransportNetwork = foundation.com.Class:extends("GenericTransportNetwork")
 do
@@ -86,14 +87,22 @@ do
     assert(node, "expected a node")
 
     if is_register then
-      print(self.m_description, "update_member/3", "registering", minetest.pos_to_string(pos), node.name)
+      print(self.m_description, "update_member/3", "registering", minetest.pos_to_string(pos), node_to_string(node))
     else
-      print(self.m_description, "update_member/3", "updating registration", minetest.pos_to_string(pos), node.name)
+      print(self.m_description, "update_member/3", "updating registration", minetest.pos_to_string(pos), node_to_string(node))
     end
 
     local node_id = minetest.hash_node_position(pos)
     local nodedef = assert(minetest.registered_nodes[node.name])
-    local interface = assert(nodedef[self.m_node_interface_name])
+    local interface = nodedef[self.m_node_interface_name]
+    if not interface then
+      error(
+        self.m_description ..
+        " update_member/3 missing interface=" .. self.m_node_interface_name ..
+        " at pos=" .. minetest.pos_to_string(pos) ..
+        " for node=" .. node_to_string(node)
+      )
+    end
     local device_type = assert(interface.type)
     local device_subtype = interface.subtype
     local old_record = self.m_members[node_id]
@@ -132,7 +141,7 @@ do
     local record = {
       id = node_id,
       block_id = 0,
-      pos = pos,
+      pos = vector.copy(pos),
       node = copy_node(node),
       name = node.name,
       param1 = node.param1,
