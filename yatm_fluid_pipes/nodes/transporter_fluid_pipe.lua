@@ -7,11 +7,9 @@ local function on_construct(pos)
 end
 
 local function pipe_on_destruct(pos)
-  print("transporter_fluid_pipe_on_destruct", minetest.pos_to_string(pos))
 end
 
 local function pipe_after_destruct(pos, _old_node)
-  print("transporter_fluid_pipe_after_destruct", minetest.pos_to_string(pos))
   fluid_transport_network:unregister_member(pos)
 end
 

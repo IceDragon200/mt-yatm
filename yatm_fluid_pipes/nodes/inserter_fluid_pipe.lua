@@ -1,11 +1,12 @@
 local fluid_transport_network = assert(yatm.fluids.fluid_transport_network)
 
-local function on_construct(pos, _placer, _itemstack, _pointed_thing)
+local function on_construct(pos)
   local node = minetest.get_node(pos)
   fluid_transport_network:register_member(pos, node)
 end
 
 local function on_destruct(pos)
+  --
 end
 
 local function after_destruct(pos, _old_node)

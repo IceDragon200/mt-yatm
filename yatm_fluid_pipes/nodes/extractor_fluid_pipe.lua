@@ -1,3 +1,4 @@
+local mod = assert(yatm_fluid_pipes)
 local fluid_transport_network = assert(yatm.fluids.fluid_transport_network)
 
 local function on_construct(pos)
@@ -6,6 +7,7 @@ local function on_construct(pos)
 end
 
 local function on_destruct(pos)
+  --
 end
 
 local function after_destruct(pos, _old_node)
@@ -15,12 +17,12 @@ end
 local fsize = (10 / 16.0) / 2
 local size = (8 / 16.0) / 2
 
-minetest.register_node("yatm_fluid_pipes:extractor_fluid_pipe", {
-  basename = "yatm_fluid_pipes:extractor_fluid_pipe",
+mod:register_node("extractor_fluid_pipe", {
+  basename = mod:make_name("extractor_fluid_pipe"),
 
-  description = "Extractor Fluid Pipe",
+  description = mod.S("Extractor Fluid Pipe"),
 
-  codex_entry_id = "yatm_fluid_pipes:extractor_fluid_pipe",
+  codex_entry_id = mod:make_name("extractor_fluid_pipe"),
 
   groups = {
     cracky = nokore.dig_class("copper"),
