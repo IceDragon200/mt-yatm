@@ -251,7 +251,7 @@ function distillation_unit_yatm_network:work(ctx)
   return energy_consumed
 end
 
-function refresh_infotext(pos)
+local function refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
 
   local output_steam_fluid_stack = FluidMeta.get_fluid_stack(meta, OUTPUT_STEAM_TANK)

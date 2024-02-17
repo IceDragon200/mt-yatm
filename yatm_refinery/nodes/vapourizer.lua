@@ -200,7 +200,7 @@ function vapourizer_yatm_network:work(ctx)
   return energy_consumed
 end
 
-function refresh_infotext(pos)
+local function refresh_infotext(pos)
   local meta = minetest.get_meta(pos)
 
   local vapour_fluid_stack = FluidMeta.get_fluid_stack(meta, VAPOUR_TANK)
