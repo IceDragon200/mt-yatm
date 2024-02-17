@@ -25,6 +25,7 @@ local mod = foundation.new_module("yatm_machines", "2.0.0")
 
 mod:require("registries.lua")
 
+mod:require("behaviours.lua")
 mod:require("api.lua")
 mod:require("nodes.lua")
 

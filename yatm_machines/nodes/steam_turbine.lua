@@ -143,7 +143,7 @@ function yatm_network.energy.produce_energy(pos, node, dtime, ot)
   return energy_produced
 end
 
-function yatm_network.update(pos, node, ot)
+function yatm_network.update(pos, node, dtime, trace)
   local need_refresh = false
   local new_dir
   local npos
@@ -165,7 +165,7 @@ function yatm_network.update(pos, node, ot)
     if nnodedef then
       if Groups.get_item(nnodedef, "fluid_tank") then
         target_dir = Directions.invert_dir(new_dir)
-        stack = tank_drain_fluid(npos, target_dir, FluidStack.new("group:steam", 200), false)
+        stack = tank_drain_fluid(npos, target_dir, FluidStack.new("group:steam", math.floor(200 * dtime)), false)
         if stack then
           filled_stack = tank_fill_fluid(pos, new_dir, stack, true)
           if filled_stack then
@@ -184,7 +184,7 @@ function yatm_network.update(pos, node, ot)
       FluidMeta.drain_fluid(
         meta,
         WATER_TANK,
-        FluidStack.new("group:water", 1000),
+        FluidStack.new("group:water", math.floor(1000 * dtime)),
         TANK_CAPACITY,
         TANK_CAPACITY,
         false
@@ -220,7 +220,13 @@ function yatm_network.update(pos, node, ot)
   end
 
   if FluidMeta.is_empty(meta, STEAM_TANK) then
-    device_swap_node_by_state(pos, node, "idle")
+    if yatm.devices.inc_idle(meta, dtime, 5) then
+      device_swap_node_by_state(pos, node, "idle")
+    else
+      device_swap_node_by_state(pos, node, "on")
+    end
+  else
+    yatm.devices.reset_idle(meta)
   end
 end
 

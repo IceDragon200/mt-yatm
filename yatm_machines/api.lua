@@ -28,15 +28,15 @@ function devices.device_on_construct(pos)
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
 
-  if nodedef.groups['yatm_cluster_device'] then
+  if nodedef.groups["yatm_cluster_device"] then
     cluster_devices:schedule_add_node(pos, node)
   end
 
-  if nodedef.groups['yatm_cluster_energy'] then
+  if nodedef.groups["yatm_cluster_energy"] then
     cluster_energy:schedule_add_node(pos, node)
   end
 
-  if nodedef.groups['yatm_cluster_thermal'] then
+  if nodedef.groups["yatm_cluster_thermal"] then
     cluster_thermal:schedule_add_node(pos, node)
   end
 end
@@ -47,15 +47,15 @@ function devices.device_on_destruct(pos)
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
 
-  if nodedef.groups['yatm_cluster_device'] then
+  if nodedef.groups["yatm_cluster_device"] then
     cluster_devices:schedule_remove_node(pos, node)
   end
 
-  if nodedef.groups['yatm_cluster_energy'] then
+  if nodedef.groups["yatm_cluster_energy"] then
     cluster_energy:schedule_remove_node(pos, node)
   end
 
-  if nodedef.groups['yatm_cluster_thermal'] then
+  if nodedef.groups["yatm_cluster_thermal"] then
     cluster_thermal:schedule_remove_node(pos, node)
   end
 end
