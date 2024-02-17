@@ -1,17 +1,18 @@
 yatm.cables = yatm_cables
 
+local copy_node = assert(foundation.com.copy_node)
 local table_merge = assert(foundation.com.table_merge)
 
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 
-function yatm_cables.cable_after_place_node(pos, placer, itemstack, pointed_thing)
+function yatm_cables.cable_on_construct(pos)
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
-  if nodedef.groups['yatm_cluster_device'] then
+  if nodedef.groups["yatm_cluster_device"] then
     cluster_devices:schedule_add_node(pos, node)
   end
-  if nodedef.groups['yatm_cluster_energy'] then
+  if nodedef.groups["yatm_cluster_energy"] then
     cluster_energy:schedule_add_node(pos, node)
   end
 end
@@ -19,32 +20,42 @@ end
 function yatm_cables.cable_after_destruct(pos, old_node)
   -- let the system know it needs to refresh the network topography
   local nodedef = minetest.registered_nodes[old_node.name]
-  if nodedef.groups['yatm_cluster_device'] then
+  if nodedef.groups["yatm_cluster_device"] then
     cluster_devices:schedule_remove_node(pos, old_node)
   end
-  if nodedef.groups['yatm_cluster_energy'] then
+  if nodedef.groups["yatm_cluster_energy"] then
     cluster_energy:schedule_remove_node(pos, old_node)
   end
 end
 
-function yatm_cables.cable_transition_device_state(pos, node, state)
-  print("yatm_cables", "cable_transition_device_state", minetest.pos_to_string(pos), "node=" .. node.name, "state=" .. state)
+function yatm_cables.cable_transition_device_state(pos, node, state, reason)
+  reason = reason or "cable_transition_device_state"
   local nodedef = minetest.registered_nodes[node.name]
   if nodedef.yatm_network.states then
     local new_node_name
     if state == "down" then
-      new_node_name = nodedef.yatm_network.states['off']
+      new_node_name = nodedef.yatm_network.states["off"]
     elseif  state == "up" then
-      new_node_name = nodedef.yatm_network.states['on']
+      new_node_name = nodedef.yatm_network.states["on"]
     elseif state == "conflict" then
-      new_node_name = nodedef.yatm_network.states['conflict']
+      new_node_name = nodedef.yatm_network.states["conflict"]
     else
       error("unhandled state=" .. state)
     end
+
     if new_node_name then
-      node = minetest.get_node(pos)
-      node.name = new_node_name
-      minetest.swap_node(pos, node)
+      if node.name ~= new_node_name then
+        local new_node = copy_node(node)
+        new_node.name = new_node_name
+        minetest.swap_node(pos, new_node)
+
+        if nodedef.groups["yatm_cluster_device"] then
+          cluster_devices:schedule_update_node(pos, new_node, reason)
+        end
+        if nodedef.groups["yatm_cluster_energy"] then
+          cluster_energy:schedule_update_node(pos, new_node, reason)
+        end
+      end
     end
   end
 end
@@ -145,7 +156,7 @@ function yatm_cables.register_cable_state(params, size)
     },
     connects_to = connects_to,
 
-    after_place_node = yatm_cables.cable_after_place_node,
+    on_construct = yatm_cables.cable_on_construct,
     after_destruct = yatm_cables.cable_after_destruct,
 
     transition_device_state = yatm_cables.cable_transition_device_state,
