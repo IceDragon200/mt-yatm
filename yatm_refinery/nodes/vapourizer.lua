@@ -1,3 +1,4 @@
+local mod = assert(yatm_refinery)
 local Directions = assert(foundation.com.Directions)
 local Vector3 = assert(foundation.com.Vector3)
 local Groups = assert(foundation.com.Groups)
@@ -188,9 +189,12 @@ function vapourizer_yatm_network:work(ctx)
   end
 
   if worked then
+    yatm.devices.reset_idle(meta)
     ctx:set_up_state("on")
   else
-    ctx:set_up_state("idle")
+    if yatm.devices.inc_idle(meta, dtime, 5) then
+      ctx:set_up_state("idle")
+    end
   end
 
   return energy_consumed
@@ -300,11 +304,11 @@ local function on_rightclick(pos, node, user)
 end
 
 yatm.devices.register_stateful_network_device({
-  basename = "yatm_refinery:vapourizer",
+  basename = mod:make_name("vapourizer"),
 
-  description = "Vapourizer",
+  description = mod.S("Vapourizer"),
 
-  codex_entry_id = "yatm_refinery:vapourizer",
+  codex_entry_id = mod:make_name("vapourizer"),
 
   groups = {
     cracky = nokore.dig_class("copper"),

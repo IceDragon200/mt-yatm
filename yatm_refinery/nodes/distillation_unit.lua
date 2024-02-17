@@ -86,7 +86,7 @@ function fluid_interface:allow_fill(pos, dir, fluid_stack)
   return false
 end
 
--- @spec work(WorkContext): (energy_consumed: Number)
+--- @spec work(WorkContext): (energy_consumed: Number)
 function distillation_unit_yatm_network:work(ctx)
   local pos = ctx.pos
   local meta = ctx.meta
@@ -179,7 +179,7 @@ function distillation_unit_yatm_network:work(ctx)
     else
       meta:set_string("error_text", "no recipe")
       need_refresh = true
-      yatm.devices.set_idle(meta, 3)
+      yatm.devices.set_sleep(meta, 3)
     end
   end
 
@@ -240,9 +240,12 @@ function distillation_unit_yatm_network:work(ctx)
   end
 
   if worked then
+    yatm.devices.reset_idle(meta)
     ctx:set_up_state("on")
   else
-    ctx:set_up_state("idle")
+    if yatm.devices.inc_idle(meta, dtime, 5) then
+      ctx:set_up_state("idle")
+    end
   end
 
   return energy_consumed

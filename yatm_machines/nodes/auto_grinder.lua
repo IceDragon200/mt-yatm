@@ -74,7 +74,7 @@ function yatm_network:work(ctx)
       ctx:set_up_state("on")
     else
       -- to idle
-      yatm.devices.set_idle(meta, 1)
+      yatm.devices.set_sleep(meta, 1)
       ctx:set_up_state("idle")
     end
   else
@@ -111,7 +111,7 @@ function yatm_network:work(ctx)
           yatm.queue_refresh_infotext(pos, node)
         else
           meta:set_string("error", "output full")
-          yatm.devices.set_idle(meta, 1)
+          yatm.devices.set_sleep(meta, 1)
 
           yatm.queue_refresh_infotext(pos, node)
         end

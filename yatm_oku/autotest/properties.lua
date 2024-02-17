@@ -18,6 +18,7 @@ yatm_oku.autotest_suite.utils = {
   wait_for_next_tick_on_clusters = assert(yatm_machines.autotest_suite.utils.wait_for_next_tick_on_clusters),
 }
 
+--- @test_property is_computer
 yatm_oku.autotest_suite:define_property("is_computer", {
   description = "Is Computer",
   detail = [[

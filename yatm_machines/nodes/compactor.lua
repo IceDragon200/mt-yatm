@@ -71,7 +71,7 @@ function yatm_network:work(ctx)
 
       if input_item:is_empty() then
         -- go idle
-        yatm.devices.set_idle(meta, 1)
+        yatm.devices.set_sleep(meta, 1)
         ctx:set_up_state("idle")
         break
       else
@@ -84,7 +84,7 @@ function yatm_network:work(ctx)
           meta:set_float("time", recipe.duration)
           meta:set_float("duration", recipe.duration)
         else
-          yatm.devices.set_idle(meta, 1)
+          yatm.devices.set_sleep(meta, 1)
           ctx:set_up_state("idle")
           break
         end
@@ -121,7 +121,7 @@ function yatm_network:work(ctx)
             inv:add_item("output_items", recipe.output_item_stack)
           else
             -- Jammed, wait a second and then try again later
-            yatm.devices.set_idle(meta, 1)
+            yatm.devices.set_sleep(meta, 1)
             break
           end
         else

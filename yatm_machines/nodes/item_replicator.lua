@@ -103,12 +103,12 @@ function item_replicator_yatm_network:work(ctx)
       ctx:set_up_state("on")
       yatm.queue_refresh_infotext(ctx.pos, ctx.node)
     else
-      yatm.devices.set_idle(meta, 1)
+      yatm.devices.set_sleep(meta, 1)
       ctx:set_up_state("idle")
       --print("WARN", minetest.pos_to_string(pos), "No room for stack in output", itemstack_inspect(replicate_stack))
     end
   else
-    yatm.devices.set_idle(meta, 1)
+    yatm.devices.set_sleep(meta, 1)
     ctx:set_up_state("idle")
     --print("WARN", minetest.pos_to_string(pos), "No stack to replicate")
   end

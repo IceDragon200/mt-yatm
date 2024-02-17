@@ -3,6 +3,7 @@
 --
 local mod = yatm_machines
 local Groups = assert(foundation.com.Groups)
+local copy_node = assert(foundation.com.copy_node)
 local fspec = assert(foundation.com.formspec.api)
 local table_freeze = assert(foundation.com.table_freeze)
 local yatm_fspec = assert(yatm.formspec)
@@ -140,7 +141,8 @@ function refresh_infotext(pos)
   meta:set_string("infotext", infotext)
 end
 
-function combustion_engine_transition_device_state(pos, _node, state)
+function combustion_engine_transition_device_state(pos, _node, state, reason)
+  reason = reason or "combustion_engine_transition_device_state"
   local node = minetest.get_node(pos)
   local nodedef = minetest.registered_nodes[node.name]
   local meta = minetest.get_meta(pos)
@@ -167,11 +169,11 @@ function combustion_engine_transition_device_state(pos, _node, state)
   end
 
   if node.name ~= new_node_name then
-    node.name = new_node_name
-    minetest.swap_node(pos, node)
-
-    cluster_devices:schedule_update_node(pos, node)
-    cluster_energy:schedule_update_node(pos, node)
+    local new_node = copy_node(node)
+    new_node.name = new_node_name
+    minetest.swap_node(pos, new_node)
+    cluster_devices:schedule_update_node(pos, new_node, reason)
+    cluster_energy:schedule_update_node(pos, new_node, reason)
   end
 end
 

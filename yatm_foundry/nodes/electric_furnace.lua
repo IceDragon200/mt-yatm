@@ -82,6 +82,11 @@ function yatm_network:work(ctx)
       local input_list = inv:get_list("input_slot")
       local leftover_list = inv:get_list("leftover_slot")
 
+      if not input_list then
+        craft_error = ERROR_INPUT_IS_EMPTY
+        break
+      end
+
       local result, leftovers =
         minetest.get_craft_result({
           method = "cooking",

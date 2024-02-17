@@ -1,3 +1,4 @@
+local mod = assert(yatm_thermal_ducts)
 local fspec = assert(foundation.com.formspec.api)
 local cluster_thermal = assert(yatm.cluster.thermal)
 local table_length = assert(foundation.com.table_length)
@@ -48,12 +49,12 @@ local groups = {
   heater_device = 1,
 }
 
-yatm.register_stateful_node("yatm_thermal_ducts:thermal_node", {
-  description = "Thermal Node",
+yatm.register_stateful_node(mod:make_name("thermal_node"), {
+  description = mod.S("Thermal Node"),
 
   groups = groups,
 
-  drop = "yatm_thermal_ducts:thermal_node_off",
+  drop = mod:make_name("thermal_node_off"),
 
   connects_to = {
     "group:thermal_duct",

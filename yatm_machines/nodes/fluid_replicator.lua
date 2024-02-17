@@ -46,6 +46,11 @@ function fluid_interface:on_fluid_changed(pos, dir, fluid_stack)
   -- do nothing
 end
 
+--- @private.spec get_capacity(pos: Vector3, dir: Direction): Integer
+function fluid_interface:get_capacity(pos, dir)
+  return self._private.capacity
+end
+
 function fluid_interface:get(pos, dir)
   local meta = minetest.get_meta(pos)
   local stack = FluidMeta.get_fluid_stack(meta, self._private.tank_name)
@@ -250,6 +255,7 @@ end
 local groups = {
   cracky = nokore.dig_class("copper"),
   yatm_energy_device = 1,
+  fluid_interface_in = 1,
   fluid_interface_out = 1,
 }
 

@@ -121,7 +121,7 @@ function yatm_network:work(ctx)
           yatm.queue_refresh_infotext(pos)
         end
       else
-        yatm.devices.set_idle(meta, 5)
+        yatm.devices.set_sleep(meta, 5)
       end
     end
   end

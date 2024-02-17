@@ -75,7 +75,8 @@ function devices.device_after_place_node(pos, placer, item_stack, pointed_thing)
   --
 end
 
-function devices.device_swap_node_by_state(pos, node, new_state)
+function devices.device_swap_node_by_state(pos, node, new_state, reason)
+  reason = reason or "device_swap_node_by_state"
   local nodedef = minetest.registered_nodes[node.name]
 
   if nodedef and nodedef.yatm_network.states then
@@ -96,15 +97,15 @@ function devices.device_swap_node_by_state(pos, node, new_state)
         minetest.swap_node(pos, new_node)
 
         if nodedef.groups["yatm_cluster_device"] then
-          cluster_devices:schedule_update_node(pos, new_node)
+          cluster_devices:schedule_update_node(pos, new_node, reason)
         end
 
         if nodedef.groups["yatm_cluster_energy"] then
-          cluster_energy:schedule_update_node(pos, new_node)
+          cluster_energy:schedule_update_node(pos, new_node, reason)
         end
 
         if nodedef.groups["yatm_cluster_thermal"] then
-          cluster_thermal:schedule_update_node(pos, new_node)
+          cluster_thermal:schedule_update_node(pos, new_node, reason)
         end
 
         changed = true
@@ -123,8 +124,9 @@ function devices.device_swap_node_by_state(pos, node, new_state)
   return false
 end
 
---- @spec device_transition_device_state(Vector3, NodeRef, dev_state: String): Boolean
-function devices.device_transition_device_state(pos, node, dev_state)
+--- @spec device_transition_device_state(Vector3, NodeRef, dev_state: String, reason: String): Boolean
+function devices.device_transition_device_state(pos, node, dev_state, reason)
+  reason = reason or "device_transition_device_state"
   local meta = minetest.get_meta(pos)
   local state
   if dev_state == "down" then
@@ -142,7 +144,7 @@ function devices.device_transition_device_state(pos, node, dev_state)
     error("unhandled dev_state=" .. dev_state)
   end
 
-  return devices.device_swap_node_by_state(pos, node, state)
+  return devices.device_swap_node_by_state(pos, node, state, reason)
 end
 
 --- @spec get_energy_capacity(Vector3, NodeRef): Number
@@ -216,8 +218,26 @@ function devices.device_passive_consume_energy(pos, node, total_available, dtime
   return consumed
 end
 
-function devices.set_idle(meta, duration_sec)
-  meta:set_float("idle_time", duration_sec)
+---
+---
+--- @spec reset_idle(MetaRef): void
+function devices.reset_idle(meta)
+  meta:set_float("idle_time", 0)
+end
+
+--- Increments the idle_time of metaref, this acts as an accumulated value.
+--- Once the total time exceeds the threshold, `true` is returned.
+--- The implementor must decide what to do when "idling".
+---
+--- @spec inc_idle(MetaRef, amount: Number, threshold: Number): Boolean
+function devices.inc_idle(meta, amount, threshold)
+  local time = meta:get_float("idle_time") + amount
+  meta:set_float("idle_time", time)
+  return time >= threshold
+end
+
+function devices.set_sleep(meta, duration_sec)
+  meta:set_float("sleep_time", duration_sec)
 end
 
 --- A WorkContext contains the current node information on the worker node as well as some preloaded
@@ -339,7 +359,15 @@ do
       -- the state was known to be off, see if it can startup
       if self.total_stored_energy >= ym.energy.startup_threshold then
         -- yes it could be start up
-        if self.nodedef.transition_device_state(self.pos, self.node, "up") then
+        if self.nodedef.transition_device_state(self.pos, self.node, "up", "awakening device") then
+          self:refresh_node()
+          ym = assert(self.nodedef.yatm_network)
+          self:precalculate()
+        end
+      end
+    elseif ym.state == "on" or ym.state == "idle" then
+      if self.total_stored_energy <= 0 then
+        if self.nodedef.transition_device_state(self.pos, self.node, "down", "device has no energy") then
           self:refresh_node()
           ym = assert(self.nodedef.yatm_network)
           self:precalculate()
@@ -348,12 +376,12 @@ do
     end
 
     if ym.state == "on" or ym.state == "idle" then
-      local idle_time = self.meta:get_float("idle_time")
-      idle_time = math.max(0, idle_time - self.dtime)
+      local sleep_time = self.meta:get_float("sleep_time")
+      sleep_time = math.max(0, sleep_time - self.dtime)
 
-      self.meta:set_float("idle_time", idle_time)
+      self.meta:set_float("sleep_time", sleep_time)
 
-      if idle_time <= 0 then
+      if sleep_time <= 0 then
         local capacity = devices.get_energy_capacity(self.pos, self.node)
         local bandwidth = ym.work_energy_bandwidth or capacity
 
@@ -394,11 +422,6 @@ do
       else
         yatm.queue_refresh_infotext(self.pos, self.node, REASON_IDLE)
       end
-    end
-
-    self.total_stored_energy = Energy.get_meta_energy(self.meta, devices.ENERGY_BUFFER_KEY)
-    if self.total_stored_energy <= 0 then
-      self.nodedef.transition_device_state(self.pos, self.node, "down")
     end
   end
 
@@ -604,20 +627,32 @@ end
 
 yatm.devices = devices
 
+--- @namespace yatm.grinding
 yatm.grinding = yatm.grinding or {}
+--- @const grinding_registry: yatm_machines.GrindingRegistry
 yatm.grinding.grinding_registry = yatm_machines.GrindingRegistry:new()
 
+--- @namespace yatm.freezing
 yatm.freezing = yatm.freezing or {}
+--- @const freezing_registry: yatm_machines.FreezingRegistry
 yatm.freezing.freezing_registry = yatm_machines.FreezingRegistry:new()
 
+--- @namespace yatm.condensing
 yatm.condensing = yatm.condensing or {}
+--- @const condensing_registry: yatm_machines.CondensingRegistry
 yatm.condensing.condensing_registry = yatm_machines.CondensingRegistry:new()
 
+--- @namespace yatm.compacting
 yatm.compacting = yatm.compacting or {}
+--- @const compacting_registry: yatm_machines.CompactingRegistry
 yatm.compacting.compacting_registry = yatm_machines.CompactingRegistry:new()
 
+--- @namespace yatm.rolling
 yatm.rolling = yatm.rolling or {}
+--- @const rolling_registry: yatm_machines.RollingRegistry
 yatm.rolling.rolling_registry = yatm_machines.RollingRegistry:new()
 
+--- @namespace yatm.crushing
 yatm.crushing = yatm.crushing or {}
+--- @const crushing_registry: yatm_machines.CrushingRegistry
 yatm.crushing.crushing_registry = yatm_machines.CrushingRegistry:new()
