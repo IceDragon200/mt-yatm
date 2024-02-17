@@ -1,7 +1,7 @@
 local list_concat = assert(foundation.com.list_concat)
 local fluid_transport_network = assert(yatm.fluids.fluid_transport_network)
 
-local function pipe_after_place_node(pos, _placer, _itemstack, _pointed_thing)
+local function on_construct(pos)
   local node = minetest.get_node(pos)
   fluid_transport_network:register_member(pos, node)
 end
@@ -85,8 +85,7 @@ for _,row in ipairs(yatm.colors_with_default) do
 
     dye_color = color_basename,
 
-    after_place_node = pipe_after_place_node,
-    after_destruct = pipe_after_destruct,
+    on_construct = on_construct,
     on_destruct = pipe_on_destruct,
   })
 end

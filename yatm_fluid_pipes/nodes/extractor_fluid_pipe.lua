@@ -1,15 +1,14 @@
 local fluid_transport_network = assert(yatm.fluids.fluid_transport_network)
 
-local function pipe_after_place_node(pos, _placer, _itemstack, _pointed_thing)
+local function on_construct(pos)
   local node = minetest.get_node(pos)
   fluid_transport_network:register_member(pos, node)
 end
 
-local function pipe_on_destruct(pos)
-  print("transporter_fluid_pipe_on_destruct", minetest.pos_to_string(pos))
+local function on_destruct(pos)
 end
 
-local function pipe_after_destruct(pos, _old_node)
+local function after_destruct(pos, _old_node)
   fluid_transport_network:unregister_member(pos)
 end
 
@@ -73,8 +72,8 @@ minetest.register_node("yatm_fluid_pipes:extractor_fluid_pipe", {
     bandwidth = 6000,
   },
 
-  on_destruct = pipe_on_destruct,
+  on_construct = on_construct,
 
-  after_place_node = pipe_after_place_node,
-  after_destruct = pipe_after_destruct,
+  on_destruct = on_destruct,
+  after_destruct = after_destruct,
 })
