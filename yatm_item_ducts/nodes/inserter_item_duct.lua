@@ -1,6 +1,6 @@
 local item_transport_network = assert(yatm.item_transport.item_transport_network)
 
-local function duct_after_place_node(pos, _placer, _itemstack, _pointed_thing)
+local function on_construct(pos)
   local node = minetest.get_node(pos)
   item_transport_network:register_member(pos, node)
 end
@@ -65,6 +65,6 @@ minetest.register_node("yatm_item_ducts:inserter_item_duct", {
     subtype = "duct",
   },
 
-  after_place_node = duct_after_place_node,
+  on_construct = on_construct,
   after_destruct = duct_after_destruct,
 })

@@ -2,7 +2,7 @@ local list_concat = assert(foundation.com.list_concat)
 
 local item_transport_network = assert(yatm.item_transport.item_transport_network)
 
-local function duct_after_place_node(pos, _placer, _itemstack, _pointed_thing)
+local function on_construct(pos)
   local node = minetest.get_node(pos)
   item_transport_network:register_member(pos, node)
 end
@@ -81,7 +81,7 @@ for _,row in ipairs(yatm.colors_with_default) do
 
     dye_color = color_basename,
 
-    after_place_node = duct_after_place_node,
+    on_construct = on_construct,
     after_destruct = duct_after_destruct,
   })
 end
