@@ -425,7 +425,7 @@ function yatm_network.on_load(pos, node)
 
   local stack = inv:get_stack("drive_slot", 1)
   if yatm.dscs.is_item_stack_fluid_drive(stack) then
-    local fluid_inventory_name = get_fluid_inventory_name(pos, i)
+    local fluid_inventory_name = get_fluid_inventory_name(pos)
     local fluid_inventory = yatm.dscs.overload_fluid_inventory_from_drive(fluid_inventory_name, stack)
     meta:set_string("fluid_drive_contents", fluid_inventory:serialize())
   end
@@ -438,7 +438,7 @@ function yatm_network.on_unload(pos, node)
 
   local stack = inv:get_stack("drive_slot", 1)
   if yatm.dscs.is_item_stack_fluid_drive(stack) then
-    local fluid_inventory_name = get_fluid_inventory_name(pos, i)
+    local fluid_inventory_name = get_fluid_inventory_name(pos)
     local fluid_inventory = yatm.fluid.fluid_inventories:get_fluid_inventory(fluid_inventory_name)
     if fluid_inventory then
       meta:set_string("fluid_drive_contents", fluid_inventory:serialize())
