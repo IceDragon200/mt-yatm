@@ -23,4 +23,8 @@ yatm.fluids = {
   fluid_registry = assert(yatm_fluids.fluid_registry),
   --- @const fluid_inventories: yatm_fluids.FluidInventoryRegistry
   fluid_inventories = yatm_fluids.FluidInventoryRegistry:new(),
+  --- @const FluidTankSyncService = yatm_fluids.FluidTankSyncService
+  FluidTankSyncService = assert(yatm_fluids.FluidTankSyncService),
+  --- @const fluid_tank_sync_service: yatm_fluids.FluidTankSyncService
+  fluid_tank_sync_service = yatm_fluids.FluidTankSyncService:new(),
 }

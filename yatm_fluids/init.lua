@@ -12,6 +12,7 @@ mod:require("fluid_exchange.lua")
 mod:require("fluid_inventory.lua")
 
 mod:require("formspec.lua")
+mod:require("fluid_tank_sync_service.lua")
 mod:require("api.lua")
 mod:require("hooks.lua")
 

@@ -3,11 +3,13 @@
   This is just the empty tank.
 
 ]]
+local mod = assert(yatm_fluids)
 local Directions = assert(foundation.com.Directions)
 local table_copy = assert(foundation.com.table_copy)
 local FluidStack = assert(yatm_fluids.FluidStack)
 local FluidTanks = assert(yatm_fluids.FluidTanks)
 local FluidMeta = assert(yatm_fluids.FluidMeta)
+local fluid_tank_sync_service = assert(yatm.fluids.fluid_tank_sync_service)
 
 local fluid_tank_tiles = {
   "yatm_fluid_tank_edge.png",
@@ -17,7 +19,7 @@ local fluid_tank_tiles = {
 minetest.register_node("yatm_fluids:fluid_tank", {
   basename = "yatm_fluids:fluid_tank",
 
-  description = "Fluid Tank",
+  description = mod.S("Fluid Tank"),
 
   groups = {
     cracky = nokore.dig_class("copper"),
@@ -65,6 +67,7 @@ steel_tank_fluid_interface._private.capacity = 32000
 function steel_tank_fluid_interface:on_fluid_changed(pos, dir, new_stack)
   local node = minetest.get_node(pos)
   yatm.queue_refresh_infotext(pos, node)
+  fluid_tank_sync_service:mark_for_update(pos)
 end
 
 function steel_fluid_tank_refresh_infotext(pos)
@@ -84,7 +87,7 @@ end
 minetest.register_node("yatm_fluids:steel_fluid_tank", {
   basename = "yatm_fluids:steel_fluid_tank",
 
-  description = "Steel Fluid Tank",
+  description = mod.S("Steel Fluid Tank"),
 
   groups = {
     cracky = nokore.dig_class("copper"),

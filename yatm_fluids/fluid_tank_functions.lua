@@ -7,6 +7,7 @@ local FluidInterface = assert(yatm_fluids.FluidInterface)
 local FluidTanks = assert(yatm_fluids.FluidTanks)
 local fluid_registry = assert(yatm_fluids.fluid_registry)
 local FluidMeta = assert(yatm_fluids.FluidMeta)
+local fluid_tank_sync_service = assert(yatm.fluids.fluid_tank_sync_service)
 
 local fluid_tank_fluid_interface = FluidInterface.new_simple("tank", 16000)
 fluid_tank_fluid_interface._private.bandwidth = assert(fluid_tank_fluid_interface._private.capacity)
@@ -27,6 +28,7 @@ function fluid_tank_fluid_interface:on_fluid_changed(pos, dir, new_stack)
     minetest.swap_node(pos, node)
   end
   yatm.queue_refresh_infotext(pos, node)
+  fluid_tank_sync_service:mark_for_update(pos)
 end
 
 local old_fill = fluid_tank_fluid_interface.fill
