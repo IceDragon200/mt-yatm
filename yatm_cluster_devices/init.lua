@@ -204,7 +204,12 @@ function ic:_handle_transition_state(cls, generation_id, event, node_clusters)
       if node then
         local nodedef = minetest.registered_nodes[node.name]
         if nodedef.transition_device_state then
-          nodedef.transition_device_state(node_entry.pos, node, cluster.assigns.state)
+          nodedef.transition_device_state(
+            node_entry.pos,
+            node,
+            cluster.assigns.state,
+            "cluster_device:transition_state"
+          )
         end
       end
       return true, acc + 1

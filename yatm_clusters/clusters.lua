@@ -526,6 +526,10 @@ do
     self.m_node_event_handlers = {}
 
     self.m_next_tick_callbacks = List:new()
+
+    self.m_debug_flags = {
+      cluster_groups = {}
+    }
   end
 
   --- @spec #terminate(): void
@@ -533,6 +537,10 @@ do
     print("clusters", "terminating")
     self:_send_to_observers('terminate', nil)
     print("clusters", "terminated")
+  end
+
+  function ic:toggle_debug_cluster_group(cluster_group, value)
+    self.m_debug_flags.cluster_groups[cluster_group] = value
   end
 
   --- @spec #schedule_node_event(
@@ -546,12 +554,12 @@ do
     assert(pos, "need a position")
     local node_id = hash_node_position(pos)
     local node_name = "N/A"
-    -- if cluster_group ~= "refresh_infotext" then
-    --   minetest.log("debug",
-    --     "[" .. self.m_counter .. "] CLUSTERS schedule_node_event " .. cluster_group .. " " .. event_name .. " " ..
-    --     pos_to_string(pos) .. " " .. node_to_string(node) .. " " .. value_inspect(params)
-    --   )
-    -- end
+    if self.m_debug_flags.cluster_groups[cluster_group] then
+      minetest.log("debug",
+        "[" .. self.m_counter .. "] CLUSTERS schedule_node_event " .. cluster_group .. " " .. event_name .. " " ..
+        pos_to_string(pos) .. " " .. node_to_string(node) .. " " .. value_inspect(params)
+      )
+    end
 
     local new_node
     if node then
@@ -815,14 +823,34 @@ do
     end
   end
 
-  function ic:get_cluster_by_pos_and_group(pos, group_name)
+  --- @spec #get_cluster_ids_at_pos(pos: Vector3): [cluster_id: String]
+  function ic:get_cluster_ids_at_pos(pos)
+    local node_id = hash_node_position(pos)
+    return self.m_node_clusters[node_id]
+  end
+
+  --- @spec #get_clusters_at_pos(pos: Vector3): [Cluster]
+  function ic:get_clusters_at_pos(pos)
+    local node_id = hash_node_position(pos)
+    local cluster_ids = self.m_node_clusters[node_id]
+    local result = {}
+    if cluster_ids then
+      for cluster_id,_ in pairs(cluster_ids) do
+        result[cluster_id] = self.m_clusters[cluster_id]
+      end
+    end
+    return result
+  end
+
+  --- @spec #get_cluster_at_pos_and_group(pos: Vector3, group_name: String): Cluster | nil
+  function ic:get_cluster_at_pos_and_group(pos, group_name)
     local node_id = hash_node_position(pos)
 
     local cluster_ids = self.m_node_clusters[node_id]
     if cluster_ids then
       local cluster
       for cluster_id, _ in pairs(cluster_ids) do
-        cluster = self:get_cluster(cluster_id)
+        cluster = self.m_clusters[cluster_id]
 
         if cluster then
           if cluster.groups[group_name] then
@@ -842,7 +870,7 @@ do
       local continue_reduce = true
       local cluster
       for cluster_id, _ in pairs(node_clusters) do
-        cluster = self:get_cluster(cluster_id)
+        cluster = self.m_clusters[cluster_id]
 
         if cluster then
           continue_reduce, acc = reducer(cluster, acc)

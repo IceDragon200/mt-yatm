@@ -165,7 +165,7 @@ do
   -- * `pos` - the position of the node
   -- * `node` - the NodeRef
   -- * `new_state` - some kind of identifier for the new state, could be anything
-  function ic:schedule_transition_node(pos, node, new_state)
+  function ic:schedule_transition_node(pos, node, new_state, reason)
     self:log("schedule_transition_node", minetest.pos_to_string(pos), node.name)
     local groups = self:get_node_groups(node)
     clusters:schedule_node_event(
@@ -173,11 +173,11 @@ do
       "transition_node",
       pos,
       copy_node(node),
-      { state = new_state }
+      { state = new_state, reason = reason }
     )
   end
 
-  function ic:schedule_load_node(pos, node)
+  function ic:schedule_load_node(pos, node, reason)
     self:log("schedule_load_node", minetest.pos_to_string(pos), node.name)
     local groups = self:get_node_groups(node)
     clusters:schedule_node_event(
@@ -185,11 +185,11 @@ do
       "load_node",
       pos,
       copy_node(node),
-      { groups = groups }
+      { groups = groups, reason = reason }
     )
   end
 
-  function ic:schedule_update_node(pos, node)
+  function ic:schedule_update_node(pos, node, reason)
     self:log("schedule_update_node", minetest.pos_to_string(pos), node.name)
     local groups = self:get_node_groups(node)
     clusters:schedule_node_event(
@@ -197,18 +197,18 @@ do
       "update_node",
       pos,
       copy_node(node),
-      { groups = groups }
+      { groups = groups, reason = reason }
     )
   end
 
-  function ic:schedule_remove_node(pos, node)
+  function ic:schedule_remove_node(pos, node, reason)
     self:log("schedule_remove_node", minetest.pos_to_string(pos), node.name)
     clusters:schedule_node_event(
       self.m_cluster_group,
       "remove_node",
       pos,
       copy_node(node),
-      {}
+      { reason = reason }
     )
   end
 
@@ -553,7 +553,7 @@ do
     if node then
       local nodedef = minetest.registered_nodes[node.name]
       if nodedef.transition_device_state then
-        nodedef.transition_device_state(event.pos, node, event.params.state)
+        nodedef.transition_device_state(event.pos, node, event.params.state, "simple_cluster:transition_node")
       else
         self.log("_handle_transition_node",
                  "WARN: nodedef does not have transition_device_state node_name=" .. node.name)
