@@ -1,7 +1,7 @@
 --
 -- OKU Micro Controller
 -- The micro controler is a limited computer, it doesn't have any extra
--- built-in memory, so the load and strore instructions are no-ops.
+-- built-in memory, so the load and store instructions are no-ops.
 -- They can only execute 16 instructions, since they only have space for those 16 instructions.
 -- And they can only communicate with 16 ports total, these specific 16 ports can
 -- be selected in the interface, allowing the use of a multi bus.
@@ -10,6 +10,7 @@
 --
 -- Even the designer is baffled by that.
 --
+local mod = assert(yatm_oku)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local random_string62 = assert(foundation.com.random_string62)
@@ -18,6 +19,7 @@ local data_network = assert(yatm.data_network)
 -- need at least 256 for the zero-page and then another for the stack, so addressable memory is really only
 -- 512 bytes
 local MEMORY_SIZE = 256 * 4
+local PORT_COUNT = 16
 
 local function get_micro_controller_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
@@ -26,12 +28,13 @@ local function get_micro_controller_formspec(pos, user)
     "size[8,9]" ..
     yatm.formspec_bg_for_player(user:get_player_name(), "computer")
 
-  for i = 0,15 do
+  for i = 0,PORT_COUNT-1 do
     local x = 0.25 + math.floor(i % 4)
     local y = 0.5 + math.floor(i / 4)
     local port_id = i + 1
     local port_value = meta:get_int("p" .. port_id)
-    formspec = formspec ..
+    formspec =
+      formspec ..
       "field[" .. x .. "," .. y .. ";1,1;p" .. port_id .. ";Port " .. port_id .. ";" .. port_value .. "]" ..
       "field_close_on_enter[p" .. port_id .. ",false]"
   end
@@ -47,7 +50,7 @@ end
 local function micro_controller_on_receive_fields(player, formname, fields, assigns)
   local meta = minetest.get_meta(assigns.pos)
 
-  for i = 1,16 do
+  for i = 1,PORT_COUNT do
     local field_name = "p" .. i
     if fields[field_name] then
       local port_id = math.min(256, math.max(0, math.floor(tonumber(fields[field_name]))))
@@ -74,31 +77,26 @@ local micro_controller_data_network_device = {
   }
 }
 
+local function maybe_initialize_secret(pos)
+  local meta = minetest.get_meta(pos)
+  local secret = meta:get_string("secret")
+  if not secret then
+    secret = random_string62(8)
+    meta:set_string("secret", "mctl." .. secret)
+  end
+end
+
 local function on_construct(pos)
   local node = minetest.get_node(pos)
   local meta = minetest.get_meta(pos)
 
   -- Initialize the controller ports
-  meta:set_int("p1", 0)
-  meta:set_int("p2", 0)
-  meta:set_int("p3", 0)
-  meta:set_int("p4", 0)
-  meta:set_int("p5", 0)
-  meta:set_int("p6", 0)
-  meta:set_int("p7", 0)
-  meta:set_int("p8", 0)
-  meta:set_int("p9", 0)
-  meta:set_int("p10", 0)
-  meta:set_int("p11", 0)
-  meta:set_int("p12", 0)
-  meta:set_int("p13", 0)
-  meta:set_int("p14", 0)
-  meta:set_int("p15", 0)
-  meta:set_int("p16", 0)
+  for i = 1,PORT_COUNT do
+    meta:set_int("p"..i, 0)
+  end
 
   -- Initialize secret
-  local secret = random_string62(8)
-  meta:set_string("secret", "mctl." .. secret)
+  maybe_initialize_secret(pos)
   data_network:add_node(pos, node)
 
   yatm.computers:create_computer_at_pos(pos, node, secret, {
@@ -123,6 +121,26 @@ function micro_controller_data_interface.update(self, pos, node, dt)
 end
 
 function micro_controller_data_interface.receive_pdu(self, pos, node, dir, port, value)
+end
+
+local function register_computer(pos, node)
+  local meta = minetest.get_meta(pos)
+  maybe_initialize_secret(pos)
+  yatm.computers:upsert_computer_at_pos(pos, node, meta:get_string("secret"), {
+    arch = "mos6502",
+    memory_size = MEMORY_SIZE,
+  })
+end
+
+local function on_rightclick(pos, node, user)
+  local formspec_name = "yatm_oku:oku_micro_controller:" .. minetest.pos_to_string(pos)
+  local assigns = { pos = pos, node = node }
+  local formspec = get_micro_controller_formspec(pos, user, assigns)
+
+  nokore.formspec_bindings:show_formspec(user:get_player_name(), formspec_name, formspec, {
+    state = assigns,
+    on_receive_fields = micro_controller_on_receive_fields
+  })
 end
 
 local groups = {
@@ -170,12 +188,12 @@ local micro_controller_mesecons = {
   }
 }
 
-minetest.register_node("yatm_oku:oku_micro_controller", {
-  basename = "yatm_oku:oku_micro_controller",
+mod:register_node("yatm_oku:oku_micro_controller", {
+  basename = mod:make_name("oku_micro_controller"),
 
-  description = "OKU Micro Controller [MOS6502]",
+  description = mod.S("OKU Micro Controller [MOS6502]"),
 
-  codex_entry_id = "yatm_oku:oku_micro_controller",
+  codex_entry_id = mod:make_name("oku_micro_controller"),
 
   groups = groups,
 
@@ -205,29 +223,9 @@ minetest.register_node("yatm_oku:oku_micro_controller", {
   on_construct = on_construct,
   on_destruct = on_destruct,
 
-  on_rightclick = function (pos, node, user)
-    local formspec_name = "yatm_oku:oku_micro_controller:" .. minetest.pos_to_string(pos)
-    local assigns = { pos = pos, node = node }
-    local formspec = get_micro_controller_formspec(pos, user, assigns)
+  on_rightclick = on_rightclick,
 
-    nokore.formspec_bindings:show_formspec(user:get_player_name(), formspec_name, formspec, {
-      state = assigns,
-      on_receive_fields = micro_controller_on_receive_fields
-    })
-  end,
-
-  register_computer = function (pos, node)
-    local meta = minetest.get_meta(pos)
-    local secret = meta:get_string("secret")
-    if not secret then
-      secret = random_string62(8)
-      meta:set_string("secret", "mctl." .. secret)
-    end
-    yatm.computers:upsert_computer_at_pos(pos, node, meta:get_string("secret"), {
-      arch = "mos6502",
-      memory_size = MEMORY_SIZE,
-    })
-  end,
+  register_computer = register_computer,
 
   mesecons = micro_controller_mesecons,
 })
