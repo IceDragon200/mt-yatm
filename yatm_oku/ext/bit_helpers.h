@@ -1,5 +1,5 @@
-#ifndef _BIT16_H_
-#define _BIT16_H_
+#ifndef _BIT_HELPERS_H_
+#define _BIT_HELPERS_H_
 
 // Bitwise helpers
 #define BIT0 0x1

@@ -18,4 +18,4 @@ test_oku_6502: test_oku_6502.o oku_6502.o
 	$(CC) $(INCLUDE_DIRS) -fPIC -Wall -Werror -O3 -c $< -o $@
 
 clean:
-	rm -v *.so
+	rm -v oku_6502.so

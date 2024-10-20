@@ -7,7 +7,7 @@
  */
 #include <stdint.h>
 
-#include "bit8.h"
+#include "bit_helpers.h"
 
 #define OKU_SM_OP_NOOP 0x00
 #define OKU_SM_OP_LOAD8 0x85

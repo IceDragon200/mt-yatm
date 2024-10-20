@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include "bit8.h"
+#include "bit_helpers.h"
 
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 1

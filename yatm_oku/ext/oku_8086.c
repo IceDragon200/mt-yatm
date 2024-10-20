@@ -3,7 +3,7 @@
 
  */
 #include <stdint.h>
-#include "bit16.h"
+#include "bit_helpers.h"
 
 #define OK_CODE 0
 #define INVALID_CODE 1
