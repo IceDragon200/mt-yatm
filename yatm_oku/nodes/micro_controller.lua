@@ -188,7 +188,7 @@ local micro_controller_mesecons = {
   }
 }
 
-mod:register_node("yatm_oku:oku_micro_controller", {
+mod:register_node("oku_micro_controller", {
   basename = mod:make_name("oku_micro_controller"),
 
   description = mod.S("OKU Micro Controller [MOS6502]"),
