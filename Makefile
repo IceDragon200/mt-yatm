@@ -8,7 +8,7 @@ luacheck:
 	luacheck .
 
 # Release step specifically when the modpack is under a game, this will copy
-# the modpack to the TMP_DIR
+# the modpack to the RELEASE_DIR
 .PHONY: prepare.release
 prepare.release:
 	mkdir -p "${RELEASE_DIR}"
