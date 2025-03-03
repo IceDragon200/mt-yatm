@@ -1,7 +1,7 @@
 --
 -- YATM Reactors
 --
-local mod = foundation.new_module("yatm_reactors", "0.2.0")
+local mod = foundation.new_module("yatm_reactors", "0.3.0")
 
 mod:require("reactor_cluster.lua")
 mod:require("reactor_system.lua")
