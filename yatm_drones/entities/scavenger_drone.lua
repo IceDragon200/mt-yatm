@@ -424,7 +424,7 @@ local function drone_logic(self)
               mobkit.clear_queue_high(self)
               mobkit.hq_roam(self, 10)
               local idle_time = mobkit.recall(self, "idle_time") or 0
-              idle_time = idle_time + 1
+              idle_time = idle_time + self.dtime
               mobkit.remember(self, "idle_time", idle_time)
               self:change_action_text("Idling " .. math.floor(idle_time))
               self:change_state("idle")
@@ -550,6 +550,9 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
     collisionbox = ng(2, 0, 2, 12, 6, 12),
     mesh = "scavenger_drone.b3d",
     textures = {"yatm_scavenger_drone.off.png"},
+    static_save = true,
+    --
+    stepheight = 0.3,
   },
 
   groups = {
@@ -557,7 +560,6 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
   },
 
   weight = 100,
-  stepheight = 0.3,
   springiness = 0,
   buoyancy = 1,
   max_hp = 1,
@@ -569,7 +571,6 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
   teleport_range = 0,
   voodoo_range = 0,
   view_range = view_range,
-  static_save = true,
 
   timeout = 0,
 
@@ -740,5 +741,9 @@ minetest.register_entity("yatm_drones:scavenger_drone", {
     if mobkit.is_alive(self) then
       mobkit.hq_die(self)
     end
-  end
+  end,
+
+  on_death = function (self, killer)
+
+  end,
 })
