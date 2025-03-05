@@ -12,11 +12,11 @@ The 3 main components of a fluid transport are:
 * Extractors - these will drain fluids from adjacent devices for consumption by the network
 * Transporters - these only act as a pathway for the network and only matter when tracing the path
 ]]
+local Vector3 = assert(foundation.com.Vector3)
 local GenericTransportNetwork = assert(yatm.transport.GenericTransportNetwork)
 local invert_dir = assert(foundation.com.Directions.invert_dir)
 local DIR_TO_STRING = assert(foundation.com.Directions.DIR_TO_STRING)
 local DIR6_TO_VEC3 = assert(foundation.com.Directions.DIR6_TO_VEC3)
-local is_table_empty = assert(foundation.com.is_table_empty)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidStack = assert(yatm.fluids.FluidStack)
 
@@ -44,20 +44,28 @@ function m:initialize(options)
 end
 
 function m:update_extractor_duct(network, extractor_hash, extractor, fluids_available)
+  local new_pos
+  local node_face_dir
+  local stack
+  local reason
+  local new_hash
+  local fa
+
   local wildcard_stack = FluidStack.new_wildcard(assert(extractor.interface.bandwidth))
+
   for vdir,v3 in pairs(DIR6_TO_VEC3) do
     if wildcard_stack.amount <= 0 then
       break
     end
-    local new_pos = vector.add(extractor.pos, v3)
-    local node_face_dir = invert_dir(vdir)
+    new_pos = vector.add(extractor.pos, v3)
+    node_face_dir = invert_dir(vdir)
     --print("Attempting drain", minetest.pos_to_string(new_pos), dir)
-    local stack, reason = FluidTanks.drain_fluid(new_pos, node_face_dir, wildcard_stack, false)
+    stack, reason = FluidTanks.drain_fluid(new_pos, node_face_dir, wildcard_stack, false)
     if stack and stack.amount > 0 then
       --print("Extractor", inspect_node(extractor.pos, vdir), "extracted", FluidStack.to_string(stack), "from", inspect_node(new_pos, node_face_dir))
-      local new_hash = minetest.hash_node_position(new_pos)
+      new_hash = minetest.hash_node_position(new_pos)
       fluids_available[extractor_hash] = fluids_available[extractor_hash] or {}
-      local fa = fluids_available[extractor_hash]
+      fa = fluids_available[extractor_hash]
       fa[new_hash] = {pos = new_pos, dir = node_face_dir, stack = stack}
       wildcard_stack = FluidStack.dec_amount(wildcard_stack, stack.amount)
     elseif network.debug then
@@ -67,26 +75,36 @@ function m:update_extractor_duct(network, extractor_hash, extractor, fluids_avai
 end
 
 function m:update_inserter_duct(network, inserter_hash, inserter, fluids_available)
+  local filling_dir
+  local target_pos = { x = 0, y = 0, z = 0 }
+  local old_fluids_available
+  local new_entries
+  local stack
+  local filling_stack
+  local used_stack
+  local new_stack
+  local reason
+
   for vdir,v3 in pairs(DIR6_TO_VEC3) do
-    if is_table_empty(fluids_available) then
+    if not next(fluids_available) then
       break
     end
-    local filling_dir = invert_dir(vdir)
-    local target_pos = vector.add(inserter.pos, v3)
+    filling_dir = invert_dir(vdir)
+    target_pos = Vector3.add(target_pos, inserter.pos, v3)
 
-    local old_fluids_available = fluids_available
+    old_fluids_available = fluids_available
     fluids_available = {}
 
     for extractor_hash,entries in pairs(old_fluids_available) do
-      local new_entries = {}
+      new_entries = {}
       for fin_node_hash,entry in pairs(entries) do
-        local stack = entry.stack
-        local filling_stack = FluidStack.set_amount(stack, math.min(stack.amount, assert(inserter.interface.bandwidth)))
-        local used_stack, reason = FluidTanks.fill_fluid(target_pos, filling_dir, filling_stack, true)
+        stack = entry.stack
+        filling_stack = FluidStack.set_amount(stack, math.min(stack.amount, assert(inserter.interface.bandwidth)))
+        used_stack, reason = FluidTanks.fill_fluid(target_pos, filling_dir, filling_stack, true)
         if used_stack and used_stack.amount > 0 then
           --print("Inserter", inspect_node(inserter.pos, vdir), "filled", inspect_node(target_pos, filling_dir), "with", FluidStack.to_string(stack), "from", inspect_node(entry.pos, entry.dir))
           FluidTanks.drain_fluid(entry.pos, entry.dir, used_stack, true)
-          local new_stack = FluidStack.dec_amount(stack, used_stack.amount)
+          new_stack = FluidStack.dec_amount(stack, used_stack.amount)
           entry.stack = new_stack
         elseif network.debug then
           print("fill_fluid error", minetest.pos_to_string(target_pos), reason)
@@ -97,7 +115,7 @@ function m:update_inserter_duct(network, inserter_hash, inserter, fluids_availab
         end
       end
 
-      if not is_table_empty(new_entries) then
+      if next(new_entries) then
         fluids_available[extractor_hash] = new_entries
       end
     end
@@ -105,7 +123,7 @@ function m:update_inserter_duct(network, inserter_hash, inserter, fluids_availab
   return fluids_available
 end
 
-function m:update_network(network, counter, delta)
+function m:update_network(network, counter, delta, trace)
   --
   -- Currently this update implements a PUSH (supply-based) based system
   -- That is, extractors are drained (simulated) to determine what fluids are available
@@ -118,19 +136,26 @@ function m:update_network(network, counter, delta)
   -- once the demand is established, the supplies (extractors) can be scanned for the demand.
   --
   --print("Updating Network", network.id, counter)
-  local extractors = network.members_by_type["extractor"]
-  local inserters = network.members_by_type["inserter"]
+  local members_by_type = network.members_by_type
+  local extractors = members_by_type["extractor"]
+  local inserters = members_by_type["inserter"]
   if extractors and inserters then
-    local fluids_available = {}
-    for extractor_hash,extractor in pairs(extractors) do
-      if self:check_network_member(extractor, network) then
-        self:update_extractor_duct(network, extractor_hash, extractor, fluids_available)
+    local fluids_available
+    if next(extractors) then
+      fluids_available = {}
+      for extractor_hash,extractor in pairs(extractors) do
+        if self:check_network_member(extractor, network) then
+          self:update_extractor_duct(network, extractor_hash, extractor, fluids_available)
+        end
       end
     end
 
-    for inserter_hash,inserter in pairs(inserters) do
-      if self:check_network_member(inserter, network) then
-        fluids_available = self:update_inserter_duct(network, inserter_hash, inserter, fluids_available)
+    if next(inserters) then
+      fluids_available = fluids_available or {}
+      for inserter_hash,inserter in pairs(inserters) do
+        if self:check_network_member(inserter, network) then
+          fluids_available = self:update_inserter_duct(network, inserter_hash, inserter, fluids_available)
+        end
       end
     end
   end
@@ -144,7 +169,7 @@ yatm_fluid_pipes.fluid_transport_network = FluidTransportNetwork:new({
 
 do
   nokore_proxy.register_globalstep(
-    "yatm_fluid_pipes.update/1",
+    "yatm_fluid_pipes.update/2",
     yatm_fluid_pipes.fluid_transport_network:method("update")
   )
 
