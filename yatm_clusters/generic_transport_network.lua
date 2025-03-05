@@ -8,7 +8,6 @@
 
 ]]
 local Directions = assert(foundation.com.Directions)
-local is_table_empty = assert(foundation.com.is_table_empty)
 local random_string16 = assert(foundation.com.random_string16)
 local table_keys = assert(foundation.com.table_keys)
 local copy_node = assert(foundation.com.copy_node)
@@ -116,7 +115,7 @@ do
       end
 
       self.m_members_by_type[old_record.device_type][node_id] = nil
-      if is_table_empty(self.m_members_by_type[old_record.device_type]) then
+      if not next(self.m_members_by_type[old_record.device_type]) then
         self.m_members_by_type[old_record.device_type] = nil
       end
 
@@ -196,7 +195,7 @@ do
       self.m_members[node_id] = nil
       self.m_members_by_type[device_type][node_id] = nil
 
-      if is_table_empty(self.m_members_by_type[device_type]) then
+      if not next(self.m_members_by_type[device_type]) then
         self.m_members_by_type[device_type] = nil
       end
 
@@ -217,7 +216,7 @@ do
         if self.m_block_members[record.block_id] then
           self.m_block_members[record.block_id][node_id] = nil
 
-          if is_table_empty(self.m_block_members[record.block_id]) then
+          if not next(self.m_block_members[record.block_id]) then
             self.m_block_members[record.block_id] = nil
           end
         end
@@ -310,17 +309,19 @@ do
     return table.concat(result, ":")
   end
 
-  function ic:resolve_invalid_networks(counter, delta)
-    if not is_table_empty(self.m_invalid_networks) then
+  function ic:resolve_invalid_networks(counter, delta, trace)
+    if next(self.m_invalid_networks) then
+      local network
+      local node
       local old_invalid_networks = self.m_invalid_networks
       self.m_invalid_networks = {}
 
       for network_id,_ in pairs(old_invalid_networks) do
-        local network = self.m_networks[network_id]
+        network = self.m_networks[network_id]
 
         if network then
           for member_hash,member_entry in pairs(network.members) do
-            local node = minetest.get_node(member_entry.pos)
+            node = minetest.get_node(member_entry.pos)
 
             if node.name ~= member_entry.name then
               print(self.m_description, "expected", member_entry.name, "got", node.name, "unregistrering for refresh")
@@ -332,122 +333,125 @@ do
     end
   end
 
-  function ic:resolve_queue(counter, _delta)
-    if not is_table_empty(self.m_queue) then
-      local queue = self.m_queue
-      self.m_queue = {}
+  function ic:resolve_queue(counter, _delta, trace)
+    if not next(self.m_queue) then
+      return
+    end
+    local should_continue
+    local queue = self.m_queue
+    local member
+    self.m_queue = {}
 
-      for hash,pos in pairs(queue) do
-        local should_continue = true
+    for hash,pos in pairs(queue) do
+      should_continue = true
 
-        if self.m_members[hash] then
-          local member = self.m_members[hash]
+      if self.m_members[hash] then
+        member = self.m_members[hash]
 
-          if member.counter and member.counter == counter then
-            -- No need to scan this again, it was already encountered and refreshed this round
-            should_continue = false
+        if member.counter and member.counter == counter then
+          -- No need to scan this again, it was already encountered and refreshed this round
+          should_continue = false
+        end
+      end
+
+      if should_continue then
+        local to_visit = {
+          pos,
+        }
+
+        local visited = {}
+        local members = {}
+
+        while next(to_visit) do
+          local old_to_visit = to_visit
+          to_visit = {}
+
+          for _,opos in ipairs(old_to_visit) do
+            local ohash = minetest.hash_node_position(opos)
+
+            if not visited[ohash] then
+              visited[ohash] = true
+
+              local node = minetest.get_node(opos)
+              local nodedef = minetest.registered_nodes[node.name]
+
+              if nodedef and nodedef[self.m_node_interface_name] then
+                members[ohash] = {
+                  pos = opos,
+                  type = nodedef[self.m_node_interface_name].type,
+                }
+
+                self:get_connected_pos(opos, node, nodedef, to_visit)
+              end
+            end
           end
         end
 
-        if should_continue then
-          local to_visit = {
-            pos,
+        if next(members) then
+          local network_id = self:generate_network_id()
+          local network = {
+            id = network_id,
+            members = {},
+            members_by_type = {},
           }
 
-          local visited = {}
-          local members = {}
+          for ohash,omember in pairs(members) do
+            local entry = self.m_members[ohash]
 
-          while not is_table_empty(to_visit) do
-            local old_to_visit = to_visit
-            to_visit = {}
+            if entry then
+              entry.counter = counter
+              -- If it has an old network_id
+              if entry.network_id then
+                local n = self.m_networks[entry.network_id]
 
-            for _,opos in ipairs(old_to_visit) do
-              local ohash = minetest.hash_node_position(opos)
+                if n then
+                  -- Remove it from the old network
+                  print(self.m_description, "WARN", "node still exists in a network", minetest.pos_to_string(entry.pos), entry.network_id)
 
-              if not visited[ohash] then
-                visited[ohash] = true
+                  n.members[ohash] = nil
+                  local mbt = n.members_by_type[entry.device_type]
 
-                local node = minetest.get_node(opos)
-                local nodedef = minetest.registered_nodes[node.name]
+                  if mbt then
+                    mbt[ohash] = nil
+                  end
 
-                if nodedef and nodedef[self.m_node_interface_name] then
-                  members[ohash] = {
-                    pos = opos,
-                    type = nodedef[self.m_node_interface_name].type,
-                  }
-
-                  self:get_connected_pos(opos, node, nodedef, to_visit)
-                end
-              end
-            end
-          end
-
-          if not is_table_empty(members) then
-            local network_id = self:generate_network_id()
-            local network = {
-              id = network_id,
-              members = {},
-              members_by_type = {},
-            }
-
-            for ohash,omember in pairs(members) do
-              local entry = self.m_members[ohash]
-
-              if entry then
-                entry.counter = counter
-                -- If it has an old network_id
-                if entry.network_id then
-                  local n = self.m_networks[entry.network_id]
-
-                  if n then
-                    -- Remove it from the old network
-                    print(self.m_description, "WARN", "node still exists in a network", minetest.pos_to_string(entry.pos), entry.network_id)
-
-                    n.members[ohash] = nil
-                    local mbt = n.members_by_type[entry.device_type]
-
-                    if mbt then
-                      mbt[ohash] = nil
-                    end
-
-                    if is_table_empty(mbt) then
-                      n.members_by_type[entry.device_type] = nil
-                    end
+                  if not next(mbt) then
+                    n.members_by_type[entry.device_type] = nil
                   end
                 end
-
-                entry.network_id = network_id
-                network.members[ohash] = entry
-                network.members_by_type[entry.device_type] = network.members_by_type[entry.device_type] or {}
-                network.members_by_type[entry.device_type][ohash] = entry
-
-                local meta = minetest.get_meta(entry.pos)
-
-                local node_description = minetest.registered_nodes[entry.name].description
-
-                meta:set_string("infotext", node_description .. "\n" .. self.m_description .. " ID <" .. network_id .. ">")
               end
-            end
 
-            print(self.m_description, "new network", network_id)
-            self.m_networks[network_id] = network
+              entry.network_id = network_id
+              network.members[ohash] = entry
+              network.members_by_type[entry.device_type] = network.members_by_type[entry.device_type] or {}
+              network.members_by_type[entry.device_type][ohash] = entry
+
+              local meta = minetest.get_meta(entry.pos)
+
+              local node_description = minetest.registered_nodes[entry.name].description
+
+              meta:set_string("infotext", node_description .. "\n" .. self.m_description .. " ID <" .. network_id .. ">")
+            end
           end
+
+          print(self.m_description, "new network", network_id)
+          self.m_networks[network_id] = network
         end
       end
     end
   end
 
-  function ic:update_networks(counter, delta)
+  function ic:update_networks(counter, delta, trace)
     for _network_id,network in pairs(self.m_networks) do
-      if is_table_empty(network.members) then
-        self.m_need_network_gc = true
-      else
+      if next(network.members) then
         network.wait = (network.wait or 0) - delta
 
         while network.wait <= 0 do
           network.wait = network.wait + 0.25
-          self:update_network(network, counter, delta)
+          self:update_network(network, counter, delta, trace)
         end
+      else
+        self.m_need_network_gc = true
       end
     end
   end
@@ -460,7 +464,7 @@ do
     for _,network_id in ipairs(keys) do
       network = self.m_networks[network_id]
 
-      if is_table_empty(network.members) then
+      if not next(network.members) then
         self.m_networks[network_id] = nil
 
         print(self.m_description, "Removed empty network", network_id)
@@ -468,12 +472,33 @@ do
     end
   end
 
-  function ic:update(delta)
+  function ic:update(delta, trace)
     local counter = self.m_counter
 
-    self:resolve_invalid_networks(counter, delta)
-    self:resolve_queue(counter, delta)
-    self:update_networks(counter, delta)
+    local span
+    if trace then
+      span = trace:span_start("resolve_invalid_networks")
+    end
+    self:resolve_invalid_networks(counter, delta, span)
+    if span then
+      span:span_end()
+    end
+
+    if trace then
+      span = trace:span_start("resolve_queue")
+    end
+    self:resolve_queue(counter, delta, span)
+    if span then
+      span:span_end()
+    end
+
+    if trace then
+      span = trace:span_start("update_networks")
+    end
+    self:update_networks(counter, delta, span)
+    if span then
+      span:span_end()
+    end
 
     if self.m_need_network_gc then
       self.m_need_network_gc = false
