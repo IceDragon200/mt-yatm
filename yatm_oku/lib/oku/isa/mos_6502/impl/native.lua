@@ -52,6 +52,10 @@ function ic:initialize(options)
   end
 end
 
+function ic:needs_memory_reassignment()
+  return true
+end
+
 function ic:dispose()
   --
 end
@@ -60,9 +64,11 @@ function ic:step()
   return oku_6502.oku_6502_chip_step(self.m_chip, self.m_mem_size, self.m_mem)
 end
 
-function ic:set_memory(size, ptr)
-  self.m_mem_size = size
-  self.m_mem = ptr
+--- @spec #set_memory(MemoryBase): self
+function ic:set_memory(memory)
+  self.m_mem_inst = memory
+  self.m_mem_size = self.m_mem_inst:size()
+  self.m_mem = self.m_mem_inst:ptr()
   return self
 end
 

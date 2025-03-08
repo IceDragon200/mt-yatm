@@ -40,6 +40,11 @@ do
     -- print("oku", "Lua.Memory", "allocated size=" .. self.m_size)
   end
 
+  --- @spec #ptr(): Pointer
+  function ic:ptr()
+    return self.m_data
+  end
+
   --- @spec #r_slice(index: Integer, size: Integer): Table
   function ic:r_slice(index, size)
     assert(index, "expected an index")
@@ -243,6 +248,15 @@ do
     end
 
     return self, bytes_read
+  end
+
+  --- @override
+  --- @spec #memcpy(addr1: Integer, addr2: Integer, len: Integer): self
+  function ic:memcpy(addr1, addr2, len)
+    for i = 0,len-1 do
+      self.m_data[addr2 + i] = self.m_data[addr1 + i]
+    end
+    return self
   end
 
   -- for type_name, size in pairs(types) do

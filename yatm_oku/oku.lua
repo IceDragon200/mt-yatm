@@ -30,11 +30,42 @@ end
 OKU.DEFAULT_ARCH = "mos6502"
 
 --- @const AVAILABLE_ARCH: { [String]: Any }
-OKU.AVAILABLE_ARCH = {
-  mos6502 = yatm_oku.OKU.isa.MOS6502,
-  rv32i = yatm_oku.OKU.isa.RISCV,
-  ["8086"] = yatm_oku.OKU.isa.I8086,
-}
+do
+  local archs = {
+    oku_forth8 = {
+      engine = yatm_oku.OKU.isa.OKU_FORTH8,
+      default_memory_size = 0x100, --[[ Roughly 256b ]]
+    },
+    oku_forth16 = {
+      engine = yatm_oku.OKU.isa.OKU_FORTH16,
+      default_memory_size = 0x10000, --[[ Roughly 64Kb ]]
+    },
+    oku_forth32 = {
+      engine = yatm_oku.OKU.isa.OKU_FORTH32,
+      default_memory_size = 0x10000, --[[ Roughly 64Kb ]]
+    },
+    mos6502 = {
+      engine = yatm_oku.OKU.isa.MOS6502,
+      default_memory_size = 0x10000, --[[ Roughly 64Kb ]]
+    },
+    rv32i = {
+      engine = yatm_oku.OKU.isa.RISCV,
+      default_memory_size = 0x20000, --[[ Roughly 128Kb ]]
+    },
+    ["8086"] = {
+      engine = yatm_oku.OKU.isa.I8086,
+      default_memory_size = 0x20000, --[[ Roughly 128Kb ]]
+    },
+  }
+  OKU.AVAILABLE_ARCH = {}
+
+  for key, value in pairs(archs) do
+    if value.engine then
+      OKU.AVAILABLE_ARCH[key] = value
+    end
+  end
+  archs = nil
+end
 
 OKU.ERR_OK = 0
 OKU.ERR_DISPOSED = 1
@@ -80,16 +111,11 @@ do
 
     self.disposed = false
     self.arch = options.arch or OKU.DEFAULT_ARCH
-    assert(OKU.AVAILABLE_ARCH[self.arch], "arch=" .. self.arch .. " not available")
+    local entry = OKU.AVAILABLE_ARCH[self.arch]
+    assert(entry, "arch=" .. self.arch .. " not available")
 
     if not options.memory_size then
-      if self.arch == "rv32i" or self.arch == "8086" then
-        options.memory_size = 0x20000 --[[ Roughly 128Kb ]]
-      elseif self.arch == "mos6502" then
-        options.memory_size = 0x10000 --[[ Roughly 64Kb ]]
-      else
-        error("unsupported arch=" .. self.arch)
-      end
+      options.memory_size = assert(entry.default_memory_size)
     end
     check_memory_size(options.memory_size)
 
@@ -109,9 +135,9 @@ do
   ---
   --- @spec #call_arch(method_name: String, ...: [term]): Any
   function ic:call_arch(method_name, ...)
-    local mod = OKU.AVAILABLE_ARCH[self.arch]
-    if mod then
-      return mod[method_name](self, self.isa_assigns, ...)
+    local entry = OKU.AVAILABLE_ARCH[self.arch]
+    if entry then
+      return entry.engine[method_name](self, self.isa_assigns, ...)
     else
       error("arch module " .. self.arch .. " is not available")
     end
@@ -164,7 +190,7 @@ do
       end
     end
 
-    return steps, OKU.ERR_OK
+    return steps, err
   end
 
   --- @spec #get_memory_i8(index: Integer): Integer/8
@@ -275,23 +301,29 @@ do
       return bytes_written, err
     end
 
-    local isa = OKU.AVAILABLE_ARCH[self.arch]
-    assert(isa, "unsupported arch=" .. self.arch)
+    local entry = OKU.AVAILABLE_ARCH[self.arch]
+    if entry then
+      --
+      -- Memory
+      bw, err = self:_bindump_memory(stream)
+      bytes_written = bytes_written + bw
+      if err then
+        return bytes_written, err
+      end
 
-    --
-    -- Memory
-    bw, err = self:_bindump_memory(stream)
-    bytes_written = bytes_written + bw
-    if err then
-      return bytes_written, err
-    end
-
-    --
-    -- ISA State
-    bw, err = isa.bindump(self, self.isa_assigns, stream)
-    bytes_written = bytes_written + bw
-    if err then
-      return bytes_written, err
+      --
+      -- ISA State
+      if entry.engine.bindump then
+        bw, err = entry.engine.bindump(self, self.isa_assigns, stream)
+        bytes_written = bytes_written + bw
+        if err then
+          return bytes_written, err
+        end
+      else
+        error("ISA engine="..self.arch .. " does not define bindump/3")
+      end
+    else
+      error("unsupported arch=" .. self.arch)
     end
 
     return bytes_written, nil

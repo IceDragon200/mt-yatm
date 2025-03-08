@@ -43,9 +43,20 @@ do
     end
   end
 
-  --- @spec w_i8b(index: Integer, char: String): self
+  --- @spec #w_i8b(index: Integer, char: String): self
   function ic:w_i8b(index, char)
     return self:w_u8(index, string.byte(char))
+  end
+
+  --- Default implementation of memcpy, this uses the existing r_u8 and w_u8 to copy cells
+  --- Memory implementations can and are implored to overwrite this implementation to fit their
+  --- needs.
+  ---
+  --- @spec #memcpy(addr1: Integer, addr2: Integer, len: Integer): self
+  function ic:memcpy(addr1, addr2, len)
+    for i = 0,len-1 do
+      self:w_u8(addr2 + i, self:r_u8(addr1 + i))
+    end
   end
 end
 

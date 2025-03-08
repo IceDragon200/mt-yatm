@@ -278,13 +278,14 @@ function ic:_chip_startup()
 
   elseif startup_stage == 7 then
     chip.ab = RESET_VECTOR_PTR
-    chip.pc = self:_chip_read_mem_u8(chip.ab)
+    local status, val = self:_chip_read_mem_u8(chip.ab)
+    chip.pc = val
     chip.state = next_stage(chip.state)
     return STARTUP_CODE
 
   elseif startup_stage == 8 then
     chip.ab = RESET_VECTOR_PTR + 1
-    local val = self:_chip_read_mem_u8(chip.ab)
+    local status, val = self:_chip_read_mem_u8(chip.ab)
     chip.pc = chip.pc + val * 256
     chip.state = CPU_STATE_RUN
     return OK_CODE
@@ -864,7 +865,7 @@ local function exec_adc(self)
   value = op1 + op2 + bit.band(chip.sr, CARRY_FLAG_BIT)
 
   -- check if decimal mode is enabled
-  if bit.band(chip.sr, DECIMAL_MODE_BIT) == 0 then
+  if bit.band(chip.sr, DECIMAL_MODE_FLAG_BIT) == 0 then
     -- binary mode
     chip.a = bit.band(value, 0xFF)
     -- ((op1 ^ A) & ~(op1 ^ op2) & 0x80) -- >> 7
@@ -880,9 +881,9 @@ local function exec_adc(self)
       chip.sr = bit.band(chip.sr, OVERFLOW_FLAG_DISABLE_MASK)
     end
 
-    set_carry_flag(chip, value)
-    set_negative_flag(chip, value)
-    set_zero_flag(chip, value)
+    set_carry_flag(self, value)
+    set_negative_flag(self, value)
+    set_zero_flag(self, value)
   else
     -- decimal mode
     error("TODO: decimal mode ADC")
@@ -899,8 +900,8 @@ local function exec_and(self)
 
   if status == OK_CODE then
     chip.a = bit.band(chip.a, op)
-    set_negative_flag(chip, chip.a)
-    set_zero_flag(chip, chip.a)
+    set_negative_flag(self, chip.a)
+    set_zero_flag(self, chip.a)
   end
 
   return status
@@ -928,8 +929,8 @@ local function exec_asl(self)
 
   tmp = bit.lshift(tmp, 1)
 
-  set_negative_flag(chip, tmp)
-  set_zero_flag(chip, tmp)
+  set_negative_flag(self, tmp)
+  set_zero_flag(self, tmp)
 
   status = self:_chip_write_mem_i8(chip.operand, tmp)
 
@@ -940,9 +941,9 @@ local function exec_asl_a(self)
   local chip = self.m_chip
   local tmp = bit.lshift(chip.a, 1) % 256
 
-  set_carry_flag(chip, tmp)
-  set_negative_flag(chip, tmp)
-  set_zero_flag(chip, tmp)
+  set_carry_flag(self, tmp)
+  set_negative_flag(self, tmp)
+  set_zero_flag(self, tmp)
   return OK_CODE
 end
 
@@ -1608,7 +1609,7 @@ local function exec_sbc(self)
   value = op1 - op2 - bit.band(bit.bxor(bit.band(chip.sr, CARRY_FLAG_BIT), 0x01), 0x01)
 
   -- check if decimal mode is enabled
-  if bit.band(chip.sr, DECIMAL_MODE_BIT) == 0 then
+  if bit.band(chip.sr, DECIMAL_MODE_FLAG_BIT) == 0 then
     -- binary mode
     chip.a = bit.band(value, 0xFF)
     -- ((op1 ^ op2) & ~(op1 ^ A) & 0x80) -- >> 7
@@ -1620,9 +1621,9 @@ local function exec_sbc(self)
       chip.sr = bit.band(chip.sr, OVERFLOW_FLAG_DISABLE_MASK)
     end
 
-    set_carry_flag(chip, value)
-    set_negative_flag(chip, value)
-    set_zero_flag(chip, value)
+    set_carry_flag(self, value)
+    set_negative_flag(self, value)
+    set_zero_flag(self, value)
   else
     -- decimal mode
     error("TODO: decimal mode ADC")
