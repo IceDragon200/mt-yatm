@@ -86,15 +86,16 @@ function isa.load_com_binary(oku, assigns, blob)
   oku:w_memory_blob(0x0100, blob)
 end
 
+--- @spec step(OKU, assigns: Table): (Boolean, status: String)
 function isa.step(oku, assigns)
   assigns.chip:set_memory(oku.memory:size(), oku.memory:ptr())
   local code = assigns.chip:step()
 
-  if code_table[code] == "ok" or
-     code_table[code] == "startup" then
-    return true, nil
+  local status = code_table[code]
+  if status == "ok" or status == "startup" then
+    return true, status
   else
-    return false, code_table[code]
+    return false, status
   end
 end
 
