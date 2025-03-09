@@ -791,7 +791,6 @@ function ISA:make(word_size, isa_def)
       local ok
       if not assigns.execution_stack:is_empty() then
         item = assigns.execution_stack:pop()
-        print("STEP " .. item)
         ty = type(item)
         if ty == "number" then
           isa.stack_push(oku, assigns, item)
@@ -846,7 +845,7 @@ function ISA:make(word_size, isa_def)
       bytes_read = bytes_read + br
 
       -- Restore
-      assigns.stdout = StringBuffer:new(stdout, "w")
+      assigns.stdout = StringBuffer:new(stdout or "", "w")
       assigns.dict = dict
 
       -- Lists do not have a binary format formally, so we need to hack around it
