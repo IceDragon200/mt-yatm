@@ -508,6 +508,145 @@ ISA.forth_builtin = {
     end,
   },
 
+  ["DROP"] = {
+    --- (x --)
+    cycles = 1,
+    is_function = true,
+    func = function (isa, oku, assigns)
+      local ok
+      local x
+      local err
+
+      ok, x, err = isa.stack_pop(oku, assigns)
+      if ok then
+        assigns.cycles = assigns.cycles + 1
+        return true, ISA.ERR_OK
+      else
+        return false, err
+      end
+    end,
+  },
+
+  ["NIP"] = {
+    --- (x1 x2 -- x2)
+    cycles = 1,
+    is_function = true,
+    func = function (isa, oku, assigns)
+      local ok
+      local x1
+      local x2
+      local err
+
+      ok, x2, err = isa.stack_pop(oku, assigns)
+      if ok then
+        assigns.cycles = assigns.cycles + 1
+        ok, x1, err = isa.stack_pop(oku, assigns)
+        if ok then
+          assigns.cycles = assigns.cycles + 1
+          ok, err = isa.stack_push(oku, assigns, x2)
+          if ok then
+            assigns.cycles = assigns.cycles + 1
+            return true, ISA.ERR_OK
+          else
+            return false, err
+          end
+        else
+          return false, err
+        end
+      else
+        return false, err
+      end
+    end,
+  },
+
+  ["OVER"] = {
+    --- (x1 x2 -- x1 x2 x1)
+    cycles = 1,
+    is_function = true,
+    func = function (isa, oku, assigns)
+      local ok
+      local x1
+      local x2
+      local err
+
+      ok, x2, err = isa.stack_pop(oku, assigns)
+      if not ok then
+        return false, err
+      end
+      assigns.cycles = assigns.cycles + 1
+
+      ok, x1, err = isa.stack_pop(oku, assigns)
+      if not ok then
+        return false, err
+      end
+      assigns.cycles = assigns.cycles + 1
+
+      ok, err = isa.stack_push(oku, assigns, x1)
+      if not ok then
+        return false, err
+      end
+      assigns.cycles = assigns.cycles + 1
+
+      ok, err = isa.stack_push(oku, assigns, x2)
+      if not ok then
+        return false, err
+      end
+      assigns.cycles = assigns.cycles + 1
+
+      ok, err = isa.stack_push(oku, assigns, x1)
+      if not ok then
+        return false, err
+      end
+      assigns.cycles = assigns.cycles + 1
+
+      return true, ISA.ERR_OK
+    end,
+  },
+
+  ["TUCK"] = {
+    --- (x1 x2 -- x2 x1 x2)
+    cycles = 1,
+    is_function = true,
+    func = function (isa, oku, assigns)
+      local ok
+      local x1
+      local x2
+      local err
+
+      ok, x2, err = isa.stack_pop(oku, assigns)
+      if not ok then
+        return false, err
+      end
+      assigns.cycles = assigns.cycles + 1
+
+      ok, x1, err = isa.stack_pop(oku, assigns)
+      if not ok then
+        return false, err
+      end
+      assigns.cycles = assigns.cycles + 1
+
+      ok, err = isa.stack_push(oku, assigns, x2)
+      if not ok then
+        return false, err
+      end
+      assigns.cycles = assigns.cycles + 1
+
+      ok, err = isa.stack_push(oku, assigns, x1)
+      if not ok then
+        return false, err
+      end
+      assigns.cycles = assigns.cycles + 1
+
+      ok, err = isa.stack_push(oku, assigns, x2)
+      if not ok then
+        return false, err
+      end
+      assigns.cycles = assigns.cycles + 1
+
+      return true, ISA.ERR_OK
+    end,
+  },
+
   ["ROT"] = {
     --- (x1 x2 x3 -- x2 x3 x1)
     cycles = 6,
