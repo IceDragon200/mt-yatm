@@ -4,6 +4,11 @@
 -- Handles automatically arming a belt magazine with given cartridges.
 local mod = assert(yatm_armoury)
 
+local fspec = assert(foundation.com.formspec.api)
+local yatm_fspec = assert(yatm.formspec)
+local Vector3 = assert(foundation.com.Vector3)
+local player_service = assert(nokore.player_service)
+
 if not yatm_machines then
   return
 end
