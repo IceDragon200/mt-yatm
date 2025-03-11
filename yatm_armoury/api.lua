@@ -305,14 +305,14 @@ local function entity_on_projectile_hit(entity, hit_data)
 
     if lua_entity then
       if lua_entity.on_projectile_hit then
-        lua_entity.on_projectile_hit(entity, hit_data)
+        lua_entity:on_projectile_hit(hit_data)
       end
     end
   end
 end
 
 local function node_on_projectile_hit(pos, node, hit_data)
-  local nodedef = minetest.registered_nodes[node.name]
+  local nodedef = core.registered_nodes[node.name]
   if nodedef then
     print("Projectile Hit", node.name, dump(pos))
     if nodedef.on_projectile_hit then
@@ -324,6 +324,7 @@ local function node_on_projectile_hit(pos, node, hit_data)
   end
 end
 
+--- @spec handle_projectile_ballistics(ItemStack, PlayerRef, PointedThing, Table): ItemStack
 function yatm_armoury.handle_projectile_ballistics(item_stack, player, pointed_thing, data)
   local look_dir = player:get_look_dir()
   local player_properties = player:get_properties()
@@ -333,7 +334,7 @@ function yatm_armoury.handle_projectile_ballistics(item_stack, player, pointed_t
   local target_pos = vector.add(origin_pos, effective_range)
   local include_objects = true
   local include_liquids = false
-  local raycast = minetest.raycast(
+  local raycast = core.raycast(
     origin_pos,
     target_pos,
     include_objects,
@@ -358,7 +359,7 @@ function yatm_armoury.handle_projectile_ballistics(item_stack, player, pointed_t
       entity_on_projectile_hit(pointed_thing.ref, hit_data)
     elseif pointed_thing.type == "node" then
       local pos = pointed_thing.under
-      local node = minetest.get_node_or_nil(pos)
+      local node = core.get_node_or_nil(pos)
 
       if node then
         node_on_projectile_hit(pos, node, hit_data)
