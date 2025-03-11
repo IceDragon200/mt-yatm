@@ -97,7 +97,7 @@ mod.TEXTURES = {
 
 for _,gate in ipairs({"and", "nand", "not", "or", "xor", "xnor"}) do
   local gate_func = function (...)
-    return gate_base_x8y2t6("yatm_ic_gate." .. gate .. "png", ...)
+    return gate_base_x8y2t6("yatm_ic_gate." .. gate .. ".png", ...)
   end
 
   mod.TEXTURES["gate_" .. gate .. "_x2y8t4"] = function (...)
@@ -216,8 +216,8 @@ end
 function mod.formspec.render_logic_editor(name, x, y, w, h, map, state)
 
   local formspec = ""
-    .. render_logic_editor_map(name, x, y, w, h, map, state)
-    .. render_logic_editor_controls(name, x, y, w, h, map, state)
+    .. mod.formspec.render_logic_editor_map(name, x, y, w, h, map, state)
+    .. mod.formspec.render_logic_editor_controls(name, x, y, w, h, map, state)
 
   return formspec
 end
