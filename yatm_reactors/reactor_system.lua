@@ -15,6 +15,7 @@ local function update_fuel_rod(node_entry, context)
   return true, context
 end
 
+--- @spec #update(ClusterSystem, Cluster, dtime: Float): void
 function ic:update(cls, cluster, dtime)
   --print("Updating Cluster", network.id)
   cluster:reduce_nodes_of_group("controller", 0, function (node_entry, acc)
