@@ -1,117 +1,94 @@
--- @namespace yatm_blasts
+local path_dirname = assert(foundation.com.path_dirname)
 
--- @class BlastsSystem
+--- @namespace yatm_blasts
+
+--- @class BlastsSystem
 local BlastsSystem = foundation.com.Class:extends("BlastsSystem")
 local ic = assert(BlastsSystem.instance_class)
 
-local mod_storage = yatm_blasts.mod_storage
+--- @type InitOptions: {
+---   filename: String
+--- }
 
--- @spec #initialize(): void
-function ic:initialize()
+--- @spec #initialize(options: InitOptions): void
+function ic:initialize(options)
   --
+  self.filename = options.filename
   self.initialized = false
   self.terminated = false
   self.elapsed = 0
   self.elapsed_since_last_persist = 0
 
   self.explosion_types = {}
+  self.expired_explosions = {}
 
-  self.g_explosion_id = 0
-  self.explosions = {}
+  self.kv = nokore.KVStore:new()
 end
 
--- @spec #init(): void
+--- @spec #init(): void
 function ic:init()
   --
   minetest.log("info", "attempting to reload explosions")
-  local blob = mod_storage:get_string("blast_system_explosions_blob")
-  if blob and blob ~= "" then
-    local dump = minetest.parse_json(blob)
-    self:_load_dump(dump)
+
+  if self.kv:marshall_load_file(self.filename) then
+    --
+    minetest.log("info", "loaded explosions")
   end
+
+  self:_migrate()
+
   self.initialized = true
 end
 
--- @spec #_load_dump(Table): void
-function ic:_load_dump(dump)
-  -- is the only version at the moment, so meh
-  if dump.version == "2020-02-01" then
-    -- dump type, not too important, but still needs to be checked
-    if dump.type == "yatm.blasts.explosions" then
-      self.g_explosion_id = assert(dump.data.g_explosion_id)
+---
+function ic:_migrate()
+  local version = self.kv:get("version")
 
-      self.explosions = {}
+  self.kv:put("version", "2025-03-22")
+end
 
-      for explosion_id_str, explosion in pairs(dump.data.explosions) do
-        local explosion_id = tonumber(explosion_id_str)
+--- @spec #terminate(): void
+function ic:terminate()
+  --
+  self:_maybe_persist_explosions()
+  self.terminated = true
+end
 
-        if self.explosion_types[explosion.kind] then
-          self.explosions[explosion_id] = {
-            pos = explosion.pos,
-            kind = explosion.kind,
-            assigns = explosion.assigns,
-            elapsed = explosion.elapsed,
-            expired = explosion.expired,
-          }
-        else
-          minetest.log("warning", "refusing to load explosion of kind=" .. explosion.kind)
-        end
-      end
+--- @spec #_maybe_persist_explosions(): void
+function ic:_maybe_persist_explosions()
+  if self.kv.dirty then
+    local dirname = path_dirname(self.filename)
+    core.mkdir(dirname)
+    minetest.log("info", "persisting explosions")
+    if self.kv:marshall_dump_file(self.filename) then
+      self.kv.dirty = false
+      minetest.log("info", "persisted explosions")
+    else
+      minetest.log("warning", "could not persist explosions")
     end
   end
 end
 
--- @spec #terminate(): void
-function ic:terminate()
-  --
-  self:persist_explosions()
-  self.terminated = true
+--- @spec #register_explosion_type(name: String, params: Table): (Table, self)
+function ic:register_explosion_type(name, params)
+  if not self.initialized then
+    self.explosion_types[name] = params
+    return params, self
+  end
+  error("system is already initialized, cannot register new explosion types")
 end
 
--- @spec #persist_explosions(): void
-function ic:persist_explosions()
-  minetest.log("info", "persisting explosions")
-
-  local explosions = {}
-  for explosion_id, explosion in pairs(self.explosions) do
-    -- explicitly dump specific attributes
-    -- anything outside of these will be lost
-    explosions[tostring(explosion_id)] = {
-      pos = explosion.pos,
-      kind = explosion.kind,
-      assigns = explosion.assigns,
-      elapsed = explosion.elapsed,
-      expired = explosion.expired,
-    }
+--- @spec #unregister_explosion_type(name: String): self
+function ic:unregister_explosion_type(name)
+  if not self.initialized then
+    self.explosion_types[name] = nil
+    return self
   end
 
-  local result = {
-    version = "2020-02-10",
-    type = "yatm.blasts.explosions",
-    data = {
-      g_explosion_id = self.g_explosion_id,
-      explosions = explosions,
-    },
-  }
-
-  local blob = minetest.write_json(result)
-  mod_storage:set_string("blast_system_explosions_blob", blob)
-  minetest.log("info", "persisted explosions")
+  error("system is already initialized, cannot unregister explosion types")
 end
 
--- @spec #register_explosion_type(name: String, params: Table): (Table, self)
-function ic:register_explosion_type(name, params)
-  self.explosion_types[name] = params
-  return params, self
-end
-
--- @spec #unregister_explosion_type(name: String): self
-function ic:unregister_explosion_type(name)
-  self.explosion_types[name] = nil
-  return self
-end
-
--- @spec #update(delta: Float): void
+--- @spec #update(delta: Float): void
 function ic:update(delta)
   if self.terminated then
     return
@@ -122,47 +99,50 @@ function ic:update(delta)
   self.elapsed = self.elapsed + delta
   self.elapsed_since_last_persist = self.elapsed_since_last_persist + delta
 
-  local has_expired = false
+  local explosion_def
 
-  for _, explosion in pairs(self.explosions) do
-    if explosion.expired then
-      has_expired = true
-    else
-      explosion.elapsed = explosion.elapsed + delta
-      local explosion_def = assert(self.explosion_types[explosion.kind])
+  local explosions = self.kv:get("explosions")
+  if explosions then
+    for id, explosion in pairs(explosions) do
+      if explosion.expired then
+        self.expired_explosions[id] = explosion
+      else
+        explosion.elapsed = explosion.elapsed + delta
+        explosion_def = assert(self.explosion_types[explosion.kind])
 
-      explosion_def.update(explosion.assigns, self, explosion, delta)
+        explosion_def.update(explosion.assigns, self, explosion, delta)
+      end
     end
   end
 
-  if has_expired then
-    local new_explosions = {}
-    for id, explosion in pairs(self.explosions) do
-      if explosion.expired then
-        local explosion_def = assert(self.explosion_types[explosion.kind])
+  if next(self.expired_explosions) then
+    for id, explosion in pairs(self.self.expired_explosions) do
+      explosion_def = assert(self.explosion_types[explosion.kind])
 
-        if explosion_def.on_expired then
-          explosion_def.on_expired(explosion.assigns, self, explosion)
-        end
-      else
-        new_explosions[id] = explosion
+      if explosion_def.on_expired then
+        explosion_def.on_expired(explosion.assigns, self, explosion)
+      end
+
+      if explosions then
+        explosions[id] = nil
       end
     end
-    self.explosions = new_explosions
+
+    self.expired_explosions = {}
   end
 
   if self.elapsed_since_last_persist > 60 then
-    self:persist_explosions()
+    self:_maybe_persist_explosions()
     self.elapsed_since_last_persist = 0
   end
 end
 
--- @spec #create_explosion(pos: Vector3, kind: String, params: Table): (Boolean, String)
+--- @spec #create_explosion(pos: Vector3, kind: String, params: Table): (Boolean, String)
 function ic:create_explosion(pos, kind, params)
   if self.explosion_types[kind] then
     local explosion_def = self.explosion_types[kind]
-    self.g_explosion_id = self.g_explosion_id + 1
-    local id = self.g_explosion_id
+    local id = self.kv:get("g_explosion_id", 0) + 1
+    self.kv:put("g_explosion_id", id)
 
     local explosion = {
       pos = pos,
@@ -176,7 +156,9 @@ function ic:create_explosion(pos, kind, params)
       explosion_def.init(explosion.assigns, self, explosion, params)
     end
 
-    self.explosions[id] = explosion
+    local explosions = self.kv:get("explosions") or {}
+    explosions[id] = explosion
+    self.kv:put("explosions", explosions)
     return true, nil
   end
   minetest.log("error", "explosion type " .. kind .. " does not exist")
