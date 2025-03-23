@@ -1265,8 +1265,7 @@ do
                member.type == "mounted_cable" then
               nodes[hash] = true
 
-              for dir, _ in pairs(Directions.DIR6_TO_VEC3) do
-                vec = Directions.DIR6_TO_VEC3[dir]
+              for dir, vec in pairs(Directions.DIR6_TO_VEC3) do
                 other_pos = vector.add(pos, vec)
                 other_hash = hash_node_position(other_pos)
 
