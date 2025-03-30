@@ -1,3 +1,23 @@
+--[[
+Machine behaviour
+
+passive_energy_lost :: integer = 10
+  how much energy should be lost when the network consume_energy is called?
+
+network_charge_bandwidth :: integer
+  how much energy should be stored from the consume_energy network call?
+
+energy_capacity :: integer = maximum energy capacity
+
+work_energy_bandwidth :: integer
+  how much energy is allowed per work step?
+
+work_rate_energy_threshold :: integer
+  how much energy is required to reach a 100% work rate
+
+startup_energy_threshold :: integer
+  if the device is offline, how much energy does it require to go online?
+]]
 local table_freeze = assert(foundation.com.table_freeze)
 local table_merge = assert(foundation.com.table_merge)
 local table_deep_merge = assert(foundation.com.table_deep_merge)
@@ -629,30 +649,30 @@ yatm.devices = devices
 
 --- @namespace yatm.grinding
 yatm.grinding = yatm.grinding or {}
---- @const grinding_registry: yatm_machines.GrindingRegistry
-yatm.grinding.grinding_registry = yatm_machines.GrindingRegistry:new()
+--- @const grinding_registry: yatm_machines_api.GrindingRegistry
+yatm.grinding.grinding_registry = yatm_machines_api.GrindingRegistry:new()
 
 --- @namespace yatm.freezing
 yatm.freezing = yatm.freezing or {}
---- @const freezing_registry: yatm_machines.FreezingRegistry
-yatm.freezing.freezing_registry = yatm_machines.FreezingRegistry:new()
+--- @const freezing_registry: yatm_machines_api.FreezingRegistry
+yatm.freezing.freezing_registry = yatm_machines_api.FreezingRegistry:new()
 
 --- @namespace yatm.condensing
 yatm.condensing = yatm.condensing or {}
---- @const condensing_registry: yatm_machines.CondensingRegistry
-yatm.condensing.condensing_registry = yatm_machines.CondensingRegistry:new()
+--- @const condensing_registry: yatm_machines_api.CondensingRegistry
+yatm.condensing.condensing_registry = yatm_machines_api.CondensingRegistry:new()
 
 --- @namespace yatm.compacting
 yatm.compacting = yatm.compacting or {}
---- @const compacting_registry: yatm_machines.CompactingRegistry
-yatm.compacting.compacting_registry = yatm_machines.CompactingRegistry:new()
+--- @const compacting_registry: yatm_machines_api.CompactingRegistry
+yatm.compacting.compacting_registry = yatm_machines_api.CompactingRegistry:new()
 
 --- @namespace yatm.rolling
 yatm.rolling = yatm.rolling or {}
---- @const rolling_registry: yatm_machines.RollingRegistry
-yatm.rolling.rolling_registry = yatm_machines.RollingRegistry:new()
+--- @const rolling_registry: yatm_machines_api.RollingRegistry
+yatm.rolling.rolling_registry = yatm_machines_api.RollingRegistry:new()
 
 --- @namespace yatm.crushing
 yatm.crushing = yatm.crushing or {}
---- @const crushing_registry: yatm_machines.CrushingRegistry
-yatm.crushing.crushing_registry = yatm_machines.CrushingRegistry:new()
+--- @const crushing_registry: yatm_machines_api.CrushingRegistry
+yatm.crushing.crushing_registry = yatm_machines_api.CrushingRegistry:new()

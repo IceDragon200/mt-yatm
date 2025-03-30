@@ -5,4 +5,4 @@ local ic = CrushingRegistry.instance_class
 function ic:initialize()
 end
 
-yatm_machines.CrushingRegistry = CrushingRegistry
+yatm_machines_api.CrushingRegistry = CrushingRegistry

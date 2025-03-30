@@ -77,4 +77,4 @@ do
   end
 end
 
-yatm_machines.CondensingRegistry = CondensingRegistry
+yatm_machines_api.CondensingRegistry = CondensingRegistry

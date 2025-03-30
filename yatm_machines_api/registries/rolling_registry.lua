@@ -27,4 +27,4 @@ function ic:find_roller_recipe(item_stack)
   return nil, "no matching recipe"
 end
 
-yatm_machines.RollingRegistry = RollingRegistry
+yatm_machines_api.RollingRegistry = RollingRegistry

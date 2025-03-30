@@ -1,8 +1,9 @@
---- @namespace yatm_item_storage.ItemExchange
 local Directions = assert(foundation.com.Directions)
 local Vector3 = assert(foundation.com.Vector3)
 
 local ItemDevice = assert(yatm_item_storage.ItemDevice)
+
+--- @namespace yatm_item_storage.ItemExchange
 local ItemExchange = {}
 
 --- @spec transfer_from_device_to_device(

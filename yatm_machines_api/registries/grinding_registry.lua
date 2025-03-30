@@ -65,4 +65,4 @@ function ic:find_grinding_recipe(input_item_stack)
   return nil, "no matching recipe"
 end
 
-yatm_machines.GrindingRegistry = GrindingRegistry
+yatm_machines_api.GrindingRegistry = GrindingRegistry

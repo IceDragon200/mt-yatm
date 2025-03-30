@@ -1,3 +1,8 @@
+local Directions = assert(foundation.com.Directions)
+local Vector3 = assert(foundation.com.Vector3)
+local FluidMeta = assert(yatm_fluids.FluidMeta)
+local FluidTanks = assert(yatm_fluids.FluidTanks)
+
 --- @namespace yatm_fluids.FluidExchange
 
 --- FluidExchange is a utility module built upon FluidMeta and FluidTanks
@@ -9,9 +14,6 @@
 ---   capacity: Integer,
 ---   bandwidth: Integer,
 --- }
-
-local FluidMeta = assert(yatm_fluids.FluidMeta)
-local FluidTanks = assert(yatm_fluids.FluidTanks)
 
 local FluidExchange = {}
 
@@ -45,6 +47,41 @@ function FluidExchange.transfer_from_tank_to_tank(
     end
   end
   return nil
+end
+
+---
+--- @spec transfer_from_tank_to_adjacent_tank(
+---   from_pos: Vector3,
+---   from_face: Direction.code,
+---   fluid_stack: FluidStack,
+---   commit: Boolean
+--- ): (remaining: FluidStack)
+function FluidExchange.transfer_from_tank_to_adjacent_tank(
+  from_pos,
+  local_dir,
+  fluid_stack,
+  commit
+)
+  local node = minetest.get_node_or_nil(from_pos)
+  if node then
+    local nodedef = minetest.registered_nodes[node.name]
+    local dir = local_dir
+    if nodedef.paramtype2 == "facedir" then
+      dir = Directions.facedir_to_face(node.param2, local_dir)
+    end
+    local neighbour_pos = Vector3.zero()
+    Vector3.add(neighbour_pos, from_pos, Directions.DIR6_TO_VEC3[dir])
+    return FluidExchange.transfer_from_tank_to_tank(
+      from_pos,
+      dir,
+      fluid_stack,
+      neighbour_pos,
+      Directions.invert_dir(dir),
+      commit
+    )
+  end
+
+  return fluid_stack
 end
 
 ---

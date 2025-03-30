@@ -1,4 +1,4 @@
-local mod = yatm_machines
+local mod = assert(yatm_machines_api)
 
 mod:require("registries/compacting_registry.lua")
 mod:require("registries/condensing_registry.lua")

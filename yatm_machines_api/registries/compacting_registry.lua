@@ -64,4 +64,4 @@ function ic:find_compacting_recipe(input_item_stack)
   return nil, "no matching recipe"
 end
 
-yatm_machines.CompactingRegistry = CompactingRegistry
+yatm_machines_api.CompactingRegistry = CompactingRegistry

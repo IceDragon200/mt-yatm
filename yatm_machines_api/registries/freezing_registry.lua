@@ -144,4 +144,4 @@ function ic:find_fluid_freezing_recipe(input_fluid)
   return nil, "no matching recipe"
 end
 
-yatm_machines.FreezingRegistry = FreezingRegistry
+yatm_machines_api.FreezingRegistry = FreezingRegistry
