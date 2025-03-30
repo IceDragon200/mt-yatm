@@ -69,6 +69,22 @@ local function on_destruct(pos)
   yatm.devices.device_on_destruct(pos)
 end
 
+local function on_rightclick(pos, node, user)
+  local formspec_name = "yatm_oku:computer:" .. minetest.pos_to_string(pos)
+  local assigns = { pos = pos, node = node }
+  local formspec = render_formspec(pos, user, assigns)
+
+  nokore.formspec_bindings:show_formspec(
+    user:get_player_name(),
+    formspec_name,
+    formspec,
+    {
+      state = assigns,
+      on_receive_fields = on_receive_fields
+    }
+  )
+end
+
 local computer_data_interface = {
   on_load = function (self, pos, node)
   end,
@@ -185,21 +201,7 @@ yatm.devices.register_stateful_network_device({
   on_construct = on_construct,
   on_destruct = on_destruct,
 
-  on_rightclick = function (pos, node, user)
-    local formspec_name = "yatm_oku:computer:" .. minetest.pos_to_string(pos)
-    local assigns = { pos = pos, node = node }
-    local formspec = render_formspec(pos, user, assigns)
-
-    nokore.formspec_bindings:show_formspec(
-      user:get_player_name(),
-      formspec_name,
-      formspec,
-      {
-        state = assigns,
-        on_receive_fields = on_receive_fields
-      }
-    )
-  end,
+  on_rightclick = on_rightclick,
 
   register_computer = function (pos, node)
     local meta = minetest.get_meta(pos)
