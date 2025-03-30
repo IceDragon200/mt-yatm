@@ -7,6 +7,8 @@ if not rawget(_G, "yatm_machines") then
   return
 end
 
+local mod = assert(yatm_security)
+
 local lbit = assert(foundation.com.bit)
 local Groups = assert(foundation.com.Groups)
 local string_hex_encode = assert(foundation.com.string_hex_encode)
@@ -243,10 +245,83 @@ local function handle_receive_fields(user, formname, fields, assigns)
   end
 end
 
+local yatm_network = {
+  kind = "machine",
+
+  groups = {
+    machine_worker = 1,
+    energy_consumer = 1,
+  },
+
+  default_state = "off",
+  states = {
+    off = "yatm_security:programmers_table_off",
+    on = "yatm_security:programmers_table_on",
+    error = "yatm_security:programmers_table_error",
+    conflict = "yatm_security:programmers_table_error",
+  },
+
+  energy = {
+    capacity = 16000,
+    startup_threshold = 2000,
+    network_charge_bandwidth = 200,
+    passive_lost = 0,
+  },
+
+  work = function (pos, node, available_energy, work_rate, dtime, ot)
+    local meta = minetest.get_meta(pos)
+    local inv = meta:get_inventory()
+
+    local processing_count = meta:get_int("processing_count")
+
+    local org_proc_time = meta:get_float("processing_time")
+    if not inv:is_empty("processing_items") then
+      local proc_time = org_proc_time
+      if proc_time > 0 then
+        proc_time = math.max(proc_time - dtime, 0)
+        meta:set_float("processing_time", proc_time)
+      end
+
+      if proc_time <= 0 then
+        if inv:is_empty("output_items") then
+          local output_items = {}
+          local prog_data = meta:get_string("processing_prog_data")
+          for i, item in pairs(inv:get_list("processing_items")) do
+            if item:is_empty() then
+              output_items[i] = item
+            else
+              local itemdef = item:get_definition()
+              if itemdef.on_programmed then
+                output_items[i] = itemdef.on_programmed(item, prog_data)
+              else
+                minetest.log("warning", item:get_name() .. " does not support on_programmed callback")
+                output_items[i] = item
+              end
+            end
+          end
+
+          inv:set_list("output_items", output_items)
+          inv:set_list("processing_items", {})
+
+          sounds:play("action_completed", { pos = pos, max_hear_distance = 32 })
+        end
+      end
+
+      -- 100 units per item per second
+      return 100 * processing_count * (org_proc_time - proc_time)
+    elseif org_proc_time > 0 then
+      sounds:play("long_error", { pos = pos, max_hear_distance = 32 })
+      meta:set_float("processing_time", 0)
+    end
+
+    return 0
+  end,
+}
+
 yatm.devices.register_stateful_network_device({
   basename = "yatm_security:programmers_table",
 
-  description = "Programmer's Table",
+  description = mod.S("Programmer's Table"),
 
   codex_entry_id = "yatm_security:programmers_table",
 
@@ -272,78 +347,7 @@ yatm.devices.register_stateful_network_device({
 
   paramtype2 = "facedir",
 
-  yatm_network = {
-    kind = "machine",
-
-    groups = {
-      machine_worker = 1,
-      energy_consumer = 1,
-    },
-
-    default_state = "off",
-    states = {
-      off = "yatm_security:programmers_table_off",
-      on = "yatm_security:programmers_table_on",
-      error = "yatm_security:programmers_table_error",
-      conflict = "yatm_security:programmers_table_error",
-    },
-
-    energy = {
-      capacity = 16000,
-      startup_threshold = 2000,
-      network_charge_bandwidth = 200,
-      passive_lost = 0,
-    },
-
-    work = function (pos, node, available_energy, work_rate, dtime, ot)
-      local meta = minetest.get_meta(pos)
-      local inv = meta:get_inventory()
-
-      local processing_count = meta:get_int("processing_count")
-
-      local org_proc_time = meta:get_float("processing_time")
-      if not inv:is_empty("processing_items") then
-        local proc_time = org_proc_time
-        if proc_time > 0 then
-          proc_time = math.max(proc_time - dtime, 0)
-          meta:set_float("processing_time", proc_time)
-        end
-
-        if proc_time <= 0 then
-          if inv:is_empty("output_items") then
-            local output_items = {}
-            local prog_data = meta:get_string("processing_prog_data")
-            for i, item in pairs(inv:get_list("processing_items")) do
-              if item:is_empty() then
-                output_items[i] = item
-              else
-                local itemdef = item:get_definition()
-                if itemdef.on_programmed then
-                  output_items[i] = itemdef.on_programmed(item, prog_data)
-                else
-                  minetest.log("warning", item:get_name() .. " does not support on_programmed callback")
-                  output_items[i] = item
-                end
-              end
-            end
-
-            inv:set_list("output_items", output_items)
-            inv:set_list("processing_items", {})
-
-            sounds:play("action_completed", { pos = pos, max_hear_distance = 32 })
-          end
-        end
-
-        -- 100 units per item per second
-        return 100 * processing_count * (org_proc_time - proc_time)
-      elseif org_proc_time > 0 then
-        sounds:play("long_error", { pos = pos, max_hear_distance = 32 })
-        meta:set_float("processing_time", 0)
-      end
-
-      return 0
-    end,
-  },
+  yatm_network = yatm_network,
 
   data_network_device = {
     type = "device",

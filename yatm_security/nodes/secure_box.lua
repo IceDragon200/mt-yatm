@@ -16,11 +16,11 @@ mod:register_node("secure_box", {
   use_texture_alpha = "opaque",
   tiles = {
     "yatm_locksmiths_table_wood_top.png",
-    "yatm_locksmiths_table_wood_bottom.png",
-    "yatm_locksmiths_table_wood_side.png",
-    "yatm_locksmiths_table_wood_side.png^[transformFX",
-    "yatm_locksmiths_table_wood_side.png^[transformFX",
-    "yatm_locksmiths_table_wood_side.png"
+    "yatm_locksmiths_table_wood_top.png",
+    "yatm_locksmiths_table_wood_top.png",
+    "yatm_locksmiths_table_wood_top.png^[transformFX",
+    "yatm_locksmiths_table_wood_top.png^[transformFX",
+    "yatm_locksmiths_table_wood_top.png"
   },
 
   paramtype = "none",

@@ -1,3 +1,5 @@
+local mod = assert(yatm_security)
+
 local is_blank = assert(foundation.com.is_blank)
 local itemstack_is_blank = assert(foundation.com.itemstack_is_blank)
 local set_itemstack_meta_description = assert(foundation.com.set_itemstack_meta_description)
@@ -370,10 +372,27 @@ local function locksmiths_table_on_metadata_inventory_take(pos, listname, index,
   end
 end
 
+local function on_rightclick(pos, node, user, itemstack, pointed_thing)
+  local assigns = { pos = pos, node = node }
+  local formspec = locksmiths_table_get_formspec(pos, user, assigns)
+
+  local formspec_name = "yatm_security:locksmiths_table:" .. minetest.pos_to_string(pos)
+
+  nokore.formspec_bindings:show_formspec(
+    user:get_player_name(),
+    formspec_name,
+    formspec,
+    {
+      state = assigns,
+      on_receive_fields = on_player_receive_fields
+    }
+  )
+end
+
 minetest.register_node("yatm_security:locksmiths_table_wood", {
   basename = "yatm_security:locksmiths_table",
 
-  description = "Wood Locksmith's Table",
+  description = mod.S("Wood Locksmith's Table"),
 
   codex_entry_id = "yatm_security:locksmiths_table",
 
@@ -402,17 +421,7 @@ minetest.register_node("yatm_security:locksmiths_table_wood", {
   on_construct = locksmiths_table_on_construct,
   on_destruct = locksmiths_table_on_destruct,
 
-  on_rightclick = function (pos, node, user, itemstack, pointed_thing)
-    local assigns = { pos = pos, node = node }
-    local formspec = locksmiths_table_get_formspec(pos, user, assigns)
-
-    local formspec_name = "yatm_security:locksmiths_table:" .. minetest.pos_to_string(pos)
-
-    nokore.formspec_bindings:show_formspec(user:get_player_name(), formspec_name, formspec, {
-      state = assigns,
-      on_receive_fields = on_player_receive_fields
-    })
-  end,
+  on_rightclick = on_rightclick,
 
   allow_metadata_inventory_move = locksmiths_table_allow_metadata_inventory_move,
   allow_metadata_inventory_put = locksmiths_table_allow_metadata_inventory_put,

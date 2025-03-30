@@ -36,7 +36,8 @@ end
 local function handle_keypad_input(prefix, fields, assigns)
   local keypad_prefix = prefix.."_keypad_"
 
-  local code = assigns.security_assigns.slots[assigns.slot_id].code or ""
+  local slot = assigns.security_assigns.slots[assigns.slot_id]
+  local code = slot.code or ""
   for key, value in pairs(fields) do
     if string_starts_with(key, keypad_prefix) then
       local key_id = string_trim_leading(key, keypad_prefix)
@@ -49,7 +50,7 @@ local function handle_keypad_input(prefix, fields, assigns)
     end
   end
 
-  assigns.security_assigns.slots[assigns.slot_id].code = code
+  slot.code = code
 end
 
 --
@@ -182,7 +183,7 @@ yatm.security:register_security_feature("yatm_security:keypad_lock", {
 })
 
 --
--- The password lock is similar to the keypad lock, but allows arbitary characters
+-- The password lock is similar to the keypad lock, but allows arbitrary characters
 --
 yatm.security:register_security_feature("yatm_security:password_lock", {
   install_node_slot_feature = function (self, pos, node, slot_id, params)
