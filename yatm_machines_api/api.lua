@@ -26,17 +26,21 @@ local cluster_energy = assert(yatm.cluster.energy)
 local cluster_thermal = assert(yatm.cluster.thermal)
 local Energy = assert(yatm.energy)
 local en_receive_meta_energy = assert(Energy.receive_meta_energy)
+--
+local registered_nodes = assert(core.registered_nodes)
+local swap_node = assert(core.swap_node)
+local get_node_or_nil = assert(core.get_node_or_nil)
+local get_meta = assert(core.get_meta)
 
 --- @namespace yatm.devices
-local devices = {
-  ENERGY_BUFFER_KEY = "energy_buffer",
-  HEAT_MODIFIER_KEY = "heat_modifier",
-  MIN_HEAT_MODIFIER = -100,
-  MAX_HEAT_MODIFIER = 100,
-  NUCLEAR_PROTECTION_KEY = "nuclear_protection",
-  NUCLEAR_PROTECTION_MIN = -1000,
-  NUCLEAR_PROTECTION_MAX = -1000,
-}
+local devices = yatm.devices
+devices.ENERGY_BUFFER_KEY = "energy_buffer"
+devices.HEAT_MODIFIER_KEY = "heat_modifier"
+devices.MIN_HEAT_MODIFIER = -100
+devices.MAX_HEAT_MODIFIER = 100
+devices.NUCLEAR_PROTECTION_KEY = "nuclear_protection"
+devices.NUCLEAR_PROTECTION_MIN = -1000
+devices.NUCLEAR_PROTECTION_MAX = 1000
 
 local REASON_TRANSITION = table_freeze({ reason = "transition_state" })
 local REASON_STORED_ENERGY = table_freeze({ reason = "stored_energy" })
@@ -45,8 +49,8 @@ local REASON_IDLE = table_freeze({ reason = "idle" })
 
 --- @spec device_on_construct(pos: Vector3): void
 function devices.device_on_construct(pos)
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
+  local node = get_node_or_nil(pos)
+  local nodedef = registered_nodes[node.name]
 
   if nodedef.groups["yatm_cluster_device"] then
     cluster_devices:schedule_add_node(pos, node)
@@ -64,8 +68,8 @@ end
 --- @spec device_on_destruct(pos: Vector3): void
 function devices.device_on_destruct(pos)
   --
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
+  local node = get_node_or_nil(pos)
+  local nodedef = registered_nodes[node.name]
 
   if nodedef.groups["yatm_cluster_device"] then
     cluster_devices:schedule_remove_node(pos, node)
@@ -95,9 +99,15 @@ function devices.device_after_place_node(pos, placer, item_stack, pointed_thing)
   --
 end
 
+--- @spec device_swap_node_by_state(
+---   pos: Vector3,
+---   node: NodeRef,
+---   new_state: String,
+---   reason: String
+--- ): (changed: Boolean)
 function devices.device_swap_node_by_state(pos, node, new_state, reason)
   reason = reason or "device_swap_node_by_state"
-  local nodedef = minetest.registered_nodes[node.name]
+  local nodedef = registered_nodes[node.name]
 
   if nodedef and nodedef.yatm_network.states then
     local new_node_name = nodedef.yatm_network.states[new_state]
@@ -105,7 +115,7 @@ function devices.device_swap_node_by_state(pos, node, new_state, reason)
     local changed = false
 
     if new_node_name then
-      node = minetest.get_node(pos)
+      node = get_node_or_nil(pos)
 
       if node.name ~= new_node_name then
         local new_node = {
@@ -114,7 +124,7 @@ function devices.device_swap_node_by_state(pos, node, new_state, reason)
           param2 = node.param2,
         }
 
-        minetest.swap_node(pos, new_node)
+        swap_node(pos, new_node)
 
         if nodedef.groups["yatm_cluster_device"] then
           cluster_devices:schedule_update_node(pos, new_node, reason)
@@ -131,7 +141,7 @@ function devices.device_swap_node_by_state(pos, node, new_state, reason)
         changed = true
       end
     else
-      minetest.log("warning", "missing node name for state=" .. new_state .. " node=" .. node.name)
+      core.log("warning", "missing node name for state=" .. new_state .. " node=" .. node.name)
     end
 
     if changed then
@@ -147,7 +157,7 @@ end
 --- @spec device_transition_device_state(Vector3, NodeRef, dev_state: String, reason: String): Boolean
 function devices.device_transition_device_state(pos, node, dev_state, reason)
   reason = reason or "device_transition_device_state"
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local state
   if dev_state == "down" then
     state = "off"
@@ -169,17 +179,19 @@ end
 
 --- @spec get_energy_capacity(Vector3, NodeRef): Number
 function devices.get_energy_capacity(pos, node)
-  local nodedef = minetest.registered_nodes[node.name]
+  local nodedef = registered_nodes[node.name]
   local en = nodedef.yatm_network.energy
   local ty = type(en.capacity)
 
+  local capacity = 0
+
   if ty == "number" then
-    return en.capacity
+    capacity = en.capacity
   elseif ty == "function" then
-    return en.capacity(pos, node)
-  else
-    return 0
+    capacity = en.capacity(pos, node)
   end
+
+  return capacity
 end
 
 ---
@@ -192,7 +204,7 @@ function devices.device_passive_consume_energy(pos, node, total_available, dtime
   end
 
   local consumed = 0
-  local nodedef = minetest.registered_nodes[node.name]
+  local nodedef = registered_nodes[node.name]
   local energy = nodedef.yatm_network.energy
   local capacity = devices.get_energy_capacity(pos, node)
 
@@ -212,7 +224,7 @@ function devices.device_passive_consume_energy(pos, node, total_available, dtime
     local charge_bandwidth = energy.network_charge_bandwidth * dtime
 
     if charge_bandwidth and charge_bandwidth > 0 then
-      local meta = minetest.get_meta(pos)
+      local meta = get_meta(pos)
       local stored = en_receive_meta_energy(
         meta,
         devices.ENERGY_BUFFER_KEY,
@@ -273,6 +285,7 @@ do
   ---
   --- @spec #initialize(): void
   function ic:initialize()
+    ic._super.initialize(self)
     --
   end
 
@@ -295,11 +308,11 @@ do
 
     --- retrieve and cache the node definition
     --- @member nodedef: NodeDefinition
-    self.nodedef = minetest.registered_nodes[self.node.name]
+    self.nodedef = registered_nodes[self.node.name]
 
     --- retrieve and cache the metaref
     --- @member meta: MetaRef
-    self.meta = minetest.get_meta(self.pos, self.node)
+    self.meta = get_meta(self.pos)
 
     return self
   end
@@ -308,11 +321,11 @@ do
   --- @spec #refresh_node(): void
   function ic:refresh_node()
     -- refresh the node
-    self.node = minetest.get_node_or_nil(self.pos)
+    self.node = get_node_or_nil(self.pos)
     -- refresh the nodedef
-    self.nodedef = minetest.registered_nodes[self.node.name]
+    self.nodedef = registered_nodes[self.node.name]
     -- retrieve and cache the metaref
-    self.meta = minetest.get_meta(self.pos, self.node)
+    self.meta = get_meta(self.pos)
   end
 
   --- @spec #precalculate(): void
@@ -470,22 +483,29 @@ function devices.worker_update(pos, node, dtime, ot)
   ctx:run()
 end
 
-local function network_default_on_network_state_changed(pos, node, state)
-  local nodedef = minetest.registered_nodes[node.name]
-  if nodedef.yatm_network.states then
-    local new_name = assert(nodedef.yatm_network.states[state], "expected node=" .. node.name .. " to have a state=" .. state)
-    if node.name ~= new_name then
-      --debug("node", "NETWORK CHANGED", minetest.pos_to_string(pos), node.name, "STATE", state)
-      node.name = new_name
-      minetest.swap_node(pos, node)
-      -- FIXME: I'm almost certain this is suppose to upsert with the other involved networks as well
+local function do_default_on_network_state_changed(pos, node, state)
+  local nodedef = registered_nodes[node.name]
+  if nodedef then
+    local yatm_network = nodedef.yatm_network
+    if yatm_network then
+      local new_name = yatm_network.states[state]
+      if not new_name then
+        error("expected node=" .. node.name .. " to have a state=" .. state)
+      end
+      if node.name ~= new_name then
+        --debug("node", "NETWORK CHANGED", pos_to_string(pos), node.name, "STATE", state)
+        node.name = new_name
+        swap_node(pos, node)
+        -- FIXME: I'm almost certain this is suppose to upsert with the other involved networks as well
+      end
     end
   end
 end
 
+--- @spec default_on_network_state_changed(pos: Vector3, node: NodeRef, state: String): void
 function devices.default_on_network_state_changed(pos, node, state)
   local new_state = state
-  local nodedef = minetest.registered_nodes[node.name]
+  local nodedef = registered_nodes[node.name]
   if nodedef.yatm_network.state then
     if nodedef.yatm_network.state == "on" then
       -- it's currently on
@@ -493,7 +513,7 @@ function devices.default_on_network_state_changed(pos, node, state)
     else
       -- the intention is to activate the node
       if state == "on" then
-        local meta = minetest.get_meta(pos, node)
+        local meta = get_meta(pos)
         if nodedef.yatm_network.groups.energy_consumer then
           local total_available = Energy.get_meta_energy(meta, devices.ENERGY_BUFFER_KEY)
           local threshold = nodedef.yatm_network.energy.startup_threshold or 0
@@ -505,7 +525,7 @@ function devices.default_on_network_state_changed(pos, node, state)
       end
     end
   end
-  network_default_on_network_state_changed(pos, node, new_state)
+  do_default_on_network_state_changed(pos, node, new_state)
 end
 
 function devices.patch_device_nodedef(name, nodedef)
@@ -609,7 +629,7 @@ function devices.register_network_device(name, nodedef)
 
   devices.patch_device_nodedef(name, nodedef)
 
-  return minetest.register_node(name, nodedef)
+  return core.register_node(name, nodedef)
 end
 
 function devices.register_stateful_network_device(base_node_def, overrides)

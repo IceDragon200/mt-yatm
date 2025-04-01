@@ -11,7 +11,8 @@ local ItemExchange = assert(yatm.items.ItemExchange)
 local FluidExchange = assert(yatm.fluids.FluidExchange)
 local FluidStack = assert(yatm.fluids.FluidStack)
 
-local m = {}
+yatm.devices.behaviours = yatm.devices.behaviours or {}
+local m = yatm.devices.behaviours
 
 --- @namespace yatm.NodeBehaviours.helpers
 m.helpers = {}
@@ -239,5 +240,3 @@ function m.item_auto_eject.work(ctx)
   m.item_auto_eject.exec(ctx.pos, ctx.node, ctx.meta)
   return 0
 end
-
-yatm.NodeBehaviours = m
