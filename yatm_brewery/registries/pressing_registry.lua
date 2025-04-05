@@ -2,22 +2,22 @@
 -- The pressing registry contains recipes for the mechanical press.
 --
 
--- @namespace yatm_brewery
+--- @namespace yatm_brewery
 
--- @class PressingRegistry
+--- @class PressingRegistry
 local PressingRegistry = foundation.com.Class:extends('yatm.brewery.PressingRegistry')
 local ic = PressingRegistry.instance_class
 
---
---
--- @spec #initialize(): void
+---
+---
+--- @spec #initialize(): void
 function ic:initialize()
   self.m_recipe_id = 0
   self.m_recipes = {}
   self.m_recipes_name_to_id = {}
 end
 
--- @spec #register_pressing_recipe(name: String, PressingRecipeDefinition): PressingRecipe
+--- @spec #register_pressing_recipe(name: String, PressingRecipeDefinition): PressingRecipe
 function ic:register_pressing_recipe(name, recipe_def)
   self.m_recipe_id = self.m_recipe_id + 1
   local recipe_id = self.m_recipe_id
@@ -31,14 +31,14 @@ function ic:register_pressing_recipe(name, recipe_def)
   return recipe_def
 end
 
--- Retrieve a pressing recipe by its id if it exists
---
--- @spec #get_pressing_recipe(recipe_id: Integer): AgingRecipe | nil
+--- Retrieve a pressing recipe by its id if it exists
+---
+--- @spec #get_pressing_recipe(recipe_id: Integer): AgingRecipe | nil
 function ic:get_pressing_recipe(recipe_id)
   return self.m_recipes[recipe_id]
 end
 
--- @spec #get_pressing_recipe_by_name(name: String): BrewingRecipe | nil
+--- @spec #get_pressing_recipe_by_name(name: String): BrewingRecipe | nil
 function ic:get_pressing_recipe_by_name(name)
   local recipe_id = self.m_recipes_name_to_id[name]
 

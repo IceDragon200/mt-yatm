@@ -1,3 +1,5 @@
+local mod = assert(yatm_brewery)
+
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local Directions = assert(foundation.com.Directions)
@@ -180,7 +182,7 @@ local kettle_node_box = {
 }
 
 yatm.register_stateful_node("yatm_brewery:kettle", {
-  description = "Kettle",
+  description = mod.S("Kettle"),
 
   drop = "yatm_brewery:kettle_off",
 

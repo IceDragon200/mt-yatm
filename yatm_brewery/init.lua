@@ -1,7 +1,7 @@
 --
 -- YATM Brewery
 --
-local mod = foundation.new_module("yatm_brewery", "0.3.0")
+local mod = foundation.new_module("yatm_brewery", "0.4.0")
 
 mod:require("registries.lua")
 
