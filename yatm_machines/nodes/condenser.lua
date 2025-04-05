@@ -57,13 +57,13 @@ local function get_fluid_tank_name(_self, pos, dir)
   local node = minetest.get_node(pos)
   local new_dir = Directions.facedir_to_face(node.param2, dir)
   if new_dir == Directions.D_DOWN then
-    return LIQUID_TANK_NAME, capacity
+    return LIQUID_TANK_NAME, TANK_CAPACITY
   elseif new_dir == Directions.D_UP or
          new_dir == Directions.D_EAST or
          new_dir == Directions.D_WEST or
          new_dir == Directions.D_NORTH or
          new_dir == Directions.D_SOUTH then
-    return GAS_TANK_NAME, capacity
+    return GAS_TANK_NAME, TANK_CAPACITY
   end
   return nil, nil
 end
