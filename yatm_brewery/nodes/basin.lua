@@ -10,6 +10,8 @@ local ng = Cuboid.new_fast_node_box
 local Directions = assert(foundation.com.Directions)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
+local FluidMeta = assert(yatm.fluids.FluidMeta)
+local yatm_fspec = assert(yatm.formspec)
 local Vector3 = assert(foundation.com.Vector3)
 local fspec = assert(foundation.com.formspec.api)
 
@@ -39,11 +41,15 @@ local function maybe_migrate_inventory(pos)
   local meta = core.get_meta(pos)
 
   local ver = meta:get_int("version")
-  if ver < 1 do
+  if ver < 1 then
     local inv = meta:get_inventory()
-    local list = inv:get_list("main")
     inv:set_size("input", 4)
-    inv:set_list("input", list)
+
+    if inv:get_size("main") > 0 then
+      local list = inv:get_list("main")
+      inv:set_list("input", list)
+      inv:set_size("main", 0)
+    end
 
     inv:set_size("processing", 4)
     inv:set_size("output", 2)
@@ -123,9 +129,9 @@ local function on_rightclick(pos, node, clicker, item_stack, pointed_thing)
   }
 
   nokore.formspec_bindings:show_formspec(
-    player:get_player_name(),
+    clicker:get_player_name(),
     mod:make_name("wood_basin"),
-    get_formspec(pos, player),
+    get_formspec(pos, clicker),
     options
   )
 end

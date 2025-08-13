@@ -3,6 +3,8 @@
 -- into other fluids normally with a catalyst item.
 -- Aging recipes tend to be fairly slow to process, but work on large quantities of fluids.
 --
+local mod = assert(yatm_brewery)
+
 local Vector3 = assert(foundation.com.Vector3)
 local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
@@ -15,7 +17,7 @@ local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local player_service = assert(nokore.player_service)
 
-local barrel_nodebox = {
+local nodebox = {
   type = "fixed",
   fixed = {
     {-0.4375, -0.4375, -0.4375, 0.4375, 0.4375, 0.4375}, -- NodeBox1
@@ -26,30 +28,41 @@ local barrel_nodebox = {
   }
 }
 
-local function barrel_on_timer(pos, dt)
+local function on_timer(pos, dt)
+  local meta = core.get_meta(pos)
+  local inv = meta.get_inventory()
+
+  local fluid_stack = FluidMeta.get_fluid_stack(meta, "tank")
+  local item_stack = inv:get_stack("culture_slot", 1)
+
+  local input = {
+    fluid = fluid_stack,
+    item = item_stack
+  }
+  local recipe = aging_registry:get_aging_recipe_by_inputs_indifferent(input)
   -- TODO: process the aging recipe here
   return true
 end
 
-local function barrel_on_construct(pos)
-  local meta = minetest.get_meta(pos)
+local function on_construct(pos)
+  local meta = core.get_meta(pos)
 
   local inv = meta:get_inventory()
   -- accepts one culture or catalyst item
   inv:set_size("culture_slot", 1)
 
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   yatm.queue_refresh_infotext(pos, node)
 end
 
-local function barrel_on_destruct(pos)
+local function on_destruct(pos)
   -- Barrel exit stage left
 end
 
-local function barrel_refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
-  node = node or minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
+local function refresh_infotext(pos, node)
+  local meta = core.get_meta(pos)
+  node = node or core.get_node(pos)
+  local nodedef = core.registered_nodes[node.name]
   local stack = FluidTanks.get_fluid(pos, Directions.D_NONE)
 
   if stack and stack.amount > 0 then
@@ -69,40 +82,49 @@ end
 local BARREL_CAPACITY = 4000 -- 4 buckets
 local BARREL_DRAIN_BANDWIDTH = BARREL_CAPACITY
 
-local barrel_fluid_interface = FluidInterface.new_simple("tank", BARREL_CAPACITY)
+local fluid_interface = FluidInterface.new_simple("tank", BARREL_CAPACITY)
 
-function barrel_fluid_interface:on_fluid_changed(pos, dir, stack)
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
+function fluid_interface:on_fluid_changed(pos, dir, stack)
+  local node = core.get_node(pos)
+  local nodedef = core.registered_nodes[node.name]
   nodedef.refresh_infotext(pos, node)
 end
 
-local barrel_item_interface = ItemInterface.new_simple("culture_slot")
+local item_interface = ItemInterface.new_simple("culture_slot")
 
 local function on_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
-  minetest.get_node_timer(pos):start(1.0)
+  core.get_node_timer(pos):start(1.0)
 end
 
 local function on_metadata_inventory_put(pos, listname, index, stack, player)
-  minetest.get_node_timer(pos):start(1.0)
+  core.get_node_timer(pos):start(1.0)
 end
 
 local function on_metadata_inventory_take(pos, listname, index, stack, player)
-  minetest.get_node_timer(pos):start(1.0)
+  core.get_node_timer(pos):start(1.0)
 end
 
 local function render_formspec(pos, user, state)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
-  -- local cio = fspec.calc_inventory_offset
+  local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "wood" }, function (loc, rect)
     if loc == "main_body" then
       local fluid_stack = FluidMeta.get_fluid_stack(meta, "tank")
 
-      return yatm_fspec.render_fluid_stack(rect.x, rect.y, 1, cis(4), fluid_stack, BARREL_CAPACITY)
+      return ""
+        .. yatm_fspec.render_fluid_stack(rect.x, rect.y, 1, cis(4), fluid_stack, BARREL_CAPACITY)
+        .. fspec.list(
+          node_inv_name,
+          "culture_slot",
+          rect.x + cio(1),
+          rect.y,
+          1,
+          1
+        )
     elseif loc == "footer" then
       return ""
     end
@@ -158,12 +180,11 @@ for _,row in ipairs(yatm.colors_with_default) do
   local color_basename = row.name
   local color_name = row.description
 
-  local node_name = "yatm_brewery:aging_barrel_wood_" .. color_basename
-  minetest.register_node(node_name, {
+  mod:register_node("aging_barrel_wood_" .. color_basename, {
     basename = "yatm_brewery:aging_barrel_wood",
-    base_description = "Aging Barrel (Wood)",
+    base_description = mod.S("Aging Barrel (Wood)"),
 
-    description = "Aging Barrel (Wood / " .. color_name .. ")",
+    description = mod.S("Aging Barrel (Wood / " .. color_name .. ")"),
 
     groups = {
       cracky = nokore.dig_class("wme"),
@@ -188,23 +209,23 @@ for _,row in ipairs(yatm.colors_with_default) do
     paramtype = "none",
     paramtype2 = "facedir",
     drawtype = "nodebox",
-    node_box = barrel_nodebox,
+    node_box = nodebox,
 
     dye_color = color_basename,
 
     on_rightclick = on_rightclick,
 
-    on_construct = barrel_on_construct,
-    on_destruct = barrel_on_destruct,
-    on_timer = barrel_on_timer,
+    on_construct = on_construct,
+    on_destruct = on_destruct,
+    on_timer = on_timer,
 
-    fluid_interface = barrel_fluid_interface,
-    item_interface = barrel_item_interface,
+    fluid_interface = fluid_interface,
+    item_interface = item_interface,
 
     on_metadata_inventory_move = on_metadata_inventory_move,
     on_metadata_inventory_put = on_metadata_inventory_put,
     on_metadata_inventory_take = on_metadata_inventory_take,
 
-    refresh_infotext = barrel_refresh_infotext,
+    refresh_infotext = refresh_infotext,
   })
 end

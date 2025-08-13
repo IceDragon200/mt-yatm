@@ -1,10 +1,12 @@
+local mod = assert(yatm_brewery)
+
 -- Your normal yeast
-minetest.register_craftitem("yatm_brewery:yeast_brewers", {
-  basename = "yatm_brewery:yeast",
+mod:register_craftitem("yeast_brewers", {
+  basename = mod:make_name("yeast"),
 
-  base_description = "Yeast",
+  base_description = mod.S("Yeast"),
 
-  description = "Brewer's Yeast",
+  description = mod.S("Brewer's Yeast"),
 
   groups = {
     yeast = 1,
@@ -15,12 +17,12 @@ minetest.register_craftitem("yatm_brewery:yeast_brewers", {
 })
 
 -- Wine!
-minetest.register_craftitem("yatm_brewery:yeast_bayanus", {
-  basename = "yatm_brewery:yeast",
+mod:register_craftitem("yeast_bayanus", {
+  basename = mod:make_name("yeast"),
 
-  base_description = "Yeast",
+  base_description = mod.S("Yeast"),
 
-  description = "Bayanus Yeast",
+  description = mod.S("Bayanus Yeast"),
 
   groups = {
     yeast = 1,
@@ -31,12 +33,12 @@ minetest.register_craftitem("yatm_brewery:yeast_bayanus", {
 })
 
 -- Spicy!
-minetest.register_craftitem("yatm_brewery:yeast_scarlet", {
-  basename = "yatm_brewery:yeast",
+mod:register_craftitem("yeast_scarlet", {
+  basename = mod:make_name("yeast"),
 
-  base_description = "Yeast",
+  base_description = mod.S("Yeast"),
 
-  description = "Scarlet Yeast",
+  description = mod.S("Scarlet Yeast"),
 
   groups = {
     yeast = 1,
@@ -47,12 +49,12 @@ minetest.register_craftitem("yatm_brewery:yeast_scarlet", {
 })
 
 -- Magical properties, quite frankly, it's weird.
-minetest.register_craftitem("yatm_brewery:yeast_umbral", {
-  basename = "yatm_brewery:yeast",
+mod:register_craftitem("yeast_umbral", {
+  basename = mod:make_name("yeast"),
 
-  base_description = "Yeast",
+  base_description = mod.S("Yeast"),
 
-  description = "Umbral Yeast",
+  description = mod.S("Umbral Yeast"),
 
   groups = {
     yeast = 1,
