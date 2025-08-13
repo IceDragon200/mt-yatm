@@ -262,19 +262,24 @@ function yatm.formspec.render_gauge(options)
     )
 
   local formspec =
-    fspec.box(x, y, w, h, base_color) ..
-    fspec.box(gauge_x, gauge_y, gauge_w, gauge_h, gauge_color)
+    fspec.box(x, y, w, h, base_color)
+
+  if amount > 0 then
+    formspec =
+      formspec
+      .. fspec.box(gauge_x, gauge_y, gauge_w, gauge_h, gauge_color)
+  end
 
   if tooltip then
     formspec =
-      formspec ..
-      fspec.tooltip_area(x, y, w, h, tooltip)
+      formspec
+      .. fspec.tooltip_area(x, y, w, h, tooltip)
   end
 
   if border_name then
     formspec =
-      formspec ..
-      fspec.image(x, y, w, h, border_name .. "^[multiply:" .. Color.to_string32(overlay_color), 16)
+      formspec
+      .. fspec.image(x, y, w, h, border_name .. "^[multiply:" .. Color.to_string32(overlay_color), 16)
   end
 
   return formspec
