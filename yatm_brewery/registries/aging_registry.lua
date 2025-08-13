@@ -49,8 +49,8 @@ do
     --- @member outputs: { item: ItemOutput, fluid: FluidOutput }
     local outputs = def.outputs
     self.outputs = {
-      item = ItemOutput:new(outputs.item),
-      fluid = FluidOutput:new(outputs.fluid),
+      item = outputs.item and ItemOutput:new(outputs.item),
+      fluid = outputs.fluid and FluidOutput:new(outputs.fluid),
     }
     --- @member duration: Float
     self.duration = assertions.is_number(def.duration)
@@ -88,15 +88,13 @@ do
     self.m_recipes_index = {}
   end
 
-  --- @spec #register_aging_recipe(name: String, AgingRecipeDefinition): AgingRecipeDefinition
+  --- @spec #register_aging_recipe(name: String, AgingRecipeDefinition): AgingRecipe
   function ic:register_aging_recipe(name, recipe_def)
     assertions.is_string(name, "expected name")
     assertions.is_table(recipe_def, "expected recipe defintiion to be a table")
     assertions.is_table(recipe_def.inputs, "expected inputs")
     assertions.is_table(recipe_def.inputs.item, "expected inputs item")
     assertions.is_table(recipe_def.inputs.fluid, "expected inputs fluid")
-    assertions.is_table(recipe_def.outputs, "expected outputs")
-    assertions.is_table(recipe_def.outputs.fluid, "expected outputs fluid")
     assertions.is_number(recipe_def.duration, "expected duration")
     assert(recipe_def.duration >= 0, "expected duration to be greater than or equal to zero")
 
