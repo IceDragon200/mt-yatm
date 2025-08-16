@@ -117,7 +117,8 @@ do
   end
 
   --- Retrieve a recipe by given inputs, note that this function will not check
-  --- the item and fluid amounts in the input.
+  --- the item and fluid amounts in the input, use #get_aging_recipe_by_inputs/1 instead if you need
+  --- the amounts checked.
   ---
   --- @spec #get_aging_recipe_by_inputs_indifferent(RecipeInputs): AgingRecipe | nil
   function ic:get_aging_recipe_by_inputs_indifferent(inputs)
@@ -147,7 +148,7 @@ do
   ---
   --- @spec #get_aging_recipe_by_inputs(RecipeInputs): AgingRecipe | nil
   function ic:get_aging_recipe_by_inputs(inputs)
-    local recipe = self:get_aging_recipe_indifferent(inputs)
+    local recipe = self:get_aging_recipe_by_inputs_indifferent(inputs)
 
     if recipe then
       if recipe:matches_inputs_amounts(inputs) then
