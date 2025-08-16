@@ -158,7 +158,7 @@ do
     local list = self.m_lists[list_name]
     if list then
       for _, slot_stack in pairs(list.entries) do
-        if FluidStack.same_fluid(slot_stack, fluid_stack) then
+        if FluidStack.is_same_fluid(slot_stack, fluid_stack) then
           return slot_stack.amount >= fluid_stack.amount, ErrorCodes.ERR_OK
         end
       end
@@ -195,8 +195,8 @@ do
         new_stack = nil
         if FluidStack.is_empty(slot_stack) then
           new_stack = FluidStack.copy(remaining_stack)
-        elseif FluidStack.same_fluid(slot_stack, remaining_stack) then
-          new_stack = FluidStack.merge(slot_stack, remaining_stack)
+        elseif FluidStack.is_same_fluid(slot_stack, remaining_stack) then
+          new_stack = FluidStack.merge_new(slot_stack, remaining_stack)
         end
 
         if new_stack then
