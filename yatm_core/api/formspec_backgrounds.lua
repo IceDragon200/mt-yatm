@@ -279,10 +279,29 @@ function yatm.formspec.render_gauge(options)
   if border_name then
     formspec =
       formspec
-      .. fspec.image(x, y, w, h, border_name .. "^[multiply:" .. Color.to_string32(overlay_color), 16)
+      .. yatm.formspec.render_item_border(x, y, w, h, border_name, overlay_color)
   end
 
   return formspec
+end
+
+--- @spec render_item_border(
+---   x: Number,
+---   y: Number,
+---   w: Number,
+---   h: Number,
+---   border_name: String,
+---   color: Color,
+--- ): String
+function yatm.formspec.render_item_border(x, y, w, h, border_name, color)
+  return fspec.image(
+    x,
+    y,
+    w,
+    h,
+    border_name .. "^[multiply:" .. Color.maybe_to_colorstring(color),
+    16
+  )
 end
 
 --- Renders a small switch button.
