@@ -1,4 +1,6 @@
 local assertions = assert(foundation.com.assertions)
+local table_deep_copy = assert(foundation.com.table_deep_copy)
+
 --- @namespace yatm.recipe_component
 
 --- @class ItemIngredient
@@ -35,6 +37,15 @@ do
     -- TODO: check metadata
 
     return true, ItemIngredient.ERR_ITEM_OK
+  end
+
+  --- @spec #make_item_stack(): ItemStack
+  function ic:make_item_stack()
+    return ItemStack({
+      name = self.name,
+      count = self.amount,
+      metadata = table_deep_copy(self.metadata),
+    })
   end
 end
 

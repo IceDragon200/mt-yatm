@@ -37,6 +37,14 @@ do
 
     return true, ItemIngredient.ERR_FLUID_OK
   end
+
+  --- @spec #make_fluid_stack(): FluidStack
+  function ic:make_fluid_stack()
+    return FluidStack.new(
+      self.name,
+      self.amount
+    )
+  end
 end
 
 yatm.recipe_component.FluidIngredient = FluidIngredient
