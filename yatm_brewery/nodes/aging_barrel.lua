@@ -19,7 +19,8 @@ local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local player_service = assert(nokore.player_service)
 
-local BARREL_CAPACITY = 4000 -- 4 buckets
+local TIMER_INTERVAL = 1.0
+local BARREL_CAPACITY = 1000
 local BARREL_DRAIN_BANDWIDTH = BARREL_CAPACITY
 local PRIMARY_TANK_NAME = "tank"
 local STAGE_TANK_NAME = "stage_tank"
@@ -113,8 +114,10 @@ local WORK_STATE_FINALIZE = 5
 
 --- @private_spec on_timer(Vector3, dt: Float): Boolean
 local function on_timer(pos, dt)
-  local meta = core.get_meta(pos)
   local node = core.get_node_or_nil(pos)
+  local nodedef = core.registered_nodes[node.name]
+  local meta = core.get_meta(pos)
+  local inv = meta:get_inventory()
 
   local work_state = meta:get_int("work_state")
 
@@ -138,8 +141,6 @@ local function on_timer(pos, dt)
   end
 
   ::state_new:: do
-    local inv = meta.get_inventory()
-
     local fluid_stack = FluidMeta.get_fluid_stack(meta, PRIMARY_TANK_NAME)
     local item_stack = inv:get_stack("culture_slot", 1)
 
@@ -188,8 +189,6 @@ local function on_timer(pos, dt)
   end
 
   ::state_stage:: do
-    local inv = meta.get_inventory()
-
     local fluid_stack = FluidMeta.get_fluid_stack(meta, PRIMARY_TANK_NAME)
     local item_stack = inv:get_stack("culture_slot", 1)
 
@@ -226,7 +225,6 @@ local function on_timer(pos, dt)
   ::state_commit:: do
     -- it is time to replace the
     local need_retry = false
-    local inv = meta:get_inventory()
     local item_stack = inv:get_stack("stage_item_slot", 1)
     local leftover = inv:add_item("output_item_slot", item_stack)
     inv:set_stack("stage_item_slot", 1, leftover)
@@ -343,22 +341,28 @@ do
   function fluid_interface:on_fluid_changed(pos, dir, stack)
     local node = core.get_node(pos)
     local nodedef = core.registered_nodes[node.name]
-    core.get_node_timer(pos):start(1.0)
+    core.get_node_timer(pos):start(TIMER_INTERVAL)
   end
 end
 
 local item_interface = ItemInterface.new_simple("culture_slot")
 
 local function on_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
-  core.get_node_timer(pos):start(1.0)
+  if from_list == "culture_slot" or to_list == "culture_slot" then
+    core.get_node_timer(pos):start(TIMER_INTERVAL)
+  end
 end
 
 local function on_metadata_inventory_put(pos, listname, index, stack, player)
-  core.get_node_timer(pos):start(1.0)
+  if listname == "culture_slot" then
+    core.get_node_timer(pos):start(TIMER_INTERVAL)
+  end
 end
 
 local function on_metadata_inventory_take(pos, listname, index, stack, player)
-  core.get_node_timer(pos):start(1.0)
+  if listname == "culture_slot" then
+    core.get_node_timer(pos):start(TIMER_INTERVAL)
+  end
 end
 
 local function render_formspec(pos, user, state)
@@ -380,6 +384,10 @@ local function render_formspec(pos, user, state)
           rect.y,
           1,
           1
+        )
+        .. yatm_fspec.render_item_border(
+          rect.x, rect.y, 1, 1,
+          "yatm_item_border_bucket.up.png", yatm.config.insert_color
         )
         .. yatm_fspec.render_fluid_stack(
           rect.x,
@@ -405,6 +413,10 @@ local function render_formspec(pos, user, state)
           1,
           1
         )
+        .. yatm_fspec.render_item_border(
+          rect.x, rect.y + cio(5), 1, 1,
+          "yatm_item_border_bucket.down.png", yatm.config.extract_color
+        )
         -- Output
         .. fspec.list(
           node_inv_name,
@@ -413,6 +425,10 @@ local function render_formspec(pos, user, state)
           rect.y,
           1,
           1
+        )
+        .. yatm_fspec.render_item_border(
+          rect.x + cio(3), rect.y, 1, 1,
+          "yatm_item_border_bucket.up.png", yatm.config.insert_color
         )
         .. yatm_fspec.render_fluid_stack(
           rect.x + cio(3),
@@ -437,6 +453,10 @@ local function render_formspec(pos, user, state)
           rect.y + cio(5),
           1,
           1
+        )
+        .. yatm_fspec.render_item_border(
+          rect.x + cio(3), rect.y + cio(5), 1, 1,
+          "yatm_item_border_bucket.down.png", yatm.config.extract_color
         )
     elseif loc == "footer" then
       return ""
