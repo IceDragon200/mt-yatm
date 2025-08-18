@@ -1,3 +1,4 @@
+local Color = assert(foundation.com.Color)
 --
 
 -- Dump all YATM nodes in a TOML file for further refinement
@@ -12,3 +13,6 @@ yatm.config.dump_tools = true
 -- When a module or modules is crippled by missing core features,
 -- should YATM throw an error instead of just logging?
 yatm.config.fail_loud = false
+
+yatm.config.extract_color = Color.maybe_to_color("#dba833")
+yatm.config.insert_color = Color.maybe_to_color("#006cae")
