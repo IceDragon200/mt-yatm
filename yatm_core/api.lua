@@ -7,33 +7,40 @@ local table_merge = assert(foundation.com.table_merge)
 local fspec = assert(foundation.com.formspec.api)
 local Groups = assert(foundation.com.Groups)
 
--- @namespace yatm
+--- @namespace yatm
 
--- alias foundation modules into yatm, they were originally yatm modules to begin with
--- @alias Luna = foundation.com.Luna
+--- alias foundation modules into yatm, they were originally yatm modules to begin with
+--- @alias Luna = foundation.com.Luna
 yatm.Luna = foundation.com.Luna
--- @alias MetaSchema = foundation.com.MetaSchema
+
+--- @alias MetaSchema = foundation.com.MetaSchema
 yatm.MetaSchema = foundation.com.MetaSchema
--- @alias BinSchema = foundation.com.BinSchema
+
+--- @alias BinSchema = foundation.com.BinSchema
 yatm.BinSchema = foundation.com.BinSchema
--- @alias ByteDecoder = foundation.com.ByteDecoder
+
+--- @alias ByteDecoder = foundation.com.ByteDecoder
 yatm.ByteDecoder = foundation.com.ByteDecoder
--- @alias ByteEncoder = foundation.com.ByteEncoder
+
+--- @alias ByteEncoder = foundation.com.ByteEncoder
 yatm.ByteEncoder = foundation.com.ByteEncoder
--- @alias Vector2 = foundation.com.Vector2
+
+--- @alias Vector2 = foundation.com.Vector2
 yatm.Vector2 = foundation.com.Vector2
--- @alias Vector3 = foundation.com.Vector3
+
+--- @alias Vector3 = foundation.com.Vector3
 yatm.Vector3 = foundation.com.Vector3
--- @alias Vector4 = foundation.com.Vector4
+
+--- @alias Vector4 = foundation.com.Vector4
 yatm.Vector4 = foundation.com.Vector4
 
 local nokore_player_inv = rawget(_G, "nokore_player_inv")
 
---
--- @spec player_inventory_lists_fragment(player: Player, x: Number, y: Number): (String, dimensions: Vector2)
+---
+--- @spec player_inventory_lists_fragment(player: Player, x: Number, y: Number): (String, dimensions: Vector2)
 
---
--- @spec player_inventory_size2(Player): Vector2
+---
+--- @spec player_inventory_size2(Player): Vector2
 
 if nokore_player_inv then
   yatm.player_inventory_lists_fragment = nokore_player_inv.player_inventory_lists_fragment
