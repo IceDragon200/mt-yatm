@@ -13,9 +13,17 @@ local Directions = assert(foundation.com.Directions)
 local aging_registry = assert(yatm.brewing.aging_registry)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
+local FluidExchange = assert(yatm.fluids.FluidExchange)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
+local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local player_service = assert(nokore.player_service)
+
+local BARREL_CAPACITY = 4000 -- 4 buckets
+local BARREL_DRAIN_BANDWIDTH = BARREL_CAPACITY
+local PRIMARY_TANK_NAME = "tank"
+local STAGE_TANK_NAME = "stage_tank"
+local OUTPUT_TANK_NAME = "output_tank"
 
 local nodebox = {
   type = "fixed",
@@ -28,20 +36,255 @@ local nodebox = {
   }
 }
 
+--- Prepares all output items and fluids as well as consuming the ingredients
+--- for the recipe.
+local function stage_recipe_output(pos, meta, recipe)
+  if not recipe then
+    return true
+  end
+
+  local input = recipe.input
+  local fluid_input = input.fluid
+  local item_input = input.item
+  local output = recipe.output
+  local fluid_output = output.fluid
+  local item_output = output.item
+
+  local fluid_stack
+  if fluid_output then
+    fluid_stack = fluid_output:make_fluid_stack()
+  end
+
+  if fluid_stack then
+    FluidMeta.set_fluid(meta, STAGE_TANK_NAME, fluid_stack, true)
+  else
+    FluidMeta.set_fluid(meta, STAGE_TANK_NAME, FluidStack.new_empty(), true)
+  end
+  fluid_stack = nil
+
+  local item_stack
+  if item_output then
+    item_stack = item:make_item_stack()
+  end
+
+  if item_stack then
+    local inv = meta:get_inventory()
+    if inv:get_size("stage_item_slot") < 1 then
+      inv:set_size("stage_item_slot", 1)
+    end
+    inv:set_stack("stage_item_slot", 1, item_stack)
+  else
+    inv:set_stack("stage_item_slot", 1, ItemStack())
+  end
+  item_stack = nil
+
+  if fluid_input then
+    fluid_stack = fluid_input:make_fluid_stack()
+  end
+
+  if fluid_stack then
+    -- we are going to trust that FluidMeta will correctly decrement the amount
+    FluidMeta.decrease_fluid(
+      meta,
+      STAGE_TANK_NAME,
+      fluid_stack,
+      BARREL_CAPACITY,
+      true
+    )
+  end
+
+  if item_input then
+    item_stack = item_input:make_item_stack()
+  end
+
+  if item_stack then
+    inv:remove_item("culture_slot", item_stack)
+  end
+
+  return true
+end
+
+local WORK_STATE_NEW = 0
+local WORK_STATE_SETUP = 1
+local WORK_STATE_RUN = 2
+local WORK_STATE_STAGE = 3
+local WORK_STATE_COMMIT = 4
+local WORK_STATE_FINALIZE = 5
+
+--- @private_spec on_timer(Vector3, dt: Float): Boolean
 local function on_timer(pos, dt)
   local meta = core.get_meta(pos)
-  local inv = meta.get_inventory()
+  local node = core.get_node_or_nil(pos)
 
-  local fluid_stack = FluidMeta.get_fluid_stack(meta, "tank")
-  local item_stack = inv:get_stack("culture_slot", 1)
+  local work_state = meta:get_int("work_state")
 
-  local input = {
-    fluid = fluid_stack,
-    item = item_stack
-  }
-  local recipe = aging_registry:get_aging_recipe_by_inputs_indifferent(input)
-  -- TODO: process the aging recipe here
-  return true
+  ::init:: do
+    if work_state == WORK_STATE_NEW then
+      goto state_new
+    elseif work_state == WORK_STATE_SETUP then
+      goto state_setup
+    elseif work_state == WORK_STATE_RUN then
+      goto state_run
+    elseif work_state == WORK_STATE_STAGE then
+      goto state_stage
+    elseif work_state == WORK_STATE_COMMIT then
+      goto state_commit
+    elseif work_state == WORK_STATE_FINALIZE then
+      goto state_finalize
+    else
+      work_state = WORK_STATE_NEW
+      goto state_new
+    end
+  end
+
+  ::state_new:: do
+    local inv = meta.get_inventory()
+
+    local fluid_stack = FluidMeta.get_fluid_stack(meta, PRIMARY_TANK_NAME)
+    local item_stack = inv:get_stack("culture_slot", 1)
+
+    local input = {
+      fluid = fluid_stack,
+      item = item_stack
+    }
+
+    -- reset work time since the recipe would change
+    meta:set_float("work_time", 0)
+    local recipe = aging_registry:get_aging_recipe_by_inputs_indifferent(input)
+    if recipe then
+      meta:set_string("current_recipe_name", recipe.name)
+      work_state = WORK_STATE_SETUP
+      goto state_setup
+    else
+      goto exit_without_retry
+    end
+  end
+
+  ::state_setup:: do
+    local current_recipe_name = meta:get("current_recipe_name")
+    if current_recipe_name then
+      local recipe = aging_registry:get_aging_recipe_by_name(current_recipe_name)
+      meta:set_float("work_time", 0)
+      meta:set_float("work_time_max", recipe.duration)
+      work_state = WORK_STATE_RUN
+      goto state_run
+    else
+      work_state = WORK_STATE_NEW
+      goto state_new
+    end
+  end
+
+  ::state_run:: do
+    local work_time = meta:get_float("work_time")
+    local work_time_max = meta:get_float("work_time_max")
+    work_time = work_time + dt
+    if work_time >= work_time_max then
+      work_state = WORK_STATE_STAGE
+      goto state_stage
+    else
+      meta:set_float("work_time", work_time)
+      goto exit_with_retry
+    end
+  end
+
+  ::state_stage:: do
+    local inv = meta.get_inventory()
+
+    local fluid_stack = FluidMeta.get_fluid_stack(meta, PRIMARY_TANK_NAME)
+    local item_stack = inv:get_stack("culture_slot", 1)
+
+    local input = {
+      fluid = fluid_stack,
+      item = item_stack
+    }
+    -- We are verifying that the recipe processed was indeed the same
+    -- as the ingredients would result in.
+    local recipe = aging_registry:get_aging_recipe_by_inputs_indifferent(input)
+
+    if recipe then
+      -- In case the recipe name changed, set the new one, since the inputs are
+      -- about to be removed and we can no longer reverse lookup the recipe beyond
+      -- this point
+      meta:set_string("current_recipe_name", recipe.name)
+      -- We have a valid recipe, yes the recipe could be different from
+      -- what was processed, but we're already finished running, don't annoy
+      -- the user any further by resetting their progress.
+      if stage_recipe_output(pos, meta, recipe) then
+        work_state = WORK_STATE_COMMIT
+        goto state_commit
+      else
+        -- retry again later
+        goto exit_with_retry
+      end
+    else
+      --- We do not have a valid recipe, abort and start over
+      work_state = WORK_STATE_NEW
+      goto state_new
+    end
+  end
+
+  ::state_commit:: do
+    -- it is time to replace the
+    local need_retry = false
+    local inv = meta:get_inventory()
+    local item_stack = inv:get_stack("stage_item_slot", 1)
+    local leftover = inv:add_item("output_item_slot", item_stack)
+    inv:set_stack("stage_item_slot", 1, leftover)
+    if not leftover:is_empty() then
+      need_retry = true
+    end
+
+    local fluid_stack = FluidMeta.get_fluid_stack(meta, STAGE_TANK_NAME)
+    if fluid_stack then
+      local transferred_fluid =
+        FluidExchange.transfer_from_meta_to_meta(
+          meta,
+          {
+            tank_name = STAGE_TANK_NAME,
+            capacity = BARREL_CAPACITY,
+            bandwidth = BARREL_CAPACITY,
+          },
+          fluid_stack,
+          meta,
+          {
+            tank_name = OUTPUT_TANK_NAME,
+            capacity = BARREL_CAPACITY,
+            bandwidth = BARREL_CAPACITY,
+          },
+          true
+        )
+
+      if transferred_fluid.amount ~= fluid_stack.amount then
+        -- retry again later
+        need_retry = true
+      end
+    end
+
+    if need_retry then
+      -- retry again later
+      goto exit_with_retry
+    else
+      work_state = WORK_STATE_FINALIZE
+      goto state_finalize
+    end
+  end
+
+  ::state_finalize:: do
+    work_state = WORK_STATE_NEW
+    goto state_new
+  end
+
+  ::exit_with_retry:: do
+    meta:set_int("work_state", work_state)
+    nodedef.refresh_infotext(pos, node)
+    return true
+  end
+
+  ::exit_without_retry:: do
+    meta:set_int("work_state", work_state)
+    nodedef.refresh_infotext(pos, node)
+    return false
+  end
 end
 
 local function on_construct(pos)
@@ -50,9 +293,20 @@ local function on_construct(pos)
   local inv = meta:get_inventory()
   -- accepts one culture or catalyst item
   inv:set_size("culture_slot", 1)
+  -- this where the output goes before it gets placed into the actual output slot
+  inv:set_size("stage_item_slot", 1)
+  -- the actual output item slot
+  inv:set_size("output_item_slot", 1)
+
+  inv:set_size("input_tank_container_in", 1)
+  inv:set_size("input_tank_container_out", 1)
+  inv:set_size("output_tank_container_in", 1)
+  inv:set_size("output_tank_container_out", 1)
 
   local node = core.get_node(pos)
   yatm.queue_refresh_infotext(pos, node)
+
+  meta:set_int("version", 1)
 end
 
 local function on_destruct(pos)
@@ -61,33 +315,36 @@ end
 
 local function refresh_infotext(pos, node)
   local meta = core.get_meta(pos)
-  node = node or core.get_node(pos)
   local nodedef = core.registered_nodes[node.name]
-  local stack = FluidTanks.get_fluid(pos, Directions.D_NONE)
+  local fluid_stack = FluidTanks.get_fluid(pos, Directions.D_NONE)
 
-  if stack and stack.amount > 0 then
-    meta:set_string("infotext",
-      "Brewing Barrel: " ..
-      stack.name ..
-      " " ..
-      stack.amount ..
-      " / " ..
-      nodedef.fluid_interface:get_capacity(pos, 0)
-    )
+  local infotext =
+    nodedef.short_description .. "\n"
+
+  if FluidStack.is_empty(fluid_stack) then
+    infotext =
+      infotext
+      .. "Empty"
   else
-    meta:set_string("infotext", "Barrel: Empty")
+    infotext =
+      infotext
+      .. fluid_stack.name
+      .. " "
+      .. fluid_stack.amount
+      .. " / "
+      .. nodedef.fluid_interface:get_capacity(pos, 0)
   end
+
+  meta:set_string("infotext", infotext)
 end
 
-local BARREL_CAPACITY = 4000 -- 4 buckets
-local BARREL_DRAIN_BANDWIDTH = BARREL_CAPACITY
-
-local fluid_interface = FluidInterface.new_simple("tank", BARREL_CAPACITY)
-
-function fluid_interface:on_fluid_changed(pos, dir, stack)
-  local node = core.get_node(pos)
-  local nodedef = core.registered_nodes[node.name]
-  nodedef.refresh_infotext(pos, node)
+local fluid_interface = FluidInterface.new_simple(PRIMARY_TANK_NAME, BARREL_CAPACITY)
+do
+  function fluid_interface:on_fluid_changed(pos, dir, stack)
+    local node = core.get_node(pos)
+    local nodedef = core.registered_nodes[node.name]
+    core.get_node_timer(pos):start(1.0)
+  end
 end
 
 local item_interface = ItemInterface.new_simple("culture_slot")
@@ -111,17 +368,73 @@ local function render_formspec(pos, user, state)
   local cis = fspec.calc_inventory_size
   local meta = core.get_meta(pos)
 
-  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "wood" }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(user, nil, 6, { bg = "wood" }, function (loc, rect)
     if loc == "main_body" then
-      local fluid_stack = FluidMeta.get_fluid_stack(meta, "tank")
+      local fluid_stack = FluidMeta.get_fluid_stack(meta, PRIMARY_TANK_NAME)
 
       return ""
-        .. yatm_fspec.render_fluid_stack(rect.x, rect.y, 1, cis(4), fluid_stack, BARREL_CAPACITY)
+        .. fspec.list(
+          node_inv_name,
+          "input_tank_container_in",
+          rect.x,
+          rect.y,
+          1,
+          1
+        )
+        .. yatm_fspec.render_fluid_stack(
+          rect.x,
+          rect.y + cio(1),
+          1,
+          cis(4),
+          fluid_stack,
+          BARREL_CAPACITY
+        )
         .. fspec.list(
           node_inv_name,
           "culture_slot",
           rect.x + cio(1),
+          rect.y + cio(1),
+          1,
+          1
+        )
+        .. fspec.list(
+          node_inv_name,
+          "input_tank_container_out",
+          rect.x,
+          rect.y + cio(5),
+          1,
+          1
+        )
+        -- Output
+        .. fspec.list(
+          node_inv_name,
+          "output_tank_container_in",
+          rect.x + cio(3),
           rect.y,
+          1,
+          1
+        )
+        .. yatm_fspec.render_fluid_stack(
+          rect.x + cio(3),
+          rect.y + cio(1),
+          1,
+          cis(4),
+          fluid_stack,
+          BARREL_CAPACITY
+        )
+        .. fspec.list(
+          node_inv_name,
+          "output_item_slot",
+          rect.x + cio(4),
+          rect.y + cio(1),
+          1,
+          1
+        )
+        .. fspec.list(
+          node_inv_name,
+          "output_tank_container_out",
+          rect.x + cio(3),
+          rect.y + cio(5),
           1,
           1
         )
@@ -181,10 +494,11 @@ for _,row in ipairs(yatm.colors_with_default) do
   local color_name = row.description
 
   mod:register_node("aging_barrel_wood_" .. color_basename, {
-    basename = "yatm_brewery:aging_barrel_wood",
+    basename = mod:make_name("aging_barrel_wood"),
     base_description = mod.S("Aging Barrel (Wood)"),
 
     description = mod.S("Aging Barrel (Wood / " .. color_name .. ")"),
+    short_description = mod.S("Aging Barrel (Wood / " .. color_name .. ")"),
 
     groups = {
       cracky = nokore.dig_class("wme"),
