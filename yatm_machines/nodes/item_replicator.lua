@@ -7,17 +7,18 @@ local Energy = assert(yatm.energy)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local fspec = assert(foundation.com.formspec.api)
 
-local function refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
+local function refresh_infotext(pos, node)
+  local nodedef = core.registered_nodes[node.name]
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   local stack = inv:get_stack("input_slot", 1)
 
   local infotext =
-    cluster_devices:get_node_infotext(pos) .. "\n" ..
-    cluster_energy:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
-    "Replicating: " .. itemstack_inspect(stack)
+    nodedef.short_description .. "\n"
+    .. cluster_devices:get_node_infotext(pos) .. "\n"
+    .. cluster_energy:get_node_infotext(pos) .. " [" .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "]\n"
+    .. "Replicating: " .. itemstack_inspect(stack)
 
   meta:set_string("infotext", infotext)
 end
@@ -73,7 +74,7 @@ end
 local function on_construct(pos)
   yatm.devices.device_on_construct(pos)
 
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   inv:set_size("input_slot", 1)
@@ -81,7 +82,7 @@ local function on_construct(pos)
 end
 
 local function on_rightclick(pos, node, user)
-  minetest.show_formspec(
+  core.show_formspec(
     user:get_player_name(),
     "yatm_machines:item_replicator",
     render_formspec(pos, user)
@@ -105,12 +106,12 @@ function item_replicator_yatm_network:work(ctx)
     else
       yatm.devices.set_sleep(meta, 1)
       ctx:set_up_state("idle")
-      --print("WARN", minetest.pos_to_string(pos), "No room for stack in output", itemstack_inspect(replicate_stack))
+      --print("WARN", core.pos_to_string(pos), "No room for stack in output", itemstack_inspect(replicate_stack))
     end
   else
     yatm.devices.set_sleep(meta, 1)
     ctx:set_up_state("idle")
-    --print("WARN", minetest.pos_to_string(pos), "No stack to replicate")
+    --print("WARN", core.pos_to_string(pos), "No stack to replicate")
   end
   return energy_consumed
 end
@@ -130,6 +131,7 @@ yatm.devices.register_stateful_network_device({
   basename = mod:make_name("item_replicator"),
 
   description = mod.S("Item Replicator"),
+  short_description = mod.S("Item Replicator"),
 
   drop = item_replicator_yatm_network.states.off,
 

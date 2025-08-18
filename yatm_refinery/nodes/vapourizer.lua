@@ -207,10 +207,13 @@ local function refresh_infotext(pos)
   local fluid_stack = FluidMeta.get_fluid_stack(meta, FLUID_TANK)
 
   local infotext =
-    cluster_devices:get_node_infotext(pos) .. "\n" ..
-    cluster_energy:get_node_infotext(pos) .. " (" .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. " E)" .. "\n" ..
-    "Vapour Tank: " .. FluidStack.pretty_format(vapour_fluid_stack, fluid_interface._private.capacity) .. "\n" ..
-    "Fluid Tank: " .. FluidStack.pretty_format(fluid_stack, fluid_interface._private.capacity)
+    string.format(
+      "%s\n%s (%s E)\nVapour Tank: %s\nFluid Tank: %s",
+      cluster_devices:get_node_infotext(pos),
+      cluster_energy:get_node_infotext(pos), Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY),
+      FluidStack.pretty_format(vapour_fluid_stack, fluid_interface._private.capacity),
+      FluidStack.pretty_format(fluid_stack, fluid_interface._private.capacity)
+    )
 
   meta:set_string("infotext", infotext)
 end

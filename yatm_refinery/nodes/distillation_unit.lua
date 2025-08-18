@@ -270,11 +270,14 @@ local function refresh_infotext(pos)
   local capacity = fluid_interface._private.capacity
 
   infotext =
-    infotext .. "\n" ..
-    cluster_energy:get_node_infotext(pos) .. "(" .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. " E)" .. "\n" ..
-    "I.Steam Tank: " .. FluidStack.pretty_format(input_steam_fluid_stack, capacity) .. "\n" ..
-    "O.Steam Tank: " .. FluidStack.pretty_format(output_steam_fluid_stack, capacity) .. "\n" ..
-    "Distilled Tank: " .. FluidStack.pretty_format(distilled_fluid_stack, capacity)
+    string.format(
+      "%s\n%s(%s E)\nI.Steam Tank: %s\nO.Steam Tank: %s\nDistilled Tank: %s\n",
+      infotext,
+      cluster_energy:get_node_infotext(pos), Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY),
+      FluidStack.pretty_format(input_steam_fluid_stack, capacity),
+      FluidStack.pretty_format(output_steam_fluid_stack, capacity),
+      FluidStack.pretty_format(distilled_fluid_stack, capacity)
+    )
 
   meta:set_string("infotext", infotext)
 end

@@ -41,7 +41,7 @@ local WATER_TANK = "water_tank"
 local TANK_CAPACITY = 16000
 
 local function get_fluid_tank_name(self, pos, dir)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   local new_dir = Directions.facedir_to_face(node.param2, dir)
   if new_dir == Directions.D_UP then
     return STEAM_TANK, self._private.capacity
@@ -56,24 +56,23 @@ fluid_interface._private.capacity = TANK_CAPACITY
 fluid_interface._private.bandwidth = fluid_interface._private.capacity
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   yatm.queue_refresh_infotext(pos, node)
 end
 
-local function refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
+local function refresh_infotext(pos, node)
+  local nodedef = core.registered_nodes[node.name]
+  local meta = core.get_meta(pos)
   local steam_fluid_stack = FluidMeta.get_fluid_stack(meta, STEAM_TANK)
   local water_fluid_stack = FluidMeta.get_fluid_stack(meta, WATER_TANK)
 
   local infotext =
-    string.format(
-      "%s\n%s\nEnergy: %s\nSteam Tank: %s\nWater Tank: %s",
-      cluster_devices:get_node_infotext(pos),
-      cluster_energy:get_node_infotext(pos),
-      Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY),
-      FluidStack.pretty_format(steam_fluid_stack, fluid_interface._private.capacity),
-      FluidStack.pretty_format(water_fluid_stack, fluid_interface._private.capacity)
-    )
+    nodedef.short_description .. "\n"
+    .. cluster_devices:get_node_infotext(pos) .. "\n"
+    .. cluster_energy:get_node_infotext(pos) .. "\n"
+    .. "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n"
+    .. "Steam Tank: " .. FluidStack.pretty_format(steam_fluid_stack, fluid_interface._private.capacity) .. "\n"
+    .. "Water Tank: " .. FluidStack.pretty_format(water_fluid_stack, fluid_interface._private.capacity)
 
   meta:set_string("infotext", infotext)
 end
@@ -93,8 +92,8 @@ function yatm_network:work(ctx)
     local water_tank_dir = Directions.facedir_to_face(node.param2, dir)
 
     local water_tank_pos = vector.add(pos, Directions.DIR6_TO_VEC3[water_tank_dir])
-    local water_tank_node = minetest.get_node(water_tank_pos)
-    local water_tank_nodedef = minetest.registered_nodes[water_tank_node.name]
+    local water_tank_node = core.get_node(water_tank_pos)
+    local water_tank_nodedef = core.registered_nodes[water_tank_node.name]
     if water_tank_nodedef then
       if Groups.get_item(water_tank_nodedef, "fluid_tank") then
         local target_dir = Directions.invert_dir(water_tank_dir)
@@ -117,7 +116,7 @@ function yatm_network:work(ctx)
     end
   end
 
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   -- Convert water into steam
   do
@@ -174,8 +173,8 @@ function yatm_network:work(ctx)
     if stack then
       local steam_tank_dir = Directions.facedir_to_face(node.param2, Directions.D_UP)
       local steam_tank_pos = vector.add(pos, Directions.DIR6_TO_VEC3[steam_tank_dir])
-      local steam_tank_node = minetest.get_node(steam_tank_pos)
-      local steam_tank_nodedef = minetest.registered_nodes[steam_tank_node.name]
+      local steam_tank_node = core.get_node(steam_tank_pos)
+      local steam_tank_nodedef = core.registered_nodes[steam_tank_node.name]
 
       if steam_tank_nodedef then
         local filled_stack =
@@ -209,7 +208,7 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, 10, 4, { bg = "machine" }, function (loc, rect)
     if loc == "main_body" then

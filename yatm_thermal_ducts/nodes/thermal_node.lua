@@ -4,6 +4,31 @@ local cluster_thermal = assert(yatm.cluster.thermal)
 local table_length = assert(foundation.com.table_length)
 local table_merge = assert(foundation.com.table_merge)
 
+local function refresh_infotext(pos, node)
+  local meta = minetest.get_meta(pos)
+  local available_heat = meta:get_float("heat")
+
+  local infotext =
+    cluster_thermal:get_node_infotext(pos) .. "\n" ..
+    "Heat: " .. math.floor(available_heat)
+
+  meta:set_string("infotext", infotext)
+
+  local new_name
+  if math.floor(available_heat) > 0 then
+    new_name = "yatm_thermal_ducts:thermal_node_heating"
+  elseif math.floor(available_heat) < 0 then
+    new_name = "yatm_thermal_ducts:thermal_node_cooling"
+  else
+    new_name = "yatm_thermal_ducts:thermal_node_off"
+  end
+
+  if node.name ~= new_name then
+    node.name = new_name
+    minetest.swap_node(pos, node)
+  end
+end
+
 local function get_thermal_node_formspec(pos, player, assigns)
   local meta = minetest.get_meta(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
@@ -107,30 +132,7 @@ yatm.register_stateful_node(mod:make_name("thermal_node"), {
     end,
   },
 
-  refresh_infotext = function (pos, node)
-    local meta = minetest.get_meta(pos)
-    local available_heat = meta:get_float("heat")
-
-    local infotext =
-      cluster_thermal:get_node_infotext(pos) .. "\n" ..
-      "Heat: " .. math.floor(available_heat)
-
-    meta:set_string("infotext", infotext)
-
-    local new_name
-    if math.floor(available_heat) > 0 then
-      new_name = "yatm_thermal_ducts:thermal_node_heating"
-    elseif math.floor(available_heat) < 0 then
-      new_name = "yatm_thermal_ducts:thermal_node_cooling"
-    else
-      new_name = "yatm_thermal_ducts:thermal_node_off"
-    end
-
-    if node.name ~= new_name then
-      node.name = new_name
-      minetest.swap_node(pos, node)
-    end
-  end,
+  refresh_infotext = refresh_infotext,
 }, {
   off = {
     tiles = {

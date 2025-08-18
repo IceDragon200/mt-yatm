@@ -28,8 +28,8 @@ local yatm_network = {
 }
 
 function yatm_network.energy.produce_energy(pos, node, dtime, ot)
-  local meta = minetest.get_meta(pos)
-  local light = minetest.get_natural_light(pos, nil)
+  local meta = core.get_meta(pos)
+  local light = core.get_natural_light(pos, nil)
   local energy = 0
   if light > 5 then
     energy = light * 3 * dtime
@@ -39,14 +39,16 @@ function yatm_network.energy.produce_energy(pos, node, dtime, ot)
   return energy
 end
 
-local function refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
+local function refresh_infotext(pos, node)
+  local nodedef = core.registered_nodes[node.name]
+  local meta = core.get_meta(pos)
 
   local last_produced_energy = meta:get_int("last_produced_energy")
 
   local infotext =
-    cluster_devices:get_node_infotext(pos) .. "\n" ..
-    cluster_energy:get_node_infotext(pos) .. "[+ " .. last_produced_energy .. "]"
+    nodedef.short_description .. "\n"
+    .. cluster_devices:get_node_infotext(pos) .. "\n"
+    .. cluster_energy:get_node_infotext(pos) .. " [" .. last_produced_energy .. "]"
 
   meta:set_string("infotext", infotext)
 end
@@ -56,7 +58,7 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine_electric" }, function (loc, rect)
     if loc == "main_body" then
@@ -129,6 +131,7 @@ yatm.devices.register_stateful_network_device({
   basename = mod:make_name("solar_panel"),
 
   description = mod.S("Solar Panel"),
+  short_description = mod.S("Solar Panel"),
 
   codex_entry_id = mod:make_name("solar_panel"),
 

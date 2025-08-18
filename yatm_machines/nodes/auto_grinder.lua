@@ -1,9 +1,11 @@
-local mod = yatm_machines
+local mod = assert(yatm_machines)
+
 local Directions = assert(foundation.com.Directions)
 local is_blank = assert(foundation.com.is_blank)
 local itemstack_split = assert(foundation.com.itemstack_split)
 local format_pretty_time = assert(foundation.com.format_pretty_time)
 local cluster_devices = assert(yatm.cluster.devices)
+local cluster_energy = assert(yatm.cluster.energy)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local Energy = assert(yatm.energy)
 local grinding_registry = assert(yatm.grinding.grinding_registry)
@@ -132,7 +134,8 @@ function yatm_network:work(ctx)
   return energy_consumed
 end
 
-local function refresh_infotext(pos)
+local function refresh_infotext(pos, node)
+  local nodedef = core.registered_nodes[node.name]
   local meta = minetest.get_meta(pos)
 
   local recipe_name = meta:get_string("active_recipe") or ""
@@ -140,10 +143,11 @@ local function refresh_infotext(pos)
   local duration = meta:get_float("duration")
 
   local infotext =
-    cluster_devices:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
-    "Recipe: " .. recipe_name .. "\n" ..
-    "Time: " .. format_pretty_time(work_time) .. " / " .. format_pretty_time(duration)
+    nodedef.short_description .. "\n"
+    .. cluster_devices:get_node_infotext(pos) .. "\n"
+    .. cluster_energy:get_node_infotext(pos) .. " [".. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "]\n"
+    .. "Recipe: " .. recipe_name .. "\n"
+    .. "Time: " .. format_pretty_time(work_time) .. " / " .. format_pretty_time(duration)
 
   meta:set_string("infotext", infotext)
 end
@@ -248,6 +252,7 @@ yatm.devices.register_stateful_network_device({
   basename = mod:make_name("auto_grinder"),
 
   description = mod.S("Auto Grinder"),
+  short_description = mod.S("Auto Grinder"),
 
   groups = groups,
 

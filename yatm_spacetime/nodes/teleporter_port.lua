@@ -14,7 +14,7 @@ local teleporter_port_node_box = {
   }
 }
 
-local function teleporter_port_refresh_infotext(pos, node)
+local function refresh_infotext(pos, node)
   local meta = minetest.get_meta(pos)
 
   local infotext =
@@ -117,7 +117,7 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
   node_box = teleporter_port_node_box,
 
-  refresh_infotext = teleporter_port_refresh_infotext,
+  refresh_infotext = refresh_infotext,
 
   yatm_network = teleporter_port_yatm_network,
   yatm_spacetime = {},
@@ -229,7 +229,7 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
   node_box = teleporter_port_node_box,
 
-  refresh_infotext = teleporter_port_refresh_infotext,
+  refresh_infotext = refresh_infotext,
 
   yatm_network = teleporter_port_data_yatm_network,
   yatm_spacetime = {},
