@@ -1,3 +1,12 @@
+# 2.7.0
+
+* Added additional FluidExchange functions for dealing with:
+  * tank to container
+  * meta to container
+  * container to container
+  * container to tank
+  * container to meta
+
 # 2.6.0
 
 * Added FluidStack metatable, most functions available on the module are now available on the instance class

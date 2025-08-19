@@ -9,6 +9,8 @@ local fluid_registry = assert(yatm_fluids.fluid_registry)
 local FluidMeta = assert(yatm_fluids.FluidMeta)
 local fluid_tank_sync_service = assert(yatm.fluids.fluid_tank_sync_service)
 
+--- @namespace yatm_fluids
+
 local fluid_tank_fluid_interface = FluidInterface.new_simple("tank", 16000)
 fluid_tank_fluid_interface._private.bandwidth = assert(fluid_tank_fluid_interface._private.capacity)
 
