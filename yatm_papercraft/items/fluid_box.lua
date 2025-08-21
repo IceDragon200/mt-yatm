@@ -28,6 +28,7 @@ minetest.register_tool("yatm_papercraft:fluid_box", {
   on_place = place_fluid_box_contents,
 
   fluid_container = {
+    type = "dynamic",
     key = "fluid",
     capacity = 1000,
   },
