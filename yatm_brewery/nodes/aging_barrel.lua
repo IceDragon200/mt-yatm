@@ -18,6 +18,7 @@ local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local player_service = assert(nokore.player_service)
+local maybe_start_node_timer = assert(foundation.com.maybe_start_node_timer)
 
 local TIMER_INTERVAL = 1.0
 local BARREL_CAPACITY = 1000
@@ -120,6 +121,7 @@ local function on_timer(pos, dt)
   local inv = meta:get_inventory()
 
   local work_state = meta:get_int("work_state")
+  local should_repeat = false
 
   ::init:: do
     if work_state == WORK_STATE_NEW then
@@ -157,7 +159,7 @@ local function on_timer(pos, dt)
       work_state = WORK_STATE_SETUP
       goto state_setup
     else
-      goto exit_without_retry
+      goto exit_without_repeat
     end
   end
 
@@ -184,7 +186,7 @@ local function on_timer(pos, dt)
       goto state_stage
     else
       meta:set_float("work_time", work_time)
-      goto exit_with_retry
+      goto exit_with_repeat
     end
   end
 
@@ -213,7 +215,7 @@ local function on_timer(pos, dt)
         goto state_commit
       else
         -- retry again later
-        goto exit_with_retry
+        goto exit_with_repeat
       end
     else
       --- We do not have a valid recipe, abort and start over
@@ -260,29 +262,97 @@ local function on_timer(pos, dt)
 
     if need_retry then
       -- retry again later
-      goto exit_with_retry
+      goto exit_with_repeat
     else
       work_state = WORK_STATE_FINALIZE
       goto state_finalize
     end
   end
 
-  ::state_finalize:: do
+  ::state_finalize::
     work_state = WORK_STATE_NEW
     goto state_new
-  end
 
-  ::exit_with_retry:: do
+  ::exit_with_repeat::
+    should_repeat = true
+    goto flush
+
+  ::exit_without_repeat::
+    should_repeat = false
+    goto flush
+
+  ::flush:: do
     meta:set_int("work_state", work_state)
     nodedef.refresh_infotext(pos, node)
-    return true
+    local itci_stack = inv:get_stack("input_tank_container_in", 1)
+    local itco_stack = inv:get_stack("input_tank_container_out", 1)
+    local otci_stack = inv:get_stack("output_tank_container_in", 1)
+    local otco_stack = inv:get_stack("output_tank_container_out", 1)
+
+    local wildcard_fluid = FluidStack.new_wildcard(1000 * dt)
+    if not itci_stack:is_empty() then
+      FluidExchange.transfer_from_container_to_meta(
+        itci_stack,
+        wildcard_fluid,
+        meta,
+        {
+          tank_name = PRIMARY_TANK_NAME,
+          capacity = BARREL_CAPACITY,
+          bandwidth = BARREL_CAPACITY,
+        },
+        true
+      )
+      inv:set_stack("input_tank_container_in", 1, itci_stack)
+    end
+
+    if not itco_stack:is_empty() then
+      FluidExchange.transfer_from_meta_to_container(
+        meta,
+        {
+          tank_name = PRIMARY_TANK_NAME,
+          capacity = BARREL_CAPACITY,
+          bandwidth = BARREL_CAPACITY,
+        },
+        wildcard_fluid,
+        itco_stack,
+        true
+      )
+      inv:set_stack("input_tank_container_out", 1, itco_stack)
+    end
+
+    if not otci_stack:is_empty() then
+      FluidExchange.transfer_from_container_to_meta(
+        otci_stack,
+        wildcard_fluid,
+        meta,
+        {
+          tank_name = OUTPUT_TANK_NAME,
+          capacity = BARREL_CAPACITY,
+          bandwidth = BARREL_CAPACITY,
+        },
+        true
+      )
+      inv:set_stack("output_tank_container_in", 1, otci_stack)
+    end
+
+    if not otco_stack:is_empty() then
+      FluidExchange.transfer_from_meta_to_container(
+        meta,
+        {
+          tank_name = OUTPUT_TANK_NAME,
+          capacity = BARREL_CAPACITY,
+          bandwidth = BARREL_CAPACITY,
+        },
+        wildcard_fluid,
+        otco_stack,
+        true
+      )
+      inv:set_stack("output_tank_container_out", 1, otco_stack)
+    end
   end
 
-  ::exit_without_retry:: do
-    meta:set_int("work_state", work_state)
-    nodedef.refresh_infotext(pos, node)
-    return false
-  end
+  ::exit::
+    return should_repeat
 end
 
 local function on_construct(pos)
@@ -341,7 +411,7 @@ do
   function fluid_interface:on_fluid_changed(pos, dir, stack)
     local node = core.get_node(pos)
     local nodedef = core.registered_nodes[node.name]
-    core.get_node_timer(pos):start(TIMER_INTERVAL)
+    maybe_start_node_timer(pos, TIMER_INTERVAL)
   end
 end
 
@@ -349,19 +419,29 @@ local item_interface = ItemInterface.new_simple("culture_slot")
 
 local function on_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
   if from_list == "culture_slot" or to_list == "culture_slot" then
-    core.get_node_timer(pos):start(TIMER_INTERVAL)
+    maybe_start_node_timer(pos, TIMER_INTERVAL)
   end
 end
 
 local function on_metadata_inventory_put(pos, listname, index, stack, player)
-  if listname == "culture_slot" then
-    core.get_node_timer(pos):start(TIMER_INTERVAL)
+  if listname == "input_tank_container_in" then
+
+  elseif listname == "input_tank_container_out" then
+
+  elseif listname == "output_tank_container_in" then
+
+  elseif listname == "output_tank_container_out" then
+
+  elseif listname == "culture_slot" then
+    --
   end
+  -- something changed, let's start the timer
+  maybe_start_node_timer(pos, TIMER_INTERVAL)
 end
 
 local function on_metadata_inventory_take(pos, listname, index, stack, player)
   if listname == "culture_slot" then
-    core.get_node_timer(pos):start(TIMER_INTERVAL)
+    maybe_start_node_timer(pos, TIMER_INTERVAL)
   end
 end
 
@@ -372,9 +452,10 @@ local function render_formspec(pos, user, state)
   local cis = fspec.calc_inventory_size
   local meta = core.get_meta(pos)
 
-  return yatm.formspec_render_split_inv_panel(user, nil, 6, { bg = "wood" }, function (loc, rect)
+  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "wood" }, function (loc, rect)
     if loc == "main_body" then
-      local fluid_stack = FluidMeta.get_fluid_stack(meta, PRIMARY_TANK_NAME)
+      local input_fluid_stack = FluidMeta.get_fluid_stack(meta, PRIMARY_TANK_NAME)
+      local output_fluid_stack = FluidMeta.get_fluid_stack(meta, OUTPUT_TANK_NAME)
 
       return ""
         .. fspec.list(
@@ -393,8 +474,8 @@ local function render_formspec(pos, user, state)
           rect.x,
           rect.y + cio(1),
           1,
-          cis(4),
-          fluid_stack,
+          cis(2),
+          input_fluid_stack,
           BARREL_CAPACITY
         )
         .. fspec.list(
@@ -409,12 +490,12 @@ local function render_formspec(pos, user, state)
           node_inv_name,
           "input_tank_container_out",
           rect.x,
-          rect.y + cio(5),
+          rect.y + cio(3),
           1,
           1
         )
         .. yatm_fspec.render_item_border(
-          rect.x, rect.y + cio(5), 1, 1,
+          rect.x, rect.y + cio(3), 1, 1,
           "yatm_item_border_bucket.down.png", yatm.config.extract_color
         )
         -- Output
@@ -434,8 +515,8 @@ local function render_formspec(pos, user, state)
           rect.x + cio(3),
           rect.y + cio(1),
           1,
-          cis(4),
-          fluid_stack,
+          cis(2),
+          output_fluid_stack,
           BARREL_CAPACITY
         )
         .. fspec.list(
@@ -450,12 +531,12 @@ local function render_formspec(pos, user, state)
           node_inv_name,
           "output_tank_container_out",
           rect.x + cio(3),
-          rect.y + cio(5),
+          rect.y + cio(3),
           1,
           1
         )
         .. yatm_fspec.render_item_border(
-          rect.x + cio(3), rect.y + cio(5), 1, 1,
+          rect.x + cio(3), rect.y + cio(3), 1, 1,
           "yatm_item_border_bucket.down.png", yatm.config.extract_color
         )
     elseif loc == "footer" then
