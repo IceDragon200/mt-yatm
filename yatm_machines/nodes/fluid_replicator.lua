@@ -52,14 +52,14 @@ function fluid_interface:get_capacity(pos, dir)
 end
 
 function fluid_interface:get(pos, dir)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local stack = FluidMeta.get_fluid_stack(meta, self._private.tank_name)
   stack.amount = self._private.capacity
   return stack
 end
 
 function fluid_interface:replace(pos, dir, new_stack, commit)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local stack, new_stack =
     FluidMeta.set_fluid(
       meta,
@@ -76,7 +76,7 @@ function fluid_interface:replace(pos, dir, new_stack, commit)
 end
 
 function fluid_interface:fill(pos, dir, fluid_stack, commit)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local capacity = assert(self._private.capacity)
   local stack, new_stack =
     FluidMeta.fill_fluid(
@@ -96,7 +96,7 @@ function fluid_interface:fill(pos, dir, fluid_stack, commit)
 end
 
 function fluid_interface:drain(pos, dir, fluid_stack, commit)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local capacity = assert(self._private.capacity)
   local stack, new_stack =
     FluidMeta.drain_fluid(
@@ -147,22 +147,31 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine" }, function (loc, rect)
     if loc == "main_body" then
       local fluid_stack = FluidMeta.get_fluid_stack(meta, TANK_NAME)
 
-      return yatm_fspec.render_fluid_stack(
+      return ""
+        .. yatm_fspec.render_fluid_stack(
           rect.x,
           rect.y + cio(1),
           1,
           cis(2),
           fluid_stack,
           TANK_CAPACITY
-        ) ..
-        fspec.list(node_inv_name, "ftank_copy_slot", rect.x, rect.y, 1, 1) ..
-        fspec.list(node_inv_name, "ftank_extract_slot", rect.x, rect.y + cio(3), 1, 1)
+        )
+        .. fspec.list(node_inv_name, "ftank_copy_slot", rect.x, rect.y, 1, 1)
+        .. yatm_fspec.render_item_border(
+          rect.x, rect.y, 1, 1,
+          "yatm_item_border_bucket.up.png", yatm.config.insert_color
+        )
+        .. fspec.list(node_inv_name, "ftank_extract_slot", rect.x, rect.y + cio(3), 1, 1)
+        .. yatm_fspec.render_item_border(
+          rect.x, rect.y + cio(3), 1, 1,
+          "yatm_item_border_bucket.down.png", yatm.config.extract_color
+        )
     elseif loc == "footer" then
       return ""
     end
@@ -189,7 +198,7 @@ local function on_refresh_timer(player_name, form_name, state)
 end
 
 local function on_rightclick(pos, node, user)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   maybe_initialize_inventory(meta)
 
@@ -217,15 +226,15 @@ local function on_rightclick(pos, node, user)
 end
 
 local function on_construct(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   maybe_initialize_inventory(meta)
 
   yatm.devices.device_on_construct(pos)
 end
 
-local function on_metadata_inventory_put(pos, list, index, item_stack, player)
-  if list == "ftank_copy_slot" then
+local function on_metadata_inventory_put(pos, listname, index, item_stack, player)
+  if listname == "ftank_copy_slot" then
     local fluid_name = nil
     -- check if the given item is a fluid container
     if FluidContainers.is_fluid_container(item_stack) then
@@ -246,9 +255,17 @@ local function on_metadata_inventory_put(pos, list, index, item_stack, player)
       fluid_stack = FluidStack.new()
     end
 
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
 
     FluidMeta.set_fluid(meta, TANK_NAME, fluid_stack, true)
+  elseif listname == "ftank_extract_slot" then
+    if FluidContainers.is_fluid_container(item_stack) then
+      local meta = core.get_meta(pos)
+      local inv = meta:get_inventory()
+      local fluid_stack = FluidMeta.get_fluid_stack(meta, TANK_NAME)
+      FluidContainers.fill_fluid(item_stack, fluid_stack, true)
+      inv:set_stack(listname, index, item_stack)
+    end
   end
 end
 
