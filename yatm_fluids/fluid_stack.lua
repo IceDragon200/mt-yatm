@@ -48,7 +48,22 @@ do
 
   --- @spec copy(fluid_stack: FluidStack): FluidStack
   function FluidStack.copy(fluid_stack)
-    return FluidStack.new(fluid_stack.name, fluid_stack.amount)
+    if fluid_stack then
+      return FluidStack.new(fluid_stack.name, fluid_stack.amount)
+    else
+      return FluidStack.new_empty()
+    end
+  end
+
+  --- @spec initialize_copy(fluid_stack: FluidStack, other: FluidStack): void
+  function FluidStack.initialize_copy(fluid_stack, other)
+    if other then
+      fluid_stack.name = other.name
+      fluid_stack.amount = other.amount
+    else
+      fluid_stack.name = nil
+      fluid_stack.amount = 0
+    end
   end
 
   --- @spec same_fluid(a?: FluidStack, b?: FluidStack): Boolean
@@ -165,9 +180,15 @@ do
       local bname
       for i = 1,len do
         b = select(i, ...)
-        bname = fluid_registry.normalize_fluid_name(b.name)
-        if not result.name or bname == result.name then
-          result.amount = result.amount + b.amount
+        if b then
+          bname = fluid_registry.normalize_fluid_name(b.name)
+          if not result.name then
+            result.name = bname
+          end
+
+          if not result.name or bname == result.name then
+            result.amount = result.amount + b.amount
+          end
         end
       end
     end
@@ -199,9 +220,14 @@ do
       local bname
       for i = 1,len do
         b = select(i, ...)
-        bname = fluid_registry.normalize_fluid_name(b.name)
-        if not result.name or bname == result.name then
-          result.amount = math.max(result.amount - b.amount, 0)
+        if b then
+          bname = fluid_registry.normalize_fluid_name(b.name)
+          if not result.name then
+            result.name = bname
+          end
+          if bname == result.name then
+            result.amount = math.max(result.amount - b.amount, 0)
+          end
         end
       end
     end

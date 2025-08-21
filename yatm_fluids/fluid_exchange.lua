@@ -20,6 +20,7 @@ local FluidExchange = {}
 
 ---
 --- @since "2.7.0"
+--- @mutative from_item_stack
 --- @spec transfer_from_container_to_container(
 ---   from_item_stack: ItemStack,
 ---   fluid_stack: FluidStack,
@@ -51,6 +52,7 @@ end
 
 ---
 --- @since "2.7.0"
+--- @mutative from_item_stack
 --- @spec transfer_from_container_to_meta(
 ---   from_item_stack: ItemStack,
 ---   to_item_stack: ItemStack,
@@ -83,6 +85,7 @@ end
 
 ---
 --- @since "2.7.0"
+--- @mutative from_item_stack
 --- @spec transfer_from_container_to_tank(
 ---   from_item_stack: ItemStack,
 ---   fluid_stack: FluidStack,
@@ -146,6 +149,7 @@ end
 
 ---
 --- @since "2.7.0"
+--- @mutative item_stack
 --- @spec transfer_from_tank_to_container(
 ---   from_pos: Vector3,
 ---   tank_face: Direction.code,
@@ -240,12 +244,12 @@ end
 
 ---
 --- @since "2.7.0"
+--- @mutative item_stack
 --- @spec transfer_from_meta_to_container(
 ---   meta: IMetaRef,
 ---   meta_config: FluidMetaConfig,
 ---   fluid_stack: FluidStack,
----   tank_pos: Vector3,
----   tank_face: Direction.code,
+---   item_stack: ItemStack,
 ---   commit: Boolean
 --- ): FluidStack
 function FluidExchange.transfer_from_meta_to_container(

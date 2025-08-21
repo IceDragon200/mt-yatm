@@ -1,6 +1,8 @@
 local mod = assert(yatm_fluids)
 
+local FluidContainers = assert(yatm.fluids.FluidContainers)
 local FluidRegistry = assert(yatm.fluids.fluid_registry)
+local itemstack_copy = assert(foundation.com.itemstack_copy)
 
 mod:register_tool("empty_bucket", {
   description = mod.S("Empty Bucket"),
@@ -13,6 +15,31 @@ mod:register_tool("empty_bucket", {
   liquids_pointable = true,
 
   inventory_image = "yatm_bucket_empty.png",
+
+  fluid_container = {
+    type = "static",
+    volume = 0,
+    capacity = FluidRegistry.BUCKET_VOLUME,
+
+    set_fluid_stack = function (self, item_stack, fluid_stack, commit)
+      if fluid_stack then
+        if fluid_stack.amount >= FluidRegistry.BUCKET_VOLUME then
+          local bucket = FluidRegistry.fluid_name_to_bucket(fluid_stack.name)
+          if bucket then
+            local target_item = item_stack
+            if not commit then
+              target_item = itemstack_copy(target_item)
+            end
+            target_item:set_name(bucket.name)
+            local new_fs = FluidContainers.get_fluid_stack(target_item)
+            return new_fs, new_fs
+          end
+        end
+      end
+
+      return nil, fluid_stack
+    end,
+  },
 
   on_use = function (item_stack, user, pointed_thing)
     if pointed_thing.type == "object" then

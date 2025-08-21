@@ -140,10 +140,11 @@ end)
 
 case:describe("add/1+", function (t2)
   t2:test("can add multiple fluidstacks together", function (t3)
-    local fluid_stack = FluidStack.new("default:water", 1000)
+    local fluid_stack = FluidStack.new_empty()
 
     FluidStack.add(
       fluid_stack,
+      FluidStack.new("default:water", 1000),
       FluidStack.new("default:water", 10),
       FluidStack.new("default:steam", 10)
     )
@@ -160,10 +161,11 @@ end)
 
 case:describe("subtract/1+", function (t2)
   t2:test("can subtract multiple fluidstacks", function (t3)
-    local fluid_stack = FluidStack.new("default:water", 1000)
+    local fluid_stack = FluidStack.new_empty()
 
     FluidStack.subtract(
       fluid_stack,
+      FluidStack.new("default:water", 1000),
       FluidStack.new("default:water", 10),
       FluidStack.new("default:steam", 10)
     )
@@ -173,6 +175,25 @@ case:describe("subtract/1+", function (t2)
       {
         name = "default:water",
         amount = 990,
+      }
+    )
+  end)
+
+  t2:test("will not affect the first stack if other operands do not match", function (t3)
+    local fluid_stack = FluidStack.new_empty()
+
+    FluidStack.subtract(
+      fluid_stack,
+      FluidStack.new("default:water", 1000),
+      FluidStack.new("default:steam", 10),
+      FluidStack.new("default:steam", 10)
+    )
+
+    t3:assert_matches(
+      fluid_stack,
+      {
+        name = "default:water",
+        amount = 1000,
       }
     )
   end)
@@ -208,6 +229,27 @@ case:describe("#+/1", function (t2)
       }
     )
   end)
+
+  t2:test("can safely add nil", function (t3)
+    local a = FluidStack.new("default:water", 1000)
+    local result = a + nil
+
+    t3:assert_matches(
+      a,
+      {
+        name = "default:water",
+        amount = 1000,
+      }
+    )
+
+    t3:assert_matches(
+      result,
+      {
+        name = "default:water",
+        amount = 1000,
+      }
+    )
+  end)
 end)
 
 case:describe("#-/1", function (t2)
@@ -237,6 +279,27 @@ case:describe("#-/1", function (t2)
       {
         name = "default:water",
         amount = 990,
+      }
+    )
+  end)
+
+  t2:test("can safely subtract nil from fluid stacks", function (t3)
+    local a = FluidStack.new("default:water", 1000)
+    local result = a - nil
+
+    t3:assert_matches(
+      a,
+      {
+        name = "default:water",
+        amount = 1000,
+      }
+    )
+
+    t3:assert_matches(
+      result,
+      {
+        name = "default:water",
+        amount = 1000,
       }
     )
   end)

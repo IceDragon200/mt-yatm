@@ -5,6 +5,10 @@ local FluidUtil = assert(yatm_fluids.Utils)
 local fluid_registry = assert(yatm_fluids.fluid_registry)
 local FluidStack = assert(yatm_fluids.FluidStack)
 local Measurable = assert(yatm.Measurable)
+
+--- Provides utility functions for manipulating fluids
+---
+--- @namespace yatm_fluids.FluidMeta
 local FluidMeta = {}
 
 --- @spec get_amount(MetaRef, key: String): Integer
@@ -12,6 +16,11 @@ function FluidMeta.get_amount(meta, key)
   return Measurable.get_measurable_amount(meta, key)
 end
 
+--- Changes the `amount` of the specified tank in the meta.
+--- The first return value is the diff of the current amount - the amount requested to be set.
+--- The second return value is the same as the given amount.
+---
+--- @spec set_amount(MetaRef, key: String, amount: Integer, commit: Boolean): (diff: Integer, set_amount: Integer)
 function FluidMeta.set_amount(meta, key, amount, commit)
   local existing_amount = Measurable.get_measurable_amount(meta, key)
   local new_amount = math.max(amount, 0);
@@ -21,6 +30,10 @@ function FluidMeta.set_amount(meta, key, amount, commit)
   return new_amount - existing_amount, new_amount
 end
 
+--- Decreases the `amount` of fluid in the specified tank by `amount`.
+--- Returns the difference between the current amount and the change, which should be the same as the amount specified.
+---
+--- @spec decrease_amount(MetaRef, key: String, amount: Integer, commit: Boolean): (diff: Integer, set_amount: Integer)
 function FluidMeta.decrease_amount(meta, key, amount, commit)
   local existing_amount = Measurable.get_measurable_amount(meta, key)
   local new_amount = math.max(existing_amount - amount, 0)
@@ -66,6 +79,7 @@ function FluidMeta.is_empty(meta, key)
   return false
 end
 
+--- @spec get_fluid_stack(MeraRef, key: String): FluidStack
 function FluidMeta.get_fluid_stack(meta, key)
   assert(meta, "expected a meta ref")
   assert(key, "expected a key")
@@ -73,6 +87,7 @@ function FluidMeta.get_fluid_stack(meta, key)
   return FluidStack.presence(fluid_stack)
 end
 
+--- @spec set_fluid(MetaRef, key: String, FluidStack, commit: Boolean): (FluidStack, FluidStack)
 function FluidMeta.set_fluid(meta, key, fluid_stack, commit)
   assert(fluid_stack, "expected a fluid stack")
   local src_fluid_name = fluid_stack.name
@@ -83,8 +98,8 @@ function FluidMeta.set_fluid(meta, key, fluid_stack, commit)
       Measurable.set_measurable_name(fluid_registry, meta, key, src_fluid_name)
     end
   end
-  local set_amount, new_amount = FluidMeta.set_amount(meta, key, fluid_stack.amount, commit)
-  return FluidStack.new(dest_fluid_name, set_amount), FluidStack.new(dest_fluid_name, new_amount)
+  local _, new_amount = FluidMeta.set_amount(meta, key, fluid_stack.amount, commit)
+  return FluidStack.new(dest_fluid_name, fluid_stack.amount), FluidStack.new(dest_fluid_name, new_amount)
 end
 
 function FluidMeta.decrease_fluid(meta, key, fluid_stack, capacity, commit)
