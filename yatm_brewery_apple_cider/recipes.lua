@@ -11,14 +11,14 @@ aging_registry:register_aging_recipe(mod:make_name("aged_apple_cider"), {
       amount = 1,
     },
     fluid = {
-      name = "yatm:apple_juice",
+      name = "yatm_brewery_apple_cider:apple_juice",
       amount = 1000,
     },
   },
   outputs = {
     item = nil,
     fluid = {
-      name = "yatm:apple_cider",
+      name = "yatm_brewery_apple_cider:apple_cider",
       amount = 1000,
     },
   },
