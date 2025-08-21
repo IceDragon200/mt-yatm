@@ -293,6 +293,7 @@ end
 yatm.devices.register_stateful_network_device({
   basename = "yatm_refinery:boiler",
 
+  short_description = mod.S("Boiler"),
   description = mod.S("Boiler"),
 
   codex_entry_id = "yatm_refinery:boiler",
