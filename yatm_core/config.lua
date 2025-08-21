@@ -14,5 +14,10 @@ yatm.config.dump_tools = true
 -- should YATM throw an error instead of just logging?
 yatm.config.fail_loud = false
 
+--
+-- Colors
+--
 yatm.config.extract_color = Color.maybe_to_color("#dba833")
 yatm.config.insert_color = Color.maybe_to_color("#006cae")
+yatm.config.data_color = Color.maybe_to_color("#b84b72")
+yatm.config.error_color = Color.maybe_to_color("#fd0000")
