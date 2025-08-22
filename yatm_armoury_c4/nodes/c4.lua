@@ -1,5 +1,7 @@
-minetest.register_node("yatm_armoury_c4:c4_tripwired", {
-  description = "C4 (Tripwire Operated)",
+local mod = assert(yatm_armoury_c4)
+
+mod:register_node("c4_tripwired", {
+  description = mod.S("C4 (Tripwire Operated)"),
 
   groups = {
     cracky = nokore.dig_class("wme"),
@@ -32,8 +34,8 @@ minetest.register_node("yatm_armoury_c4:c4_tripwired", {
   },
 })
 
-minetest.register_node("yatm_armoury_c4:c4_remote", {
-  description = "C4 (Remote Operated)",
+mod:register_node("c4_remote", {
+  description = mod.S("C4 (Remote Operated)"),
 
   groups = {
     cracky = nokore.dig_class("wme"),
