@@ -73,6 +73,7 @@ prepare.release:
 	cp -r --parents yatm_packs "${RELEASE_DIR}"
 	cp -r --parents yatm_papercraft "${RELEASE_DIR}"
 	cp -r --parents yatm_plastics "${RELEASE_DIR}"
+	cp -r --parents yatm_radio_network "${RELEASE_DIR}"
 	cp -r --parents yatm_rails "${RELEASE_DIR}"
 	cp -r --parents yatm_reactions "${RELEASE_DIR}"
 	cp -r --parents yatm_reactors "${RELEASE_DIR}"
