@@ -8,7 +8,7 @@
 
 ]]
 local Directions = assert(foundation.com.Directions)
-local random_string16 = assert(foundation.com.random_string16)
+local random_addr16 = assert(foundation.com.random_addr16)
 local table_keys = assert(foundation.com.table_keys)
 local copy_node = assert(foundation.com.copy_node)
 local node_to_string = assert(foundation.com.node_to_string)
@@ -300,13 +300,7 @@ do
   end
 
   function ic:generate_network_id()
-    local result = {self.m_abbr}
-
-    for i = 1,4 do
-      table.insert(result, random_string16(4))
-    end
-
-    return table.concat(result, ":")
+    return self.m_addr .. ":" .. random_addr16(16, 4, ":")
   end
 
   function ic:resolve_invalid_networks(counter, delta, trace)
