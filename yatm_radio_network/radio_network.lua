@@ -8,6 +8,8 @@ local MinHeap = assert(foundation.com.MinHeap)
 local RingBuffer = assert(foundation.com.RingBuffer)
 local hash_node_position = assert(core.hash_node_position)
 
+local MIN_INTEGER = math.mininteger or -0xFFFFFFFFFFFFFFF
+
 --- @namespace yatm_radio_network
 
 ---
@@ -21,11 +23,19 @@ do
   function ic:initialize()
     ic._super.initialize(self)
 
-    self.m_monotonic_time = assert(math.mininteger)
+    self.m_monotonic_time = MIN_INTEGER
 
     self.m_messages = RingBuffer:new()
     self.m_timers = MinHeap:new()
     self.m_entries = {}
+  end
+
+  --- @spec #init(): void
+  function ic:init()
+  end
+
+  --- @spec #terminate(): void
+  function ic:terminate()
   end
 
   --- @spec #update(dtime: Float): void
@@ -54,7 +64,7 @@ do
             nodedef = core.registered_nodes[node.name]
             if nodedef then
               if nodedef.radio_network then
-                nodedef.radio_network:on_message(pos, node, message)
+                nodedef.radio_network:on_message(pos, node, addr, message)
               end
             end
           end
