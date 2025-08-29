@@ -4,6 +4,7 @@
 local mod = foundation.new_module("yatm_blasts_explosive", "0.0.0")
 
 local number_truncate_by_sign = assert(foundation.com.number_truncate_by_sign)
+local table_copy = assert(foundation.com.table_copy)
 local raycast = assert(core.raycast)
 local get_name_from_content_id = assert(core.get_name_from_content_id)
 local get_node_drops = assert(core.get_node_drops)
@@ -22,7 +23,9 @@ local function calculate_surface_points_of_voxel_sphere(radius, tolerance)
   local min = -radius
   local max = radius
   local rmin = radius - 0.5
+  rmin = rmin * rmin
   local rmax = radius + 0.5
+  rmax = rmax * rmax
   local d
 
   local result = {}
@@ -112,9 +115,9 @@ local function init(self, assigns, system, explosion, params)
     assigns.min_points[i] = vector.direction(ZERO, point) * assigns.min_range
     -- finally we initialize our main rays, these will have the velocity added to them
     if assigns.delta > 0 then
-      assigns.rays[i] = assigns.min_points[i]
+      assigns.rays[i] = vector.copy(assigns.min_points[i])
     elseif assigns.delta < 0 then
-      assigns.rays[i] = assigns.max_points[i]
+      assigns.rays[i] = vector.copy(assigns.max_points[i])
     end
     ray = assigns.rays[i]
     assigns.trunc_rays[i] = vector.new(
@@ -124,6 +127,146 @@ local function init(self, assigns, system, explosion, params)
     )
     assigns.elapsed = 0
   end
+end
+
+local function calculate_voxel_manip_bounds_from_targets(targets, assigns)
+  local x0
+  local y0
+  local z0
+  local x1
+  local y1
+  local z1
+
+  for i, tpos1 in pairs(targets) do
+    tpos0 = assigns.trunc_rays[i]
+
+    if x0 then
+      if x0 > tpos0.x then
+        x0 = tpos0.x
+      end
+    else
+      x0 = tpos0.x
+    end
+    if y0 then
+      if y0 > tpos0.y then
+        y0 = tpos0.y
+      end
+    else
+      y0 = tpos0.y
+    end
+    if z0 then
+      if z0 > tpos0.z then
+        z0 = tpos0.z
+      end
+    else
+      z0 = tpos0.z
+    end
+    if x1 then
+      if x1 < tpos0.x then
+        x1 = tpos0.x
+      end
+    else
+      x1 = tpos0.x
+    end
+    if y1 then
+      if y1 < tpos0.y then
+        y1 = tpos0.y
+      end
+    else
+      y1 = tpos0.y
+    end
+    if z1 then
+      if z1 < tpos0.z then
+        z1 = tpos0.z
+      end
+    else
+      z1 = tpos0.z
+    end
+
+    --
+    if x0 then
+      if x0 > tpos1.x then
+        x0 = tpos1.x
+      end
+    else
+      x0 = tpos1.x
+    end
+    if y0 then
+      if y0 > tpos1.y then
+        y0 = tpos1.y
+      end
+    else
+      y0 = tpos1.y
+    end
+    if z0 then
+      if z0 > tpos1.z then
+        z0 = tpos1.z
+      end
+    else
+      z0 = tpos1.z
+    end
+    if x1 then
+      if x1 < tpos1.x then
+        x1 = tpos1.x
+      end
+    else
+      x1 = tpos1.x
+    end
+    if y1 then
+      if y1 < tpos1.y then
+        y1 = tpos1.y
+      end
+    else
+      y1 = tpos1.y
+    end
+    if z1 then
+      if z1 < tpos1.z then
+        z1 = tpos1.z
+      end
+    else
+      z1 = tpos1.z
+    end
+  end
+
+  return x0, y0, z0, x1, y1, z1
+end
+
+local function calculate_targets(assigns, dtime)
+  local ray
+  local vel
+  local max
+  local min
+  local x
+  local y
+  local z
+  local tpos0
+  local tpos1
+  local targets = {}
+  -- first, let's determine every ray that has changes
+  for i = 1,assigns.points_count do
+    ray = assigns.rays[i]
+    vel = assigns.velocity[i]
+    max = assigns.max_points[i]
+    min = assigns.min_points[i]
+    x = math.min(math.max(ray.x + vel.x * dtime, min.x), max.x)
+    y = math.min(math.max(ray.y + vel.y * dtime, min.y), max.y)
+    z = math.min(math.max(ray.z + vel.z * dtime, min.z), max.z)
+    assigns.rays[i] = vector.new(x, y, z)
+    tpos0 = assigns.trunc_rays[i]
+    tpos1 = vector.new(
+      number_truncate_by_sign(x, vel.x),
+      number_truncate_by_sign(y, vel.y),
+      number_truncate_by_sign(z, vel.z)
+    )
+
+    if not vector.equals(tpos0, tpos1) then
+      -- hey we actually changed positions in the world, time to attempt destruction
+      -- first, set the new truncated ray to the new position
+      targets[i] = tpos1
+    end
+  end
+
+  return targets
 end
 
 local function update(self, assigns, system, explosion, dtime)
@@ -136,146 +279,22 @@ local function update(self, assigns, system, explosion, dtime)
     -- just to keep track of how much time has actually elapsed
     assigns.elapsed = assigns.elapsed + dtime
     -- adjust the current range based on the delta
-    assigns.range = math.min(assigns.max_range, math.max(assigns.range + assigns.delta * delta, assigns.min_range))
+    assigns.range = math.min(
+      assigns.max_range,
+      math.max(assigns.range + assigns.speed * assigns.delta * dtime, assigns.min_range)
+    )
     -- now we calculate ALL of the rays and their new positions
-    local ray
-    local vel
-    local max
-    local min
-    local x
-    local y
-    local z
-    local tpos0
-    local tpos1
-    local targets = {}
-    -- first, let's determine every ray that has changes
-    for i = 1,assigns.points_count do
-      ray = assigns.rays[i]
-      vel = assigns.velocity[i]
-      max = assigns.max_points[i]
-      min = assigns.min_points[i]
-      x = math.min(math.max(ray.x + vel.x * dtime, min.x), max.x)
-      y = math.min(math.max(ray.y + vel.y * dtime, min.y), max.y)
-      z = math.min(math.max(ray.z + vel.z * dtime, min.z), max.z)
-      assigns.rays[i] = vector.new(x, y, z)
-      tpos0 = assigns.trunc_rays[i]
-      tpos1 = vector.new(
-        number_truncate_by_sign(x, vel.x),
-        number_truncate_by_sign(y, vel.y),
-        number_truncate_by_sign(z, vel.z)
-      )
-
-      if not vector.equals(tpos0, tpos1) then
-        -- hey we actually changed positions in the world, time to attempt destruction
-        -- first, set the new truncated ray to the new position
-        targets[i] = tpos1
-      end
-    end
+    local targets = calculate_targets(assigns, dtime)
 
     if next(targets) then
       local seen = {}
       -- first pass to determine the voxel bounds
-      local x0
-      local y0
-      local z0
-      local x1
-      local y1
-      local z1
+      local x0, y0, z0, x1, y1, z1 = calculate_voxel_manip_bounds_from_targets(targets, assigns)
+
       local cpos = explosion.pos
       local cx = cpos.x
       local cy = cpos.y
       local cz = cpos.z
-
-      for i, tpos1 in pairs(targets) do
-        tpos0 = assigns.trunc_rays[i]
-
-        if x0 then
-          if x0 > tpos0.x then
-            x0 = tpos0.x
-          end
-        else
-          x0 = tpos0.x
-        end
-        if y0 then
-          if y0 > tpos0.y then
-            y0 = tpos0.y
-          end
-        else
-          y0 = tpos0.y
-        end
-        if z0 then
-          if z0 > tpos0.z then
-            z0 = tpos0.z
-          end
-        else
-          z0 = tpos0.z
-        end
-        if x1 then
-          if x1 < tpos0.x then
-            x1 = tpos0.x
-          end
-        else
-          x1 = tpos0.x
-        end
-        if y1 then
-          if y1 < tpos0.y then
-            y1 = tpos0.y
-          end
-        else
-          y1 = tpos0.y
-        end
-        if z1 then
-          if z1 < tpos0.z then
-            z1 = tpos0.z
-          end
-        else
-          z1 = tpos0.z
-        end
-
-        --
-        if x0 then
-          if x0 > tpos1.x then
-            x0 = tpos1.x
-          end
-        else
-          x0 = tpos1.x
-        end
-        if y0 then
-          if y0 > tpos1.y then
-            y0 = tpos1.y
-          end
-        else
-          y0 = tpos1.y
-        end
-        if z0 then
-          if z0 > tpos1.z then
-            z0 = tpos1.z
-          end
-        else
-          z0 = tpos1.z
-        end
-        if x1 then
-          if x1 < tpos1.x then
-            x1 = tpos1.x
-          end
-        else
-          x1 = tpos1.x
-        end
-        if y1 then
-          if y1 < tpos1.y then
-            y1 = tpos1.y
-          end
-        else
-          y1 = tpos1.y
-        end
-        if z1 then
-          if z1 < tpos1.z then
-            z1 = tpos1.z
-          end
-        else
-          z1 = tpos1.z
-        end
-      end
 
       -- we've been working in local coordinates since the beginning, now, we actually
       -- expand into world coordinates when grabbing the vm
@@ -298,6 +317,7 @@ local function update(self, assigns, system, explosion, dtime)
       local nodedef
       local ci = 0
       local new_ci = 0
+      local new_param2 = 0
       local oeqi = 0
       local on_explosion_queue = {}
       local ocqi = 0
@@ -305,6 +325,11 @@ local function update(self, assigns, system, explosion, dtime)
       local groups
       local pending_drops = {}
       local is_protected = false
+      local tpos0
+      local tpos1
+      local wpos0
+      local wpos1
+      local ptpos
       -- we have rays that have effectively changed
       for i, tpos1 in pairs(targets) do
         tpos0 = assigns.trunc_rays[i]
@@ -314,86 +339,93 @@ local function update(self, assigns, system, explosion, dtime)
         -- this very specific usecase, but... my lazy ass is already scared of this whole function
         -- so we'll use core.raycast to find nodes and objects and work from there.
 
+        local wpos0 = vector.add(cpos, tpos0)
+        local wpos1 = vector.add(cpos, tpos1)
         -- we only raycast from the previous position to the new position, the cast is rather small
-        for pt in raycast(tpos0, tpos1, true, true) do
+        for pt in raycast(wpos0, wpos1, true, true) do
           if pt.type == "object" then
-
+            --
           elseif pt.type == "node" then
-            vmi = va:indexp(pt.under)
+            ptpos = pt.under
+            vmi = va:indexp(ptpos)
             if not seen[vmi] then
               seen[vmi] = true
 
               ci = data[vmi]
               is_protected = false
               if not assigns.ignore_protection then
-                is_protected = core.is_protected(pt.under, user)
+                is_protected = core.is_protected(ptpos, user)
               end
-              if not is_protected then
-                if ci then
-                  new_ci = ci
-                  node.name = get_name_from_content_id(ci)
-                  if node.name then
-                    node.param1 = light[vmi]
-                    node.param2 = param2[vmi]
-                    nodedef = core.registered_nodes[node.name]
-                    if nodedef then
-                      groups = nodedef.groups
-                      if not assigns.ignore_on_blast and (nodedef.on_explosion or nodedef.on_blast) then
-                        -- on_explosion is our preferred callbacl
-                        -- on_blast is compatibility for tnt
-                        oeqi = oeqi + 1
-                        on_explosion_queue[oeqi] = {
-                          vmi = vmi,
-                          node = table_copy(node),
-                          pos = vector.copy(pt.under),
-                          nodedef = nodedef
-                        }
-                      elseif assigns.can_ignite and (groups["flammable"] or 0) > 0 then
-                        -- node is flammable
-                        ocqi = ocqi + 1
-                        on_construct_queue[ocqi] = {
-                          vmi = vmi,
-                          org_node = table_copy(node),
-                          pos = vector.copy(pt.under),
-                          org_nodedef = nodedef
-                        }
-                      else
-                        -- with drop logic
-                        pending_drops[hash_node_position(pt.under)] = {
-                          pos = vector.copy(pt.under),
-                          drops = get_node_drops(
-                            node,
-                            explosion.kind,
-                            nil, -- tool
-                            nil, -- digger
-                            pt.under
-                          )
-                        }
-                        new_ci = CONTENT_AIR
-                      end
+              if is_protected then
+                --
+              elseif ci then
+                new_ci = ci
+                new_param2 = param2[vmi]
+                node.name = get_name_from_content_id(ci)
+                node.param2 = param2[vmi]
+                if node.name then
+                  node.param1 = light[vmi]
+                  nodedef = core.registered_nodes[node.name]
+                  if nodedef then
+                    groups = nodedef.groups
+                    if not assigns.ignore_on_blast and (nodedef.on_explosion or nodedef.on_blast) then
+                      -- on_explosion is our preferred callbacl
+                      -- on_blast is compatibility for tnt
+                      oeqi = oeqi + 1
+                      on_explosion_queue[oeqi] = {
+                        vmi = vmi,
+                        node = table_copy(node),
+                        pos = vector.copy(ptpos),
+                        nodedef = nodedef
+                      }
+                    elseif assigns.can_ignite and (groups["flammable"] or 0) > 0 then
+                      -- node is flammable
+                      ocqi = ocqi + 1
+                      on_construct_queue[ocqi] = {
+                        vmi = vmi,
+                        org_node = table_copy(node),
+                        pos = vector.copy(ptpos),
+                        org_nodedef = nodedef
+                      }
                     else
-                      -- we can't determine the node, so just nuke it
+                      -- with drop logic
+                      pending_drops[hash_node_position(ptpos)] = {
+                        pos = vector.copy(pt.under),
+                        drops = get_node_drops(
+                          node,
+                          explosion.kind,
+                          nil, -- tool
+                          nil, -- digger
+                          pt.under
+                        )
+                      }
                       new_ci = CONTENT_AIR
+                      new_param2 = 0
                     end
+                  else
+                    -- we can't determine the node, so just nuke it
+                    new_ci = CONTENT_AIR
+                    new_param2 = 0
                   end
-                  if ci ~= new_ci then
-                    data[vmi] = new_ci
-                    param2[vmi] = 0
-                    -- nuke metadata
-                    core.get_meta(pt.under):from_table(nil)
-                  end
+                end
+                -- air everything touched, to check something
+                if ci ~= new_ci then
+                  data[vmi] = new_ci
+                  param2[vmi] = new_param2
+                  -- nuke metadata
+                  core.get_meta(pt.under):from_table(nil)
                 end
               end
             end
           end
         end
       end
+
       vm:set_data(data)
-      vm:set_light_data(light)
-      vm:set_param2_data(param2)
-      vm:update_liquids()
-      vm:calc_lighting()
+      -- vm:set_light_data(light)
+      -- vm:set_param2_data(param2)
       vm:write_to_map()
+      vm:update_liquids()
       vm:close()
       -- we're done fiddling with the voxel manipulator, now unto processing the queues
 
@@ -425,14 +457,38 @@ local function update(self, assigns, system, explosion, dtime)
         end
       end
 
-      local drop_pos
-      for _, entry in pairs(pending_drops) do
-        for _, item_stack in pairs(entry.drops) do
-          drop_pos = vector.add(
-            entry.pos,
-            vector.new(math.random(-8, 8) / 8.0, 0, math.random(-8, 8) / 8.0)
-          )
-          core.add_item(drop_pos, item_stack)
+      do
+        local falling_checks = {}
+        local vap
+        local npos
+        local hash
+        for vmi, _ in pairs(seen) do
+          vap = va:position(vmi)
+          for z = -1,1 do
+            for y = -1,1 do
+              for x = -1,1 do
+                npos = vector.new(vap.x + x, vap.y + y, vap.z + z)
+                hash = hash_node_position(npos)
+                if not falling_checks[hash] then
+                  falling_checks[hash] = true
+                  core.check_single_for_falling(npos)
+                end
+              end
+            end
+          end
+        end
+      end
+
+      do
+        local drop_pos
+        for _, entry in pairs(pending_drops) do
+          for _, item_stack in pairs(entry.drops) do
+            drop_pos = vector.add(
+              entry.pos,
+              vector.new(math.random(-8, 8) / 8.0, 0, math.random(-8, 8) / 8.0)
+            )
+            core.add_item(drop_pos, item_stack)
+          end
         end
       end
     end
