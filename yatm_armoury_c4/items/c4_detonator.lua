@@ -1,6 +1,7 @@
 local mod = assert(yatm_armoury_c4)
 
 local random_addr16 = assert(foundation.com.random_addr16)
+local init_radio_network_addr = assert(yatm_armoury_c4.init_radio_network_addr)
 
 mod:register_tool("c4_detonator", {
   description = mod.S("C4 Detonator"),
@@ -27,6 +28,7 @@ mod:register_tool("c4_detonator", {
 
         -- attempt to trigger its on_place
         if itemdef.on_place then
+          init_radio_network_addr(removed)
           local replacement, place_to = itemdef.on_place(removed, user, pointed_thing)
           if replacement then
             -- chances are the below should never trigger, since we took exactly 1 item

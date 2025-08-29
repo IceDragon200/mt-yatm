@@ -6,7 +6,7 @@ EMP blasts raycast to various `emp_target` nodes, they can be stopped by `em_ins
 --
 -- This is a quick snippet of an emp target node
 --
-minetest.register_node("mymod:my_emp_target", {
+core.register_node("mymod:my_emp_target", {
   ...
   groups = {
     ...
@@ -25,7 +25,7 @@ minetest.register_node("mymod:my_emp_target", {
 --
 -- This is a quick snippet of an em insulator node
 --
-minetest.register_node("mymod:my_emp_target", {
+core.register_node("mymod:my_emp_target", {
   ...
   groups = {
     ...

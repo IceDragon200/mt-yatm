@@ -7,27 +7,27 @@
   EMP explosions will raycast their way to a target and can be deflected.
 
 ]]
-foundation.new_module("yatm_blasts_emp", "0.2.0")
+local mod = foundation.new_module("yatm_blasts_emp", "0.2.0")
 
 local Groups = assert(foundation.com.Groups)
 
-local function handle_emp_target_node_at(self, pos, explosion)
-  local target_node = minetest.get_node_or_nil(pos)
+local function handle_emp_target_node_at(assigns, pos, explosion)
+  local target_node = core.get_node_or_nil(pos)
 
   if target_node then
-    local raycast = minetest.raycast(explosion.pos, pos, false, false)
+    local raycast = core.raycast(explosion.pos, pos, false, false)
     local blocked = false
     for _, pointed_thing in raycast do
       if pointed_thing.type == "node" then
         local int_pos = vector.floor(pointed_thing.intersection_point)
 
-        local node = minetest.get_node_or_nil(int_pos)
+        local node = core.get_node_or_nil(int_pos)
         if not node then
           -- can't continue for some reason
           blocked = true
           break
         end
-        local nodedef = minetest.registered_nodes[node.name]
+        local nodedef = core.registered_nodes[node.name]
 
         if Groups.has_group(nodedef, "em_insulator") then
           -- if it's an insulator, drop the ray
@@ -41,38 +41,44 @@ local function handle_emp_target_node_at(self, pos, explosion)
     if blocked then
       --
     else
-      local target_nodedef = minetest.registered_nodes[target_node.name]
+      local target_nodedef = core.registered_nodes[target_node.name]
       target_nodedef.on_emp_blast(pos, target_node, {
         pos = explosion.pos,
-        strength = self.strength
+        strength = assigns.strength
       })
     end
   end
 end
 
+local function init(self, assigns, system, explosion, params)
+  --
+  assigns.range = params.range or 3
+  assigns.strength = params.strength or 1
+end
+
+local function update(self, assigns, system, explosion, delta)
+  --
+  local minpos = vector.subtract(explosion.pos, assigns.range)
+  local maxpos = vector.add(explosion.pos, assigns.range)
+  local emp_targets = core.find_nodes_in_area_under_air(minpos, maxpos, {"group:emp_target"})
+
+  for _, pos in ipairs(emp_targets) do
+    handle_emp_target_node_at(assigns, pos, explosion)
+  end
+
+  explosion.expired = true
+end
+
+local function on_expired(self, assigns, system, explosion)
+  --
+end
+
 yatm.blasts.system:register_explosion_type("yatm:emp", {
   description = "YATM EMP Explosion",
 
-  init = function (self, system, explosion, params)
-    --
-    self.range = params.range or 3
-    self.strength = params.strength or 1
-  end,
+  init = init,
 
-  update = function (self, system, explosion, delta)
-    --
-    local minpos = vector.subtract(explosion.pos, self.range)
-    local maxpos = vector.add(explosion.pos, self.range)
-    local emp_targets = minetest.find_nodes_in_area_under_air(minpos, maxpos, {"group:emp_target"})
+  update = update,
 
-    for _, pos in ipairs(emp_targets) do
-      handle_emp_target_node_at(self, pos, explosion)
-    end
-
-    explosion.expired = true
-  end,
-
-  on_expired = function (self, system, explosion)
-    --
-  end,
+  on_expired = on_expired,
 })
