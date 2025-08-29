@@ -8,8 +8,6 @@ local MinHeap = assert(foundation.com.MinHeap)
 local RingBuffer = assert(foundation.com.RingBuffer)
 local hash_node_position = assert(core.hash_node_position)
 
-local MIN_INTEGER = math.mininteger or -0xFFFFFFFFFFFFFFF
-
 --- @namespace yatm_radio_network
 
 ---
@@ -23,7 +21,7 @@ do
   function ic:initialize()
     ic._super.initialize(self)
 
-    self.m_monotonic_time = MIN_INTEGER
+    self.m_monotonic_time = 0
 
     self.m_messages = RingBuffer:new()
     self.m_timers = MinHeap:new()
@@ -40,11 +38,16 @@ do
 
   --- @spec #update(dtime: Float): void
   function ic:update(dtime)
+    if dtime <= 0 then
+      return
+    end
+
     self.m_monotonic_time = self.m_monotonic_time + dtime
 
     local ts
     local addr
     local message
+    local metadata
     local msg_item
     local nodes
 
@@ -57,19 +60,31 @@ do
         self.m_messages:pop()
         addr = msg_item[2]
         message = msg_item[3]
+        metadata = msg_item[4]
         nodes = self.m_entries[addr]
         if nodes then
           for _id, entry in pairs(nodes) do
-            node = core.get_node(entry.pos)
-            nodedef = core.registered_nodes[node.name]
-            if nodedef then
-              if nodedef.radio_network then
-                nodedef.radio_network:on_message(pos, node, addr, message)
+            if entry.timer > self.m_monotonic_time then
+              node = core.get_node(entry.pos)
+              nodedef = core.registered_nodes[node.name]
+              if nodedef then
+                if nodedef.radio_network then
+                  print("info", string.format(
+                    "on_message %s, %s, %s, %s, %s",
+                    vector.to_string(entry.pos),
+                    node.name,
+                    addr,
+                    dump(message),
+                    dump(metadata)
+                  ))
+                  nodedef.radio_network:on_message(entry.pos, node, addr, message, metadata)
+                end
               end
             end
           end
         end
       else
+        print("too early", self.m_monotonic_time, ts)
         break
       end
     end
@@ -108,6 +123,7 @@ do
   --- @spec #subscribe_for_messages(pos: Vector3, addr: String, ttl: Number): void
   function ic:subscribe_for_messages(pos, addr, ttl)
     local id = hash_node_position(pos)
+    print("info", string.format("subscribing %s, %s, %s", id, addr, ttl))
     local addr = addr
     local timer = self.m_monotonic_time + ttl
 
@@ -118,11 +134,11 @@ do
       nodes = {}
       self.m_entries[addr] = nodes
     end
-    local entry = nodes[entry.id]
+    local entry = nodes[id]
     if entry then
       entry.timer = timer
     else
-      nodes[entry.id] = {
+      nodes[id] = {
         id = id,
         pos = Vector3.copy(pos),
         addr = addr,
@@ -133,6 +149,7 @@ do
 
   --- @spec #publish_message(addr: String, message: Any, meta?: Any): void
   function ic:publish_message(addr, message, meta)
+    print("info", string.format("queueing message %s, %s, %s", addr, dump(message), dump(meta)))
     self.m_messages:push({ self.m_monotonic_time, addr, message, meta })
   end
 end
