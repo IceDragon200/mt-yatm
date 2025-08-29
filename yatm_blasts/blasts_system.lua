@@ -117,7 +117,7 @@ do
     end
 
     if next(self.expired_explosions) then
-      for id, explosion in pairs(self.self.expired_explosions) do
+      for id, explosion in pairs(self.expired_explosions) do
         explosion_def = assert(self.explosion_types[explosion.kind])
 
         if explosion_def.on_expired then
