@@ -12,7 +12,8 @@ npo = nil
 local function on_detonate(pos, node)
   local meta = core.get_meta(pos)
   local owner_name, owner_type = get_meta_owner(meta)
-  yatm.blasts.system:create_explosion(pos, "yatm:explosive", {
+  print("action", "detonating %s, %s", vector.to_string(pos), node.name)
+  yatm.blasts.system:create_explosion(pos, "yatm:raycast_explosive", {
     can_ignite = true,
     ignore_protection = false,
     ignore_on_blast = false,
@@ -94,7 +95,7 @@ if foundation.is_module_present("yatm_radio_network") then
 
   local function refresh_infotext(pos, node)
     local nodedef = core.registered_nodes[node.name]
-    local meta = core.get_meta()
+    local meta = core.get_meta(pos)
     local addr = meta:get_string("radio_network_addr")
 
     local infotext =
@@ -114,6 +115,7 @@ if foundation.is_module_present("yatm_radio_network") then
 
   local function after_place_node(pos, user, item_stack, _pointed_thing)
     local meta = core.get_meta(pos)
+    local node = core.get_node(pos)
     local item_meta = item_stack:get_meta()
     local addr = item_meta:get("radio_network_addr")
     meta:set_string("radio_network_addr", addr)
@@ -121,6 +123,7 @@ if foundation.is_module_present("yatm_radio_network") then
       set_meta_owner(meta, user)
     end
     maybe_start_node_timer(pos, 1)
+    yatm.queue_refresh_infotext(pos, node)
     return nil
   end
 
