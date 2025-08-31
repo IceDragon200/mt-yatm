@@ -1,0 +1,225 @@
+return {
+  fields = {
+    new_module = {},
+    is_module_present = {},
+    com = {
+      fields = {
+        --
+        -- Namespaces
+        --
+        assertions = {
+          fields = {
+            is_number = {},
+            is_table = {},
+            is_string = {},
+          },
+        },
+        headless = {
+          fields = {
+            World = {
+              fields = {
+                new = {},
+              },
+            },
+            MetaDataRef = {
+              fields = {
+                new = {},
+              },
+            },
+          },
+        },
+        binary_types = {
+          fields = {
+            Enum = {},
+            BitFlags = {},
+            Bytes = {
+              fields = {
+                new = {},
+              },
+            },
+          },
+        },
+        --
+        -- Modules
+        --
+        bit = {},
+        Color = {
+          fields = {},
+        },
+        Cuboid = {
+          fields = {
+            new = {},
+          },
+        },
+        Directions = {
+          fields = {
+            invert_dir = {},
+            DIR6_TO_VEC3 = {},
+            DIR_TO_STRING = {},
+          },
+        },
+        Groups = {
+          fields = {},
+        },
+        InventorySerializer = {
+          fields = {
+            load_list = {},
+            dump_list = {},
+          },
+        },
+        Rect = {},
+        Vector2 = {},
+        Vector3 = {
+          fields = {
+            to_string = {},
+          },
+        },
+        Vector4 = {},
+        ByteBuf = {
+          fields = {
+            little = {},
+            big = {},
+          },
+        },
+        Symbols = {
+          fields = {
+            symbol_to_id = {},
+          },
+        },
+        Waves = {
+          fields = {},
+        },
+        formspec = {
+          fields = {
+            api = {
+            },
+            parser = {},
+          },
+        },
+
+        --
+        -- Classes
+        --
+        BinSchema = {
+          fields = {
+            new = {},
+          },
+        },
+        Class = {
+          fields = {
+            extends = {},
+          },
+        },
+        Luna = {
+          fields = {
+            new = {},
+          },
+        },
+        MetaSchema = {
+          fields = {
+            new = {},
+          },
+        },
+        List = {
+          fields = {
+            new = {},
+          },
+        },
+        RingBuffer = {
+          fields = {
+            new = {},
+          },
+        },
+        MinHeap = {
+          fields = {
+            new = {},
+          },
+        },
+        WeightedList = {
+          fields = {
+            new = {},
+          },
+        },
+        Trace = {
+          fields = {
+            new = {},
+          },
+        },
+        SoundsRegistry = {
+          fields = {
+            new = {},
+          },
+        },
+        --
+        -- Functions
+        --
+        ascii_pack = {},
+        ascii_unpack = {},
+        --
+        format_pretty_time = {},
+        --
+        is_blank = {},
+        is_table_empty = {},
+        --
+        itemstack_copy = {},
+        itemstack_inspect = {},
+        itemstack_is_blank = {},
+        itemstack_split = {},
+        set_itemstack_meta_description = {},
+        get_itemstack_description = {},
+        get_itemstack_item_description = {},
+        -- world
+        get_inventory_drops = {},
+        copy_node = {},
+        --
+        list_concat = {},
+        list_sample = {},
+        list_reduce = {},
+        list_sort = {},
+        list_map = {},
+        --
+        maybe_start_node_timer = {},
+        --
+        number_lerp = {},
+        number_round = {},
+        number_truncate = {},
+        number_truncate_by_sign = {},
+        --
+        random_string16 = {},
+        random_string32 = {},
+        random_string36 = {},
+        random_string62 = {},
+        random_addr16 = {},
+        --
+        make_string_ref = {},
+        string_starts_with = {},
+        string_ends_with = {},
+        string_hex_decode = {},
+        string_hex_encode = {},
+        string_hex_escape = {},
+        string_hex_unescape = {},
+        string_hex_pair_to_byte = {},
+        string_trim_leading = {},
+        string_pad_leading = {},
+        string_rsub = {},
+        string_split = {},
+        --
+        table_bury = {},
+        table_copy = {},
+        table_deep_copy = {},
+        table_deep_merge = {},
+        table_equals = {},
+        table_keys = {},
+        table_length = {},
+        table_merge = {},
+        table_put_new = {},
+        table_freeze = {},
+        table_sample = {},
+        --
+        path_basename = {},
+        path_dirname = {},
+        path_join = {},
+      },
+    },
+  },
+}
