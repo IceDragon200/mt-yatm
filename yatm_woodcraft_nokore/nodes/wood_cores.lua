@@ -78,7 +78,7 @@ for wood_basename, wood_config in pairs(wood_types) do
     "yatm_wood_core_nokore_" .. wood_config.default_basename .. ".side.png",
   }
 
-  minetest.register_node(":yatm_woodcraft:" .. wood_basename .. "_core", {
+  core.register_node(":yatm_woodcraft:" .. wood_basename .. "_core", {
     basename = "yatm_woodcraft:wood_core",
     base_description = mod.S("Tree Core"),
 

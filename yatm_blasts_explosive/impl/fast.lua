@@ -1,56 +1,27 @@
 local number_truncate = assert(foundation.com.number_truncate)
 local table_copy = assert(foundation.com.table_copy)
-local raycast = assert(core.raycast)
 local get_name_from_content_id = assert(core.get_name_from_content_id)
 local get_node_drops = assert(core.get_node_drops)
 local hash_node_position = assert(core.hash_node_position)
-local CONTENT_UNKNOWN = assert(core.CONTENT_UNKNOWN)
+-- local CONTENT_UNKNOWN = assert(core.CONTENT_UNKNOWN)
 local CONTENT_AIR = assert(core.CONTENT_AIR)
-local CONTENT_IGNORE = assert(core.CONTENT_IGNORE)
+-- local CONTENT_IGNORE = assert(core.CONTENT_IGNORE)
 
-local ZERO = vector.new(0, 0, 0)
-
---- @private.spec calculate_surface_points_of_voxel_sphere(radius: Number, tolerance: Number): (count: Integer, Vector3[])
-local function calculate_surface_points_of_voxel_sphere(radius, tolerance)
-  if radius <= 0 then
-    return {}
-  end
-  local min = -radius
-  local max = radius
-  local rmin = radius - 0.5
-  rmin = rmin * rmin
-  local rmax = radius + 0.5
-  rmax = rmax * rmax
-  local d
-
-  local result = {}
-  local i = 0
-
-  for z = min,max do
-    for y = min,max do
-      for x = min,max do
-        d = y * y + x * x + z * z
-
-        if d >= rmin and d <= rmax then
-          i = i + 1
-          result[i] = vector.new(x, y, z)
-        end
-      end
-    end
-  end
-
-  return i, result
-end
-
---- @private.spec init(ExplosionDef, assigns: Table, BlastsSystem, ExplosionInstance, params: Table): void
+--- @private.spec init(
+---   ExplosionDef,
+---   assigns: Table,
+---   BlastsSystem,
+---   ExplosionInstance,
+---   params: Table
+--- ): void
 local function init(self, assigns, system, explosion, params)
   -- whether or not the explosion checks flammable properties
   assigns.can_ignite = params.can_ignite
   if assigns.can_ignite == nil then
     assigns.can_ignite = true
   end
-  -- Either 'player', 'entity:NAME' to mean any entity by name, or 'system:NAME' to denote a specific
-  -- subsystem which generated the explosion
+  -- Either 'player', 'entity:NAME' to mean any entity by name,
+  -- or 'system:NAME' to denote a specific subsystem which generated the explosion.
   assigns.originator_type = params.originator
   -- The name of the player who caused the explosion
   assigns.originator = params.originator
@@ -83,7 +54,8 @@ local function init(self, assigns, system, explosion, params)
   -- but you could slow it down if you'd like
   assigns.speed = params.speed or 6900
   --
-  assert(assigns.speed > 0, "we cant have a fixture of an explosion, what kind of boring spectacle is that!?")
+  assert(assigns.speed > 0,
+    "we cant have a fixture of an explosion, what kind of boring spectacle is that!?")
 
   assigns.elapsed = 0
 end
@@ -257,7 +229,7 @@ local function update(self, assigns, system, explosion, dtime)
   for _, entry in pairs(on_explosion_queue) do
     nodedef = entry.nodedef
 
-    dist = math.max(1, vector.dist(entry.pos, explosion.pos))
+    dist = math.max(1, vector.distance(entry.pos, explosion.pos))
     intensity = assigns.intensity * ((assigns.max_range * assigns.max_range) / (dist * dist))
     if nodedef.on_explosion then
       node_drops = nodedef.on_explosion(entry.pos, entry.node, explosion, intensity)

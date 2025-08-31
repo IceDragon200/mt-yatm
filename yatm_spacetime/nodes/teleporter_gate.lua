@@ -15,7 +15,7 @@ local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
 local table_merge = assert(foundation.com.table_merge)
 local RingBuffer = assert(foundation.com.RingBuffer)
 local Vector3 = assert(foundation.com.Vector3)
-local hash_node_position = assert(minetest.hash_node_position)
+local hash_node_position = assert(core.hash_node_position)
 local number_round = assert(foundation.com.number_round)
 local spacetime_network = assert(yatm.spacetime.network)
 
@@ -31,7 +31,7 @@ local groups = {
 
 --- @spec refresh_infotext(Vector3, NodeRef): void
 local function refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n"
@@ -69,9 +69,9 @@ local function find_teleporter_gate_sections(origin_pos)
     if not visited[hash] then
       visited[hash] = true
 
-      node = minetest.get_node_or_nil(pos)
+      node = core.get_node_or_nil(pos)
       if node then
-        nodedef = minetest.registered_nodes[node.name]
+        nodedef = core.registered_nodes[node.name]
         if nodedef then
           if Groups.has_group(nodedef, "teleporter_gate") then
             teleporter_gate = nodedef.teleporter_gate
@@ -397,7 +397,7 @@ local function solve_teleporter_gate(origin_pos)
       param1 = entry.node.param1,
       param2 = entry.node.param2,
     }
-    minetest.swap_node(entry.pos, new_node)
+    core.swap_node(entry.pos, new_node)
   end
 
   return true
@@ -412,13 +412,13 @@ local function transition_device_state(pos, node, state)
 end
 
 local function on_construct(pos)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   yatm.cluster.gate:schedule_add_node(pos, node)
   yatm.devices.device_on_construct(pos)
 end
 
 local function on_destruct(pos)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   yatm.cluster.gate:schedule_remove_node(pos, node)
   yatm.devices.device_on_destruct(pos)
 end
@@ -428,10 +428,10 @@ local function on_player_standing_in(pos, node, player, elapsed)
   if elapsed > 1 then
     local controller_entry = cluster_gate:get_controller_at(pos)
     if controller_entry then
-      local meta = minetest.get_meta(controller_entry.pos)
+      local meta = core.get_meta(controller_entry.pos)
       local address = SpacetimeMeta.get_address(meta)
       if not is_blank(address) then
-        local hash = minetest.hash_node_position(controller_entry.pos)
+        local hash = core.hash_node_position(controller_entry.pos)
         local other_controllers = {}
 
         spacetime_network:each_member_in_group_by_address(
@@ -490,11 +490,11 @@ local function on_player_standing_in(pos, node, player, elapsed)
             local z = number_round(z1 + (z2 - z1) / 2)
 
             local dest_pos = vector.new(x, y, z)
-            local node = minetest.get_node_or_nil(controller_entry.pos)
+            local node = core.get_node_or_nil(controller_entry.pos)
             local new_dir = Directions.facedir_to_face(node.param2, Directions.D_NORTH)
             local offset = Directions.DIR6_TO_VEC3[new_dir]
             new_dir = Directions.facedir_to_face(node.param2, Directions.D_SOUTH)
-            local yaw = minetest.dir_to_yaw(Directions.DIR6_TO_VEC3[new_dir])
+            local yaw = core.dir_to_yaw(Directions.DIR6_TO_VEC3[new_dir])
 
             if player:is_player() then
               local meta = player:get_meta()

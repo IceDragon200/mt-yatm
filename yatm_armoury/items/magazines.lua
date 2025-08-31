@@ -24,7 +24,7 @@
 --
 -- 9x19mm
 --
-minetest.register_tool("yatm_armoury:magazine_box_9x19mm", {
+core.register_tool("yatm_armoury:magazine_box_9x19mm", {
   description = "AMS Magazine 9x19mm",
 
   groups = {
@@ -43,7 +43,7 @@ minetest.register_tool("yatm_armoury:magazine_box_9x19mm", {
   inventory_image = "yatm_magazines_box_9x19mm.png",
 })
 
-minetest.register_tool("yatm_armoury:magazine_drum_9x19mm", {
+core.register_tool("yatm_armoury:magazine_drum_9x19mm", {
   description = "AMS Drum Magazine 9x19mm",
 
   groups = {
@@ -62,7 +62,7 @@ minetest.register_tool("yatm_armoury:magazine_drum_9x19mm", {
   inventory_image = "yatm_magazines_drum_9x19mm.png",
 })
 
-minetest.register_tool("yatm_armoury:magazine_belt_9x19mm", {
+core.register_tool("yatm_armoury:magazine_belt_9x19mm", {
   description = "AMS Cartridge Belt 9x19mm",
 
   groups = {
@@ -84,7 +84,7 @@ minetest.register_tool("yatm_armoury:magazine_belt_9x19mm", {
 --
 -- 5.56x45mm
 --
-minetest.register_tool("yatm_armoury:magazine_box_5p56x45mm", {
+core.register_tool("yatm_armoury:magazine_box_5p56x45mm", {
   description = "AMS Magazine 5.56x45mm",
 
   groups = {
@@ -103,7 +103,7 @@ minetest.register_tool("yatm_armoury:magazine_box_5p56x45mm", {
   inventory_image = "yatm_magazines_box_5p56x45mm.png",
 })
 
-minetest.register_tool("yatm_armoury:magazine_drum_5p56x45mm", {
+core.register_tool("yatm_armoury:magazine_drum_5p56x45mm", {
   description = "AMS Drum Magazine 5.56x45mm",
 
   groups = {
@@ -122,7 +122,7 @@ minetest.register_tool("yatm_armoury:magazine_drum_5p56x45mm", {
   inventory_image = "yatm_magazines_drum_5p56x45mm.png",
 })
 
-minetest.register_tool("yatm_armoury:magazine_belt_5p56x45mm", {
+core.register_tool("yatm_armoury:magazine_belt_5p56x45mm", {
   description = "AMS Cartridge Belt 5.56x45mm",
 
   groups = {
@@ -144,7 +144,7 @@ minetest.register_tool("yatm_armoury:magazine_belt_5p56x45mm", {
 --
 -- 7.62x51mm
 --
-minetest.register_tool("yatm_armoury:magazine_box_7p62x51mm", {
+core.register_tool("yatm_armoury:magazine_box_7p62x51mm", {
   description = "AMS Magazine 7.62x51mm",
 
   groups = {
@@ -163,7 +163,7 @@ minetest.register_tool("yatm_armoury:magazine_box_7p62x51mm", {
   inventory_image = "yatm_magazines_box_7p62x51mm.png",
 })
 
-minetest.register_tool("yatm_armoury:magazine_drum_7p62x51mm", {
+core.register_tool("yatm_armoury:magazine_drum_7p62x51mm", {
   description = "AMS Drum Magazine 7.62x51mm",
 
   groups = {
@@ -182,7 +182,7 @@ minetest.register_tool("yatm_armoury:magazine_drum_7p62x51mm", {
   inventory_image = "yatm_magazines_drum_7p62x51mm.png",
 })
 
-minetest.register_tool("yatm_armoury:magazine_belt_7p62x51mm", {
+core.register_tool("yatm_armoury:magazine_belt_7p62x51mm", {
   description = "AMS Cartridge Belt 7.62x51mm",
 
   groups = {
@@ -204,7 +204,7 @@ minetest.register_tool("yatm_armoury:magazine_belt_7p62x51mm", {
 --
 -- 12.7x99mm
 --
-minetest.register_tool("yatm_armoury:magazine_box_12p7x99mm", {
+core.register_tool("yatm_armoury:magazine_box_12p7x99mm", {
   description = "AMS Magazine 12.7x99mm",
 
   groups = {
@@ -223,7 +223,7 @@ minetest.register_tool("yatm_armoury:magazine_box_12p7x99mm", {
   inventory_image = "yatm_magazines_box_12p7x99mm.png",
 })
 
-minetest.register_tool("yatm_armoury:magazine_drum_12p7x99mm", {
+core.register_tool("yatm_armoury:magazine_drum_12p7x99mm", {
   description = "AMS Drum Magazine 12.7x99mm",
 
   groups = {
@@ -242,7 +242,7 @@ minetest.register_tool("yatm_armoury:magazine_drum_12p7x99mm", {
   inventory_image = "yatm_magazines_drum_12p7x99mm.png",
 })
 
-minetest.register_tool("yatm_armoury:magazine_belt_12p7x99mm", {
+core.register_tool("yatm_armoury:magazine_belt_12p7x99mm", {
   description = "AMS Cartridge Belt 12.7x99mm",
 
   groups = {
@@ -270,7 +270,7 @@ minetest.register_tool("yatm_armoury:magazine_belt_12p7x99mm", {
 --
 -- 25x137mm
 --
-minetest.register_tool("yatm_armoury:magazine_belt_25x137mm", {
+core.register_tool("yatm_armoury:magazine_belt_25x137mm", {
   description = "AMS Cartridge Belt 25x137mm",
 
   groups = {
@@ -292,7 +292,7 @@ minetest.register_tool("yatm_armoury:magazine_belt_25x137mm", {
 --
 -- 30x173mm
 --
-minetest.register_tool("yatm_armoury:magazine_belt_30x173mm", {
+core.register_tool("yatm_armoury:magazine_belt_30x173mm", {
   description = "AMS Cartridge Belt 30x173mm",
 
   groups = {

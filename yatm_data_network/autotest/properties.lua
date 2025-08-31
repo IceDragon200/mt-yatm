@@ -1,5 +1,6 @@
 local Vector3 = assert(foundation.com.Vector3)
 local fparser = assert(foundation.com.formspec.parser)
+local set_node = assert(tetra.set_node)
 
 local function refresh_formspec_tabs(state)
   local form = assert(get_player_current_formspec(state.player:get_player_name()))
@@ -49,11 +50,12 @@ end
 yatm_data_network.autotest_suite:define_property("load_test", {
   description = "load_test",
   detail = [[
-  Not so much a property, but rather a massive test suite that will try to benchmark network behaviour
+  Not so much a property, but rather a massive test suite that will try to
+  benchmark network behaviour.
   ]],
 
   setup = function (suite, state)
-    local player = assert(minetest.get_player_by_name("singleplayer"))
+    local player = assert(core.get_player_by_name("singleplayer"))
 
     state.player = player
 
@@ -91,17 +93,17 @@ yatm_data_network.autotest_suite:define_property("load_test", {
       local point = Point(state.pos.x, state.pos.y, state.pos.z)
 
       --- Setup network
-      minetest.set_node(point:to_vector3(), pulser_node)
+      set_node(point:to_vector3(), pulser_node)
       point:east()
-      minetest.set_node(point:to_vector3(), cable_bus_node)
+      set_node(point:to_vector3(), cable_bus_node)
       point:east()
-      minetest.set_node(point:to_vector3(), cable_node)
+      set_node(point:to_vector3(), cable_node)
       point:east()
-      minetest.set_node(point:to_vector3(), cable_node)
+      set_node(point:to_vector3(), cable_node)
       point:east()
-      minetest.set_node(point:to_vector3(), cable_bus_node)
+      set_node(point:to_vector3(), cable_bus_node)
       point:east()
-      minetest.set_node(point:to_vector3(), lamp_node)
+      set_node(point:to_vector3(), lamp_node)
 
       suite:yield()
 

@@ -5,10 +5,11 @@ local is_empty = assert(foundation.com.is_table_empty)
 local Vector3 = assert(foundation.com.Vector3)
 local DIR6_TO_VEC3 = assert(foundation.com.Directions.DIR6_TO_VEC3)
 local invert_dir = assert(foundation.com.Directions.invert_dir)
+local hash_node_position = assert(core.hash_node_position)
+local get_node = assert(core.get_node)
 
 function yatm_clusters.explore_nodes(origin, acc, reducer)
   local seen = {}
-  local hash_node_position = minetest.hash_node_position
 
   local to_visit = {}
   to_visit[hash_node_position(origin)] = origin
@@ -21,7 +22,7 @@ function yatm_clusters.explore_nodes(origin, acc, reducer)
       local hash = hash_node_position(pos4)
       if not seen[hash] then
         seen[hash] = true
-        local node = minetest.get_node(pos4)
+        local node = get_node(pos4)
 
         local accessible_dirs = {}
         local explore_neighbours

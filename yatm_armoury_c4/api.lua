@@ -17,7 +17,7 @@ end
 --- @spec init_item_stack_radio_network_addr(item_stack: ItemStack): ItemStack
 function mod.init_item_stack_radio_network_addr(item_stack)
   local meta = item_stack:get_meta()
-  init_meta_radio_network_addr(meta)
+  mod.init_meta_radio_network_addr(meta)
   return item_stack
 end
 

@@ -49,7 +49,7 @@ do
       trip_node = 1,
     },
 
-    paramtype = "none",
+    paramtype = "light",
     paramtype2 = "facedir",
 
     drawtype = "nodebox",
@@ -144,7 +144,7 @@ if foundation.is_module_present("yatm_radio_network") then
       remote_operated = 1,
     },
 
-    paramtype = "none",
+    paramtype = "light",
     paramtype2 = "facedir",
 
     drawtype = "nodebox",

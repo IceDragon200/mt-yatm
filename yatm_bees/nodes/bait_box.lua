@@ -19,8 +19,8 @@ end)
 local function render_formspec(pos, user, _state)
   assert(user, "expected a user")
 
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
+  local node = core.get_node(pos)
+  local nodedef = core.registered_nodes[node.name]
 
   local cio = fspec.calc_inventory_offset
 
@@ -55,7 +55,7 @@ local function render_formspec(pos, user, _state)
 end
 
 local function on_construct(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   -- Some bait
@@ -69,7 +69,7 @@ local function on_construct(pos)
 end
 
 local function on_timer(pos, elapsed)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   -- calculate the total elapsed time
@@ -141,7 +141,7 @@ local function on_rightclick(pos, node, user)
 end
 
 local function can_dig(pos, player)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   return inv:is_empty("bees_slot") and

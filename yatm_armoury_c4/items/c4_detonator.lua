@@ -1,6 +1,5 @@
 local mod = assert(yatm_armoury_c4)
 
-local random_addr16 = assert(foundation.com.random_addr16)
 local init_meta_radio_network_addr = assert(yatm_armoury_c4.init_meta_radio_network_addr)
 local copy_meta_radio_network_addr = assert(yatm_armoury_c4.copy_meta_radio_network_addr)
 local get_item_stack_radio_network_addr = assert(yatm_armoury_c4.get_item_stack_radio_network_addr)
@@ -80,7 +79,7 @@ mod:register_tool("c4_detonator", {
       radio_network:publish_message(addr, message, { player_name = player_name })
       core.log("action", string.format("%s triggered detonator for %s", player_name, addr))
     else
-      -- TODO: maybe tell the player nothing happened
+      core.log("info", "attempted to detonate c4s ... but nothing happened")
     end
     return nil
   end,

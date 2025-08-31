@@ -1,7 +1,7 @@
-local hash_node_position = assert(minetest.hash_node_position)
+local hash_node_position = assert(core.hash_node_position)
 
 local function set_node_to_air(pos)
-  minetest.set_node(pos, { name = "air" })
+  core.set_node(pos, { name = "air" })
 end
 
 local function random_pos()
@@ -25,7 +25,7 @@ yatm_security.autotest_suite:define_property("is_secure_box", {
   ]],
 
   setup = function (suite, state)
-    local player = assert(minetest.get_player_by_name("singleplayer"))
+    local player = assert(core.get_player_by_name("singleplayer"))
 
     state.player = player
 
@@ -36,7 +36,7 @@ yatm_security.autotest_suite:define_property("is_secure_box", {
     state.pos = random_pos()
     suite:clear_test_area(state.pos)
     state.node_id = hash_node_position(state.pos)
-    minetest.set_node(state.pos, assert(state.node))
+    core.set_node(state.pos, assert(state.node))
 
     suite.utils.wait_for_next_tick_on_clusters(suite, state, 2.0)
 

@@ -36,7 +36,7 @@ local yatm_network = {
 
 --- @spec refresh_infotext(Vector3, NodeRef): void
 local function refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n"
@@ -50,19 +50,19 @@ end
 
 --- @spec on_construct(Vector3): void
 local function on_construct(pos)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   cluster_gate:schedule_add_node(pos, node)
   yatm.devices.device_on_construct(pos)
 end
 
 --- @spec after_place_node(Vector3, PlayerRef, ItemStack, PointedThing): void
 local function after_place_node(pos, user, item_stack, pointed_thing)
-  local new_meta = minetest.get_meta(pos)
+  local new_meta = core.get_meta(pos)
   local old_meta = item_stack:get_meta()
 
   SpacetimeMeta.copy_address(old_meta, new_meta)
   local address = SpacetimeMeta.patch_address(new_meta)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   spacetime_network:maybe_register_node(pos, node)
 
   yatm.devices.device_after_place_node(pos, user, item_stack, pointed_thing)
@@ -72,7 +72,7 @@ end
 
 --- @spec on_destruct(Vector3): void
 local function on_destruct(pos)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   spacetime_network:unregister_device(pos)
   cluster_gate:schedule_remove_node(pos, node)
   yatm.devices.device_on_destruct(pos)
@@ -94,11 +94,11 @@ end
 
 --- @spec change_spacetime_address(pos: Vector3, NodeRef, new_address: String): String
 local function change_spacetime_address(pos, node, new_address)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   SpacetimeMeta.set_address(meta, new_address)
 
-  local nodedef = minetest.registered_nodes[node.name]
+  local nodedef = core.registered_nodes[node.name]
   local new_node = table_copy(node)
   if is_blank(new_address) then
     new_node.name = assert(nodedef.yatm_network.states.idle)
@@ -107,7 +107,7 @@ local function change_spacetime_address(pos, node, new_address)
   end
 
   if new_node.name ~= node.name then
-    minetest.swap_node(pos, new_node)
+    core.swap_node(pos, new_node)
     spacetime_network:maybe_update_node(pos, new_node)
   end
   yatm.queue_refresh_infotext(pos, new_node)

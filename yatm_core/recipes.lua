@@ -1,4 +1,4 @@
-minetest.register_craft({
+core.register_craft({
   output = "yatm_core:dust_bronze 4",
   type = "shapeless",
   recipe = {
@@ -9,7 +9,7 @@ minetest.register_craft({
   }
 })
 
-minetest.register_craft({
+core.register_craft({
   output = "yatm_core:dust_electrum 2",
   type = "shapeless",
   recipe = {

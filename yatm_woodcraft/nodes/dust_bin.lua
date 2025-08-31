@@ -21,35 +21,35 @@ function item_interface:allow_insert_item(pos, dir, item_stack)
 end
 
 function item_interface:on_insert_item(pos, dir, item_stack)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   if not inv:is_empty("main") then
-    local node = minetest.get_node(pos)
+    local node = core.get_node(pos)
     local new_name = "yatm_woodcraft:dust_bin_sawdust"
     if new_name ~= node.name then
       node.name = new_name
-      minetest.swap_node(pos, node)
+      core.swap_node(pos, node)
     end
   end
 end
 
 function item_interface:on_extract_item(pos, dir, count_or_item_stack)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   if inv:is_empty("main") then
-    local node = minetest.get_node(pos)
+    local node = core.get_node(pos)
     local new_name = "yatm_woodcraft:dust_bin_empty"
     if new_name ~= node.name then
       node.name = new_name
-      minetest.swap_node(pos, node)
+      core.swap_node(pos, node)
     end
   end
 end
 
 local function on_construct(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   inv:set_size("main", 9)

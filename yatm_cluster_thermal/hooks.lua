@@ -20,7 +20,7 @@ yatm.cluster_tool.register_cluster_tool_render(
   yatm.cluster.thermal:method("cluster_tool_render")
 )
 
-minetest.register_lbm({
+core.register_lbm({
   name = "yatm_cluster_thermal:cluster_device_lbm",
 
   nodenames = {

@@ -5,7 +5,7 @@ local table_length = assert(foundation.com.table_length)
 local table_merge = assert(foundation.com.table_merge)
 
 local function refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local available_heat = meta:get_float("heat")
 
   local infotext =
@@ -25,12 +25,12 @@ local function refresh_infotext(pos, node)
 
   if node.name ~= new_name then
     node.name = new_name
-    minetest.swap_node(pos, node)
+    core.swap_node(pos, node)
   end
 end
 
 local function get_thermal_node_formspec(pos, player, assigns)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
   local background_type
@@ -55,11 +55,11 @@ local function get_thermal_node_formspec(pos, player, assigns)
 end
 
 local function receive_fields(player, formname, fields, assigns)
-  local meta = minetest.get_meta(assigns.pos)
+  local meta = core.get_meta(assigns.pos)
   if fields["heat"] then
     local heat = tonumber(fields["heat"]) or 0.0
     meta:set_float("heat", heat)
-    yatm.queue_refresh_infotext(assigns.pos, minetest.get_node(assigns.pos))
+    yatm.queue_refresh_infotext(assigns.pos, core.get_node(assigns.pos))
     return true, get_thermal_node_formspec(assigns.pos, player, assigns)
   end
   return true
@@ -101,7 +101,7 @@ yatm.register_stateful_node(mod:make_name("thermal_node"), {
   },
 
   on_construct = function (pos)
-    local node = minetest.get_node(pos)
+    local node = core.get_node(pos)
 
     cluster_thermal:schedule_add_node(pos, node)
   end,
@@ -113,7 +113,7 @@ yatm.register_stateful_node(mod:make_name("thermal_node"), {
   on_rightclick = function (pos, node, player)
     local assigns = { pos = pos, node = node }
     local formspec = get_thermal_node_formspec(pos, player, assigns)
-    local formspec_name = "yatm_thermal_ducts:thermal_node:" .. minetest.pos_to_string(pos)
+    local formspec_name = "yatm_thermal_ducts:thermal_node:" .. core.pos_to_string(pos)
 
     nokore.formspec_bindings:show_formspec(player:get_player_name(), formspec_name, formspec, {
       state = assigns,
@@ -127,7 +127,7 @@ yatm.register_stateful_node(mod:make_name("thermal_node"), {
     },
 
     get_heat = function (self, pos, node)
-      local meta = minetest.get_meta(pos)
+      local meta = core.get_meta(pos)
       return meta:get_float("heat")
     end,
   },

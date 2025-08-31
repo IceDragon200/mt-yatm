@@ -14,8 +14,10 @@ local string_hex_escape = assert(foundation.com.string_hex_escape)
 local data_network = assert(yatm.data_network)
 local ByteEncoder = assert(yatm.ByteEncoder)
 local BELE = assert(ByteEncoder.LE)
+local get_node = assert(tetra.get_node)
+local get_meta = assert(tetra.get_meta)
 
-minetest.register_node("yatm_data_logic:data_proximity_sensor", {
+core.register_node("yatm_data_logic:data_proximity_sensor", {
   description = "DATA Proximity Sensor\nDetects nearby entities.",
 
   codex_entry_id = "yatm_data_logic:data_proximity_sensor",
@@ -50,7 +52,7 @@ minetest.register_node("yatm_data_logic:data_proximity_sensor", {
   },
 
   on_construct = function (pos)
-    local node = minetest.get_node(pos)
+    local node = get_node(pos)
     data_network:add_node(pos, node)
   end,
 
@@ -66,7 +68,7 @@ minetest.register_node("yatm_data_logic:data_proximity_sensor", {
   },
   data_interface = {
     update = function (self, pos, node, dtime)
-      local meta = minetest.get_meta(pos)
+      local meta = get_meta(pos)
 
       local time = meta:get_float("time")
       time = time - dtime
@@ -74,7 +76,7 @@ minetest.register_node("yatm_data_logic:data_proximity_sensor", {
       if time <= 0 then
         time = time + 1
 
-        local objects = minetest.get_objects_inside_radius(pos, 32)
+        local objects = core.get_objects_inside_radius(pos, 32)
 
         local obj = objects[1]
 
@@ -107,12 +109,24 @@ minetest.register_node("yatm_data_logic:data_proximity_sensor", {
         meta:set_int("last_hp", hp)
         meta:set_string("last_name", name)
 
-        yatm_data_logic.emit_matrix_port_value(pos, "port", "exists", string_hex_escape(BELE:e_u8(exists)))
-        yatm_data_logic.emit_matrix_port_value(pos, "port", "x", string_hex_escape(BELE:e_i16(x)))
-        yatm_data_logic.emit_matrix_port_value(pos, "port", "y", string_hex_escape(BELE:e_i16(y)))
-        yatm_data_logic.emit_matrix_port_value(pos, "port", "z", string_hex_escape(BELE:e_i16(z)))
-        yatm_data_logic.emit_matrix_port_value(pos, "port", "hp", string_hex_escape(BELE:e_u16(hp)))
-        yatm_data_logic.emit_matrix_port_value(pos, "port", "name", name)
+        yatm_data_logic.emit_matrix_port_value(
+          pos, "port", "exists", string_hex_escape(BELE:e_u8(exists))
+        )
+        yatm_data_logic.emit_matrix_port_value(
+          pos, "port", "x", string_hex_escape(BELE:e_i16(x))
+        )
+        yatm_data_logic.emit_matrix_port_value(
+          pos, "port", "y", string_hex_escape(BELE:e_i16(y))
+        )
+        yatm_data_logic.emit_matrix_port_value(
+          pos, "port", "z", string_hex_escape(BELE:e_i16(z))
+        )
+        yatm_data_logic.emit_matrix_port_value(
+          pos, "port", "hp", string_hex_escape(BELE:e_u16(hp))
+        )
+        yatm_data_logic.emit_matrix_port_value(
+          pos, "port", "name", name
+        )
 
         yatm.queue_refresh_infotext(pos, node)
       end
@@ -130,7 +144,7 @@ minetest.register_node("yatm_data_logic:data_proximity_sensor", {
 
     get_programmer_formspec = function (self, pos, user, pointed_thing, assigns)
       --
-      local meta = minetest.get_meta(pos)
+      local meta = get_meta(pos)
 
       local formspec =
         yatm_data_logic.layout_formspec() ..
@@ -154,7 +168,7 @@ minetest.register_node("yatm_data_logic:data_proximity_sensor", {
     end,
 
     receive_programmer_fields = function (self, player, form_name, fields, assigns)
-      local meta = minetest.get_meta(assigns.pos)
+      local meta = get_meta(assigns.pos)
 
       local needs_refresh = true
 
@@ -173,7 +187,7 @@ minetest.register_node("yatm_data_logic:data_proximity_sensor", {
   },
 
   refresh_infotext = function (pos)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     local vec = vector.new(meta:get_int("last_x"), meta:get_int("last_y"), meta:get_int("last_z"))
     local exists_str
     if meta:get_int("last_exists") > 0 then

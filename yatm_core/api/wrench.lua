@@ -84,7 +84,7 @@ end
 -- @mutative
 -- @spec calc_rotate_node(rotate_type: ROTATE_AXIS | ROTATE_FACE, pos: Vector3, node: Node, reverse: Boolean): Node | nil
 function yatm.wrench.calc_rotate_node(rotate_type, pos, node, reversed)
-  local nodedef = minetest.registered_nodes[node.name]
+  local nodedef = core.registered_nodes[node.name]
 
   if nodedef.calc_rotate_node == false then
     return nil
@@ -108,7 +108,7 @@ end
 --
 -- @spec rotate_node(pos: Vector3, new_node: Node, old_node: Node): Boolean
 function yatm.wrench.do_rotate_node(pos, new_node, old_node)
-  local nodedef = minetest.registered_nodes[old_node.name]
+  local nodedef = core.registered_nodes[old_node.name]
 
   local do_rotate_node = nodedef.do_rotate_node
 
@@ -117,7 +117,7 @@ function yatm.wrench.do_rotate_node(pos, new_node, old_node)
   elseif type(do_rotate_node) == "function" then
     return do_rotate_node(pos, new_node, old_node)
   else
-    minetest.swap_node(pos, new_node)
+    core.swap_node(pos, new_node)
     return true
   end
 
@@ -125,7 +125,7 @@ function yatm.wrench.do_rotate_node(pos, new_node, old_node)
 end
 
 function yatm.wrench.after_rotate_node(pos, node)
-  local nodedef = minetest.registered_nodes[node.name]
+  local nodedef = core.registered_nodes[node.name]
 
   local after_rotate_node = nodedef.after_rotate_node
 
@@ -148,7 +148,7 @@ function yatm.wrench.rotate_node(rotate_type, pos, node, reversed)
 end
 
 function yatm.wrench.rotate_node_at_pos(rotate_type, pos, reversed)
-  local node = minetest.get_node_or_nil(pos)
+  local node = core.get_node_or_nil(pos)
   if node then
     return yatm.wrench.rotate_node(rotate_type, pos, node, reversed)
   end
@@ -162,8 +162,8 @@ function yatm.wrench.user_rotate_node_at_pos(user, rotate_type, pos, reversed)
     player_name = user:get_player_name()
   end
 
-  if minetest.is_protected(pos, player_name) then
-    minetest.record_protection_violation(pos, player_name)
+  if core.is_protected(pos, player_name) then
+    core.record_protection_violation(pos, player_name)
     return false
   end
 

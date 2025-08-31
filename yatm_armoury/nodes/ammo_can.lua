@@ -4,7 +4,7 @@ local fspec = assert(foundation.com.formspec.api)
 local is_stack_cartridge = assert(yatm_armoury.is_stack_cartridge)
 local InventorySerializer = assert(foundation.com.InventorySerializer)
 
-function get_ammo_can_formspec(pos, entity)
+local function get_ammo_can_formspec(pos, entity)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
   local hotbar_size = yatm.get_player_hotbar_size(entity)
@@ -29,7 +29,21 @@ function item_interface:allow_insert_item(pos, dir, item_stack)
   return is_stack_cartridge(item_stack)
 end
 
-minetest.register_node("yatm_armoury:ammo_can", {
+local function on_construct(pos)
+  local meta = core.get_meta(pos)
+
+  local inv = meta:get_inventory()
+
+  inv:set_size("main", 12*4)
+end
+
+local function allow_metadata_inventory_move(
+  pos, from_list, from_index, to_list, to_index, count, player
+)
+  return 0
+end
+
+core.register_node("yatm_armoury:ammo_can", {
   codex_entry_id = "yatm_armoury:ammo_can",
 
   basename = "yatm_armoury:ammo_can",
@@ -77,23 +91,17 @@ minetest.register_node("yatm_armoury:ammo_can", {
     secondary = "inventory"
   },
 
-  on_construct = function (pos)
-    local meta = minetest.get_meta(pos)
-
-    local inv = meta:get_inventory()
-
-    inv:set_size("main", 12*4)
-  end,
+  on_construct = on_construct,
 
   after_place_node = function (pos, placer, item_stack, pointed_thing)
-    local new_meta = minetest.get_meta(pos)
+    local new_meta = core.get_meta(pos)
     local old_meta = item_stack:get_meta()
 
     local new_inv = new_meta:get_inventory()
 
     local old_inv_list = old_meta:get_string("inventory_dump")
     if not is_blank(old_inv_list) then
-      local dumped = minetest.deserialize(old_inv_list)
+      local dumped = core.deserialize(old_inv_list)
       local list = new_inv:get_list("main")
       list = InventorySerializer.load_list(dumped, list)
       new_inv:set_list("main", list)
@@ -103,7 +111,7 @@ minetest.register_node("yatm_armoury:ammo_can", {
   preserve_metadata = function (pos, _old_node, _old_meta_table, drops)
     local stack = drops[1]
 
-    local old_meta = minetest.get_meta(pos)
+    local old_meta = core.get_meta(pos)
     local new_meta = stack:get_meta()
 
     local old_inv = old_meta:get_inventory()
@@ -112,30 +120,28 @@ minetest.register_node("yatm_armoury:ammo_can", {
     local dumped = InventorySerializer.dump_list(list)
 
     --print("preserve_metadata", dump(dumped))
-    new_meta:set_string("inventory_dump", minetest.serialize(dumped))
+    new_meta:set_string("inventory_dump", core.serialize(dumped))
     local description = "Ammo Can (" .. InventorySerializer.description(dumped) .. ")"
     new_meta:set_string("description", description)
   end,
 
   on_blast = function (pos)
     local drops = {}
-    drops[1] = "default:" .. name
+    drops[1] = "yatm_armoury:ammo_can"
     foundation.com.get_inventory_drops(pos, "main", drops)
-    minetest.remove_node(pos)
+    core.remove_node(pos)
     return drops
   end,
 
   on_rightclick = function (pos, node, clicker)
-    minetest.show_formspec(
+    core.show_formspec(
       clicker:get_player_name(),
       "yatm_armoury:ammo_can",
       get_ammo_can_formspec(pos, clicker)
     )
   end,
 
-  allow_metadata_inventory_move = function (pos, from_list, from_index, to_list, to_index, count, player)
-    return 0
-  end,
+  allow_metadata_inventory_move = allow_metadata_inventory_move,
 
   allow_metadata_inventory_put = function (pos, listname, index, stack, player)
     if listname == "main" then

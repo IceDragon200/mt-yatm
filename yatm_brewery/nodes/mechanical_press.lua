@@ -33,7 +33,7 @@ end
 local function add_plunger_entity(pos)
   local plunger_id = core.hash_node_position(pos)
 
-  core.add_entity(pos, plunger_entity_name, minetest.write_json({
+  core.add_entity(pos, plunger_entity_name, core.write_json({
     plunger_pos = pos,
     plunger_id = plunger_id,
   }))
@@ -197,7 +197,7 @@ core.register_entity(plunger_entity_name, {
   end,
 
   on_activate = function(self, static_data)
-    local data = minetest.parse_json(static_data)
+    local data = core.parse_json(static_data)
 
     self.plunger_id = data.plunger_id
     self.plunger_pos = data.plunger_pos
@@ -214,7 +214,7 @@ core.register_entity(plunger_entity_name, {
       plunger_id = self.plunger_id,
       plunger_pos = self.plunger_pos,
     }
-    return minetest.write_json(data)
+    return core.write_json(data)
   end,
 
   refresh = function (self)

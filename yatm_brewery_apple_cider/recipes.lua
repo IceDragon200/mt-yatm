@@ -22,5 +22,5 @@ aging_registry:register_aging_recipe(mod:make_name("aged_apple_cider"), {
       amount = 1000,
     },
   },
-  duration = 3600,
+  duration = 60,
 })

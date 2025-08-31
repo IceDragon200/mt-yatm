@@ -1,4 +1,4 @@
-minetest.log("info", "preparing empty node sounds for baseless")
+core.log("info", "preparing empty node sounds for baseless")
 local node_sounds = assert(yatm.node_sounds)
 
 -- empty sounds

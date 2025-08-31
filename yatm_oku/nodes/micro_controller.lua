@@ -97,6 +97,7 @@ local function on_construct(pos)
 
   -- Initialize secret
   maybe_initialize_secret(pos)
+  local secret = meta:get_string("secret")
   data_network:add_node(pos, node)
 
   yatm.computers:create_computer_at_pos(pos, node, secret, {

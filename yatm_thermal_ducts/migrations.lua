@@ -10,7 +10,7 @@ local migrations = {
 }
 
 for from, to in pairs(migrations) do
-  minetest.register_lbm({
+  core.register_lbm({
     name = "yatm_thermal_ducts:migrate_" .. string.gsub(from, ":", "_"),
 
     nodenames = {
@@ -20,7 +20,7 @@ for from, to in pairs(migrations) do
 
     action = function (pos, node)
       node.name = to
-      minetest.swap_node(pos, node)
+      core.swap_node(pos, node)
     end
   })
 end

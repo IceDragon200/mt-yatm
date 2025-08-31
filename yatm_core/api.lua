@@ -84,7 +84,7 @@ function yatm.register_stateful_node(basename, base, states)
     local nodedef = table_merge(base, changes)
     nodedef.basename = nodedef.basename or basename
     local node_name = basename .. "_" .. name
-    minetest.register_node(node_name, nodedef)
+    core.register_node(node_name, nodedef)
     result[name] = {node_name, nodedef}
   end
   return result
@@ -96,7 +96,7 @@ function yatm.register_stateful_tool(basename, base, states)
     local tooldef = table_merge(base, changes)
     tooldef.basename = tooldef.basename or basename
     local tool_name = basename .. "_" .. name
-    minetest.register_tool(tool_name, tooldef)
+    core.register_tool(tool_name, tooldef)
     result[name] = {tool_name, tooldef}
   end
   return result
@@ -108,7 +108,7 @@ function yatm.register_stateful_craftitem(basename, base, states)
     local craftitemdef = table_merge(base, changes)
     craftitemdef.basename = craftitemdef.basename or basename
     local craftitem_name = basename .. "_" .. name
-    minetest.register_craftitem(craftitem_name, craftitemdef)
+    core.register_craftitem(craftitem_name, craftitemdef)
     result[name] = {craftitem_name, craftitemdef}
   end
   return result
@@ -126,7 +126,7 @@ function yatm.is_item_solid_fuel(item_stack)
     ingredient_stack:set_count(1)
 
     local recipe, decremented_input =
-      minetest.get_craft_result({
+      core.get_craft_result({
         method = "fuel",
         width = 1,
         items = { ingredient_stack }

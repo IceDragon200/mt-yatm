@@ -5,6 +5,7 @@
 
 ]]
 local mod = assert(yatm_reactors)
+
 local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
 local cluster_devices = assert(yatm.cluster.devices)

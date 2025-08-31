@@ -2,15 +2,15 @@ local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 
 local function pie_on_rightclick(pos, node, clicker, itemstack, pointed_thing)
-  local nodedef = minetest.registered_nodes[node.name]
+  local nodedef = core.registered_nodes[node.name]
 
   if nodedef.pie_stage > 1 then
     -- TODO: add a pie slice to clicker's inventory
     node.name = "yatm_culinary:pie_" .. (nodedef.pie_stage - 1)
 
-    minetest.swap_node(pos, node)
+    core.swap_node(pos, node)
   else
-    minetest.remove_node(pos)
+    core.remove_node(pos)
   end
 end
 
@@ -22,7 +22,7 @@ local pie_node_box = {
   }
 }
 
-minetest.register_node("yatm_culinary:pie_8", {
+core.register_node("yatm_culinary:pie_8", {
   codex_entry_id = "yatm_culinary:pie",
 
   basename = "yatm_culinary:pie",
@@ -62,7 +62,7 @@ for i = 1,7 do
     }
   }
 
-  minetest.register_node("yatm_culinary:pie_" .. i, {
+  core.register_node("yatm_culinary:pie_" .. i, {
     codex_entry_id = "yatm_culinary:pie",
 
     basename = "yatm_culinary:pie",

@@ -9,8 +9,8 @@ local value_inspect = assert(foundation.com.value_inspect)
 local Vector3 = assert(foundation.com.Vector3)
 local List = assert(foundation.com.List)
 
-local hash_node_position = assert(minetest.hash_node_position)
-local pos_to_string = assert(minetest.pos_to_string)
+local hash_node_position = assert(core.hash_node_position)
+local pos_to_string = assert(core.pos_to_string)
 --- @namespace yatm_clusters
 
 --- @type ClusterNode: {
@@ -74,7 +74,7 @@ do
   function ic:merge(other_cluster)
     assert(other_cluster, "expected a cluster")
 
-    -- minetest.log("debug", "merging clusters " .. other_cluster.id .. " into " .. self.id)
+    -- core.log("debug", "merging clusters " .. other_cluster.id .. " into " .. self.id)
 
     for group_id, group_value in pairs(other_cluster.groups) do
       self.groups[group_id] = group_value
@@ -156,14 +156,14 @@ do
       print(debug.traceback())
       local old_entry = self.m_nodes[node_id]
       if old_entry.node.name == node.name then
-        minetest.log("warning", "duplicate node registration detected" ..
+        core.log("warning", "duplicate node registration detected" ..
                               " cluster_id=" .. self.id ..
                               " node_id=" .. node_id ..
                               " pos=" .. pos_to_string(pos) ..
                               " node=" .. node_to_string(node))
         return false, "duplicate node registration"
       else
-        minetest.log("warning", "dangerous node replacement" ..
+        core.log("warning", "dangerous node replacement" ..
                                 " cluster_id=" .. self.id ..
                                 " node_id=" .. node_id ..
                                 " pos=" .. pos_to_string(pos) ..
@@ -354,7 +354,7 @@ do
             break
           end
         else
-          minetest.log("error", "potential block corruption block_id=" .. block_id ..
+          core.log("error", "potential block corruption block_id=" .. block_id ..
             " missing node entry node_id=" .. node_id)
         end
       end
@@ -555,7 +555,7 @@ do
     local node_id = hash_node_position(pos)
     local node_name = "N/A"
     if self.m_debug_flags.cluster_groups[cluster_group] then
-      minetest.log("debug",
+      core.log("debug",
         "[" .. self.m_counter .. "] CLUSTERS schedule_node_event " .. cluster_group .. " " .. event_name .. " " ..
         pos_to_string(pos) .. " " .. node_to_string(node) .. " " .. value_inspect(params)
       )

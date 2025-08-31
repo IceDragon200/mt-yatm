@@ -2,7 +2,7 @@ local copy_node = assert(foundation.com.copy_node)
 local is_table_empty = assert(foundation.com.is_table_empty)
 local table_keys = assert(foundation.com.table_keys)
 local table_length = assert(foundation.com.table_length)
-local hash_node_position = assert(minetest.hash_node_position)
+local hash_node_position = assert(core.hash_node_position)
 
 --- @namespace yatm.cluster
 
@@ -44,7 +44,7 @@ do
   end
 
   function ic:get_node_groups(node)
-    local nodedef = minetest.registered_nodes[node.name]
+    local nodedef = core.registered_nodes[node.name]
 
     if nodedef and nodedef.yatm_network then
       return nodedef.yatm_network.groups or {}
@@ -68,8 +68,8 @@ do
   function ic:_handle_load_node(cls, generation_id, event, node_clusters)
     local cluster = ic._super._handle_load_node(self, cls, generation_id, event, node_clusters)
     if cluster then
-      local node = minetest.get_node(event.pos)
-      local nodedef = minetest.registered_nodes[node.name]
+      local node = core.get_node(event.pos)
+      local nodedef = core.registered_nodes[node.name]
       if nodedef then
         if nodedef.yatm_network and nodedef.yatm_network.on_load then
           nodedef.yatm_network.on_load(event.pos, node)
@@ -207,9 +207,9 @@ do
       cluster.assigns.state = assert(event.params.state)
       cluster:reduce_nodes(0, function (node_entry, acc)
         -- fetch the _actual_ node, instead of the cluster's state
-        local node = minetest.get_node_or_nil(node_entry.pos)
+        local node = core.get_node_or_nil(node_entry.pos)
         if node then
-          local nodedef = minetest.registered_nodes[node.name]
+          local nodedef = core.registered_nodes[node.name]
           if nodedef.transition_device_state then
             nodedef.transition_device_state(
               node_entry.pos,
@@ -234,7 +234,7 @@ do
         local pos = node_entry.pos
         local node = node_entry.node -- this is the only time the old node entry has to be used
 
-        local nodedef = minetest.registered_nodes[node.name]
+        local nodedef = core.registered_nodes[node.name]
         if nodedef and nodedef.yatm_network then
           if nodedef.yatm_network.on_unload then
             nodedef.yatm_network.on_unload(pos, node)
@@ -262,7 +262,7 @@ do
 
   yatm.cluster_tool.register_cluster_tool_render(CLUSTER_GROUP, yatm.cluster.devices:method("cluster_tool_render"))
 
-  minetest.register_lbm({
+  core.register_lbm({
     name = "yatm_cluster_devices:cluster_device_lbm",
 
     nodenames = {

@@ -89,48 +89,81 @@ end)
 
 case:describe("identity_vector/2", function (t2)
   t2:test("returns all existing values between vectors", function (t3)
-    t3:assert_eq(m.identity_vector("\x00\x00\x00", "\x00\x00\x00", CONFIG), m.new_number("\x00\x00\x00", CONFIG))
-    t3:assert_eq(m.identity_vector("\x01\x00\x04", "\x00\x02\x08", CONFIG), m.new_number("\x01\x02\x04", CONFIG))
+    t3:assert_eq(
+      m.identity_vector("\x00\x00\x00", "\x00\x00\x00", CONFIG),
+      m.new_number("\x00\x00\x00", CONFIG)
+    )
+    t3:assert_eq(
+      m.identity_vector("\x01\x00\x04", "\x00\x02\x08", CONFIG),
+      m.new_number("\x01\x02\x04", CONFIG)
+    )
   end)
 end)
 
 case:describe("add_vector/2", function (t2)
   t2:test("add all existing values in vectors", function (t3)
-    t3:assert_eq(m.add_vector("\x00\x00\x00", "\x00\x00\x00", CONFIG), m.new_number("\x00\x00\x00", CONFIG))
-    t3:assert_eq(m.add_vector("\x01\x02\x04", "\x10\x20\x30", CONFIG), m.new_number("\x11\x22\x34", CONFIG))
+    t3:assert_eq(
+      m.add_vector("\x00\x00\x00", "\x00\x00\x00", CONFIG),
+      m.new_number("\x00\x00\x00", CONFIG)
+    )
+    t3:assert_eq(
+      m.add_vector("\x01\x02\x04", "\x10\x20\x30", CONFIG),
+      m.new_number("\x11\x22\x34", CONFIG)
+    )
   end)
 end)
 
 case:describe("subtract_vector/2", function (t2)
   t2:test("subtracts all existing values in vectors", function (t3)
-    t3:assert_eq(m.subtract_vector("\x00\x00\x00", "\x00\x00\x00", CONFIG), m.new_number("\x00\x00\x00", CONFIG))
-    t3:assert_eq(m.subtract_vector("\x10\x20\x30", "\x04\x08\x0C", CONFIG), m.new_number("\x0C\x18\x24", CONFIG))
+    t3:assert_eq(
+      m.subtract_vector("\x00\x00\x00", "\x00\x00\x00", CONFIG),
+      m.new_number("\x00\x00\x00", CONFIG)
+    )
+    t3:assert_eq(
+      m.subtract_vector("\x10\x20\x30", "\x04\x08\x0C", CONFIG),
+      m.new_number("\x0C\x18\x24", CONFIG)
+    )
   end)
 end)
 
 case:describe("multiply_vector/2", function (t2)
   t2:test("multiplies all existing values in vectors", function (t3)
-    t3:assert_eq(m.multiply_vector("\x00\x00\x00", "\x00\x00\x00", CONFIG), m.new_number("\x00\x00\x00", CONFIG))
+    t3:assert_eq(
+      m.multiply_vector("\x00\x00\x00", "\x00\x00\x00", CONFIG),
+      m.new_number("\x00\x00\x00", CONFIG)
+    )
   end)
 end)
 
 case:describe("divide_vector/2", function (t2)
   t2:test("can handle zeroes safely", function (t3)
-    t3:assert_eq(m.divide_vector("\x00\x00\x00", "\x00\x00\x00", CONFIG), m.new_number("\xFF\xFF\xFF", CONFIG, "\xFF"))
+    t3:assert_eq(
+      m.divide_vector("\x00\x00\x00", "\x00\x00\x00", CONFIG),
+      m.new_number("\xFF\xFF\xFF", CONFIG, "\xFF")
+    )
   end)
 
   t2:test("divide all existing values in vectors", function (t3)
-    t3:assert_eq(m.divide_vector("\x04\x0A\x10", "\x02\x02\x04", CONFIG), m.new_number("\x02\x05\x04", CONFIG, "\xFF"))
+    t3:assert_eq(
+      m.divide_vector("\x04\x0A\x10", "\x02\x02\x04", CONFIG),
+      m.new_number("\x02\x05\x04", CONFIG, "\xFF")
+    )
   end)
 end)
 
 case:describe("modulo_vector/2", function (t2)
   t2:test("can handle zeroes safely", function (t3)
-    t3:assert_eq(m.modulo_vector("\x00\x00\x00", "\x00\x00\x00", CONFIG), m.new_number("", CONFIG, "\xFF"))
+    t3:assert_eq(
+      m.modulo_vector("\x00\x00\x00", "\x00\x00\x00", CONFIG),
+      m.new_number("", CONFIG, "\xFF")
+    )
   end)
 
   t2:test("modulo all existing values in vectors", function (t3)
-    t3:assert_eq(m.modulo_vector("\x04\x0A\x10", "\x03\x04\x06", CONFIG), m.new_number("\x01\x02\x04", CONFIG, "\xFF"))
+    t3:assert_eq(
+      m.modulo_vector("\x04\x0A\x10", "\x03\x04\x06", CONFIG),
+      m.new_number("\x01\x02\x04", CONFIG, "\xFF")
+    )
   end)
 end)
 

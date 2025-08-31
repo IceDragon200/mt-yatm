@@ -131,6 +131,7 @@ local function calculate_voxel_manip_bounds_from_targets(targets, assigns)
   local x1
   local y1
   local z1
+  local tpos0
 
   for i, tpos1 in pairs(targets) do
     tpos0 = assigns.trunc_rays[i]
@@ -319,7 +320,7 @@ local function update(self, assigns, system, explosion, dtime)
       local pending_drops = {}
       local is_protected = false
       local tpos0
-      local tpos1
+      -- local tpos1
       local wpos0
       local wpos1
       local ptpos
@@ -332,8 +333,8 @@ local function update(self, assigns, system, explosion, dtime)
         -- this very specific usecase, but... my lazy ass is already scared of this whole function
         -- so we'll use core.raycast to find nodes and objects and work from there.
 
-        local wpos0 = vector.add(cpos, tpos0)
-        local wpos1 = vector.add(cpos, tpos1)
+        wpos0 = vector.add(cpos, tpos0)
+        wpos1 = vector.add(cpos, tpos1)
         -- we only raycast from the previous position to the new position, the cast is rather small
         for pt in raycast(wpos0, wpos1, true, true) do
           if pt.type == "object" then
@@ -434,7 +435,7 @@ local function update(self, assigns, system, explosion, dtime)
       for _, entry in pairs(on_explosion_queue) do
         nodedef = entry.nodedef
 
-        dist = math.max(1, vector.dist(entry.pos, explosion.pos))
+        dist = math.max(1, vector.distance(entry.pos, explosion.pos))
         intensity = assigns.intensity * ((assigns.max_range * assigns.max_range) / (dist * dist))
         if nodedef.on_explosion then
           node_drops = nodedef.on_explosion(entry.pos, entry.node, explosion, intensity)

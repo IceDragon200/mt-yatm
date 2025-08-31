@@ -6,6 +6,18 @@ mod:register_node("tripwire", {
   description = mod.S("Tripwire"),
 
   groups = {
+    oddly_breakable_by_hand = nokore.dig_class("hand"),
     tripwire = 1,
+  },
+
+  paramtype = "light",
+  paramtype2 = "facedir",
+
+  drawtype = "nodebox",
+  node_box = {
+    type = "fixed",
+    fixed = {
+      {-8/16,-8/16,-8/16,8/16,-7/16,8/16}, -- block
+    }
   },
 })

@@ -126,7 +126,7 @@ for variant_basename,variant_data in pairs(variants) do
       end
     end
 
-    minetest.register_tool(name, {
+    core.register_tool(name, {
       basename = "yatm_bees:bee_" .. variant_basename,
 
       base_description = mod.S(variant_name .. " Bee"),

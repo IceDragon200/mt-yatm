@@ -11,7 +11,7 @@ for _,row in ipairs(yatm.colors) do
   local basename = row.name
   local name = row.description
 
-  minetest.register_craftitem("yatm_security:access_card_" .. basename, {
+  core.register_craftitem("yatm_security:access_card_" .. basename, {
     basename = "yatm_security:access_card",
     base_description = "Access Card",
 

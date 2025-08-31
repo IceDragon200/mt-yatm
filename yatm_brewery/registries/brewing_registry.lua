@@ -137,8 +137,8 @@ function ic:get_brewing_recipe_by_inputs(inputs)
   local recipe = self:get_brewing_recipe_by_inputs_indifferent(inputs)
   if recipe then
     -- check if recipe amounts have been met
-    if recipe.input.fluid.amount <= input.fluid.amount and
-       recipe.input.item.amount <= input.item:get_count() then
+    if recipe.input.fluid.amount <= inputs.fluid.amount and
+       recipe.input.item.amount <= inputs.item:get_count() then
       return recipe
     end
   end

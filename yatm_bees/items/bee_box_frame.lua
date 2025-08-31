@@ -1,4 +1,4 @@
-minetest.register_craftitem("yatm_bees:bee_box_frame", {
+core.register_craftitem("yatm_bees:bee_box_frame", {
   description = "Bee Box Frame",
 
   groups = {

@@ -15,7 +15,7 @@ local fluid_interface =
 
 local item_interface =
   ItemInterface.new_directional(function (self, pos, dir)
-    local node = minetest.get_node(pos)
+    local node = core.get_node(pos)
     local new_dir = Directions.facedir_to_face(node.param2, dir)
 
     return "ammo_items"

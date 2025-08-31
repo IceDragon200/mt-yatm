@@ -1,4 +1,4 @@
-minetest.log("info", "yatm is running in a default environment")
+core.log("info", "yatm is running in a default environment")
 local node_sounds = assert(yatm.node_sounds)
 
 node_sounds:register("base", {

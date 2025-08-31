@@ -6,7 +6,7 @@ local fspec = assert(foundation.com.formspec.api)
 local function get_oven_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local cio = fspec.calc_inventory_offset
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine_heated" }, function (loc, rect)
@@ -28,7 +28,7 @@ local function get_oven_formspec(pos, user)
 end
 
 local function oven_on_rightclick(pos, node, user)
-  minetest.show_formspec(
+  core.show_formspec(
     user:get_player_name(),
     "yatm_culinary:oven",
     get_oven_formspec(pos, user)
@@ -36,8 +36,8 @@ local function oven_on_rightclick(pos, node, user)
 end
 
 local function on_construct(pos)
-  local node = minetest.get_node(pos)
-  local meta = minetest.get_meta(pos)
+  local node = core.get_node(pos)
+  local meta = core.get_meta(pos)
 
   local inv = meta:get_inventory()
 
@@ -78,8 +78,8 @@ local function on_metadata_inventory_take(pos, listname, index, stack, player)
 end
 
 local function on_timer(pos, elapsed)
-  local node = minetest.get_node(pos)
-  local meta = minetest.get_meta(pos)
+  local node = core.get_node(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   -- Fuel > Heat
@@ -93,12 +93,12 @@ local function on_timer(pos, elapsed)
 
     if node.name ~= "yatm_culinary:oven_on" then
       node.name = "yatm_culinary:oven_on"
-      minetest.swap_node(pos, node)
+      core.swap_node(pos, node)
     end
     yatm.queue_refresh_infotext(pos, node)
   else
     local fuel_list = inv:get_list("fuel_slot")
-    local fuel, afterfuel = minetest.get_craft_result({
+    local fuel, afterfuel = core.get_craft_result({
       method = "fuel",
       width = 1,
       items = fuel_list
@@ -111,7 +111,7 @@ local function on_timer(pos, elapsed)
       meta:set_float("fuel_time_max", fuel.time)
 
       node.name = "yatm_culinary:oven_on"
-      minetest.swap_node(pos, node)
+      core.swap_node(pos, node)
       yatm.queue_refresh_infotext(pos, node)
     else
       meta:set_float("fuel_time", 0)
@@ -123,13 +123,13 @@ local function on_timer(pos, elapsed)
         yatm.queue_refresh_infotext(pos, node)
       else
         node.name = "yatm_culinary:oven_off"
-        minetest.swap_node(pos, node)
+        core.swap_node(pos, node)
         yatm.queue_refresh_infotext(pos, node)
       end
     end
   end
 
-  local heat = meta:get_float("heat") or 0
+  heat = meta:get_float("heat") or 0
 
   -- Heat > Work
   if heat > 0 then
@@ -145,7 +145,7 @@ local function on_timer(pos, elapsed)
 end
 
 local function oven_refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   local fuel_time = meta:get_float("fuel_time")
   local fuel_time_max = meta:get_float("fuel_time_max")
@@ -200,7 +200,7 @@ yatm.register_stateful_node("yatm_culinary:oven", {
     },
 
     update_heat = function (self, pos, node, heat, dtime)
-      local meta = minetest.get_meta(pos)
+      local meta = core.get_meta(pos)
 
       if yatm.thermal.update_heat(meta, "heat", heat, 10, dtime) then
         local new_name
@@ -211,7 +211,7 @@ yatm.register_stateful_node("yatm_culinary:oven", {
         end
         if new_name ~= node.name then
           node.name = new_name
-          minetest.swap_node(pos, node)
+          core.swap_node(pos, node)
         end
 
         maybe_start_node_timer(pos, 1.0)

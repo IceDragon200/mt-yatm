@@ -45,12 +45,12 @@ local function find_all_connected_relays(pos, collected)
     to_visit = {}
 
     for _,vpos in ipairs(old_to_visit) do
-      vhash = minetest.hash_node_position(vpos)
+      vhash = core.hash_node_position(vpos)
       if not visited[vhash] then
         visited[vhash] = vpos
-        node = minetest.get_node(vpos)
+        node = core.get_node(vpos)
         if node then
-          nodedef = minetest.registered_nodes[node.name]
+          nodedef = core.registered_nodes[node.name]
           if nodedef then
             if nodedef.groups.teleporter_relay then
               collected[vhash] = vpos
@@ -70,10 +70,10 @@ local function find_all_connected_relays(pos, collected)
 end
 
 local function maybe_teleport_all_players_on_teleporter(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local address = SpacetimeMeta.get_address(meta)
   if not is_blank(address) then
-    local hash = minetest.hash_node_position(pos)
+    local hash = core.hash_node_position(pos)
     local positions = {}
 
     spacetime_network:each_member_in_group_by_address("player_teleporter_destination", address, function (member_hash, member)
@@ -84,7 +84,7 @@ local function maybe_teleport_all_players_on_teleporter(pos, node)
     end)
 
     if is_table_empty(positions) then
-      print(minetest.pos_to_string(pos), address, "No target positions!")
+      print(core.pos_to_string(pos), address, "No target positions!")
     else
       local all_sources = find_all_connected_relays(pos, { [hash] = pos })
       local hashes = table_keys(positions)
@@ -92,7 +92,7 @@ local function maybe_teleport_all_players_on_teleporter(pos, node)
       local h
       local target_pos
       for _,source_pos in pairs(all_sources) do
-        objects = minetest.get_objects_inside_radius(source_pos, 1)
+        objects = core.get_objects_inside_radius(source_pos, 1)
         for _,object in ipairs(objects) do
           if object:is_player() then
             h = list_sample(hashes)
@@ -103,7 +103,7 @@ local function maybe_teleport_all_players_on_teleporter(pos, node)
       end
     end
   else
-    print(minetest.pos_to_string(pos), "No address present!")
+    print(core.pos_to_string(pos), "No address present!")
   end
 end
 
@@ -141,13 +141,13 @@ local teleporter_on_mesecons = {
 }
 
 local function teleporter_after_place_node(pos, placer, itemstack, pointed_thing)
-  local new_meta = minetest.get_meta(pos)
+  local new_meta = core.get_meta(pos)
   local old_meta = itemstack:get_meta()
 
   SpacetimeMeta.copy_address(old_meta, new_meta)
 
   local address = SpacetimeMeta.patch_address(new_meta)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   spacetime_network:maybe_register_node(pos, node)
 
   yatm.devices.device_after_place_node(pos, placer, itemstack, pointed_thing)
@@ -171,7 +171,7 @@ local function teleporter_preserve_metadata(pos, oldnode, old_meta_table, drops)
 end
 
 local function teleporter_refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     cluster_energy:get_node_infotext(pos) .. "\n" ..
@@ -246,8 +246,8 @@ yatm.devices.register_stateful_network_device({
 
   after_place_node = function (pos, placer, itemstack, pointed_thing)
     teleporter_after_place_node(pos, placer, itemstack, pointed_thing)
-    local node = minetest.get_node(pos)
-    minetest.after(0, mesecon.on_placenode, pos, node)
+    local node = core.get_node(pos)
+    core.after(0, mesecon.on_placenode, pos, node)
   end,
 
   on_destruct = teleporter_on_destruct,
@@ -256,11 +256,11 @@ yatm.devices.register_stateful_network_device({
   preserve_metadata = teleporter_preserve_metadata,
 
   change_spacetime_address = function (pos, node, new_address)
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
 
     SpacetimeMeta.set_address(meta, new_address)
 
-    local nodedef = minetest.registered_nodes[node.name]
+    local nodedef = core.registered_nodes[node.name]
     local new_node = table_copy(node)
     if is_blank(new_address) then
       new_node.name = nodedef.yatm_network.states.inactive
@@ -269,7 +269,7 @@ yatm.devices.register_stateful_network_device({
     end
 
     if new_node.name ~= node.name then
-      minetest.swap_node(pos, new_node)
+      core.swap_node(pos, new_node)
       spacetime_network:maybe_update_node(pos, new_node)
     end
     yatm.queue_refresh_infotext(pos, new_node)
@@ -335,7 +335,7 @@ yatm.devices.register_stateful_network_device({
 local data_network = yatm.data_network
 
 if not data_network then
-  minetest.log("warn", "data network unavailable, not registering DATA based teleporters")
+  core.log("warn", "data network unavailable, not registering DATA based teleporters")
   return
 end
 local string_hex_unescape = assert(foundation.com.string_hex_unescape)
@@ -370,7 +370,7 @@ local data_interface = {
     local bin = string_hex_unescape(value)
     local input = string.byte(bin, 1)
 
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
 
     local data_on_threshold = meta:get_string("data_on_threshold")
     data_on_threshold = string_hex_unescape(data_on_threshold)
@@ -438,8 +438,8 @@ local data_interface = {
 }
 
 local on_construct = function (pos)
-  local meta = minetest.get_meta(pos)
-  local node = minetest.get_node(pos)
+  local meta = core.get_meta(pos)
+  local node = core.get_node(pos)
 
   data_network:add_node(pos, node)
   yatm.devices.device_on_construct(pos)
@@ -498,11 +498,11 @@ yatm.devices.register_stateful_network_device({
   preserve_metadata = teleporter_preserve_metadata,
 
   change_spacetime_address = function (pos, node, new_address)
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
 
     SpacetimeMeta.set_address(meta, new_address)
 
-    local nodedef = minetest.registered_nodes[node.name]
+    local nodedef = core.registered_nodes[node.name]
     local new_node = table_copy(node)
     if is_blank(new_address) then
       new_node.name = nodedef.yatm_network.states.inactive
@@ -511,7 +511,7 @@ yatm.devices.register_stateful_network_device({
     end
 
     if new_node.name ~= node.name then
-      minetest.swap_node(pos, new_node)
+      core.swap_node(pos, new_node)
       data_network:upsert_member(pos, new_node)
       spacetime_network:maybe_update_node(pos, new_node)
     end

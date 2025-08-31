@@ -135,8 +135,8 @@ local function on_use_codex(itemstack, user, pointed_thing)
   local pos = pointed_thing.under
 
   if pos then
-    local node = minetest.get_node(pos)
-    local nodedef = minetest.registered_nodes[node.name]
+    local node = core.get_node(pos)
+    local nodedef = core.registered_nodes[node.name]
 
     local codex_entry
     local codex_entry_id
@@ -153,14 +153,14 @@ local function on_use_codex(itemstack, user, pointed_thing)
     else
       sounds:play("action_error", { to_player = user:get_player_name() })
       if codex_entry_id then
-        minetest.chat_send_player(user:get_player_name(), "Missing CODEX entry: " .. codex_entry_id)
+        core.chat_send_player(user:get_player_name(), "Missing CODEX entry: " .. codex_entry_id)
       else
-        minetest.chat_send_player(user:get_player_name(), "No CODEX entry available")
+        core.chat_send_player(user:get_player_name(), "No CODEX entry available")
       end
     end
   else
     sounds:play("action_error", { to_player = user:get_player_name() })
-    minetest.chat_send_player(user:get_player_name(), "Not a valid target")
+    core.chat_send_player(user:get_player_name(), "Not a valid target")
   end
 end
 
@@ -170,11 +170,11 @@ local function construct_demo(user, pos, demo, itemstack, pointed_thing)
   demo:configure(pos, assigns)
   demo:finalize(pos, assigns)
 
-  minetest.chat_send_player(user:get_player_name(), "Demo placed!")
+  core.chat_send_player(user:get_player_name(), "Demo placed!")
   return true
 end
 
-minetest.register_tool("yatm_codex:codex", {
+core.register_tool("yatm_codex:codex", {
   description = "CODEX\nLeft-Click to check information on a node if available",
 
   groups = {
@@ -186,12 +186,12 @@ minetest.register_tool("yatm_codex:codex", {
   on_use = on_use_codex,
 
   on_place = function (itemstack, user, pointed_thing)
-    minetest.chat_send_player(user:get_player_name(), "No CODEX demo set")
+    core.chat_send_player(user:get_player_name(), "No CODEX demo set")
     return itemstack
   end,
 })
 
-minetest.register_tool("yatm_codex:codex_deploy", {
+core.register_tool("yatm_codex:codex_deploy", {
   description = "CODEX [Deployment Mode]\nLeft-Click to check information on a node if available\nRight-Click to place demo",
 
   groups = {
@@ -213,11 +213,11 @@ minetest.register_tool("yatm_codex:codex_deploy", {
         --return ItemStack("yatm_codex:codex")
         return itemstack
       else
-        minetest.chat_send_player(user:get_player_name(), "Not enough space for demo")
+        core.chat_send_player(user:get_player_name(), "Not enough space for demo")
         return itemstack
       end
     else
-      minetest.chat_send_player(user:get_player_name(), "Invalid CODEX demo set")
+      core.chat_send_player(user:get_player_name(), "Invalid CODEX demo set")
       return ItemStack("yatm_codex:codex")
     end
   end,

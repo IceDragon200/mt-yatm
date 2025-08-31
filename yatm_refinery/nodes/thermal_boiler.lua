@@ -13,7 +13,7 @@ local FluidMeta = assert(yatm.fluids.FluidMeta)
 local table_merge = assert(foundation.com.table_merge)
 
 if not cluster_thermal then
-  minetest.log("warning", "thermal cluster is not available, skipping thermal boiler")
+  core.log("warning", "thermal cluster is not available, skipping thermal boiler")
   return
 end
 
@@ -22,7 +22,7 @@ local WATER_TANK = "water_tank"
 local FLUID_CAPACITY = 16000
 
 local function get_fluid_tank_name(self, pos, dir)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   local new_dir = Directions.facedir_to_face(node.param2, dir)
   if new_dir == Directions.D_UP then
     return STEAM_TANK, FLUID_CAPACITY
@@ -39,7 +39,7 @@ function fluid_interface:allow_drain(pos, dir, fluid_stack)
 end
 
 function fluid_interface:allow_fill(pos, dir, fluid_stack)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   local new_dir = Directions.facedir_to_face(node.param2, dir)
   if new_dir == Directions.D_UP then
     return false, "no filling from top"
@@ -51,12 +51,12 @@ function fluid_interface:allow_fill(pos, dir, fluid_stack)
 end
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   yatm.queue_refresh_infotext(pos, node)
 end
 
 local function boiler_refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local steam_fluid_stack = FluidMeta.get_fluid_stack(meta, STEAM_TANK)
   local water_fluid_stack = FluidMeta.get_fluid_stack(meta, WATER_TANK)
 
@@ -72,7 +72,7 @@ local function boiler_refresh_infotext(pos)
 end
 
 local function on_construct(pos)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   cluster_thermal:schedule_add_node(pos, node)
 end
 
@@ -81,8 +81,8 @@ local function after_destruct(pos, node)
 end
 
 local function on_timer(pos, elapsed)
-  local meta = minetest.get_meta(pos)
-  local node = minetest.get_node(pos)
+  local meta = core.get_meta(pos)
+  local node = core.get_node(pos)
 
   -- TODO: use heat
   local usable_heat = meta:get_float("heat")
@@ -123,8 +123,8 @@ local function on_timer(pos, elapsed)
     if stack then
       local steam_tank_dir = Directions.facedir_to_face(node.param2, Directions.D_UP)
       local steam_tank_pos = vector.add(pos, Directions.DIR6_TO_VEC3[steam_tank_dir])
-      local steam_tank_node = minetest.get_node(steam_tank_pos)
-      local steam_tank_nodedef = minetest.registered_nodes[steam_tank_node.name]
+      local steam_tank_node = core.get_node(steam_tank_pos)
+      local steam_tank_nodedef = core.registered_nodes[steam_tank_node.name]
 
       if steam_tank_nodedef then
         local filled_stack = FluidTanks.fill_fluid(steam_tank_pos,
@@ -177,7 +177,7 @@ yatm.register_stateful_node("yatm_refinery:thermal_boiler", {
     },
 
     update_heat = function (self, pos, node, heat, dtime)
-      local meta = minetest.get_meta(pos)
+      local meta = core.get_meta(pos)
 
       if yatm.thermal.update_heat(meta, "heat", heat, 10, dtime) then
         local new_name
@@ -188,7 +188,7 @@ yatm.register_stateful_node("yatm_refinery:thermal_boiler", {
         end
         if new_name ~= node.name then
           node.name = new_name
-          minetest.swap_node(pos, node)
+          core.swap_node(pos, node)
         end
 
         maybe_start_node_timer(pos, 1.0)

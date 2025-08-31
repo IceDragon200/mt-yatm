@@ -49,7 +49,7 @@ function yatm_armoury:register_ammunition_class(mod_name, params)
 
   local groups = table_merge({cartridge = 1}, variant_groups)
 
-  minetest.register_craftitem(ammo_def.calibres["9x19mm"], {
+  core.register_craftitem(ammo_def.calibres["9x19mm"], {
     basename = mod_name .. ":ammo_9x19mm",
     base_description = "AMS 9x19mm",
 
@@ -66,7 +66,7 @@ function yatm_armoury:register_ammunition_class(mod_name, params)
     stack_max = 256,
   })
 
-  minetest.register_craftitem(ammo_def.calibres["5.56x45mm"], {
+  core.register_craftitem(ammo_def.calibres["5.56x45mm"], {
     basename = mod_name .. ":ammo_5p56x45mm",
     base_description = "AMS 5.56x45mm",
 
@@ -82,7 +82,7 @@ function yatm_armoury:register_ammunition_class(mod_name, params)
   })
 
   -- Battle Rifle Ammo
-  minetest.register_craftitem(ammo_def.calibres["7.62x51mm"], {
+  core.register_craftitem(ammo_def.calibres["7.62x51mm"], {
     basename = mod_name .. ":ammo_7p62x51mm",
     base_description = "AMS 7.62x51mm",
 
@@ -98,7 +98,7 @@ function yatm_armoury:register_ammunition_class(mod_name, params)
   })
 
   -- Anti-Material & Machine Gun Ammo
-  minetest.register_craftitem(ammo_def.calibres["12.7x99mm"], {
+  core.register_craftitem(ammo_def.calibres["12.7x99mm"], {
     basename = mod_name .. ":ammo_12p7x99mm",
     base_description = "AMS 12.7x99mm",
 
@@ -113,7 +113,7 @@ function yatm_armoury:register_ammunition_class(mod_name, params)
     stack_max = 96,
   })
 
-  minetest.register_craftitem(ammo_def.calibres["25x137mm"], {
+  core.register_craftitem(ammo_def.calibres["25x137mm"], {
     basename = mod_name .. ":ammo_25x137mm",
     base_description = "AMS 25x137mm",
 
@@ -128,7 +128,7 @@ function yatm_armoury:register_ammunition_class(mod_name, params)
     stack_max = 64,
   })
 
-  minetest.register_craftitem(ammo_def.calibres["30x173mm"], {
+  core.register_craftitem(ammo_def.calibres["30x173mm"], {
     basename = mod_name .. ":ammo_30x173mm",
     base_description = "AMS 30x173mm",
 
@@ -143,7 +143,7 @@ function yatm_armoury:register_ammunition_class(mod_name, params)
     stack_max = 32,
   })
 
-  minetest.register_craftitem(ammo_def.calibres["40x43mm-grenade"], {
+  core.register_craftitem(ammo_def.calibres["40x43mm-grenade"], {
     basename = mod_name .. ":ammo_40x43mm_grenade",
     base_description = "AMS 40x43mm Grenade",
 
@@ -158,7 +158,7 @@ function yatm_armoury:register_ammunition_class(mod_name, params)
     stack_max = 24,
   })
 
-  minetest.register_craftitem(ammo_def.calibres["81mm-mortar"], {
+  core.register_craftitem(ammo_def.calibres["81mm-mortar"], {
     basename = mod_name .. ":ammo_81mm_mortar",
     base_description = "AMS 81mm Mortar",
 
@@ -239,7 +239,8 @@ yatm_armoury:register_ammunition_class("yatm_armoury", {
   groups = {explosive = 1},
 })
 
--- ele - element round, when firing it also consumes additional Element from the user to deal additional damage
+-- ele - element round, when firing it also consumes additional Element
+-- from the user to deal additional damage
 yatm_armoury:register_ammunition_class("yatm_armoury", {
   code = "E",
   basename = "ele",

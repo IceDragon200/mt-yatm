@@ -1,9 +1,11 @@
 local mod = yatm_data_logic
 local Cuboid = assert(foundation.com.Cuboid)
-local is_table_empty = assert(foundation.com.is_table_empty)
 local ng = Cuboid.new_fast_node_box
 local sounds = assert(yatm.sounds)
 local data_network = assert(yatm.data_network)
+local get_node = assert(tetra.get_node)
+local get_meta = assert(tetra.get_meta)
+local swap_node = assert(tetra.swap_node)
 
 yatm.register_stateful_node("yatm_data_logic:data_toggle_button", {
   description = mod.S("DATA Toggle Button"),
@@ -104,7 +106,7 @@ yatm.register_stateful_node("yatm_data_logic:data_toggle_button", {
   },
 
   refresh_infotext = function (pos)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     local infotext =
       data_network:get_infotext(pos)
 
@@ -112,7 +114,7 @@ yatm.register_stateful_node("yatm_data_logic:data_toggle_button", {
   end,
 
   on_construct = function (pos)
-    local node = minetest.get_node(pos)
+    local node = get_node(pos)
     data_network:add_node(pos, node)
   end,
 
@@ -143,7 +145,7 @@ yatm.register_stateful_node("yatm_data_logic:data_toggle_button", {
     on_rightclick = function (pos, node, clicker)
       sounds:play("button_click", { pos = pos, max_hear_distance = 32 })
       node.name = "yatm_data_logic:data_toggle_button_right"
-      minetest.swap_node(pos, node)
+      swap_node(pos, node)
 
       yatm_data_logic.emit_output_data(pos, "left")
     end,
@@ -172,7 +174,7 @@ yatm.register_stateful_node("yatm_data_logic:data_toggle_button", {
     on_rightclick = function (pos, node, clicker)
       sounds:play("button_click", { pos = pos, max_hear_distance = 32 })
       node.name = "yatm_data_logic:data_toggle_button_left"
-      minetest.swap_node(pos, node)
+      swap_node(pos, node)
 
       yatm_data_logic.emit_output_data(pos, "right")
     end,

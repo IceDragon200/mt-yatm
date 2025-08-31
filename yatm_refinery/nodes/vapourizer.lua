@@ -44,7 +44,7 @@ local FLUID_TANK = "fluid_tank"
 local TANK_CAPACITY = 16000
 
 local function get_fluid_tank_name(self, pos, dir)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   local new_dir = Directions.facedir_to_face(node.param2, dir)
   if new_dir == Directions.D_UP then
     return VAPOUR_TANK, self._private.capacity
@@ -67,7 +67,7 @@ function fluid_interface:allow_fill(pos, dir, fluid_stack)
 end
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   yatm.queue_refresh_infotext(pos, node)
 end
 
@@ -156,10 +156,10 @@ function vapourizer_yatm_network:work(ctx)
     local output_tank_dir = Directions.facedir_to_face(node.param2, Directions.D_UP)
     local output_tank_pos = vector.add(pos, Directions.DIR6_TO_VEC3[output_tank_dir])
 
-    local output_tank_node = minetest.get_node_or_nil(output_tank_pos)
+    local output_tank_node = core.get_node_or_nil(output_tank_pos)
 
     if output_tank_node then
-      local output_tank_nodedef = minetest.registered_nodes[output_tank_node.name]
+      local output_tank_nodedef = core.registered_nodes[output_tank_node.name]
 
       if Groups.has_group(output_tank_nodedef, "fluid_interface_in") then
         local fs =
@@ -201,7 +201,7 @@ function vapourizer_yatm_network:work(ctx)
 end
 
 local function refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   local vapour_fluid_stack = FluidMeta.get_fluid_stack(meta, VAPOUR_TANK)
   local fluid_stack = FluidMeta.get_fluid_stack(meta, FLUID_TANK)
@@ -221,7 +221,7 @@ end
 local function render_formspec(pos, user, state)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
 

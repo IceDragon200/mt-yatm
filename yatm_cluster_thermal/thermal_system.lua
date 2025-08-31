@@ -60,7 +60,7 @@ do
         node_entry = nodes[node_id]
         pos = node_entry.pos
         node = node_entry.node
-        nodedef = minetest.registered_nodes[node.name]
+        nodedef = core.registered_nodes[node.name]
 
         if nodedef and nodedef.thermal_interface then
           heat_produced = nodedef.thermal_interface:get_heat(pos, node, dtime)
@@ -71,7 +71,7 @@ do
             neighbour_node_entry = cluster:get_node(neighbour_pos)
             if neighbour_node_entry then
               neighbour_node = neighbour_node_entry.node
-              neighbour_nodedef = minetest.registered_nodes[neighbour_node.name]
+              neighbour_nodedef = core.registered_nodes[neighbour_node.name]
 
               ti = neighbour_nodedef and neighbour_nodedef.thermal_interface
               if ti then
@@ -110,7 +110,7 @@ do
         node_entry = nodes[node_id]
         pos = node_entry.pos
         node = node_entry.node
-        nodedef = minetest.registered_nodes[node.name]
+        nodedef = core.registered_nodes[node.name]
         if nodedef then
           ti = nodedef.thermal_interface
           if ti then

@@ -18,7 +18,7 @@ local table_nodebox = {
 }
 
 local function locksmiths_table_get_formspec(pos, user, assigns)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   assigns.tab = assigns.tab or 1
 
@@ -101,7 +101,7 @@ local function locksmiths_table_get_formspec(pos, user, assigns)
 end
 
 local function on_player_receive_fields(user, form_name, fields, assigns)
-  local meta = minetest.get_meta(assigns.pos)
+  local meta = core.get_meta(assigns.pos)
 
   local needs_refresh = false
 
@@ -122,7 +122,7 @@ local function on_player_receive_fields(user, form_name, fields, assigns)
 end
 
 local function locksmiths_table_on_construct(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   -- Lock Installation
@@ -225,7 +225,7 @@ local function can_use_results_slot(inv)
 end
 
 local function maybe_craft_lockable(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   local lockable = inv:get_stack("item_lockable", 1)
@@ -240,7 +240,7 @@ local function maybe_craft_lockable(pos)
           yatm_security.is_stack_lockable_blank_key(key) then
         local new_lockable_stack = lockable:peek_item(1)
         local new_key_stack = key:peek_item(1)
-        local itemdef = assert(minetest.registered_items[new_key_stack:get_name()])
+        local itemdef = assert(core.registered_items[new_key_stack:get_name()])
 
         new_key_stack:set_name(assert(itemdef.key_states.toothed))
         yatm_security.pair_lockables(new_key_stack, new_lockable_stack)
@@ -256,7 +256,7 @@ local function maybe_craft_lockable(pos)
 end
 
 local function maybe_craft_chipped(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   local chippable = inv:get_stack("item_chippable", 1)
@@ -283,7 +283,7 @@ local function maybe_craft_chipped(pos)
 end
 
 local function maybe_consume_chipped_ingredients(pos, taken_index)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   inv:set_stack("item_chippable", 1, nil)
@@ -291,7 +291,7 @@ local function maybe_consume_chipped_ingredients(pos, taken_index)
 end
 
 local function maybe_consume_lockable_ingredients(pos, taken_index)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   local other_index = 0
@@ -312,13 +312,13 @@ local function maybe_consume_lockable_ingredients(pos, taken_index)
 end
 
 local function maybe_consume_dupkey_ingredients(pos, taken_index)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
   inv:set_stack("item_dupkey_dest", 1, nil)
 end
 
 local function maybe_craft_duplicate_key(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   local src = inv:get_stack("item_dupkey_src", 1)
@@ -328,7 +328,7 @@ local function maybe_craft_duplicate_key(pos)
   if yatm_security.is_stack_lockable_toothed_key(src) and yatm_security.is_stack_lockable_blank_key(dest) then
     -- Okay we do, now let's make a duplicate using the dest key
     local dup_stack = dest:peek_item(1)
-    local itemdef = assert(minetest.registered_items[dup_stack:get_name()])
+    local itemdef = assert(core.registered_items[dup_stack:get_name()])
     dup_stack:set_name(assert(itemdef.key_states.toothed))
     yatm_security.copy_lockable_key_stack_key(src, dup_stack)
     set_itemstack_meta_description(dup_stack, get_itemstack_description(src))
@@ -376,7 +376,7 @@ local function on_rightclick(pos, node, user, itemstack, pointed_thing)
   local assigns = { pos = pos, node = node }
   local formspec = locksmiths_table_get_formspec(pos, user, assigns)
 
-  local formspec_name = "yatm_security:locksmiths_table:" .. minetest.pos_to_string(pos)
+  local formspec_name = "yatm_security:locksmiths_table:" .. core.pos_to_string(pos)
 
   nokore.formspec_bindings:show_formspec(
     user:get_player_name(),
@@ -389,7 +389,7 @@ local function on_rightclick(pos, node, user, itemstack, pointed_thing)
   )
 end
 
-minetest.register_node("yatm_security:locksmiths_table_wood", {
+core.register_node("yatm_security:locksmiths_table_wood", {
   basename = "yatm_security:locksmiths_table",
 
   description = mod.S("Wood Locksmith's Table"),

@@ -11,7 +11,7 @@ local function create_inventory(self)
   local inventory_name = "yatm_armoury_icbm:icbm_inventory_" .. g_inventory_id
 
   local inv =
-    minetest.create_detached_inventory(inventory_name, {
+    core.create_detached_inventory(inventory_name, {
       allow_move = function(inv, from_list, from_index, to_list, to_index, count, player)
         return count
       end,
@@ -55,7 +55,7 @@ local function restore_inventory(self, dump)
 end
 
 local function get_inventory(self)
-  return minetest.get_inventory({
+  return core.get_inventory({
     type = "detached",
     name = self.inventory_name,
   })
@@ -119,7 +119,7 @@ local function receive_fields(user, form_name, fields, assigns)
   return true
 end
 
-minetest.register_entity("yatm_armoury_icbm:icbm", {
+core.register_entity("yatm_armoury_icbm:icbm", {
   physical = true,
   collide_with_objects = true,
   --glow = 1,
@@ -138,8 +138,8 @@ minetest.register_entity("yatm_armoury_icbm:icbm", {
 
   refresh_infotext = function (self)
     local infotext =
-      "Origin: " .. minetest.pos_to_string(self.origin_pos) .. "\n" ..
-      "Target: " .. minetest.pos_to_string(self.target_pos) .. "\n" ..
+      "Origin: " .. core.pos_to_string(self.origin_pos) .. "\n" ..
+      "Target: " .. core.pos_to_string(self.target_pos) .. "\n" ..
       "Velocity: " .. Vector3.to_string(self.object:get_velocity()) .. "\n" ..
       "Stage: " .. (self.stage or "")
 
@@ -241,7 +241,7 @@ minetest.register_entity("yatm_armoury_icbm:icbm", {
         --
       else
         -- an unrecognized warhead possibly!?
-        minetest.log("error", "unexpected warhead " .. dump(self.warhead_type))
+        core.log("error", "unexpected warhead " .. dump(self.warhead_type))
       end
       self.object:remove()
 
@@ -253,7 +253,7 @@ minetest.register_entity("yatm_armoury_icbm:icbm", {
 
   on_activate = function (self, staticdata, dtime_s)
     if staticdata ~= "" then
-      local data = minetest.parse_json(staticdata)
+      local data = core.parse_json(staticdata)
 
       if not data.version then
         self.object:remove()
@@ -302,7 +302,7 @@ minetest.register_entity("yatm_armoury_icbm:icbm", {
       data.inventory = dump_inventory(self)
     end
 
-    return minetest.write_json(data)
+    return core.write_json(data)
   end,
 
   arm_icbm = function (self, params)

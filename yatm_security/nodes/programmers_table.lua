@@ -36,7 +36,7 @@ local function generate_prog_data_hex(byte_count)
 end
 
 local function render_formspec(pos, user, assigns)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
   assigns.tab = assigns.tab or 2
@@ -117,8 +117,8 @@ local function render_formspec(pos, user, assigns)
     formspec =
       formspec ..
       fspec.textarea(padding, padding * 2, w / 2, h - padding * 2 - 2, "source", "Source", meta:get_string("assembly_source")) ..
-      "textarea[6.25,1;6,5;;Binary (Hex Dump);" .. minetest.formspec_escape(meta:get_string("assembly_binary")) .. "]" ..
-      "textarea[0.25,6;9,2;;Error;" .. minetest.formspec_escape(meta:get_string("assembly_error")) .. "]" ..
+      "textarea[6.25,1;6,5;;Binary (Hex Dump);" .. core.formspec_escape(meta:get_string("assembly_binary")) .. "]" ..
+      "textarea[0.25,6;9,2;;Error;" .. core.formspec_escape(meta:get_string("assembly_error")) .. "]" ..
       "button[9,6;3,1;assemble;Assemble]" ..
       player_inv_frag
 
@@ -128,7 +128,7 @@ local function render_formspec(pos, user, assigns)
 end
 
 local function handle_receive_fields(user, formname, fields, assigns)
-  local meta = minetest.get_meta(assigns.pos)
+  local meta = core.get_meta(assigns.pos)
   local needs_refresh = false
 
   if fields["tab"] then
@@ -186,23 +186,23 @@ local function handle_receive_fields(user, formname, fields, assigns)
     local source = meta:get_string("assembly_source")
     local pos = assigns.pos
 
-    local node = minetest.get_node_or_nil(pos)
-    local meta = minetest.get_meta(pos)
+    local node = core.get_node_or_nil(pos)
+    local meta = core.get_meta(pos)
 
     if node then
-      local nodedef = minetest.registered_nodes[node.name]
+      local nodedef = core.registered_nodes[node.name]
       if nodedef.basename == "yatm_security:programmers_table" then
         -- it's still a programmer's table, whew.
         local okay, blob, context, rest = yatm_oku.OKU.isa.MOS6502.Assembler.assemble_safe(source)
 
         if okay then
-          minetest.log("action", "Assembly completed")
+          core.log("action", "Assembly completed")
           sounds:play("compile_success", { pos = pos, max_hear_distance = 32 })
           local blob_hex = string_hex_encode(blob)
           meta:set_string("assembly_binary", blob_hex)
           meta:set_string("assembly_error", "")
         else
-          minetest.log("action", "Assembly failed ", blob)
+          core.log("action", "Assembly failed ", blob)
           sounds:play("action_error", { pos = pos, max_hear_distance = 32 })
           meta:set_string("assembly_binary", "")
           meta:set_string("assembly_error", blob)
@@ -269,7 +269,7 @@ local yatm_network = {
   },
 
   work = function (pos, node, available_energy, work_rate, dtime, ot)
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
     local inv = meta:get_inventory()
 
     local processing_count = meta:get_int("processing_count")
@@ -294,7 +294,7 @@ local yatm_network = {
               if itemdef.on_programmed then
                 output_items[i] = itemdef.on_programmed(item, prog_data)
               else
-                minetest.log("warning", item:get_name() .. " does not support on_programmed callback")
+                core.log("warning", item:get_name() .. " does not support on_programmed callback")
                 output_items[i] = item
               end
             end
@@ -364,8 +364,8 @@ yatm.devices.register_stateful_network_device({
   },
 
   on_construct = function (pos)
-    local node = minetest.get_node(pos)
-    local meta = minetest.get_meta(pos)
+    local node = core.get_node(pos)
+    local meta = core.get_meta(pos)
 
     meta:set_string("prog_data", generate_prog_data_hex(8))
 
@@ -388,20 +388,20 @@ yatm.devices.register_stateful_network_device({
   end,
 
   on_dig = function (pos, node, digger)
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
     local inv = meta:get_inventory()
 
     if inv:is_empty("input_items") and
        inv:is_empty("processing_items") and
        inv:is_empty("output_items") then
-      return minetest.node_dig(pos, node, digger)
+      return core.node_dig(pos, node, digger)
     end
 
     return false
   end,
 
   refresh_infotext = function (pos)
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
 
     local infotext =
       cluster_devices:get_node_infotext(pos) .. "\n" ..
@@ -412,7 +412,7 @@ yatm.devices.register_stateful_network_device({
   end,
 
   on_rightclick = function (pos, node, user, item_stack, pointed_thing)
-    local formspec_name = "yatm_security:programmers_table:" .. minetest.pos_to_string(pos)
+    local formspec_name = "yatm_security:programmers_table:" .. core.pos_to_string(pos)
     local assigns = { pos = pos, node = node }
     local formspec = render_formspec(pos, user, assigns)
 

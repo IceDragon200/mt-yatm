@@ -7,7 +7,7 @@ suite:describe("Carbon Steel Block", function (t1)
     local pos = vector.new(0, 0, 0)
     local node = { name = "yatm_foundry:carbon_steel_block" }
 
-    minetest.place_node(pos, node)
+    core.place_node(pos, node)
 
     t2:yield()
   end)
@@ -34,7 +34,7 @@ suite:describe("Concrete", function (t1)
         local pos = vector.new(0, 0, 0)
         local node = { name = "yatm_foundry:concrete_" .. variant_basename .. "_" .. color_basename }
 
-        minetest.place_node(pos, node)
+        core.place_node(pos, node)
 
         t2:yield()
       end)
@@ -43,7 +43,7 @@ suite:describe("Concrete", function (t1)
         local pos = vector.new(0, 0, 0)
         local node = { name = "yatm_foundry:concrete_plate_" .. variant_basename .. "_" .. color_basename }
 
-        minetest.place_node(pos, node)
+        core.place_node(pos, node)
 
         t2:yield()
       end)
@@ -55,7 +55,7 @@ suite:describe("Concrete", function (t1)
           local pos = vector.new(0, 0, 0)
           local node = { name = "yatm_foundry:concrete_slab_" .. variant_basename .. "_" .. color_basename }
 
-          minetest.place_node(pos, node)
+          core.place_node(pos, node)
 
           t2:yield()
         end)

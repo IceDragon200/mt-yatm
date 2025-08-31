@@ -96,7 +96,7 @@ function yatm.codex.fill_cuboid(cuboid, node)
     end
   end
 
-  minetest.bulk_set_node(positions, node)
+  core.bulk_set_node(positions, node)
 end
 
 local function place_layer(origin, palette, dim, layer)
@@ -108,7 +108,7 @@ local function place_layer(origin, palette, dim, layer)
       local node = palette[cell]
       if node then
         local pos = vector.add(origin, vector.new(x, 0, y))
-        minetest.add_node(pos, node)
+        core.add_node(pos, node)
       else
         -- skip
       end

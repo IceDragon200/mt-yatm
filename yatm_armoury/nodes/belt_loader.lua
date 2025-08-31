@@ -18,7 +18,7 @@ local ItemInterface = assert(yatm.items.ItemInterface)
 
 local belt_loader_item_interface =
   ItemInterface.new_directional(function (self, pos, dir)
-    local node = minetest.get_node(pos)
+    local node = core.get_node(pos)
     local new_dir = Directions.facedir_to_face(node.param2, dir)
 
     if new_dir == Directions.D_EAST and new_dir == Directions.D_WEST then
@@ -64,7 +64,7 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine" }, function (loc, rect)
     if loc == "main_body" then
@@ -105,7 +105,7 @@ end
 local function on_construct(pos)
   yatm.devices.device_on_construct(pos)
 
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 end
 

@@ -1,17 +1,34 @@
+local mod = assert(yatm_data_logic)
+
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local string_hex_escape = assert(foundation.com.string_hex_escape)
-local is_table_empty = assert(foundation.com.is_table_empty)
+local data_network = assert(yatm.data_network)
+local get_node = assert(tetra.get_node)
+local get_meta = assert(tetra.get_meta)
 
 local cluster_thermal = yatm.cluster.thermal
 if not cluster_thermal then
   return
 end
 
-local data_network = assert(yatm.data_network)
+local function refresh_infotext(pos)
+  local meta = get_meta(pos)
+  local heat = math.floor(meta:get_float("heat"))
 
-minetest.register_node("yatm_data_logic:data_thermal_sensor", {
-  description = "DATA Thermal Sensor\nConnects to an existing thermal duct and samples temperature readings.",
+  local infotext =
+    cluster_thermal:get_node_infotext(pos) .. "\n" ..
+    data_network:get_infotext(pos) .. "\n" ..
+    "Heat: " .. heat .. "\n" ..
+    ""
+
+  meta:set_string("infotext", infotext)
+end
+
+core.register_node("yatm_data_logic:data_thermal_sensor", {
+  short_description = mod.S("DATA Thermal Sensor"),
+  description = mod.S("DATA Thermal Sensor") .. "\n"
+    .. mod.S("Connects to an existing thermal duct and samples temperature readings."),
 
   codex_entry_id = "yatm_data_logic:data_thermal_sensor",
 
@@ -48,7 +65,7 @@ minetest.register_node("yatm_data_logic:data_thermal_sensor", {
   },
 
   on_construct = function (pos)
-    local node = minetest.get_node(pos)
+    local node = get_node(pos)
     data_network:add_node(pos, node)
     cluster_thermal:schedule_add_node(pos, node)
   end,
@@ -64,12 +81,12 @@ minetest.register_node("yatm_data_logic:data_thermal_sensor", {
     },
 
     get_heat = function (self, pos, node)
-      local meta = minetest.get_meta(pos)
+      local meta = get_meta(pos)
       return meta:get_float("heat")
     end,
 
     update_heat = function (self, pos, node, heat, dtime)
-      local meta = minetest.get_meta(pos)
+      local meta = get_meta(pos)
       meta:set_float("heat", heat)
       yatm.queue_refresh_infotext(pos, node)
     end,
@@ -83,7 +100,7 @@ minetest.register_node("yatm_data_logic:data_thermal_sensor", {
   },
   data_interface = {
     update = function (self, pos, node, dtime)
-      local meta = minetest.get_meta(pos)
+      local meta = get_meta(pos)
 
       local time = meta:get_float("time")
       time = time - dtime
@@ -149,16 +166,5 @@ minetest.register_node("yatm_data_logic:data_thermal_sensor", {
     },
   },
 
-  refresh_infotext = function (pos)
-    local meta = minetest.get_meta(pos)
-    local heat = math.floor(meta:get_float("heat"))
-
-    local infotext =
-      cluster_thermal:get_node_infotext(pos) .. "\n" ..
-      data_network:get_infotext(pos) .. "\n" ..
-      "Heat: " .. heat .. "\n" ..
-      ""
-
-    meta:set_string("infotext", infotext)
-  end,
+  refresh_infotext = refresh_infotext,
 })

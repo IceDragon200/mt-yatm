@@ -1,10 +1,12 @@
 local Groups = assert(foundation.com.Groups)
 local Directions = assert(foundation.com.Directions)
+local sound_play = assert(core.sound_play)
+local get_node = assert(tetra.get_node)
 
 yatm.noteblock = yatm.noteblock or {}
 
 -- This is for no other purpose but reference
-local ROOT_NOTE = "F" -- all samples start from F and end on E
+-- local ROOT_NOTE = "F" -- all samples start from F and end on E
 
 local INS = {
   -- Melodic
@@ -162,19 +164,20 @@ for key, entry in pairs(INS) do
         entry.samples[i] = "yatm_noteblock_" .. key .. "_n" .. i --.. ".ogg"
       end
     end
-  else
-    --
   end
   entry.count = #entry.samples
 end
 
 local function play_instrument(pos, name, key, velo)
-  --minetest.log("action", "playing instrument sound name=" .. name .. " key=" .. key .. " velocity=" .. velo)
+  -- core.log(
+  --   "action",
+  --   "playing instrument sound name=" .. name .. " key=" .. key .. " velocity=" .. velo
+  -- )
   velo = velo or 127
   local ins = INS[name]
   local filename = ins.samples[1 + (key - 1) % ins.count]
 
-  minetest.sound_play({ name = filename, pitch = 1.0 }, {
+  sound_play({ name = filename, pitch = 1.0 }, {
     pos = pos,
     gain = velo / 127,
     max_hear_distance = 64,
@@ -184,9 +187,14 @@ end
 function yatm.noteblock.play_note(pos, node, key, velo)
   local new_dir = Directions.facedir_to_face(node.param2, Directions.D_DOWN)
   local tone_node_pos = vector.add(pos, Directions.DIR6_TO_VEC3[new_dir])
-  local tone_node = minetest.get_node(tone_node_pos)
+  local tone_node = get_node(tone_node_pos)
 
-  --print("noteblock_play_audio", minetest.pos_to_string(tone_node_pos), tone_node.name, dump(Groups.get_item_groups(tone_node.name)))
+  -- print(
+  --   "noteblock_play_audio",
+  --   core.pos_to_string(tone_node_pos),
+  --   tone_node.name,
+  --   dump(Groups.get_item_groups(tone_node.name))
+  -- )
 
   if Groups.item_has_group(tone_node.name, "plastic_block") then
     play_instrument(pos, "voc", key, velo)

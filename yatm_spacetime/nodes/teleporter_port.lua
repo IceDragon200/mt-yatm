@@ -15,7 +15,7 @@ local teleporter_port_node_box = {
 }
 
 local function refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
@@ -28,19 +28,19 @@ end
 
 local function teleporter_port_after_place_node(pos, placer, itemstack, pointed_thing)
   print("teleporter_port_after_place_node/4")
-  local new_meta = minetest.get_meta(pos)
+  local new_meta = core.get_meta(pos)
   local old_meta = itemstack:get_meta()
 
   SpacetimeMeta.copy_address(old_meta, new_meta)
   local address = SpacetimeMeta.patch_address(new_meta)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   spacetime_network:maybe_register_node(pos, node)
 
   yatm.devices.device_after_place_node(pos, placer, itemstack, pointed_thing)
 
   yatm.queue_refresh_infotext(pos, node)
 
-  minetest.after(0, mesecon.on_placenode, pos, node)
+  core.after(0, mesecon.on_placenode, pos, node)
 end
 
 local function teleporter_port_on_destruct(pos)

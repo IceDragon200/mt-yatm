@@ -14,7 +14,7 @@ local FluidExchange = assert(yatm.fluids.FluidExchange)
 
 local tank_capacity = 4000
 local fluid_interface = FluidInterface.new_directional(function (self, pos, dir)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   local new_dir = Directions.facedir_to_face(node.param2, dir)
   if new_dir == Directions.D_DOWN or new_dir == Directions.D_UP then
     return "input_fluid_tank", tank_capacity
@@ -24,7 +24,7 @@ local fluid_interface = FluidInterface.new_directional(function (self, pos, dir)
 end)
 
 local item_interface = ItemInterface.new_directional(function (self, pos, dir)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   local new_dir = Directions.facedir_to_face(node.param2, dir)
   if new_dir == Directions.D_DOWN or new_dir == Directions.D_UP then
     return "input_item"
@@ -34,7 +34,7 @@ local item_interface = ItemInterface.new_directional(function (self, pos, dir)
 end)
 
 local function kettle_on_construct(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   local inv = meta:get_inventory()
 
@@ -44,12 +44,12 @@ local function kettle_on_construct(pos)
 end
 
 local function kettle_on_timer(pos, dt)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local available_heat = meta:get_float("heat")
   if available_heat > 0 then
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
     local inv = meta:get_inventory()
-    --local node = minetest.get_node(pos)
+    --local node = core.get_node(pos)
 
     local remaining_time = meta:get_float("remaining_time")
     if remaining_time > 0 then
@@ -126,7 +126,7 @@ local thermal_interface = {
   },
 
   update_heat = function (self, pos, node, heat, dtime)
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
 
     if yatm.thermal.update_heat(meta, "heat", heat, 10, dtime) then
       local new_name
@@ -137,7 +137,7 @@ local thermal_interface = {
       end
       if new_name ~= node.name then
         node.name = new_name
-        minetest.swap_node(pos, node)
+        core.swap_node(pos, node)
       end
 
       maybe_start_node_timer(pos, 1.0)

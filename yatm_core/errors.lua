@@ -1,16 +1,16 @@
 function yatm.info(message)
-  minetest.log("info", message)
+  core.log("info", message)
 end
 
 function yatm.warn(message)
-  minetest.log("warning", message)
+  core.log("warning", message)
 end
 
 function yatm.error(message)
   if yatm.config.fail_loud then
     error("ERROR: " .. message)
   else
-    minetest.log("error", message)
+    core.log("error", message)
   end
 end
 

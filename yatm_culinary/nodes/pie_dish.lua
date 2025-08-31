@@ -24,7 +24,7 @@ local pie_dish_node_box = {
   },
 }
 
-minetest.register_node("yatm_culinary:pie_dish", {
+core.register_node("yatm_culinary:pie_dish", {
   codex_entry_id = "yatm_culinary:pie_dish",
 
   basename = "yatm_culinary:pie_dish",

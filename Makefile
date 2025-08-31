@@ -20,6 +20,7 @@ prepare.release:
 	cp -r --parents yatm_bees "${RELEASE_DIR}"
 	cp -r --parents yatm_blasts "${RELEASE_DIR}"
 	cp -r --parents yatm_blasts_emp "${RELEASE_DIR}"
+	cp -r --parents yatm_blasts_explosive "${RELEASE_DIR}"
 	cp -r --parents yatm_blasts_frost "${RELEASE_DIR}"
 	cp -r --parents yatm_brewery "${RELEASE_DIR}"
 	cp -r --parents yatm_brewery_apple_cider "${RELEASE_DIR}"

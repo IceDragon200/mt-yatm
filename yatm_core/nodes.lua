@@ -1,4 +1,4 @@
-minetest.register_node("yatm_core:face_debug", {
+core.register_node("yatm_core:face_debug", {
   description = "Face Debug",
 
   groups = {
@@ -22,7 +22,7 @@ minetest.register_node("yatm_core:face_debug", {
   is_ground_content = false,
 })
 
-minetest.register_node("yatm_core:grid_block", {
+core.register_node("yatm_core:grid_block", {
   description = "GRID\nDummy Block",
 
   groups = {

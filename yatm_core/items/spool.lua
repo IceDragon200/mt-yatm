@@ -1,4 +1,4 @@
-minetest.register_craftitem("yatm_core:spool", {
+core.register_craftitem("yatm_core:spool", {
   description = "Spool",
   inventory_image = "yatm_materials_spool.blank.png",
 
@@ -18,7 +18,7 @@ for _,material_pair in ipairs(materials) do
   local material_basename = material_pair[1]
   local material_name = material_pair[2]
 
-  minetest.register_craftitem("yatm_core:spool_" .. material_basename, {
+  core.register_craftitem("yatm_core:spool_" .. material_basename, {
     basename = "yatm_core:spool_wire",
     base_description = "Wire Spool",
 

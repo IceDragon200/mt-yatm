@@ -1,26 +1,27 @@
 --- @namespace yatm_data_network
+local world = core
 
 --- Primary instance of the yatm_data_network.DataNetwork
 --- @const data_network: yatm_data_network.DataNetwork
 yatm_data_network.data_network = yatm_data_network.DataNetwork:new{
-  world = minetest,
+  world = world,
   clusters = yatm.clusters
 }
 
 do
   -- the usual hooks
   -- initialization
-  minetest.register_on_mods_loaded(yatm_data_network.data_network:method("init"))
+  core.register_on_mods_loaded(yatm_data_network.data_network:method("init"))
   -- update
   nokore_proxy.register_globalstep(
     "yatm_data_network.update/1",
     yatm_data_network.data_network:method("update")
   )
   -- termination
-  minetest.register_on_shutdown(yatm_data_network.data_network:method("terminate"))
+  core.register_on_shutdown(yatm_data_network.data_network:method("terminate"))
 
   -- hook into the lbm to reload members of the cluster
-  minetest.register_lbm({
+  core.register_lbm({
     name = "yatm_data_network:data_network_reload_lbm",
 
     nodenames = {
@@ -32,7 +33,7 @@ do
     run_at_every_load = true,
     action = function (pos, node)
       yatm.data_network:upsert_member(pos, node)
-      local nodedef = minetest.registered_nodes[node.name]
+      local nodedef = core.registered_nodes[node.name]
 
       if nodedef then
         if nodedef.data_interface then

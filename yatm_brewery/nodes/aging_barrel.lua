@@ -66,11 +66,11 @@ local function stage_recipe_output(pos, meta, recipe)
 
   local item_stack
   if item_output then
-    item_stack = item:make_item_stack()
+    item_stack = item_output:make_item_stack()
   end
 
+  local inv = meta:get_inventory()
   if item_stack then
-    local inv = meta:get_inventory()
     if inv:get_size("stage_item_slot") < 1 then
       inv:set_size("stage_item_slot", 1)
     end
