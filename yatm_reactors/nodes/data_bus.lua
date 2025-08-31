@@ -6,7 +6,7 @@ if not data_network then
 end
 
 local function data_bus_refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   local infotext =
     cluster_reactor:get_node_infotext(pos) .. "\n" ..

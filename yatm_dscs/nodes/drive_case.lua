@@ -21,7 +21,7 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "dscs" }, function (loc, rect)
     if loc == "main_body" then
@@ -52,7 +52,7 @@ local function render_formspec(pos, user, state)
 end
 
 local function on_receive_fields(player, formname, fields, assigns)
-  local meta = minetest.get_meta(assigns.pos)
+  local meta = core.get_meta(assigns.pos)
   local inv = meta:get_inventory()
   local needs_refresh = false
 
@@ -62,7 +62,7 @@ local function on_receive_fields(player, formname, fields, assigns)
 end
 
 local function make_formspec_name(pos)
-  return "yatm_dscs:drive_case:" .. minetest.pos_to_string(pos)
+  return "yatm_dscs:drive_case:" .. core.pos_to_string(pos)
 end
 
 local function refresh_formspec(pos, _player)
@@ -112,7 +112,7 @@ local function on_rightclick(pos, node, user, item_stack, pointed_thing)
 end
 
 local function refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local infotext =
     "Drive Case\n" ..
     cluster_devices:get_node_infotext(pos) .. "\n" ..
@@ -164,7 +164,7 @@ local function allow_metadata_inventory_put(pos, listname, index, stack, player)
 end
 
 local function persist_drive_contents(pos, index)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   local drive_stack = inv:get_stack("drive_bay", index)
@@ -179,7 +179,7 @@ local function on_metadata_inventory_move(pos, from_list, from_index, to_list, t
   print("Moving stack from " .. from_list .. " to " .. to_list)
 
   if from_list == "drive_bay" or to_list == "drive_bay" then
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
     local inv = meta:get_inventory()
 
     local from_stack = inv:get_stack("drive_bay", from_index)
@@ -219,7 +219,7 @@ end
 
 local function on_metadata_inventory_put(pos, listname, index, stack, player)
   if listname == "drive_bay" then
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
 
     if yatm.dscs.is_item_stack_item_drive(stack) then
       local inv = meta:get_inventory()
@@ -231,7 +231,7 @@ local function on_metadata_inventory_put(pos, listname, index, stack, player)
 
       refresh_formspec(pos, player)
 
-      minetest.log("action", player:get_player_name() .. " installed an item drive")
+      core.log("action", player:get_player_name() .. " installed an item drive")
     elseif yatm.dscs.is_item_stack_fluid_drive(stack) then
       --
       local fluid_inventory_name = get_fluid_inventory_name(pos, index)
@@ -240,7 +240,7 @@ local function on_metadata_inventory_put(pos, listname, index, stack, player)
 
       refresh_formspec(pos, player)
 
-      minetest.log("action", player:get_player_name() .. " installed a fluid drive")
+      core.log("action", player:get_player_name() .. " installed a fluid drive")
     end
   end
 end
@@ -248,28 +248,28 @@ end
 local function on_metadata_inventory_take(pos, listname, index, stack, player)
   if listname == "drive_bay" then
     if yatm.dscs.is_item_stack_item_drive(stack) then
-      local meta = minetest.get_meta(pos)
+      local meta = core.get_meta(pos)
       local inv = meta:get_inventory()
 
       inv:set_size("drive_contents_" .. index, 0)
 
       refresh_formspec(pos, player)
 
-      minetest.log("action", player:get_player_name() .. " removed a drive")
+      core.log("action", player:get_player_name() .. " removed a drive")
     elseif yatm.dscs.is_item_stack_fluid_drive(stack) then
       local fluid_inventory_name = get_fluid_inventory_name(pos, index)
       yatm.fluids.fluid_inventories:destroy_fluid_inventory(fluid_inventory_name)
 
       refresh_formspec(pos, player)
 
-      minetest.log("action", player:get_player_name() .. " removed a drive")
+      core.log("action", player:get_player_name() .. " removed a drive")
     end
   end
 end
 
 function drive_case_yatm_network.on_load(pos, node)
   -- reload fluid inventories
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   for i = 1,DRIVE_BAY_SIZE do
@@ -284,7 +284,7 @@ end
 
 function drive_case_yatm_network.on_unload(pos, node)
   -- unload fluid inventories
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   for i = 1,DRIVE_BAY_SIZE do
@@ -337,7 +337,7 @@ yatm.devices.register_stateful_network_device({
 
   on_construct = function (pos)
     yatm.devices.device_on_construct(pos)
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
     local inv = meta:get_inventory()
     inv:set_size("drive_bay", DRIVE_BAY_SIZE)
   end,
@@ -351,11 +351,11 @@ yatm.devices.register_stateful_network_device({
   on_metadata_inventory_take = on_metadata_inventory_take,
 
   on_dig = function (pos, node, digger)
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
     local inv = meta:get_inventory()
 
     if inv:is_empty("drive_bay") then
-      return minetest.node_dig(pos, node, digger)
+      return core.node_dig(pos, node, digger)
     end
 
     return false

@@ -9,5 +9,5 @@ if yatm_oku.OKU and yatm_oku.OKU.has_arch then
     yatm_oku:require("tests/oku/isa/oku_forth32.lua")
   end
 else
-  minetest.log("warning", "OKU OKU_FORTH* ARCH are not available for testing")
+  core.log("warning", "OKU OKU_FORTH* ARCH are not available for testing")
 end

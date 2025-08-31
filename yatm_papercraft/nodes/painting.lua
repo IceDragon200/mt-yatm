@@ -83,7 +83,7 @@ local function register_painting(name, cols, rows, def)
       member_entry.cells[cell_name] = {
         pos = { x = col - 1, y = row - 1, z = 0 }
       }
-      minetest.register_node(cell_name, new_def)
+      core.register_node(cell_name, new_def)
     end
   end
 end

@@ -1,4 +1,4 @@
-minetest.register_tool("yatm_packs:health_pack_pouch", {
+core.register_tool("yatm_packs:health_pack_pouch", {
   description = "Health Pack Pouch",
 
   groups = {

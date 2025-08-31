@@ -21,7 +21,7 @@ yatm.Clusters = assert(yatm_clusters.Clusters)
 
 --- @const yatm_clusters.clusters: yatm_clusters.Clusters
 yatm_clusters.clusters = yatm.Clusters:new{
-  world = minetest,
+  world = tetra,
 }
 
 --- @const yatm.clusters: yatm_clusters.Clusters

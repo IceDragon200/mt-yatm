@@ -6,7 +6,7 @@
 local ffi = yatm_oku.ffi
 
 if not ffi then
-  minetest.log("error", "ffi unavailable, not loading riscv emulation")
+  core.log("error", "ffi unavailable, not loading riscv emulation")
   return
 end
 

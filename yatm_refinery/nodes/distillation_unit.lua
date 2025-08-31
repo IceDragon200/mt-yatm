@@ -49,7 +49,7 @@ local DISTILLED_TANK = "distilled_tank"
 local TANK_CAPACITY = 16000
 
 local function get_fluid_tank_name(self, pos, dir)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   local new_dir = Directions.facedir_to_face(node.param2, dir)
   if new_dir == Directions.D_UP then
     return OUTPUT_STEAM_TANK, self._private.capacity
@@ -66,7 +66,7 @@ fluid_interface._private.capacity = TANK_CAPACITY
 fluid_interface._private.bandwidth = fluid_interface._private.capacity
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   yatm.queue_refresh_infotext(pos, node)
 end
 
@@ -252,7 +252,7 @@ function distillation_unit_yatm_network:work(ctx)
 end
 
 local function refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   local output_steam_fluid_stack = FluidMeta.get_fluid_stack(meta, OUTPUT_STEAM_TANK)
   local input_steam_fluid_stack = FluidMeta.get_fluid_stack(meta, INPUT_STEAM_TANK)
@@ -285,7 +285,7 @@ end
 local function render_formspec(pos, user, state)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
 

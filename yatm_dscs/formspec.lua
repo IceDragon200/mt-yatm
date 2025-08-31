@@ -1,8 +1,8 @@
-local hash_node_position = assert(minetest.hash_node_position)
+local hash_node_position = assert(core.hash_node_position)
 local fspec = assert(foundation.com.formspec.api)
 local metaref_string_list_to_table = assert(foundation.com.metaref_string_list_to_table)
 
-local string_to_pos = assert(minetest.string_to_pos)
+local string_to_pos = assert(core.string_to_pos)
 
 local get_inventory_controller_def = assert(yatm.dscs.get_inventory_controller_def)
 
@@ -30,7 +30,7 @@ function my_fspec.render_inventory_controller_at(options)
 
   if ivc_node_entry then
     return fspec.item_image(x, y, w, h, ivc_node_entry.node.name) ..
-      fspec.tooltip_area(x, y, w, h, minetest.pos_to_string(ivc_node_entry.pos))
+      fspec.tooltip_area(x, y, w, h, core.pos_to_string(ivc_node_entry.pos))
   end
 
   return ""
@@ -68,7 +68,7 @@ function my_fspec.render_inventory_controller_children_at(options)
     return formspec
   end
 
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   local inv_con = get_inventory_controller_def(pos, node)
 
@@ -110,7 +110,7 @@ function my_fspec.render_inventory_controller_children_at(options)
                 dy,
                 1,
                 1,
-                child_node_entry.node.name .. " " .. minetest.pos_to_string(child_node_entry.pos)
+                child_node_entry.node.name .. " " .. core.pos_to_string(child_node_entry.pos)
               )
           else
             formspec =

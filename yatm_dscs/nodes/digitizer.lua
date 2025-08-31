@@ -73,7 +73,7 @@ function digitizer_yatm_network:work(ctx)
 end
 
 local function refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local infotext =
     "Digitizer\n" ..
     cluster_devices:get_node_infotext(pos) .. "\n" ..
@@ -121,7 +121,7 @@ yatm.devices.register_stateful_network_device({
   refresh_infotext = refresh_infotext,
 
   on_construct = function (pos)
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
     local inventory = meta:get_inventory()
 
     inventory:set_size("main", 6)
@@ -130,12 +130,12 @@ yatm.devices.register_stateful_network_device({
   end,
 
   on_dig = function (pos, node, digger)
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
     local inv = meta:get_inventory()
 
     local fluid_stack = FluidMeta.get_fluid_stack(meta, "tank")
     if inv:is_empty("main") and FluidStack.is_empty(fluid_stack) then
-      return minetest.node_dig(pos, node, digger)
+      return core.node_dig(pos, node, digger)
     end
 
     return false

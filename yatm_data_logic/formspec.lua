@@ -113,8 +113,8 @@ function yatm_data_logic.get_port_matrix_formspec(pos, meta, options)
 
         if section.label then
           formspec =
-            formspec ..
-            "label[" .. section_x .. "," .. section_y .. ";" .. core.formspec_escape(section.label) .. "]"
+            formspec
+            .. fspec.label(section_x, section_y, section.label)
 
           section_y = section_y + 1
         end
@@ -125,7 +125,8 @@ function yatm_data_logic.get_port_matrix_formspec(pos, meta, options)
           local x = section_x + ((port_id - 1) % section.cols) * section_col_width
           local y = section_y + math.floor((port_id - 1) / section.cols)
 
-          local field_name = section.name .. "_" .. dir .. "_" .. (section.port_names[port_id] or port_id)
+          local field_name =
+            section.name .. "_" .. dir .. "_" .. (section.port_names[port_id] or port_id)
           local field_label = section.port_labels[port_id] or field_name
 
           formspec =
@@ -285,7 +286,17 @@ function yatm_data_logic.render_io_port_formspec(pos, meta, mode, options)
   end
 end
 
-function yatm_data_logic.render_io_port_vector(x, y, w, h, bit_count, vector_length, port_prefix, label, meta)
+function yatm_data_logic.render_io_port_vector(
+  x,
+  y,
+  w,
+  h,
+  bit_count,
+  vector_length,
+  port_prefix,
+  label,
+  meta
+)
   local single_field = false
 
   local formspec = ""
@@ -303,7 +314,7 @@ function yatm_data_logic.render_io_port_vector(x, y, w, h, bit_count, vector_len
       formspec ..
       fspec.field_area(x, y, w, h,
                        port_prefix, label,
-                       default_value)
+                       vector_value)
   else
     local selected_port_index = meta:get_int(port_prefix.."_selected_port")
     selected_port_index = math.max(math.min(selected_port_index, vector_length), 1)

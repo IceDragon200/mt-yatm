@@ -23,7 +23,7 @@ local node_box = {
   },
 }
 
-minetest.register_node("yatm_frames:frame", {
+core.register_node("yatm_frames:frame", {
   description = "Frame",
 
   codex_entry_id = "yatm_frames:frame",
@@ -49,7 +49,7 @@ minetest.register_node("yatm_frames:frame", {
 })
 
 -- Sticky frames act like sticky pistons dragging any connected nodes with it
-minetest.register_node("yatm_frames:frame_sticky_one", {
+core.register_node("yatm_frames:frame_sticky_one", {
   description = "Sticky Frame (One Face)",
 
   codex_entry_id = "yatm_frames:frame_sticky",
@@ -80,7 +80,7 @@ minetest.register_node("yatm_frames:frame_sticky_one", {
   paramtype2 = "facedir",
 })
 
-minetest.register_node("yatm_frames:frame_sticky_two", {
+core.register_node("yatm_frames:frame_sticky_two", {
   description = "Sticky Frame (Two Faces)",
 
   codex_entry_id = "yatm_frames:frame_sticky",
@@ -111,7 +111,7 @@ minetest.register_node("yatm_frames:frame_sticky_two", {
   paramtype2 = "facedir",
 })
 
-minetest.register_node("yatm_frames:frame_sticky_three", {
+core.register_node("yatm_frames:frame_sticky_three", {
   description = "Sticky Frame (Three Faces)",
 
   codex_entry_id = "yatm_frames:frame_sticky",
@@ -143,7 +143,7 @@ minetest.register_node("yatm_frames:frame_sticky_three", {
 })
 
 -- This is a different four face configuration
-minetest.register_node("yatm_frames:frame_sticky_four", {
+core.register_node("yatm_frames:frame_sticky_four", {
   description = "Sticky Frame (Four Faces)",
 
   codex_entry_id = "yatm_frames:frame_sticky",
@@ -174,7 +174,7 @@ minetest.register_node("yatm_frames:frame_sticky_four", {
   paramtype2 = "facedir",
 })
 
-minetest.register_node("yatm_frames:frame_sticky_cross_axle", {
+core.register_node("yatm_frames:frame_sticky_cross_axle", {
   description = "Sticky Frame (Cross Axle)",
 
   codex_entry_id = "yatm_frames:frame_sticky",
@@ -205,7 +205,7 @@ minetest.register_node("yatm_frames:frame_sticky_cross_axle", {
   paramtype2 = "facedir",
 })
 
-minetest.register_node("yatm_frames:frame_sticky_five", {
+core.register_node("yatm_frames:frame_sticky_five", {
   description = "Sticky Frame (Five Faces)",
 
   codex_entry_id = "yatm_frames:frame_sticky",
@@ -236,7 +236,7 @@ minetest.register_node("yatm_frames:frame_sticky_five", {
   paramtype2 = "facedir",
 })
 
-minetest.register_node("yatm_frames:frame_sticky", {
+core.register_node("yatm_frames:frame_sticky", {
   description = "Sticky Frame (All Faces)",
 
   codex_entry_id = "yatm_frames:frame_sticky",
@@ -263,7 +263,7 @@ minetest.register_node("yatm_frames:frame_sticky", {
   place_param2 = 0,
 })
 
-minetest.register_node("yatm_frames:frame_sticky_axle", {
+core.register_node("yatm_frames:frame_sticky_axle", {
   description = "Sticky Frame (Axle)",
 
   codex_entry_id = "yatm_frames:frame_sticky",
@@ -295,7 +295,7 @@ minetest.register_node("yatm_frames:frame_sticky_axle", {
 })
 
 -- Wire frames, prevent other frames from connecting to it, but still affected by frame motors
-minetest.register_node("yatm_frames:frame_wire_one", {
+core.register_node("yatm_frames:frame_wire_one", {
   description = "Wire Frame (One Face)",
 
   codex_entry_id = "yatm_frames:frame_wire",
@@ -326,7 +326,7 @@ minetest.register_node("yatm_frames:frame_wire_one", {
   paramtype2 = "facedir",
 })
 
-minetest.register_node("yatm_frames:frame_wire", {
+core.register_node("yatm_frames:frame_wire", {
   description = "Wire Frame (All Faces)",
 
   codex_entry_id = "yatm_frames:frame_wire",
@@ -352,7 +352,7 @@ minetest.register_node("yatm_frames:frame_wire", {
   paramtype2 = "facedir",
 })
 
-minetest.register_node("yatm_frames:frame_wire_axle", {
+core.register_node("yatm_frames:frame_wire_axle", {
   description = "Wire Frame (Wire Axle)",
 
   codex_entry_id = "yatm_frames:frame_wire",
@@ -383,7 +383,7 @@ minetest.register_node("yatm_frames:frame_wire_axle", {
   paramtype2 = "facedir",
 })
 
-minetest.register_node("yatm_frames:frame_wire_and_sticky_axle", {
+core.register_node("yatm_frames:frame_wire_and_sticky_axle", {
   description = "Wire Frame (Wire & Sticky Axle)",
 
   codex_entry_id = "yatm_frames:frame_wire_and_sticky",
@@ -416,7 +416,7 @@ minetest.register_node("yatm_frames:frame_wire_and_sticky_axle", {
   paramtype2 = "facedir",
 })
 
-minetest.register_node("yatm_frames:frame_wire_and_sticky_cross_axle_1", {
+core.register_node("yatm_frames:frame_wire_and_sticky_cross_axle_1", {
   description = "Wire Frame (Wire & Sticky Cross Axle 1)",
 
   codex_entry_id = "yatm_frames:frame_wire_and_sticky",
@@ -449,7 +449,7 @@ minetest.register_node("yatm_frames:frame_wire_and_sticky_cross_axle_1", {
   paramtype2 = "facedir",
 })
 
-minetest.register_node("yatm_frames:frame_wire_and_sticky_cross_axle_2", {
+core.register_node("yatm_frames:frame_wire_and_sticky_cross_axle_2", {
   description = "Wire Frame (Wire & Sticky Cross Axle 2)",
 
   codex_entry_id = "yatm_frames:frame_wire_and_sticky",

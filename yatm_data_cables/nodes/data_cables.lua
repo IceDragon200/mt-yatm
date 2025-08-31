@@ -465,12 +465,18 @@ local function register_riser_bracket(color_basename, color_name)
     sounds = yatm.node_sounds:build("metal"),
 
     tiles = {
-      "yatm_data_cable_" .. color_basename .. ".riser.front.png^yatm_data_cable_bracket.riser.top.png",
-      "yatm_data_cable_" .. color_basename .. ".riser.front.png^yatm_data_cable_bracket.riser.top.png",
-      "yatm_data_cable_" .. color_basename .. ".riser.side.png^yatm_data_cable_bracket.riser.side.png",
-      "yatm_data_cable_" .. color_basename .. ".riser.side.png^yatm_data_cable_bracket.riser.side.png^[transformFX",
-      "yatm_data_cable_" .. color_basename .. ".riser.front.png^yatm_data_cable_bracket.riser.front.png",
-      "yatm_data_cable_" .. color_basename .. ".riser.front.png^yatm_data_cable_bracket.riser.front.png",
+      "yatm_data_cable_" ..
+        color_basename .. ".riser.front.png^yatm_data_cable_bracket.riser.top.png",
+      "yatm_data_cable_" ..
+        color_basename .. ".riser.front.png^yatm_data_cable_bracket.riser.top.png",
+      "yatm_data_cable_" ..
+        color_basename .. ".riser.side.png^yatm_data_cable_bracket.riser.side.png",
+      "yatm_data_cable_" ..
+        color_basename .. ".riser.side.png^yatm_data_cable_bracket.riser.side.png^[transformFX",
+      "yatm_data_cable_" ..
+        color_basename .. ".riser.front.png^yatm_data_cable_bracket.riser.front.png",
+      "yatm_data_cable_" ..
+        color_basename .. ".riser.front.png^yatm_data_cable_bracket.riser.front.png",
     },
     use_texture_alpha = "clip",
 

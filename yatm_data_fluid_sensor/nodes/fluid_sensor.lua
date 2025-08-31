@@ -12,10 +12,12 @@ local data_network = assert(yatm.data_network)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local Changeset = assert(yatm_core.Changeset)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
 
 local function get_fluid_sensor_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local formspec =
     "size[8,9]" ..
     yatm.formspec_bg_for_player(user:get_player_name(), "data") ..
@@ -49,7 +51,7 @@ local FieldsSchema = {
 }
 
 local function on_receive_fields(player, formname, fields, assigns)
-  local meta = minetest.get_meta(assigns.pos)
+  local meta = get_meta(assigns.pos)
 
   local changeset = Changeset:new(FieldsSchema, {})
   changeset:cast(
@@ -75,7 +77,7 @@ local function on_receive_fields(player, formname, fields, assigns)
 end
 
 local function fluid_sensor_refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local infotext =
     data_network:get_infotext(pos)
 
@@ -94,8 +96,8 @@ local data_interface = {}
 function data_interface:update(pos, node, dt)
   --
   -- TODO: Allow configuring a sampling interval for the sensor
-  --print("FluidSensor", "data update", minetest.pos_to_string(pos), node.name)
-  local meta = minetest.get_meta(pos)
+  --print("FluidSensor", "data update", core.pos_to_string(pos), node.name)
+  local meta = get_meta(pos)
 
   local capacity_port = meta:get_int("capacity_port")
   local amount_port = meta:get_int("amount_port")
@@ -105,7 +107,7 @@ function data_interface:update(pos, node, dt)
 
   for d6, v3 in pairs(Directions.DIR6_TO_VEC3) do
     local new_pos = vector.add(pos, v3)
-    local node = minetest.get_node(new_pos)
+    local node = get_node(new_pos)
 
     if node.name ~= "air" then
       local id6 = Directions.invert_dir(d6)
@@ -116,17 +118,17 @@ function data_interface:update(pos, node, dt)
 
         if capacity_port > 0 then
           if capacity then
-            --print("Reporting capacity to port", capacity_port, minetest.pos_to_string(new_pos), capacity)
+            --print("Reporting capacity to port", capacity_port, core.pos_to_string(new_pos), capacity)
             data_network:send_value(pos, node, capacity_port, capacity)
           else
-            --print("no capacity", minetest.pos_to_string(new_pos), id6, node.name, err)
+            --print("no capacity", core.pos_to_string(new_pos), id6, node.name, err)
             data_network:send_value(pos, node, capacity_port, 0)
           end
         end
 
         if amount_port > 0 then
           if fluid_stack then
-            --print("Reporting fluid_stack.amount to port 2", minetest.pos_to_string(new_pos), fluid_stack.amount)
+            --print("Reporting fluid_stack.amount to port 2", core.pos_to_string(new_pos), fluid_stack.amount)
             data_network:send_value(pos, node, amount_port, fluid_stack.amount)
           else
             data_network:send_value(pos, node, amount_port, 0)
@@ -177,7 +179,7 @@ end
 
 local function fluid_sensor_on_construct(pos)
   --
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   meta:set_int("capacity_port", 0)
   meta:set_int("amount_port", 0)
@@ -187,13 +189,13 @@ local function fluid_sensor_on_construct(pos)
 end
 
 local function fluid_sensor_after_place_node(pos, _placer, _item_stack, _pointed_thin)
-  print("fluid_sensor_after_place_node", minetest.pos_to_string(pos))
-  local node = minetest.get_node(pos)
+  print("fluid_sensor_after_place_node", core.pos_to_string(pos))
+  local node = get_node(pos)
   data_network:add_node(pos, node)
 end
 
 local function fluid_sensor_on_destruct(pos, old_node)
-  print("fluid_sensor_on_destruct", minetest.pos_to_string(pos))
+  print("fluid_sensor_on_destruct", core.pos_to_string(pos))
   --
   data_network:unregister_member(pos, old_node)
 end
@@ -224,7 +226,7 @@ local groups = {
   yatm_data_device = 1,
 }
 
-minetest.register_node("yatm_data_fluid_sensor:fluid_sensor", {
+core.register_node("yatm_data_fluid_sensor:fluid_sensor", {
   codex_entry_id = "yatm_data_fluid_sensor:fluid_sensor",
 
   description = "Fluid Sensor",
@@ -257,7 +259,7 @@ minetest.register_node("yatm_data_fluid_sensor:fluid_sensor", {
   after_destruct = fluid_sensor_after_destruct,
 
   on_rightclick = function (pos, node, user)
-    local formspec_name = "yatm_data_fluid_sensor:fluid_sensor:" .. minetest.pos_to_string(pos)
+    local formspec_name = "yatm_data_fluid_sensor:fluid_sensor:" .. core.pos_to_string(pos)
     local formspec = get_fluid_sensor_formspec(pos, user)
 
     nokore.formspec_bindings:show_formspec(user:get_player_name(), formspec_name, formspec, {

@@ -14,12 +14,12 @@ yatm.mining = yatm.mining or {}
 ---   list_name: String
 --- ): NodeRef
 function yatm.mining.drill_node_to_meta_inventory(pos, meta, list_name)
-  local node = minetest.get_node_or_nil(pos)
+  local node = core.get_node_or_nil(pos)
   if node then
     if node.name == "air" then
       return node
     else
-      local drops = minetest.get_node_drops(node, nil)
+      local drops = core.get_node_drops(node, nil)
 
       local inv = meta:get_inventory()
       local list = inv:get_list(list_name)
@@ -30,7 +30,7 @@ function yatm.mining.drill_node_to_meta_inventory(pos, meta, list_name)
 
         if not next(leftovers) then
           inv:set_list(list_name, list)
-          minetest.remove_node(pos)
+          core.remove_node(pos)
           return node
         end
       end

@@ -25,8 +25,8 @@ end
 function ic:register_listener(pos, address)
   assert(pos, "expected a valid position")
   assert(address, "expected a valid address")
-  print("yatm_mesecon_hubs.wireless_network", "register_listener/2", minetest.pos_to_string(pos), address)
-  local hash = minetest.hash_node_position(pos)
+  print("yatm_mesecon_hubs.wireless_network", "register_listener/2", core.pos_to_string(pos), address)
+  local hash = core.hash_node_position(pos)
 
   self.m_members[hash] = address
   self.m_members_by_address[address] = self.m_members_by_address[address] or {}
@@ -35,8 +35,8 @@ end
 
 function ic:unregister_listener(pos)
   assert(pos, "expected a valid position")
-  print("yatm_mesecon_hubs.wireless_network", "unregister_listener/2", minetest.pos_to_string(pos))
-  local hash = minetest.hash_node_position(pos)
+  print("yatm_mesecon_hubs.wireless_network", "unregister_listener/2", core.pos_to_string(pos))
+  local hash = core.hash_node_position(pos)
 
   local address = self.m_members[hash]
   self.m_members[hash] = nil
@@ -55,7 +55,7 @@ function ic:emit_value(from_pos, to_address, value)
   assert(from_pos, "expected an origin position")
   assert(to_address, "expected a target address")
   assert(value, "expected a value")
-  --print("emit_value/3", minetest.pos_to_string(from_pos), dump(to_address), dump(value))
+  --print("emit_value/3", core.pos_to_string(from_pos), dump(to_address), dump(value))
   self.m_queue[to_address] = { pos = from_pos, value = value }
 end
 
@@ -70,21 +70,21 @@ function ic:dispatch_queued()
 
     if self.m_members_by_address[address] then
       for _hash,pos in pairs(self.m_members_by_address[address]) do
-        node = minetest.get_node(pos)
+        node = core.get_node(pos)
         if node then
-          nodedef = minetest.registered_nodes[node.name]
+          nodedef = core.registered_nodes[node.name]
 
           if nodedef and nodedef.mesecons_wireless_device then
             mwd = nodedef.mesecons_wireless_device
 
             if mwd.action_pdu then
-              --print("Triggering action_pdu/3", minetest.pos_to_string(pos), node.name, dump(event))
+              --print("Triggering action_pdu/3", core.pos_to_string(pos), node.name, dump(event))
               mwd.action_pdu(pos, node, event)
             else
-              print("Device at", minetest.pos_to_string(pos), "does not define action_pdu/3")
+              print("Device at", core.pos_to_string(pos), "does not define action_pdu/3")
             end
           else
-            print("Device at", minetest.pos_to_string(pos), "was registered but does not define mesecons_wireless_device")
+            print("Device at", core.pos_to_string(pos), "was registered but does not define mesecons_wireless_device")
           end
         end
       end
@@ -121,16 +121,16 @@ nokore_proxy.register_globalstep(
   "yatm_mesecon_hubs.update/1",
   wireless_network:method("update")
 )
-minetest.register_on_shutdown(wireless_network:method("terminate"))
+core.register_on_shutdown(wireless_network:method("terminate"))
 
-minetest.register_lbm({
+core.register_lbm({
   name = "yatm_mesecon_hubs:listening_hub_device_reregister",
   nodenames = {
     "group:listening_hub_device",
   },
   run_at_every_load = true,
   action = function (pos, node)
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
     local address = NetworkMeta.get_hub_address(meta)
     if not is_blank(address) then
       wireless_network:register_listener(pos, address)

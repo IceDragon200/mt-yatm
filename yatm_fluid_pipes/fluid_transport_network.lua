@@ -26,12 +26,12 @@ local m = assert(FluidTransportNetwork.instance_class)
 local function inspect_node(pos, dir)
   assert(pos, "expected a position")
   assert(dir, "expected a direction")
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   local dir_string = assert(DIR_TO_STRING[dir], "dir " .. dump(dir) .. " is not a valid direction")
   if node then
-    return "<" .. minetest.pos_to_string(pos) .. " " .. node.name .. " dir " .. dir_string .. "> "
+    return "<" .. core.pos_to_string(pos) .. " " .. node.name .. " dir " .. dir_string .. "> "
   else
-    return "<" .. minetest.pos_to_string(pos) .. " NO_NODE dir " .. dir_string .. ">"
+    return "<" .. core.pos_to_string(pos) .. " NO_NODE dir " .. dir_string .. ">"
   end
 end
 
@@ -59,17 +59,17 @@ function m:update_extractor_duct(network, extractor_hash, extractor, fluids_avai
     end
     new_pos = vector.add(extractor.pos, v3)
     node_face_dir = invert_dir(vdir)
-    --print("Attempting drain", minetest.pos_to_string(new_pos), dir)
+    --print("Attempting drain", core.pos_to_string(new_pos), dir)
     stack, reason = FluidTanks.drain_fluid(new_pos, node_face_dir, wildcard_stack, false)
     if stack and stack.amount > 0 then
       --print("Extractor", inspect_node(extractor.pos, vdir), "extracted", FluidStack.to_string(stack), "from", inspect_node(new_pos, node_face_dir))
-      new_hash = minetest.hash_node_position(new_pos)
+      new_hash = core.hash_node_position(new_pos)
       fluids_available[extractor_hash] = fluids_available[extractor_hash] or {}
       fa = fluids_available[extractor_hash]
       fa[new_hash] = {pos = new_pos, dir = node_face_dir, stack = stack}
       wildcard_stack = FluidStack.dec_amount(wildcard_stack, stack.amount)
     elseif network.debug then
-      print("drain_fluid error", minetest.pos_to_string(new_pos), reason)
+      print("drain_fluid error", core.pos_to_string(new_pos), reason)
     end
   end
 end
@@ -107,7 +107,7 @@ function m:update_inserter_duct(network, inserter_hash, inserter, fluids_availab
           new_stack = FluidStack.dec_amount(stack, used_stack.amount)
           entry.stack = new_stack
         elseif network.debug then
-          print("fill_fluid error", minetest.pos_to_string(target_pos), reason)
+          print("fill_fluid error", core.pos_to_string(target_pos), reason)
         end
 
         if entry.stack.amount > 0 then
@@ -173,7 +173,7 @@ do
     yatm_fluid_pipes.fluid_transport_network:method("update")
   )
 
-  minetest.register_lbm({
+  core.register_lbm({
     name = "yatm_fluid_pipes:fluid_transport_network_reload_lbm",
     nodenames = {
       "group:fluid_network_device",

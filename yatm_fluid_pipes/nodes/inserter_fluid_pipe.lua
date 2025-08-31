@@ -1,7 +1,7 @@
 local fluid_transport_network = assert(yatm.fluids.fluid_transport_network)
 
 local function on_construct(pos)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   fluid_transport_network:register_member(pos, node)
 end
 
@@ -16,7 +16,7 @@ end
 local fsize = (10 / 16.0) / 2
 local size = (8 / 16.0) / 2
 
-minetest.register_node("yatm_fluid_pipes:inserter_fluid_pipe", {
+core.register_node("yatm_fluid_pipes:inserter_fluid_pipe", {
   basename = "yatm_fluid_pipes:inserter_fluid_pipe",
 
   description = "Inserter Fluid Pipe",

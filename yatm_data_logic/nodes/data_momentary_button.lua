@@ -2,6 +2,7 @@ local Cuboid = assert(foundation.com.Cuboid)
 local is_table_empty = assert(foundation.com.is_table_empty)
 local ng = Cuboid.new_fast_node_box
 local sounds = assert(yatm.sounds)
+local fspec = assert(foundation.com.formspec.api)
 local data_network = assert(yatm.data_network)
 local get_node = assert(tetra.get_node)
 local get_meta = assert(tetra.get_meta)

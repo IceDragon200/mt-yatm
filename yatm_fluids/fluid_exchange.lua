@@ -125,9 +125,9 @@ function FluidExchange.transfer_from_tank_to_adjacent_tank(
   fluid_stack,
   commit
 )
-  local node = minetest.get_node_or_nil(from_pos)
+  local node = core.get_node_or_nil(from_pos)
   if node then
-    local nodedef = minetest.registered_nodes[node.name]
+    local nodedef = core.registered_nodes[node.name]
     local dir = local_dir
     if nodedef.paramtype2 == "facedir" then
       dir = Directions.facedir_to_face(node.param2, local_dir)

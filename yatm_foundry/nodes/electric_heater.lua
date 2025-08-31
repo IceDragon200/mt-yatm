@@ -51,7 +51,7 @@ function heater_yatm_network:work(ctx)
 end
 
 local function refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   -- We only really care about the integral heat, it's only a float because of the dtime.
   local heat = math.floor(meta:get_float("heat"))
@@ -69,7 +69,7 @@ end
 local function render_formspec(pos, user, state)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
 
@@ -178,14 +178,14 @@ yatm.devices.register_stateful_network_device({
     },
 
     get_heat = function (self, pos, node)
-      local meta = minetest.get_meta(pos)
+      local meta = core.get_meta(pos)
       return meta:get_float("heat")
     end,
 
     update = function (self, pos, node, dtime)
       -- because devices don't 'work' when their offline, the thermal system will handle the heat dissipation
       if node.name ~= "yatm_foundry:electric_heater_on" then
-        local meta = minetest.get_meta(pos)
+        local meta = core.get_meta(pos)
         local heat = meta:get_float("heat")
         heat = math.max(heat - 5 * dtime, 0)
         meta:set_float("heat", heat)

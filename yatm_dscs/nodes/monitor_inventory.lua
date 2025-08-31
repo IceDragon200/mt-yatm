@@ -18,7 +18,7 @@ local groups = {
 }
 
 local function get_formspec_name(pos)
-  return "yatm_dscs:drive_case:" .. minetest.pos_to_string(pos)
+  return "yatm_dscs:drive_case:" .. core.pos_to_string(pos)
 end
 
 local function get_formspec(pos, user, assigns)
@@ -41,7 +41,7 @@ local function get_formspec(pos, user, assigns)
 end
 
 local function refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local infotext =
     "Inventory Monitor\n" ..
     cluster_devices:get_node_infotext(pos) .. "\n" ..

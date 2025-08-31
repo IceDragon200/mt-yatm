@@ -1,4 +1,4 @@
-minetest.register_node("yatm_packs:ammo_pack", {
+core.register_node("yatm_packs:ammo_pack", {
   description = "Ammo Pack",
 
   groups = {

@@ -11,7 +11,7 @@ local yatm_fspec = assert(yatm.formspec)
 
 --- @spec.private migrate(pos: Vector3): void
 local function migrate(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   local inv = meta:get_inventory()
   inv:set_size("drive_slot", 1)
@@ -20,7 +20,7 @@ end
 
 --- @spec.private persist_drive_contents(pos: Vector3): void
 local function persist_drive_contents(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   local drive_stack = inv:get_stack("drive_slot", 1)
@@ -33,12 +33,12 @@ end
 
 --- @spec get_formspec_name(pos: Vector3): String
 local function get_formspec_name(pos)
-  return "yatm_dscs:void_chest:" .. minetest.pos_to_string(pos)
+  return "yatm_dscs:void_chest:" .. core.pos_to_string(pos)
 end
 
 --- @spec.private refresh_item_inventory(pos: Vector3): void
 local function refresh_item_inventory(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   local drive_stack = inv:get_stack("drive_slot", 1)
@@ -57,7 +57,7 @@ end
 
 --- @spec.private destroy_item_inventory(pos: Vector3): void
 local function destroy_item_inventory(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   inv:set_size("drive_contents", 0)
@@ -66,7 +66,7 @@ end
 
 --- @spec.private swap_drives(pos: Vector3): void
 local function swap_drives(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   local installed_stack = inv:get_stack("drive_slot", 1)
@@ -86,7 +86,7 @@ end
 
 --- @spec.private set_drive_label(pos: Vector3, label: String): void
 local function set_drive_label(pos, label)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
   local stack = inv:get_stack("drive_slot", 1)
   if not stack:is_empty() then
@@ -104,7 +104,7 @@ local function render_formspec(pos, user, assigns)
   assert(user, "expected a user")
   assert(assigns, "expected assigns")
 
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
@@ -282,7 +282,7 @@ end
 local function on_metadata_inventory_put(pos, listname, index, item_stack, player)
   if listname == "drive_slot_input" then
     if yatm.dscs.is_item_stack_item_drive(item_stack) then
-      minetest.log("action", player:get_player_name() .. " placed a drive for installation")
+      core.log("action", player:get_player_name() .. " placed a drive for installation")
     end
   elseif listname == "drive_contents" then
     persist_drive_contents(pos)
@@ -292,13 +292,13 @@ end
 local function on_metadata_inventory_take(pos, listname, index, item_stack, player)
   if listname == "drive_slot_input" then
     if yatm.dscs.is_item_stack_item_drive(item_stack) then
-      minetest.log("action", player:get_player_name() .. " removed a drive from input")
+      core.log("action", player:get_player_name() .. " removed a drive from input")
     end
   end
 end
 
 local function receive_fields(player, formname, fields, assigns)
-  local meta = minetest.get_meta(assigns.pos)
+  local meta = core.get_meta(assigns.pos)
   local inv = meta:get_inventory()
   local needs_refresh = false
 
@@ -348,14 +348,14 @@ local function on_rightclick(pos, node, user, item_stack, pointed_thing)
 end
 
 local function on_dig(pos, node, player)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   if not inv:is_empty("drive_slot") then
     return false
   end
 
-  return minetest.node_dig(pos, node, player)
+  return core.node_dig(pos, node, player)
 end
 
 local function on_blast(pos, intensity)
@@ -363,7 +363,7 @@ local function on_blast(pos, intensity)
   persist_drive_contents(pos)
   foundation.com.get_inventory_drops(pos, "drive_slot", drops)
   table.insert(drops, mod:make_name("void_chest_off"))
-  minetest.remove_node(pos)
+  core.remove_node(pos)
   return drops
 end
 
@@ -412,7 +412,7 @@ yatm.devices.register_stateful_network_device({
   on_rightclick = on_rightclick,
 
   refresh_infotext = function (pos)
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
     local inv = meta:get_inventory()
 
     local infotext =

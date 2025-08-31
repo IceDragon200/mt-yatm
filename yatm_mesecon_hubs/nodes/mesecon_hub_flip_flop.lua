@@ -41,7 +41,7 @@ local function hub_receptor_rules_get(node)
 end
 
 local function toggle_hub(pos, node)
-  minetest.sound_play("mesecons_button_push", { pos = pos })
+  core.sound_play("mesecons_button_push", { pos = pos })
 
   mesecon.receptor_off(pos, hub_receptor_rules_get(node))
 
@@ -55,12 +55,12 @@ local function toggle_hub(pos, node)
     error("invalid")
   end
 
-  minetest.swap_node(pos, new_node)
+  core.swap_node(pos, new_node)
 
   mesecon.receptor_on(pos, hub_receptor_rules_get(new_node))
 end
 
-minetest.register_node("yatm_mesecon_hubs:mesecon_hub_flip_flop_left", {
+core.register_node("yatm_mesecon_hubs:mesecon_hub_flip_flop_left", {
   basename = "yatm_mesecon_hubs:mesecon_hub_flip_flop",
   base_description = "Mesecon Flip Flop",
 
@@ -103,7 +103,7 @@ minetest.register_node("yatm_mesecon_hubs:mesecon_hub_flip_flop_left", {
   }
 })
 
-minetest.register_node("yatm_mesecon_hubs:mesecon_hub_flip_flop_right", {
+core.register_node("yatm_mesecon_hubs:mesecon_hub_flip_flop_right", {
   basename = "yatm_mesecon_hubs:mesecon_hub_flip_flop",
   base_description = "Mesecon Flip Flop",
 

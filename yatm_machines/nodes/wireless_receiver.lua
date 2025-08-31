@@ -1,4 +1,4 @@
-minetest.register_node("yatm_machines:wireless_receiver", {
+core.register_node("yatm_machines:wireless_receiver", {
   basename = "yatm_machines:wireless_receiver",
 
   description = "Wireless Receiver",

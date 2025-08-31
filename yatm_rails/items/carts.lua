@@ -5,7 +5,7 @@ local mod = yatm_rails
 
 -- @private.spec place_cart(ItemStack, Player, PointedThing, name: String): ItemStack
 local function place_cart(item_stack, user, pointed_thing, name)
-  local cart = minetest.add_entity(pointed_thing.above, name)
+  local cart = core.add_entity(pointed_thing.above, name)
   --cart:get_luaentity():set_owner_name(user:get_player_name())
 
   itemstack:take_item(1)

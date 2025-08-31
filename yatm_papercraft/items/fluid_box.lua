@@ -15,7 +15,7 @@ local function place_fluid_box_contents(item_stack, user, pointed_thing)
   return item_stack
 end
 
-minetest.register_tool("yatm_papercraft:fluid_box", {
+core.register_tool("yatm_papercraft:fluid_box", {
   description = mod.S("Fluid Box"),
 
   groups = {

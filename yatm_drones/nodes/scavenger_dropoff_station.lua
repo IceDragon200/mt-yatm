@@ -12,7 +12,7 @@ local ItemDevice = assert(yatm.items.ItemDevice)
 local dropoff_station_item_interface = ItemInterface.new()
 
 local function dropoff_station_refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..

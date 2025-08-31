@@ -1,7 +1,7 @@
 --
 -- Just some decorative plastic panels.
 --
-minetest.register_node("yatm_plastics:plastic_panel_plain_block", {
+core.register_node("yatm_plastics:plastic_panel_plain_block", {
   basename = "yatm_plastics:plastic_panel_plain_block",
   description = "Plain Plastic Panel Block",
 
@@ -47,7 +47,7 @@ yatm.register_stateful_node("yatm_plastics:plastic_panel_plain_block", {
   },
 })
 
-minetest.register_node("yatm_plastics:plastic_panel_notched_block", {
+core.register_node("yatm_plastics:plastic_panel_notched_block", {
   basename = "yatm_plastics:plastic_panel_notched_block",
   description = "Notched Plastic Panel Block",
 
@@ -93,7 +93,7 @@ yatm.register_stateful_node("yatm_plastics:plastic_panel_notched_block", {
   },
 })
 
-minetest.register_node("yatm_plastics:plastic_panel_hollow_block", {
+core.register_node("yatm_plastics:plastic_panel_hollow_block", {
   basename = "yatm_plastics:plastic_panel_hollow_block",
 
   description = "Hollow Plastic Panel Block",

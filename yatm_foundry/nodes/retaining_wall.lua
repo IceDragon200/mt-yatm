@@ -56,7 +56,7 @@ for _,row in ipairs(yatm.colors) do
   local color_basename = row.name
   local color_name = row.description
 
-  minetest.register_node("yatm_foundry:concrete_retaining_wall_" .. color_basename, {
+  core.register_node("yatm_foundry:concrete_retaining_wall_" .. color_basename, {
     basename = "yatm_foundry:retaining_wall",
     base_description = "Concrete Retaining Wall",
 
@@ -107,7 +107,7 @@ for _,row in ipairs(yatm.colors) do
     collision_box = retaining_wall_collision_box,
   })
 
-  minetest.register_node("yatm_foundry:concrete_retaining_wall_corner_" .. color_basename, {
+  core.register_node("yatm_foundry:concrete_retaining_wall_corner_" .. color_basename, {
     basename = "yatm_foundry:retaining_wall_corner",
     base_description = "Concrete Retaining Wall Corner",
 

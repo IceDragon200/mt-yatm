@@ -17,7 +17,7 @@ for i = 0,7 do
 end
 
 for from, to in pairs(migrations) do
-  minetest.register_lbm({
+  core.register_lbm({
     name = "yatm_energy_storage:migrate_" .. string.gsub(from, ":", "_"),
     nodenames = {
       from,
@@ -25,7 +25,7 @@ for from, to in pairs(migrations) do
     run_at_every_load = false,
     action = function (pos, node)
       node.name = to
-      minetest.swap_node(pos, node)
+      core.swap_node(pos, node)
     end
   })
 end

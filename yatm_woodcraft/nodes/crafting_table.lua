@@ -11,6 +11,7 @@ local mod = assert(yatm_woodcraft)
 local fspec = assert(foundation.com.formspec.api)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
+local get_meta = assert(tetra.get_meta)
 
 local table_nodebox = {
   type = "fixed",
@@ -52,7 +53,7 @@ local function get_crafting_table_formspec(pos, user)
 end
 
 local function on_construct(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   inv:set_size("main", 8)
@@ -71,7 +72,7 @@ local function on_rightclick(pos, node, user)
 end
 
 local function get_craft_result(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   local items = inv:get_list("crafting_grid")
@@ -84,7 +85,7 @@ local function get_craft_result(pos)
 end
 
 local function refresh_craft_result(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
   local output = get_craft_result(pos)
 
@@ -92,7 +93,7 @@ local function refresh_craft_result(pos)
 end
 
 local function consume_craft_recipe(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
   local _output, decremented_input = get_craft_result(pos)
 

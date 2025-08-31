@@ -1,7 +1,7 @@
 local Groups = assert(foundation.com.Groups)
 local InventorySerializer = assert(yatm.items.InventorySerializer)
 
-local string_to_pos = assert(minetest.string_to_pos)
+local string_to_pos = assert(core.string_to_pos)
 
 --- @namespace yatm.dscs
 yatm.dscs = yatm.dscs or {}
@@ -73,7 +73,7 @@ function yatm.dscs.overload_fluid_inventory_from_drive(fluid_inventory_name, ite
   local inv = yatm.fluids.fluid_inventories:get_fluid_inventory(fluid_inventory_name)
 
   if inv then
-    minetest.log("warning", "fluid inventory name=" .. fluid_inventory_name .. " still exists")
+    core.log("warning", "fluid inventory name=" .. fluid_inventory_name .. " still exists")
     return inv
   end
   return yatm.dscs.load_fluid_inventory_from_drive(fluid_inventory_name, item_stack)
@@ -83,7 +83,7 @@ function yatm.dscs.persist_inventory_list_to_drive(item_stack, list)
   if yatm.dscs.is_item_stack_item_drive(item_stack) then
     local list_dump = InventorySerializer.dump_list(list)
     local stack_meta = item_stack:get_meta()
-    stack_meta:set_string("drive_contents", minetest.serialize(list_dump))
+    stack_meta:set_string("drive_contents", core.serialize(list_dump))
 
     return item_stack
   end
@@ -93,7 +93,7 @@ end
 function yatm.dscs.load_inventory_list_from_drive(item_stack)
   local stack_meta = item_stack:get_meta()
   local drive_contents_dump = stack_meta:get_string("drive_contents")
-  local drive_contents = minetest.deserialize(drive_contents_dump)
+  local drive_contents = core.deserialize(drive_contents_dump)
   local capacity = assert(item_stack:get_definition().drive_capacity, "expected drive to have a capacity")
   local list = {}
   if drive_contents then
@@ -122,7 +122,7 @@ function yatm.dscs.get_inventory_controller_node_entry_by_id(id)
   local node_entry = yatm.cluster.devices:get_node_by_id(id)
 
   if node_entry then
-    local meta = minetest.get_meta(node_entry.pos)
+    local meta = core.get_meta(node_entry.pos)
 
     if meta:get_int("has_inv_controller") > 0 then
       local inv_controller_pos = string_to_pos(meta:get_string("inv_controller_pos"))
@@ -137,7 +137,7 @@ function yatm.dscs.get_inventory_controller_node_entry_by_id(id)
 end
 
 function yatm.dscs.get_inventory_controller_def(pos, node)
-  local nodedef = minetest.registered_nodes[node.name]
+  local nodedef = core.registered_nodes[node.name]
 
   if not nodedef then
     return nil, "no nodedef"

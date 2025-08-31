@@ -1,7 +1,7 @@
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 
-minetest.register_node("yatm_overhead_rails:overhead_rail_stop", {
+core.register_node("yatm_overhead_rails:overhead_rail_stop", {
   description = "Overhead Straight Stop",
 
   groups = {
@@ -32,7 +32,7 @@ minetest.register_node("yatm_overhead_rails:overhead_rail_stop", {
   paramtype2 = "facedir",
 })
 
-minetest.register_node("yatm_overhead_rails:overhead_rail_straight", {
+core.register_node("yatm_overhead_rails:overhead_rail_straight", {
   description = "Overhead Straight Rail",
 
   groups = {
@@ -63,7 +63,7 @@ minetest.register_node("yatm_overhead_rails:overhead_rail_straight", {
   paramtype2 = "facedir",
 })
 
-minetest.register_node("yatm_overhead_rails:overhead_rail_bend90", {
+core.register_node("yatm_overhead_rails:overhead_rail_bend90", {
   description = "Overhead Bend 90' Rail",
 
   groups = {
@@ -95,7 +95,7 @@ minetest.register_node("yatm_overhead_rails:overhead_rail_bend90", {
   paramtype2 = "facedir",
 })
 
-minetest.register_node("yatm_overhead_rails:overhead_rail_tee", {
+core.register_node("yatm_overhead_rails:overhead_rail_tee", {
   description = "Overhead Tee Rail",
 
   groups = {
@@ -127,7 +127,7 @@ minetest.register_node("yatm_overhead_rails:overhead_rail_tee", {
   paramtype2 = "facedir",
 })
 
-minetest.register_node("yatm_overhead_rails:overhead_rail_cross", {
+core.register_node("yatm_overhead_rails:overhead_rail_cross", {
   description = "Overhead Cross Rail",
 
   groups = {

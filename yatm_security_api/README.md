@@ -132,7 +132,7 @@ __Example of security checks__
 ```lua
 -- Below is an example of performing security checks on DATA style node
 -- The node requires that both its security slots grant access
-minetest.register_node("my_mod:my_node", {
+core.register_node("my_mod:my_node", {
   description = "DATA My Node",
 
   groups = {
@@ -162,7 +162,7 @@ minetest.register_node("my_mod:my_node", {
 
 -- Below is an example of performing security checks on another DATA style node
 -- This node however splits its slots for different access checks
-minetest.register_node("my_mod:my_node", {
+core.register_node("my_mod:my_node", {
   description = "DATA My Node",
 
   groups = {

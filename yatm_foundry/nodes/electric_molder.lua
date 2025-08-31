@@ -43,7 +43,7 @@ local TANK_CAPACITY = 8000
 local fluid_interface = FluidInterface.new_simple("molten_tank", TANK_CAPACITY)
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   yatm.queue_refresh_infotext(pos, node)
 end
 
@@ -61,7 +61,7 @@ fluid_interface.allow_drain = fluid_interface.allow_replace
 
 local item_interface =
   ItemInterface.new_directional(function (self, pos, dir)
-    local node = minetest.get_node(pos)
+    local node = core.get_node(pos)
     local new_dir = Directions.facedir_to_face(node.param2, dir)
     if new_dir == Directions.D_UP or new_dir == Directions.D_DOWN then
       return "mold_slot"
@@ -70,8 +70,8 @@ local item_interface =
   end)
 
 local function electric_molder_refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
-  local node = minetest.get_node(pos)
+  local meta = core.get_meta(pos)
+  local node = core.get_node(pos)
 
   local molten_tank_fluid_stack = FluidMeta.get_fluid_stack(meta, "molten_tank")
   local molding_tank_fluid_stack = FluidMeta.get_fluid_stack(meta, "molding_tank")
@@ -117,7 +117,7 @@ function yatm_network:work(ctx)
           inv:remove_item("mold_slot", mold_item_stack)
           local filled_fluid = FluidMeta.fill_fluid(meta, "molding_tank", drained_fluid, TANK_CAPACITY, TANK_CAPACITY, true)
           local drained_fluid = FluidMeta.drain_fluid(meta, "molten_tank", filled_fluid, TANK_CAPACITY, TANK_CAPACITY, true)
-          --print("filled fluid in molten tank", minetest.pos_to_string(pos), FluidStack.pretty_format(filled_fluid))
+          --print("filled fluid in molten tank", core.pos_to_string(pos), FluidStack.pretty_format(filled_fluid))
           yatm.queue_refresh_infotext(pos)
         end
       else
@@ -140,7 +140,7 @@ function yatm_network:work(ctx)
         if drained_fluid and drained_fluid.amount == recipe.molten_fluid.amount then
           local drained_fluid = FluidMeta.drain_fluid(meta, "molding_tank", recipe.molten_fluid, TANK_CAPACITY, TANK_CAPACITY, true)
           local result = itemstack_copy(recipe.result_item_stack)
-          --print("drained fluid from molten tank", minetest.pos_to_string(pos), FluidStack.pretty_format(drained_fluid))
+          --print("drained fluid from molten tank", core.pos_to_string(pos), FluidStack.pretty_format(drained_fluid))
           inv:add_item("output_slot", result)
           inv:add_item("mold_slot", mold_item_stack)
           inv:remove_item("molding_slot", mold_item_stack)
@@ -163,7 +163,7 @@ end
 local function render_formspec(pos, user, state)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
 
@@ -310,7 +310,7 @@ yatm.devices.register_stateful_network_device({
 
   on_construct = function (pos)
     yatm.devices.device_on_construct(pos)
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
     local inv = meta:get_inventory()
     inv:set_size("mold_slot", 1)
     inv:set_size("molding_slot", 1)

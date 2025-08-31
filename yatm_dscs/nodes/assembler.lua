@@ -34,7 +34,7 @@ local assembler_yatm_network = {
 
 local function refresh_infotext(pos, node)
   local nodedef = core.registered_nodes[node.name]
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local infotext =
     nodedef.short_description .. "\n"
     .. cluster_devices:get_node_infotext(pos) .. "\n"

@@ -30,7 +30,6 @@ end
 
 function data_math.new_vector(value, size)
   local result = {}
-  local i = 0
 
   if value == nil then
     for i = 1,size do

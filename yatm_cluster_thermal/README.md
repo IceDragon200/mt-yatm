@@ -28,7 +28,7 @@ And finally a `thermal_interface` MUST be defined on the node's definition.
 All together that looks like this for a producer:
 
 ```lua
-minetest.register_node("my_mod:my_thermal_producer", {
+core.register_node("my_mod:my_thermal_producer", {
   groups = {
     --- YATM has an LBM that will restore the node to its cluster automatically
     --- As long as this group is set
@@ -42,14 +42,14 @@ minetest.register_node("my_mod:my_thermal_producer", {
 
     --- @spec get_heat(self: ThermalInterface, pos: Vector3, node: NodeRef): Float
     get_heat = function (self, pos, node)
-      local meta = minetest.get_meta(pos)
+      local meta = tetra.get_meta(pos)
       -- you only need to return a number that represents the heat value
       return meta:get_float("heat")
     end
   },
 
   on_construct = function (pos)
-    local node = minetest.get_node(pos)
+    local node = tetra.get_node(pos)
     yatm.cluster.thermal:schedule_add_node(pos, node)
   end,
 
@@ -62,7 +62,7 @@ minetest.register_node("my_mod:my_thermal_producer", {
 And for a consumer:
 
 ```lua
-minetest.register_node("my_mod:my_thermal_consumer", {
+core.register_node("my_mod:my_thermal_consumer", {
   groups = {
     --- YATM has an LBM that will restore the node to its cluster automatically
     --- As long as this group is set
@@ -95,7 +95,7 @@ minetest.register_node("my_mod:my_thermal_consumer", {
   },
 
   on_construct = function (pos)
-    local node = minetest.get_node(pos)
+    local node = tetra.get_node(pos)
     yatm.cluster.thermal:schedule_add_node(pos, node)
   end,
 

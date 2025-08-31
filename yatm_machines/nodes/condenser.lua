@@ -39,7 +39,7 @@ local condenser_yatm_network = {
 }
 
 local function refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
@@ -54,7 +54,7 @@ local GAS_TANK_NAME = "gas_tank"
 local TANK_CAPACITY = 16000
 
 local function get_fluid_tank_name(_self, pos, dir)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   local new_dir = Directions.facedir_to_face(node.param2, dir)
   if new_dir == Directions.D_DOWN then
     return LIQUID_TANK_NAME, TANK_CAPACITY
@@ -87,7 +87,7 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine_cooled" }, function (loc, rect)
     if loc == "main_body" then

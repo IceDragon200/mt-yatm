@@ -17,7 +17,7 @@ local DEFAULT_FLUID_COLOR = {
 --- @spec set_default_fluid_color(Color): void
 function mod.set_default_fluid_color(color)
   DEFAULT_FLUID_COLOR = {
-    last_set_by = minetest.get_current_modname(),
+    last_set_by = core.get_current_modname(),
     color = assert(color),
   }
 end

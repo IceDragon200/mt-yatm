@@ -11,7 +11,7 @@ local player_service = assert(nokore.player_service)
 -- Common
 
 local function thermal_plate_refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
@@ -66,13 +66,13 @@ function thermal_plate_heating_yatm_network:work(ctx)
   local dir = Directions.facedir_to_face(ctx.node.param2, Directions.D_DOWN)
 
   local target_pos = Vector3.add({}, ctx.pos, Directions.DIR6_TO_VEC3[dir])
-  local target_node = minetest.get_node_or_nil(target_pos)
+  local target_node = core.get_node_or_nil(target_pos)
 
   if target_node then
-    local target_nodedef = minetest.registered_nodes[target_node.name]
+    local target_nodedef = core.registered_nodes[target_node.name]
 
     if Groups.has_group(target_nodedef, 'uses_heat_modifier') then
-      local target_meta = minetest.get_meta(target_pos)
+      local target_meta = core.get_meta(target_pos)
 
       local heat_modifier = target_meta:get_float(yatm.devices.HEAT_MODIFIER_KEY)
 
@@ -90,7 +90,7 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine" }, function (loc, rect)
     if loc == "main_body" then

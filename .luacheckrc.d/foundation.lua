@@ -54,6 +54,7 @@ return {
         Directions = {
           fields = {
             invert_dir = {},
+            facedir_wallmount_after_place_node = {},
             DIR6_TO_VEC3 = {},
             DIR_TO_STRING = {},
           },
@@ -159,6 +160,7 @@ return {
         ascii_unpack = {},
         --
         format_pretty_time = {},
+        metaref_merge_fields_from_table = {},
         --
         is_blank = {},
         is_table_empty = {},
@@ -180,6 +182,8 @@ return {
         list_sort = {},
         list_map = {},
         list_get_next = {},
+        list_first = {},
+        list_last = {},
         --
         maybe_start_node_timer = {},
         --

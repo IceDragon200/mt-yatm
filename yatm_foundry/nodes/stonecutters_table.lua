@@ -26,7 +26,7 @@ local function stonecutters_table_configure_inventory(meta)
 end
 
 local function stonecutters_table_on_construct(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   stonecutters_table_configure_inventory(meta)
 end
@@ -34,7 +34,7 @@ end
 local function stonecutters_table_on_destruct(pos)
 end
 
-minetest.register_node("yatm_foundry:stonecutters_table_wood", {
+core.register_node("yatm_foundry:stonecutters_table_wood", {
   basename = "yatm_foundry:stonecutters_table",
 
   description = "Stone Cutter's Table (Wood)",

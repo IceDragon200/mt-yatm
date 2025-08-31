@@ -18,10 +18,10 @@ local function find_canvases(root_pos)
     local old_to_search = to_search
     to_search = {}
     for _,pos in ipairs(old_to_search) do
-      local hash = minetest.hash_node_position(pos)
+      local hash = core.hash_node_position(pos)
       if not result[hash] then
-        local node = minetest.get_node(pos)
-        local nodedef = minetest.registered_nodes[node.name]
+        local node = core.get_node(pos)
+        local nodedef = core.registered_nodes[node.name]
         if nodedef then
           if Groups.get_item(nodedef, "painting_canvas") then
             result[hash] = {
@@ -50,8 +50,8 @@ end
 local function painting_brush_on_use(itemstack, user, pointed_thing)
   if pointed_thing.type == "node" then
     local pos = pointed_thing.under
-    local node = minetest.get_node(pos)
-    local nodedef = minetest.registered_nodes[node.name]
+    local node = core.get_node(pos)
+    local nodedef = core.registered_nodes[node.name]
 
     if not Groups.get_item(nodedef, "painting_canvas") then
       print("Target is not a painting_canvas")
@@ -274,7 +274,7 @@ local function painting_brush_on_use(itemstack, user, pointed_thing)
               name = cell_name,
               param2 = cell_facedir,
             }
-            minetest.swap_node(canvas_cell_entry.pos, new_node)
+            core.swap_node(canvas_cell_entry.pos, new_node)
           end
         end
       end
@@ -287,7 +287,7 @@ local function painting_brush_on_use(itemstack, user, pointed_thing)
   return itemstack
 end
 
-minetest.register_tool("yatm_papercraft:painting_brush", {
+core.register_tool("yatm_papercraft:painting_brush", {
   description = "Painting Brush",
 
   inventory_image = "yatm_painting_brush_plain.png",

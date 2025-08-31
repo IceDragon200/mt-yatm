@@ -94,10 +94,10 @@ case:describe("binload/1", function (t2)
       oku.isa_assigns.chip:set_register_y(32)
       local stream = Buffer:new('', 'w')
 
-      local x_us = minetest.get_us_time()
+      local x_us = core.get_us_time()
       oku:bindump(stream)
       stream:close()
-      local y_us = minetest.get_us_time()
+      local y_us = core.get_us_time()
 
       print("dump.time", y_us - x_us)
 
@@ -108,9 +108,9 @@ case:describe("binload/1", function (t2)
         })
 
       stream:open('r')
-      x_us = minetest.get_us_time()
+      x_us = core.get_us_time()
       oku:binload(stream)
-      y_us = minetest.get_us_time()
+      y_us = core.get_us_time()
 
       print("load.time", y_us - x_us)
 

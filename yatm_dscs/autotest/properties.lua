@@ -19,7 +19,7 @@ yatm_dscs.autotest_suite:define_property("is_void_chest", {
   ]],
 
   setup = function (suite, state)
-    local player = assert(minetest.get_player_by_name("singleplayer"))
+    local player = assert(core.get_player_by_name("singleplayer"))
 
     state.pos = random_pos()
     suite:clear_test_area(state.pos)
@@ -31,7 +31,7 @@ yatm_dscs.autotest_suite:define_property("is_void_chest", {
 
   tests = {
     ["Will show a formspec when right-clicked"] = function (suite, state)
-      minetest.set_node(state.pos, assert(state.node))
+      core.set_node(state.pos, assert(state.node))
 
       wait_for_next_tick_on_clusters(suite, state, 2.0)
 
@@ -49,7 +49,7 @@ yatm_dscs.autotest_suite:define_property("is_void_chest", {
     end,
 
     ["Can install a fluid drive"] = function (suite, state)
-      minetest.set_node(state.pos, assert(state.node))
+      core.set_node(state.pos, assert(state.node))
 
       wait_for_next_tick_on_clusters(suite, state, 2.0)
 
@@ -83,7 +83,7 @@ yatm_dscs.autotest_suite:define_property("is_void_chest", {
 
       suite:yield()
 
-      local meta = minetest.get_meta(state.pos)
+      local meta = core.get_meta(state.pos)
       local inv = meta:get_inventory()
       assert(inv:get_stack("drive_slot_input", 1):is_empty(), "expected input slot to be empty")
       assert(not inv:get_stack("drive_slot", 1):is_empty(), "expected drive_slot to contain drive")
@@ -91,7 +91,7 @@ yatm_dscs.autotest_suite:define_property("is_void_chest", {
   },
 
   teardown = function (suite, state)
-    minetest.close_formspec(state.player:get_player_name(), "")
+    core.close_formspec(state.player:get_player_name(), "")
     suite:clear_test_area(state.pos)
     wait_for_next_tick_on_clusters(suite, state, 1.0)
   end,
@@ -107,7 +107,7 @@ yatm_dscs.autotest_suite:define_property("is_void_crate", {
   ]],
 
   setup = function (suite, state)
-    local player = assert(minetest.get_player_by_name("singleplayer"))
+    local player = assert(core.get_player_by_name("singleplayer"))
 
     state.pos = random_pos()
     suite:clear_test_area(state.pos)
@@ -119,7 +119,7 @@ yatm_dscs.autotest_suite:define_property("is_void_crate", {
 
   tests = {
     ["Will show a formspec when right-clicked"] = function (suite, state)
-      minetest.set_node(state.pos, assert(state.node))
+      core.set_node(state.pos, assert(state.node))
 
       wait_for_next_tick_on_clusters(suite, state, 2.0)
 
@@ -137,7 +137,7 @@ yatm_dscs.autotest_suite:define_property("is_void_crate", {
     end,
 
     ["Can install a fluid drive"] = function (suite, state)
-      minetest.set_node(state.pos, assert(state.node))
+      core.set_node(state.pos, assert(state.node))
 
       wait_for_next_tick_on_clusters(suite, state, 2.0)
 
@@ -171,7 +171,7 @@ yatm_dscs.autotest_suite:define_property("is_void_crate", {
 
       suite:yield()
 
-      local meta = minetest.get_meta(state.pos)
+      local meta = core.get_meta(state.pos)
       local inv = meta:get_inventory()
       assert(inv:get_stack("drive_slot_input", 1):is_empty(), "expected input slot to be empty")
       assert(not inv:get_stack("drive_slot", 1):is_empty(), "expected drive_slot to contain drive")
@@ -179,7 +179,7 @@ yatm_dscs.autotest_suite:define_property("is_void_crate", {
   },
 
   teardown = function (suite, state)
-    minetest.close_formspec(state.player:get_player_name(), "")
+    core.close_formspec(state.player:get_player_name(), "")
     suite:clear_test_area(state.pos)
     wait_for_next_tick_on_clusters(suite, state, 1.0)
   end,

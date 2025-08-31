@@ -8,14 +8,15 @@ local mod = assert(yatm_woodcraft)
 
 local Directions = assert(foundation.com.Directions)
 local Groups = assert(foundation.com.Groups)
-
 local ItemDevice = assert(yatm.items.ItemDevice)
 local sawing_registry = assert(yatm.sawing.sawing_registry)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
 
 local function on_construct(pos)
   -- Originally I was going to do a inventory + formspec version
   -- But then I thought "wouldn't it be fun to just rightclick with the material?"
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   local inv = meta:get_inventory()
 
@@ -42,7 +43,7 @@ local function on_rightclick(pos, node, clicker, itemstack, _pointed_thing)
         end
       end
 
-      local meta = core.get_meta(pos)
+      local meta = get_meta(pos)
 
       local sawdust_rate = meta:get_float("sawdust_rate") or 0.0
       sawdust_rate = sawdust_rate + recipe.sawdust_rate
@@ -58,7 +59,7 @@ local function on_rightclick(pos, node, clicker, itemstack, _pointed_thing)
 
         for dir6, vec3 in pairs(Directions.DIR6_TO_VEC3) do
           local bin_pos = vector.add(pos, vec3)
-          local bin_node = core.get_node(bin_pos)
+          local bin_node = get_node(bin_pos)
 
           if Groups.item_has_group(bin_node.name, "dust_bin") then
             local remaining = ItemDevice.insert_item(

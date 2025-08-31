@@ -25,7 +25,7 @@ local function queue_refresh_infotext_for_controllers(pos)
 end
 
 local function get_array_energy_interface(node)
-  local nodedef = minetest.registered_nodes[node.name]
+  local nodedef = core.registered_nodes[node.name]
   if nodedef then
     if nodedef.yatm_network then
       return nodedef.yatm_network.array_energy
@@ -189,9 +189,9 @@ local yatm_network = {
 }
 
 local function refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
+  local meta = core.get_meta(pos)
+  local node = core.get_node(pos)
+  local nodedef = core.registered_nodes[node.name]
 
   --local usable = EnergyDevices.get_usable_stored_energy(pos, node)
 
@@ -209,7 +209,7 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine_electric" }, function (loc, rect)
     if loc == "main_body" then

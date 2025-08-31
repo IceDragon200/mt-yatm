@@ -233,18 +233,18 @@ do
 
   --- @spec #deserialize(blob: String): self
   function ic:deserialize(blob)
-    local dumped_data = minetest.deserialize(blob)
+    local dumped_data = core.deserialize(blob)
     return self:from_table(dumped_data)
   end
 
   --- @spec #serialize(): String
   function ic:serialize()
-    return minetest.serialize(self:to_table())
+    return core.serialize(self:to_table())
   end
 
   --- @spec #deserialize_list(list_name: String, blob: String): self
   function ic:deserialize_list(list_name, blob)
-    local dumped_data = minetest.deserialize(blob)
+    local dumped_data = core.deserialize(blob)
     self.m_lists[list_name] = dumped_data
     return self
   end
@@ -252,7 +252,7 @@ do
   --- @spec #serialize_list(list_name: String): String
   function ic:serialize_list(list_name)
     local list = assert(self.m_lists[list_name], "expected list to exist")
-    return minetest.serialize(list)
+    return core.serialize(list)
   end
 end
 

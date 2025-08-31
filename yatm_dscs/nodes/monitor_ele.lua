@@ -7,7 +7,7 @@ local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
 
 local function refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local infotext =
     "Monitor\n" ..
     cluster_devices:get_node_infotext(pos) .. "\n" ..

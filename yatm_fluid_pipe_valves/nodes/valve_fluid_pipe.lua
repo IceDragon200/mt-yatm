@@ -3,16 +3,16 @@ local table_merge = assert(foundation.com.table_merge)
 local fluid_transport_network = assert(yatm.fluids.fluid_transport_network)
 
 local function pipe_after_place_node(pos, _placer, _itemstack, _pointed_thing)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   fluid_transport_network:register_member(pos, node)
 end
 
 local function pipe_on_destruct(pos)
-  print("valve_fluid_pipe_on_destruct", minetest.pos_to_string(pos))
+  print("valve_fluid_pipe_on_destruct", core.pos_to_string(pos))
 end
 
 local function pipe_after_destruct(pos, _old_node)
-  print("valve_fluid_pipe_after_destruct", minetest.pos_to_string(pos))
+  print("valve_fluid_pipe_after_destruct", core.pos_to_string(pos))
   fluid_transport_network:unregister_member(pos)
 end
 
@@ -90,7 +90,7 @@ for _,row in ipairs(yatm.colors_with_default) do
             param2 = node.param2,
             name = node_name .. "_on",
           }
-          minetest.swap_node(pos, new_node)
+          core.swap_node(pos, new_node)
           fluid_transport_network:update_member(pos, new_node)
         end
         return itemstack
@@ -115,7 +115,7 @@ for _,row in ipairs(yatm.colors_with_default) do
             param2 = node.param2,
             name = node_name .. "_off",
           }
-          minetest.swap_node(pos, new_node)
+          core.swap_node(pos, new_node)
           fluid_transport_network:update_member(pos, new_node)
         end
         return itemstack

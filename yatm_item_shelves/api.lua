@@ -42,8 +42,8 @@ local function get_shelf_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
 
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
+  local node = core.get_node(pos)
+  local nodedef = core.registered_nodes[node.name]
 
   local rows = nodedef.shelf_configuration.layers * nodedef.shelf_configuration.rows
   local cols = nodedef.shelf_configuration.cols
@@ -68,8 +68,8 @@ end
 
 function yatm.shelves.clear_entities(pos)
   local shelf_pos = pos.x .. "," .. pos.y .. "," .. pos.z
-  local meta = minetest.get_meta(pos)
-  for _, object in ipairs(minetest.get_objects_inside_radius(pos, 0.75)) do
+  local meta = core.get_meta(pos)
+  for _, object in ipairs(core.get_objects_inside_radius(pos, 0.75)) do
     if not object:is_player() then
       local lua_entity = object:get_luaentity()
       if lua_entity then
@@ -83,9 +83,9 @@ function yatm.shelves.clear_entities(pos)
 end
 
 function yatm.shelves.shelf_on_construct(pos)
-  local node = minetest.get_node(pos)
-  local meta = minetest.get_meta(pos)
-  local nodedef = minetest.registered_nodes[node.name]
+  local node = core.get_node(pos)
+  local meta = core.get_meta(pos)
+  local nodedef = core.registered_nodes[node.name]
 
   local shelf_configuration = assert(nodedef.shelf_configuration)
 
@@ -104,11 +104,11 @@ function yatm.shelves.shelf_after_destruct(pos, old_node)
 end
 
 function yatm.shelves.shelf_on_dig(pos, node, digger)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
   if inv:is_empty("main") then
     yatm.shelves.clear_entities(pos)
-    return minetest.node_dig(pos, node, digger)
+    return core.node_dig(pos, node, digger)
   end
   return false
 end
@@ -118,9 +118,9 @@ function yatm.shelves.shelf_on_blast(pos, intensity)
 end
 
 function yatm.shelves.shelf_refresh(pos)
-  local meta = minetest.get_meta(pos)
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
+  local meta = core.get_meta(pos)
+  local node = core.get_node(pos)
+  local nodedef = core.registered_nodes[node.name]
 
   local shelf_configuration = assert(nodedef.shelf_configuration)
 
@@ -131,8 +131,8 @@ function yatm.shelves.shelf_refresh(pos)
   local inv = meta:get_inventory()
   local list = inv:get_list("main")
 
-  local dir = minetest.facedir_to_dir(node.param2)
-  local item_yaw = minetest.dir_to_yaw(dir)
+  local dir = core.facedir_to_dir(node.param2)
+  local item_yaw = core.dir_to_yaw(dir)
 
   local depth_displacement = 0.25
   local horizontal_displacement = 0.25
@@ -196,7 +196,7 @@ function yatm.shelves.shelf_refresh(pos)
 
       local static_data = "data:" .. shelf_pos .. "|" .. scale .. "|" .. item_stack:get_name()
 
-      local entity = minetest.add_entity(obj_pos, "yatm_item_shelves:shelf_item", static_data)
+      local entity = core.add_entity(obj_pos, "yatm_item_shelves:shelf_item", static_data)
       entity:set_yaw(item_yaw)
     end
   end
@@ -215,7 +215,7 @@ function yatm.shelves.shelf_on_metadata_inventory_take(pos, listname, index, sta
 end
 
 function yatm.shelves.shelf_on_rightclick(pos, node, user)
-  minetest.show_formspec(
+  core.show_formspec(
     user:get_player_name(),
     "yatm_item_shelves:shelf",
     get_shelf_formspec(pos, user)
@@ -226,7 +226,7 @@ function yatm.shelves.register_shelf(name, def)
   local groups = def.groups or {}
   def.groups = nil
 
-  minetest.register_node(name, table_merge({
+  core.register_node(name, table_merge({
     groups = table_merge({
       item_shelf = 1,
     }, groups),
@@ -252,7 +252,7 @@ function yatm.shelves.register_shelf(name, def)
   }, def))
 end
 
-minetest.register_entity("yatm_item_shelves:shelf_item", {
+core.register_entity("yatm_item_shelves:shelf_item", {
   initial_properties = {
     hp_max = 1,
     visual = "wielditem",
@@ -273,7 +273,7 @@ minetest.register_entity("yatm_item_shelves:shelf_item", {
   on_activate = function(self, static_data)
     local data = parse_shelf_item_static_data(static_data)
     if not data then
-      minetest.log("error", "shelf entity static data was invalid, removing it")
+      core.log("error", "shelf entity static data was invalid, removing it")
       self.object:remove()
       return
     end
@@ -289,8 +289,8 @@ minetest.register_entity("yatm_item_shelves:shelf_item", {
     local z = tonumber(pos_and_index[3])
 
     local node_pos = { x = x, y = y, z = z }
-    local node = minetest.get_node(node_pos)
-    local nodedef = minetest.registered_nodes[node.name]
+    local node = core.get_node(node_pos)
+    local nodedef = core.registered_nodes[node.name]
 
     if nodedef and nodedef.groups.item_shelf then
       local properties = {
@@ -302,7 +302,7 @@ minetest.register_entity("yatm_item_shelves:shelf_item", {
       self.object:set_properties(properties)
     else
       -- Invalid item shelf entity, removing
-      minetest.log("error", "entity is invalid, removing pos=" .. minetest.pos_to_string(node_pos) .. " name=" .. node.name)
+      core.log("error", "entity is invalid, removing pos=" .. core.pos_to_string(node_pos) .. " name=" .. node.name)
       self.object:remove()
     end
   end,
@@ -341,7 +341,7 @@ function ic:next_item()
 end
 
 function ic:push_item(item)
-  minetest.log("info", "pushing item " .. dump(item))
+  core.log("info", "pushing item " .. dump(item))
   self.size = self.size + 1
   self.loading_queue[self.end_index] = item
   self.end_index = (self.end_index + 1) % self.queue_max_size
@@ -365,7 +365,7 @@ function ic:update(delta)
   end
   if seen_items > 0 then
     self.wait = 0.25
-    minetest.log("info", "refreshed" ..
+    core.log("info", "refreshed" ..
                           " start=" .. self.start_index ..
                           " end=" .. self.end_index ..
                           " count=" .. seen_items .. " shelves this round")
@@ -379,7 +379,7 @@ nokore_proxy.register_globalstep(
   loading_system:method("update")
 )
 
-minetest.register_lbm({
+core.register_lbm({
   label = "Refresh Shelf Contents",
 
   nodenames = {"group:item_shelf"},
@@ -389,7 +389,7 @@ minetest.register_lbm({
   run_at_every_load = true,
 
   action = function (pos, _node)
-    minetest.log("info", "reloading shelf contents pos=" .. Vector3.to_string(pos))
+    core.log("info", "reloading shelf contents pos=" .. Vector3.to_string(pos))
     loading_system:push_item(pos)
   end,
 })

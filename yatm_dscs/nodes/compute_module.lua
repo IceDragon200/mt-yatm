@@ -30,7 +30,7 @@ local compute_module_yatm_network = {
 }
 
 local function refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local infotext =
     "Compute Module\n"
     .. cluster_devices:get_node_infotext(pos) .. "\n"

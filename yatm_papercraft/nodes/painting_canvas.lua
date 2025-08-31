@@ -1,6 +1,6 @@
 local canvas_after_place_node = foundation.com.Directions.facedir_wallmount_after_place_node
 
-minetest.register_node("yatm_papercraft:painting_canvas", {
+core.register_node("yatm_papercraft:painting_canvas", {
   basename = "yatm_papercraft:painting_canvas",
 
   description = "Painting Canvas",

@@ -269,8 +269,8 @@ local function render_table_formspec(spec, pos, player, pointed_thing, assigns)
   if #spec.tabs > 1 then
     local tab_titles = {}
 
-    for _, tab in ipairs(spec.tabs) do
-      table.insert(tab_titles, tab.title or tab.header or tab.tab_id)
+    for _, other_tab in ipairs(spec.tabs) do
+      table.insert(tab_titles, other_tab.title or other_tab.header or other_tab.tab_id)
     end
 
     formspec =

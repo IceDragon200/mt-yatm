@@ -8,15 +8,17 @@ local string_split = assert(foundation.com.string_split)
 local string_starts_with = assert(foundation.com.string_starts_with)
 local list_sort = assert(foundation.com.list_sort)
 local table_keys = assert(foundation.com.table_keys)
+local get_meta = assert(tetra.get_meta)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
 
 local function render_formspec(pos, user, state)
   state.tab = state.tab or 1
 
-  local meta = minetest.get_meta(pos)
-  local node = minetest.get_node_or_nil(pos)
+  local meta = get_meta(pos)
+  local node = get_node_or_nil(pos)
   local nodedef
   if node then
-    nodedef = minetest.registered_nodes[node.name]
+    nodedef = core.registered_nodes[node.name]
   end
 
   local w = 16
@@ -95,7 +97,7 @@ end
 local function on_receive_fields(user, form_name, fields, state)
   local needs_refresh = false
 
-  local meta = minetest.get_meta(state.pos)
+  local meta = get_meta(state.pos)
 
   for key, value in pairs(fields) do
     if key == "current_tab" then
@@ -132,7 +134,7 @@ yatm_debug:register_tool("debug_tool", {
       -- the accumulator is the list of all the clusters at the position
       -- this will be used to populate a list for the formspec
       sounds:play("action_open", { to_player = user:get_player_name() })
-      local node = minetest.get_node_or_nil(pos)
+      local node = get_node_or_nil(pos)
       local state = {
         pos = pos,
         node = node,

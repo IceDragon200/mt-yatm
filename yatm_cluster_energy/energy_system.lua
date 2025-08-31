@@ -6,7 +6,7 @@
 --- @namespace yatm_cluster_energy
 local EnergyDevices = assert(yatm.energy.EnergyDevices)
 
-local get_node_or_nil = assert(minetest.get_node_or_nil)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
 
 --- @class EnergySystem
 local EnergySystem = foundation.com.Class:extends("EnergySystem")
@@ -284,7 +284,7 @@ do
         node = node_entry.node
 
         if node then
-          nodedef = minetest.registered_nodes[node.name]
+          nodedef = core.registered_nodes[node.name]
 
           if nodedef.yatm_network and nodedef.yatm_network.update then
             -- if span then

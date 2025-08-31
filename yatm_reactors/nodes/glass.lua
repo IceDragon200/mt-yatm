@@ -3,7 +3,7 @@ local cluster_reactor = assert(yatm.cluster.reactor)
 local glass_sounds = yatm.node_sounds:build("glass")
 
 local function glass_refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   local infotext =
     cluster_reactor:get_node_infotext(pos)
@@ -21,7 +21,7 @@ for variant, variant_texture_name in pairs({
   ["magenta_black_stripes"] = "pb.stripes",
   ["orange_black_stripes"] = "ob.stripes",
 }) do
-  minetest.register_node("yatm_reactors:glass_" .. variant, {
+  core.register_node("yatm_reactors:glass_" .. variant, {
     basename = "yatm_reactors:glass",
     base_description = "Decorative Reactor Glass",
 

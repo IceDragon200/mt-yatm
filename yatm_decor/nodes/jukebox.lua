@@ -40,7 +40,7 @@ yatm.register_stateful_node("yatm_decor:jukebox", {
   node_box = jukebox_node_box,
 
   on_rightclick = function (pos, node, user)
-    minetest.show_formspec(
+    core.show_formspec(
       user:get_player_name(),
       "yatm_decor:jukebox",
       render_formspec(pos, user)

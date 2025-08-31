@@ -10,7 +10,6 @@ local mod = assert(yatm_data_logic)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local string_hex_unescape = assert(foundation.com.string_hex_unescape)
-local string_split = assert(foundation.com.string_split)
 local table_merge = assert(foundation.com.table_merge)
 local list_get_next = assert(foundation.com.list_get_next)
 local Directions = assert(foundation.com.Directions)

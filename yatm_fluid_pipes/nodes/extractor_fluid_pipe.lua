@@ -2,7 +2,7 @@ local mod = assert(yatm_fluid_pipes)
 local fluid_transport_network = assert(yatm.fluids.fluid_transport_network)
 
 local function on_construct(pos)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   fluid_transport_network:register_member(pos, node)
 end
 

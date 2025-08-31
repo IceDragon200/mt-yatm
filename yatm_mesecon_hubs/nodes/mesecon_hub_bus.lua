@@ -13,7 +13,7 @@ local function hub_after_place_node(pos, placer, item_stack, pointed_thing)
   Directions.facedir_wallmount_after_place_node(pos, placer, item_stack, pointed_thing)
 end
 
-minetest.register_node("yatm_mesecon_hubs:mesecon_hub_bus_off", {
+core.register_node("yatm_mesecon_hubs:mesecon_hub_bus_off", {
   basename = "yatm_mesecon_hubs:mesecon_hub_bus",
 
   description = "Mesecon Bus Hub",
@@ -44,13 +44,13 @@ minetest.register_node("yatm_mesecon_hubs:mesecon_hub_bus_off", {
 
       action_on = function (pos, node)
         node.name = "yatm_mesecon_hubs:mesecon_hub_bus_on"
-        minetest.swap_node(pos, node)
+        core.swap_node(pos, node)
       end
     }
   }
 })
 
-minetest.register_node("yatm_mesecon_hubs:mesecon_hub_bus_on", {
+core.register_node("yatm_mesecon_hubs:mesecon_hub_bus_on", {
   basename = "yatm_mesecon_hubs:mesecon_hub_bus",
 
   description = "Mesecon Bus Hub",
@@ -81,7 +81,7 @@ minetest.register_node("yatm_mesecon_hubs:mesecon_hub_bus_on", {
 
       action_off = function (pos, node)
         node.name = "yatm_mesecon_hubs:mesecon_hub_bus_off"
-        minetest.swap_node(pos, node)
+        core.swap_node(pos, node)
       end
     }
   }

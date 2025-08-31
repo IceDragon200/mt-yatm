@@ -9,14 +9,14 @@ local InventorySerializer = assert(yatm.items.InventorySerializer)
 local fspec = assert(foundation.com.formspec.api)
 
 local g_inventory_id = 0
-local view_range = (minetest.get_mapgen_setting('active_object_send_range_blocks') or 3) * 3
+local view_range = (core.get_mapgen_setting('active_object_send_range_blocks') or 3) * 3
 
 local function create_inventory(self)
   g_inventory_id = g_inventory_id + 1
   local inventory_name = "yatm_drones:drone_inventory_" .. g_inventory_id
 
   local inv =
-    minetest.create_detached_inventory(inventory_name, {
+    core.create_detached_inventory(inventory_name, {
       allow_move = function(inv, from_list, from_index, to_list, to_index, count, player)
         if to_list == "upgrades" then
           return 1
@@ -87,7 +87,7 @@ local function restore_inventory(self, dump)
 end
 
 local function get_inventory(self)
-  return minetest.get_inventory({
+  return core.get_inventory({
     type = "detached",
     name = self.inventory_name,
   })
@@ -189,7 +189,7 @@ local function hq_find_dropoff_station(self, prty, search_radius)
         if closest_dropoff_timeout <= 0 then
           closest_dropoff = nil
         else
-          local node = minetest.get_node(closest_dropoff)
+          local node = core.get_node(closest_dropoff)
 
           if not Groups.item_has_group(node.name, "scavenger_dropoff_station") then
             closest_dropoff = nil
@@ -200,7 +200,7 @@ local function hq_find_dropoff_station(self, prty, search_radius)
       if not closest_dropoff then
         local pos1 = vector.subtract(pos, search_radius)
         local pos2 = vector.add(pos, search_radius)
-        local nodes = minetest.find_nodes_in_area(pos1, pos2, "group:scavenger_dropoff_station")
+        local nodes = core.find_nodes_in_area(pos1, pos2, "group:scavenger_dropoff_station")
 
         for _, node_pos in ipairs(nodes) do
           if closest_dropoff then
@@ -248,7 +248,7 @@ local function hq_find_docking_station(self, prty, search_radius, can_move)
       local closest_dock = mobkit.recall(self, "closest_dock")
 
       if closest_dock then
-        local node = minetest.get_node(closest_dock)
+        local node = core.get_node(closest_dock)
 
         if not Groups.item_has_group(node.name, "scavenger_docking_station") then
           closest_dock = nil
@@ -258,7 +258,7 @@ local function hq_find_docking_station(self, prty, search_radius, can_move)
       if not closest_dock then
         local pos1 = vector.subtract(pos, search_radius)
         local pos2 = vector.add(pos, search_radius)
-        local nodes = minetest.find_nodes_in_area(pos1, pos2, "group:scavenger_docking_station")
+        local nodes = core.find_nodes_in_area(pos1, pos2, "group:scavenger_docking_station")
 
         for _, node_pos in ipairs(nodes) do
           if closest_dock then
@@ -308,7 +308,7 @@ local function drone_logic(self)
     local solar_charge_rate = self.solar_charge_rate or 0.0
 
     if solar_charge_rate > 0 then
-      local tod = minetest.get_timeofday()
+      local tod = core.get_timeofday()
 
       if tod < 0.25 or tod >= 0.80 then
         -- night
@@ -330,10 +330,10 @@ local function drone_logic(self)
       -- Do charging stuff, by picking the closest docking station
       local closest_dock = mobkit.recall(self, "closest_dock")
       if closest_dock then
-        local node = minetest.get_node(closest_dock)
+        local node = core.get_node(closest_dock)
 
         if Groups.item_has_group(node.name, "scavenger_docking_station") then
-          local nodedef = minetest.registered_nodes[node.name]
+          local nodedef = core.registered_nodes[node.name]
           nodedef.yatm_network.charge_drone(closest_dock, node, self)
           self:change_state("charging")
           self:change_action_text("Charging")
@@ -369,7 +369,7 @@ local function drone_logic(self)
             else
               local closest_dropoff = mobkit.recall(self, "closest_dropoff")
               if closest_dropoff then
-                local node = minetest.get_node(closest_dropoff)
+                local node = core.get_node(closest_dropoff)
 
                 if Groups.item_has_group(node.name, "scavenger_dropoff_station") then
                   local main_list = inv:get_list("main")
@@ -541,7 +541,7 @@ local function get_scavenger_drone_on_receive_fields(user, form_name, fields, as
   return true
 end
 
-minetest.register_entity("yatm_drones:scavenger_drone", {
+core.register_entity("yatm_drones:scavenger_drone", {
   initial_properties = {
     physical = true,
     collide_with_objects = true,

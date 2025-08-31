@@ -16,13 +16,13 @@ local function default_allow_extract_item(self, pos, dir, item_stack)
 end
 
 local function default_get_item(self, pos, dir)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
   local list = inv:get_list(self.inventory_name)
   if list then
     return InventoryList.first_present_stack(list)
   else
-    print("ERROR", minetest.pos_to_string(pos), "inventory does not exist", self.inventory_name)
+    print("ERROR", core.pos_to_string(pos), "inventory does not exist", self.inventory_name)
     return nil, "inventory not found"
   end
 end
@@ -35,14 +35,14 @@ local function default_replace_item(self, pos, dir, item_stack, commit)
 end
 
 local function default_room_for_item(self, pos, dir, item_stack)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
   return inv:room_for_item(self.inventory_name, item_stack)
 end
 
 local function default_insert_item(self, pos, dir, item_stack, commit)
   if self:allow_insert_item(pos, dir, item_stack) then
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
     local inv = meta:get_inventory()
     local remaining
     local list
@@ -71,7 +71,7 @@ end
 
 local function default_extract_item(self, pos, dir, item_stack_or_count, commit)
   if self:allow_extract_item(pos, dir, item_stack_or_count) then
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
     local inv = meta:get_inventory()
     local list = inv:get_list(self.inventory_name)
     if list then
@@ -91,13 +91,13 @@ end
 local function directional_get_item(self, pos, dir)
   local inventory_name = self:dir_to_inventory_name(pos, dir)
   if inventory_name then
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
     local inv = meta:get_inventory()
     local list = inv:get_list(inventory_name)
     if list then
       return InventoryList.first_present_stack(list)
     else
-      print("ERROR", minetest.pos_to_string(pos), "inventory does not exist", inventory_name)
+      print("ERROR", core.pos_to_string(pos), "inventory does not exist", inventory_name)
       return nil, "inventory not found"
     end
   end
@@ -114,7 +114,7 @@ end
 local function directional_room_for_item(self, pos, dir, item_stack)
   local inventory_name = self:dir_to_inventory_name(pos, dir)
   if inventory_name then
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
     local inv = meta:get_inventory()
     return inv:room_for_item(inventory_name, item_stack)
   end
@@ -125,7 +125,7 @@ local function directional_insert_item(self, pos, dir, item_stack, commit)
   if self:allow_insert_item(pos, dir, item_stack) then
     local inventory_name = self:dir_to_inventory_name(pos, dir)
     if inventory_name then
-      local meta = minetest.get_meta(pos)
+      local meta = core.get_meta(pos)
       local inv = meta:get_inventory()
       if commit then
         local remaining = inv:add_item(inventory_name, item_stack)
@@ -147,7 +147,7 @@ local function directional_extract_item(self, pos, dir, item_stack_or_count, com
   if self:allow_extract_item(pos, dir, item_stack_or_count) then
     local inventory_name = self:dir_to_inventory_name(pos, dir)
     if inventory_name then
-      local meta = minetest.get_meta(pos)
+      local meta = core.get_meta(pos)
       local inv = meta:get_inventory()
       local list = inv:get_list(inventory_name)
       local new_list, extracted = InventoryList.extract_stack(list, item_stack_or_count)

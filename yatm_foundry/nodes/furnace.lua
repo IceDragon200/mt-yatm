@@ -20,7 +20,7 @@ local ERROR_NOT_ENOUGH_HEAT = 40
 
 --- @spec refresh_infotext(Vector3): void
 local function refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local heat = meta:get_float("heat")
 
   meta:set_string("infotext",
@@ -41,8 +41,8 @@ end
 
 --- @spec on_construct(Vector3): void
 local function on_construct(pos)
-  local node = minetest.get_node(pos)
-  local meta = minetest.get_meta(pos)
+  local node = core.get_node(pos)
+  local meta = core.get_meta(pos)
 
   cluster_thermal:schedule_add_node(pos, node)
   maybe_initialize_inventory(meta)
@@ -54,8 +54,8 @@ end
 
 --- @spec on_timer(Vector3, dt: Float): Boolean
 local function on_timer(pos, dt)
-  local node = minetest.get_node_or_nil(pos)
-  local meta = minetest.get_meta(pos)
+  local node = core.get_node_or_nil(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   local time = meta:get_float("time")
@@ -70,7 +70,7 @@ local function on_timer(pos, dt)
       local leftover_list = inv:get_list("leftover_slot")
 
       local result, leftovers =
-        minetest.get_craft_result({
+        core.get_craft_result({
           method = "cooking",
           width = 1,
           items = input_list
@@ -132,7 +132,7 @@ local function on_timer(pos, dt)
       end
 
     else
-      minetest.log("warning", "unexpected furnace state=" .. craft_state)
+      core.log("warning", "unexpected furnace state=" .. craft_state)
       craft_state = STATE_NEW
     end
   end
@@ -148,7 +148,7 @@ end
 local function render_formspec(pos, user, state)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
 
@@ -220,7 +220,7 @@ local function on_rightclick(pos, node, user)
     pos = pos,
     node = node,
   }
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   maybe_initialize_inventory(meta)
 
   local formspec = render_formspec(pos, user, state)
@@ -245,7 +245,7 @@ end
 
 local item_interface =
   ItemInterface.new_directional(function (self, pos, dir)
-    local node = minetest.get_node(pos)
+    local node = core.get_node(pos)
     local new_dir = Directions.facedir_to_face(node.param2, dir)
 
     if new_dir == Directions.D_DOWN then
@@ -258,13 +258,13 @@ local item_interface =
   end)
 
 function item_interface:allow_insert_item(pos, dir, item_stack)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   local new_dir = Directions.facedir_to_face(node.param2, dir)
 
   if new_dir == Directions.D_UP then
     -- input_slot
     local result, leftovers =
-      minetest.get_craft_result({
+      core.get_craft_result({
         method = "cooking",
         width = 1,
         items = {item_stack}
@@ -323,7 +323,7 @@ yatm.register_stateful_node(mod:make_name("furnace"), {
     },
 
     update_heat = function (self, pos, node, heat, dtime)
-      local meta = minetest.get_meta(pos)
+      local meta = core.get_meta(pos)
 
       if yatm.thermal.update_heat(meta, "heat", heat, 10, dtime) then
         local new_name
@@ -334,7 +334,7 @@ yatm.register_stateful_node(mod:make_name("furnace"), {
         end
         if new_name ~= node.name then
           node.name = new_name
-          minetest.swap_node(pos, node)
+          core.swap_node(pos, node)
         end
 
         maybe_start_node_timer(pos, 1.0)

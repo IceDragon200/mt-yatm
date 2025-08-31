@@ -14,7 +14,7 @@ yatm.cluster.reactor:register_system("yatm_cluster_reactor:reactor_logic", yatm_
 
 yatm.cluster_tool.register_cluster_tool_render(CLUSTER_GROUP, yatm.cluster.reactor:method("cluster_tool_render"))
 
-minetest.register_lbm({
+core.register_lbm({
   name = "yatm_reactors:cluster_device_lbm",
 
   nodenames = {

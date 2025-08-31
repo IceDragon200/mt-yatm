@@ -34,7 +34,7 @@ function materializer_yatm_network:work(ctx)
 end
 
 local function refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local infotext =
     "Materializer\n" ..
     cluster_devices:get_node_infotext(pos) .. "\n" ..

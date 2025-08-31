@@ -3,7 +3,7 @@ local ByteBuf = assert(foundation.com.ByteBuf.little)
 
 local ffi = yatm_oku.ffi
 if not ffi then
-  minetest.log("warn", "OKU requires ffi for some components, trying to initialize anyway")
+  core.log("warn", "OKU requires ffi for some components, trying to initialize anyway")
 end
 
 --- @class OKU
@@ -21,7 +21,7 @@ local Memory
 if OKU.Memory then
   Memory = OKU.Memory
 else
-  minetest.log("warn", "OKU requires Memory module")
+  core.log("warn", "OKU requires Memory module")
   yatm_oku.OKU = nil
   return
 end

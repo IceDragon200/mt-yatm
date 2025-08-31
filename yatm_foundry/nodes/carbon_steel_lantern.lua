@@ -25,7 +25,7 @@ for _,row in ipairs(yatm.colors) do
   local color_basename = row.name
   local color_name = row.description
 
-  minetest.register_node("yatm_foundry:lantern_carbon_steel_" .. color_basename, {
+  core.register_node("yatm_foundry:lantern_carbon_steel_" .. color_basename, {
     basename = "yatm_foundry:lantern_carbon_steel",
 
     codex_entry_id = "yatm_foundry:lantern_carbon_steel",
@@ -46,7 +46,7 @@ for _,row in ipairs(yatm.colors) do
 
     paramtype = "light",
     sunlight_propagates = false,
-    light_source = minetest.LIGHT_MAX,
+    light_source = core.LIGHT_MAX,
 
     drawtype = "nodebox",
     node_box = fancy_lantern_nodebox,

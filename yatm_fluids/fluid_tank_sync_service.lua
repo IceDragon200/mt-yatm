@@ -53,18 +53,18 @@ do
       local draining_stack
       local filled_stack
       for xy_hash,entries in pairs(columns) do
-        pos = minetest.get_position_from_hash(xy_hash)
+        pos = core.get_position_from_hash(xy_hash)
         seen = {}
         for y,_ in pairs(entries) do
           pos.y = y
           if not seen[pos.y] then
             while true do
-              node = minetest.get_node_or_nil(pos)
+              node = core.get_node_or_nil(pos)
               if not node then
                 break
               end
 
-              nodedef = minetest.registered_nodes[node.name]
+              nodedef = core.registered_nodes[node.name]
               if not nodedef then
                 break
               end
@@ -81,12 +81,12 @@ do
 
             pos.y = y
             while true do
-              node = minetest.get_node_or_nil(pos)
+              node = core.get_node_or_nil(pos)
               if not node then
                 break
               end
 
-              nodedef = minetest.registered_nodes[node.name]
+              nodedef = core.registered_nodes[node.name]
               if not nodedef then
                 break
               end
@@ -125,7 +125,7 @@ do
                 neighbour_pos.y = pos.y + neighbour_y
                 neighbour_node = seen[neighbour_pos.y]
                 if neighbour_node then
-                  neighbour_nodedef = minetest.registered_nodes[neighbour_node.name]
+                  neighbour_nodedef = core.registered_nodes[neighbour_node.name]
                   if neighbour_nodedef and Groups.has_group(neighbour_nodedef, "fluid_tank") then
                     filled_stack =
                       FluidTanks.fill_fluid(

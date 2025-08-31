@@ -46,19 +46,19 @@ end
 local function teleporter_on_construct(pos)
   yatm.devices.device_on_construct(pos)
 
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   inv:set_size("main", 1)
 end
 
 local function teleporter_after_place_node(pos, _placer, itemstack, _pointed_thing)
-  local new_meta = minetest.get_meta(pos)
+  local new_meta = core.get_meta(pos)
   local old_meta = itemstack:get_meta()
   SpacetimeMeta.copy_address(old_meta, new_meta)
   local address = SpacetimeMeta.patch_address(new_meta)
 
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   SpacetimeNetwork:maybe_register_node(pos, node)
 
   yatm.devices.device_after_place_node(pos, placer, itemstack, pointed_thing)
@@ -75,25 +75,25 @@ local function teleporter_after_destruct(pos, old_node)
 end
 
 local function item_receiver_change_spacetime_address(pos, node, new_address)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   SpacetimeMeta.set_address(meta, new_address)
   SpacetimeNetwork:maybe_update_node(pos, node)
 
-  local nodedef = minetest.registered_nodes[node.name]
+  local nodedef = core.registered_nodes[node.name]
   if is_blank(new_address) then
     node.name = item_receiver_yatm_network.states.off
-    minetest.swap_node(pos, node)
+    core.swap_node(pos, node)
   else
     node.name = item_receiver_yatm_network.states.on
-    minetest.swap_node(pos, node)
+    core.swap_node(pos, node)
   end
   yatm.queue_refresh_infotext(pos, node)
   return new_address
 end
 
 local function item_receiver_refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   local stack = inv:get_stack("main", 1)

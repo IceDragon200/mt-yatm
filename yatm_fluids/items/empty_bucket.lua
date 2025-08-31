@@ -56,13 +56,13 @@ mod:register_tool("empty_bucket", {
       return nil
     end
 
-    local node = minetest.get_node_or_nil(pointed_thing.under)
+    local node = core.get_node_or_nil(pointed_thing.under)
     local bucket = FluidRegistry.fluid_item_to_bucket(node.name)
     local fluid = FluidRegistry.fluid_item_to_fluid(node.name)
 
     if bucket then
-      if minetest.is_protected(pointed_thing.under, user:get_player_name()) then
-        minetest.record_protection_violation(pos, name)
+      if core.is_protected(pointed_thing.under, user:get_player_name()) then
+        core.record_protection_violation(pos, name)
         return nil
       end
 
@@ -78,7 +78,7 @@ mod:register_tool("empty_bucket", {
         else
           local pos = user:get_pos()
           pos.y = math.floor(pos.y + 0.5)
-          minetest.add_item(pos, bucket_stack)
+          core.add_item(pos, bucket_stack)
         end
 
         return_stack = item_stack
@@ -88,11 +88,11 @@ mod:register_tool("empty_bucket", {
       local source_neighbor = false
       if bucket.force_renew then
         source_neighbor =
-          minetest.find_node_near(pointed_thing.under, 1, bucket.source)
+          core.find_node_near(pointed_thing.under, 1, bucket.source)
       end
 
       if not (source_neighbor and bucket.force_renew) then
-        minetest.add_node(pointed_thing.under, {
+        core.add_node(pointed_thing.under, {
           name = "air"
         })
       end
@@ -100,7 +100,7 @@ mod:register_tool("empty_bucket", {
       return return_stack
     else
       -- non-liquid nodes will have their on_punch triggered
-      local node_def = minetest.registered_nodes[node.name]
+      local node_def = core.registered_nodes[node.name]
       if node_def then
         node_def.on_punch(pointed_thing.under, node, user, pointed_thing)
       end

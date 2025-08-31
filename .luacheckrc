@@ -12,6 +12,9 @@ globals = {
   trigger_rightclick_on_pos = {},
   Point = {},
   trigger_on_player_receive_fields = {},
+  assert_and_remove_item_stack_in_inventory = {},
+  assert_inventory_is_empty = {},
+  stash_inventory_list = {},
 
   --
   -- Core, YATM should NOT be using the `minetest` namespace moving forward
@@ -51,6 +54,14 @@ globals = {
   yatm = loadfile(".luacheckrc.d/yatm.lua")(),
   yatm_data_logic = {
     fields = {
+      FORMSPEC_SIZE = {
+        fields = {
+          w = {},
+          h = {},
+        },
+      },
+      layout_formspec = {},
+      emit_value = {},
       emit_output_data = {},
       mark_all_inputs_for_active_receive = {},
     },

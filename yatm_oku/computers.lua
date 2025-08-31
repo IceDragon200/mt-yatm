@@ -80,15 +80,15 @@ do
 
   --- @spec #initialize(): void
   function ic:initialize()
-    self.m_root_dir = path_join(minetest.get_worldpath(), "/yatm/oku")
-    minetest.mkdir(self.m_root_dir)
+    self.m_root_dir = path_join(core.get_worldpath(), "/yatm/oku")
+    core.mkdir(self.m_root_dir)
 
     --- @member m_computers: { [name: String]: ComputerState }
     self.m_computers = {}
   end
 
   local function pos_to_basename(pos)
-    return string.format("computer-%08x", minetest.hash_node_position(pos)) .. ".bin"
+    return string.format("computer-%08x", core.hash_node_position(pos)) .. ".bin"
   end
 
   ---
@@ -100,7 +100,7 @@ do
   end
 
   local function make_label(pos, node)
-    return "computer-" .. node.name .. "-" .. minetest.pos_to_string(pos)
+    return "computer-" .. node.name .. "-" .. core.pos_to_string(pos)
   end
 
   ---
@@ -112,7 +112,7 @@ do
 
     local trace
     if Trace then
-      trace = Trace:new('load_computer_state_at_pos/' .. minetest.pos_to_string(pos))
+      trace = Trace:new('load_computer_state_at_pos/' .. core.pos_to_string(pos))
     end
     local span
     if trace then
@@ -170,7 +170,7 @@ do
       }
 
       return {
-        id = minetest.hash_node_position(pos),
+        id = core.hash_node_position(pos),
         pos = state_pos,
         node = node,
         secret = state.secret,
@@ -186,16 +186,16 @@ do
   ---
   --- @spec #save_computer_state(ComputerState, Trace): (bytes_written: Integer, error: Error)
   function ic:save_computer_state(state, trace)
-    print("Saving Computer State", minetest.pos_to_string(state.pos))
+    print("Saving Computer State", core.pos_to_string(state.pos))
     local basename = pos_to_basename(state.pos)
     local filename = path_join(self.m_root_dir, basename)
 
     local span
     if trace then
-      span = trace:span_start('save_computer_state/' .. minetest.pos_to_string(state.pos))
+      span = trace:span_start('save_computer_state/' .. core.pos_to_string(state.pos))
     else
       if Trace then
-        span = Trace:new('save_computer_state/' .. minetest.pos_to_string(state.pos))
+        span = Trace:new('save_computer_state/' .. core.pos_to_string(state.pos))
       end
     end
     local stream = Buffer:new('', 'w')
@@ -247,7 +247,7 @@ do
     stream:close()
 
     func_trace = span:span_start("safe_file_write")
-    minetest.safe_file_write(filename, stream:blob())
+    core.safe_file_write(filename, stream:blob())
     func_trace:span_end()
 
     span:span_end()
@@ -329,7 +329,7 @@ do
     assert(type(secret) == "string", "expected secret to be a string got:" .. type(secret))
     assert(type(options) == "table", "expected an options table got:" .. type(options))
 
-    local hash = minetest.hash_node_position(pos)
+    local hash = core.hash_node_position(pos)
     local computer = self.m_computers[hash]
     if computer then
       error("a computer already exists hash=" .. hash)
@@ -356,7 +356,7 @@ do
   ---
   --- @spec #get_computer_at_pos(pos: Vector3): nil | ComputerState
   function ic:get_computer_at_pos(pos)
-    local hash = minetest.hash_node_position(pos)
+    local hash = core.hash_node_position(pos)
 
     return self.m_computers[hash]
   end
@@ -366,8 +366,8 @@ do
   ---
   --- @spec #destroy_computer_at_pos(pos: Vector3): Boolean
   function ic:destroy_computer_at_pos(pos)
-    print("Destroying Computer", minetest.pos_to_string(pos))
-    local hash = minetest.hash_node_position(pos)
+    print("Destroying Computer", core.pos_to_string(pos))
+    local hash = core.hash_node_position(pos)
     if self.m_computers[hash] then
       self:delete_computer_state_at_pos(pos)
       self.m_computers[hash] = nil
@@ -379,8 +379,8 @@ do
 
   --- @spec #update_computer_at_pos(pos: Vector3, node: NodeRef, secret: String, options: Table): ComputerState
   function ic:update_computer_at_pos(pos, node, secret, options)
-    print("Updating Computer", minetest.pos_to_string(pos), node.name)
-    local hash = minetest.hash_node_position(pos)
+    print("Updating Computer", core.pos_to_string(pos), node.name)
+    local hash = core.hash_node_position(pos)
     local computer = self.m_computers[hash]
 
     if computer then
@@ -403,7 +403,7 @@ do
     local old_state = self:load_computer_state_at_pos(pos)
     if old_state then
       if old_state.secret == secret then
-        local hash = minetest.hash_node_position(pos)
+        local hash = core.hash_node_position(pos)
         old_state.id = hash
         self.m_computers[old_state.id] = old_state
         return old_state
@@ -419,7 +419,7 @@ do
 
   --- @spec #upsert_computer_at_pos(pos: Vector3, node: NodeRef, secret: String, options: Table): ComputerState
   function ic:upsert_computer_at_pos(pos, node, secret, options)
-    local hash = minetest.hash_node_position(pos)
+    local hash = core.hash_node_position(pos)
     if self.m_computers[hash] then
       return self:update_computer_at_pos(pos, node, secret, options)
     else

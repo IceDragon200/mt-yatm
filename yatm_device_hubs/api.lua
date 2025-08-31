@@ -11,7 +11,7 @@ yatm_device_hubs.HUB_NODEBOX = {
 }
 
 function yatm_device_hubs.hub_refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..

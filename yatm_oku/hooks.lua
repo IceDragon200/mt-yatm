@@ -6,11 +6,11 @@ if not yatm.computers then
   return
 end
 
-minetest.register_on_mods_loaded(yatm.computers:method("setup"))
+core.register_on_mods_loaded(yatm.computers:method("setup"))
 nokore_proxy.register_globalstep("yatm_oku.update/1", yatm.computers:method("update"))
-minetest.register_on_shutdown(yatm.computers:method("terminate"))
+core.register_on_shutdown(yatm.computers:method("terminate"))
 
-minetest.register_lbm({
+core.register_lbm({
   label = "Reload YATM Computers",
   name = "yatm_oku:reload_computers",
 
@@ -21,12 +21,12 @@ minetest.register_lbm({
   run_at_every_load = true,
 
   action = function (pos, node)
-    local nodedef = minetest.registered_nodes[node.name]
+    local nodedef = core.registered_nodes[node.name]
     if nodedef then
-      minetest.log("info", "registering computer node " .. minetest.pos_to_string(pos))
+      core.log("info", "registering computer node " .. core.pos_to_string(pos))
       nodedef.register_computer(pos, node)
     else
-      minetest.log("error", "not a valid computer node " .. minetest.pos_to_string(pos))
+      core.log("error", "not a valid computer node " .. core.pos_to_string(pos))
     end
   end
 })

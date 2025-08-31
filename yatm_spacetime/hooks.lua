@@ -19,7 +19,7 @@ yatm.cluster_tool.register_cluster_tool_render(
   yatm.cluster.gate:method("cluster_tool_render")
 )
 
-minetest.register_lbm({
+core.register_lbm({
   name = "yatm_spacetime:gate_lbm",
 
   nodenames = {
@@ -33,7 +33,7 @@ minetest.register_lbm({
   end,
 })
 
-minetest.register_lbm({
+core.register_lbm({
   name = "yatm_spacetime:addressable_spacetime_device_lbm",
 
   nodenames = {

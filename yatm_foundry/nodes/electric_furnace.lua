@@ -29,7 +29,7 @@ local function upsert_inventory_by_meta(meta)
 end
 
 local function refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
@@ -88,7 +88,7 @@ function yatm_network:work(ctx)
       end
 
       local result, leftovers =
-        minetest.get_craft_result({
+        core.get_craft_result({
           method = "cooking",
           width = 1,
           items = input_list
@@ -150,7 +150,7 @@ function yatm_network:work(ctx)
       end
 
     else
-      minetest.log("warning", "unexpected electric furnace state=" .. craft_state)
+      core.log("warning", "unexpected electric furnace state=" .. craft_state)
       craft_state = STATE_NEW
     end
   end
@@ -170,7 +170,7 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine_heated" }, function (loc, rect)
     if loc == "main_body" then
@@ -247,12 +247,12 @@ end
 local function on_construct(pos)
   yatm.devices.device_on_construct(pos)
 
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   upsert_inventory_by_meta(meta)
 end
 
 local function on_rightclick(pos, node, user)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   upsert_inventory_by_meta(meta)
 
   local state = {
@@ -281,7 +281,7 @@ end
 
 local item_interface =
   ItemInterface.new_directional(function (self, pos, dir)
-    local node = minetest.get_node(pos)
+    local node = core.get_node(pos)
     local new_dir = Directions.facedir_to_face(node.param2, dir)
 
     if new_dir == Directions.D_DOWN then
@@ -294,13 +294,13 @@ local item_interface =
   end)
 
 function item_interface:allow_insert_item(pos, dir, item_stack)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   local new_dir = Directions.facedir_to_face(node.param2, dir)
 
   if new_dir == Directions.D_UP then
     -- input_slot
     local result, leftovers =
-      minetest.get_craft_result({
+      core.get_craft_result({
         method = "cooking",
         width = 1,
         items = {item_stack}

@@ -9,29 +9,29 @@ local data_network = assert(yatm.data_network)
 local string_hex_unescape = assert(foundation.com.string_hex_unescape)
 
 local on_construct = function (pos)
-  local meta = minetest.get_meta(pos)
-  local node = minetest.get_node(pos)
+  local meta = core.get_meta(pos)
+  local node = core.get_node(pos)
 
   data_network:add_node(pos, node)
 end
 
 local function pipe_after_place_node(pos, _placer, _itemstack, _pointed_thing)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   fluid_transport_network:register_member(pos, node)
 end
 
 local function pipe_on_destruct(pos)
-  print("valve_fluid_pipe_on_destruct", minetest.pos_to_string(pos))
+  print("valve_fluid_pipe_on_destruct", core.pos_to_string(pos))
 end
 
 local function pipe_after_destruct(pos, old_node)
-  print("valve_fluid_pipe_after_destruct", minetest.pos_to_string(pos))
+  print("valve_fluid_pipe_after_destruct", core.pos_to_string(pos))
   fluid_transport_network:unregister_member(pos)
   data_network:remove_node(pos, old_node)
 end
 
 local function valve_swap(pos, node, state)
-  local nodedef = minetest.registered_nodes[node.name]
+  local nodedef = core.registered_nodes[node.name]
 
   local name = nodedef.fluid_valve_state[state]
   if node.name ~= name then
@@ -40,7 +40,7 @@ local function valve_swap(pos, node, state)
       param = node.param,
       param2 = node.param2,
     }
-    minetest.swap_node(pos, nd)
+    core.swap_node(pos, nd)
     data_network:update_member(pos, nd)
     fluid_transport_network:update_member(pos, nd)
   end
@@ -55,7 +55,7 @@ local data_interface = {
     local bin = string_hex_unescape(value)
     local input = string.byte(bin, 1)
 
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
 
     local data_on_threshold = meta:get_string("data_on_threshold")
     data_on_threshold = string_hex_unescape(data_on_threshold)

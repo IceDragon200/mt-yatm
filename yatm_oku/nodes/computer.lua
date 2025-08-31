@@ -14,7 +14,7 @@ local fspec = assert(foundation.com.formspec.api)
 
 local function render_formspec(pos, user, assigns)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "computer" }, function (loc, rect)
     if loc == "main_body" then
@@ -27,7 +27,7 @@ local function render_formspec(pos, user, assigns)
 end
 
 local function on_receive_fields(player, formname, fields, assigns)
-  local meta = minetest.get_meta(assigns.pos)
+  local meta = core.get_meta(assigns.pos)
 
   --[[for i = 1,16 do
     local field_name = "p" .. i
@@ -41,7 +41,7 @@ local function on_receive_fields(player, formname, fields, assigns)
 end
 
 local function refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     cluster_energy:get_node_infotext(pos) .. "\n" ..
@@ -52,8 +52,8 @@ local function refresh_infotext(pos, node)
 end
 
 local function on_construct(pos)
-  local node = minetest.get_node(pos)
-  local meta = minetest.get_meta(pos)
+  local node = core.get_node(pos)
+  local meta = core.get_meta(pos)
 
   local secret = random_string62(8)
   meta:set_string("secret", "comp." .. secret)
@@ -70,7 +70,7 @@ local function on_destruct(pos)
 end
 
 local function on_rightclick(pos, node, user)
-  local formspec_name = "yatm_oku:computer:" .. minetest.pos_to_string(pos)
+  local formspec_name = "yatm_oku:computer:" .. core.pos_to_string(pos)
   local assigns = { pos = pos, node = node }
   local formspec = render_formspec(pos, user, assigns)
 
@@ -204,7 +204,7 @@ yatm.devices.register_stateful_network_device({
   on_rightclick = on_rightclick,
 
   register_computer = function (pos, node)
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
     local secret = meta:get_string("secret")
     if not secret then
       secret = random_string(8)

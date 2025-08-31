@@ -53,14 +53,14 @@ end
 local cardboard_box_item_interface = ItemInterface.new_simple(MAIN_INVENTORY_NAME)
 
 local function cardboard_box_after_place_node(pos, placer, item_stack, pointed_thing)
-  local new_meta = minetest.get_meta(pos)
+  local new_meta = core.get_meta(pos)
   local old_meta = item_stack:get_meta()
 
   local new_inv = new_meta:get_inventory()
 
   local old_inv_list = old_meta:get_string("inventory_dump")
   if not is_blank(old_inv_list) then
-    local dumped = minetest.deserialize(old_inv_list)
+    local dumped = core.deserialize(old_inv_list)
     local list = new_inv:get_list(MAIN_INVENTORY_NAME)
     list = yatm.items.InventorySerializer.load_list(dumped, list)
     new_inv:set_list(MAIN_INVENTORY_NAME, list)
@@ -70,7 +70,7 @@ end
 local function cardboard_box_preserve_metadata(pos, old_node, _old_meta_table, drops)
   local stack = drops[1]
 
-  local old_meta = minetest.get_meta(pos)
+  local old_meta = core.get_meta(pos)
   local new_meta = stack:get_meta()
 
   local old_inv = old_meta:get_inventory()
@@ -79,20 +79,20 @@ local function cardboard_box_preserve_metadata(pos, old_node, _old_meta_table, d
   local dumped = yatm.items.InventorySerializer.dump_list(list)
 
   --print("preserve_metadata", dump(dumped))
-  new_meta:set_string("inventory_dump", minetest.serialize(dumped))
-  local description = minetest.registered_nodes[old_node.name].description .. " (" .. yatm.items.InventorySerializer.description(dumped) .. ")"
+  new_meta:set_string("inventory_dump", core.serialize(dumped))
+  local description = core.registered_nodes[old_node.name].description .. " (" .. yatm.items.InventorySerializer.description(dumped) .. ")"
   new_meta:set_string("description", description)
 end
 
 local function cardboard_box_on_dig(pos, node, puncher)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   if not inv:is_empty("main") then
     return false
   end
 
-  return minetest.node_dig(pos, node, puncher)
+  return core.node_dig(pos, node, puncher)
 end
 
 --- @spec cardboard_box_on_blast(pos: Vector3, intensity: Float): Table
@@ -100,7 +100,7 @@ local function cardboard_box_on_blast(pos, _intensity)
   local drops = {}
   foundation.com.get_inventory_drops(pos, MAIN_INVENTORY_NAME, drops)
   table.insert(drops, mod:make_name("cardboard_box"))
-  minetest.remove_node(pos)
+  core.remove_node(pos)
   return drops
 end
 
@@ -111,7 +111,7 @@ local function super_cardboard_box_on_blast(_pos, _intensity)
   return {}
 end
 
-minetest.register_node(mod:make_name("cardboard_box"), {
+core.register_node(mod:make_name("cardboard_box"), {
   description = mod.S("Cardboard Box"),
 
   codex_entry_id = mod:make_name("cardboard_box"),
@@ -151,7 +151,7 @@ minetest.register_node(mod:make_name("cardboard_box"), {
   },
 
   on_construct = function (pos)
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
 
     local inv = meta:get_inventory()
 
@@ -164,14 +164,14 @@ minetest.register_node(mod:make_name("cardboard_box"), {
   on_blast = cardboard_box_on_blast,
 
   on_rightclick = function (pos, node, user)
-    minetest.show_formspec(
+    core.show_formspec(
       user:get_player_name(),
       "yatm_item_storage:cardboard_box",
       get_cardboard_box_formspec(pos, user))
   end,
 })
 
-minetest.register_node(mod:make_name("super_cardboard_box"), {
+core.register_node(mod:make_name("super_cardboard_box"), {
   description = mod.S("SUPER Cardboard Box\nFor when a regular one isn't good enough"),
 
   codex_entry_id = mod:make_name("super_cardboard_box"),
@@ -207,7 +207,7 @@ minetest.register_node(mod:make_name("super_cardboard_box"), {
   item_interface = cardboard_box_item_interface,
 
   on_construct = function (pos)
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
 
     local inv = meta:get_inventory()
 
@@ -220,7 +220,7 @@ minetest.register_node(mod:make_name("super_cardboard_box"), {
   on_blast = super_cardboard_box_on_blast,
 
   on_rightclick = function (pos, node, user)
-    minetest.show_formspec(
+    core.show_formspec(
       user:get_player_name(),
       "yatm_item_storage:super_cardboard_box",
       get_super_cardboard_box_formspec(pos, user)

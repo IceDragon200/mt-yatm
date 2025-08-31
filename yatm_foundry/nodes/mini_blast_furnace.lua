@@ -3,7 +3,7 @@ local table_merge = assert(foundation.com.table_merge)
 local cluster_thermal = assert(yatm.cluster.thermal)
 
 local function mini_blast_furnace_refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local heat = meta:get_float("heat")
 
   local infotext =
@@ -40,7 +40,7 @@ yatm.register_stateful_node("yatm_foundry:mini_blast_furnace", {
   sounds = yatm.node_sounds:build("stone"),
 
   on_construct = function (pos)
-    local node = minetest.get_node(pos)
+    local node = core.get_node(pos)
     cluster_thermal:schedule_add_node(pos, node)
   end,
 
@@ -61,7 +61,7 @@ yatm.register_stateful_node("yatm_foundry:mini_blast_furnace", {
     },
 
     update_heat = function (self, pos, node, heat, dtime)
-      local meta = minetest.get_meta(pos)
+      local meta = core.get_meta(pos)
 
       if yatm.thermal.update_heat(meta, "heat", heat, 10, dtime) then
         local new_name
@@ -72,7 +72,7 @@ yatm.register_stateful_node("yatm_foundry:mini_blast_furnace", {
         end
         if new_name ~= node.name then
           node.name = new_name
-          minetest.swap_node(pos, node)
+          core.swap_node(pos, node)
         end
 
         maybe_start_node_timer(pos, 1.0)

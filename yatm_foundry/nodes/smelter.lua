@@ -32,7 +32,7 @@ local TANK_CAPACITY = 4000
 local fluid_interface = FluidInterface.new_simple("molten_tank", TANK_CAPACITY)
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   yatm.queue_refresh_infotext(pos, node)
 end
 
@@ -51,7 +51,7 @@ fluid_interface.allow_drain = fluid_interface.allow_replace
 local item_interface = ItemInterface.new_simple("input_slot")
 
 local function smelter_refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local heat = math.floor(meta:get_float("heat"))
 
   local molten_tank_fluid_stack = FluidMeta.get_fluid_stack(meta, "molten_tank")
@@ -68,7 +68,7 @@ local function smelter_refresh_infotext(pos)
 end
 
 local function smelter_on_rightclick(pos, node, user)
-  minetest.show_formspec(
+  core.show_formspec(
     user:get_player_name(),
     "yatm_foundry:smelter",
     get_smelter_formspec(pos, user)
@@ -76,8 +76,8 @@ local function smelter_on_rightclick(pos, node, user)
 end
 
 local function smelter_on_timer(pos, dtime)
-  local node = minetest.get_node(pos)
-  local meta = minetest.get_meta(pos)
+  local node = core.get_node(pos)
+  local meta = core.get_meta(pos)
 
   local available_heat = meta:get_float("heat")
 
@@ -158,8 +158,8 @@ yatm.register_stateful_node("yatm_foundry:smelter", {
   fluid_interface = fluid_interface,
 
   on_construct = function (pos)
-    local node = minetest.get_node(pos)
-    local meta = minetest.get_meta(pos)
+    local node = core.get_node(pos)
+    local meta = core.get_meta(pos)
     local inv = meta:get_inventory()
     inv:set_size("input_slot", 1)
     inv:set_size("processing_slot", 1)
@@ -180,7 +180,7 @@ yatm.register_stateful_node("yatm_foundry:smelter", {
     },
 
     update_heat = function (self, pos, node, heat, dtime)
-      local meta = minetest.get_meta(pos)
+      local meta = core.get_meta(pos)
 
       if yatm.thermal.update_heat(meta, "heat", heat, 10, dtime) then
         local new_name
@@ -191,7 +191,7 @@ yatm.register_stateful_node("yatm_foundry:smelter", {
         end
         if new_name ~= node.name then
           node.name = new_name
-          minetest.swap_node(pos, node)
+          core.swap_node(pos, node)
         end
 
         maybe_start_node_timer(pos, 1.0)

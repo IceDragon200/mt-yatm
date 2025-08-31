@@ -85,7 +85,7 @@ for _,material_pair in ipairs(materials) do
 
   local capacity = material_capacity[material_basename]
 
-  minetest.register_tool("yatm_energy_storage:battery_" .. material_basename, {
+  core.register_tool("yatm_energy_storage:battery_" .. material_basename, {
     basename = "yatm_energy_storage:battery",
     base_description = mod.S("Battery"),
 
@@ -112,7 +112,7 @@ for _,material_pair in ipairs(materials) do
   })
 end
 
-minetest.register_tool("yatm_energy_storage:battery_creative", {
+core.register_tool("yatm_energy_storage:battery_creative", {
   basename = "yatm_energy_storage:battery",
   base_description = mod.S("Battery"),
 

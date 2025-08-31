@@ -36,7 +36,7 @@ yatm.blasts.system:register_explosion_type("high-explosive", {
 
   on_expired = function (self, assigns, blasts_system, explosion)
     -- when the explosion is about to be removed from the system
-    minetest.log("info", "high explosive expired")
+    core.log("info", "high explosive expired")
   end,
 })
 ```

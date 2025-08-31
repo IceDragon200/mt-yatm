@@ -23,14 +23,14 @@ yatm_oku.OKU.isa.MOS6502 = MOS6502
 
 yatm_oku:require("lib/oku/isa/mos_6502/impl/lua.lua")
 if ffi then
-  minetest.log("info", "MOS6502 native implementation may be possible")
+  core.log("info", "MOS6502 native implementation may be possible")
   yatm_oku:require("lib/oku/isa/mos_6502/impl/native.lua")
 
   if not yatm_oku.OKU.isa.MOS6502.has_native then
-    minetest.log("warning", "MOS6502 native implementation was not loaded")
+    core.log("warning", "MOS6502 native implementation was not loaded")
   end
 else
-  minetest.log("warning", "ffi unavailable, cannot use native MOS6502 implementation")
+  core.log("warning", "ffi unavailable, cannot use native MOS6502 implementation")
 end
 
 yatm_oku.OKU.isa.MOS6502.Chip = yatm_oku.OKU.isa.MOS6502.NativeChip or

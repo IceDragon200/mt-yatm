@@ -32,7 +32,7 @@ pcall(function ()
 end)
 
 if not oku_6502 then
-  minetest.log("warning", "oku_6502 shared object is not available, skipping implementation")
+  core.log("warning", "oku_6502 shared object is not available, skipping implementation")
   return
 end
 

@@ -5,6 +5,10 @@ local HeadlessMetaDataRef = assert(foundation.com.headless.MetaDataRef)
 local is_table_empty = assert(foundation.com.is_table_empty)
 local is_blank = assert(foundation.com.is_blank)
 local data_network = assert(yatm.data_network)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local swap_node = assert(tetra.swap_node)
+local node_dig = assert(core.node_dig)
 
 local reader_node_box = {
   type = "fixed",
@@ -14,7 +18,7 @@ local reader_node_box = {
 }
 
 local function card_reader_on_construct(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   local inv = meta:get_inventory()
 
@@ -26,17 +30,17 @@ local function reader_on_rightclick(pos, node, clicker, itemstack, pointed_thing
 end
 
 local function reader_on_dig(pos, node, digger)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
   local access_card = inv:get_stack("access_card_slot", 1)
   if not access_card:is_empty() then
     return false
   end
-  return minetest.node_dig(pos, node, digger)
+  return node_dig(pos, node, digger)
 end
 
 local function card_reader_refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local infotext =
     meta:get_string("description") .. "\n" ..
     data_network:get_infotext(pos)
@@ -46,7 +50,7 @@ end
 
 local function data_card_reader_on_construct(pos)
   card_reader_on_construct(pos)
-  local node = minetest.get_node(pos)
+  local node = get_node(pos)
   data_network:add_node(pos, node)
 end
 
@@ -66,7 +70,7 @@ local function data_card_reader_preserve_metadata(pos, oldnode, old_meta_table, 
 end
 
 local function data_card_reader_after_place_node(pos, _placer, itemstack, _pointed_thing)
-  local new_meta = minetest.get_meta(pos)
+  local new_meta = get_meta(pos)
   local old_meta = itemstack:get_meta()
 
   yatm_security.copy_chipped_object(assert(old_meta), new_meta)
@@ -192,7 +196,7 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_reader", {
           yatm_data_logic.emit_output_data_value(pos, prvkey)
         end
       end
-      minetest.swap_node(pos, node)
+      swap_node(pos, node)
     end,
   },
 
@@ -216,7 +220,7 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_reader", {
 
     on_access_card_removed = function (pos, node, access_card)
       node.name = "yatm_data_card_readers:data_card_reader_off"
-      minetest.swap_node(pos, node)
+      swap_node(pos, node)
     end,
   },
 
@@ -240,7 +244,7 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_reader", {
 
     on_access_card_removed = function (pos, node, access_card)
       node.name = "yatm_data_card_readers:data_card_reader_off"
-      minetest.swap_node(pos, node)
+      swap_node(pos, node)
     end,
   }
 })

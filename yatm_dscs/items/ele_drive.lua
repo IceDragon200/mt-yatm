@@ -1,7 +1,7 @@
 --
 -- Elemental drives are used to store magical energy (Elegens, hence the 'ele')
 --
-minetest.register_craftitem("yatm_dscs:ele_drive_t1", {
+core.register_craftitem("yatm_dscs:ele_drive_t1", {
   basename = "yatm_dscs:ele_drive",
   base_description = "Elemental Drive",
 
@@ -16,7 +16,7 @@ minetest.register_craftitem("yatm_dscs:ele_drive_t1", {
   stack_max = 1,
 })
 
-minetest.register_craftitem("yatm_dscs:ele_drive_t2", {
+core.register_craftitem("yatm_dscs:ele_drive_t2", {
   basename = "yatm_dscs:ele_drive",
   base_description = "Elemental Drive",
 
@@ -31,7 +31,7 @@ minetest.register_craftitem("yatm_dscs:ele_drive_t2", {
   stack_max = 1,
 })
 
-minetest.register_craftitem("yatm_dscs:ele_drive_t3", {
+core.register_craftitem("yatm_dscs:ele_drive_t3", {
   basename = "yatm_dscs:ele_drive",
   base_description = "Elemental Drive",
 

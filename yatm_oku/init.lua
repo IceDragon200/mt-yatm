@@ -9,7 +9,7 @@
 --
 local mod = foundation.new_module("yatm_oku", "0.5.0")
 
-local insec = minetest.request_insecure_environment()
+local insec = core.request_insecure_environment()
 if insec then
   mod.ffi = insec.require("ffi")
 end
@@ -39,13 +39,13 @@ if yatm_oku.Computers then
   mod.ffi = nil
   mod.bit = nil
 else
-  minetest.log("warning", "oku failed to initialize properly: computers are unavailable")
+  core.log("warning", "oku failed to initialize properly: computers are unavailable")
 end
 
-if minetest.global_exists("yatm_codex") then
+if core.global_exists("yatm_codex") then
   mod:require("codex.lua")
 end
 
-if minetest.global_exists("yatm_autotest") then
+if core.global_exists("yatm_autotest") then
   mod:require("autotest.lua")
 end

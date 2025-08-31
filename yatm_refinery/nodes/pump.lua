@@ -40,13 +40,13 @@ local TANK_CAPACITY = 16000
 local fluid_interface = yatm.fluids.FluidInterface.new_simple(TANK_NAME, TANK_CAPACITY)
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   yatm.queue_refresh_infotext(pos, node)
 end
 
 local old_fill = fluid_interface.fill
 function fluid_interface:fill(pos, dir, fluid_stack, commit)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   local pump_in_dir = Directions.facedir_to_face(node.param2, Directions.D_DOWN)
   if dir == pump_in_dir then
     return old_fill(self, pos, dir, fluid_stack, commit)
@@ -56,9 +56,9 @@ function fluid_interface:fill(pos, dir, fluid_stack, commit)
 end
 
 local function pump_refresh_infotext(pos)
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
-  local meta = minetest.get_meta(pos)
+  local node = core.get_node(pos)
+  local nodedef = core.registered_nodes[node.name]
+  local meta = core.get_meta(pos)
   local fluid_stack = FluidMeta.get_fluid_stack(meta, TANK_NAME)
 
   local capacity = fluid_interface._private.capacity
@@ -82,7 +82,7 @@ function pump_yatm_network:work(ctx)
 
   local pump_dir = Directions.facedir_to_face(node.param2, Directions.D_DOWN)
   local target_pos = vector.add(pos, Directions.DIR6_TO_VEC3[pump_dir])
-  local target_node = minetest.get_node(target_pos)
+  local target_node = core.get_node(target_pos)
   local fluid_name = fluid_registry.item_name_to_fluid_name(target_node.name)
 
   local capacity = nodedef.fluid_interface._private.capacity
@@ -103,7 +103,7 @@ function pump_yatm_network:work(ctx)
 
     if used_stack and used_stack.amount > 0 then
       energy_consumed = energy_consumed + math.floor(100 * used_stack.amount / 1000)
-      minetest.remove_node(target_pos)
+      core.remove_node(target_pos)
       worked = true
     end
   else
@@ -188,7 +188,7 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine" }, function (loc, rect)
     if loc == "main_body" then

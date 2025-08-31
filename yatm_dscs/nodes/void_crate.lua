@@ -12,7 +12,7 @@ local Vector3 = assert(foundation.com.Vector3)
 local VSN = 2
 
 local function migrate(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   local inv = meta:get_inventory()
 
@@ -28,7 +28,7 @@ end
 
 --- @spec.private refresh_infotext(pos: Vector3): void
 local function refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   local infotext =
@@ -48,7 +48,7 @@ end
 
 --- @spec.private persist_drive_contents(pos: Vector3): void
 local function persist_drive_contents(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   local drive_stack = inv:get_stack("drive_slot", 1)
@@ -66,12 +66,12 @@ end
 
 --- @spec.private get_formspec_name(pos: Vector3): String
 local function get_formspec_name(pos)
-  return "yatm_dscs:void_crate:" .. minetest.pos_to_string(pos)
+  return "yatm_dscs:void_crate:" .. core.pos_to_string(pos)
 end
 
 local function refresh_fluid_inventory(pos)
   --
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
   local stack = inv:get_stack("drive_slot", 1)
 
@@ -101,7 +101,7 @@ end
 
 --- @spec.private swap_drives(pos: Vector3): void
 local function swap_drives(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   local installed_stack = inv:get_stack("drive_slot", 1)
@@ -124,13 +124,13 @@ local function swap_drives(pos)
     -- rebuild the fluid inventory using the new drive (if possible)
     refresh_fluid_inventory(pos)
   else
-    minetest.log("error", "cannot swap drives must be an empty item stack or inventory drive")
+    core.log("error", "cannot swap drives must be an empty item stack or inventory drive")
   end
 end
 
 --- @spec.private set_drive_label(pos: Vector3, label: String): void
 local function set_drive_label(pos, label)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
   local stack = inv:get_stack("drive_slot", 1)
   if not stack:is_empty() then
@@ -156,7 +156,7 @@ local function render_formspec(pos, user, assigns)
   assert(user, "expected a user")
   assert(assigns, "expected assigns")
 
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
@@ -341,14 +341,14 @@ end
 
 local function on_metadata_inventory_put(pos, listname, _index, stack, player)
   if listname == "drive_slot" then
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
 
     if yatm.dscs.is_item_stack_fluid_drive(stack) then
       refresh_fluid_inventory(pos)
 
       refresh_formspec(pos, player)
 
-      minetest.log("action", player:get_player_name() .. " installed a fluid drive")
+      core.log("action", player:get_player_name() .. " installed a fluid drive")
     end
   end
 end
@@ -360,17 +360,17 @@ local function on_metadata_inventory_take(pos, listname, _index, stack, player)
 
       refresh_formspec(pos, player)
 
-      minetest.log("action", player:get_player_name() .. " removed a fluid drive")
+      core.log("action", player:get_player_name() .. " removed a fluid drive")
     end
   end
 end
 
 local function on_dig(pos, node, digger)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   if inv:is_empty("drive_slot") then
-    return minetest.node_dig(pos, node, digger)
+    return core.node_dig(pos, node, digger)
   end
 
   return false
@@ -382,7 +382,7 @@ local function on_blast(pos, node, digger)
   foundation.com.get_inventory_drops(pos, "drive_slot_input", drops)
   foundation.com.get_inventory_drops(pos, "drive_slot", drops)
   table.insert(drops, mod:make_name("void_crate_off"))
-  minetest.remove_node(pos)
+  core.remove_node(pos)
   return drops
 end
 
@@ -420,7 +420,7 @@ local groups = {
 
 function yatm_network.on_load(pos, node)
   -- reload fluid inventories
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   local stack = inv:get_stack("drive_slot", 1)
@@ -433,7 +433,7 @@ end
 
 function yatm_network.on_unload(pos, node)
   -- unload fluid inventories
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
   local inv = meta:get_inventory()
 
   local stack = inv:get_stack("drive_slot", 1)
@@ -473,7 +473,7 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
 
   on_construct = function (pos)
-    local node = minetest.get_node(pos)
+    local node = core.get_node(pos)
 
     yatm.devices.device_on_construct(pos)
     migrate(pos)

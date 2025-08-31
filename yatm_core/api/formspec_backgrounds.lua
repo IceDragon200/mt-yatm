@@ -79,7 +79,7 @@ function yatm.formspec.bg_for_player(player_name, background_id, x, y, w, h, aut
     auto_clip = false
   end
 
-  local info = minetest.get_player_information(player_name)
+  local info = core.get_player_information(player_name)
   local texture_name
 
   if info.formspec_version then

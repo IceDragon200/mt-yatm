@@ -6,7 +6,7 @@ if not cluster_energy then
 end
 
 local function energy_bus_refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = core.get_meta(pos)
 
   local infotext =
     cluster_reactor:get_node_infotext(pos) .. "\n" ..

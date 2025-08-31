@@ -5,6 +5,7 @@ local data_network = assert(yatm.data_network)
 local bit = assert(foundation.com.bit)
 local is_table_empty = assert(foundation.com.is_table_empty)
 local table_freeze = assert(foundation.com.table_freeze)
+local get_meta = assert(tetra.get_meta)
 
 --- @namespace yatm_data_logic
 local NO_SETTINGS = table_freeze({})
@@ -180,7 +181,7 @@ end
 function yatm_data_logic.mark_all_inputs_for_active_receive(pos, options)
   assert(pos, "requires a position")
   options = options or {}
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   local sub_network_ids = data_network:get_sub_network_ids_by_color(pos)
 
@@ -209,7 +210,7 @@ end
 --- @spec emit_output_data_vector(pos: Vector, vector_value: String, options: Table): Boolean
 function yatm_data_logic.emit_output_data_vector(pos, vector_value, options)
   options = options or {}
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   local sub_network_ids = data_network:get_sub_network_ids(pos)
 
@@ -241,7 +242,7 @@ function yatm_data_logic.emit_output_data_vector(pos, vector_value, options)
 end
 
 function yatm_data_logic.get_matrix_port(pos, port_prefix, port_name, dir)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local port_field_name = port_prefix .. "_" .. dir .. "_" .. port_name
 
   return meta:get_int(port_field_name)
@@ -261,7 +262,7 @@ function yatm_data_logic.bind_matrix_ports(pos, port_prefix, port_name, bind_typ
 end
 
 function yatm_data_logic.emit_matrix_port_value(pos, port_prefix, port_name, value)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local sub_network_ids = data_network:get_sub_network_ids(pos)
 
   for _, dir in ipairs(Directions.DIR6) do
@@ -279,7 +280,7 @@ end
 
 function yatm_data_logic.emit_output_data_value(pos, dl, options)
   options = options or {}
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   local sub_network_ids = data_network:get_sub_network_ids(pos)
 
@@ -292,7 +293,7 @@ function yatm_data_logic.emit_output_data_value(pos, dl, options)
           local local_port = meta:get_int("output_" .. dir .. "_" .. i)
 
           if local_port and local_port > 0 then
-          --[[print("emit_output_data", minetest.pos_to_string(pos),
+          --[[print("emit_output_data", core.pos_to_string(pos),
                                     data_name,
                                     local_port,
                                     dump(dl),
@@ -301,14 +302,14 @@ function yatm_data_logic.emit_output_data_value(pos, dl, options)
             data_network:send_value(pos, dir, local_port, dl)
             did_output = true
           else
-            --print("port not set", minetest.pos_to_string(pos), data_name, dir)
+            --print("port not set", core.pos_to_string(pos), data_name, dir)
           end
         end
       else
         local local_port = meta:get_int("output_" .. dir)
 
         if local_port and local_port > 0 then
-          --[[print("emit_output_data", minetest.pos_to_string(pos),
+          --[[print("emit_output_data", core.pos_to_string(pos),
                                     data_name,
                                     local_port,
                                     dump(dl),
@@ -317,19 +318,19 @@ function yatm_data_logic.emit_output_data_value(pos, dl, options)
           data_network:send_value(pos, dir, local_port, dl)
           did_output = true
         else
-          --print("port not set", minetest.pos_to_string(pos), data_name, dir)
+          --print("port not set", core.pos_to_string(pos), data_name, dir)
         end
       end
     end
   else
-    --print("no data", minetest.pos_to_string(pos), data_name, dump(dl))
+    --print("no data", core.pos_to_string(pos), data_name, dump(dl))
   end
 
   return did_output
 end
 
 function yatm_data_logic.emit_output_data(pos, data_name, options)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local value = meta:get_string("data_" .. data_name)
   return yatm_data_logic.emit_output_data_value(pos, value, options)
 end
@@ -455,7 +456,12 @@ function yatm_data_logic.handle_prefix_ports(pos, fields, meta, prefixes)
   return any_change, changes
 end
 
---- @spec handle_directional_prefix_ports(pos: Vector3, fields: Table, meta: MetaRef, prefixes: Table)
+--- @spec handle_directional_prefix_ports(
+---   pos: Vector3,
+---   fields: Table,
+---   meta: MetaRef,
+---   prefixes: Table
+--- ): (any_change: Boolean, changes: Table)
 function yatm_data_logic.handle_directional_prefix_ports(pos, fields, meta, prefixes)
   assert(pos, "expected a position")
   --local sub_network_ids = data_network:get_sub_network_ids(pos)
@@ -497,7 +503,13 @@ end
 --                             and should be assigned to multiple fields in the meta
 --   output_vector :: integer - tells the function that any values obtained are a vector
 --                              and should be assigned to multiple fields in the meta
---- @spec handle_io_port_fields(pos: Vector3, fields: Table, meta: MetaRef, mode: String, options: Table):
+--- @spec handle_io_port_fields(
+---   pos: Vector3,
+---   fields: Table,
+---   meta: MetaRef,
+---   mode: String,
+---   options: Table
+--- ): (any_change: Boolean, changes: Table)
 function yatm_data_logic.handle_io_port_fields(pos, fields, meta, mode, options)
   local prefixes = {}
 

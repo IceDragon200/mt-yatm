@@ -2,7 +2,7 @@ local list_concat = assert(foundation.com.list_concat)
 local fluid_transport_network = assert(yatm.fluids.fluid_transport_network)
 
 local function on_construct(pos)
-  local node = minetest.get_node(pos)
+  local node = core.get_node(pos)
   fluid_transport_network:register_member(pos, node)
 end
 
@@ -45,7 +45,7 @@ for _,row in ipairs(yatm.colors_with_default) do
     table.insert(connects_to, "group:valve_fluid_pipe_default")
   end
 
-  minetest.register_node(node_name, {
+  core.register_node(node_name, {
     basename = "yatm_fluid_pipes:transporter_fluid_pipe",
 
     description = "Transporter Fluid Pipe (" .. color_name .. ")",
