@@ -95,13 +95,13 @@ function yatm_data_logic.get_port_matrix_formspec(pos, meta, options)
   for _, dir in ipairs(Directions.DIR6) do
     local sub_network_id = sub_network_ids[dir]
     if sub_network_id then
-      local name = minetest.formspec_escape(Directions.dir_to_string(dir) .. " - " ..
+      local name = core.formspec_escape(Directions.dir_to_string(dir) .. " - " ..
                                             (attached_colors[dir] or "N/A") .. " - " ..
                                             sub_network_id)
 
       formspec =
         formspec ..
-        "label[0.25," .. i .. ";" .. minetest.formspec_escape(name) .. "]"
+        "label[0.25," .. i .. ";" .. core.formspec_escape(name) .. "]"
 
       i = i + 1
 
@@ -114,7 +114,7 @@ function yatm_data_logic.get_port_matrix_formspec(pos, meta, options)
         if section.label then
           formspec =
             formspec ..
-            "label[" .. section_x .. "," .. section_y .. ";" .. minetest.formspec_escape(section.label) .. "]"
+            "label[" .. section_x .. "," .. section_y .. ";" .. core.formspec_escape(section.label) .. "]"
 
           section_y = section_y + 1
         end
@@ -132,7 +132,7 @@ function yatm_data_logic.get_port_matrix_formspec(pos, meta, options)
             formspec ..
             "field[" .. x .. "," .. y ..
                    ";" .. section_col_width .. ",1;" .. field_name ..
-                   ";" .. minetest.formspec_escape(field_label) ..
+                   ";" .. core.formspec_escape(field_label) ..
                    ";" .. meta:get_int(field_name) .. "]"
         end
 

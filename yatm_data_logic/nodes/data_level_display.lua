@@ -10,6 +10,10 @@ local ng = Cuboid.new_fast_node_box
 local data_network = assert(yatm.data_network)
 local string_hex_unescape = assert(foundation.com.string_hex_unescape)
 local Groups = foundation.com.Groups
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
+local swap_node = assert(tetra.swap_node)
 
 yatm.register_stateful_node("yatm_data_logic:data_level_display_decor_panel", {
   basename = "yatm_data_logic:data_level_display_decor_panel",
@@ -164,7 +168,7 @@ yatm.register_stateful_node("yatm_data_logic:data_level_display", {
   sounds = yatm.node_sounds:build("glass"),
 
   on_construct = function (pos)
-    local node = minetest.get_node(pos)
+    local node = get_node(pos)
     data_network:add_node(pos, node)
   end,
 
@@ -189,9 +193,9 @@ yatm.register_stateful_node("yatm_data_logic:data_level_display", {
       local p = vector.new(pos)
       local max_reach = 0
       while max_reach < 16 do
-        local tnode = minetest.get_node_or_nil(p)
+        local tnode = get_node_or_nil(p)
         if tnode then
-          local nodedef = minetest.registered_nodes[tnode.name]
+          local nodedef = core.registered_nodes[tnode.name]
           if nodedef and Groups.has_group(nodedef, "data_level_display") then
             max_reach = max_reach + 1
             p.y = p.y + 1
@@ -207,14 +211,14 @@ yatm.register_stateful_node("yatm_data_logic:data_level_display", {
         local max_level = max_reach * 63
         local level = math.max(math.min(math.floor(byte * max_level / 255), max_level), 0)
 
-        local p = vector.new(pos)
+        p = vector.new(pos)
         local i = 0
         while i < max_reach do
-          local tnode = minetest.get_node_or_nil(p)
+          local tnode = get_node_or_nil(p)
           local param2 = math.min(level, 63)
           if tnode.param2 ~= param2 then
             tnode.param2 = param2
-            minetest.swap_node(p, tnode)
+            swap_node(p, tnode)
             yatm.queue_refresh_infotext(vector.new(p), tnode)
           end
           p.y = p.y + 1
@@ -254,8 +258,8 @@ yatm.register_stateful_node("yatm_data_logic:data_level_display", {
   },
 
   refresh_infotext = function (pos)
-    local meta = minetest.get_meta(pos)
-    local node = minetest.get_node(pos)
+    local meta = get_meta(pos)
+    local node = get_node(pos)
     local infotext =
       "Level: " .. node.param2 .. "\n" ..
       data_network:get_infotext(pos)

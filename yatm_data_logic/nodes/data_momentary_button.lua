@@ -46,14 +46,14 @@ yatm.register_stateful_node("yatm_data_logic:data_momentary_button", {
       local meta = get_meta(pos)
       assigns.tab = assigns.tab or 1
       local formspec =
-        yatm_data_logic.layout_formspec() ..
-        yatm.formspec_bg_for_player(user:get_player_name(), "module") ..
-        "tabheader[0,0;tab;Ports,Data;" .. assigns.tab .. "]"
+        yatm_data_logic.layout_formspec()
+        .. yatm.formspec_bg_for_player(user:get_player_name(), "module")
+        .. "tabheader[0,0;tab;Ports,Data;" .. assigns.tab .. "]"
 
       if assigns.tab == 1 then
         formspec =
-          formspec ..
-          "label[0,0;Port Configuration]"
+          formspec
+          .. fspec.label(0, 0, "Port Configuration")
 
         local io_formspec = yatm_data_logic.render_io_port_formspec(pos, meta, "o")
 
@@ -63,12 +63,12 @@ yatm.register_stateful_node("yatm_data_logic:data_momentary_button", {
 
       elseif assigns.tab == 2 then
         formspec =
-          formspec ..
-          "label[0,0;Data Configuration]" ..
-          "label[0,1;On Trigger]" ..
-          "field[0.25,2;4,1;data_trigger;Data;" .. formspec_escape(meta:get_string("data_trigger")) .. "]" ..
-          "label[4,1;On Release]" ..
-          "field[4.25,2;4,1;data_release;Data;" .. formspec_escape(meta:get_string("data_release")) .. "]"
+          formspec
+          .. fspec.label(0, 0, "Data Configuration")
+          .. "label[0,1;On Trigger]"
+          .. "field[0.25,2;4,1;data_trigger;Data;" .. formspec_escape(meta:get_string("data_trigger")) .. "]"
+          .. "label[4,1;On Release]"
+          .. "field[4.25,2;4,1;data_release;Data;" .. formspec_escape(meta:get_string("data_release")) .. "]"
       end
 
       return formspec

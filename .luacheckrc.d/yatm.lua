@@ -43,6 +43,15 @@ return {
       },
     },
     --
+    ByteDecoder = {
+      fields = {
+        d_u8 = {},
+      },
+    },
+    ByteEncoder = {
+      fields = {},
+    },
+    --
     -- Instances
     --
     node_sounds = {

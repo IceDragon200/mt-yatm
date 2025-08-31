@@ -12,5 +12,6 @@ return {
     add_node = {},
     check_for_falling = {},
     get_node_timer = {},
+    get_node_light = {},
   }
 }

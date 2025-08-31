@@ -6,12 +6,13 @@ local string_hex_unescape = assert(foundation.com.string_hex_unescape)
 local string_bin_encode = assert(foundation.com.string_bin_encode)
 local string_dec_encode = assert(foundation.com.string_dec_encode)
 local string_hex_encode = assert(foundation.com.string_hex_encode)
-local string_hex_decode = assert(foundation.com.string_hex_decode)
+-- local string_hex_decode = assert(foundation.com.string_hex_decode)
 local string_pad_trailing = assert(foundation.com.string_pad_trailing)
-local is_table_empty = assert(foundation.com.is_table_empty)
 local data_network = assert(yatm.data_network)
 local ByteDecoder = assert(yatm.ByteDecoder)
 local fspec = assert(foundation.com.formspec.api)
+local get_node = assert(tetra.get_node)
+local get_meta = assert(tetra.get_meta)
 
 -- Decoders use vectorized outputs
 local VECTOR_CONFIG = {
@@ -54,10 +55,9 @@ for dec, str in pairs(DECODE_FORMATS) do
 end
 
 local function emit_last_value(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local value = meta:get_string("last_value")
   local decode_format = meta:get_string("decode_format")
-  --print("receive_pdu", minetest.pos_to_string(pos), node.name, dir, port, dump(value), dump(decode_format))
   if not is_blank(decode_format) then
     -- handle hex escape codes i.e. '\x00'
     local str = string_hex_unescape(value)
@@ -77,7 +77,6 @@ local function emit_last_value(pos, node)
       if input_format == "" or input_format == "char" then
         result = string_dec_encode(str)
       else
-        local value
         result = ""
 
         local rem = str
@@ -133,7 +132,7 @@ local function emit_last_value(pos, node)
   end
 end
 
-minetest.register_node("yatm_data_logic:data_decoder", {
+core.register_node("yatm_data_logic:data_decoder", {
   description = "DATA Decoder\nUsed to transform raw bytes into other formats",
 
   codex_entry_id = "yatm_data_logic:data_decoder",
@@ -167,10 +166,10 @@ minetest.register_node("yatm_data_logic:data_decoder", {
   },
 
   on_construct = function (pos)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     meta:set_string("decode_format", "split")
 
-    local node = minetest.get_node(pos)
+    local node = get_node(pos)
     data_network:add_node(pos, node)
   end,
 
@@ -187,7 +186,7 @@ minetest.register_node("yatm_data_logic:data_decoder", {
     end,
 
     receive_pdu = function (self, pos, node, dir, port, value)
-      local meta = minetest.get_meta(pos)
+      local meta = get_meta(pos)
       meta:set_string("last_value", value)
       emit_last_value(pos, node)
     end,
@@ -275,12 +274,14 @@ minetest.register_node("yatm_data_logic:data_decoder", {
   },
 
   refresh_infotext = function (pos)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     local infotext =
-      "Last Input: " .. meta:get_string("last_value") .. "\n" ..
-      "Last Vector: " .. meta:get_string("last_vector") .. "\n" ..
-      "Input/Decode Format: " .. meta:get_string("input_format") .. "/" .. meta:get_string("decode_format") .. "\n" ..
-      data_network:get_infotext(pos)
+      ""
+      .. "Last Input: " .. meta:get_string("last_value") .. "\n"
+      .. "Last Vector: " .. meta:get_string("last_vector") .. "\n"
+      .. "Input/Decode Format: " .. meta:get_string("input_format") .. "/" ..
+                                    meta:get_string("decode_format") .. "\n"
+      .. data_network:get_infotext(pos)
 
     meta:set_string("infotext", infotext)
   end,

@@ -59,7 +59,9 @@ return {
           },
         },
         Groups = {
-          fields = {},
+          fields = {
+            has_group = {},
+          },
         },
         InventorySerializer = {
           fields = {
@@ -177,6 +179,7 @@ return {
         list_reduce = {},
         list_sort = {},
         list_map = {},
+        list_get_next = {},
         --
         maybe_start_node_timer = {},
         --
@@ -191,9 +194,13 @@ return {
         random_string62 = {},
         random_addr16 = {},
         --
+        binary_splice = {},
         make_string_ref = {},
         string_starts_with = {},
         string_ends_with = {},
+        string_bin_encode = {},
+        string_dec_encode = {},
+        string_hex_clean = {},
         string_hex_decode = {},
         string_hex_encode = {},
         string_hex_escape = {},
@@ -201,6 +208,8 @@ return {
         string_hex_pair_to_byte = {},
         string_trim_leading = {},
         string_pad_leading = {},
+        string_pad_trailing = {},
+        string_sub_join = {},
         string_rsub = {},
         string_split = {},
         --

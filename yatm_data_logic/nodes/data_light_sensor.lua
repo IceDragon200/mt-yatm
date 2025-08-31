@@ -1,10 +1,12 @@
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local string_hex_escape = assert(foundation.com.string_hex_escape)
-local is_table_empty = assert(foundation.com.is_table_empty)
 local data_network = assert(yatm.data_network)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local get_node_light = assert(tetra.get_node_light)
 
-minetest.register_node("yatm_data_logic:data_light_sensor", {
+core.register_node("yatm_data_logic:data_light_sensor", {
   description = "DATA Light Sensor\nReports the current light level where the node is placed.",
 
   codex_entry_id = "yatm_data_logic:data_light_sensor",
@@ -40,7 +42,7 @@ minetest.register_node("yatm_data_logic:data_light_sensor", {
   },
 
   on_construct = function (pos)
-    local node = minetest.get_node(pos)
+    local node = get_node(pos)
     data_network:add_node(pos, node)
   end,
 
@@ -56,7 +58,7 @@ minetest.register_node("yatm_data_logic:data_light_sensor", {
   },
   data_interface = {
     update = function (self, pos, node, dtime)
-      local meta = minetest.get_meta(pos)
+      local meta = get_meta(pos)
 
       local time = meta:get_float("time")
       time = time - dtime
@@ -64,7 +66,7 @@ minetest.register_node("yatm_data_logic:data_light_sensor", {
       if time <= 0 then
         time = time + 1
 
-        local light = minetest.get_node_light(pos) or 0
+        local light = get_node_light(pos) or 0
 
         local output_data = string_hex_escape(string.char(light))
         yatm_data_logic.emit_output_data_value(pos, output_data)
@@ -117,7 +119,7 @@ minetest.register_node("yatm_data_logic:data_light_sensor", {
   },
 
   refresh_infotext = function (pos)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     local infotext =
       "Light Level: " .. meta:get_int("last_light_level") .. "\n" ..
       data_network:get_infotext(pos)

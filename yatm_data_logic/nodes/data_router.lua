@@ -1,8 +1,7 @@
-local Vector3 = assert(foundation.com.Vector3)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local data_network = assert(yatm.data_network)
-local ByteEncoder = assert(yatm.ByteEncoder)
+-- local ByteEncoder = assert(yatm.ByteEncoder)
 local get_node = assert(tetra.get_node)
 local get_meta = assert(tetra.get_meta)
 

@@ -4,14 +4,15 @@ local Groups = assert(foundation.com.Groups)
 local data_network = assert(yatm.data_network)
 local fspec = assert(foundation.com.formspec.api)
 local Rect = assert(foundation.com.Rect)
-local is_table_empty = assert(foundation.com.is_table_empty)
+local get_node = assert(tetra.get_node)
+local get_meta = assert(tetra.get_meta)
 
 local render_component
 
 local function get_value(row, pos)
   local value = ""
   if row.meta then
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     if row.type == "integer" then
       value = tostring(meta:get_int(row.name))
     elseif row.type == "string" then
@@ -34,7 +35,7 @@ local function render_port(row, rect, pos, player, pointed_thing, assigns)
     width = rect.w,
   }
 
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   --local formspec, r = yatm_data_logic.render_io_port_formspec(pos, meta, row.mode, options)
 
@@ -54,7 +55,7 @@ local function render_io_ports(row, rect, pos, player, pointed_thing, assigns)
     output_vector = row.output_vector,
   }
 
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   local formspec, r = yatm_data_logic.render_io_port_formspec(pos, meta, row.mode, options)
 
@@ -317,7 +318,7 @@ local function on_receive_fields(player, form_name, fields, assigns)
       di:receive_programmer_fields(player, form_name, fields, assigns)
   elseif t == "table" then
     print("receive_programmer_fields/table", dump(fields))
-    local meta = minetest.get_meta(assigns.pos)
+    local meta = get_meta(assigns.pos)
 
     local spec = di.receive_programmer_fields
 
@@ -392,9 +393,9 @@ local function on_receive_fields(player, form_name, fields, assigns)
                     component:on_change(assigns.pos, meta, new_value, assigns)
                   end
                 elseif component.type then
-                  minetest.log("warning", "unexpected component type (got " .. component.type .. ")")
+                  core.log("warning", "unexpected component type (got " .. component.type .. ")")
                 else
-                  minetest.log("warning", "missing component type")
+                  core.log("warning", "missing component type")
                 end
               else
                 -- if meta flag is not set, then the component must handle this value itself
@@ -408,7 +409,7 @@ local function on_receive_fields(player, form_name, fields, assigns)
               formspec_or_refresh = true
             end
           else
-            minetest.log("warning", "unsupported receive field component=" .. component.component)
+            core.log("warning", "unsupported receive field component=" .. component.component)
           end
         end
       end
@@ -452,7 +453,7 @@ local function on_formspec_quit(player, form_name, fields, assigns)
   end
 end
 
-minetest.register_tool("yatm_data_logic:data_programmer", {
+core.register_tool("yatm_data_logic:data_programmer", {
   description = mod.S("Data Programmer\nRight-click on programmable DATA device."),
 
   groups = {
@@ -463,13 +464,13 @@ minetest.register_tool("yatm_data_logic:data_programmer", {
 
   on_place = function (itemstack, user, pointed_thing)
     local pos = pointed_thing.under
-    local node = minetest.get_node(pos)
-    local nodedef = minetest.registered_nodes[node.name]
+    local node = get_node(pos)
+    local nodedef = core.registered_nodes[node.name]
     if nodedef then
       if Groups.get_item(nodedef, "data_programmable") then
         local di = data_network:get_data_interface(pos)
         if di then
-          local formname = "yatm_data_logic:programmer:" .. minetest.pos_to_string(pos)
+          local formname = "yatm_data_logic:programmer:" .. core.pos_to_string(pos)
           local assigns = {
             pos = pos,
             node = node,
@@ -487,10 +488,10 @@ minetest.register_tool("yatm_data_logic:data_programmer", {
             on_quit = on_formspec_quit,
           })
         else
-          minetest.chat_send_player(user:get_player_name(), "This node cannot be programmed")
+          core.chat_send_player(user:get_player_name(), "This node cannot be programmed")
         end
         -- TODO: determine data configuration and display programming interface
-        minetest.log("action", user:get_player_name() .. " readies to program " .. node.name)
+        core.log("action", user:get_player_name() .. " readies to program " .. node.name)
       end
     end
   end,

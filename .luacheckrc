@@ -7,6 +7,12 @@ max_code_line_length = 100
 unused_args = false
 
 globals = {
+  -- mock interface
+  get_player_current_formspec = {},
+  trigger_rightclick_on_pos = {},
+  Point = {},
+  trigger_on_player_receive_fields = {},
+
   --
   -- Core, YATM should NOT be using the `minetest` namespace moving forward
   --
@@ -125,6 +131,7 @@ files["yatm_codex_entries/**/*.lua"] = { globals = {"yatm_codex_entries"} }
 files["yatm_culinary/**/*.lua"] = { globals = {"yatm_culinary"} }
 files["yatm_cluster_energy/**/*.lua"] = { globals = {"yatm_cluster_energy"} }
 files["yatm_cluster_thermal/**/*.lua"] = { globals = {"yatm_cluster_thermal"} }
+files["yatm_data_cables/**/*.lua"] = { globals = {"yatm_data_cables"} }
 files["yatm_data_card_readers/**/*.lua"] = { globals = {"yatm_data_card_readers"} }
 files["yatm_data_control/**/*.lua"] = { globals = {"yatm_data_control"} }
 files["yatm_data_console_monitor/**/*.lua"] = { globals = {"yatm_data_console_monitor"} }

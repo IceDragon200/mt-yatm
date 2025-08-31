@@ -1,9 +1,11 @@
+local swap_node = assert(tetra.swap_node)
+
 local migrations = {
   ["yatm_data_logic:data_pulser"] = "yatm_data_logic:data_pulser_off",
 }
 
 for from, to in pairs(migrations) do
-  minetest.register_lbm({
+  core.register_lbm({
     name = "yatm_data_logic:migrate_" .. string.gsub(from, ":", "_"),
     nodenames = {
       from,
@@ -11,7 +13,7 @@ for from, to in pairs(migrations) do
     run_at_every_load = false,
     action = function (pos, node)
       node.name = to
-      minetest.swap_node(pos, node)
+      swap_node(pos, node)
     end
   })
 end

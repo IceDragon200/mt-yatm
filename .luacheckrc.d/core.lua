@@ -36,12 +36,16 @@ return {
     get_player_information = {},
 
     -- Formspec
+    formspec_escape = {},
     show_formspec = {},
     register_on_player_receive_fields = {},
 
     -- detached inventory
     create_detached_inventory = {},
     remove_detached_inventory = {},
+
+    -- ToD
+    get_timeofday = {},
 
     -- node and items
     check_single_for_falling = {},

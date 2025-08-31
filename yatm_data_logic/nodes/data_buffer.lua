@@ -1,9 +1,10 @@
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
-local is_table_empty = assert(foundation.com.is_table_empty)
 local data_network = assert(yatm.data_network)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
 
-minetest.register_node("yatm_data_logic:data_buffer", {
+core.register_node("yatm_data_logic:data_buffer", {
   description = "DATA Buffer",
 
   codex_entry_id = "yatm_data_logic:data_buffer",
@@ -37,11 +38,11 @@ minetest.register_node("yatm_data_logic:data_buffer", {
   },
 
   on_construct = function (pos)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
 
     meta:set_string("data_buffered_value", "")
 
-    local node = minetest.get_node(pos)
+    local node = get_node(pos)
     data_network:add_node(pos, node)
   end,
 
@@ -58,7 +59,7 @@ minetest.register_node("yatm_data_logic:data_buffer", {
     end,
 
     receive_pdu = function (self, pos, node, dir, port, value)
-      local meta = minetest.get_meta(pos)
+      local meta = get_meta(pos)
       yatm_data_logic.emit_output_data(pos, "buffered_value")
       meta:set_string("data_buffered_value", value)
     end,
@@ -93,7 +94,7 @@ minetest.register_node("yatm_data_logic:data_buffer", {
   },
 
   refresh_infotext = function (pos)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     local infotext =
       data_network:get_infotext(pos)
 
