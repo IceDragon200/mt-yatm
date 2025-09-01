@@ -46,7 +46,7 @@ end
 
 function FluidMeta.increase_amount(meta, key, amount, capacity, commit)
   local existing_amount = Measurable.get_measurable_amount(meta, key)
-  local new_amount = 0
+  local new_amount
   if capacity then
     new_amount = math.min(existing_amount + amount, capacity)
   else

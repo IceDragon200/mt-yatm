@@ -13,6 +13,9 @@ local SpacetimeNetwork = assert(yatm.spacetime.network)
 local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
 local Energy = assert(yatm.energy)
 local ItemInterface = assert(yatm.items.ItemInterface)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local swap_node = assert(tetra.swap_node)
 
 local item_interface = ItemInterface.new_simple("main")
 
@@ -46,19 +49,19 @@ end
 local function teleporter_on_construct(pos)
   yatm.devices.device_on_construct(pos)
 
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   inv:set_size("main", 1)
 end
 
-local function teleporter_after_place_node(pos, _placer, itemstack, _pointed_thing)
-  local new_meta = core.get_meta(pos)
+local function teleporter_after_place_node(pos, placer, itemstack, pointed_thing)
+  local new_meta = get_meta(pos)
   local old_meta = itemstack:get_meta()
   SpacetimeMeta.copy_address(old_meta, new_meta)
   local address = SpacetimeMeta.patch_address(new_meta)
 
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   SpacetimeNetwork:maybe_register_node(pos, node)
 
   yatm.devices.device_after_place_node(pos, placer, itemstack, pointed_thing)
@@ -75,7 +78,7 @@ local function teleporter_after_destruct(pos, old_node)
 end
 
 local function item_receiver_change_spacetime_address(pos, node, new_address)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   SpacetimeMeta.set_address(meta, new_address)
   SpacetimeNetwork:maybe_update_node(pos, node)
@@ -83,17 +86,17 @@ local function item_receiver_change_spacetime_address(pos, node, new_address)
   local nodedef = core.registered_nodes[node.name]
   if is_blank(new_address) then
     node.name = item_receiver_yatm_network.states.off
-    core.swap_node(pos, node)
+    swap_node(pos, node)
   else
     node.name = item_receiver_yatm_network.states.on
-    core.swap_node(pos, node)
+    swap_node(pos, node)
   end
   yatm.queue_refresh_infotext(pos, node)
   return new_address
 end
 
 local function item_receiver_refresh_infotext(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   local stack = inv:get_stack("main", 1)

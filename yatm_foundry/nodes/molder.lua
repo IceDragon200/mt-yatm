@@ -18,6 +18,9 @@ local FluidMeta = assert(yatm.fluids.FluidMeta)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local molding_registry = assert(yatm.molding.molding_registry)
 local fspec = assert(foundation.com.formspec.api)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local swap_node = assert(tetra.swap_node)
 
 local function get_molder_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
@@ -43,7 +46,7 @@ local TANK_CAPACITY = 8000
 local fluid_interface = FluidInterface.new_simple("molten_tank", TANK_CAPACITY)
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   yatm.queue_refresh_infotext(pos, node)
 end
 
@@ -60,7 +63,7 @@ fluid_interface.allow_fill = fluid_interface.allow_replace
 fluid_interface.allow_drain = fluid_interface.allow_replace
 
 local item_interface = ItemInterface.new_directional(function (self, pos, dir)
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   local new_dir = Directions.facedir_to_face(node.param2, dir)
   if new_dir == Directions.D_UP or new_dir == Directions.D_DOWN then
     return "mold_slot"
@@ -69,7 +72,7 @@ local item_interface = ItemInterface.new_directional(function (self, pos, dir)
 end)
 
 local function molder_refresh_infotext(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   local heat = math.floor(meta:get_float("heat"))
 
@@ -102,8 +105,8 @@ local function molder_on_rightclick(pos, node, user)
 end
 
 local function molder_on_timer(pos, dtime)
-  local node = core.get_node(pos)
-  local meta = core.get_meta(pos)
+  local node = get_node(pos)
+  local meta = get_meta(pos)
 
   local available_heat = meta:get_float("heat")
   if available_heat > 0 then
@@ -218,8 +221,8 @@ yatm.register_stateful_node("yatm_foundry:molder", {
   refresh_infotext = molder_refresh_infotext,
 
   on_construct = function (pos)
-    local node = core.get_node(pos)
-    local meta = core.get_meta(pos)
+    local node = get_node(pos)
+    local meta = get_meta(pos)
     local inv = meta:get_inventory()
     inv:set_size("mold_slot", 1)
     inv:set_size("molding_slot", 1)
@@ -241,7 +244,7 @@ yatm.register_stateful_node("yatm_foundry:molder", {
     },
 
     update_heat = function (self, pos, node, heat, dtime)
-      local meta = core.get_meta(pos)
+      local meta = get_meta(pos)
 
       if yatm.thermal.update_heat(meta, "heat", heat, 10, dtime) then
         local new_name
@@ -252,7 +255,7 @@ yatm.register_stateful_node("yatm_foundry:molder", {
         end
         if new_name ~= node.name then
           node.name = new_name
-          core.swap_node(pos, node)
+          swap_node(pos, node)
         end
 
         maybe_start_node_timer(pos, 1.0)

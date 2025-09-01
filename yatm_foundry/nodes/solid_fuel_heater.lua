@@ -7,6 +7,9 @@ local inspect_axis = assert(foundation.com.Directions.inspect_axis)
 local cluster_thermal = assert(yatm.cluster.thermal)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local fspec = assert(foundation.com.formspec.api)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local swap_node = assert(tetra.swap_node)
 
 local function get_solid_fuel_heater_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
@@ -24,11 +27,11 @@ local function get_solid_fuel_heater_formspec(pos, user)
 end
 
 local function solid_fuel_heater_on_construct(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
   inv:set_size("fuel_slot", 1)
 
-  cluster_thermal:schedule_add_node(pos, core.get_node(pos))
+  cluster_thermal:schedule_add_node(pos, get_node(pos))
 end
 
 local function solid_fuel_heater_after_destruct(pos, old_node)
@@ -56,8 +59,8 @@ local function solid_fuel_heater_on_metadata_inventory_put(pos, listname, index,
 end
 
 local function solid_fuel_heater_node_timer(pos, elapsed)
-  local node = core.get_node(pos)
-  local meta = core.get_meta(pos)
+  local node = get_node(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   local fuel_time = meta:get_float("fuel_time") or 0
@@ -84,7 +87,7 @@ local function solid_fuel_heater_node_timer(pos, elapsed)
       meta:set_float("fuel_time_max", fuel.time)
 
       node.name = "yatm_foundry:solid_fuel_heater_on"
-      core.swap_node(pos, node)
+      swap_node(pos, node)
       yatm.queue_refresh_infotext(pos)
       return true
     else
@@ -98,7 +101,7 @@ local function solid_fuel_heater_node_timer(pos, elapsed)
         return true
       else
         node.name = "yatm_foundry:solid_fuel_heater_off"
-        core.swap_node(pos, node)
+        swap_node(pos, node)
         yatm.queue_refresh_infotext(pos, node)
         return false
       end
@@ -107,7 +110,7 @@ local function solid_fuel_heater_node_timer(pos, elapsed)
 end
 
 local function solid_fuel_heater_refresh_infotext(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   local fuel_time = meta:get_float("fuel_time")
   local fuel_time_max = meta:get_float("fuel_time_max")
@@ -190,7 +193,7 @@ yatm.register_stateful_node("yatm_foundry:solid_fuel_heater", {
     },
 
     get_heat = function (self, pos, node)
-      local meta = core.get_meta(pos)
+      local meta = get_meta(pos)
       return meta:get_float("heat")
     end,
   },

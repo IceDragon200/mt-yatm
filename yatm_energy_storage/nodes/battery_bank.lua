@@ -12,13 +12,18 @@ local Vector3 = assert(foundation.com.Vector3)
 local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
 local player_service = assert(nokore.player_service)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
+local swap_node = assert(tetra.swap_node)
+local node_dig = assert(tetra.node_dig)
 
 local function refresh_infotext(pos)
   -- despite this saying infotext, it can also be used to refresh the node state
   -- no hard or fast rules here
 
-  local meta = core.get_meta(pos)
-  local node = core.get_node(pos)
+  local meta = get_meta(pos)
+  local node = get_node(pos)
   local nodedef = core.registered_nodes[node.name]
 
   local capacity = meta:get_int("energy_capacity")
@@ -58,7 +63,7 @@ local function refresh_infotext(pos)
     if node.name ~= new_node_name then
       node.name = new_node_name
 
-      core.swap_node(pos, node)
+      swap_node(pos, node)
 
       cluster_devices:schedule_update_node(pos, node)
       cluster_energy:schedule_update_node(pos, node)
@@ -97,8 +102,8 @@ local yatm_network = {
 local invbat = assert(yatm.energy.inventory_batteries)
 
 local function refresh_battery_bank_capacity(pos)
-  local meta = core.get_meta(pos)
-  local node = core.get_node_or_nil(pos)
+  local meta = get_meta(pos)
+  local node = get_node_or_nil(pos)
 
   local inv = meta:get_inventory()
   local capacity = invbat.calc_capacity(inv, "batteries")
@@ -111,14 +116,14 @@ local function refresh_battery_bank_capacity(pos)
 end
 
 function yatm_network.energy.capacity(pos, node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   -- this value gets refreshed when the inventory changes and it rescans
   return meta:get_int("energy_capacity")
 end
 
 function yatm_network.energy.receive_energy(pos, node, energy_left, dtime, ot)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local mode = meta:get_string("mode")
 
   if mode == "io" or mode == "i" then
@@ -135,7 +140,7 @@ function yatm_network.energy.receive_energy(pos, node, energy_left, dtime, ot)
 end
 
 function yatm_network.energy.get_usable_stored_energy(pos, node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local mode = meta:get_string("mode")
   if mode == "io" or mode == "o" then
     return meta:get_int("energy")
@@ -144,7 +149,7 @@ function yatm_network.energy.get_usable_stored_energy(pos, node)
 end
 
 function yatm_network.energy.use_stored_energy(pos, node, energy_to_use)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local mode = meta:get_string("mode")
 
   if mode == "io" or mode == "o" then
@@ -162,7 +167,7 @@ function yatm_network.energy.use_stored_energy(pos, node, energy_to_use)
 end
 
 local function on_construct(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   inv:set_size("batteries", 16)
@@ -180,18 +185,18 @@ local mode_to_index = {
 }
 
 local function on_dig(pos, node, digger)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   if inv:is_empty("batteries") then
-    return core.node_dig(pos, node, digger)
+    return node_dig(pos, node, digger)
   end
 
   return false
 end
 
 local function transition_device_state(pos, node, state)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   meta:set_string("network_state", state)
   yatm.queue_refresh_infotext(pos, node)
 end
@@ -233,7 +238,7 @@ end
 
 local function render_formspec(pos, user, state)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local mode = meta:get_string("mode")
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
@@ -275,7 +280,7 @@ local function render_formspec(pos, user, state)
 end
 
 local function on_receive_fields(player, formname, fields, state)
-  local meta = core.get_meta(state.pos)
+  local meta = get_meta(state.pos)
 
   if fields["mode"] then
     meta:set_string("mode", fields["mode"])

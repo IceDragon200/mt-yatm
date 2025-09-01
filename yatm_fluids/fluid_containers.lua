@@ -379,10 +379,17 @@ function FluidContainers.to_infotext(item_stack)
           return fluid_container:inspect(item_stack)
         elseif fluid_container.type == "dynamic" then
           local meta = item_stack:get_meta()
-          return FluidMeta.to_infotext(meta, fluid_container.key, fluid_container.capacity)
+          return FluidMeta.to_infotext(
+            meta,
+            fluid_container.key,
+            fluid_container.capacity
+          )
         elseif fluid_container.type == "static" then
           local fluid_stack = FluidContainers.get_fluid_stack(item_stack)
-          return FluidStack.pretty_format(fluid_stack, fluid_container.capacity or fluid_container.volume)
+          return FluidStack.pretty_format(
+            fluid_stack,
+            fluid_container.capacity or fluid_container.volume
+          )
         end
       end
     end

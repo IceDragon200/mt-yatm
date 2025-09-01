@@ -26,9 +26,13 @@ local ic = assert(ItemTransportNetwork.instance_class)
 function ic:initialize(options)
   ic._super.initialize(self, options)
 
-  yatm.clusters:observe('on_block_expired', 'item_transport_network/block_unloader', function (block_id)
-    self:unload_block(block_id)
-  end)
+  yatm.clusters:observe(
+    "on_block_expired",
+    "item_transport_network/block_unloader",
+    function (block_id)
+      self:unload_block(block_id)
+    end
+  )
 end
 
 --- @spec #update_hopper(network: Network, hopper_hash: Integer, hopper: NetworkMember): void
@@ -151,7 +155,13 @@ function ic:update_inserter_duct(network, inserter_hash, inserter, items_availab
               end
             else
               if network.debug then
-                print(self.m_description, "remaining is not empty", core.pos_to_string(target_pos), inspect_axis(insert_dir), itemstack_inspect(stack), itemstack_inspect(remaining))
+                print(
+                  self.m_description,
+                  "remaining is not empty",
+                  core.pos_to_string(target_pos),
+                  inspect_axis(insert_dir),
+                  itemstack_inspect(stack),
+                  itemstack_inspect(remaining))
               end
               new_entries[entry_hash] = entry
             end

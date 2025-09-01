@@ -246,6 +246,7 @@ files["yatm_fluid_teleporters/**/*.lua"] = { globals = {"yatm_fluid_teleporters"
 files["yatm_fluids/**/*.lua"] = { globals = {"yatm_fluids"} }
 files["yatm_foundry/**/*.lua"] = { globals = {"yatm_foundry"} }
 files["yatm_frames/**/*.lua"] = { globals = {"yatm_frames"} }
+files["yatm_ic/**/*.lua"] = { globals = {"yatm_ic"} }
 files["yatm_item_ducts/**/*.lua"] = { globals = {"yatm_item_ducts"} }
 files["yatm_item_shelves/**/*.lua"] = { globals = {"yatm_item_shelves"} }
 files["yatm_item_storage/**/*.lua"] = { globals = {"yatm_item_storage"} }

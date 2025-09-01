@@ -1,3 +1,5 @@
+local get_meta = assert(tetra.get_meta)
+
 local table_nodebox = {
   type = "fixed",
   fixed = {
@@ -26,7 +28,7 @@ local function stonecutters_table_configure_inventory(meta)
 end
 
 local function stonecutters_table_on_construct(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   stonecutters_table_configure_inventory(meta)
 end

@@ -1,9 +1,10 @@
-local list_concat = assert(foundation.com.list_concat)
 local table_merge = assert(foundation.com.table_merge)
 local fluid_transport_network = assert(yatm.fluids.fluid_transport_network)
+local get_node = assert(tetra.get_node)
+local swap_node = assert(tetra.swap_node)
 
 local function pipe_after_place_node(pos, _placer, _itemstack, _pointed_thing)
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   fluid_transport_network:register_member(pos, node)
 end
 
@@ -90,7 +91,7 @@ for _,row in ipairs(yatm.colors_with_default) do
 
           action_on = function (pos, node)
             node.name = node_name .. "_on"
-            core.swap_node(pos, node)
+            swap_node(pos, node)
             fluid_transport_network:update_member(pos, node)
           end,
         }
@@ -114,7 +115,7 @@ for _,row in ipairs(yatm.colors_with_default) do
 
           action_off = function (pos, node)
             node.name = node_name .. "_off"
-            core.swap_node(pos, node)
+            swap_node(pos, node)
             fluid_transport_network:update_member(pos, node)
           end,
         }

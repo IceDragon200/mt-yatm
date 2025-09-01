@@ -385,6 +385,8 @@ return {
         set_meta_energy = {},
         consume_meta_energy = {},
         receive_meta_energy = {},
+        --
+        inventory_batteries = {},
       }
     },
 
@@ -431,6 +433,10 @@ return {
         render_split_inv_panel = {},
         render_item_border = {},
         render_small_switch = {},
+        set_default_fluid_color = {},
+        render_fluid_stack = {},
+        render_fluid_tank = {},
+        render_fluid_inventory = {},
       },
     },
 

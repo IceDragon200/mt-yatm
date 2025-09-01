@@ -2,29 +2,32 @@ if not yatm.data_network then
   return
 end
 
-local list_concat = assert(foundation.com.list_concat)
+local mod = assert(yatm_fluid_pipe_valves)
 local table_merge = assert(foundation.com.table_merge)
 local fluid_transport_network = assert(yatm.fluids.fluid_transport_network)
 local data_network = assert(yatm.data_network)
 local string_hex_unescape = assert(foundation.com.string_hex_unescape)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local swap_node = assert(tetra.swap_node)
 
-local on_construct = function (pos)
-  local meta = core.get_meta(pos)
-  local node = core.get_node(pos)
+local function on_construct(pos)
+  local meta = get_meta(pos)
+  local node = get_node(pos)
 
   data_network:add_node(pos, node)
 end
 
-local function pipe_after_place_node(pos, _placer, _itemstack, _pointed_thing)
-  local node = core.get_node(pos)
+local function after_place_node(pos, _placer, _itemstack, _pointed_thing)
+  local node = get_node(pos)
   fluid_transport_network:register_member(pos, node)
 end
 
-local function pipe_on_destruct(pos)
-  print("valve_fluid_pipe_on_destruct", core.pos_to_string(pos))
+local function on_destruct(pos)
+  print("valve_fluid_on_destruct", core.pos_to_string(pos))
 end
 
-local function pipe_after_destruct(pos, old_node)
+local function after_destruct(pos, old_node)
   print("valve_fluid_pipe_after_destruct", core.pos_to_string(pos))
   fluid_transport_network:unregister_member(pos)
   data_network:remove_node(pos, old_node)
@@ -40,7 +43,7 @@ local function valve_swap(pos, node, state)
       param = node.param,
       param2 = node.param2,
     }
-    core.swap_node(pos, nd)
+    swap_node(pos, nd)
     data_network:update_member(pos, nd)
     fluid_transport_network:update_member(pos, nd)
   end
@@ -55,7 +58,7 @@ local data_interface = {
     local bin = string_hex_unescape(value)
     local input = string.byte(bin, 1)
 
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
 
     local data_on_threshold = meta:get_string("data_on_threshold")
     data_on_threshold = string_hex_unescape(data_on_threshold)
@@ -124,7 +127,7 @@ local data_interface = {
   },
 }
 
-local basename = "yatm_fluid_pipe_valves:data_valve_fluid_pipe"
+local basename = mod:make_name("data_valve_fluid_pipe")
 for _,row in ipairs(yatm.colors_with_default) do
   local color_basename = row.name
   local color_name = row.description
@@ -159,9 +162,9 @@ for _,row in ipairs(yatm.colors_with_default) do
 
   yatm.register_stateful_node(node_name, {
     basename = basename,
-    base_description = "DATA Valve Fluid Pipe",
+    base_description = mod.S("DATA Valve Fluid Pipe"),
 
-    description = "DATA Valve Fluid Pipe (" .. color_name .. ")",
+    description = mod.S("DATA Valve Fluid Pipe (" .. color_name .. ")"),
 
     drop = node_name .. "_off",
 
@@ -173,15 +176,16 @@ for _,row in ipairs(yatm.colors_with_default) do
     paramtype2 = "facedir",
 
     drawtype = "nodebox",
-    node_box = yatm_fluid_pipe_valves.valve_nodebox,
+    node_box = mod.valve_nodebox,
 
     connects_to = connects_to,
 
     dye_color = color_basename,
 
-    after_place_node = pipe_after_place_node,
-    after_destruct = pipe_after_destruct,
-    on_destruct = pipe_on_destruct,
+    on_construct = on_construct,
+    after_place_node = after_place_node,
+    after_destruct = after_destruct,
+    on_destruct = on_destruct,
 
     data_network_device = {
       type = "device",

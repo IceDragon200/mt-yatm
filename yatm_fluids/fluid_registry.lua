@@ -8,6 +8,8 @@ local Groups = assert(foundation.com.Groups)
 local table_merge = assert(foundation.com.table_merge)
 local Directions = assert(foundation.com.Directions)
 local Color = assert(foundation.com.Color)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
+local set_node = assert(tetra.set_node)
 
 --- @namespace yatm_fluids.fluid_registry
 local FluidRegistry = {
@@ -63,7 +65,7 @@ local function on_use_bucket(item_stack, user, pointed_thing)
     return nil
   end
 
-  local node = core.get_node_or_nil(pointed_thing.under)
+  local node = get_node_or_nil(pointed_thing.under)
   if node then
     local nodedef = core.registered_nodes[node.name]
 
@@ -95,7 +97,7 @@ local function on_use_bucket(item_stack, user, pointed_thing)
           -- check if the node above can be replaced
 
           pos = pointed_thing.above
-          node = core.get_node_or_nil(pos)
+          node = get_node_or_nil(pos)
           local above_ndef = node and core.registered_nodes[node.name]
 
           if not above_ndef or not above_ndef.buildable_to then
@@ -109,7 +111,7 @@ local function on_use_bucket(item_stack, user, pointed_thing)
           return nil
         end
 
-        core.set_node(pos, {
+        set_node(pos, {
           name = fluid_bucket_def.nodes.source,
         })
 

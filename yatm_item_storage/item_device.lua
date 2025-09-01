@@ -1,7 +1,9 @@
+local get_node = assert(tetra.get_node)
+
 local ItemDevice = {}
 
 function ItemDevice.get_item(pos, dir)
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   local nodedef = core.registered_nodes[node.name]
   if nodedef then
     if nodedef.item_interface then
@@ -18,7 +20,7 @@ function ItemDevice.get_item(pos, dir)
 end
 
 function ItemDevice.room_for_item(pos, dir, item_stack)
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   local nodedef = core.registered_nodes[node.name]
   if nodedef then
     if nodedef.item_interface then
@@ -36,7 +38,7 @@ function ItemDevice.room_for_item(pos, dir, item_stack)
 end
 
 function ItemDevice.insert_item(pos, dir, item_stack, commit)
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   local nodedef = core.registered_nodes[node.name]
   if nodedef then
     if nodedef.item_interface then
@@ -54,7 +56,7 @@ function ItemDevice.insert_item(pos, dir, item_stack, commit)
 end
 
 function ItemDevice.extract_item(pos, dir, item_stack_or_count, commit)
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   local nodedef = core.registered_nodes[node.name]
   if nodedef then
     if nodedef.item_interface then

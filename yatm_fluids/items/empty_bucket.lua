@@ -3,6 +3,10 @@ local mod = assert(yatm_fluids)
 local FluidContainers = assert(yatm.fluids.FluidContainers)
 local FluidRegistry = assert(yatm.fluids.fluid_registry)
 local itemstack_copy = assert(foundation.com.itemstack_copy)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
+local is_protected = assert(tetra.is_protected)
+local find_node_near = assert(tetra.find_node_near)
+local set_node = assert(tetra.set_node)
 
 mod:register_tool("empty_bucket", {
   description = mod.S("Empty Bucket"),
@@ -56,12 +60,12 @@ mod:register_tool("empty_bucket", {
       return nil
     end
 
-    local node = core.get_node_or_nil(pointed_thing.under)
+    local node = get_node_or_nil(pointed_thing.under)
     local bucket = FluidRegistry.fluid_item_to_bucket(node.name)
     local fluid = FluidRegistry.fluid_item_to_fluid(node.name)
 
     if bucket then
-      if core.is_protected(pointed_thing.under, user:get_player_name()) then
+      if is_protected(pointed_thing.under, user:get_player_name()) then
         core.record_protection_violation(pos, name)
         return nil
       end
@@ -88,11 +92,11 @@ mod:register_tool("empty_bucket", {
       local source_neighbor = false
       if bucket.force_renew then
         source_neighbor =
-          core.find_node_near(pointed_thing.under, 1, bucket.source)
+          find_node_near(pointed_thing.under, 1, bucket.source)
       end
 
       if not (source_neighbor and bucket.force_renew) then
-        core.add_node(pointed_thing.under, {
+        set_node(pointed_thing.under, {
           name = "air"
         })
       end

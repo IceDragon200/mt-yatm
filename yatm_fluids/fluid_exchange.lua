@@ -3,6 +3,7 @@ local Vector3 = assert(foundation.com.Vector3)
 local FluidMeta = assert(yatm_fluids.FluidMeta)
 local FluidTanks = assert(yatm_fluids.FluidTanks)
 local FluidContainers = assert(yatm_fluids.FluidContainers)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
 
 --- @namespace yatm_fluids.FluidExchange
 
@@ -125,7 +126,7 @@ function FluidExchange.transfer_from_tank_to_adjacent_tank(
   fluid_stack,
   commit
 )
-  local node = core.get_node_or_nil(from_pos)
+  local node = get_node_or_nil(from_pos)
   if node then
     local nodedef = core.registered_nodes[node.name]
     local dir = local_dir

@@ -3,6 +3,7 @@ local Groups = assert(foundation.com.Groups)
 local FluidTanks = assert(yatm_fluids.FluidTanks)
 local FluidStack = assert(yatm_fluids.FluidStack)
 local Vector3 = assert(foundation.com.Vector3)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
 
 local FluidTankSyncService = foundation.com.Class:extends("FluidTankSyncService")
 do
@@ -59,7 +60,7 @@ do
           pos.y = y
           if not seen[pos.y] then
             while true do
-              node = core.get_node_or_nil(pos)
+              node = get_node_or_nil(pos)
               if not node then
                 break
               end
@@ -81,7 +82,7 @@ do
 
             pos.y = y
             while true do
-              node = core.get_node_or_nil(pos)
+              node = get_node_or_nil(pos)
               if not node then
                 break
               end

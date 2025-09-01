@@ -16,5 +16,7 @@ return {
     get_node_light = {},
     get_natural_light = {},
     find_nodes_in_area_under_air = {},
+    find_node_near = {},
+    is_protected = {},
   }
 }

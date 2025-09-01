@@ -4,6 +4,7 @@ local cluster_devices = assert(yatm.cluster.devices)
 local Energy = assert(yatm.energy)
 local get_meta = assert(tetra.get_meta)
 local get_node = assert(tetra.get_node)
+local swap_node = assert(tetra.swap_node)
 
 --
 -- Array Energy Cells are denser that regular energy cells
@@ -73,7 +74,7 @@ core.register_node(node_name, yatm.devices.patch_device_nodedef(node_name, {
   },
 
   on_construct = function (pos)
-    local node = core.get_node(pos)
+    local node = get_node(pos)
     cluster_devices:schedule_add_node(pos, node)
   end,
 

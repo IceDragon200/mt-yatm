@@ -5,8 +5,13 @@ local table_merge = assert(foundation.com.table_merge)
 local maybe_start_node_timer = assert(foundation.com.maybe_start_node_timer)
 local cluster_thermal = assert(yatm.cluster.thermal)
 local Vector3 = assert(foundation.com.Vector3)
+local Directions = assert(foundation.com.Directions)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local player_service = assert(nokore.player_service)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
+local swap_node = assert(tetra.swap_node)
 
 local STATE_NEW = 0
 local STATE_CRAFTING = 1
@@ -20,7 +25,7 @@ local ERROR_NOT_ENOUGH_HEAT = 40
 
 --- @spec refresh_infotext(Vector3): void
 local function refresh_infotext(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local heat = meta:get_float("heat")
 
   meta:set_string("infotext",
@@ -41,8 +46,8 @@ end
 
 --- @spec on_construct(Vector3): void
 local function on_construct(pos)
-  local node = core.get_node(pos)
-  local meta = core.get_meta(pos)
+  local node = get_node(pos)
+  local meta = get_meta(pos)
 
   cluster_thermal:schedule_add_node(pos, node)
   maybe_initialize_inventory(meta)
@@ -54,8 +59,8 @@ end
 
 --- @spec on_timer(Vector3, dt: Float): Boolean
 local function on_timer(pos, dt)
-  local node = core.get_node_or_nil(pos)
-  local meta = core.get_meta(pos)
+  local node = get_node_or_nil(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   local time = meta:get_float("time")
@@ -148,7 +153,7 @@ end
 local function render_formspec(pos, user, state)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
 
@@ -220,7 +225,7 @@ local function on_rightclick(pos, node, user)
     pos = pos,
     node = node,
   }
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   maybe_initialize_inventory(meta)
 
   local formspec = render_formspec(pos, user, state)
@@ -245,7 +250,7 @@ end
 
 local item_interface =
   ItemInterface.new_directional(function (self, pos, dir)
-    local node = core.get_node(pos)
+    local node = get_node(pos)
     local new_dir = Directions.facedir_to_face(node.param2, dir)
 
     if new_dir == Directions.D_DOWN then
@@ -258,7 +263,7 @@ local item_interface =
   end)
 
 function item_interface:allow_insert_item(pos, dir, item_stack)
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   local new_dir = Directions.facedir_to_face(node.param2, dir)
 
   if new_dir == Directions.D_UP then
@@ -323,7 +328,7 @@ yatm.register_stateful_node(mod:make_name("furnace"), {
     },
 
     update_heat = function (self, pos, node, heat, dtime)
-      local meta = core.get_meta(pos)
+      local meta = get_meta(pos)
 
       if yatm.thermal.update_heat(meta, "heat", heat, 10, dtime) then
         local new_name
@@ -334,7 +339,7 @@ yatm.register_stateful_node(mod:make_name("furnace"), {
         end
         if new_name ~= node.name then
           node.name = new_name
-          core.swap_node(pos, node)
+          swap_node(pos, node)
         end
 
         maybe_start_node_timer(pos, 1.0)

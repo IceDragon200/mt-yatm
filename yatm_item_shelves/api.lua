@@ -4,6 +4,9 @@ local string_split = assert(foundation.com.string_split)
 local table_merge = assert(foundation.com.table_merge)
 local Directions = assert(foundation.com.Directions)
 local fspec = assert(foundation.com.formspec.api)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local node_dig = assert(tetra.node_dig)
 
 yatm.shelves = {}
 
@@ -42,7 +45,7 @@ local function get_shelf_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
 
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   local nodedef = core.registered_nodes[node.name]
 
   local rows = nodedef.shelf_configuration.layers * nodedef.shelf_configuration.rows
@@ -68,7 +71,7 @@ end
 
 function yatm.shelves.clear_entities(pos)
   local shelf_pos = pos.x .. "," .. pos.y .. "," .. pos.z
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   for _, object in ipairs(core.get_objects_inside_radius(pos, 0.75)) do
     if not object:is_player() then
       local lua_entity = object:get_luaentity()
@@ -83,8 +86,8 @@ function yatm.shelves.clear_entities(pos)
 end
 
 function yatm.shelves.shelf_on_construct(pos)
-  local node = core.get_node(pos)
-  local meta = core.get_meta(pos)
+  local node = get_node(pos)
+  local meta = get_meta(pos)
   local nodedef = core.registered_nodes[node.name]
 
   local shelf_configuration = assert(nodedef.shelf_configuration)
@@ -104,11 +107,11 @@ function yatm.shelves.shelf_after_destruct(pos, old_node)
 end
 
 function yatm.shelves.shelf_on_dig(pos, node, digger)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
   if inv:is_empty("main") then
     yatm.shelves.clear_entities(pos)
-    return core.node_dig(pos, node, digger)
+    return node_dig(pos, node, digger)
   end
   return false
 end
@@ -118,8 +121,8 @@ function yatm.shelves.shelf_on_blast(pos, intensity)
 end
 
 function yatm.shelves.shelf_refresh(pos)
-  local meta = core.get_meta(pos)
-  local node = core.get_node(pos)
+  local meta = get_meta(pos)
+  local node = get_node(pos)
   local nodedef = core.registered_nodes[node.name]
 
   local shelf_configuration = assert(nodedef.shelf_configuration)
@@ -289,7 +292,7 @@ core.register_entity("yatm_item_shelves:shelf_item", {
     local z = tonumber(pos_and_index[3])
 
     local node_pos = { x = x, y = y, z = z }
-    local node = core.get_node(node_pos)
+    local node = get_node(node_pos)
     local nodedef = core.registered_nodes[node.name]
 
     if nodedef and nodedef.groups.item_shelf then

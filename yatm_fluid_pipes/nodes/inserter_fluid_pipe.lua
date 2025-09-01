@@ -1,7 +1,8 @@
 local fluid_transport_network = assert(yatm.fluids.fluid_transport_network)
+local get_node = assert(tetra.get_node)
 
 local function on_construct(pos)
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   fluid_transport_network:register_member(pos, node)
 end
 

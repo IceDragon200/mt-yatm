@@ -1,9 +1,12 @@
 local maybe_start_node_timer = assert(foundation.com.maybe_start_node_timer)
 local table_merge = assert(foundation.com.table_merge)
 local cluster_thermal = assert(yatm.cluster.thermal)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local swap_node = assert(tetra.swap_node)
 
 local function mini_blast_furnace_refresh_infotext(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local heat = meta:get_float("heat")
 
   local infotext =
@@ -40,7 +43,7 @@ yatm.register_stateful_node("yatm_foundry:mini_blast_furnace", {
   sounds = yatm.node_sounds:build("stone"),
 
   on_construct = function (pos)
-    local node = core.get_node(pos)
+    local node = get_node(pos)
     cluster_thermal:schedule_add_node(pos, node)
   end,
 
@@ -61,7 +64,7 @@ yatm.register_stateful_node("yatm_foundry:mini_blast_furnace", {
     },
 
     update_heat = function (self, pos, node, heat, dtime)
-      local meta = core.get_meta(pos)
+      local meta = get_meta(pos)
 
       if yatm.thermal.update_heat(meta, "heat", heat, 10, dtime) then
         local new_name
@@ -72,7 +75,7 @@ yatm.register_stateful_node("yatm_foundry:mini_blast_furnace", {
         end
         if new_name ~= node.name then
           node.name = new_name
-          core.swap_node(pos, node)
+          swap_node(pos, node)
         end
 
         maybe_start_node_timer(pos, 1.0)

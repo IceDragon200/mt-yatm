@@ -3,7 +3,8 @@ Starting to see a pattern here?
 
 This Network handles Fluid Transport, devices can still handle their own fluid draining.
 
-Only fluid pipes should register on this network, do not register devices that have fluid tanks here.
+Only fluid pipes should register on this network, do not register devices that have fluid tanks
+here.
 
 Unless their intention is to operate directly in the transport of fluids.
 
@@ -19,6 +20,8 @@ local DIR_TO_STRING = assert(foundation.com.Directions.DIR_TO_STRING)
 local DIR6_TO_VEC3 = assert(foundation.com.Directions.DIR6_TO_VEC3)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidStack = assert(yatm.fluids.FluidStack)
+local get_node = assert(tetra.get_node)
+local hash_node_position = assert(core.hash_node_position)
 
 local FluidTransportNetwork = GenericTransportNetwork:extends()
 local m = assert(FluidTransportNetwork.instance_class)
@@ -26,7 +29,7 @@ local m = assert(FluidTransportNetwork.instance_class)
 local function inspect_node(pos, dir)
   assert(pos, "expected a position")
   assert(dir, "expected a direction")
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   local dir_string = assert(DIR_TO_STRING[dir], "dir " .. dump(dir) .. " is not a valid direction")
   if node then
     return "<" .. core.pos_to_string(pos) .. " " .. node.name .. " dir " .. dir_string .. "> "
@@ -38,9 +41,13 @@ end
 function m:initialize(options)
   m._super.initialize(self, options)
 
-  yatm.clusters:observe('on_block_expired', 'fluid_transport_network/block_unloader', function (block_id)
-    self:unload_block(block_id)
-  end)
+  yatm.clusters:observe(
+    "on_block_expired",
+    "fluid_transport_network/block_unloader",
+    function (block_id)
+      self:unload_block(block_id)
+    end
+  )
 end
 
 function m:update_extractor_duct(network, extractor_hash, extractor, fluids_available)
@@ -59,11 +66,9 @@ function m:update_extractor_duct(network, extractor_hash, extractor, fluids_avai
     end
     new_pos = vector.add(extractor.pos, v3)
     node_face_dir = invert_dir(vdir)
-    --print("Attempting drain", core.pos_to_string(new_pos), dir)
     stack, reason = FluidTanks.drain_fluid(new_pos, node_face_dir, wildcard_stack, false)
     if stack and stack.amount > 0 then
-      --print("Extractor", inspect_node(extractor.pos, vdir), "extracted", FluidStack.to_string(stack), "from", inspect_node(new_pos, node_face_dir))
-      new_hash = core.hash_node_position(new_pos)
+      new_hash = hash_node_position(new_pos)
       fluids_available[extractor_hash] = fluids_available[extractor_hash] or {}
       fa = fluids_available[extractor_hash]
       fa[new_hash] = {pos = new_pos, dir = node_face_dir, stack = stack}
@@ -99,10 +104,12 @@ function m:update_inserter_duct(network, inserter_hash, inserter, fluids_availab
       new_entries = {}
       for fin_node_hash,entry in pairs(entries) do
         stack = entry.stack
-        filling_stack = FluidStack.set_amount(stack, math.min(stack.amount, assert(inserter.interface.bandwidth)))
+        filling_stack = FluidStack.set_amount(
+          stack,
+          math.min(stack.amount, assert(inserter.interface.bandwidth))
+        )
         used_stack, reason = FluidTanks.fill_fluid(target_pos, filling_dir, filling_stack, true)
         if used_stack and used_stack.amount > 0 then
-          --print("Inserter", inspect_node(inserter.pos, vdir), "filled", inspect_node(target_pos, filling_dir), "with", FluidStack.to_string(stack), "from", inspect_node(entry.pos, entry.dir))
           FluidTanks.drain_fluid(entry.pos, entry.dir, used_stack, true)
           new_stack = FluidStack.dec_amount(stack, used_stack.amount)
           entry.stack = new_stack
@@ -154,7 +161,12 @@ function m:update_network(network, counter, delta, trace)
       fluids_available = fluids_available or {}
       for inserter_hash,inserter in pairs(inserters) do
         if self:check_network_member(inserter, network) then
-          fluids_available = self:update_inserter_duct(network, inserter_hash, inserter, fluids_available)
+          fluids_available = self:update_inserter_duct(
+            network,
+            inserter_hash,
+            inserter,
+            fluids_available
+          )
         end
       end
     end

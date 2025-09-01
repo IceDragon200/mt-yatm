@@ -1,9 +1,9 @@
-local list_concat = assert(foundation.com.list_concat)
+local get_node = assert(tetra.get_node)
 
 local item_transport_network = assert(yatm.item_transport.item_transport_network)
 
 local function on_construct(pos)
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   item_transport_network:register_member(pos, node)
 end
 

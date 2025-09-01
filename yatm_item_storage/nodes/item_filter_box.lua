@@ -9,6 +9,7 @@ local ItemExchange = assert(yatm.items.ItemExchange)
 local Vector3 = assert(foundation.com.Vector3)
 local pos_to_string = assert(core.pos_to_string)
 local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
 local get_node_or_nil = assert(tetra.get_node_or_nil)
 local get_node_timer = assert(tetra.get_node_timer)
 

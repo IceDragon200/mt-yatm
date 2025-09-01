@@ -1,7 +1,8 @@
 local item_transport_network = assert(yatm.item_transport.item_transport_network)
+local get_node = assert(tetra.get_node)
 
 local function on_construct(pos, _placer, _itemstack, _pointed_thing)
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   item_transport_network:register_member(pos, node)
 end
 

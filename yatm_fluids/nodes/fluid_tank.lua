@@ -10,6 +10,8 @@ local FluidStack = assert(yatm_fluids.FluidStack)
 local FluidTanks = assert(yatm_fluids.FluidTanks)
 local FluidMeta = assert(yatm_fluids.FluidMeta)
 local fluid_tank_sync_service = assert(yatm.fluids.fluid_tank_sync_service)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
 
 local fluid_tank_tiles = {
   "yatm_fluid_tank_edge.png",
@@ -19,6 +21,7 @@ local fluid_tank_tiles = {
 core.register_node("yatm_fluids:fluid_tank", {
   basename = "yatm_fluids:fluid_tank",
 
+  short_description = mod.S("Fluid Tank"),
   description = mod.S("Fluid Tank"),
 
   groups = {
@@ -65,14 +68,14 @@ local steel_tank_fluid_interface = table_copy(yatm_fluids.fluid_tank_fluid_inter
 steel_tank_fluid_interface._private.capacity = 32000
 
 function steel_tank_fluid_interface:on_fluid_changed(pos, dir, new_stack)
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   yatm.queue_refresh_infotext(pos, node)
   fluid_tank_sync_service:mark_for_update(pos)
 end
 
 function steel_fluid_tank_refresh_infotext(pos)
-  local meta = core.get_meta(pos)
-  local node = core.get_node(pos)
+  local meta = get_meta(pos)
+  local node = get_node(pos)
   local fluid_interface = FluidTanks.get_fluid_interface(pos)
 
   local fluid_stack = FluidMeta.get_fluid_stack(meta, "tank")

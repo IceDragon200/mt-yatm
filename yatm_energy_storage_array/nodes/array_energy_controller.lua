@@ -11,6 +11,8 @@ local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
 local player_service = assert(nokore.player_service)
 local Vector3 = assert(foundation.com.Vector3)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
 
 -- Schedule infotext refresh for all controllers in the node group
 local function queue_refresh_infotext_for_controllers(pos)
@@ -189,8 +191,8 @@ local yatm_network = {
 }
 
 local function refresh_infotext(pos)
-  local meta = core.get_meta(pos)
-  local node = core.get_node(pos)
+  local meta = get_meta(pos)
+  local node = get_node(pos)
   local nodedef = core.registered_nodes[node.name]
 
   --local usable = EnergyDevices.get_usable_stored_energy(pos, node)
@@ -209,7 +211,7 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine_electric" }, function (loc, rect)
     if loc == "main_body" then

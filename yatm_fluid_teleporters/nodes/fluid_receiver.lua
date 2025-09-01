@@ -1,8 +1,11 @@
 --[[
-Fluid Teleporters behave slightly different from pipes, they will have a 1-frame delay since they will
-take fluids into their internal inventory, and then teleport them to a connected teleporter.
 
-Like all other wireless devices, it has it's own address scheme and registration process.
+  Fluid Teleporters behave slightly different from pipes, they will have a 1-frame delay since
+  they will take fluids into their internal inventory, and then teleport them to a
+  connected teleporter.
+
+  Like all other wireless devices, it has it's own address scheme and registration process.
+
 ]]
 local is_blank = assert(foundation.com.is_blank)
 local cluster_devices = assert(yatm.cluster.devices)
@@ -12,6 +15,9 @@ local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local Energy = assert(yatm.energy)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local swap_node = assert(tetra.swap_node)
 
 local fluid_receiver_yatm_network = {
   kind = "machine",
@@ -41,12 +47,12 @@ function fluid_receiver_yatm_network:work(ctx)
 end
 
 local function teleporter_after_place_node(pos, _placer, itemstack, _pointed_thing)
-  local new_meta = core.get_meta(pos)
+  local new_meta = get_meta(pos)
   local old_meta = itemstack:get_meta()
   SpacetimeMeta.copy_address(old_meta, new_meta)
   local address = SpacetimeMeta.patch_address(new_meta)
 
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   SpacetimeNetwork:maybe_register_node(pos, node)
 
   yatm.devices.device_after_place_node(pos, placer, itemstack, pointed_thing)
@@ -63,7 +69,7 @@ local function teleporter_after_destruct(pos, old_node)
 end
 
 local function teleporter_change_spacetime_address(pos, node, new_address)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   SpacetimeMeta.set_address(meta, new_address)
   SpacetimeNetwork:maybe_update_node(pos, node)
@@ -71,10 +77,10 @@ local function teleporter_change_spacetime_address(pos, node, new_address)
   local nodedef = core.registered_nodes[node.name]
   if is_blank(new_address) then
     node.name = fluid_receiver_yatm_network.states.off
-    core.swap_node(pos, node)
+    swap_node(pos, node)
   else
     node.name = fluid_receiver_yatm_network.states.on
-    core.swap_node(pos, node)
+    swap_node(pos, node)
   end
   yatm.queue_refresh_infotext(pos, node)
   return new_address
@@ -83,12 +89,12 @@ end
 local fluid_interface = FluidInterface.new_simple("tank", 16000)
 
 function fluid_interface:on_fluid_changed(pos, dir, _fluid_stack)
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   yatm.queue_refresh_infotext(pos, node)
 end
 
 local function teleporter_refresh_infotext(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
