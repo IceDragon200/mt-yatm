@@ -7,6 +7,8 @@
   Like all other wireless devices, it has it's own address scheme and registration process.
 
 ]]
+local mod = assert(yatm_fluid_teleporters)
+
 local is_blank = assert(foundation.com.is_blank)
 local Directions = assert(foundation.com.Directions)
 local cluster_devices = assert(yatm.cluster.devices)
