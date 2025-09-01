@@ -9,12 +9,12 @@ local string_hex_escape = assert(foundation.com.string_hex_escape)
 local string_sub_join = assert(foundation.com.string_sub_join)
 local binary_splice = assert(foundation.com.binary_splice)
 local data_network = assert(yatm.data_network)
-local ByteDecoder = yatm.ByteDecoder
+local ByteDecoder = assert(foundation.com.ByteDecoder)
 local get_node = assert(tetra.get_node)
 local get_meta = assert(tetra.get_meta)
 
 if not ByteDecoder then
-  core.log("warning", "Memory module requires yatm.ByteDecoder")
+  core.log("warning", "Memory module requires foundation.com.ByteDecoder")
   return
 end
 

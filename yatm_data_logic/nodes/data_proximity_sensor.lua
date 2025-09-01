@@ -12,7 +12,7 @@ local ng = Cuboid.new_fast_node_box
 local string_hex_escape = assert(foundation.com.string_hex_escape)
 
 local data_network = assert(yatm.data_network)
-local ByteEncoder = assert(yatm.ByteEncoder)
+local ByteEncoder = assert(foundation.com.ByteEncoder)
 local BELE = assert(ByteEncoder.LE)
 local get_node = assert(tetra.get_node)
 local get_meta = assert(tetra.get_meta)

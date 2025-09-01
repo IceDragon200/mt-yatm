@@ -19,12 +19,6 @@ yatm.MetaSchema = foundation.com.MetaSchema
 --- @alias BinSchema = foundation.com.BinSchema
 yatm.BinSchema = foundation.com.BinSchema
 
---- @alias ByteDecoder = foundation.com.ByteDecoder
-yatm.ByteDecoder = foundation.com.ByteDecoder
-
---- @alias ByteEncoder = foundation.com.ByteEncoder
-yatm.ByteEncoder = foundation.com.ByteEncoder
-
 --- @alias Vector2 = foundation.com.Vector2
 yatm.Vector2 = foundation.com.Vector2
 

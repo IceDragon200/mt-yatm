@@ -135,6 +135,26 @@ function FluidRegistry.register_fluid_bucket(bucket_name, bucket_def)
     bucket_def.texture = "yatm_bucket_empty.png^(yatm_bucket_fluid.mask.png^[multiply:"..bucket_def.fluid_color..")"
   end
 
+  local fluid_container =
+    {
+      type = "static",
+      fluid_name = bucket_def.fluid_name,
+      volume = FluidRegistry.BUCKET_VOLUME,
+      capacity = FluidRegistry.BUCKET_VOLUME,
+      fluid_table = {
+        [""] = "yatm_fluids:empty_bucket",
+      },
+    }
+
+  local fluid_bucket =
+    {
+      fluid_name = bucket_def.fluid_name,
+      fluid_nodes = table.copy(bucket_def.nodes),
+    }
+
+  FluidRegistry.m_buckets[bucket_name] = bucket_def
+  FluidRegistry.m_fluid_name_to_bucket_name[bucket_def.fluid_name] = bucket_name
+
   if rawget(_G, "bucket") and rawget(_G, "default") then
     bucket.register_liquid(
       assert(bucket_def.nodes.source),
@@ -145,11 +165,13 @@ function FluidRegistry.register_fluid_bucket(bucket_name, bucket_def)
       bucket_def.groups,
       bucket_def.force_renew
     )
-  else
-    FluidRegistry.m_buckets[bucket_name] = bucket_def
-    FluidRegistry.m_fluid_name_to_bucket_name[bucket_def.fluid_name] = bucket_name
 
-    core.register_tool(bucket_name, {
+    core.override_item(bucket_name, {
+      fluid_container = fluid_container,
+      fluid_bucket = fluid_bucket,
+    })
+  else
+    core.register_craftitem(bucket_name, {
       description = bucket_def.description or bucket_name,
 
       groups = bucket_def.groups or {},
@@ -160,20 +182,8 @@ function FluidRegistry.register_fluid_bucket(bucket_name, bucket_def)
 
       inventory_image = bucket_def.texture,
 
-      fluid_container = {
-        type = "static",
-        fluid_name = bucket_def.fluid_name,
-        volume = FluidRegistry.BUCKET_VOLUME,
-        capacity = FluidRegistry.BUCKET_VOLUME,
-        fluid_table = {
-          [""] = "yatm_fluids:empty_bucket",
-        },
-      },
-
-      fluid_bucket = {
-        fluid_name = bucket_def.fluid_name,
-        fluid_nodes = table.copy(bucket_def.nodes),
-      },
+      fluid_container = fluid_container,
+      fluid_bucket = fluid_bucket,
 
       on_use = on_use_bucket,
     })

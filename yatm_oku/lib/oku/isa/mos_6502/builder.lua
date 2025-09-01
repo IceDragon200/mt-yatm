@@ -1,7 +1,7 @@
 --
 -- Helper module for building MOS6502 instruction binaries
 --
-local ByteEncoder = assert(yatm.ByteEncoder)
+local ByteEncoder = assert(foundation.com.ByteEncoder)
 local BELE = assert(ByteEncoder.LE)
 
 local Builder = {}

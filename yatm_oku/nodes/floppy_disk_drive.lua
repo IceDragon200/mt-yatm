@@ -11,13 +11,13 @@ local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local data_network = assert(yatm.data_network)
 local Energy = assert(yatm.energy)
-local ByteDecoder = yatm.ByteDecoder
+local ByteDecoder = foundation.com.ByteDecoder
 local fspec = assert(foundation.com.formspec.api)
 local get_meta = assert(tetra.get_meta)
 local get_node = assert(tetra.get_node)
 
 if not ByteDecoder then
-  core.log("warning", "Memory module requires yatm.ByteDecoder")
+  core.log("warning", "Memory module requires foundation.com.ByteDecoder")
   return
 end
 

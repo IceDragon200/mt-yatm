@@ -1,5 +1,7 @@
+local mod = assert(yatm_core)
+
 core.register_node("yatm_core:face_debug", {
-  description = "Face Debug",
+  description = mod.S("Face Debug"),
 
   groups = {
     cracky = nokore.dig_class("wme"),
@@ -23,7 +25,7 @@ core.register_node("yatm_core:face_debug", {
 })
 
 core.register_node("yatm_core:grid_block", {
-  description = "GRID\nDummy Block",
+  description = mod.S("GRID\nDummy Block"),
 
   groups = {
     cracky = nokore.dig_class("wme"),
