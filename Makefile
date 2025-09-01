@@ -5,7 +5,7 @@ all:
 
 .PHONY : luacheck
 luacheck:
-	luacheck .
+	luacheck --quiet .
 
 # Release step specifically when the modpack is under a game, this will copy
 # the modpack to the RELEASE_DIR
