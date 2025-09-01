@@ -1,3 +1,5 @@
+local swap_node = assert(tetra.swap_node)
+
 local migrations = {
   ["yatm_machines:surface_drill_error"] = "yatm_mining:surface_drill_error",
   ["yatm_machines:surface_drill_off"] = "yatm_mining:surface_drill_off",
@@ -19,7 +21,7 @@ for from, to in pairs(migrations) do
     run_at_every_load = false,
     action = function (pos, node)
       node.name = to
-      core.swap_node(pos, node)
+      swap_node(pos, node)
     end
   })
 end

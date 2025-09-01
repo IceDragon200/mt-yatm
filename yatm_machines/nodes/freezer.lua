@@ -19,11 +19,14 @@ local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
 local player_service = assert(nokore.player_service)
 local freezing_registry = assert(yatm.freezing.freezing_registry)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local node_dig = assert(tetra.node_dig)
 
 local ITEM_INV_SIZE = 9
 
 local item_interface = ItemInterface.new_directional(function (self, pos, dir)
-  local node = core.get_node(pos)
+  local node = get_node(pos)
 
   local new_dir = Directions.facedir_to_face(node.param2, dir)
   if new_dir == Directions.D_UP or
@@ -37,7 +40,7 @@ end)
 local fluid_interface = FluidInterface.new_simple("tank", 4000)
 
 local function refresh_infotext(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
@@ -248,7 +251,7 @@ local function maybe_initialize_inventory(meta)
 end
 
 local function on_construct(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   maybe_initialize_inventory(meta)
 
@@ -258,7 +261,7 @@ end
 local function render_formspec(pos, user, state)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
 
@@ -308,7 +311,7 @@ local function on_rightclick(pos, node, user)
     pos = pos,
     node = node,
   }
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   maybe_initialize_inventory(meta)
 
   local formspec = render_formspec(pos, user, state)
@@ -332,11 +335,11 @@ local function on_rightclick(pos, node, user)
 end
 
 local function on_dig(pos, node, digger)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   if inv:is_empty("input_items") and inv:is_empty("output_items") then
-    return core.node_dig(pos, node, digger)
+    return node_dig(pos, node, digger)
   end
 
   return false

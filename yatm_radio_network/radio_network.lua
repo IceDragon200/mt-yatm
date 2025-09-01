@@ -7,6 +7,7 @@ local Vector3 = assert(foundation.com.Vector3)
 local MinHeap = assert(foundation.com.MinHeap)
 local RingBuffer = assert(foundation.com.RingBuffer)
 local hash_node_position = assert(core.hash_node_position)
+local get_node = assert(tetra.get_node)
 
 --- @namespace yatm_radio_network
 
@@ -65,7 +66,7 @@ do
         if nodes then
           for _id, entry in pairs(nodes) do
             if entry.timer > self.m_monotonic_time then
-              node = core.get_node(entry.pos)
+              node = get_node(entry.pos)
               nodedef = core.registered_nodes[node.name]
               if nodedef then
                 if nodedef.radio_network then

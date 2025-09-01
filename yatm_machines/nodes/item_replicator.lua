@@ -6,10 +6,11 @@ local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local fspec = assert(foundation.com.formspec.api)
+local get_meta = assert(tetra.get_meta)
 
 local function refresh_infotext(pos, node)
   local nodedef = core.registered_nodes[node.name]
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   local stack = inv:get_stack("input_slot", 1)
@@ -74,7 +75,7 @@ end
 local function on_construct(pos)
   yatm.devices.device_on_construct(pos)
 
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   inv:set_size("input_slot", 1)

@@ -51,10 +51,8 @@ local function get_fluid_tank_name(self, pos, dir)
   local new_dir = Directions.facedir_to_face(node.param2, dir)
   if new_dir == Directions.D_UP then
     return VAPOUR_TANK, self._private.capacity
-  else
-    return FLUID_TANK, self._private.capacity
   end
-  return nil, nil
+  return FLUID_TANK, self._private.capacity
 end
 
 local fluid_interface = FluidInterface.new_directional(get_fluid_tank_name)

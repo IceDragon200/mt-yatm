@@ -5,6 +5,7 @@
 ]]
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
+local swap_node = assert(tetra.swap_node)
 
 local shoji_lamp_node_box = {
   type = "fixed",
@@ -54,7 +55,7 @@ core.register_node("yatm_papercraft:shoji_lamp_off", {
     local new_node = {
       name = "yatm_papercraft:shoji_lamp_on",
     }
-    core.swap_node(pos, new_node)
+    swap_node(pos, new_node)
   end,
 })
 
@@ -95,6 +96,6 @@ core.register_node("yatm_papercraft:shoji_lamp_on", {
     local new_node = {
       name = "yatm_papercraft:shoji_lamp_off",
     }
-    core.swap_node(pos, new_node)
+    swap_node(pos, new_node)
   end,
 })

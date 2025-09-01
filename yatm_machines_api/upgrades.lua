@@ -93,7 +93,7 @@ function m.find_upgrade_data_by_id(meta, id)
   local upgrades_count = m.UpgradeHeaderSchema:get_count(meta)
   local upgrade_id
   for index = 1,upgrades_count do
-    upgrade_id = get_upgrade_data_field(meta, index, "id")
+    upgrade_id = m.get_upgrade_data_field(meta, index, "id")
     if upgrade_id == id then
       return index, m.get_upgrade_data(meta, index)
     end

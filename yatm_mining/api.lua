@@ -2,7 +2,7 @@ local add_items = assert(foundation.com.InventoryList.add_items)
 local item_list_copy = assert(foundation.com.InventoryList.copy)
 local get_node_or_nil = assert(tetra.get_node_or_nil)
 local remove_node = assert(tetra.remove_node)
-local get_node_drops = assert(core.get_node_drops)
+local get_node_drops = assert(tetra.get_node_drops)
 
 --- @namespace yatm.mining
 

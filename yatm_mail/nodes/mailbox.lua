@@ -1,7 +1,9 @@
-local list_concat = assert(foundation.com.list_concat)
 local is_blank = assert(foundation.com.is_blank)
 local HeadlessMetaDataRef = assert(foundation.com.headless.MetaDataRef)
 local fspec = assert(foundation.com.formspec.api)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local node_dig = assert(tetra.node_dig)
 
 local mailbox_nodebox  = {
   type = "fixed",
@@ -17,7 +19,7 @@ local mailbox_nodebox  = {
 }
 
 local function is_mailbox_open(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   local lockable_pubkey = yatm_security.get_lockable_object_pubkey(meta)
   local chipped_pubkey = yatm_security.get_chipped_object_pubkey(meta)
@@ -54,9 +56,9 @@ local function mailbox_get_formspec(user, assigns)
   local pos = assigns.pos
   assigns.is_unlocked = is_mailbox_open(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   local nodedef = core.registered_nodes[node.name]
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local cio = fspec.calc_inventory_offset
 
   local bg
@@ -158,7 +160,7 @@ local function mailbox_configure_inventory(_pos, meta)
 end
 
 local function mailbox_on_construct(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   mailbox_configure_inventory(pos, meta)
 end
@@ -167,14 +169,14 @@ local function mailbox_on_destruct(pos)
 end
 
 local function mailbox_on_dig(pos, node, digger)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   if inv:is_empty("access_key") and
      inv:is_empty("access_card") and
      inv:is_empty("dropoff") and
      inv:is_empty("inbox") then
-    return core.node_dig(pos, node, digger)
+    return node_dig(pos, node, digger)
   end
 
   return false
@@ -217,7 +219,7 @@ local function mailbox_allow_metadata_inventory_take(pos, listname, index, stack
 end
 
 local function try_dropoff(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   local inv = meta:get_inventory()
 
@@ -232,7 +234,7 @@ end
 
 local function mailbox_on_metadata_inventory_put(pos, listname, index, stack, player)
   if listname == "access_key" or listname == "access_card" then
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     refresh_mailbox_formspec(pos, player)
   elseif listname == "dropoff" then
     try_dropoff(pos)
@@ -241,7 +243,7 @@ end
 
 local function mailbox_on_metadata_inventory_take(pos, listname, index, stack, player)
   if listname == "access_key" or listname == "access_card" then
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     refresh_mailbox_formspec(pos, player)
   end
 end
@@ -259,7 +261,7 @@ local function mailbox_preserve_metadata(pos, oldnode, old_meta_table, drops)
 end
 
 local function mailbox_after_place_node(pos, _placer, itemstack, _pointed_thing)
-  local new_meta = core.get_meta(pos)
+  local new_meta = get_meta(pos)
   local old_meta = itemstack:get_meta()
 
   yatm_security.copy_lockable_object_pubkey(assert(old_meta), new_meta)

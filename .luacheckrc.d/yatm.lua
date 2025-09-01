@@ -286,7 +286,22 @@ return {
         --
         -- Constants
         --
+        HEAT_MODIFIER_KEY = {},
         ENERGY_BUFFER_KEY = {},
+        MIN_HEAT_MODIFIER = {},
+        MAX_HEAT_MODIFIER = {},
+        NUCLEAR_PROTECTION_KEY = {},
+        NUCLEAR_PROTECTION_MIN = {},
+        NUCLEAR_PROTECTION_MAX = {},
+
+        --
+        -- Classes
+        --
+        WorkContext = {
+          fields = {
+            new = {},
+          },
+        },
 
         --
         -- Functions
@@ -295,6 +310,12 @@ return {
         device_on_construct = {},
         device_on_destruct = {},
         device_after_destruct = {},
+        device_swap_node_by_state = {},
+        default_on_network_state_changed = {},
+        device_transition_device_state = {},
+        default_on_network_state_changed = {},
+        device_passive_consume_energy = {},
+        worker_update = {},
 
         get_energy_capacity = {},
 
@@ -306,6 +327,35 @@ return {
 
         set_sleep = {},
 
+        patch_device_nodedef = {},
+
+
+        --
+        -- Modules
+        --
+        behaviours = {
+          fields = {
+            helpers = {
+              fields = {
+                decode_directions_code8 = {},
+              },
+            },
+            fluid_auto_eject = {
+              fields = {
+                init = {},
+                exec = {},
+                work = {},
+              },
+            },
+            item_auto_eject = {
+              fields = {
+                init = {},
+                exec = {},
+                work = {},
+              },
+            },
+          },
+        },
         upgrades = {
           fields = {
             UPGRADE_SLOT = {},
@@ -324,12 +374,17 @@ return {
               },
             },
 
+            calculate_stat = {},
+
             on_receive_fields_upgrades = {},
             install_upgrade_from_item_stack = {},
             find_upgrade_data_by_id = {},
 
+            initialize_upgrade_slots = {},
+            render_upgrades_formspec = {},
             register_upgrade = {},
             get_upgrade_data_field = {},
+            get_upgrade_data = {},
             set_upgrade_data = {},
             upgrades_by_group = {
               other_fields = true,
@@ -393,6 +448,7 @@ return {
     -- fluids module
     fluids = {
       fields = {
+        FluidContainers = {},
         FluidExchange = {},
         FluidInterface = {
           fields = {
@@ -400,8 +456,13 @@ return {
           },
         },
         FluidMeta = {},
-        FluidStack = {},
+        FluidStack = {
+          fields = {
+            new = {},
+          },
+        },
         FluidTanks = {},
+        Utils = {},
         fluid_transport_network = {},
         fluid_registry = {
           fields = {
@@ -465,11 +526,18 @@ return {
       fields = {
         ItemInterface = {},
         ItemDevice = {},
+        ItemExchange = {},
       },
     },
 
     -- mail module
     mail = {},
+
+    mining = {
+      fields = {
+        drill_node_to_meta_inventory = {},
+      },
+    },
 
     -- molding module
     molding = {
@@ -492,7 +560,11 @@ return {
     },
 
     rolling = {
-      rolling_registry = {},
+      fields = {
+        rolling_registry = {
+          fields = {},
+        },
+      },
     },
 
     -- sawing module

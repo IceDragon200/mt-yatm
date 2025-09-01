@@ -1,15 +1,17 @@
 local is_blank = assert(foundation.com.is_blank)
 local Groups = assert(foundation.com.Groups)
 local NetworkMeta = assert(yatm.mesecon_hubs.NetworkMeta)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
 
 local function address_tool_on_place(itemstack, placer, pointed_thing)
   if pointed_thing.type == "node" then
     local pos = pointed_thing.under
-    local node = core.get_node(pos)
+    local node = get_node(pos)
     local nodedef = core.registered_nodes[node.name]
     if nodedef then
       if Groups.get_item(nodedef, "addressable_hub_device") then
-        local meta = core.get_meta(pos)
+        local meta = get_meta(pos)
         NetworkMeta.copy_hub_address(meta, itemstack:get_meta())
         local address = NetworkMeta.get_hub_address(itemstack:get_meta())
         if placer and placer:is_player() then
@@ -28,13 +30,13 @@ local function address_tool_on_place(itemstack, placer, pointed_thing)
 end
 
 function yatm_mesecon_hubs.default_change_address(pos, node, new_address)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   address = NetworkMeta.set_hub_address(meta, new_address)
 end
 
 local function address_tool_on_use(itemstack, user, pointed_thing)
   if pointed_thing.type == "node" then
-    local node = core.get_node(pointed_thing.under)
+    local node = get_node(pointed_thing.under)
     local nodedef = core.registered_nodes[node.name]
     if nodedef then
       if Groups.get_item(nodedef, "addressable_hub_device") then

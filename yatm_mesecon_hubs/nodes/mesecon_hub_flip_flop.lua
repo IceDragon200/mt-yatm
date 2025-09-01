@@ -1,5 +1,6 @@
 local Directions = assert(foundation.com.Directions)
 local table_merge = assert(foundation.com.table_merge)
+local swap_node = assert(tetra.swap_node)
 
 local mesecon_hub_node_box = {
   type = "fixed",
@@ -55,7 +56,7 @@ local function toggle_hub(pos, node)
     error("invalid")
   end
 
-  core.swap_node(pos, new_node)
+  swap_node(pos, new_node)
 
   mesecon.receptor_on(pos, hub_receptor_rules_get(new_node))
 end

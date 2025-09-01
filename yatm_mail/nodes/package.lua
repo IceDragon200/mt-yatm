@@ -6,9 +6,10 @@
 local Cuboid = assert(foundation.com.Cuboid)
 local is_blank = assert(foundation.com.is_blank)
 local fspec = assert(foundation.com.formspec.api)
+local get_meta = assert(tetra.get_meta)
 
 function get_package_formspec(pos, entity)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
   local w = yatm.get_player_hotbar_size(entity)
@@ -36,7 +37,7 @@ local package_nodebox = {
 }
 
 local function package_on_construct(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   local inv = meta:get_inventory()
 
@@ -47,7 +48,7 @@ local function package_on_construct(pos)
 end
 
 local function package_after_place_node(pos, placer, item_stack, pointed_thing)
-  local new_meta = core.get_meta(pos)
+  local new_meta = get_meta(pos)
   local old_meta = item_stack:get_meta()
 
   new_meta:set_string("addressed_to", old_meta:get_string("addressed_to"))
@@ -67,7 +68,7 @@ end
 local function package_preserve_metadata(pos, _old_node, _old_meta_table, drops)
   local stack = drops[1]
 
-  local old_meta = core.get_meta(pos)
+  local old_meta = get_meta(pos)
   local new_meta = stack:get_meta()
 
   local old_inv = old_meta:get_inventory()
@@ -84,7 +85,7 @@ local function package_preserve_metadata(pos, _old_node, _old_meta_table, drops)
 end
 
 local function package_on_receive_fields(player, formname, fields, assigns)
-  local meta = core.get_meta(assigns.pos)
+  local meta = get_meta(assigns.pos)
 
   if fields["addressed_from"] then
     meta:set_string("addressed_from", fields["addressed_from"])

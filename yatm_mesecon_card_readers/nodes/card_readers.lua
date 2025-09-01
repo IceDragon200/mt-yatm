@@ -42,7 +42,7 @@ local function card_reader_after_place_node(pos, _placer, itemstack, _pointed_th
   new_meta:set_string("infotext", new_meta:get_string("description"))
 end
 
-local function reader_on_rightclick(pos, node, clicker, itemstack, pointed_thing)
+local function reader_on_rightclick(pos, node, user, itemstack, pointed_thing)
   yatm.security.on_rightclick_access_card(pos, node, user, itemstack, pointed_thing)
 end
 

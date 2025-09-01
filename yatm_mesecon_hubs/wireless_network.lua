@@ -9,6 +9,7 @@ local NetworkMeta = assert(yatm_mesecon_hubs.NetworkMeta)
 local is_table_empty = assert(foundation.com.is_table_empty)
 local is_blank = assert(foundation.com.is_blank)
 local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
 
 local WirelessNetwork = foundation.com.Class:extends("WirelessNetwork")
 local ic = WirelessNetwork.instance_class
@@ -70,7 +71,7 @@ function ic:dispatch_queued()
 
     if self.m_members_by_address[address] then
       for _hash,pos in pairs(self.m_members_by_address[address]) do
-        node = core.get_node(pos)
+        node = get_node(pos)
         if node then
           nodedef = core.registered_nodes[node.name]
 

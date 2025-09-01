@@ -1,6 +1,8 @@
 local Directions = assert(foundation.com.Directions)
 local Network = assert(yatm.mesecon_hubs.wireless_network)
 local NetworkMeta = assert(yatm.mesecon_hubs.NetworkMeta)
+local get_meta = assert(tetra.get_meta)
+local swap_node = assert(tetra.swap_node)
 
 local mesecon_hub_node_box = {
   type = "fixed",
@@ -12,14 +14,14 @@ local mesecon_hub_node_box = {
 }
 
 local function hub_refresh_infotext(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local addr = NetworkMeta.get_hub_address(meta)
   meta:set_string("infotext", "Hub-Address:<" .. addr .. ">")
 end
 
 local function hub_after_place_node(pos, placer, item_stack, pointed_thing)
   Directions.facedir_wallmount_after_place_node(pos, placer, item_stack, pointed_thing)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   NetworkMeta.patch_hub_address(meta)
   hub_refresh_infotext(pos)
   Network:register_listener(pos, NetworkMeta.get_hub_address(meta))
@@ -30,7 +32,7 @@ local function hub_on_destruct(pos)
 end
 
 local function hub_change_hub_address(pos, changer, new_address)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   Network:unregister_listener(pos)
   do
     NetworkMeta.set_hub_address(meta, new_address)
@@ -54,7 +56,7 @@ local function hub_action_pdu(pos, node, pdu)
   print(core.pos_to_string(pos), node.name, ">", new_node_name, pdu, b)
   if new_node_name ~= node.name then
     node.name = new_node_name
-    core.swap_node(pos, node)
+    swap_node(pos, node)
     local nodedef = core.registered_nodes[node.name]
     if b then
       mesecon.receptor_on(pos, nodedef.mesecons.receptor.rules)

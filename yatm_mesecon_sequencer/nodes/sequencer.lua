@@ -2,6 +2,7 @@ local Directions = assert(foundation.com.Directions)
 local get_meta = assert(tetra.get_meta)
 local get_node_timer = assert(tetra.get_node_timer)
 local get_node_or_nil = assert(tetra.get_node_or_nil)
+local swap_node = assert(tetra.swap_node)
 
 local mesecon_hub_node_box = {
   type = "fixed",

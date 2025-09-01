@@ -110,16 +110,42 @@ globals = {
   },
   yatm_machines_api = {
     fields = {
-      GrindingRegistry = {},
-      FreezingRegistry = {},
-      CondensingRegistry = {},
-      CompactingRegistry = {},
-      RollingRegistry = {},
-      CrushingRegistry = {},
+      GrindingRegistry = {
+        fields = {
+          new = {},
+        },
+      },
+      FreezingRegistry = {
+        fields = {
+          new = {},
+        },
+      },
+      CondensingRegistry = {
+        fields = {
+          new = {},
+        },
+      },
+      CompactingRegistry = {
+        fields = {
+          new = {},
+        },
+      },
+      RollingRegistry = {
+        fields = {
+          new = {},
+        },
+      },
+      CrushingRegistry = {
+        fields = {
+          new = {},
+        },
+      },
     },
   },
   yatm_security = {
     fields = {
+      get_lockable_object_pubkey = {},
+      get_chipped_object_pubkey = {},
       copy_chipped_object = {},
       copy_chipped_object = {},
       copy_lockable_object_pubkey = {},
@@ -252,6 +278,7 @@ files["yatm_item_shelves/**/*.lua"] = { globals = {"yatm_item_shelves"} }
 files["yatm_item_storage/**/*.lua"] = { globals = {"yatm_item_storage"} }
 files["yatm_item_teleporters/**/*.lua"] = { globals = {"yatm_item_teleporters"} }
 files["yatm_machines/**/*.lua"] = { globals = {"yatm_machines"} }
+files["yatm_machines_api/**/*.lua"] = { globals = {"yatm_machines_api"} }
 files["yatm_mail/**/*.lua"] = { globals = {"yatm_mail"} }
 files["yatm_mesecon_buttons/**/*.lua"] = { globals = {"yatm_mesecon_buttons"} }
 files["yatm_mesecon_card_readers/**/*.lua"] = { globals = {"yatm_mesecon_card_readers"} }
@@ -264,10 +291,11 @@ files["yatm_overhead_rails/**/*.lua"] = { globals = {"yatm_overhead_rails"} }
 files["yatm_packs/**/*.lua"] = { globals = {"yatm_packs"} }
 files["yatm_papercraft/**/*.lua"] = { globals = {"yatm_papercraft"} }
 files["yatm_plastics/**/*.lua"] = { globals = {"yatm_plastics"} }
-files["yatm_recipe_components/**/*.lua"] = { globals = {"yatm_recipe_components"} }
+files["yatm_radio_network/**/*.lua"] = { globals = {"yatm_radio_network"} }
 files["yatm_rails/**/*.lua"] = { globals = {"yatm_rails"} }
 files["yatm_reactions/**/*.lua"] = { globals = {"yatm_reactions"} }
 files["yatm_reactors/**/*.lua"] = { globals = {"yatm_reactors"} }
+files["yatm_recipe_components/**/*.lua"] = { globals = {"yatm_recipe_components"} }
 files["yatm_refinery/**/*.lua"] = { globals = {"yatm_refinery"} }
 files["yatm_security/**/*.lua"] = { globals = {"yatm_security"} }
 files["yatm_security_api/**/*.lua"] = { globals = {"yatm_security_api"} }

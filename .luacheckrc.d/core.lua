@@ -41,6 +41,7 @@ return {
     -- Formspec
     formspec_escape = {},
     show_formspec = {},
+    close_formspec = {},
     register_on_player_receive_fields = {},
 
     -- inventory

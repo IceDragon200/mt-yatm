@@ -270,6 +270,7 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
   yatm_network = surface_drill_yatm_network,
 
+  on_construct = on_construct,
   on_rightclick = on_rightclick,
 }, {
   error = {

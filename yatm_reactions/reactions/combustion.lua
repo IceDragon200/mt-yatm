@@ -1,10 +1,14 @@
 --[[
-Nodes in the `combustable` group will sometimes spotaneously combust when exposed to `air`
 
-A node can define a `on_combust(pos :: vector, node :: NodeDef) :: boolean` callback
-to handle the pre-combustion,
-if true is returned, then the node is swapped for fire else, nothing happens.
+  Nodes in the `combustable` group will sometimes spotaneously combust when exposed to `air`
+
+  A node can define a `on_combust(pos :: vector, node :: NodeDef) :: boolean` callback
+  to handle the pre-combustion,
+  if true is returned, then the node is swapped for fire else, nothing happens.
+
 ]]
+local swap_node = assert(tetra.swap_node)
+
 core.register_abm({
   name = "yatm_reactions:combustion",
   label = "Combustion",
@@ -23,10 +27,10 @@ core.register_abm({
     if nodedef.on_combust then
       if nodedef.on_combust(pos, node) then
         -- nothing
-        core.swap_node(pos, { name = "fire:basic_flame" })
+        swap_node(pos, { name = "fire:basic_flame" })
       end
     else
-      core.swap_node(pos, { name = "fire:basic_flame" })
+      swap_node(pos, { name = "fire:basic_flame" })
     end
   end
 })

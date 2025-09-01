@@ -13,6 +13,8 @@ local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
 local player_service = assert(nokore.player_service)
 local Vector3 = assert(foundation.com.Vector3)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
 
 local yatm_network = {
   kind = "machine",
@@ -40,7 +42,7 @@ local yatm_network = {
 
 local item_interface =
   ItemInterface.new_directional(function (self, pos, dir)
-    local node = core.get_node(pos)
+    local node = get_node(pos)
     local new_dir = Directions.facedir_to_face(node.param2, dir)
     if new_dir == Directions.D_UP or new_dir == Directions.D_DOWN then
       return "grinder_input"
@@ -136,7 +138,7 @@ end
 
 local function refresh_infotext(pos, node)
   local nodedef = core.registered_nodes[node.name]
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   local recipe_name = meta:get_string("active_recipe") or ""
   local work_time = meta:get_float("work_time")
@@ -155,7 +157,7 @@ end
 local function on_construct(pos)
   yatm.devices.device_on_construct(pos)
   --
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
   --
   inv:set_size("grinder_input", 1)
@@ -169,7 +171,7 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine" }, function (loc, rect)
     if loc == "main_body" then

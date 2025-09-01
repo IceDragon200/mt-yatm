@@ -15,7 +15,6 @@ do
     self.items = WeightedList:new()
     self.chance = def.chance or 1.0
 
-    local item_output
     local weight
 
     for _, item in ipairs(items) do

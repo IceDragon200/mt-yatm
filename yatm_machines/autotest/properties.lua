@@ -6,8 +6,8 @@ local table_sample = assert(foundation.com.table_sample)
 local Vector3 = assert(foundation.com.Vector3)
 local fparser = assert(foundation.com.formspec.parser)
 local get_node_or_nil = assert(tetra.get_node_or_nil)
-local set_node = assert(tetra.set_node)
 local remove_node = assert(tetra.remove_node)
+local set_node = assert(tetra.set_node)
 
 local ENERGY_PROVIDERS = {}
 
@@ -254,7 +254,7 @@ yatm_machines.autotest_suite:define_property("is_machine_like", {
     end,
 
     ["Will be in idle or on state with energy"] = function (suite, state)
-      core.set_node(state.pos, assert(state.node))
+      set_node(state.pos, assert(state.node))
       local provider = random_energy_provider()
 
       provider.setup(state.pos)
@@ -303,7 +303,7 @@ yatm_machines.autotest_suite:define_property("has_rightclick_formspec", {
 
   tests = {
     ["Will show a formspec when right-clicked"] = function (suite, state)
-      core.set_node(state.pos, assert(state.node))
+      set_node(state.pos, assert(state.node))
 
       wait_for_next_tick_on_clusters(suite, state, 2.0)
 
@@ -353,7 +353,7 @@ yatm_machines.autotest_suite:define_property("is_steam_turbine", {
     ["Will show a formspec when right-clicked"] = function (suite, state)
       suite:clear_test_area(state.pos)
 
-      core.set_node(state.pos, assert(state.node))
+      set_node(state.pos, assert(state.node))
 
       wait_for_next_tick_on_clusters(suite, state, 2.0)
 

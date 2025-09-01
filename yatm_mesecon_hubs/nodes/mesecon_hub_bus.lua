@@ -1,4 +1,5 @@
 local Directions = assert(foundation.com.Directions)
+local swap_node = assert(tetra.swap_node)
 
 local mesecon_hub_node_box = {
   type = "fixed",
@@ -44,7 +45,7 @@ core.register_node("yatm_mesecon_hubs:mesecon_hub_bus_off", {
 
       action_on = function (pos, node)
         node.name = "yatm_mesecon_hubs:mesecon_hub_bus_on"
-        core.swap_node(pos, node)
+        swap_node(pos, node)
       end
     }
   }
@@ -81,7 +82,7 @@ core.register_node("yatm_mesecon_hubs:mesecon_hub_bus_on", {
 
       action_off = function (pos, node)
         node.name = "yatm_mesecon_hubs:mesecon_hub_bus_off"
-        core.swap_node(pos, node)
+        swap_node(pos, node)
       end
     }
   }
