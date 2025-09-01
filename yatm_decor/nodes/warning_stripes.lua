@@ -15,6 +15,7 @@ for _,color in ipairs(colors) do
   for _,size in ipairs(sizes) do
     if size ~= "2x" and color == "fiber" then
       -- skip it
+      core.log("debug", "not registering size and color type")
     else
       core.register_node("yatm_decor:warning_stripes_" .. size .. "_" .. color, {
         basename = "yatm_decor:warning_stripes",

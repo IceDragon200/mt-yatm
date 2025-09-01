@@ -1,5 +1,6 @@
 return {
   fields = {
+    cables = {},
     --
     config = {
       fields = {
@@ -22,12 +23,18 @@ return {
     fatal = {},
 
     colors = {},
-    sounds = {},
-    register_stateful_node = {},
+    sounds = {
+      fields = {
+        register = {},
+      },
+    },
     queue_refresh_infotext = {},
     formspec_bg_for_player = {},
     --
     colors_with_default = {},
+
+    --
+    explore_nodes = {},
 
     --
     -- Classes
@@ -46,6 +53,11 @@ return {
     ByteDecoder = {
       fields = {
         d_u8 = {},
+        d_u16 = {},
+        d_u32 = {},
+        d_i8 = {},
+        d_i16 = {},
+        d_i32 = {},
       },
     },
     ByteEncoder = {
@@ -117,6 +129,10 @@ return {
     computers = {
       fields = {
         method = {},
+        create_computer_at_pos = {},
+        destroy_computer_at_pos = {},
+        upsert_computer_at_pos = {},
+        get_computer_at_pos = {},
       },
     },
 
@@ -129,8 +145,14 @@ return {
     -- individual clusters
     cluster = {
       fields = {
+        DeviceCluster = {},
+
         devices = {
           fields = {
+            method = {},
+
+            schedule_load_node = {},
+
             schedule_add_node = {},
 
             schedule_remove_node = {},
@@ -138,8 +160,27 @@ return {
             schedule_update_node = {},
           },
         },
+        energy = {
+          fields = {
+            method = {},
+
+            schedule_load_node = {},
+
+            schedule_add_node = {},
+
+            schedule_remove_node = {},
+
+            schedule_update_node = {},
+
+            register_system = {},
+          },
+        },
         gate = {
           fields = {
+            method = {},
+
+            schedule_load_node = {},
+
             schedule_add_node = {},
 
             schedule_remove_node = {},
@@ -156,15 +197,6 @@ return {
 
             schedule_load_node = {},
           },
-        },
-        energy = {
-          fields = {
-            schedule_add_node = {},
-
-            schedule_remove_node = {},
-
-            schedule_update_node = {},
-          }
         },
         thermal = {
           fields = {
@@ -189,10 +221,13 @@ return {
     -- clusters service
     clusters = {
       fields = {
+        method = {},
+
         observe = {},
         mark_node_block = {},
         schedule_node_event = {},
         reduce_node_clusters = {},
+        reduce_clusters_of_group = {},
         on_next_tick = {},
         register_node_event_handler = {},
       },
@@ -201,6 +236,10 @@ return {
     -- codex
     codex = {
       fields = {
+        registered_demos = {
+          other_fields = true,
+        },
+
         registered_entries = {
           other_fields = true,
         },
@@ -210,7 +249,6 @@ return {
 
         register_demo = {},
         get_demo = {},
-        registered_demos = {},
 
         place_node_image = {},
 
@@ -225,10 +263,20 @@ return {
       },
     },
 
+    crushing = {
+      fields = {
+        crushing_registry = {},
+      },
+    },
+
     -- data network
     data_network = {
       fields = {
+        update_member = {},
         upsert_member = {},
+        add_node = {},
+        remove_node = {},
+        get_infotext = {},
       },
     },
 
@@ -257,19 +305,64 @@ return {
         inc_idle = {},
 
         set_sleep = {},
+
+        upgrades = {
+          fields = {
+            UPGRADE_SLOT = {},
+
+            UpgradeHeaderSchema = {
+              fields = {
+                get_count = {},
+                set_count = {},
+              },
+            },
+            UpgradeSchema = {
+              fields = {
+                set = {},
+                get = {},
+                get_field = {},
+              },
+            },
+
+            on_receive_fields_upgrades = {},
+            install_upgrade_from_item_stack = {},
+            find_upgrade_data_by_id = {},
+
+            register_upgrade = {},
+            get_upgrade_data_field = {},
+            set_upgrade_data = {},
+            upgrades_by_group = {
+              other_fields = true,
+            },
+            registered_upgrades = {
+              other_fields = true,
+            },
+          },
+        },
       },
     },
 
     dscs = {
-
+      fields = {
+        get_drive_label = {},
+        set_drive_label = {},
+        is_item_stack_fluid_drive = {},
+        is_item_stack_item_drive = {},
+      },
     },
 
     -- energy module
     energy = {
       fields = {
+        EnergyDevices = {},
+        --
         receive_energy = {},
         get_energy = {},
         consume_energy = {},
+        get_meta_energy = {},
+        set_meta_energy = {},
+        consume_meta_energy = {},
+        receive_meta_energy = {},
       }
     },
 
@@ -294,14 +387,35 @@ return {
       },
     },
 
+    bg_name = {
+      other_fields = true,
+    },
+    bg9_name = {
+      other_fields = true,
+    },
     formspec = {
-      fields = {},
+      fields = {
+        set_default_energy_color = {},
+        bg_for_player = {},
+        render_gauge = {},
+        render_energy_gauge = {},
+        render_meta_energy_gauge = {},
+        render_split_inv_panel = {},
+        render_item_border = {},
+        render_small_switch = {},
+      },
     },
 
     freezing = {
       fields = {
         freezing_registry = {},
       }
+    },
+
+    grinding = {
+      fields = {
+        grinding_registry = {},
+      },
     },
 
     icbm = {
@@ -383,6 +497,10 @@ return {
           },
         },
 
+        SecuritySlotSchema = {
+          fields = {},
+        },
+
         -- registration table
         registered_security_features = {
           other_fields = true,
@@ -410,7 +528,12 @@ return {
         has_object_lock = {},
         has_object_locks = {},
         get_object_slot_ids = {},
+        put_node_lock = {},
         check_object_locks = {},
+        install_node_slot_feature = {},
+        on_rightclick_access_card = {},
+        security_feature_check_node_lock = {},
+        security_feature_check_object_lock = {},
       }
     },
 
@@ -440,7 +563,11 @@ return {
 
     -- spacetime module
     spacetime = {
-      fields = {},
+      fields = {
+        SpacetimeMeta = {},
+        Network = {},
+        network = {},
+      },
     },
 
     thermal = {
@@ -457,6 +584,23 @@ return {
       },
     },
 
+    units = {
+      fields = {
+        ALL_PREFIXES = {
+          other_fields = true,
+        },
+        METRIC_PREFIXES = {
+          other_fields = true,
+        },
+        BINARY_PREFIXES = {
+          other_fields = true,
+        },
+
+        --
+        metric = {},
+        binary = {},
+      },
+    },
     -- recipe component
     recipe_component = {
       fields = {
@@ -488,7 +632,9 @@ return {
             colorwallmounted = {},
           },
         },
+        --
         calc_rotate_node = {},
+        rotate_node = {},
         do_rotate_node = {},
         after_rotate_node = {},
         rotate_node_at_pos = {},
@@ -500,8 +646,12 @@ return {
     --
     register_stateful_node = {},
     register_stateful_tool = {},
+    player_inventory_size2 = {},
     player_inventory_lists_fragment = {},
     get_player_hotbar_size = {},
     formspec_render_split_inv_panel = {},
+    --
+    build_decor_nodes = {},
+    register_decor_nodes = {},
   },
 }

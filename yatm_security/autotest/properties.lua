@@ -1,8 +1,6 @@
 local hash_node_position = assert(core.hash_node_position)
-
-local function set_node_to_air(pos)
-  core.set_node(pos, { name = "air" })
-end
+local set_node = assert(tetra.set_node)
+local remove_node = assert(tetra.remove_node)
 
 local function random_pos()
   return {
@@ -13,7 +11,6 @@ local function random_pos()
 end
 
 yatm_security.autotest_suite.utils = {
-  set_node_to_air = set_node_to_air,
   random_pos = random_pos,
   wait_for_next_tick_on_clusters = assert(yatm_machines.autotest_suite.utils.wait_for_next_tick_on_clusters),
 }
@@ -36,7 +33,7 @@ yatm_security.autotest_suite:define_property("is_secure_box", {
     state.pos = random_pos()
     suite:clear_test_area(state.pos)
     state.node_id = hash_node_position(state.pos)
-    core.set_node(state.pos, assert(state.node))
+    set_node(state.pos, assert(state.node))
 
     suite.utils.wait_for_next_tick_on_clusters(suite, state, 2.0)
 

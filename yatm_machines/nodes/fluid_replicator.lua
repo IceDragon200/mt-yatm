@@ -1,4 +1,5 @@
-local mod = yatm_machines
+local mod = assert(yatm_machines)
+
 local Vector3 = assert(foundation.com.Vector3)
 local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
@@ -9,6 +10,7 @@ local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidContainers = assert(yatm.fluids.FluidContainers)
 local fluid_registry = assert(yatm.fluids.fluid_registry)
 local player_service = assert(nokore.player_service)
+local get_meta = assert(tetra.get_meta)
 
 local fluid_replicator_yatm_network = {
   kind = "monitor",
@@ -52,14 +54,14 @@ function fluid_interface:get_capacity(pos, dir)
 end
 
 function fluid_interface:get(pos, dir)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local stack = FluidMeta.get_fluid_stack(meta, self._private.tank_name)
   stack.amount = self._private.capacity
   return stack
 end
 
 function fluid_interface:replace(pos, dir, new_stack, commit)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local stack, new_stack =
     FluidMeta.set_fluid(
       meta,
@@ -76,7 +78,7 @@ function fluid_interface:replace(pos, dir, new_stack, commit)
 end
 
 function fluid_interface:fill(pos, dir, fluid_stack, commit)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local capacity = assert(self._private.capacity)
   local stack, new_stack =
     FluidMeta.fill_fluid(
@@ -96,7 +98,7 @@ function fluid_interface:fill(pos, dir, fluid_stack, commit)
 end
 
 function fluid_interface:drain(pos, dir, fluid_stack, commit)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local capacity = assert(self._private.capacity)
   local stack, new_stack =
     FluidMeta.drain_fluid(
@@ -147,7 +149,7 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine" }, function (loc, rect)
     if loc == "main_body" then
@@ -198,7 +200,7 @@ local function on_refresh_timer(player_name, form_name, state)
 end
 
 local function on_rightclick(pos, node, user)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   maybe_initialize_inventory(meta)
 
@@ -226,7 +228,7 @@ local function on_rightclick(pos, node, user)
 end
 
 local function on_construct(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   maybe_initialize_inventory(meta)
 
@@ -255,12 +257,12 @@ local function on_metadata_inventory_put(pos, listname, index, item_stack, playe
       fluid_stack = FluidStack.new()
     end
 
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
 
     FluidMeta.set_fluid(meta, TANK_NAME, fluid_stack, true)
   elseif listname == "ftank_extract_slot" then
     if FluidContainers.is_fluid_container(item_stack) then
-      local meta = core.get_meta(pos)
+      local meta = get_meta(pos)
       local inv = meta:get_inventory()
       local fluid_stack = FluidMeta.get_fluid_stack(meta, TANK_NAME)
       FluidContainers.fill_fluid(item_stack, fluid_stack, true)

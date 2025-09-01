@@ -1,5 +1,3 @@
-local list_concat = assert(foundation.com.list_concat)
-
 local materials = {
   {"carbon_steel", "Carbon Steel"},
   {"iron", "Iron"},
@@ -61,7 +59,8 @@ for _,material_pair in ipairs(materials) do
         toothless_key = 1,
         not_in_creative_inventory = 1,
       },
-      inventory_image = "yatm_key_" .. material_basename .. "_" .. color_basename .. "_toothless.png",
+      inventory_image = "yatm_key_" .. material_basename .. "_" ..
+        color_basename .. "_toothless.png",
       dye_color = color_basename,
       key_states = key_states,
     })

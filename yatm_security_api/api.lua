@@ -2,6 +2,8 @@
 local string_empty = assert(foundation.com.string_empty)
 local is_table_empty = assert(foundation.com.is_table_empty)
 local MetaSchema = assert(foundation.com.MetaSchema)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
+local get_meta = assert(tetra.get_meta)
 
 yatm.security = yatm.security or {}
 
@@ -469,7 +471,7 @@ end
 ---   callback: Function
 --- ): (result: AccessFlag, extra: Function | nil | String, transaction: SecurityTransaction)
 function yatm.security:check_node_locks(pos, player, slot_ids, callback)
-  local node = core.get_node_or_nil(pos)
+  local node = get_node_or_nil(pos)
   if node then
     slot_ids = slot_ids or self:get_node_slot_ids(pos, node)
 
@@ -525,7 +527,7 @@ end
 --- ): void
 function yatm.security:put_node_lock(pos, _node, slot_id, params)
   assert(slot_id, "expected a slot_id")
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   SecuritySlotSchema:set(meta, slot_id, params)
 end
 
@@ -538,7 +540,7 @@ end
 --- ): Table | nil
 function yatm.security:get_node_lock(pos, _node, slot_id)
   assert(slot_id, "expected a slot_id")
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local slot_data = SecuritySlotSchema:get(meta, slot_id)
   return slot_data
 end

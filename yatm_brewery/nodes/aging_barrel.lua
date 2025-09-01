@@ -19,6 +19,9 @@ local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local player_service = assert(nokore.player_service)
 local maybe_start_node_timer = assert(foundation.com.maybe_start_node_timer)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
 
 local TIMER_INTERVAL = 1.0
 local BARREL_CAPACITY = 1000
@@ -115,9 +118,9 @@ local WORK_STATE_FINALIZE = 5
 
 --- @private_spec on_timer(Vector3, dt: Float): Boolean
 local function on_timer(pos, dt)
-  local node = core.get_node_or_nil(pos)
+  local node = get_node_or_nil(pos)
   local nodedef = core.registered_nodes[node.name]
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   local work_state = meta:get_int("work_state")
@@ -356,7 +359,7 @@ local function on_timer(pos, dt)
 end
 
 local function on_construct(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   local inv = meta:get_inventory()
   -- accepts one culture or catalyst item
@@ -371,7 +374,7 @@ local function on_construct(pos)
   inv:set_size("output_tank_container_in", 1)
   inv:set_size("output_tank_container_out", 1)
 
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   yatm.queue_refresh_infotext(pos, node)
 
   meta:set_int("version", 1)
@@ -382,7 +385,7 @@ local function on_destruct(pos)
 end
 
 local function refresh_infotext(pos, node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local nodedef = core.registered_nodes[node.name]
   local fluid_stack = FluidTanks.get_fluid(pos, Directions.D_NONE)
 
@@ -409,7 +412,7 @@ end
 local fluid_interface = FluidInterface.new_simple(PRIMARY_TANK_NAME, BARREL_CAPACITY)
 do
   function fluid_interface:on_fluid_changed(pos, dir, stack)
-    local node = core.get_node(pos)
+    local node = get_node(pos)
     local nodedef = core.registered_nodes[node.name]
     maybe_start_node_timer(pos, TIMER_INTERVAL)
   end
@@ -450,7 +453,7 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "wood" }, function (loc, rect)
     if loc == "main_body" then

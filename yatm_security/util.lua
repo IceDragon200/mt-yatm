@@ -6,6 +6,8 @@ local get_itemstack_description = assert(foundation.com.get_itemstack_descriptio
 local get_itemstack_item_description = assert(foundation.com.get_itemstack_item_description)
 local is_blank = assert(foundation.com.is_blank)
 local itemstack_inspect = assert(foundation.com.itemstack_inspect)
+local get_node = assert(tetra.get_node)
+local get_meta = assert(tetra.get_meta)
 
 --
 -- `lockable` is used for any item or node that can be locked using a key,
@@ -427,11 +429,11 @@ function yatm_security.is_stack_a_key_for_locked_stack(key_stack, lockable_stack
 end
 
 function yatm_security.is_lockable_node(pos)
-  local lockable_node = core.get_node(pos)
+  local lockable_node = get_node(pos)
   local lockable_nodedef = core.registered_nodes[lockable_node.name]
 
   if yatm_security.item_is_lockable_object(lockable_nodedef) then
-    local lockable_meta = core.get_meta(pos)
+    local lockable_meta = get_meta(pos)
     local pubkey = yatm_security.get_lockable_object_pubkey(lockable_meta)
 
     return not is_blank(pubkey)
@@ -444,12 +446,12 @@ function yatm_security.is_stack_a_key_for_locked_node(stack, pos)
   -- Only toothed keys can be used to unlock something
   if yatm_security.is_stack_lockable_toothed_key(stack) then
     -- And only lockable_objects can be unlocked
-    local lockable_node = core.get_node(pos)
+    local lockable_node = get_node(pos)
     local lockable_nodedef = core.registered_nodes[lockable_node.name]
     if yatm_security.item_is_lockable_object(lockable_nodedef) then
       local prvkey = yatm_security.get_lockable_key_stack_prvkey(stack)
 
-      local lockable_meta = core.get_meta(pos)
+      local lockable_meta = get_meta(pos)
       local pubkey = yatm_security.get_lockable_object_pubkey(lockable_meta)
 
       return yatm_security.compare_keys(prvkey, pubkey)
@@ -481,11 +483,11 @@ function yatm_security.is_access_card_for_chipped_stack(access_card_stack, chipp
 end
 
 function yatm_security.is_chipped_node(pos)
-  local chipped_node = core.get_node(pos)
+  local chipped_node = get_node(pos)
   local chipped_nodedef = core.registered_nodes[chipped_node.name]
 
   if yatm_security.item_is_chippable_object(chipped_nodedef) then
-    local chipped_meta = core.get_meta(pos)
+    local chipped_meta = get_meta(pos)
     local pubkey = yatm_security.get_chipped_object_pubkey(chipped_meta)
 
     return not is_blank(pubkey)
@@ -499,12 +501,12 @@ function yatm_security.is_stack_an_access_card_for_chipped_node(access_card_stac
   -- Only toothed keys can be used to unlock something
   if yatm_security.is_stack_access_card(access_card_stack) then
     -- And only chipped_objects can be unlocked
-    local chipped_node = core.get_node(pos)
+    local chipped_node = get_node(pos)
     local chipped_nodedef = core.registered_nodes[chipped_node.name]
     if yatm_security.item_is_chippable_object(chipped_nodedef) then
       local prvkey = yatm_security.get_access_card_stack_prvkey(access_card_stack)
 
-      local chipped_meta = core.get_meta(pos)
+      local chipped_meta = get_meta(pos)
       local pubkey = yatm_security.get_chipped_object_pubkey(chipped_meta)
 
       return yatm_security.compare_keys(prvkey, pubkey)

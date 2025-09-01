@@ -1,3 +1,5 @@
+local swap_node = assert(tetra.swap_node)
+
 local migrations = {
   ["yatm_cluster_thermal:thermal_duct_off"] = "yatm_thermal_ducts:thermal_duct_off",
   ["yatm_cluster_thermal:thermal_duct_heating"] = "yatm_thermal_ducts:thermal_duct_heating",
@@ -20,7 +22,7 @@ for from, to in pairs(migrations) do
 
     action = function (pos, node)
       node.name = to
-      core.swap_node(pos, node)
+      swap_node(pos, node)
     end
   })
 end

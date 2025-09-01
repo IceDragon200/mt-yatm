@@ -18,6 +18,10 @@ local Vector3 = assert(foundation.com.Vector3)
 local hash_node_position = assert(core.hash_node_position)
 local number_round = assert(foundation.com.number_round)
 local spacetime_network = assert(yatm.spacetime.network)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
+local swap_node = assert(tetra.swap_node)
 
 local nb = assert(Cuboid.new_fast_node_box)
 
@@ -31,7 +35,7 @@ local groups = {
 
 --- @spec refresh_infotext(Vector3, NodeRef): void
 local function refresh_infotext(pos, node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n"
@@ -69,7 +73,7 @@ local function find_teleporter_gate_sections(origin_pos)
     if not visited[hash] then
       visited[hash] = true
 
-      node = core.get_node_or_nil(pos)
+      node = get_node_or_nil(pos)
       if node then
         nodedef = core.registered_nodes[node.name]
         if nodedef then
@@ -225,7 +229,7 @@ local function validate_teleporter_section(entry, sections)
         end
 
         if not (entry2.local_faces[Directions.D_NORTH] == entry.local_faces[Directions.D_NORTH] or
-                entry2.local_faces[Directions.D_SOUTH] == entry.local_faces[Directions.D_NORTH]) then
+            entry2.local_faces[Directions.D_SOUTH] == entry.local_faces[Directions.D_NORTH]) then
           -- either the north or south faces of the other section must match this one
           return false
         end
@@ -321,7 +325,7 @@ local function validate_teleporter_section(entry, sections)
     end
   elseif entry.nodedef.teleporter_gate.section == "core" then
     --
-    for _, dir3 in ipairs({Directions.D_EAST, Directions.D_WEST, Directions.D_UP, Directions.D_DOWN}) do
+    for _, dir3 in ipairs(Directions.DIR4) do
       dir2 = dir3
       pos2 = entry.dirs[dir2]
       hash2 = hash_node_position(pos2)
@@ -360,18 +364,11 @@ local function solve_teleporter_gate(origin_pos)
   end
 
   local is_okay = true
-  local pos
-
-  local pos2
-  local entry2
-  local hash2
 
   for hash, entry in pairs(sections) do
     pos = entry.pos
 
-    if validate_teleporter_section(entry, sections) then
-      -- all good
-    else
+    if not validate_teleporter_section(entry, sections) then
       -- not good
       is_okay = false
       entry.has_error = true
@@ -397,7 +394,7 @@ local function solve_teleporter_gate(origin_pos)
       param1 = entry.node.param1,
       param2 = entry.node.param2,
     }
-    core.swap_node(entry.pos, new_node)
+    swap_node(entry.pos, new_node)
   end
 
   return true
@@ -412,26 +409,31 @@ local function transition_device_state(pos, node, state)
 end
 
 local function on_construct(pos)
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   yatm.cluster.gate:schedule_add_node(pos, node)
   yatm.devices.device_on_construct(pos)
 end
 
 local function on_destruct(pos)
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   yatm.cluster.gate:schedule_remove_node(pos, node)
   yatm.devices.device_on_destruct(pos)
 end
 
---- @spec on_player_standing_in(pos: Vector3, node: NodeRef, player: PlayerRef, elapsed: Float): void
+--- @spec on_player_standing_in(
+---   pos: Vector3,
+---   node: NodeRef,
+---   player: PlayerRef,
+---   elapsed: Float
+--- ): void
 local function on_player_standing_in(pos, node, player, elapsed)
   if elapsed > 1 then
     local controller_entry = cluster_gate:get_controller_at(pos)
     if controller_entry then
-      local meta = core.get_meta(controller_entry.pos)
+      local meta = get_meta(controller_entry.pos)
       local address = SpacetimeMeta.get_address(meta)
       if not is_blank(address) then
-        local hash = core.hash_node_position(controller_entry.pos)
+        local hash = hash_node_position(controller_entry.pos)
         local other_controllers = {}
 
         spacetime_network:each_member_in_group_by_address(
@@ -490,15 +492,15 @@ local function on_player_standing_in(pos, node, player, elapsed)
             local z = number_round(z1 + (z2 - z1) / 2)
 
             local dest_pos = vector.new(x, y, z)
-            local node = core.get_node_or_nil(controller_entry.pos)
-            local new_dir = Directions.facedir_to_face(node.param2, Directions.D_NORTH)
+            local controller_node = get_node_or_nil(controller_entry.pos)
+            local new_dir = Directions.facedir_to_face(controller_node.param2, Directions.D_NORTH)
             local offset = Directions.DIR6_TO_VEC3[new_dir]
-            new_dir = Directions.facedir_to_face(node.param2, Directions.D_SOUTH)
+            new_dir = Directions.facedir_to_face(controller_node.param2, Directions.D_SOUTH)
             local yaw = core.dir_to_yaw(Directions.DIR6_TO_VEC3[new_dir])
 
             if player:is_player() then
-              local meta = player:get_meta()
-              meta:set_float("teleportation_sickness", 3)
+              local player_meta = player:get_meta()
+              player_meta:set_float("teleportation_sickness", 3)
               player:set_pos(vector.add(dest_pos, offset))
               player:set_yaw(yaw)
             end

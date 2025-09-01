@@ -2,17 +2,22 @@
 -- Void crates can view the contents of a fluid drive, and only a fluid drive.
 --
 local mod = assert(yatm_dscs)
+
 local Energy = assert(yatm.energy)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
 local Vector3 = assert(foundation.com.Vector3)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local node_dig = assert(tetra.node_dig)
+local remove_node = assert(tetra.remove_node)
 
 local VSN = 2
 
 local function migrate(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   local inv = meta:get_inventory()
 
@@ -28,7 +33,7 @@ end
 
 --- @spec.private refresh_infotext(pos: Vector3): void
 local function refresh_infotext(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   local infotext =
@@ -48,7 +53,7 @@ end
 
 --- @spec.private persist_drive_contents(pos: Vector3): void
 local function persist_drive_contents(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   local drive_stack = inv:get_stack("drive_slot", 1)
@@ -71,7 +76,7 @@ end
 
 local function refresh_fluid_inventory(pos)
   --
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
   local stack = inv:get_stack("drive_slot", 1)
 
@@ -101,7 +106,7 @@ end
 
 --- @spec.private swap_drives(pos: Vector3): void
 local function swap_drives(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   local installed_stack = inv:get_stack("drive_slot", 1)
@@ -130,7 +135,7 @@ end
 
 --- @spec.private set_drive_label(pos: Vector3, label: String): void
 local function set_drive_label(pos, label)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
   local stack = inv:get_stack("drive_slot", 1)
   if not stack:is_empty() then
@@ -156,7 +161,7 @@ local function render_formspec(pos, user, assigns)
   assert(user, "expected a user")
   assert(assigns, "expected assigns")
 
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
@@ -341,7 +346,7 @@ end
 
 local function on_metadata_inventory_put(pos, listname, _index, stack, player)
   if listname == "drive_slot" then
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
 
     if yatm.dscs.is_item_stack_fluid_drive(stack) then
       refresh_fluid_inventory(pos)
@@ -366,11 +371,11 @@ local function on_metadata_inventory_take(pos, listname, _index, stack, player)
 end
 
 local function on_dig(pos, node, digger)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   if inv:is_empty("drive_slot") then
-    return core.node_dig(pos, node, digger)
+    return node_dig(pos, node, digger)
   end
 
   return false
@@ -382,7 +387,7 @@ local function on_blast(pos, node, digger)
   foundation.com.get_inventory_drops(pos, "drive_slot_input", drops)
   foundation.com.get_inventory_drops(pos, "drive_slot", drops)
   table.insert(drops, mod:make_name("void_crate_off"))
-  core.remove_node(pos)
+  remove_node(pos)
   return drops
 end
 
@@ -420,7 +425,7 @@ local groups = {
 
 function yatm_network.on_load(pos, node)
   -- reload fluid inventories
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   local stack = inv:get_stack("drive_slot", 1)
@@ -433,7 +438,7 @@ end
 
 function yatm_network.on_unload(pos, node)
   -- unload fluid inventories
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   local stack = inv:get_stack("drive_slot", 1)
@@ -473,7 +478,7 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
 
   on_construct = function (pos)
-    local node = core.get_node(pos)
+    local node = get_node(pos)
 
     yatm.devices.device_on_construct(pos)
     migrate(pos)

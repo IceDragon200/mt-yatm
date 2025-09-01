@@ -5,6 +5,8 @@
 --
 local itemstack_has_group = assert(foundation.com.itemstack_has_group)
 local table_merge = assert(foundation.com.table_merge)
+local get_meta = assert(tetra.get_meta)
+local swap_node = assert(tetra.swap_node)
 
 local MAXIMUM_CHARGES = 8
 local HP_PER_CHARGE = 2
@@ -41,14 +43,14 @@ core.register_node("yatm_packs:health_pack_empty", {
 
   on_rightclick = function (pos, node, clicker, itemstack, pointed_thing)
     if itemstack_has_group(itemstack, "health_pack_pouch") then
-      local meta = core.get_meta(pos)
+      local meta = get_meta(pos)
       local charges_left = meta:get_int("charges")
       itemstack:take_item(1) -- remove one of the packs
       charges_left = charges_left + 1
       meta:set_int("charges", charges_left)
 
       local new_node = table_merge(node, { name = "yatm_packs:health_pack" })
-      core.swap_node(pos, new_node)
+      swap_node(pos, new_node)
     else
       core.chat_send_player(clicker:get_player_name(), "The healthpack is empty")
     end
@@ -79,12 +81,12 @@ core.register_node("yatm_packs:health_pack", {
   paramtype2 = "facedir",
 
   on_construct = function (pos)
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     meta:set_int("charges", MAXIMUM_CHARGES)
   end,
 
   on_rightclick = function (pos, node, clicker, itemstack, pointed_thing)
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     local charges_left = meta:get_int("charges")
 
     if itemstack_has_group(itemstack, "health_pack_pouch") then
@@ -111,7 +113,7 @@ core.register_node("yatm_packs:health_pack", {
 
     if charges_left == 0 then
       local new_node = table_merge(node, { name = "yatm_packs:health_pack_empty" })
-      core.swap_node(pos, new_node)
+      swap_node(pos, new_node)
     end
 
     return itemstack

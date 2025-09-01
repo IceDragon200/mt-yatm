@@ -1,6 +1,7 @@
 -- @namespace yatm_armoury
 local Groups = assert(foundation.com.Groups)
 local sounds = assert(yatm.sounds)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
 
 local function play_sound(def)
   return sounds:play(def.name, def.params)
@@ -358,7 +359,7 @@ function yatm_armoury.handle_projectile_ballistics(item_stack, player, pointed_t
       entity_on_projectile_hit(pt.ref, hit_data)
     elseif pt.type == "node" then
       local pos = pt.under
-      local node = core.get_node_or_nil(pos)
+      local node = get_node_or_nil(pos)
 
       if node then
         node_on_projectile_hit(pos, node, hit_data)

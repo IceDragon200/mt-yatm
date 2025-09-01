@@ -2,29 +2,34 @@ local maybe_start_node_timer = assert(foundation.com.maybe_start_node_timer)
 local format_pretty_time = assert(foundation.com.format_pretty_time)
 local cluster_thermal = assert(yatm.cluster.thermal)
 local fspec = assert(foundation.com.formspec.api)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local swap_node = assert(tetra.swap_node)
 
 local function get_oven_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local cio = fspec.calc_inventory_offset
 
-  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine_heated" }, function (loc, rect)
-    if loc == "main_body" then
-      return fspec.list(node_inv_name, "fuel_slot", rect.x, rect.y, 1, 1) ..
-        fspec.list(node_inv_name, "input_slot", rect.x + cio(2), rect.y, 1, 1) ..
-        fspec.list(node_inv_name, "processing_slot", rect.x + cio(4), rect.y, 1, 1) ..
-        fspec.list(node_inv_name, "output_slot", rect.x + cio(6), rect.y, 1, 1)
-    elseif loc == "footer" then
-      return fspec.list_ring(node_inv_name, "fuel_slot") ..
-        fspec.list_ring("current_player", "main") ..
-        fspec.list_ring(node_inv_name, "input_slot") ..
-        fspec.list_ring("current_player", "main") ..
-        fspec.list_ring(node_inv_name, "output_slot") ..
-        fspec.list_ring("current_player", "main")
+  return yatm.formspec_render_split_inv_panel(
+    user, nil, 4, { bg = "machine_heated" }, function (loc, rect)
+      if loc == "main_body" then
+        return fspec.list(node_inv_name, "fuel_slot", rect.x, rect.y, 1, 1) ..
+          fspec.list(node_inv_name, "input_slot", rect.x + cio(2), rect.y, 1, 1) ..
+          fspec.list(node_inv_name, "processing_slot", rect.x + cio(4), rect.y, 1, 1) ..
+          fspec.list(node_inv_name, "output_slot", rect.x + cio(6), rect.y, 1, 1)
+      elseif loc == "footer" then
+        return fspec.list_ring(node_inv_name, "fuel_slot") ..
+          fspec.list_ring("current_player", "main") ..
+          fspec.list_ring(node_inv_name, "input_slot") ..
+          fspec.list_ring("current_player", "main") ..
+          fspec.list_ring(node_inv_name, "output_slot") ..
+          fspec.list_ring("current_player", "main")
+      end
+      return ""
     end
-    return ""
-  end)
+  )
 end
 
 local function oven_on_rightclick(pos, node, user)
@@ -36,8 +41,8 @@ local function oven_on_rightclick(pos, node, user)
 end
 
 local function on_construct(pos)
-  local node = core.get_node(pos)
-  local meta = core.get_meta(pos)
+  local node = get_node(pos)
+  local meta = get_meta(pos)
 
   local inv = meta:get_inventory()
 
@@ -53,7 +58,9 @@ local function after_destruct(pos, node)
   cluster_thermal:schedule_remove_node(pos, node)
 end
 
-local function allow_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
+local function allow_metadata_inventory_move(
+  pos, from_list, from_index, to_list, to_index, count, player
+)
   return count
 end
 
@@ -65,7 +72,9 @@ local function allow_metadata_inventory_take(pos, listname, index, stack, player
   return stack:get_count()
 end
 
-local function on_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
+local function on_metadata_inventory_move(
+  pos, from_list, from_index, to_list, to_index, count, player
+)
   maybe_start_node_timer(pos, 1.0)
 end
 
@@ -78,8 +87,8 @@ local function on_metadata_inventory_take(pos, listname, index, stack, player)
 end
 
 local function on_timer(pos, elapsed)
-  local node = core.get_node(pos)
-  local meta = core.get_meta(pos)
+  local node = get_node(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   -- Fuel > Heat
@@ -93,7 +102,7 @@ local function on_timer(pos, elapsed)
 
     if node.name ~= "yatm_culinary:oven_on" then
       node.name = "yatm_culinary:oven_on"
-      core.swap_node(pos, node)
+      swap_node(pos, node)
     end
     yatm.queue_refresh_infotext(pos, node)
   else
@@ -111,7 +120,7 @@ local function on_timer(pos, elapsed)
       meta:set_float("fuel_time_max", fuel.time)
 
       node.name = "yatm_culinary:oven_on"
-      core.swap_node(pos, node)
+      swap_node(pos, node)
       yatm.queue_refresh_infotext(pos, node)
     else
       meta:set_float("fuel_time", 0)
@@ -123,7 +132,7 @@ local function on_timer(pos, elapsed)
         yatm.queue_refresh_infotext(pos, node)
       else
         node.name = "yatm_culinary:oven_off"
-        core.swap_node(pos, node)
+        swap_node(pos, node)
         yatm.queue_refresh_infotext(pos, node)
       end
     end
@@ -145,7 +154,7 @@ local function on_timer(pos, elapsed)
 end
 
 local function oven_refresh_infotext(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   local fuel_time = meta:get_float("fuel_time")
   local fuel_time_max = meta:get_float("fuel_time_max")
@@ -200,7 +209,7 @@ yatm.register_stateful_node("yatm_culinary:oven", {
     },
 
     update_heat = function (self, pos, node, heat, dtime)
-      local meta = core.get_meta(pos)
+      local meta = get_meta(pos)
 
       if yatm.thermal.update_heat(meta, "heat", heat, 10, dtime) then
         local new_name
@@ -211,7 +220,7 @@ yatm.register_stateful_node("yatm_culinary:oven", {
         end
         if new_name ~= node.name then
           node.name = new_name
-          core.swap_node(pos, node)
+          swap_node(pos, node)
         end
 
         maybe_start_node_timer(pos, 1.0)

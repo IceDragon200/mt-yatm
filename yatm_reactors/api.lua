@@ -3,9 +3,11 @@ local table_merge = assert(foundation.com.table_merge)
 local cluster_reactor = assert(yatm.cluster.reactor)
 local cluster_energy = yatm.cluster.energy
 local cluster_thermal = yatm.cluster.thermal
+local get_node = assert(tetra.get_node)
+local swap_node = assert(tetra.swap_node)
 
 function yatm_reactors.default_on_construct(pos)
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   cluster_reactor:schedule_add_node(pos, node)
 
   if core.get_item_group(node.name, "yatm_cluster_thermal") > 0 then
@@ -41,7 +43,7 @@ function yatm_reactors.default_transition_reactor_state(pos, node, state)
   local nodedef = core.registered_nodes[node.name]
   node.name = nodedef.reactor_device.states[state] or
               nodedef.reactor_device.states[nodedef.reactor_device.default_state]
-  core.swap_node(pos, node)
+  swap_node(pos, node)
 
   cluster_reactor:schedule_update_node(pos, node)
 

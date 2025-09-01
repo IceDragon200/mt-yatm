@@ -1,9 +1,10 @@
 local cluster_reactor = assert(yatm.cluster.reactor)
+local get_meta = assert(tetra.get_meta)
 
 local glass_sounds = yatm.node_sounds:build("glass")
 
 local function glass_refresh_infotext(pos, node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   local infotext =
     cluster_reactor:get_node_infotext(pos)

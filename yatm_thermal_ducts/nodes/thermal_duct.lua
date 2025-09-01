@@ -1,10 +1,12 @@
 local mod = yatm_thermal_ducts
 local cluster_thermal = assert(yatm.cluster.thermal)
-local table_length = assert(foundation.com.table_length)
 local table_merge = assert(foundation.com.table_merge)
+local get_node = assert(tetra.get_node)
+local get_meta = assert(tetra.get_meta)
+local swap_node = assert(tetra.swap_node)
 
 local function refresh_infotext(pos, node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local available_heat = meta:get_float("heat")
 
   local infotext =
@@ -24,12 +26,12 @@ local function refresh_infotext(pos, node)
 
   if node.name ~= new_name then
     node.name = new_name
-    core.swap_node(pos, node)
+    swap_node(pos, node)
   end
 end
 
 local function on_construct(pos)
-  local node = core.get_node(pos)
+  local node = get_node(pos)
 
   cluster_thermal:schedule_add_node(pos, node)
 end
@@ -57,12 +59,12 @@ local thermal_interface = {
   },
 
   get_heat = function (self, pos, node)
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     return meta:get_float("heat")
   end,
 
   update_heat = function (self, pos, node, heat, dtime)
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     if yatm.thermal.update_heat(meta, "heat", heat, 10, dtime) then
       yatm.queue_refresh_infotext(pos, node)
     end

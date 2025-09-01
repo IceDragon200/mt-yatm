@@ -1,4 +1,6 @@
 local Vector2 = assert(foundation.com.Vector2)
+local bulk_set_node = assert(tetra.bulk_set_node)
+local set_node = assert(tetra.set_node)
 
 --- @namespace yatm.codex
 yatm.codex = yatm.codex or {}
@@ -96,7 +98,7 @@ function yatm.codex.fill_cuboid(cuboid, node)
     end
   end
 
-  core.bulk_set_node(positions, node)
+  bulk_set_node(positions, node)
 end
 
 local function place_layer(origin, palette, dim, layer)
@@ -108,9 +110,7 @@ local function place_layer(origin, palette, dim, layer)
       local node = palette[cell]
       if node then
         local pos = vector.add(origin, vector.new(x, 0, y))
-        core.add_node(pos, node)
-      else
-        -- skip
+        set_node(pos, node)
       end
     end
   end
@@ -139,12 +139,16 @@ function yatm.codex.place_node_image(origin, palette, image)
     -- top down means that the top-most level of the image is the first layer in the list
     for i = 1,layer_count do
       local y = layer_count - i
-      place_layer(vector.add(vector.add(origin, offset), vector.new(0, y, 0)), palette, dim, layers[i])
+      place_layer(
+        vector.add(vector.add(origin, offset), vector.new(0, y, 0)), palette, dim, layers[i]
+      )
     end
   elseif image.order == "bottom_up" then
     -- bottom up means the bottom-most level of the image ist the first layer in the list
     for i = 1,layer_count do
-      place_layer(vector.add(vector.add(origin, offset), vector.new(0, i - 1, 0)), palette, dim, layers[i])
+      place_layer(
+        vector.add(vector.add(origin, offset), vector.new(0, i - 1, 0)), palette, dim, layers[i]
+      )
     end
   else
     error("unexpected order " .. image.order)

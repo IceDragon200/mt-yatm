@@ -1,11 +1,13 @@
 local mod = assert(yatm_thermal_ducts)
 local fspec = assert(foundation.com.formspec.api)
 local cluster_thermal = assert(yatm.cluster.thermal)
-local table_length = assert(foundation.com.table_length)
 local table_merge = assert(foundation.com.table_merge)
+local get_node = assert(tetra.get_node)
+local get_meta = assert(tetra.get_meta)
+local swap_node = assert(tetra.swap_node)
 
 local function refresh_infotext(pos, node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local available_heat = meta:get_float("heat")
 
   local infotext =
@@ -25,13 +27,13 @@ local function refresh_infotext(pos, node)
 
   if node.name ~= new_name then
     node.name = new_name
-    core.swap_node(pos, node)
+    swap_node(pos, node)
   end
 end
 
 local function get_thermal_node_formspec(pos, player, assigns)
-  local meta = core.get_meta(pos)
-  local spos = pos.x .. "," .. pos.y .. "," .. pos.z
+  local meta = get_meta(pos)
+  -- local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
   local background_type
   local heat = meta:get_float("heat")
@@ -44,22 +46,25 @@ local function get_thermal_node_formspec(pos, player, assigns)
     background_type = "machine"
   end
 
-  return yatm.formspec_render_split_inv_panel(player, 4, 1, { bg = background_type }, function (loc, rect)
-    if loc == "main_body" then
-      return fspec.field_area(rect.x, rect.y, rect.w, 1, "heat", "Heat", heat)
-    elseif loc == "footer" then
+  return yatm.formspec_render_split_inv_panel(
+    player, 4, 1, { bg = background_type },
+    function (loc, rect)
+      if loc == "main_body" then
+        return fspec.field_area(rect.x, rect.y, rect.w, 1, "heat", "Heat", heat)
+      elseif loc == "footer" then
+        return ""
+      end
       return ""
     end
-    return ""
-  end)
+  )
 end
 
 local function receive_fields(player, formname, fields, assigns)
-  local meta = core.get_meta(assigns.pos)
+  local meta = get_meta(assigns.pos)
   if fields["heat"] then
     local heat = tonumber(fields["heat"]) or 0.0
     meta:set_float("heat", heat)
-    yatm.queue_refresh_infotext(assigns.pos, core.get_node(assigns.pos))
+    yatm.queue_refresh_infotext(assigns.pos, get_node(assigns.pos))
     return true, get_thermal_node_formspec(assigns.pos, player, assigns)
   end
   return true
@@ -101,7 +106,7 @@ yatm.register_stateful_node(mod:make_name("thermal_node"), {
   },
 
   on_construct = function (pos)
-    local node = core.get_node(pos)
+    local node = get_node(pos)
 
     cluster_thermal:schedule_add_node(pos, node)
   end,
@@ -127,7 +132,7 @@ yatm.register_stateful_node(mod:make_name("thermal_node"), {
     },
 
     get_heat = function (self, pos, node)
-      local meta = core.get_meta(pos)
+      local meta = get_meta(pos)
       return meta:get_float("heat")
     end,
   },

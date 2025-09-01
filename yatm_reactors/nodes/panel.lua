@@ -1,7 +1,8 @@
 local cluster_reactor = assert(yatm.cluster.reactor)
+local get_meta = assert(tetra.get_meta)
 
 local function panel_refresh_infotext(pos, node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   local infotext =
     cluster_reactor:get_node_infotext(pos)

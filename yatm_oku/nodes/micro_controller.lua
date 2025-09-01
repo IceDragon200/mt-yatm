@@ -15,6 +15,8 @@ local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local random_string62 = assert(foundation.com.random_string62)
 local data_network = assert(yatm.data_network)
+local get_node = assert(tetra.get_node)
+local get_meta = assert(tetra.get_meta)
 
 -- need at least 256 for the zero-page and then another for the stack, so addressable memory is really only
 -- 512 bytes
@@ -23,7 +25,7 @@ local PORT_COUNT = 16
 
 local function get_micro_controller_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local formspec =
     "size[8,9]" ..
     yatm.formspec_bg_for_player(user:get_player_name(), "computer")
@@ -48,7 +50,7 @@ local function get_micro_controller_formspec(pos, user)
 end
 
 local function micro_controller_on_receive_fields(player, formname, fields, assigns)
-  local meta = core.get_meta(assigns.pos)
+  local meta = get_meta(assigns.pos)
 
   for i = 1,PORT_COUNT do
     local field_name = "p" .. i
@@ -62,7 +64,7 @@ local function micro_controller_on_receive_fields(player, formname, fields, assi
 end
 
 local function micro_controller_refresh_infotext(pos, node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local infotext =
     "Micro Controller\n" ..
     data_network:get_infotext(pos)
@@ -78,7 +80,7 @@ local micro_controller_data_network_device = {
 }
 
 local function maybe_initialize_secret(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local secret = meta:get_string("secret")
   if not secret then
     secret = random_string62(8)
@@ -87,8 +89,8 @@ local function maybe_initialize_secret(pos)
 end
 
 local function on_construct(pos)
-  local node = core.get_node(pos)
-  local meta = core.get_meta(pos)
+  local node = get_node(pos)
+  local meta = get_meta(pos)
 
   -- Initialize the controller ports
   for i = 1,PORT_COUNT do
@@ -125,7 +127,7 @@ function micro_controller_data_interface.receive_pdu(self, pos, node, dir, port,
 end
 
 local function register_computer(pos, node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   maybe_initialize_secret(pos)
   yatm.computers:upsert_computer_at_pos(pos, node, meta:get_string("secret"), {
     arch = "mos6502",

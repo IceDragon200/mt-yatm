@@ -1,16 +1,16 @@
 local mod = assert(yatm_armoury_c4)
 
-local CONTENT_AIR = assert(core.CONTENT_AIR)
-local get_name_from_content_id = assert(core.get_name_from_content_id)
 local maybe_start_node_timer = assert(foundation.com.maybe_start_node_timer)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local remove_node = assert(tetra.remove_node)
 local npo = rawget(_G, "nokore_player_owned")
 local set_meta_owner = npo and npo.set_meta_owner
 local get_meta_owner = npo and npo.get_meta_owner
-npo = nil
 
 --- @private.spec on_detonate(pos: Vector3, node: NodeRef): void
 local function on_detonate(pos, node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local owner_name, owner_type = get_meta_owner(meta)
   print("action", "detonating %s, %s", vector.to_string(pos), node.name)
   yatm.blasts.system:create_explosion(pos, "yatm:raycast_explosive", {
@@ -24,13 +24,12 @@ local function on_detonate(pos, node)
     intensity = 1,
   })
   -- replace itself, with air
-  core.set_node(pos, { name = get_name_from_content_id(CONTENT_AIR) })
+  remove_node(pos)
 end
 
 do
   local function after_place_node(pos, user, item_stack, _pointed_thing)
-    local meta = core.get_meta(pos)
-    local item_meta = item_stack:get_meta()
+    local meta = get_meta(pos)
     if set_meta_owner then
       set_meta_owner(meta, user)
     end
@@ -78,7 +77,7 @@ end
 if foundation.is_module_present("yatm_radio_network") then
   local radio_network = {
     on_message = function (self, pos, node, addr, message)
-      local meta = core.get_meta(pos)
+      local meta = get_meta(pos)
       local my_addr = meta:get_string("radio_network_addr")
       local nodedef = core.registered_nodes[node.name]
       -- sanity check
@@ -95,7 +94,7 @@ if foundation.is_module_present("yatm_radio_network") then
 
   local function refresh_infotext(pos, node)
     local nodedef = core.registered_nodes[node.name]
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     local addr = meta:get_string("radio_network_addr")
 
     local infotext =
@@ -107,15 +106,15 @@ if foundation.is_module_present("yatm_radio_network") then
   end
 
   local function on_timer(pos, _elapsed)
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     local addr = meta:get_string("radio_network_addr")
     yatm_radio_network.radio_network:subscribe_for_messages(pos, addr, 5)
     return true
   end
 
   local function after_place_node(pos, user, item_stack, _pointed_thing)
-    local meta = core.get_meta(pos)
-    local node = core.get_node(pos)
+    local meta = get_meta(pos)
+    local node = get_node(pos)
     local item_meta = item_stack:get_meta()
     local addr = item_meta:get("radio_network_addr")
     meta:set_string("radio_network_addr", addr)

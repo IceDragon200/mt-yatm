@@ -1,10 +1,6 @@
 local hash_node_position = assert(core.hash_node_position)
 local set_node = assert(tetra.set_node)
 
-local function set_node_to_air(pos)
-  set_node(pos, { name = "air" })
-end
-
 local function random_pos()
   return {
     x = math.random(0xFFFF) - 0x8000,
@@ -14,7 +10,6 @@ local function random_pos()
 end
 
 yatm_woodcraft.autotest_suite.utils = {
-  set_node_to_air = set_node_to_air,
   random_pos = random_pos,
 }
 

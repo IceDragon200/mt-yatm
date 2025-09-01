@@ -8,7 +8,7 @@ local data_network = assert(yatm.data_network)
 local get_meta = assert(tetra.get_meta)
 local get_node = assert(tetra.get_node)
 local swap_node = assert(tetra.swap_node)
-local node_dig = assert(core.node_dig)
+local node_dig = assert(tetra.node_dig)
 
 local reader_node_box = {
   type = "fixed",
@@ -40,7 +40,7 @@ local function reader_on_dig(pos, node, digger)
 end
 
 local function card_reader_refresh_infotext(pos, node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local infotext =
     meta:get_string("description") .. "\n" ..
     data_network:get_infotext(pos)

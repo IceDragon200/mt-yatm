@@ -680,11 +680,11 @@ local function opr_indirect_i16x(self)
   local ol
   local oh
 
-  status, ol = self:_chip_read_mem_u8(a)
+  status, ol = self:_chip_read_mem_u8(chip.a)
   if status ~= OK_CODE then
     return status, ol
   end
-  status, oh = self:_chip_read_mem_u8(a + 1)
+  status, oh = self:_chip_read_mem_u8(chip.a + 1)
   if status ~= OK_CODE then
     return status, oh
   end
@@ -707,13 +707,13 @@ local function opr_indirect_i16y(self)
   end
   chip.pc = chip.pc + 1
 
-  status, ol = self:_chip_read_mem_u8(a)
+  status, ol = self:_chip_read_mem_u8(chip.a)
   if status ~= OK_CODE then
     return status, ol
   end
   ol = ol + chip.y
 
-  status, oh = self:_chip_read_mem_u8(a + 1)
+  status, oh = self:_chip_read_mem_u8(chip.a + 1)
   if status ~= OK_CODE then
     return status, oh
   end

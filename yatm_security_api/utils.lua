@@ -1,7 +1,8 @@
 local Groups = assert(foundation.com.Groups)
+local get_meta = assert(tetra.get_meta)
 
 function yatm.security.on_rightclick_access_card(pos, node, clicker, itemstack, pointed_thing)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local nodedef = core.registered_nodes[node.name]
   local inv = meta:get_inventory()
 

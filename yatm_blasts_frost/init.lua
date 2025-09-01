@@ -11,9 +11,12 @@
 foundation.new_module("yatm_blasts_frost", "0.2.0")
 
 local Groups = assert(foundation.com.Groups)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
+local set_node = assert(tetra.set_node)
+local find_nodes_in_area_under_air = assert(tetra.find_nodes_in_area_under_air)
 
 local function handle_freezable_node_at(assigns, pos)
-  local freezable_node = core.get_node_or_nil(pos)
+  local freezable_node = get_node_or_nil(pos)
   if freezable_node then
     local freezable_nodedef = core.registered_nodes[freezable_node.name]
 
@@ -25,9 +28,9 @@ local function handle_freezable_node_at(assigns, pos)
           local freezes_to = freezable_nodedef.freezes_to
 
           if type(freezes_to) == "string" then
-            core.set_node(pos, { name = freezes_to })
+            set_node(pos, { name = freezes_to })
           elseif type(freezes_to) == "table" then
-            core.set_node(pos, { name = freezes_to.name,
+            set_node(pos, { name = freezes_to.name,
                                    param1 = freezes_to.param1,
                                  param2 = freezes_to.param2 })
           end
@@ -35,7 +38,7 @@ local function handle_freezable_node_at(assigns, pos)
       end
     elseif Groups.has_group(freezable_nodedef, "water") then
       local new_node = { name = "default:ice" }
-      core.set_node(pos, new_node)
+      set_node(pos, new_node)
     end
   end
 end
@@ -57,7 +60,7 @@ yatm.blasts.system:register_explosion_type("yatm:frost", {
   update = function (self, assigns, system, explosion, delta)
     local minpos = vector.subtract(explosion.pos, assigns.range)
     local maxpos = vector.add(explosion.pos, assigns.range)
-    local freezables = core.find_nodes_in_area_under_air(minpos, maxpos, FREEZABLE_GROUPS)
+    local freezables = find_nodes_in_area_under_air(minpos, maxpos, FREEZABLE_GROUPS)
 
     for _, pos in ipairs(freezables) do
       handle_freezable_node_at(assigns, pos)

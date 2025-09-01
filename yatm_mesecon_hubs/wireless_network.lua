@@ -8,7 +8,7 @@ In addition it also has an update step.
 local NetworkMeta = assert(yatm_mesecon_hubs.NetworkMeta)
 local is_table_empty = assert(foundation.com.is_table_empty)
 local is_blank = assert(foundation.com.is_blank)
-local Trace = assert(foundation.com.Trace)
+local get_meta = assert(tetra.get_meta)
 
 local WirelessNetwork = foundation.com.Class:extends("WirelessNetwork")
 local ic = WirelessNetwork.instance_class
@@ -130,7 +130,7 @@ core.register_lbm({
   },
   run_at_every_load = true,
   action = function (pos, node)
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     local address = NetworkMeta.get_hub_address(meta)
     if not is_blank(address) then
       wireless_network:register_listener(pos, address)

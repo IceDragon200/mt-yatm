@@ -6,6 +6,8 @@ local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
 local spacetime_network = assert(yatm.spacetime.network)
 local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
 
 local teleporter_port_node_box = {
   type = "fixed",
@@ -15,7 +17,7 @@ local teleporter_port_node_box = {
 }
 
 local function refresh_infotext(pos, node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
@@ -28,12 +30,13 @@ end
 
 local function teleporter_port_after_place_node(pos, placer, itemstack, pointed_thing)
   print("teleporter_port_after_place_node/4")
-  local new_meta = core.get_meta(pos)
+  local new_meta = get_meta(pos)
   local old_meta = itemstack:get_meta()
 
   SpacetimeMeta.copy_address(old_meta, new_meta)
-  local address = SpacetimeMeta.patch_address(new_meta)
-  local node = core.get_node(pos)
+  SpacetimeMeta.patch_address(new_meta)
+
+  local node = get_node(pos)
   spacetime_network:maybe_register_node(pos, node)
 
   yatm.devices.device_after_place_node(pos, placer, itemstack, pointed_thing)

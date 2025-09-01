@@ -1,4 +1,7 @@
 local Directions = assert(foundation.com.Directions)
+local get_meta = assert(tetra.get_meta)
+local get_node_timer = assert(tetra.get_node_timer)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
 
 local mesecon_hub_node_box = {
   type = "fixed",
@@ -115,14 +118,14 @@ for interval,duration in pairs(INTERVALS) do
       node_box = mesecon_hub_node_box,
 
       on_construct = function (pos)
-        core.get_node_timer(pos):start(duration)
+        get_node_timer(pos):start(duration)
       end,
 
       on_timer = function (pos, elapsed)
-        local meta = core.get_meta(pos)
+        local meta = get_meta(pos)
         local direction = meta:get_int("direction")
 
-        local node = core.get_node_or_nil(pos)
+        local node = get_node_or_nil(pos)
         if node then
           trigger_receptor_off(pos, node)
 
@@ -133,7 +136,7 @@ for interval,duration in pairs(INTERVALS) do
             -- clockwise
             node.name = next_seq_name
           end
-          core.swap_node(pos, node)
+          swap_node(pos, node)
 
           trigger_receptor_on(pos, node)
         end
@@ -142,14 +145,14 @@ for interval,duration in pairs(INTERVALS) do
 
       on_punch = function (pos, node, puncher, pointed_thing)
         node.name = next_interval_name
-        core.swap_node(pos, node)
+        swap_node(pos, node)
 
         local nodedef = core.registered_nodes[node.name]
-        core.get_node_timer(pos):start(nodedef.sequencer.interval_duration)
+        get_node_timer(pos):start(nodedef.sequencer.interval_duration)
       end,
 
       on_rightclick = function (pos, node, puncher, pointed_thing)
-        local meta = core.get_meta(pos)
+        local meta = get_meta(pos)
         local direction = meta:get_int("direction")
         if direction == 0 then
           meta:set_int("direction", 1)

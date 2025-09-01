@@ -1,8 +1,10 @@
 local cluster_reactor = assert(yatm.cluster.reactor)
 local fspec = assert(foundation.com.formspec.api)
+local get_node = assert(tetra.get_node)
+local get_meta = assert(tetra.get_meta)
 
 local function reactor_controller_refresh_infotext(pos, node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   local infotext =
     cluster_reactor:get_node_infotext(pos)
@@ -15,22 +17,24 @@ local function get_reactor_controller_formspec(pos, node, user)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
 
-  return yatm.formspec_render_split_inv_panel(user, 8, 2, { bg = "machine_radioactive" }, function (loc, rect)
-    if loc == "main_body" then
-      if node.name == "yatm_reactors:reactor_controller_on" then
-        return fspec.button(rect.x, rect.y, 4, 2, "stop", "Stop")
-      else
-        return fspec.button(rect.x, rect.y, 4, 2, "start", "Start")
+  return yatm.formspec_render_split_inv_panel(
+    user, 8, 2, { bg = "machine_radioactive" }, function (loc, rect)
+      if loc == "main_body" then
+        if node.name == "yatm_reactors:reactor_controller_on" then
+          return fspec.button(rect.x, rect.y, 4, 2, "stop", "Stop")
+        else
+          return fspec.button(rect.x, rect.y, 4, 2, "start", "Start")
+        end
+      elseif loc == "footer" then
+        return ""
       end
-    elseif loc == "footer" then
       return ""
     end
-    return ""
-  end)
+  )
 end
 
 local function reactor_controller_on_receive_fields(player, formname, fields, assigns)
-  local node = core.get_node(assigns.pos)
+  local node = get_node(assigns.pos)
   --local nodedef = core.registered_nodes[node.name]
 
   if fields["start"] then

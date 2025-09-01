@@ -23,6 +23,10 @@ local cluster_devices = assert(yatm.cluster.devices)
 local Energy = assert(yatm.energy)
 local fspec = assert(foundation.com.formspec.api)
 local Rect = assert(foundation.com.Rect)
+local get_node = assert(tetra.get_node)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
+local get_meta = assert(tetra.get_meta)
+local node_dig = assert(tetra.node_dig)
 
 local secrand = SecureRandom()
 
@@ -36,7 +40,7 @@ local function generate_prog_data_hex(byte_count)
 end
 
 local function render_formspec(pos, user, assigns)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
   assigns.tab = assigns.tab or 2
@@ -128,7 +132,7 @@ local function render_formspec(pos, user, assigns)
 end
 
 local function handle_receive_fields(user, formname, fields, assigns)
-  local meta = core.get_meta(assigns.pos)
+  local meta = get_meta(assigns.pos)
   local needs_refresh = false
 
   if fields["tab"] then
@@ -186,8 +190,8 @@ local function handle_receive_fields(user, formname, fields, assigns)
     local source = meta:get_string("assembly_source")
     local pos = assigns.pos
 
-    local node = core.get_node_or_nil(pos)
-    local meta = core.get_meta(pos)
+    local node = get_node_or_nil(pos)
+    local meta = get_meta(pos)
 
     if node then
       local nodedef = core.registered_nodes[node.name]
@@ -269,7 +273,7 @@ local yatm_network = {
   },
 
   work = function (pos, node, available_energy, work_rate, dtime, ot)
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     local inv = meta:get_inventory()
 
     local processing_count = meta:get_int("processing_count")
@@ -364,8 +368,8 @@ yatm.devices.register_stateful_network_device({
   },
 
   on_construct = function (pos)
-    local node = core.get_node(pos)
-    local meta = core.get_meta(pos)
+    local node = get_node(pos)
+    local meta = get_meta(pos)
 
     meta:set_string("prog_data", generate_prog_data_hex(8))
 
@@ -388,20 +392,20 @@ yatm.devices.register_stateful_network_device({
   end,
 
   on_dig = function (pos, node, digger)
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     local inv = meta:get_inventory()
 
     if inv:is_empty("input_items") and
        inv:is_empty("processing_items") and
        inv:is_empty("output_items") then
-      return core.node_dig(pos, node, digger)
+      return node_dig(pos, node, digger)
     end
 
     return false
   end,
 
   refresh_infotext = function (pos)
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
 
     local infotext =
       cluster_devices:get_node_infotext(pos) .. "\n" ..

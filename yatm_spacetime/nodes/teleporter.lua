@@ -12,6 +12,11 @@ local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
 local spacetime_network = assert(yatm.spacetime.network)
 local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local swap_node = assert(tetra.swap_node)
+local hash_node_position = assert(core.hash_node_position)
+local get_objects_inside_radius = assert(core.get_objects_inside_radius)
 
 local teleporter_node_box = {
   type = "fixed",
@@ -45,10 +50,10 @@ local function find_all_connected_relays(pos, collected)
     to_visit = {}
 
     for _,vpos in ipairs(old_to_visit) do
-      vhash = core.hash_node_position(vpos)
+      vhash = hash_node_position(vpos)
       if not visited[vhash] then
         visited[vhash] = vpos
-        node = core.get_node(vpos)
+        node = get_node(vpos)
         if node then
           nodedef = core.registered_nodes[node.name]
           if nodedef then
@@ -70,18 +75,20 @@ local function find_all_connected_relays(pos, collected)
 end
 
 local function maybe_teleport_all_players_on_teleporter(pos, node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local address = SpacetimeMeta.get_address(meta)
   if not is_blank(address) then
-    local hash = core.hash_node_position(pos)
+    local hash = hash_node_position(pos)
     local positions = {}
 
-    spacetime_network:each_member_in_group_by_address("player_teleporter_destination", address, function (member_hash, member)
-      if member_hash ~= hash then
-        positions[member_hash] = member.pos
+    spacetime_network:each_member_in_group_by_address(
+      "player_teleporter_destination", address, function (member_hash, member)
+        if member_hash ~= hash then
+          positions[member_hash] = member.pos
+        end
+        return true
       end
-      return true
-    end)
+    )
 
     if is_table_empty(positions) then
       print(core.pos_to_string(pos), address, "No target positions!")
@@ -92,7 +99,7 @@ local function maybe_teleport_all_players_on_teleporter(pos, node)
       local h
       local target_pos
       for _,source_pos in pairs(all_sources) do
-        objects = core.get_objects_inside_radius(source_pos, 1)
+        objects = get_objects_inside_radius(source_pos, 1)
         for _,object in ipairs(objects) do
           if object:is_player() then
             h = list_sample(hashes)
@@ -141,13 +148,13 @@ local teleporter_on_mesecons = {
 }
 
 local function teleporter_after_place_node(pos, placer, itemstack, pointed_thing)
-  local new_meta = core.get_meta(pos)
+  local new_meta = get_meta(pos)
   local old_meta = itemstack:get_meta()
 
   SpacetimeMeta.copy_address(old_meta, new_meta)
+  SpacetimeMeta.patch_address(new_meta)
 
-  local address = SpacetimeMeta.patch_address(new_meta)
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   spacetime_network:maybe_register_node(pos, node)
 
   yatm.devices.device_after_place_node(pos, placer, itemstack, pointed_thing)
@@ -171,7 +178,7 @@ local function teleporter_preserve_metadata(pos, oldnode, old_meta_table, drops)
 end
 
 local function teleporter_refresh_infotext(pos, node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     cluster_energy:get_node_infotext(pos) .. "\n" ..
@@ -246,7 +253,7 @@ yatm.devices.register_stateful_network_device({
 
   after_place_node = function (pos, placer, itemstack, pointed_thing)
     teleporter_after_place_node(pos, placer, itemstack, pointed_thing)
-    local node = core.get_node(pos)
+    local node = get_node(pos)
     core.after(0, mesecon.on_placenode, pos, node)
   end,
 
@@ -256,7 +263,7 @@ yatm.devices.register_stateful_network_device({
   preserve_metadata = teleporter_preserve_metadata,
 
   change_spacetime_address = function (pos, node, new_address)
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
 
     SpacetimeMeta.set_address(meta, new_address)
 
@@ -269,7 +276,7 @@ yatm.devices.register_stateful_network_device({
     end
 
     if new_node.name ~= node.name then
-      core.swap_node(pos, new_node)
+      swap_node(pos, new_node)
       spacetime_network:maybe_update_node(pos, new_node)
     end
     yatm.queue_refresh_infotext(pos, new_node)
@@ -370,7 +377,7 @@ local data_interface = {
     local bin = string_hex_unescape(value)
     local input = string.byte(bin, 1)
 
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
 
     local data_on_threshold = meta:get_string("data_on_threshold")
     data_on_threshold = string_hex_unescape(data_on_threshold)
@@ -438,8 +445,7 @@ local data_interface = {
 }
 
 local on_construct = function (pos)
-  local meta = core.get_meta(pos)
-  local node = core.get_node(pos)
+  local node = get_node(pos)
 
   data_network:add_node(pos, node)
   yatm.devices.device_on_construct(pos)
@@ -498,7 +504,7 @@ yatm.devices.register_stateful_network_device({
   preserve_metadata = teleporter_preserve_metadata,
 
   change_spacetime_address = function (pos, node, new_address)
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
 
     SpacetimeMeta.set_address(meta, new_address)
 
@@ -511,7 +517,7 @@ yatm.devices.register_stateful_network_device({
     end
 
     if new_node.name ~= node.name then
-      core.swap_node(pos, new_node)
+      swap_node(pos, new_node)
       data_network:upsert_member(pos, new_node)
       spacetime_network:maybe_update_node(pos, new_node)
     end

@@ -40,6 +40,9 @@
 --- @type on_fluid_changed: function(self, pos, dir, fluid_stack: FluidStack) => void
 local FluidMeta = assert(yatm_fluids.FluidMeta)
 
+local get_meta = assert(tetra.get_meta)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
+
 local FluidInterface = {
   version = "1.1.0",
 }
@@ -73,7 +76,7 @@ function FluidInterface.new()
 end
 
 local function default_simple_get(self, pos, dir)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local stack = FluidMeta.get_fluid_stack(meta, self._private.tank_name)
   if stack then
     return stack
@@ -88,7 +91,7 @@ end
 local function default_simple_replace(self, pos, dir, new_stack, commit)
   local allowed, reason = self:allow_replace(pos, dir, new_stack)
   if allowed then
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     local stack
 
     stack, new_stack = FluidMeta.set_fluid(meta,
@@ -107,7 +110,7 @@ end
 local function default_simple_fill(self, pos, dir, fluid_stack, commit)
   local allowed, reason = self:allow_fill(pos, dir, fluid_stack)
   if allowed then
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     local stack, new_stack = FluidMeta.fill_fluid(meta,
       self._private.tank_name,
       fluid_stack,
@@ -123,7 +126,7 @@ end
 local function default_simple_drain(self, pos, dir, fluid_stack, commit)
   local allowed, reason = self:allow_drain(pos, dir, fluid_stack)
   if allowed then
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     local stack, new_stack =
       FluidMeta.drain_fluid(
         meta,
@@ -163,7 +166,7 @@ function FluidInterface.new_simple(tank_name, capacity)
 end
 
 local function default_directional_get(self, pos, dir, _node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local tank_name, _capacity = self:get_fluid_tank_name(pos, dir)
   if tank_name then
     local stack = FluidMeta.get_fluid_stack(meta, tank_name)
@@ -173,7 +176,7 @@ local function default_directional_get(self, pos, dir, _node)
 end
 
 local function default_directional_get_capacity(self, pos, dir, _node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local tank_name, capacity = self:get_fluid_tank_name(pos, dir)
   if tank_name then
     return capacity
@@ -184,7 +187,7 @@ end
 local function default_directional_replace(self, pos, dir, fluid_stack, commit)
   local allowed, reason = self:allow_replace(pos, dir, fluid_stack)
   if allowed then
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     local tank_name, _capacity = self:get_fluid_tank_name(pos, dir)
     if tank_name then
       local stack, new_stack = FluidMeta.set_fluid(meta,
@@ -204,12 +207,12 @@ end
 local function default_directional_fill(self, pos, dir, fluid_stack, commit)
   local allowed, reason = self:allow_fill(pos, dir, fluid_stack)
   if allowed then
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     local tank_name, capacity = self:get_fluid_tank_name(pos, dir)
 
     if tank_name then
       if not capacity then
-        local node = core.get_node_or_nil(pos)
+        local node = get_node_or_nil(pos)
         if node then
           error(
             "expected fluid tank capacity for node=" .. node.name .. " at pos=" .. core.pos_to_string(pos)
@@ -243,7 +246,7 @@ end
 local function default_directional_drain(self, pos, dir, fluid_stack, commit)
   local allowed, reason = self:allow_drain(pos, dir, fluid_stack)
   if allowed then
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     local tank_name, capacity = self:get_fluid_tank_name(pos, dir)
 
     if tank_name then

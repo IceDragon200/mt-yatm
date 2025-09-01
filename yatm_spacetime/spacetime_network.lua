@@ -6,6 +6,9 @@ local is_blank = assert(foundation.com.is_blank)
 local is_table_empty = assert(foundation.com.is_table_empty)
 local pos_to_string = assert(core.pos_to_string)
 local SpacetimeMeta = assert(yatm_spacetime.SpacetimeMeta)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local hash_node_position = assert(core.hash_node_position)
 
 local SpacetimeNetwork = foundation.com.Class:extends("SpacetimeNetwork")
 do
@@ -32,13 +35,13 @@ do
     assert(pos, "expected a valid position")
     assert(address, "expected a valid address")
     print(self.m_description, "register_device/3", dump(groups), pos_to_string(pos), address)
-    local member_id = core.hash_node_position(pos)
+    local member_id = hash_node_position(pos)
 
     if self.m_members[member_id] then
       error("multiple registrations detected, did you mean to use `update_device/2`?" ..
             pos_to_string(pos))
     else
-      local node = core.get_node(pos)
+      local node = get_node(pos)
       local block_id = yatm.clusters:mark_node_block(pos, node)
 
       self.m_members[member_id] = {
@@ -72,7 +75,7 @@ do
     assert(pos, "expected a valid position")
     print(self.m_description, "update_device/3", dump(groups),
           pos_to_string(pos), dump(new_address))
-    local hash = core.hash_node_position(pos)
+    local hash = hash_node_position(pos)
     if self.m_members[hash] then
       self:unregister_device(pos)
     end
@@ -86,7 +89,7 @@ do
   function ic:maybe_register_node(pos, node)
     local nodedef = core.registered_nodes[node.name]
     if nodedef then
-      local meta = core.get_meta(pos)
+      local meta = get_meta(pos)
       local address = SpacetimeMeta.get_address(meta)
       if nodedef.yatm_spacetime then
         local spacetime_groups = nodedef.yatm_spacetime.groups or {}
@@ -106,7 +109,7 @@ do
   function ic:maybe_update_node(pos, node)
     local nodedef = core.registered_nodes[node.name]
     if nodedef then
-      local meta = core.get_meta(pos)
+      local meta = get_meta(pos)
       local address = SpacetimeMeta.get_address(meta)
       if nodedef.yatm_spacetime then
         local spacetime_groups = nodedef.yatm_spacetime.groups or {}
@@ -123,7 +126,7 @@ do
     assert(pos, "expected a valid position")
     print("unregister_device/2", pos_to_string(pos))
 
-    local member_id = core.hash_node_position(pos)
+    local member_id = hash_node_position(pos)
 
     local entry = self.m_members[member_id]
     self.m_members[member_id] = nil

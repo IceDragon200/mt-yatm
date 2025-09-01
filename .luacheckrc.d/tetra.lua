@@ -1,5 +1,6 @@
 return {
   fields = {
+    node_dig = {},
     get_meta = {},
     get_node_drops = {},
     get_node = {},
@@ -13,5 +14,7 @@ return {
     check_for_falling = {},
     get_node_timer = {},
     get_node_light = {},
+    get_natural_light = {},
+    find_nodes_in_area_under_air = {},
   }
 }

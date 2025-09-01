@@ -11,6 +11,9 @@ return {
     --
     -- Other
     --
+    registered_items = {
+      other_fields = true,
+    },
     registered_craftitems = {
       other_fields = true
     },
@@ -40,12 +43,23 @@ return {
     show_formspec = {},
     register_on_player_receive_fields = {},
 
+    -- inventory
+    get_inventory = {},
     -- detached inventory
     create_detached_inventory = {},
     remove_detached_inventory = {},
 
+    -- env
+    request_insecure_environment = {},
+
+    --
+    get_mapgen_setting = {},
+
     -- ToD
     get_timeofday = {},
+
+    -- time
+    get_us_time = {},
 
     -- node and items
     check_single_for_falling = {},
@@ -74,6 +88,7 @@ return {
     register_tool = {},
     --
     after = {},
+    dir_to_yaw = {},
     raycast = {},
     global_exists = {},
     facedir_to_dir = {},
@@ -85,7 +100,6 @@ return {
     -- io
     safe_file_write = {},
     mkdir = {},
-    write_json = {},
 
     -- sound
     sound_play = {},

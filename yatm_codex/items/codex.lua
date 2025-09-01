@@ -1,5 +1,8 @@
+local mod = assert(yatm_codex)
+
 local sounds = assert(yatm.sounds)
 local fspec = assert(foundation.com.formspec.api)
+local get_node = assert(tetra.get_node)
 
 ---
 ---
@@ -135,7 +138,7 @@ local function on_use_codex(itemstack, user, pointed_thing)
   local pos = pointed_thing.under
 
   if pos then
-    local node = core.get_node(pos)
+    local node = get_node(pos)
     local nodedef = core.registered_nodes[node.name]
 
     local codex_entry
@@ -192,7 +195,8 @@ core.register_tool("yatm_codex:codex", {
 })
 
 core.register_tool("yatm_codex:codex_deploy", {
-  description = "CODEX [Deployment Mode]\nLeft-Click to check information on a node if available\nRight-Click to place demo",
+  description = mod.S("CODEX [Deployment Mode]") .. "\n"
+    .. "Left-Click to check information on a node if available\nRight-Click to place demo",
 
   groups = {
     codex = 1,

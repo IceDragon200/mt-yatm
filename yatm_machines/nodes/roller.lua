@@ -14,13 +14,14 @@ local rolling_registry = assert(yatm.rolling.rolling_registry)
 local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
 local player_service = assert(nokore.player_service)
-
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
 local energy_meta_to_infotext = assert(Energy.meta_to_infotext)
 
 local function on_construct(pos)
   yatm.devices.device_on_construct(pos)
 
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   inv:set_size("roller_input", 1)
@@ -30,7 +31,7 @@ end
 
 local function refresh_infotext(pos, node)
   local nodedef = core.registered_nodes[node.name]
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   local recipe_time = meta:get_float("recipe_time")
   local recipe_time_max = meta:get_float("recipe_time_max")
@@ -142,7 +143,7 @@ function yatm_network:work(ctx)
 end
 
 local item_interface = ItemInterface.new_directional(function (self, pos, dir)
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   local new_dir = Directions.facedir_to_face(node.param2, dir)
   if new_dir == Directions.D_UP or new_dir == Directions.D_DOWN then
     return "roller_output"
@@ -155,7 +156,7 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine" }, function (loc, rect)
     if loc == "main_body" then
@@ -259,7 +260,7 @@ yatm.devices.register_stateful_network_device({
   on_rightclick = on_rightclick,
 
   can_dig = function (pos)
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     local inv = meta:get_inventory()
 
     return inv:is_empty("roller_input") and

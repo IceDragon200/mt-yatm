@@ -28,9 +28,9 @@ local Energy = assert(yatm.energy)
 local en_receive_meta_energy = assert(Energy.receive_meta_energy)
 --
 local registered_nodes = assert(core.registered_nodes)
-local swap_node = assert(core.swap_node)
-local get_node_or_nil = assert(core.get_node_or_nil)
-local get_meta = assert(core.get_meta)
+local swap_node = assert(tetra.swap_node)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
+local get_meta = assert(tetra.get_meta)
 
 --- @namespace yatm.devices
 local devices = yatm.devices

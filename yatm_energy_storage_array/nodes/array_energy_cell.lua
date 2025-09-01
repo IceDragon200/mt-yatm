@@ -2,6 +2,8 @@ local mod = assert(yatm_energy_storage_array)
 
 local cluster_devices = assert(yatm.cluster.devices)
 local Energy = assert(yatm.energy)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
 
 --
 -- Array Energy Cells are denser that regular energy cells
@@ -51,7 +53,7 @@ core.register_node(node_name, yatm.devices.patch_device_nodedef(node_name, {
       end,
 
       get_stored_energy = function (pos, node)
-        local meta = core.get_meta(pos)
+        local meta = get_meta(pos)
 
         return CAPACITY
       end,
@@ -84,7 +86,7 @@ core.register_node(node_name, yatm.devices.patch_device_nodedef(node_name, {
   end,
 
   refresh_infotext = function (pos)
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     local infotext =
       "Creative Array Energy Cell\n" ..
       cluster_devices:get_node_infotext(pos) .. " [" .. CAPACITY .. "]/" .. BANDWIDTH
@@ -122,13 +124,13 @@ yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_na
       end,
 
       get_stored_energy = function (pos, node)
-        local meta = core.get_meta(pos)
+        local meta = get_meta(pos)
 
         return Energy.get_meta_energy(meta, ENERGY_KEY)
       end,
 
       receive_energy = function (pos, node, energy_left, dtime, ot)
-        local meta = core.get_meta(pos)
+        local meta = get_meta(pos)
         local received_energy = Energy.receive_meta_energy(meta, ENERGY_KEY, energy_left, BANDWIDTH, CAPACITY, true)
         if received_energy > 0 then
           yatm.queue_refresh_infotext(pos, node)
@@ -137,12 +139,12 @@ yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_na
       end,
 
       get_usable_stored_energy = function (pos, node)
-        local meta = core.get_meta(pos)
+        local meta = get_meta(pos)
         return math.min(BANDWIDTH, Energy.get_meta_energy(meta, ENERGY_KEY))
       end,
 
       use_stored_energy = function (pos, node, energy_to_use)
-        local meta = core.get_meta(pos)
+        local meta = get_meta(pos)
         local consumed_energy =
           Energy.consume_meta_energy(
             meta,
@@ -162,10 +164,10 @@ yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_na
   },
 
   on_construct = function (pos)
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     Energy.get_meta_energy(meta, ENERGY_KEY, 0)
 
-    local node = core.get_node(pos)
+    local node = get_node(pos)
     cluster_devices:schedule_add_node(pos, node)
   end,
 
@@ -178,8 +180,8 @@ yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_na
   end,
 
   refresh_infotext = function (pos)
-    local meta = core.get_meta(pos)
-    local node = core.get_node(pos)
+    local meta = get_meta(pos)
+    local node = get_node(pos)
 
     local en = Energy.get_meta_energy(meta, ENERGY_KEY)
 
@@ -193,7 +195,7 @@ yatm.register_stateful_node(node_name, yatm.devices.patch_device_nodedef(node_na
     local new_name = "yatm_energy_storage_array:array_energy_cell_stage" .. stage
     if node.name ~= new_name then
       node.name = new_name
-      core.swap_node(pos, node)
+      swap_node(pos, node)
     end
     meta:set_string("infotext", infotext)
   end,

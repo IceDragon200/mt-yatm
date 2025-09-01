@@ -3,6 +3,7 @@ local Vector3 = assert(foundation.com.Vector3)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local fspec = assert(foundation.com.formspec.api)
+local InventorySerializer = assert(foundation.com.InventorySerializer)
 
 local g_inventory_id = 0
 
@@ -49,7 +50,7 @@ local function restore_inventory(self, dump)
   for list_name, dumped_list in pairs(dump.data) do
     local list = inv:get_list(list_name)
     assert(list, "expected list to exist name=" .. list_name)
-    list = yatm.items.InventorySerializer.load_list(dumped_list, list)
+    list = InventorySerializer.load_list(dumped_list, list)
     inv:set_list(list_name, list)
   end
 end
@@ -69,7 +70,7 @@ local function dump_inventory(self)
   local result = {}
 
   for list_name, list in pairs(lists) do
-    result[list_name] = yatm.items.InventorySerializer.dump_list(list)
+    result[list_name] = InventorySerializer.dump_list(list)
   end
 
   return { version = 1, data = result }
@@ -173,7 +174,8 @@ core.register_entity("yatm_armoury_icbm:icbm", {
 
     elseif self.stage == "leaving_silo" then
       -- the icbm is currently trying to leave the silo
-      -- depending on the exit direction of the silo, the icbm may need to clear up to 6 nodes before it enters cruise flight
+      -- depending on the exit direction of the silo, the icbm may need to clear up to
+      -- 6 nodes before it enters cruise flight
       if vector.distance(self.exit_pos, self.object:get_pos()) <= 1 then
         -- icbm has arrived at exit location, it will now transition into the cruise state
         self.stage = "ascent"
@@ -192,19 +194,32 @@ core.register_entity("yatm_armoury_icbm:icbm", {
         self.stage = "cruise"
         self:refresh_infotext()
       else
-        local velocity = vector.multiply(vector.multiply(vector.direction(self.object:get_pos(), self.cruise_pos), dtime), 500)
+        local velocity = vector.multiply(
+          vector.multiply(
+            vector.direction(self.object:get_pos(), self.cruise_pos),
+            dtime
+          ),
+          500
+        )
         self:refresh_infotext()
         self.object:set_velocity(velocity)
       end
 
     elseif self.stage == "cruise" then
       -- icbm is on its way to the target
-      -- note that they always fly in a straight line to the target, and will detonate if they collide with something in this state.
+      -- note that they always fly in a straight line to the target, and will detonate if they
+      -- collide with something in this state.
       if vector.distance(self.target_cruise_pos, self.object:get_pos()) <= 1 then
         self.stage = "descent"
         self:refresh_infotext()
       else
-        local velocity = vector.multiply(vector.multiply(vector.direction(self.object:get_pos(), self.target_cruise_pos), dtime), 1000)
+        local velocity = vector.multiply(
+          vector.multiply(
+            vector.direction(self.object:get_pos(), self.target_cruise_pos),
+            dtime
+          ),
+          1000
+        )
         self:refresh_infotext()
         self.object:set_velocity(velocity)
       end
@@ -222,7 +237,13 @@ core.register_entity("yatm_armoury_icbm:icbm", {
           self:refresh_infotext()
         end
       else
-        local velocity = vector.multiply(vector.multiply(vector.direction(self.object:get_pos(), self.target_pos), dtime), 1200)
+        local velocity = vector.multiply(
+          vector.multiply(
+            vector.direction(self.object:get_pos(), self.target_pos),
+            dtime
+          ),
+          1200
+        )
         self:refresh_infotext()
         self.object:set_velocity(velocity)
       end
@@ -316,11 +337,16 @@ core.register_entity("yatm_armoury_icbm:icbm", {
   end,
 
   launch_icbm = function (self)
-    -- what position is considered the 'exit' position, where it can transition into the next stage?
+    -- what position is considered the 'exit' position,
+    -- where it can transition into the next stage?
     local exit_pos = Vector3.new(0, 0, 0)
-    Vector3.add(exit_pos, exit_pos, self.origin_dir) -- first we add the origin's direction
-    Vector3.mul(exit_pos, exit_pos, self.guide_length + 6) -- next multiply that direction by the guide length + 6 (4 is the estimated length of the missle, plus 2 for additional clearance)
-    Vector3.add(exit_pos, exit_pos, self.origin_pos) -- finally add the origin position (i.e. the silo position) to obtain the exit position
+    -- first we add the origin's direction
+    Vector3.add(exit_pos, exit_pos, self.origin_dir)
+    -- next multiply that direction by the guide length + 6
+    -- (4 is the estimated length of the missle, plus 2 for additional clearance).
+    Vector3.mul(exit_pos, exit_pos, self.guide_length + 6)
+    -- finally add the origin position (i.e. the silo position) to obtain the exit position
+    Vector3.add(exit_pos, exit_pos, self.origin_pos)
 
     self.exit_pos = exit_pos
 

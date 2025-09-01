@@ -4,6 +4,7 @@ local table_merge = assert(foundation.com.table_merge)
 local table_keys = assert(foundation.com.table_keys)
 local list_sort = assert(foundation.com.list_sort)
 local string_pad_leading = assert(foundation.com.string_pad_leading)
+local bulk_set_node = assert(tetra.bulk_set_node)
 
 --
 -- Autotest Luna
@@ -80,7 +81,7 @@ do
       end
     end
 
-    core.bulk_set_node(positions, node)
+    bulk_set_node(positions, node)
   end
 
   function ic:clear_test_area(center_pos)

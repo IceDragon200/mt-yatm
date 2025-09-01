@@ -1,5 +1,7 @@
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
+local swap_node = assert(tetra.swap_node)
+local remove_node = assert(tetra.remove_node)
 
 local function pie_on_rightclick(pos, node, clicker, itemstack, pointed_thing)
   local nodedef = core.registered_nodes[node.name]
@@ -8,9 +10,9 @@ local function pie_on_rightclick(pos, node, clicker, itemstack, pointed_thing)
     -- TODO: add a pie slice to clicker's inventory
     node.name = "yatm_culinary:pie_" .. (nodedef.pie_stage - 1)
 
-    core.swap_node(pos, node)
+    swap_node(pos, node)
   else
-    core.remove_node(pos)
+    remove_node(pos)
   end
 end
 

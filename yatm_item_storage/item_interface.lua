@@ -1,4 +1,6 @@
 local InventoryList = assert(foundation.com.InventoryList)
+local get_meta = assert(tetra.get_meta)
+
 local ItemInterface = {
   version = "1.1.0"
 }
@@ -16,7 +18,7 @@ local function default_allow_extract_item(self, pos, dir, item_stack)
 end
 
 local function default_get_item(self, pos, dir)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
   local list = inv:get_list(self.inventory_name)
   if list then
@@ -35,14 +37,14 @@ local function default_replace_item(self, pos, dir, item_stack, commit)
 end
 
 local function default_room_for_item(self, pos, dir, item_stack)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
   return inv:room_for_item(self.inventory_name, item_stack)
 end
 
 local function default_insert_item(self, pos, dir, item_stack, commit)
   if self:allow_insert_item(pos, dir, item_stack) then
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     local inv = meta:get_inventory()
     local remaining
     local list
@@ -71,7 +73,7 @@ end
 
 local function default_extract_item(self, pos, dir, item_stack_or_count, commit)
   if self:allow_extract_item(pos, dir, item_stack_or_count) then
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     local inv = meta:get_inventory()
     local list = inv:get_list(self.inventory_name)
     if list then
@@ -91,7 +93,7 @@ end
 local function directional_get_item(self, pos, dir)
   local inventory_name = self:dir_to_inventory_name(pos, dir)
   if inventory_name then
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     local inv = meta:get_inventory()
     local list = inv:get_list(inventory_name)
     if list then
@@ -114,7 +116,7 @@ end
 local function directional_room_for_item(self, pos, dir, item_stack)
   local inventory_name = self:dir_to_inventory_name(pos, dir)
   if inventory_name then
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     local inv = meta:get_inventory()
     return inv:room_for_item(inventory_name, item_stack)
   end
@@ -125,7 +127,7 @@ local function directional_insert_item(self, pos, dir, item_stack, commit)
   if self:allow_insert_item(pos, dir, item_stack) then
     local inventory_name = self:dir_to_inventory_name(pos, dir)
     if inventory_name then
-      local meta = core.get_meta(pos)
+      local meta = get_meta(pos)
       local inv = meta:get_inventory()
       if commit then
         local remaining = inv:add_item(inventory_name, item_stack)
@@ -147,7 +149,7 @@ local function directional_extract_item(self, pos, dir, item_stack_or_count, com
   if self:allow_extract_item(pos, dir, item_stack_or_count) then
     local inventory_name = self:dir_to_inventory_name(pos, dir)
     if inventory_name then
-      local meta = core.get_meta(pos)
+      local meta = get_meta(pos)
       local inv = meta:get_inventory()
       local list = inv:get_list(inventory_name)
       local new_list, extracted = InventoryList.extract_stack(list, item_stack_or_count)

@@ -1,8 +1,14 @@
+local swap_node = assert(tetra.swap_node)
+
 local migrations = {
-  ["yatm_mesecon_locks:mesecon_card_reader_off"] = "yatm_mesecon_card_readers:mesecon_card_reader_off",
-  ["yatm_mesecon_locks:mesecon_card_reader_on"] = "yatm_mesecon_card_readers:mesecon_card_reader_on",
-  ["yatm_mesecon_locks:mesecon_card_swiper_off"] = "yatm_mesecon_card_readers:mesecon_card_swiper_off",
-  ["yatm_mesecon_locks:mesecon_card_swiper_on"] = "yatm_mesecon_card_readers:mesecon_card_swiper_on",
+  ["yatm_mesecon_locks:mesecon_card_reader_off"] =
+    "yatm_mesecon_card_readers:mesecon_card_reader_off",
+  ["yatm_mesecon_locks:mesecon_card_reader_on"] =
+    "yatm_mesecon_card_readers:mesecon_card_reader_on",
+  ["yatm_mesecon_locks:mesecon_card_swiper_off"] =
+    "yatm_mesecon_card_readers:mesecon_card_swiper_off",
+  ["yatm_mesecon_locks:mesecon_card_swiper_on"] =
+    "yatm_mesecon_card_readers:mesecon_card_swiper_on",
 }
 
 for from, to in pairs(migrations) do
@@ -14,7 +20,7 @@ for from, to in pairs(migrations) do
     run_at_every_load = false,
     action = function (pos, node)
       node.name = to
-      core.swap_node(pos, node)
+      swap_node(pos, node)
     end
   })
 end

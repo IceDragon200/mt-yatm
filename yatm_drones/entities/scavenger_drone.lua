@@ -7,6 +7,8 @@ local Energy = assert(yatm.energy)
 local invbat = assert(yatm.energy.inventory_batteries)
 local InventorySerializer = assert(yatm.items.InventorySerializer)
 local fspec = assert(foundation.com.formspec.api)
+local get_node = assert(tetra.get_node)
+local find_nodes_in_area = assert(tetra.find_nodes_in_area)
 
 local g_inventory_id = 0
 local view_range = (core.get_mapgen_setting('active_object_send_range_blocks') or 3) * 3
@@ -189,7 +191,7 @@ local function hq_find_dropoff_station(self, prty, search_radius)
         if closest_dropoff_timeout <= 0 then
           closest_dropoff = nil
         else
-          local node = core.get_node(closest_dropoff)
+          local node = get_node(closest_dropoff)
 
           if not Groups.item_has_group(node.name, "scavenger_dropoff_station") then
             closest_dropoff = nil
@@ -200,7 +202,7 @@ local function hq_find_dropoff_station(self, prty, search_radius)
       if not closest_dropoff then
         local pos1 = vector.subtract(pos, search_radius)
         local pos2 = vector.add(pos, search_radius)
-        local nodes = core.find_nodes_in_area(pos1, pos2, "group:scavenger_dropoff_station")
+        local nodes = find_nodes_in_area(pos1, pos2, "group:scavenger_dropoff_station")
 
         for _, node_pos in ipairs(nodes) do
           if closest_dropoff then
@@ -248,7 +250,7 @@ local function hq_find_docking_station(self, prty, search_radius, can_move)
       local closest_dock = mobkit.recall(self, "closest_dock")
 
       if closest_dock then
-        local node = core.get_node(closest_dock)
+        local node = get_node(closest_dock)
 
         if not Groups.item_has_group(node.name, "scavenger_docking_station") then
           closest_dock = nil
@@ -258,7 +260,7 @@ local function hq_find_docking_station(self, prty, search_radius, can_move)
       if not closest_dock then
         local pos1 = vector.subtract(pos, search_radius)
         local pos2 = vector.add(pos, search_radius)
-        local nodes = core.find_nodes_in_area(pos1, pos2, "group:scavenger_docking_station")
+        local nodes = find_nodes_in_area(pos1, pos2, "group:scavenger_docking_station")
 
         for _, node_pos in ipairs(nodes) do
           if closest_dock then
@@ -330,7 +332,7 @@ local function drone_logic(self)
       -- Do charging stuff, by picking the closest docking station
       local closest_dock = mobkit.recall(self, "closest_dock")
       if closest_dock then
-        local node = core.get_node(closest_dock)
+        local node = get_node(closest_dock)
 
         if Groups.item_has_group(node.name, "scavenger_docking_station") then
           local nodedef = core.registered_nodes[node.name]
@@ -369,7 +371,7 @@ local function drone_logic(self)
             else
               local closest_dropoff = mobkit.recall(self, "closest_dropoff")
               if closest_dropoff then
-                local node = core.get_node(closest_dropoff)
+                local node = get_node(closest_dropoff)
 
                 if Groups.item_has_group(node.name, "scavenger_dropoff_station") then
                   local main_list = inv:get_list("main")

@@ -10,6 +10,8 @@ local bait_catches_registry = yatm.bees.bait_catches_registry
 local fspec = assert(foundation.com.formspec.api)
 local Vector3 = foundation.com.Vector3
 local player_service = assert(nokore.player_service)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
 
 local CATCH_INTERVAL = 15 -- seconds
 
@@ -19,7 +21,7 @@ end)
 local function render_formspec(pos, user, _state)
   assert(user, "expected a user")
 
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   local nodedef = core.registered_nodes[node.name]
 
   local cio = fspec.calc_inventory_offset
@@ -55,7 +57,7 @@ local function render_formspec(pos, user, _state)
 end
 
 local function on_construct(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   -- Some bait
@@ -69,7 +71,7 @@ local function on_construct(pos)
 end
 
 local function on_timer(pos, elapsed)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   -- calculate the total elapsed time
@@ -141,7 +143,7 @@ local function on_rightclick(pos, node, user)
 end
 
 local function can_dig(pos, player)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   return inv:is_empty("bees_slot") and

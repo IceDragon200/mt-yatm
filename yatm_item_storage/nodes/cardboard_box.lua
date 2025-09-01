@@ -3,6 +3,9 @@ local mod = assert(yatm_item_storage)
 local is_blank = assert(foundation.com.is_blank)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local fspec = assert(foundation.com.formspec.api)
+local get_meta = assert(tetra.get_meta)
+local node_dig = assert(tetra.node_dig)
+local remove_node = assert(tetra.remove_node)
 
 local MAIN_INVENTORY_NAME = "main"
 
@@ -53,7 +56,7 @@ end
 local cardboard_box_item_interface = ItemInterface.new_simple(MAIN_INVENTORY_NAME)
 
 local function cardboard_box_after_place_node(pos, placer, item_stack, pointed_thing)
-  local new_meta = core.get_meta(pos)
+  local new_meta = get_meta(pos)
   local old_meta = item_stack:get_meta()
 
   local new_inv = new_meta:get_inventory()
@@ -70,7 +73,7 @@ end
 local function cardboard_box_preserve_metadata(pos, old_node, _old_meta_table, drops)
   local stack = drops[1]
 
-  local old_meta = core.get_meta(pos)
+  local old_meta = get_meta(pos)
   local new_meta = stack:get_meta()
 
   local old_inv = old_meta:get_inventory()
@@ -85,14 +88,14 @@ local function cardboard_box_preserve_metadata(pos, old_node, _old_meta_table, d
 end
 
 local function cardboard_box_on_dig(pos, node, puncher)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   if not inv:is_empty("main") then
     return false
   end
 
-  return core.node_dig(pos, node, puncher)
+  return node_dig(pos, node, puncher)
 end
 
 --- @spec cardboard_box_on_blast(pos: Vector3, intensity: Float): Table
@@ -100,7 +103,7 @@ local function cardboard_box_on_blast(pos, _intensity)
   local drops = {}
   foundation.com.get_inventory_drops(pos, MAIN_INVENTORY_NAME, drops)
   table.insert(drops, mod:make_name("cardboard_box"))
-  core.remove_node(pos)
+  remove_node(pos)
   return drops
 end
 
@@ -151,7 +154,7 @@ core.register_node(mod:make_name("cardboard_box"), {
   },
 
   on_construct = function (pos)
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
 
     local inv = meta:get_inventory()
 
@@ -207,7 +210,7 @@ core.register_node(mod:make_name("super_cardboard_box"), {
   item_interface = cardboard_box_item_interface,
 
   on_construct = function (pos)
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
 
     local inv = meta:get_inventory()
 

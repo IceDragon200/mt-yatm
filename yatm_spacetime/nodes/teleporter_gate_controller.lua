@@ -9,6 +9,9 @@ local Energy = assert(yatm.energy)
 local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
 local spacetime_network = assert(yatm.spacetime.network)
 local HeadlessMetaDataRef = assert(foundation.com.headless.MetaDataRef)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local swap_node = assert(tetra.swap_node)
 
 local yatm_network = {
   kind = "machine",
@@ -36,7 +39,7 @@ local yatm_network = {
 
 --- @spec refresh_infotext(Vector3, NodeRef): void
 local function refresh_infotext(pos, node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n"
@@ -50,19 +53,20 @@ end
 
 --- @spec on_construct(Vector3): void
 local function on_construct(pos)
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   cluster_gate:schedule_add_node(pos, node)
   yatm.devices.device_on_construct(pos)
 end
 
 --- @spec after_place_node(Vector3, PlayerRef, ItemStack, PointedThing): void
 local function after_place_node(pos, user, item_stack, pointed_thing)
-  local new_meta = core.get_meta(pos)
+  local new_meta = get_meta(pos)
   local old_meta = item_stack:get_meta()
 
   SpacetimeMeta.copy_address(old_meta, new_meta)
-  local address = SpacetimeMeta.patch_address(new_meta)
-  local node = core.get_node(pos)
+  SpacetimeMeta.patch_address(new_meta)
+
+  local node = get_node(pos)
   spacetime_network:maybe_register_node(pos, node)
 
   yatm.devices.device_after_place_node(pos, user, item_stack, pointed_thing)
@@ -72,7 +76,7 @@ end
 
 --- @spec on_destruct(Vector3): void
 local function on_destruct(pos)
-  local node = core.get_node(pos)
+  local node = get_node(pos)
   spacetime_network:unregister_device(pos)
   cluster_gate:schedule_remove_node(pos, node)
   yatm.devices.device_on_destruct(pos)
@@ -94,7 +98,7 @@ end
 
 --- @spec change_spacetime_address(pos: Vector3, NodeRef, new_address: String): String
 local function change_spacetime_address(pos, node, new_address)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   SpacetimeMeta.set_address(meta, new_address)
 
@@ -107,7 +111,7 @@ local function change_spacetime_address(pos, node, new_address)
   end
 
   if new_node.name ~= node.name then
-    core.swap_node(pos, new_node)
+    swap_node(pos, new_node)
     spacetime_network:maybe_update_node(pos, new_node)
   end
   yatm.queue_refresh_infotext(pos, new_node)

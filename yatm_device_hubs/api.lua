@@ -2,6 +2,7 @@ local Directions = assert(foundation.com.Directions)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
+local get_meta = assert(tetra.get_meta)
 
 yatm_device_hubs.HUB_NODEBOX = {
   type = "fixed",
@@ -11,7 +12,7 @@ yatm_device_hubs.HUB_NODEBOX = {
 }
 
 function yatm_device_hubs.hub_refresh_infotext(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..

@@ -74,7 +74,7 @@ else
       result = result .. fspec.list("current_player", "main", x, y + 1.5, size.x, size.y - 1, size.x)
     end
 
-    return result, { x = cols, y = rows }
+    return result, { x = size.x, y = size.y }
   end
 end
 

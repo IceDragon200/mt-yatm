@@ -3,6 +3,8 @@ local is_table_empty = assert(foundation.com.is_table_empty)
 local table_keys = assert(foundation.com.table_keys)
 local table_length = assert(foundation.com.table_length)
 local hash_node_position = assert(core.hash_node_position)
+local get_node = assert(tetra.get_node)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
 
 --- @namespace yatm.cluster
 
@@ -68,7 +70,7 @@ do
   function ic:_handle_load_node(cls, generation_id, event, node_clusters)
     local cluster = ic._super._handle_load_node(self, cls, generation_id, event, node_clusters)
     if cluster then
-      local node = core.get_node(event.pos)
+      local node = get_node(event.pos)
       local nodedef = core.registered_nodes[node.name]
       if nodedef then
         if nodedef.yatm_network and nodedef.yatm_network.on_load then
@@ -196,18 +198,26 @@ do
         end
       end
     else
-      self:log("cluster requested a refresh_controller but it no longer exists cluster_id=" .. event.params.cluster_id)
+      self:log(
+        "cluster requested a refresh_controller but it no longer exists cluster_id="
+        .. event.params.cluster_id
+      )
     end
   end
 
   function ic:_handle_transition_state(cls, generation_id, event, node_clusters)
-    self:log("transition_state", generation_id, 'cluster_id=' .. event.params.cluster_id, 'state=' .. event.params.state)
+    self:log(
+      "transition_state",
+      generation_id,
+      "cluster_id=" .. event.params.cluster_id,
+      "state=" .. event.params.state
+    )
     local cluster = cls:get_cluster(event.params.cluster_id)
     if cluster then
       cluster.assigns.state = assert(event.params.state)
       cluster:reduce_nodes(0, function (node_entry, acc)
         -- fetch the _actual_ node, instead of the cluster's state
-        local node = core.get_node_or_nil(node_entry.pos)
+        local node = get_node_or_nil(node_entry.pos)
         if node then
           local nodedef = core.registered_nodes[node.name]
           if nodedef.transition_device_state then

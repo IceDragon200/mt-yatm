@@ -10,6 +10,9 @@ local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local Directions = assert(foundation.com.Directions)
 local Vector3 = assert(foundation.com.Vector3)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
 
 local plunger_entity_name = mod:make_name("mechanical_press_plunger_ent")
 local mechanical_press_node = mod:make_name("mechanical_press")
@@ -60,7 +63,7 @@ local function on_load(pos, node)
 end
 
 local function on_construct(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   meta:set_float("plunger_pos", 0.0)
   refresh_plunger_entity(pos)
 end
@@ -166,7 +169,7 @@ core.register_entity(plunger_entity_name, {
   },
 
   on_step = function (self, delta)
-    local node = core.get_node_or_nil(self.plunger_pos)
+    local node = get_node_or_nil(self.plunger_pos)
     if node then
       if node.name ~= mechanical_press_node then
         self.object:remove()
@@ -176,7 +179,7 @@ core.register_entity(plunger_entity_name, {
       return
     end
 
-    local meta = core.get_meta(self.plunger_pos)
+    local meta = get_meta(self.plunger_pos)
 
     --- retrieve the plunger's intended position from the parent press
     --- this is its 1D position as in how far from the main body it should be extended
@@ -218,7 +221,7 @@ core.register_entity(plunger_entity_name, {
   end,
 
   refresh = function (self)
-    local node = core.get_node(self.plunger_pos)
+    local node = get_node(self.plunger_pos)
     self.object:set_properties({
       node = {
         name = mod:make_name("mechanical_press_plunger"),

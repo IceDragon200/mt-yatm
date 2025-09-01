@@ -5,6 +5,7 @@ local itemstack_is_blank = assert(foundation.com.itemstack_is_blank)
 local set_itemstack_meta_description = assert(foundation.com.set_itemstack_meta_description)
 local get_itemstack_description = assert(foundation.com.get_itemstack_description)
 local fspec = assert(foundation.com.formspec.api)
+local get_meta = assert(tetra.get_meta)
 
 local table_nodebox = {
   type = "fixed",
@@ -18,7 +19,7 @@ local table_nodebox = {
 }
 
 local function locksmiths_table_get_formspec(pos, user, assigns)
-  local meta = core.get_meta(pos)
+  -- local meta = get_meta(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   assigns.tab = assigns.tab or 1
 
@@ -101,7 +102,7 @@ local function locksmiths_table_get_formspec(pos, user, assigns)
 end
 
 local function on_player_receive_fields(user, form_name, fields, assigns)
-  local meta = core.get_meta(assigns.pos)
+  -- local meta = get_meta(assigns.pos)
 
   local needs_refresh = false
 
@@ -122,7 +123,7 @@ local function on_player_receive_fields(user, form_name, fields, assigns)
 end
 
 local function locksmiths_table_on_construct(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   -- Lock Installation
@@ -197,18 +198,27 @@ local function valid_for_slot(listname, stack)
   return 0
 end
 
-local function locksmiths_table_allow_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
-  --print("locksmiths_table_allow_metadata_inventory_move/7", dump(pos), dump(from_list), dump(from_index), dump(to_list), dump(to_index), dump(count), dump(player))
+local function locksmiths_table_allow_metadata_inventory_move(
+  pos, from_list, from_index, to_list, to_index, count, player
+)
+  --print("locksmiths_table_allow_metadata_inventory_move/7",
+  --  dump(pos), dump(from_list), dump(from_index),
+  --  dump(to_list), dump(to_index), dump(count), dump(player)
+  -- )
   return count
 end
 
 local function locksmiths_table_allow_metadata_inventory_put(pos, listname, index, stack, player)
-  --print("locksmiths_table_allow_metadata_inventory_put/5", dump(pos), dump(listname), dump(index), dump(stack), dump(player))
+  --print("locksmiths_table_allow_metadata_inventory_put/5",
+  --  dump(pos), dump(listname), dump(index), dump(stack), dump(player)
+  --)
   return valid_for_slot(listname, stack)
 end
 
 local function locksmiths_table_allow_metadata_inventory_take(pos, listname, index, stack, player)
-  --print("locksmiths_table_allow_metadata_inventory_take/5", dump(pos), dump(listname), dump(index), dump(stack), dump(player))
+  --print("locksmiths_table_allow_metadata_inventory_take/5",
+  --  dump(pos), dump(listname), dump(index), dump(stack), dump(player)
+  -- )
   if stack then
     return stack:get_count()
   end
@@ -225,7 +235,7 @@ local function can_use_results_slot(inv)
 end
 
 local function maybe_craft_lockable(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   local lockable = inv:get_stack("item_lockable", 1)
@@ -256,7 +266,7 @@ local function maybe_craft_lockable(pos)
 end
 
 local function maybe_craft_chipped(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   local chippable = inv:get_stack("item_chippable", 1)
@@ -283,7 +293,7 @@ local function maybe_craft_chipped(pos)
 end
 
 local function maybe_consume_chipped_ingredients(pos, taken_index)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   inv:set_stack("item_chippable", 1, nil)
@@ -291,7 +301,7 @@ local function maybe_consume_chipped_ingredients(pos, taken_index)
 end
 
 local function maybe_consume_lockable_ingredients(pos, taken_index)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   local other_index = 0
@@ -312,20 +322,21 @@ local function maybe_consume_lockable_ingredients(pos, taken_index)
 end
 
 local function maybe_consume_dupkey_ingredients(pos, taken_index)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
   inv:set_stack("item_dupkey_dest", 1, nil)
 end
 
 local function maybe_craft_duplicate_key(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   local src = inv:get_stack("item_dupkey_src", 1)
   local dest = inv:get_stack("item_dupkey_dest", 1)
 
   -- Check and ensure that we have the right items again
-  if yatm_security.is_stack_lockable_toothed_key(src) and yatm_security.is_stack_lockable_blank_key(dest) then
+  if yatm_security.is_stack_lockable_toothed_key(src) and
+     yatm_security.is_stack_lockable_blank_key(dest) then
     -- Okay we do, now let's make a duplicate using the dest key
     local dup_stack = dest:peek_item(1)
     local itemdef = assert(core.registered_items[dup_stack:get_name()])

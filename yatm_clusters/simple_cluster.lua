@@ -11,6 +11,8 @@ local node_to_string = assert(foundation.com.node_to_string)
 local DIR6_TO_VEC3 = assert(foundation.com.Directions.DIR6_TO_VEC3)
 local clusters = assert(yatm.clusters)
 local list = assert(foundation.com.List)
+local get_node = assert(tetra.get_node)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
 
 local SimpleCluster = foundation.com.Class:extends("SimpleCluster")
 do
@@ -385,7 +387,7 @@ do
 
     for dir6, vec3 in pairs(DIR6_TO_VEC3) do
       npos = vector.add(pos, vec3)
-      nnode = core.get_node_or_nil(npos)
+      nnode = get_node_or_nil(npos)
 
       if nnode then
         rating = core.get_item_group(nnode.name, self.m_node_group)
@@ -534,7 +536,7 @@ do
 
         for node_id, _ in pairs(nodes) do
           pos = core.get_position_from_hash(node_id)
-          node = core.get_node(pos)
+          node = get_node(pos)
 
           cls:add_node_to_cluster(cluster.id, pos, node, self:get_node_groups(node))
           yatm.queue_refresh_infotext(pos, node)
@@ -549,7 +551,7 @@ do
   end
 
   function ic:_handle_transition_node(cls, generation_id, event, _cluster_ids)
-    local node = core.get_node_or_nil(event.pos)
+    local node = get_node_or_nil(event.pos)
     if node then
       local nodedef = core.registered_nodes[node.name]
       if nodedef.transition_device_state then

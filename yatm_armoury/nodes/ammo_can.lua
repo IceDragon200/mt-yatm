@@ -3,6 +3,8 @@ local ItemInterface = assert(yatm.items.ItemInterface)
 local fspec = assert(foundation.com.formspec.api)
 local is_stack_cartridge = assert(yatm_armoury.is_stack_cartridge)
 local InventorySerializer = assert(foundation.com.InventorySerializer)
+local get_meta = assert(tetra.get_meta)
+local remove_node = assert(tetra.remove_node)
 
 local function get_ammo_can_formspec(pos, entity)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
@@ -30,7 +32,7 @@ function item_interface:allow_insert_item(pos, dir, item_stack)
 end
 
 local function on_construct(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   local inv = meta:get_inventory()
 
@@ -94,7 +96,7 @@ core.register_node("yatm_armoury:ammo_can", {
   on_construct = on_construct,
 
   after_place_node = function (pos, placer, item_stack, pointed_thing)
-    local new_meta = core.get_meta(pos)
+    local new_meta = get_meta(pos)
     local old_meta = item_stack:get_meta()
 
     local new_inv = new_meta:get_inventory()
@@ -111,7 +113,7 @@ core.register_node("yatm_armoury:ammo_can", {
   preserve_metadata = function (pos, _old_node, _old_meta_table, drops)
     local stack = drops[1]
 
-    local old_meta = core.get_meta(pos)
+    local old_meta = get_meta(pos)
     local new_meta = stack:get_meta()
 
     local old_inv = old_meta:get_inventory()
@@ -129,7 +131,7 @@ core.register_node("yatm_armoury:ammo_can", {
     local drops = {}
     drops[1] = "yatm_armoury:ammo_can"
     foundation.com.get_inventory_drops(pos, "main", drops)
-    core.remove_node(pos)
+    remove_node(pos)
     return drops
   end,
 

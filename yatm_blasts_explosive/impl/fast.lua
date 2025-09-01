@@ -1,8 +1,9 @@
 local number_truncate = assert(foundation.com.number_truncate)
 local table_copy = assert(foundation.com.table_copy)
 local get_name_from_content_id = assert(core.get_name_from_content_id)
-local get_node_drops = assert(core.get_node_drops)
 local hash_node_position = assert(core.hash_node_position)
+local get_node_drops = assert(tetra.get_node_drops)
+local get_meta = assert(tetra.get_meta)
 -- local CONTENT_UNKNOWN = assert(core.CONTENT_UNKNOWN)
 local CONTENT_AIR = assert(core.CONTENT_AIR)
 -- local CONTENT_IGNORE = assert(core.CONTENT_IGNORE)
@@ -200,7 +201,7 @@ local function update(self, assigns, system, explosion, dtime)
                 data[vmi] = new_ci
                 param2[vmi] = new_param2
                 -- nuke metadata
-                core.get_meta(pos):from_table(nil)
+                get_meta(pos):from_table(nil)
               end
             end
           end

@@ -8,7 +8,7 @@ local table_sample = assert(foundation.com.table_sample)
 local list_sample = assert(foundation.com.list_sample)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local fspec = assert(foundation.com.formspec.api)
-local Vector3 = foundation.com.Vector3
+local Vector3 = assert(foundation.com.Vector3)
 local player_service = assert(nokore.player_service)
 local maybe_start_node_timer = assert(foundation.com.maybe_start_node_timer)
 --
@@ -17,14 +17,17 @@ local itemstack_is_bee = assert(yatm.bees.itemstack_is_bee)
 local itemstack_is_bee_queen = assert(yatm.bees.itemstack_is_bee_queen)
 local itemstack_is_bee_princess = assert(yatm.bees.itemstack_is_bee_princess)
 local itemstack_is_bee_worker = assert(yatm.bees.itemstack_is_bee_worker)
+--
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
 
 local MAX_FRAMES = 4
 
 local function render_formspec(pos, user, _state)
   assert(user, "expected a user")
 
-  local meta = core.get_meta(pos)
-  local node = core.get_node(pos)
+  local meta = get_meta(pos)
+  local node = get_node(pos)
   local nodedef = core.registered_nodes[node.name]
 
   local cio = fspec.calc_inventory_offset
@@ -107,7 +110,7 @@ local groups = {
 }
 
 local function on_construct(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   -- There are 4 rows of comb slots each with 4 columns
@@ -130,7 +133,7 @@ local function on_construct(pos)
 end
 
 local function on_timer(pos, elapsed)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   -- https://animals.howstuffworks.com/insects/bee
@@ -370,7 +373,7 @@ local function on_rightclick(pos, node, user)
 end
 
 local function can_dig(pos, player)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   for i = 1,MAX_FRAMES do

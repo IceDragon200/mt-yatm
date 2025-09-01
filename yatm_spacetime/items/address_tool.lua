@@ -1,15 +1,17 @@
 local is_blank = assert(foundation.com.is_blank)
 local Groups = assert(foundation.com.Groups)
 local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
 
 local function address_tool_on_place(itemstack, placer, pointed_thing)
   if pointed_thing.type == "node" then
     local pos = pointed_thing.under
-    local node = core.get_node(pos)
+    local node = get_node(pos)
     local nodedef = core.registered_nodes[node.name]
     if nodedef then
       if Groups.get_item(nodedef, "addressable_spacetime_device") then
-        local meta = core.get_meta(pos)
+        local meta = get_meta(pos)
         local address = SpacetimeMeta.copy_address(meta, itemstack:get_meta())
         if placer and placer:is_player() then
           if is_blank(address) then
@@ -27,7 +29,7 @@ local function address_tool_on_place(itemstack, placer, pointed_thing)
 end
 
 function yatm_spacetime.default_change_spacetime_address(pos, node, new_address)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local address = SpacetimeMeta.set_address(meta, new_address)
   yatm.queue_refresh_infotext(pos, node)
   return address
@@ -36,17 +38,18 @@ end
 local function address_tool_on_use(itemstack, user, pointed_thing)
   if pointed_thing.type == "node" then
     local pos = pointed_thing.under
-    local node = core.get_node(pos)
+    local node = get_node(pos)
     local nodedef = core.registered_nodes[node.name]
     if nodedef then
       if Groups.get_item(nodedef, "addressable_spacetime_device") then
-        local address = nil
+        local address
         local new_address = SpacetimeMeta.get_address(itemstack:get_meta())
         if nodedef.change_spacetime_address then
           address = nodedef.change_spacetime_address(pos, node, new_address)
         else
           address = yatm_spacetime.default_change_spacetime_address(pos, node, new_address)
         end
+
         if user and user:is_player() then
           if is_blank(address) then
             core.chat_send_player(user:get_player_name(), "Address Cleared!")

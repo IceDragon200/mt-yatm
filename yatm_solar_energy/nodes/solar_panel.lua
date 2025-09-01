@@ -3,9 +3,11 @@ local Energy = assert(yatm.energy)
 local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
 local player_service = assert(nokore.player_service)
-
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
+local get_meta = assert(tetra.get_meta)
+local get_natural_light = assert(tetra.get_natural_light)
+local Vector3 = assert(foundation.com.Vector3)
 
 local yatm_network = {
   kind = "energy_producer",
@@ -28,8 +30,8 @@ local yatm_network = {
 }
 
 function yatm_network.energy.produce_energy(pos, node, dtime, ot)
-  local meta = core.get_meta(pos)
-  local light = core.get_natural_light(pos, nil)
+  local meta = get_meta(pos)
+  local light = get_natural_light(pos, nil)
   local energy = 0
   if light > 5 then
     energy = light * 3 * dtime
@@ -41,7 +43,7 @@ end
 
 local function refresh_infotext(pos, node)
   local nodedef = core.registered_nodes[node.name]
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   local last_produced_energy = meta:get_int("last_produced_energy")
 
@@ -58,24 +60,26 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
-  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine_electric" }, function (loc, rect)
-    if loc == "main_body" then
-      return yatm_fspec.render_meta_energy_gauge(
-          rect.x + rect.w - cio(1),
-          rect.y,
-          1,
-          cis(4),
-          meta,
-          yatm.devices.ENERGY_BUFFER_KEY,
-          yatm.devices.get_energy_capacity(pos, state.node)
-        )
-    elseif loc == "footer" then
+  return yatm.formspec_render_split_inv_panel(
+    user, nil, 4, { bg = "machine_electric" }, function (loc, rect)
+      if loc == "main_body" then
+        return yatm_fspec.render_meta_energy_gauge(
+            rect.x + rect.w - cio(1),
+            rect.y,
+            1,
+            cis(4),
+            meta,
+            yatm.devices.ENERGY_BUFFER_KEY,
+            yatm.devices.get_energy_capacity(pos, state.node)
+          )
+      elseif loc == "footer" then
+        return ""
+      end
       return ""
     end
-    return ""
-  end)
+  )
 end
 
 local function on_receive_fields(player, form_name, fields, state)
@@ -163,6 +167,7 @@ yatm.devices.register_stateful_network_device({
   yatm_network = yatm_network,
 
   refresh_infotext = refresh_infotext,
+  on_rightclick = on_rightclick,
 }, {
   on = {
     tiles = {

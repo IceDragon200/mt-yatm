@@ -10,9 +10,10 @@
 local mod = foundation.new_module("yatm_blasts_emp", "0.2.0")
 
 local Groups = assert(foundation.com.Groups)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
 
 local function handle_emp_target_node_at(assigns, pos, explosion)
-  local target_node = core.get_node_or_nil(pos)
+  local target_node = get_node_or_nil(pos)
 
   if target_node then
     local raycast = core.raycast(explosion.pos, pos, false, false)
@@ -21,7 +22,7 @@ local function handle_emp_target_node_at(assigns, pos, explosion)
       if pointed_thing.type == "node" then
         local int_pos = vector.floor(pointed_thing.intersection_point)
 
-        local node = core.get_node_or_nil(int_pos)
+        local node = get_node_or_nil(int_pos)
         if not node then
           -- can't continue for some reason
           blocked = true

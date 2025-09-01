@@ -1,6 +1,12 @@
 --[[
-Nodes in the `freezing` group will attempt to freeze nearby nodes.
+
+  Nodes in the `freezing` group will attempt to freeze nearby nodes.
+
 ]]
+local find_node_near = assert(tetra.find_node_near)
+local get_node = assert(tetra.get_node)
+local set_node = assert(tetra.set_node)
+
 local dirts = {
   "default:dirt",
   "default:dirt_with_grass",
@@ -33,26 +39,26 @@ core.register_abm({
       nodedef.do_freezing(pos, freezing_node)
     else
       local strength = nodedef.groups.freezing
-      local p = core.find_node_near(pos, strength, dirts)
+      local p = find_node_near(pos, strength, dirts)
       if p then
-        core.set_node(p, {name = "default:permafrost"})
+        set_node(p, {name = "default:permafrost"})
       end
 
-      local p = core.find_node_near(pos, strength, "group:water")
+      local p = find_node_near(pos, strength, "group:water")
       if p then
-        core.set_node(p, {name = "default:ice"})
+        set_node(p, {name = "default:ice"})
       end
 
-      p = core.find_node_near(pos, strength, freezables)
+      p = find_node_near(pos, strength, freezables)
       if p then
-        local freezable_node = core.get_node(p)
+        local freezable_node = get_node(p)
         local freezable_nodedef = core.registered_nodes[freezable_node.name]
         if freezable_nodedef then
           if freezable_nodedef.on_freeze then
             freezable_nodedef.on_freeze(p, freezable_node, strength)
           elseif freezable_nodedef.freezes_to then
             local freezes_to = freezable_nodedef.freezes_to
-            core.set_node(p, { name = freezes_to })
+            set_node(p, { name = freezes_to })
           end
         end
       end

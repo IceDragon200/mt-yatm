@@ -1,4 +1,6 @@
 local Directions = assert(foundation.com.Directions)
+local swap_node = assert(tetra.swap_node)
+
 local lamp_node_box = {
   type = "fixed",
   fixed = {
@@ -54,7 +56,7 @@ local lamp_mesecons = {
           new_state = "off"
         end
         node.name = nodedef.yatm.lamp_basename .. "_" .. new_state
-        core.swap_node(pos, node)
+        swap_node(pos, node)
       end
     end,
 
@@ -68,7 +70,7 @@ local lamp_mesecons = {
           new_state = "on"
         end
         node.name = nodedef.yatm.lamp_basename .. "_" .. new_state
-        core.swap_node(pos, node)
+        swap_node(pos, node)
       end
     end,
   }

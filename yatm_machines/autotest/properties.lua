@@ -5,6 +5,9 @@ local hash_node_position = assert(core.hash_node_position)
 local table_sample = assert(foundation.com.table_sample)
 local Vector3 = assert(foundation.com.Vector3)
 local fparser = assert(foundation.com.formspec.parser)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
+local set_node = assert(tetra.set_node)
+local remove_node = assert(tetra.remove_node)
 
 local ENERGY_PROVIDERS = {}
 
@@ -14,7 +17,7 @@ ENERGY_PROVIDERS.combustion_engine = {
 
     local pos = Vector3.add({}, subject_pos, Vector3.new(0, 0, 1))
 
-    core.set_node(pos, { name = node_name })
+    set_node(pos, { name = node_name })
   end,
 }
 
@@ -40,10 +43,6 @@ local function wait_for_next_tick_on_clusters(suite, state, timeout)
   end
 end
 
-local function set_node_to_air(pos)
-  core.set_node(pos, { name = "air" })
-end
-
 local function random_pos()
   return {
     x = math.random(0xFFFF) - 0x8000,
@@ -55,7 +54,6 @@ end
 yatm_machines.autotest_suite.utils = {
   random_energy_provider = random_energy_provider,
   wait_for_next_tick_on_clusters = wait_for_next_tick_on_clusters,
-  set_node_to_air = set_node_to_air,
   random_pos = random_pos,
 }
 
@@ -71,7 +69,7 @@ yatm_machines.autotest_suite:define_property("is_network_controller_like", {
     suite:clear_test_area(state.pos)
 
     state.node_id = hash_node_position(state.pos)
-    core.set_node(state.pos, assert(state.node))
+    set_node(state.pos, assert(state.node))
 
     return state
   end,
@@ -100,7 +98,7 @@ yatm_machines.autotest_suite:define_property("is_network_controller_like", {
         error("device cluster not available")
       end
 
-      set_node_to_air(state.pos)
+      remove_node(state.pos)
 
       wait_for_next_tick_on_clusters(suite, state, 2.0)
 
@@ -130,7 +128,7 @@ yatm_machines.autotest_suite:define_property("is_network_controller", {
     suite:clear_test_area(state.pos)
 
     state.node_id = hash_node_position(state.pos)
-    core.set_node(state.pos, assert(state.node))
+    set_node(state.pos, assert(state.node))
 
     return state
   end,
@@ -158,7 +156,7 @@ yatm_machines.autotest_suite:define_property("is_network_controller", {
         error("device cluster not available")
       end
 
-      core.set_node(state.pos, { name = "air" })
+      set_node(state.pos, { name = "air" })
 
       wait_for_next_tick_on_clusters(suite, state, 2.0)
 
@@ -195,7 +193,7 @@ yatm_machines.autotest_suite:define_property("is_machine_like", {
 
   tests = {
     ["Will create a device network on construction"] = function (suite, state)
-      core.set_node(state.pos, assert(state.node))
+      set_node(state.pos, assert(state.node))
 
       wait_for_next_tick_on_clusters(suite, state, 2.0)
 
@@ -217,7 +215,7 @@ yatm_machines.autotest_suite:define_property("is_machine_like", {
     end,
 
     ["Will teardown network upon node removal"] = function (suite, state)
-      core.set_node(state.pos, assert(state.node))
+      set_node(state.pos, assert(state.node))
 
       wait_for_next_tick_on_clusters(suite, state, 2.0)
 
@@ -227,7 +225,7 @@ yatm_machines.autotest_suite:define_property("is_machine_like", {
         error("device cluster not available")
       end
 
-      core.set_node(state.pos, { name = "air" })
+      remove_node(state.pos)
 
       wait_for_next_tick_on_clusters(suite, state, 2.0)
 
@@ -239,11 +237,11 @@ yatm_machines.autotest_suite:define_property("is_machine_like", {
     end,
 
     ["Will be in default state without energy"] = function (suite, state)
-      core.set_node(state.pos, assert(state.node))
+      set_node(state.pos, assert(state.node))
 
       wait_for_next_tick_on_clusters(suite, state, 2.0)
 
-      local node = assert(core.get_node_or_nil(state.pos), "expected node at subject position")
+      local node = assert(get_node_or_nil(state.pos), "expected node at subject position")
       local nodedef = assert(core.registered_nodes[node.name], "expected a node def")
 
       assert(nodedef.yatm_network, "expected nodedef to define yatm_network field")
@@ -263,7 +261,7 @@ yatm_machines.autotest_suite:define_property("is_machine_like", {
 
       wait_for_next_tick_on_clusters(suite, state, 2.0)
 
-      local node = assert(core.get_node_or_nil(state.pos), "expected node at subject position")
+      local node = assert(get_node_or_nil(state.pos), "expected node at subject position")
       local nodedef = assert(core.registered_nodes[node.name], "expected a node def")
 
       assert(nodedef.yatm_network, "expected nodedef to define yatm_network field")

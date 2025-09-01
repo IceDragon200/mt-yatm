@@ -4,6 +4,8 @@ local table_length = assert(foundation.com.table_length)
 local Directions = assert(foundation.com.Directions)
 local facedir_to_face = assert(Directions.facedir_to_face)
 local DIR6_TO_VEC3 = assert(Directions.DIR6_TO_VEC3)
+local get_node = assert(tetra.get_node)
+local hash_node_position = assert(core.hash_node_position)
 
 local ReactorCluster = yatm_clusters.SimpleCluster:extends("ReactorCluster")
 local ic = ReactorCluster.instance_class
@@ -18,12 +20,16 @@ end
 
 function ic:schedule_start_reactor(pos, node, player_name)
   print(self.m_log_group, 'schedule_start_reactor', core.pos_to_string(pos), node.name)
-  yatm.clusters:schedule_node_event(self.m_cluster_group, 'start_reactor', pos, node, { player_name = player_name })
+  yatm.clusters:schedule_node_event(
+    self.m_cluster_group, 'start_reactor', pos, node, { player_name = player_name }
+  )
 end
 
 function ic:schedule_stop_reactor(pos, node, player_name)
   print(self.m_log_group, 'schedule_stop_reactor', core.pos_to_string(pos), node.name)
-  yatm.clusters:schedule_node_event(self.m_cluster_group, 'stop_reactor', pos, node, { player_name = player_name })
+  yatm.clusters:schedule_node_event(
+    self.m_cluster_group, 'stop_reactor', pos, node, { player_name = player_name }
+  )
 end
 
 function ic:schedule_remove_node(pos, node)
@@ -81,8 +87,6 @@ function ic:transition_cluster_state(cls, cluster, generation_id, event, state)
 end
 
 local function linear_explore(size_limit, origin, cluster, dir)
-  local hash_node_position = core.hash_node_position
-
   local total_distance = 0
   local last_pos = origin
   local to_visit = {origin}
@@ -127,8 +131,6 @@ local function linear_explore(size_limit, origin, cluster, dir)
 end
 
 local function lateral_explore(size_limit, origin, cluster, left_dir, right_dir)
-  local hash_node_position = core.hash_node_position
-
   local total_distance = 0
   local reactor_left = origin
   local reactor_right = origin
@@ -213,7 +215,7 @@ function ic:verify_reactor_structure(cls, generation_id, event, cluster)
   local origin = controller_node_entry.pos
 
   -- node_entry.node may be a stale entry
-  local node = core.get_node(origin)
+  local node = get_node(origin)
 
   -- Grab all the directions for the reactor controller
   -- the SOUTH face is always the 'front' (the face that you preceive to be the front)
@@ -235,7 +237,7 @@ function ic:verify_reactor_structure(cls, generation_id, event, cluster)
   local up_struct = cluster:get_node_group(vector.add(origin, DIR6_TO_VEC3[up_dir]), 'structure')
   local down_struct = cluster:get_node_group(vector.add(origin, DIR6_TO_VEC3[down_dir]), 'structure')
 
-  local north_node = core.get_node(vector.add(origin, DIR6_TO_VEC3[north_dir]))
+  local north_node = get_node(vector.add(origin, DIR6_TO_VEC3[north_dir]))
 
   local north_has_air_or_coolant =
     north_node.name == 'air' or
@@ -383,7 +385,7 @@ function ic:verify_reactor_structure(cls, generation_id, event, cluster)
   for y = hva.y,hvb.y do
     for z = hva.z,hvb.z do
       for x = hva.x,hvb.x do
-        local inner_node = core.get_node(vector.new(x, y, z))
+        local inner_node = get_node(vector.new(x, y, z))
 
         is_hollow =
           inner_node.name == 'air' or
@@ -482,7 +484,7 @@ function ic:_handle_transition_state(cls, generation_id, event, cluster_ids)
   if cluster then
     cluster.assigns.state = assert(event.params.state)
     cluster:reduce_nodes(0, function (node_entry, acc)
-      local node = core.get_node(node_entry.pos)
+      local node = get_node(node_entry.pos)
       local nodedef = core.registered_nodes[node.name]
       if nodedef.transition_reactor_state then
         nodedef.transition_reactor_state(node_entry.pos, node, cluster.assigns.state)
@@ -497,7 +499,7 @@ function ic:_handle_transition_state(cls, generation_id, event, cluster_ids)
 end
 
 function ic:get_node_infotext(pos)
-  local node_id = core.hash_node_position(pos)
+  local node_id = hash_node_position(pos)
 
   return yatm.clusters:reduce_node_clusters(pos, '', function (cluster, acc)
     if cluster.groups[self.m_cluster_group] then

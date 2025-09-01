@@ -14,13 +14,14 @@ local mod = assert(yatm_armoury_icbm)
 local data_network = assert(yatm.data_network)
 
 local Vector3 = assert(foundation.com.Vector3)
-local Cuboid = assert(foundation.com.Cuboid)
-local ng = Cuboid.new_fast_node_box
 local Directions = assert(foundation.com.Directions)
 local Groups = assert(foundation.com.Groups)
 local string_hex_unescape = assert(foundation.com.string_hex_unescape)
 local fspec = assert(foundation.com.formspec.api)
 local player_service = nokore.player_service
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
 
 -- Deadzone
 --   The Silo has a deadzone of up to 8 nodes in any direction, this it to prevent it from blowing
@@ -52,9 +53,10 @@ local player_service = nokore.player_service
 
 local ProbeSchema = false
 
-if yatm.BinSchema then
+local BinSchema = foundation.com.BinSchema
+if BinSchema then
   ProbeSchema =
-    yatm.BinSchema:new("icbm_silo.probe", {
+    BinSchema:new("icbm_silo.probe", {
       {"offset_x", "i16"},
       {"offset_y", "i16"},
       {"offset_z", "i16"},
@@ -96,7 +98,7 @@ local function count_guiding_rings(pos, node)
   while true do
     local next_pos = vector.add(origin, up_vec)
     origin = next_pos
-    local gnode = core.get_node(next_pos)
+    local gnode = get_node(next_pos)
 
     if Groups.has_group(gnode, "icbm_guiding_ring") then
       count = count + 1
@@ -108,7 +110,7 @@ local function count_guiding_rings(pos, node)
 end
 
 local function arm_icbm(pos, node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
   local warhead_stack = inv:get_stack("warhead_slot", 1)
   local shell_stack = inv:get_stack("shell_slot", 1)
@@ -147,7 +149,7 @@ local function arm_icbm(pos, node)
 end
 
 local function bind_input_port(pos, name)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local port = meta:get_int(name)
   if port > 0 then
     yatm_data_logic.bind_input_port(pos, port, "active")
@@ -155,7 +157,7 @@ local function bind_input_port(pos, name)
 end
 
 local function rebind_input_port(pos, name, new_port)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local old_port = meta:get_int(name)
 
   if old_port > 0 then
@@ -180,7 +182,7 @@ local data_interface = {
   end,
 
   receive_pdu = function (self, pos, node, dir, port, value)
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
 
     local blob = string_hex_unescape(value)
 
@@ -322,15 +324,24 @@ local data_interface = {
     tabs = {
       {
         components = {
-          {component = "port", name = "offset_x_port", meta = true, rebind = "input", bind_mode = "active"},
-          {component = "port", name = "offset_y_port", meta = true, rebind = "input", bind_mode = "active"},
-          {component = "port", name = "offset_z_port", meta = true, rebind = "input", bind_mode = "active"},
-          {component = "port", name = "launch_port", meta = true, rebind = "input", bind_mode = "active"},
-          {component = "port", name = "arming_port", meta = true, rebind = "input", bind_mode = "active"},
-          {component = "port", name = "probing_port", meta = true, rebind = "input", bind_mode = "active"},
-          {component = "port", name = "error_port", meta = true},
-          {component = "port", name = "launched_port", meta = true},
-          {component = "port", name = "armed_port", meta = true},
+          {component = "port", name = "offset_x_port",
+            meta = true, rebind = "input", bind_mode = "active"},
+          {component = "port", name = "offset_y_port",
+            meta = true, rebind = "input", bind_mode = "active"},
+          {component = "port", name = "offset_z_port",
+            meta = true, rebind = "input", bind_mode = "active"},
+          {component = "port", name = "launch_port",
+            meta = true, rebind = "input", bind_mode = "active"},
+          {component = "port", name = "arming_port",
+            meta = true, rebind = "input", bind_mode = "active"},
+          {component = "port", name = "probing_port",
+            meta = true, rebind = "input", bind_mode = "active"},
+          {component = "port", name = "error_port",
+            meta = true},
+          {component = "port", name = "launched_port",
+            meta = true},
+          {component = "port", name = "armed_port",
+            meta = true},
         }
       },
       {
@@ -358,7 +369,7 @@ local function get_formspec_name(pos)
 end
 
 local function render_formspec(pos, player, assigns)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
@@ -366,63 +377,77 @@ local function render_formspec(pos, player, assigns)
 
   local cio = fspec.calc_inventory_offset
 
-  return yatm.formspec_render_split_inv_panel(player, nil, 6, { bg = "machine_radioactive" }, function (loc, rect)
-    if loc == "main_body" then
-      local formspec =
-        fspec.label(rect.x, rect.y, "Shell") ..
-        fspec.list(my_inv_name, "shell_slot", rect.x, rect.y + 0.5, 1, 1) ..
-        fspec.label(rect.x + cio(4), rect.y, "Warhead") ..
-        fspec.list(my_inv_name, "warhead_slot", rect.x + cio(4), rect.y + 0.5, 1, 1)
+  return yatm.formspec_render_split_inv_panel(
+    player, nil, 6, { bg = "machine_radioactive" }, function (loc, rect)
+      if loc == "main_body" then
+        local formspec =
+          fspec.label(rect.x, rect.y, "Shell") ..
+          fspec.list(my_inv_name, "shell_slot", rect.x, rect.y + 0.5, 1, 1) ..
+          fspec.label(rect.x + cio(4), rect.y, "Warhead") ..
+          fspec.list(my_inv_name, "warhead_slot", rect.x + cio(4), rect.y + 0.5, 1, 1)
 
-      if inv:get_size("capsule_inv") > 0 then
+        if inv:get_size("capsule_inv") > 0 then
+          formspec =
+            formspec ..
+            fspec.label(rect.x, rect.y + cio(2.5), "Capsule") ..
+            fspec.list(my_inv_name, "capsule_inv", rect.x, rect.y + cio(3), 8, 2)
+        end
+
+        formspec =
+          formspec
+          .. fspec.field_area(
+            rect.x + cio(1), rect.y + cio(3), 2, 1,
+            "offset_x", "Offset-X", meta:get_int("offset_x")
+          )
+          .. fspec.field_area(
+            rect.x + cio(3), rect.y + cio(3), 2, 1,
+            "offset_y", "Offset-Y", meta:get_int("offset_y")
+          )
+          .. fspec.field_area(
+            rect.x + cio(5), rect.y + cio(3), 2, 1,
+            "offset_z", "Offset-Z", meta:get_int("offset_z")
+          )
+          .. fspec.field_area(
+            rect.x, rect.y + cio(4), 8, 1,
+            "launch_code", "Launch Code", meta:get_string("launch_code")
+          )
+
         formspec =
           formspec ..
-          fspec.label(rect.x, rect.y + cio(2.5), "Capsule") ..
-          fspec.list(my_inv_name, "capsule_inv", rect.x, rect.y + cio(3), 8, 2)
-      end
+          fspec.button(rect.x, rect.y + cio(5), 2, 1, "arm", "Arm") ..
+          fspec.button(rect.x + cio(2), rect.y + cio(5), 2, 1, "disarm", "Disarm") ..
+          fspec.button(rect.x + cio(4), rect.y + cio(5), 4, 1, "launch", "Launch") ..
+          fspec.field_close_on_enter("arm", false) ..
+          fspec.field_close_on_enter("disarm", false) ..
+          fspec.field_close_on_enter("launch", false)
 
-      formspec =
-        formspec ..
-        fspec.field_area(rect.x + cio(1), rect.y + cio(3), 2, 1, "offset_x", "Offset-X", meta:get_int("offset_x")) ..
-        fspec.field_area(rect.x + cio(3), rect.y + cio(3), 2, 1, "offset_y", "Offset-Y", meta:get_int("offset_y")) ..
-        fspec.field_area(rect.x + cio(5), rect.y + cio(3), 2, 1, "offset_z", "Offset-Z", meta:get_int("offset_z")) ..
-        fspec.field_area(rect.x, rect.y + cio(4), 8, 1, "launch_code", "Launch Code", meta:get_string("launch_code"))
+        return formspec
+      elseif loc == "footer" then
+        local formspec = ""
 
-      formspec =
-        formspec ..
-        fspec.button(rect.x, rect.y + cio(5), 2, 1, "arm", "Arm") ..
-        fspec.button(rect.x + cio(2), rect.y + cio(5), 2, 1, "disarm", "Disarm") ..
-        fspec.button(rect.x + cio(4), rect.y + cio(5), 4, 1, "launch", "Launch") ..
-        fspec.field_close_on_enter("arm", false) ..
-        fspec.field_close_on_enter("disarm", false) ..
-        fspec.field_close_on_enter("launch", false)
+        if inv:get_size("capsule_inv") > 0 then
+          formspec =
+            formspec ..
+            fspec.list_ring(my_inv_name, "capsule_inv") ..
+            fspec.list_ring("current_player", "main")
+        end
 
-      return formspec
-    elseif loc == "footer" then
-      local formspec = ""
-
-      if inv:get_size("capsule_inv") > 0 then
         formspec =
           formspec ..
-          fspec.list_ring(my_inv_name, "capsule_inv") ..
+          fspec.list_ring(my_inv_name, "shell_slot") ..
+          fspec.list_ring("current_player", "main") ..
+          fspec.list_ring(my_inv_name, "warhead_slot") ..
           fspec.list_ring("current_player", "main")
+
+        return formspec
       end
-
-      formspec =
-        formspec ..
-        fspec.list_ring(my_inv_name, "shell_slot") ..
-        fspec.list_ring("current_player", "main") ..
-        fspec.list_ring(my_inv_name, "warhead_slot") ..
-        fspec.list_ring("current_player", "main")
-
-      return formspec
+      return ""
     end
-    return ""
-  end)
+  )
 end
 
-local function on_receive_fields(player, form_name, fields, state)
-  local meta = core.get_meta(state.pos)
+local function on_receive_fields(player, form_name, fields, assigns)
+  local meta = get_meta(assigns.pos)
   print("on_receive_fields", dump(fields))
   if fields["offset_x"] then
     meta:set_int("offset_x", tonumber(fields["offset_x"]))
@@ -464,7 +489,7 @@ local function refresh_formspec(pos, player)
 end
 
 local function on_rightclick(pos, node, player, item_stack, pointed_thing)
-  local state = {
+  local assigns = {
     pos = assert(vector.copy(pos)),
     node = assert(node)
   }
@@ -476,7 +501,7 @@ local function on_rightclick(pos, node, player, item_stack, pointed_thing)
     formspec_name,
     formspec,
     {
-      state = state,
+      state = assigns,
       on_receive_fields = on_receive_fields
     }
   )
@@ -491,7 +516,7 @@ local groups = {
 
 -- Optional fluid interface
 local fluid_interface
-if yatm_fluids then
+if foundation.is_module_present("yatm_fluids") then
   groups.fluid_interface_in = 1
 
   local FluidInterface = assert(yatm.fluids.FluidInterface)
@@ -511,7 +536,7 @@ if yatm_item_storage then
 
   item_interface =
     ItemInterface.new_directional(function (self, pos, dir)
-      local node = core.get_node(pos)
+      local node = get_node(pos)
       local new_dir = Directions.facedir_to_face(node.param2, dir)
 
       if new_dir == Directions.D_DOWN then
@@ -531,7 +556,7 @@ if yatm_item_storage then
 end
 
 local function refresh_infotext(pos, node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local offset_x = meta:get_int("offset_x")
   local offset_y = meta:get_int("offset_y")
   local offset_z = meta:get_int("offset_z")
@@ -632,8 +657,8 @@ core.register_node("yatm_armoury_icbm:icbm_silo", {
   on_metadata_inventory_take = on_metadata_inventory_take,
 
   on_construct = function (pos)
-    local node = core.get_node_or_nil(pos)
-    local meta = core.get_meta(pos)
+    local node = get_node_or_nil(pos)
+    local meta = get_meta(pos)
     local inv = meta:get_inventory()
 
     inv:set_size("warhead_slot", 1)

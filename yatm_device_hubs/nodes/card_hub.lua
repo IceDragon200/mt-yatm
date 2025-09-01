@@ -1,8 +1,9 @@
 local mod = assert(yatm_device_hubs)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = assert(Cuboid.new_fast_node_box)
-local Groups = assert(foundation.com.Groups)
 local table_merge = assert(foundation.com.table_merge)
+local get_meta = assert(tetra.get_meta)
+local swap_node = assert(tetra.swap_node)
 
 local yatm_network = {
   kind = "hub",
@@ -47,13 +48,13 @@ end
 local function on_construct(pos)
   devices.device_on_construct(pos)
 
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   maybe_initialize_inventory(meta)
 end
 
 local function on_rightclick(pos, node, user, itemstack, pointed_thing)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   maybe_initialize_inventory(meta)
 
@@ -63,13 +64,13 @@ end
 local function on_access_card_inserted(pos, node, access_card)
   local nodedef = core.registered_nodes[node.name]
   local new_name = loaded_yatm_network.states[nodedef.yatm_network.state]
-  core.swap_node(pos, table_merge(node, { name = new_name }))
+  swap_node(pos, table_merge(node, { name = new_name }))
 end
 
 local function on_access_card_removed(pos, node, access_card)
   local nodedef = core.registered_nodes[node.name]
   local new_name = yatm_network.states[nodedef.yatm_network.state]
-  core.swap_node(pos, table_merge(node, { name = new_name }))
+  swap_node(pos, table_merge(node, { name = new_name }))
 end
 
 yatm.devices.register_stateful_network_device({

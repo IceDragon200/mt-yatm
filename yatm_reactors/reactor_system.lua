@@ -1,12 +1,13 @@
 local ReactorSystem = foundation.com.Class:extends("ReactorSystem")
 local ic = ReactorSystem.instance_class
+local get_node_or_nil = assert(tetra.get_node_or_nil)
 
 function ic:initialize()
   ic._super.initialize(self)
 end
 
 local function update_fuel_rod(node_entry, context)
-  local node = core.get_node_or_nil(node_entry.pos)
+  local node = get_node_or_nil(node_entry.pos)
   if node then
     local nodedef = core.registered_nodes[node.name]
 
@@ -19,7 +20,7 @@ end
 function ic:update(cls, cluster, dtime)
   --print("Updating Cluster", network.id)
   cluster:reduce_nodes_of_group("controller", 0, function (node_entry, acc)
-    local node = core.get_node(node_entry.pos)
+    local node = get_node_or_nil(node_entry.pos)
     local nodedef = core.registered_nodes[node.name]
 
     if nodedef.reactor_device then

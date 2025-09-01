@@ -1,12 +1,13 @@
 local cluster_reactor = assert(yatm.cluster.reactor)
 local data_network = yatm.data_network
+local get_meta = assert(tetra.get_meta)
 
 if not data_network then
   return
 end
 
 local function data_bus_refresh_infotext(pos, node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   local infotext =
     cluster_reactor:get_node_infotext(pos) .. "\n" ..

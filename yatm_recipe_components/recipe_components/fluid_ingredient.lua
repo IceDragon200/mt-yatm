@@ -35,7 +35,7 @@ do
 
     -- TODO: check metadata
 
-    return true, ItemIngredient.ERR_FLUID_OK
+    return true, FluidIngredient.ERR_FLUID_OK
   end
 
   --- @spec #make_fluid_stack(): FluidStack

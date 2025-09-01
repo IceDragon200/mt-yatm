@@ -1,7 +1,7 @@
 local Color = assert(foundation.com.Color)
 local assertions = assert(foundation.com.assertions)
 local fspec = assert(foundation.com.formspec.api)
--- local string_split = assert(foundation.com.string_split)
+local get_meta = assert(tetra.get_meta)
 
 --- @namespace yatm.devices.upgrades
 yatm.devices.upgrades = yatm.devices.upgrades or {}
@@ -13,8 +13,8 @@ local m = yatm.devices.upgrades
 --- @const UPGRADE_SLOT: String
 m.UPGRADE_SLOT = "upgrade_slot"
 
---- The header schema is used on the machine to inform us of how many upgrades unique are present on a
---- machine.
+--- The header schema is used on the machine to inform us of how many upgrades unique are present
+--- on a machine.
 ---
 --- @const UpgradeHeaderSchema: CompiledMetaSchema
 m.UpgradeHeaderSchema = foundation.com.MetaSchema:new(
@@ -144,7 +144,7 @@ function m.render_upgrades_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   local upgrades_count = m.UpgradeHeaderSchema:get_count(meta)
 
@@ -196,7 +196,7 @@ end
 --- ): (stop_bubbling: Boolean, formspec: String)
 function m.on_receive_fields_upgrades(player, form_name, fields, state)
   if fields["apply_upgrade"] then
-    local meta = core.get_meta(state.pos)
+    local meta = get_meta(state.pos)
 
     local inv = meta:get_inventory()
     local stack = inv:get_stack(m.UPGRADE_SLOT, 1)
@@ -214,7 +214,7 @@ end
 ---   stack: ItemStack
 --- ): (leftover: ItemStack)
 function m.install_upgrade_from_item_stack(pos, node, stack)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   if not stack:is_empty() then
     local def = stack:get_definition()

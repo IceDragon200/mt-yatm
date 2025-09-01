@@ -5,6 +5,12 @@ return {
     com = {
       fields = {
         --
+        -- Constants
+        --
+        ALL_PREFIXES = {},
+        BINARY_PREFIXES = {},
+
+        --
         -- Namespaces
         --
         assertions = {
@@ -68,6 +74,7 @@ return {
           fields = {
             load_list = {},
             dump_list = {},
+            description = {},
           },
         },
         Rect = {},
@@ -103,6 +110,11 @@ return {
         --
         -- Classes
         --
+        BinaryBuffer = {
+          fields = {
+            new = {},
+          },
+        },
         BinSchema = {
           fields = {
             new = {},
@@ -133,6 +145,11 @@ return {
             new = {},
           },
         },
+        StringBuffer = {
+          fields = {
+            new = {},
+          },
+        },
         MinHeap = {
           fields = {
             new = {},
@@ -153,6 +170,16 @@ return {
             new = {},
           },
         },
+
+        --
+        -- Instances
+        --
+        node_sounds = {
+          fields = {
+            build = {},
+          },
+        },
+
         --
         -- Functions
         --
@@ -172,9 +199,11 @@ return {
         set_itemstack_meta_description = {},
         get_itemstack_description = {},
         get_itemstack_item_description = {},
+        append_itemstack_meta_description = {},
         -- world
         get_inventory_drops = {},
         copy_node = {},
+        node_to_string = {},
         --
         list_concat = {},
         list_sample = {},
@@ -200,6 +229,8 @@ return {
         --
         binary_splice = {},
         make_string_ref = {},
+        string_each_char = {},
+        string_empty = {},
         string_starts_with = {},
         string_ends_with = {},
         string_bin_encode = {},
@@ -222,11 +253,12 @@ return {
         table_deep_copy = {},
         table_deep_merge = {},
         table_equals = {},
+        table_freeze = {},
+        table_key_of = {},
         table_keys = {},
         table_length = {},
         table_merge = {},
         table_put_new = {},
-        table_freeze = {},
         table_sample = {},
         --
         path_basename = {},
