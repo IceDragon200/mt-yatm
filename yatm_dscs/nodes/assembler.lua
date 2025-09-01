@@ -6,6 +6,7 @@ local mod = assert(yatm_dscs)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
+local get_meta = assert(tetra.get_meta)
 
 local assembler_yatm_network = {
   kind = "machine",
@@ -34,7 +35,7 @@ local assembler_yatm_network = {
 
 local function refresh_infotext(pos, node)
   local nodedef = core.registered_nodes[node.name]
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local infotext =
     nodedef.short_description .. "\n"
     .. cluster_devices:get_node_infotext(pos) .. "\n"

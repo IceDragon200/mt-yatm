@@ -188,6 +188,10 @@ return {
         --
         format_pretty_time = {},
         metaref_merge_fields_from_table = {},
+        metaref_string_list_to_table = {},
+        metaref_string_list_push = {},
+        metaref_string_list_index_of = {},
+        metaref_string_list_lazy_clear = {},
         --
         is_blank = {},
         is_table_empty = {},

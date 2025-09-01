@@ -344,10 +344,32 @@ return {
 
     dscs = {
       fields = {
+        --
+        -- Functions
+        --
+        get_drive_capacity = {},
         get_drive_label = {},
-        set_drive_label = {},
+        get_drive_stack_size = {},
+        is_item_stack_ele_drive = {},
         is_item_stack_fluid_drive = {},
+        is_item_stack_inventory_drive = {},
         is_item_stack_item_drive = {},
+        load_fluid_inventory_from_drive = {},
+        load_inventory_list_from_drive = {},
+        make_flat_monitor_node_box = {},
+        overload_fluid_inventory_from_drive = {},
+        persist_inventory_list_to_drive = {},
+        set_drive_label = {},
+
+        --
+        -- Modules
+        --
+        formspec = {
+          fields = {
+            render_inventory_controller_children_at = {},
+            render_inventory_controller_at = {},
+          },
+        },
       },
     },
 
@@ -382,6 +404,12 @@ return {
         fluid_registry = {
           fields = {
             register = {},
+          },
+        },
+        fluid_inventories = {
+          fields = {
+            destroy_fluid_inventory = {},
+            get_fluid_inventory = {},
           },
         },
       },

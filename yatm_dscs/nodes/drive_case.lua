@@ -12,6 +12,9 @@ local cluster_energy = assert(yatm.cluster.energy)
 local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
 local player_service = assert(nokore.player_service)
+local get_meta = assert(tetra.get_meta)
+local node_dig = assert(tetra.node_dig)
+local fluid_inventories = assert(yatm.fluids.fluid_inventories)
 
 local DRIVE_BAY_SIZE = 8
 
@@ -21,7 +24,7 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "dscs" }, function (loc, rect)
     if loc == "main_body" then
@@ -52,7 +55,7 @@ local function render_formspec(pos, user, state)
 end
 
 local function on_receive_fields(player, formname, fields, assigns)
-  local meta = core.get_meta(assigns.pos)
+  local meta = get_meta(assigns.pos)
   local inv = meta:get_inventory()
   local needs_refresh = false
 
@@ -112,7 +115,7 @@ local function on_rightclick(pos, node, user, item_stack, pointed_thing)
 end
 
 local function refresh_infotext(pos, node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local infotext =
     "Drive Case\n" ..
     cluster_devices:get_node_infotext(pos) .. "\n" ..
@@ -164,7 +167,7 @@ local function allow_metadata_inventory_put(pos, listname, index, stack, player)
 end
 
 local function persist_drive_contents(pos, index)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   local drive_stack = inv:get_stack("drive_bay", index)
@@ -179,7 +182,7 @@ local function on_metadata_inventory_move(pos, from_list, from_index, to_list, t
   print("Moving stack from " .. from_list .. " to " .. to_list)
 
   if from_list == "drive_bay" or to_list == "drive_bay" then
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     local inv = meta:get_inventory()
 
     local from_stack = inv:get_stack("drive_bay", from_index)
@@ -219,7 +222,7 @@ end
 
 local function on_metadata_inventory_put(pos, listname, index, stack, player)
   if listname == "drive_bay" then
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
 
     if yatm.dscs.is_item_stack_item_drive(stack) then
       local inv = meta:get_inventory()
@@ -248,7 +251,7 @@ end
 local function on_metadata_inventory_take(pos, listname, index, stack, player)
   if listname == "drive_bay" then
     if yatm.dscs.is_item_stack_item_drive(stack) then
-      local meta = core.get_meta(pos)
+      local meta = get_meta(pos)
       local inv = meta:get_inventory()
 
       inv:set_size("drive_contents_" .. index, 0)
@@ -258,7 +261,7 @@ local function on_metadata_inventory_take(pos, listname, index, stack, player)
       core.log("action", player:get_player_name() .. " removed a drive")
     elseif yatm.dscs.is_item_stack_fluid_drive(stack) then
       local fluid_inventory_name = get_fluid_inventory_name(pos, index)
-      yatm.fluids.fluid_inventories:destroy_fluid_inventory(fluid_inventory_name)
+      fluid_inventories:destroy_fluid_inventory(fluid_inventory_name)
 
       refresh_formspec(pos, player)
 
@@ -269,7 +272,7 @@ end
 
 function drive_case_yatm_network.on_load(pos, node)
   -- reload fluid inventories
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   for i = 1,DRIVE_BAY_SIZE do
@@ -284,18 +287,18 @@ end
 
 function drive_case_yatm_network.on_unload(pos, node)
   -- unload fluid inventories
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   for i = 1,DRIVE_BAY_SIZE do
     local stack = inv:get_stack("drive_bay", i)
     if yatm.dscs.is_item_stack_fluid_drive(stack) then
       local fluid_inventory_name = get_fluid_inventory_name(pos, i)
-      local fluid_inventory = yatm.fluid.fluid_inventories:get_fluid_inventory(fluid_inventory_name)
+      local fluid_inventory = fluid_inventories:get_fluid_inventory(fluid_inventory_name)
       if fluid_inventory then
         meta:set_string("fluid_drive_contents_" .. i, fluid_inventory:serialize())
       end
-      yatm.fluids.fluid_inventories:destroy_fluid_inventory(fluid_inventory_name)
+      fluid_inventories:destroy_fluid_inventory(fluid_inventory_name)
     end
   end
 end
@@ -337,7 +340,7 @@ yatm.devices.register_stateful_network_device({
 
   on_construct = function (pos)
     yatm.devices.device_on_construct(pos)
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     local inv = meta:get_inventory()
     inv:set_size("drive_bay", DRIVE_BAY_SIZE)
   end,
@@ -351,11 +354,11 @@ yatm.devices.register_stateful_network_device({
   on_metadata_inventory_take = on_metadata_inventory_take,
 
   on_dig = function (pos, node, digger)
-    local meta = core.get_meta(pos)
+    local meta = get_meta(pos)
     local inv = meta:get_inventory()
 
     if inv:is_empty("drive_bay") then
-      return core.node_dig(pos, node, digger)
+      return node_dig(pos, node, digger)
     end
 
     return false

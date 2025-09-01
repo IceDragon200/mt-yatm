@@ -2,6 +2,7 @@ local Groups = assert(foundation.com.Groups)
 local InventorySerializer = assert(yatm.items.InventorySerializer)
 
 local string_to_pos = assert(core.string_to_pos)
+local get_meta = assert(tetra.get_meta)
 
 --- @namespace yatm.dscs
 yatm.dscs = yatm.dscs or {}
@@ -122,7 +123,7 @@ function yatm.dscs.get_inventory_controller_node_entry_by_id(id)
   local node_entry = yatm.cluster.devices:get_node_by_id(id)
 
   if node_entry then
-    local meta = core.get_meta(node_entry.pos)
+    local meta = get_meta(node_entry.pos)
 
     if meta:get_int("has_inv_controller") > 0 then
       local inv_controller_pos = string_to_pos(meta:get_string("inv_controller_pos"))

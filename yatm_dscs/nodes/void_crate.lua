@@ -444,7 +444,7 @@ function yatm_network.on_unload(pos, node)
   local stack = inv:get_stack("drive_slot", 1)
   if yatm.dscs.is_item_stack_fluid_drive(stack) then
     local fluid_inventory_name = get_fluid_inventory_name(pos)
-    local fluid_inventory = yatm.fluid.fluid_inventories:get_fluid_inventory(fluid_inventory_name)
+    local fluid_inventory = yatm.fluids.fluid_inventories:get_fluid_inventory(fluid_inventory_name)
     if fluid_inventory then
       meta:set_string("fluid_drive_contents", fluid_inventory:serialize())
     end
@@ -498,6 +498,7 @@ yatm.devices.register_stateful_network_device({
   on_metadata_inventory_take = on_metadata_inventory_take,
 
   on_dig = on_dig,
+  on_blast = on_blast,
 }, {
   error = {
     tiles = {

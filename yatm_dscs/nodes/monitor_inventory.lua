@@ -6,6 +6,7 @@ local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
 local fspec = assert(foundation.com.formspec.api)
+local get_meta = assert(tetra.get_meta)
 
 local groups = {
   cracky = nokore.dig_class("copper"),
@@ -41,7 +42,7 @@ local function get_formspec(pos, user, assigns)
 end
 
 local function refresh_infotext(pos, node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local infotext =
     "Inventory Monitor\n" ..
     cluster_devices:get_node_infotext(pos) .. "\n" ..

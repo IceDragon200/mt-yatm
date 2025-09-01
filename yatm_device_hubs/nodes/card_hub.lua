@@ -4,6 +4,7 @@ local ng = assert(Cuboid.new_fast_node_box)
 local table_merge = assert(foundation.com.table_merge)
 local get_meta = assert(tetra.get_meta)
 local swap_node = assert(tetra.swap_node)
+local device_on_construct = assert(yatm.devices.device_on_construct)
 
 local yatm_network = {
   kind = "hub",
@@ -46,7 +47,7 @@ local function maybe_initialize_inventory(meta)
 end
 
 local function on_construct(pos)
-  devices.device_on_construct(pos)
+  device_on_construct(pos)
 
   local meta = get_meta(pos)
 

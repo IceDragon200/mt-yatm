@@ -34,6 +34,7 @@ return {
       fields = {
         show_formspec = {},
         refresh_formspecs = {},
+        trigger_form_timer = {},
       },
     },
 

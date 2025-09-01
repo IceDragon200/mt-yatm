@@ -76,6 +76,7 @@ return {
     record_protection_violation = {},
     is_protected = {},
     pos_to_string = {},
+    string_to_pos = {},
     register_abm = {},
     register_chatcommand = {},
     register_craft = {},

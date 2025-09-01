@@ -10,6 +10,7 @@ local metaref_string_list_lazy_clear = assert(foundation.com.metaref_string_list
 
 local pos_to_string = assert(core.pos_to_string)
 local string_to_pos = assert(core.string_to_pos)
+local get_meta = assert(tetra.get_meta)
 
 local get_inventory_controller_def = assert(yatm.dscs.get_inventory_controller_def)
 
@@ -26,7 +27,7 @@ local function try_register_to_inventory_controller(pos, node, child_pos)
     return false, err
   end
 
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   local value = pos_to_string(child_pos)
 
@@ -60,7 +61,7 @@ local function is_registered_to_inventory_controller(pos, node, child_pos)
     return false, err
   end
 
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local value = pos_to_string(child_pos)
   local index =
     metaref_string_list_index_of(
@@ -81,7 +82,7 @@ local function handle_dscs_storage_module(_clusters, cluster, dtime, node_entry)
     assigns.dscs_storage_dtime = assigns.dscs_storage_dtime - 5
 
     local nodedef = core.registered_nodes[node_entry.node.name]
-    local meta = core.get_meta(node_entry.pos)
+    local meta = get_meta(node_entry.pos)
 
     local has_controller = meta:get_int("has_inv_controller")
     local controller_pos
@@ -166,7 +167,7 @@ local function handle_dscs_inventory_controller(_clusters, cluster, dtime, node_
 
   assigns.dscs_ivc_dtime = (assigns.dscs_ivc_dtime or 0) + dtime
   if assigns.dscs_ivc_dtime > 5 then
-    local meta = core.get_meta(node_entry.pos)
+    local meta = get_meta(node_entry.pos)
 
     local inv_con, err = get_inventory_controller_def(node_entry.pos, node_entry.node)
     if not inv_con then

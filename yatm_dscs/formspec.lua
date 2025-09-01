@@ -1,7 +1,7 @@
 local hash_node_position = assert(core.hash_node_position)
 local fspec = assert(foundation.com.formspec.api)
 local metaref_string_list_to_table = assert(foundation.com.metaref_string_list_to_table)
-
+local get_meta = assert(tetra.get_meta)
 local string_to_pos = assert(core.string_to_pos)
 
 local get_inventory_controller_def = assert(yatm.dscs.get_inventory_controller_def)
@@ -68,7 +68,7 @@ function my_fspec.render_inventory_controller_children_at(options)
     return formspec
   end
 
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
 
   local inv_con = get_inventory_controller_def(pos, node)
 

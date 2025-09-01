@@ -87,6 +87,7 @@ globals = {
       emit_value = {},
       emit_output_data = {},
       emit_matrix_port_value = {},
+      emit_output_data_value = {},
       mark_all_inputs_for_active_receive = {},
       bind_input_port = {},
       bind_matrix_ports = {},

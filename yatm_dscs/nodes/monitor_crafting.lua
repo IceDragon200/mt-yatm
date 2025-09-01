@@ -5,9 +5,10 @@ local table_merge = assert(foundation.com.table_merge)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
+local get_meta = assert(tetra.get_meta)
 
 local function refresh_infotext(pos, node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   local infotext =
     "Monitor\n" ..
     cluster_devices:get_node_infotext(pos) .. "\n" ..
