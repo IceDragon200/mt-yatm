@@ -269,6 +269,11 @@ return {
       },
     },
 
+    -- radio network
+    radio_network = {
+      fields = {},
+    },
+
     -- data network
     data_network = {
       fields = {

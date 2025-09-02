@@ -9,7 +9,7 @@ core.register_node("name", {
   ...
 
   radio_network = {
-    on_message = function (self, pos, node, message)
+    on_message = function (self, pos, node, message, meta)
       --- do whatever you like with the message
     end,
   }
