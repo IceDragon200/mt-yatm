@@ -437,9 +437,9 @@ do
     self.m_mailbox_id = data.mailbox_id
     self.m_monotonic_time = data.monotonic_time
     self.m_tick_time = data.tick_time
-    self.m_messages = self.m_messages:load_data(data.messages)
-    self.m_sub_timers = self.m_sub_timers:load_data(data.sub_timers)
-    self.m_mailbox_timers = self.m_mailbox_timers:load_data(data.mailbox_timers)
+    self.m_messages:load_data(data.messages)
+    self.m_sub_timers:load_data(data.sub_timers)
+    self.m_mailbox_timers:load_data(data.mailbox_timers)
     self.m_entries = data.entries
     self.m_mailboxes = data.mailboxes
   end
