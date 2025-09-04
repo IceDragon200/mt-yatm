@@ -11,6 +11,7 @@
 -- Even the designer is baffled by that.
 --
 local mod = assert(yatm_oku)
+local fspec = assert(foundation.com.formspec.api)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local random_string62 = assert(foundation.com.random_string62)

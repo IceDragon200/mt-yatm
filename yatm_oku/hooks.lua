@@ -1,5 +1,5 @@
 --
--- All minetest hooks
+-- All core hooks
 --
 if not yatm.computers then
   yatm.warn("yatm.computers is unavailable, will not set hooks")

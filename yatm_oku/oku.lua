@@ -32,22 +32,6 @@ OKU.DEFAULT_ARCH = "mos6502"
 --- @const AVAILABLE_ARCH: { [String]: Any }
 do
   local archs = {
-    oku_forth8 = {
-      engine = yatm_oku.OKU.isa.OKU_FORTH8,
-      default_memory_size = 0x100, --[[ Roughly 256b ]]
-    },
-    oku_forth16 = {
-      engine = yatm_oku.OKU.isa.OKU_FORTH16,
-      default_memory_size = 0x10000, --[[ Roughly 64Kb ]]
-    },
-    oku_forth32 = {
-      engine = yatm_oku.OKU.isa.OKU_FORTH32,
-      default_memory_size = 0x10000, --[[ Roughly 64Kb ]]
-    },
-    mos6502 = {
-      engine = yatm_oku.OKU.isa.MOS6502,
-      default_memory_size = 0x10000, --[[ Roughly 64Kb ]]
-    },
     rv32i = {
       engine = yatm_oku.OKU.isa.RISCV,
       default_memory_size = 0x20000, --[[ Roughly 128Kb ]]
@@ -137,6 +121,9 @@ do
   function ic:call_arch(method_name, ...)
     local entry = OKU.AVAILABLE_ARCH[self.arch]
     if entry then
+      if not entry.engine then
+        error("arch module is set with no engine, name=" .. self.arch)
+      end
       return entry.engine[method_name](self, self.isa_assigns, ...)
     else
       error("arch module " .. self.arch .. " is not available")

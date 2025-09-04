@@ -7,7 +7,7 @@
 -- The machine is programmed in actual assembly, and emulated in lua or a native extension if
 -- available.
 --
-local mod = foundation.new_module("yatm_oku", "0.5.0")
+local mod = foundation.new_module("yatm_oku", "0.6.0")
 
 local insec = core.request_insecure_environment()
 if insec then

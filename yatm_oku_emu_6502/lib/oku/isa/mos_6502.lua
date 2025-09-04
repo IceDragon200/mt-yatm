@@ -21,10 +21,10 @@ local MOS6502 = {
 
 yatm_oku.OKU.isa.MOS6502 = MOS6502
 
-yatm_oku:require("lib/oku/isa/mos_6502/impl/lua.lua")
+yatm_oku_emu_6502:require("lib/oku/isa/mos_6502/impl/lua.lua")
 if ffi then
   core.log("info", "MOS6502 native implementation may be possible")
-  yatm_oku:require("lib/oku/isa/mos_6502/impl/native.lua")
+  yatm_oku_emu_6502:require("lib/oku/isa/mos_6502/impl/native.lua")
 
   if not yatm_oku.OKU.isa.MOS6502.has_native then
     core.log("warning", "MOS6502 native implementation was not loaded")
@@ -257,7 +257,7 @@ do
   end
 end
 
-yatm_oku:require("lib/oku/isa/mos_6502/builder.lua")
-yatm_oku:require("lib/oku/isa/mos_6502/lexer.lua")
-yatm_oku:require("lib/oku/isa/mos_6502/parser.lua")
-yatm_oku:require("lib/oku/isa/mos_6502/assembler.lua")
+yatm_oku_emu_6502:require("lib/oku/isa/mos_6502/builder.lua")
+yatm_oku_emu_6502:require("lib/oku/isa/mos_6502/lexer.lua")
+yatm_oku_emu_6502:require("lib/oku/isa/mos_6502/parser.lua")
+yatm_oku_emu_6502:require("lib/oku/isa/mos_6502/assembler.lua")

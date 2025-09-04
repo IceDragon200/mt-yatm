@@ -1,4 +1,5 @@
-local mod = assert(yatm_oku)
+local mod = assert(yatm_oku_emu_6502)
+
 local Luna = assert(foundation.com.Luna)
 local isa = assert(yatm_oku.OKU.isa.MOS6502)
 local subject = assert(isa.LuaChip)
