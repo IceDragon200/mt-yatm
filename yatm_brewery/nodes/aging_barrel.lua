@@ -48,10 +48,10 @@ local function stage_recipe_output(pos, meta, recipe)
     return true
   end
 
-  local input = recipe.input
-  local fluid_input = input.fluid
-  local item_input = input.item
-  local output = recipe.output
+  local inputs = recipe.inputs
+  local fluid_input = inputs.fluid
+  local item_input = inputs.item
+  local output = recipe.outputs
   local fluid_output = output.fluid
   local item_output = output.item
 
