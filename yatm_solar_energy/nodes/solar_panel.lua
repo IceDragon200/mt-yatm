@@ -103,6 +103,7 @@ end
 local function on_rightclick(pos, node, user)
   local state = {
     pos = pos,
+    node = node,
   }
   local formspec = render_formspec(pos, user, state)
 
