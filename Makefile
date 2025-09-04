@@ -1,7 +1,7 @@
 RELEASE_DIR=${TMP_DIR}/yatm
 
 all:
-	make -C yatm_oku
+	make -C yatm_oku_emu_6502
 
 .PHONY : luacheck
 luacheck:
@@ -69,7 +69,9 @@ prepare.release:
 	cp -r --parents yatm_mesecon_sequencer "${RELEASE_DIR}"
 	cp -r --parents yatm_mining "${RELEASE_DIR}"
 	cp -r --parents yatm_oku "${RELEASE_DIR}"
-	rm -rf "${RELEASE_DIR}/yatm_oku/ext"
+	cp -r --parents yatm_oku_emu_6502 "${RELEASE_DIR}"
+	rm -rf "${RELEASE_DIR}/yatm_oku_emu_6502/ext"
+	cp -r --parents yatm_oku_emu_forth "${RELEASE_DIR}"
 	cp -r --parents yatm_overhead_rails "${RELEASE_DIR}"
 	cp -r --parents yatm_packs "${RELEASE_DIR}"
 	cp -r --parents yatm_papercraft "${RELEASE_DIR}"
