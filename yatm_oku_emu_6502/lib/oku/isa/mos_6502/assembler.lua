@@ -4,11 +4,12 @@
 -- This comes with a full lexer as well, so you could theorectically use
 -- it for other stuff.
 --
-local Lexer = assert(yatm_oku.OKU.isa.MOS6502.Lexer)
-local Parser = assert(yatm_oku.OKU.isa.MOS6502.Parser)
-
 yatm_oku_emu_6502:require("lib/oku/isa/mos_6502/nmos_assembly.lua")
 
+local Lexer = assert(yatm_oku.OKU.isa.MOS6502.Lexer)
+local Parser = assert(yatm_oku.OKU.isa.MOS6502.Parser)
+local Class = assert(foundation.com.Class)
+local TokenBuffer = assert(yatm_oku.TokenBuffer)
 local NMOS_Assembly = assert(yatm_oku.OKU.isa.MOS6502.NMOS_Assembly)
 local AssemblyBuilder = assert(yatm_oku.OKU.isa.MOS6502.Builder)
 
@@ -21,18 +22,28 @@ local AssemblyBuilder = assert(yatm_oku.OKU.isa.MOS6502.Builder)
 ---   }
 --- }
 
+local lexer = Lexer:new()
+
 local Assembler = {
-  Lexer = Lexer,
-  Parser = Parser,
+  lexer = lexer,
 }
 
 local m = Assembler
 
---- @spec parse(String): (TokenBuffer, rest: String)
+--- @spec parse(String | TokenBuffer): (TokenBuffer, rest: String | nil)
 function m.parse(prog)
-  local token_buf, rest = m.Lexer.tokenize(prog)
-  token_buf:open('r')
-  return m.Parser.parse(token_buf), rest
+  local token_buf
+  local rest
+  if type(prog) == "string" then
+    token_buf, rest = m.lexer:tokenize(prog)
+    token_buf:reopen("r")
+  elseif Class.is_object(prog, TokenBuffer) then
+    token_buf = prog
+  else
+    error("expected a string or TokenBuffer")
+  end
+  local parser = Parser:new()
+  return parser:parse(token_buf), rest
 end
 
 --- @spec assemble_tokens(TokenBuffer): (blob: String, AssemblerContext)
@@ -94,25 +105,25 @@ function m.assemble_tokens(token_buf)
   return table.concat(result), context
 end
 
---- @spec assemble(String): (binary: String, error: String)
-function m.assemble(prog)
-  local tokens, rest = m.parse(prog)
+--- @spec assemble(blob: String): (binary: String, context: AssemblerContext, error: String)
+function m.assemble(blob)
+  local tokens, rest = m.parse(blob)
 
   local blob, context = m.assemble_tokens(tokens)
   return blob, context, rest
 end
 
---- @spec assemble_safe(String): (Boolean, binary: String, error: String)
-function m.assemble_safe(prog)
-  local result, blob, context, rest =
+--- @spec assemble_safe(String): (Boolean, binary: String, context: AssemblerContext, rest: String)
+function m.assemble_safe(blob)
+  local result, binary, context, rest =
     pcall(function ()
-      return m.assemble(prog)
+      return m.assemble(blob)
     end)
 
   if result then
-    return true, blob, context, rest
+    return true, binary, context, rest
   else
-    return false, blob
+    return false, binary, nil, nil
   end
 end
 

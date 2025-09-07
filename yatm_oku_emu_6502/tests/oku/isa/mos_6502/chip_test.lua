@@ -36,7 +36,7 @@ local function run_startup(t3, chip)
   t3:assert_eq(chip:get_state(), isa.CPU_STATE_RUN)
 end
 
-case:describe("#step", function (t2)
+case:describe("#step (startup)", function (t2)
   t2:test("can complete startup sequence", function (t3)
     -- mod.modpath
     local memory = Memory:new(0xFFFF)
@@ -46,6 +46,11 @@ case:describe("#step", function (t2)
     })
 
     run_startup(t3, chip)
+  end)
+end)
+
+case:describe("#step (opcodes)", function (t2)
+  t2:test("sbc", function (t3)
   end)
 end)
 
@@ -74,3 +79,5 @@ end)
 case:execute()
 case:display_stats()
 case:maybe_error()
+--
+error("NOPE")

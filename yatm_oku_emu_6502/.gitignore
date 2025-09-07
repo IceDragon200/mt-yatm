@@ -3,3 +3,4 @@
 /ext/*.dll
 /ext/*.a
 /ext/*.exe
+/tmp
