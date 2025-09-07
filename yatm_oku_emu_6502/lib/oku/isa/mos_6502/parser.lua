@@ -489,6 +489,7 @@ do
     return false
   end
 
+  --- @spec #parse_directive(input: TokenBuffer, output: TokenBuffer): Boolean
   function ic:parse_directive(input, output)
     local token = input:scan_one("directive")
     if token then
