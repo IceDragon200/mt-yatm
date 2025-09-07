@@ -9,9 +9,12 @@ yatm_oku_emu_6502:require("lib/oku/isa/mos_6502/nmos_assembly.lua")
 local Lexer = assert(yatm_oku.OKU.isa.MOS6502.Lexer)
 local Parser = assert(yatm_oku.OKU.isa.MOS6502.Parser)
 local Class = assert(foundation.com.Class)
+local StringBuffer = assert(foundation.com.StringBuffer)
 local TokenBuffer = assert(yatm_oku.TokenBuffer)
 local NMOS_Assembly = assert(yatm_oku.OKU.isa.MOS6502.NMOS_Assembly)
 local AssemblyBuilder = assert(yatm_oku.OKU.isa.MOS6502.Builder)
+local ByteEncoder = assert(foundation.com.ByteEncoder)
+local BELE = assert(ByteEncoder.LE)
 
 --- @namespace yatm_oku.OKU.isa.MOS6502.Assembler
 
@@ -46,9 +49,9 @@ function m.parse(prog)
   return parser:parse(token_buf), rest
 end
 
---- @spec assemble_tokens(TokenBuffer): (blob: String, AssemblerContext)
-function m.assemble_tokens(token_buf)
-  local tokens = token_buf:to_list()
+--- @spec assemble_tokens(input: TokenBuffer): (blob: String, AssemblerContext)
+function m.assemble_tokens(input)
+  local tokens = input:to_list()
 
   local context = {
     -- yes, a zero index
@@ -57,37 +60,51 @@ function m.assemble_tokens(token_buf)
     jump_table = {},
   }
 
-  local result = {}
-  local result_i = 1
+  local output = StringBuffer:new("", "w")
 
-  local function push_binary(binary)
-    result[result_i] = binary
-    result_i = result_i + 1
-    context.pos = context.pos + #binary
-  end
-
+  local name
+  local value
+  local binary
+  local leaf
+  local arg
+  local branch
+  local ins_name
+  local ins_args
+  local size
   for _, token in ipairs(tokens) do
-    if token[1] == "ins" then
-      local ins_name = token[2].name
-      local ins_args = token[2].args
+    name = token_name(token)
+    value = token_value(token)
+    if name == "set_origin" then
+      size = output:size()
+      if size < value then
+        output:seek(size)
+        output:fill_bytes(value - size, 0)
+      end
+      output:seek(value + 1)
+    elseif name == "emit_byte" then
+      output:write(BELE:e_u8(value))
+    elseif name == "emit_word" then
+      output:write(BELE:e_u16(value))
+    elseif name == "ins" then
+      ins_name = value.name
+      ins_args = value.args
 
-      local branch = NMOS_Assembly[ins_name]
+      branch = NMOS_Assembly[ins_name]
       if branch then
-        local leaf
         if #ins_args == 0 then
           leaf = branch["implied"]
           if leaf then
-            local binary = AssemblyBuilder[leaf]()
-            push_binary(binary)
+            binary = AssemblyBuilder[leaf]()
+            output:write(binary)
           else
             error("invalid instruction " .. ins_name .. " with arg pattern " .. arg[1])
           end
         else
-          local arg = assert(ins_args[1])
+          arg = assert(ins_args[1])
           leaf = branch[arg[1]]
           if leaf then
-            local binary = AssemblyBuilder[leaf](arg[2])
-            push_binary(binary)
+            binary = AssemblyBuilder[leaf](arg[2])
+            output:write(binary)
           else
             error("invalid instruction " .. ins_name .. " with arg pattern " .. arg[1])
           end
@@ -95,10 +112,10 @@ function m.assemble_tokens(token_buf)
       else
         error("no such instruction " .. ins_name)
       end
-    elseif token[1] == "label" then
-      context.jump_table[token[2]] = context.pos
+    elseif name == "label" then
+      context.jump_table[value] = context.pos
     else
-      error("unexpected token " .. token[1])
+      error("unexpected token " .. token_name)
     end
   end
 
@@ -107,10 +124,17 @@ end
 
 --- @spec assemble(blob: String): (binary: String, context: AssemblerContext, error: String)
 function m.assemble(blob)
-  local tokens, rest = m.parse(blob)
+  local tokens
+  local rest
 
-  local blob, context = m.assemble_tokens(tokens)
-  return blob, context, rest
+  if type(blob) == "string" then
+    tokens, rest = m.parse(blob)
+  elseif Class.is_object(prog, TokenBuffer) then
+    tokens = blob
+  end
+
+  local binary, context = m.assemble_tokens(tokens)
+  return binary, context, rest
 end
 
 --- @spec assemble_safe(String): (Boolean, binary: String, context: AssemblerContext, rest: String)

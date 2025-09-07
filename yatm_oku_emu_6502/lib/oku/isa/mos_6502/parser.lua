@@ -9,10 +9,17 @@ local Parser = foundation.com.Class:extends("yatm_oku.OKU.isa.MOS6502.Parser")
 do
   local ic = Parser.instance_class
 
+  --- @spec #initialize(): void
   function ic:initialize()
     ic._super.initialize(self)
 
     self.m_constants = {}
+    self.m_reserved = {
+      x = true,
+      X = true,
+      y = true,
+      Y = true,
+    }
   end
 
   local function token_name(token)
@@ -27,14 +34,14 @@ do
     return token[3]
   end
 
-  function ic:parse_comment(token_buf, result)
-    if token_buf:scan("ws", "comment", "nl") then
+  function ic:parse_comment(input, _output)
+    if input:scan("ws", "comment", "nl") then
       return true
-    elseif token_buf:scan("comment", "nl") then
+    elseif input:scan("comment", "nl") then
       return true
-    elseif token_buf:scan("ws", "comment") then
+    elseif input:scan("ws", "comment") then
       return true
-    elseif token_buf:skip("comment") then
+    elseif input:skip("comment") then
       return true
     end
     return false
@@ -75,26 +82,28 @@ do
     return false
   end
 
-  --- @spec parse_register_name_or_atom(input: TokenBuffer): Any | nil
-  function ic:parse_register_name_or_atom(input)
+  --- @spec parse_register_name(input: TokenBuffer): Any | nil
+  function ic:parse_register_name(input)
+    local pos = input:tell()
     local token = input:scan_one("atom")
     if token then
       local name = token_value(token)
 
       if name == "X" or name == "x" then
-        return {"register_x", true}
+        return {"register_x", true, token_debug(token)}
       elseif name == "Y" or name == "y" then
-        return {"register_y", true}
-      else
-        -- return a new atom
-        return {"atom", name}
+        return {"register_y", true, token_debug(token)}
       end
     end
+
+    -- abort
+    input:seek(pos)
     return nil
   end
 
-  function ic:hex_token_to_byte(token)
-    local hex_value = token[2]
+  --- @private.spec hex_token_to_byte(token: Token): Integer
+  local function hex_token_to_byte(token)
+    local hex_value = token_value(token)
     if #hex_value < 2 then
       -- TODO: issue warning, the value was padded
       hex_value = string_pad_leading(hex_value, 2, "0")
@@ -105,73 +114,102 @@ do
     return string_hex_pair_to_byte(hex_value)
   end
 
-  function ic:hex_token_to_num(token)
-    local hex_value = token[2]
+  --- @private.spec hex_token_to_num(token: Token): Integer
+  local function hex_token_to_num(token)
+    local hex_value = token_value(token)
     if #hex_value > 2 then
       hex_value = string_pad_leading(hex_value, 4, "0")
       hex_value = string_rsub(hex_value, 4)
       local hipair = string.sub(hex_value, 1, 2)
       local lopair = string.sub(hex_value, 3, 4)
       return hipair * 256 + lopair
-    else
-      return self:hex_token_to_byte(token)
     end
+
+    return self:hex_token_to_byte(token)
   end
 
-  function ic:parse_absolute_or_zeropage_address(token_buf)
-    local token = token_buf:scan_one("integer") or token_buf:scan_one("hex")
+  --- @spec #parse_absolute_or_zeropage_address(TokenBuffer): Token | nil
+  function ic:parse_absolute_or_zeropage_address(input)
+    local pos = input:tell()
+    local token =
+      input:scan_one("integer")
+      or input:scan_one("hex")
+      or input:scan_one("atom")
 
     if token then
-      if token[1] == "hex" then
-        local hex_value = token[2]
+      local name = token_name(token)
+      if name == "atom" then
+        -- try to resolve constant
+        local constant_name = token_value(token)
+        local const_buffer = self.m_constants[constant_name]
+        if not const_buffer then
+          return nil
+        end
+        const_buffer:reopen("r")
+        local value = self:parse_absolute_or_zeropage_address(const_buffer)
+        if value then
+          return value
+        else
+          input:seek(pos)
+          return nil
+        end
+      end
+
+      local debug_info = token_debug(token)
+      if name == "hex" then
+        local hex_value = token_value(token)
         if #hex_value <= 2 then
           hex_value = string_pad_leading(hex_value, 2, "0")
           local value = string_hex_pair_to_byte(hex_value)
-          return {"zeropage", value}
+          return {"zeropage", value, debug_info}
         else
           hex_value = string_pad_leading(hex_value, 4, "0")
           hex_value = string_rsub(hex_value, 4)
           local hipair = string.sub(hex_value, 1, 2)
           local lopair = string.sub(hex_value, 3, 4)
-          return {"absolute", hipair * 256 + lopair}
+          return {"absolute", hipair * 256 + lopair, debug_info}
         end
       else
-        local value = token[2]
+        local value = token_value(token)
         if value > 255 then
-          return {"absolute", value}
+          return {"absolute", value, debug_info}
         else
-          return {"zeropage", value}
+          return {"zeropage", value, debug_info}
         end
       end
     end
     return nil
   end
 
-  function ic:parse_number(token_buf)
+  --- @spec #parse_number(TokenBuffer): Integer | nil
+  function ic:parse_number(input)
+    local pos = input:tell()
     local token =
-      token_buf:scan_one("hex")
-      or token_buf:scan_one("integer")
-      or token_buf:scan_one("atom")
+      input:scan_one("hex")
+      or input:scan_one("integer")
+      or input:scan_one("atom")
 
     if token then
-      if token[1] == "atom" then
+      if token_name(token) == "atom" then
         -- try to resolve constant
         local constant_name = token_value(token)
-        local debug_info = token[3]
         local const_buffer = self.m_constants[constant_name]
         if not const_buffer then
-          error("unresolved constant reference"
-            .. " name=" .. constant_name
-            .. " pos=" .. debug_info.pos
-          )
+          return nil
         end
         const_buffer:reopen("r")
-        return self:parse_number(const_buffer)
+        local value = self:parse_number(const_buffer)
+        if value then
+          return value
+        else
+          input:seek(pos)
+          return nil
+        end
       end
 
       local value
       if token[1] == "hex" then
-        value = self:hex_token_to_byte(token)
+        value = hex_token_to_byte(token)
       elseif token[1] == "integer" then
         value = math.min(math.max(-128, token[2]), 255)
       else
@@ -182,19 +220,22 @@ do
     return nil
   end
 
-  function ic:parse_value(token_buf)
+  --- @spec #parse_value(TokenBuffer): Integer | String | nil
+  function ic:parse_value(input)
+    local pos = input:tell()
     local token =
-      token_buf:scan_one("dquote")
-      or token_buf:scan_one("squote")
-      or token_buf:scan_one("hex")
-      or token_buf:scan_one("integer")
-      or token_buf:scan_one("atom")
+      input:scan_one("dquote")
+      or input:scan_one("squote")
+      or input:scan_one("hex")
+      or input:scan_one("integer")
+      or input:scan_one("atom")
 
     if token then
-      if token[1] == "atom" then
+      local name = token_name(token)
+      if token_name == "atom" then
         -- try to resolve constant
         local constant_name = token_value(token)
-        local debug_info = token[3]
+        local debug_info = token_debug(token)
         local const_buffer = self.m_constants[constant_name]
         if not const_buffer then
           error("unresolved constant reference"
@@ -203,16 +244,22 @@ do
           )
         end
         const_buffer:reopen("r")
-        return self:parse_value(const_buffer)
+        local value = self:parse_value(const_buffer)
+        if value then
+          return value
+        else
+          input:seek(pos)
+          return nil
+        end
       end
 
       local value
-      if token[1] == "hex" then
-        value = self:hex_token_to_byte(token)
-      elseif token[1] == "integer" then
-        value = math.min(math.max(-128, token[2]), 255)
-      elseif token[1] == squote or token[1] == dquote then
-        value = token[2]
+      if name == "hex" then
+        value = hex_token_to_byte(token)
+      elseif name == "integer" then
+        value = math.min(math.max(-128, token_value(token)), 255)
+      elseif name == squote or name == dquote then
+        value = token_value(token)
       else
         error("expected an integer, hex, dquote or squote")
       end
@@ -221,17 +268,20 @@ do
     return nil
   end
 
-  function ic:parse_immediate_value(token_buf)
+  --- @spec #parse_immediate_value(TokenBuffer): Token
+  function ic:parse_immediate_value(input)
+    local pos = input:tell()
     local token =
-      token_buf:scan_one("hex")
-      or token_buf:scan_one("integer")
-      or token_buf:scan_one("atom")
+      input:scan_one("hex")
+      or input:scan_one("integer")
+      or input:scan_one("atom")
 
     if token then
-      if token[1] == "atom" then
+      local name = token_name(token)
+      if name == "atom" then
         -- try to resolve constant
         local constant_name = token_value(token)
-        local debug_info = token[3]
+        local debug_info = token_debug(token)
         local const_buffer = self.m_constants[constant_name]
         if not const_buffer then
           error("unresolved constant reference"
@@ -240,48 +290,77 @@ do
           )
         end
         const_buffer:reopen("r")
-        return self:parse_immediate_value(const_buffer)
+        local value = self:parse_immediate_value(const_buffer)
+        if value then
+          return value
+        else
+          input:seek(pos)
+          return nil
+        end
       end
 
       local value
-      if token[1] == "hex" then
-        value = self:hex_token_to_byte(token)
-      elseif token[1] == "integer" then
-        value = math.min(math.max(-128, token[2]), 255)
+      if name == "hex" then
+        value = hex_token_to_byte(token)
+      elseif name == "integer" then
+        value = math.min(math.max(-128, token_value(token)), 255)
       else
         error("expected an integer or hex")
       end
-      return {"immediate", value, token[3]}
+      return {"immediate", value, token_debug(token)}
     end
     return nil
   end
 
-  function ic:parse_immediate(token_buf)
-    local pos = token_buf:tell()
-    local token = token_buf:scan_one("#")
+  --- @spec #parse_immediate(input: TokenBuffer): Token
+  function ic:parse_immediate(input)
+    local pos = input:tell()
+    local token = input:scan_one("#")
     if token then
-      local result = self:parse_immediate_value(token_buf)
+      local result = self:parse_immediate_value(input)
       if result then
         return result
       else
-        token_buf:seek(pos)
+        -- abort
+        input:seek(pos)
       end
     end
     return nil
   end
 
-  function ic:parse_indirect_offset(token_buf)
-    if token_buf:skip("(") then
+  --- @spec #parse_indirect_offset(TokenBuffer): Token | nil
+  function ic:parse_indirect_offset(input)
+    local pos = input:tell()
+    if input:skip("(") then
       local result = {}
-      while not token_buf:isEOB() do
-        token_buf:skip("ws") -- skip leading spaces
-        local token = token_buf:scan_one("hex") or
-                      token_buf:scan_one("integer") or
-                      self:parse_register_name_or_atom(token_buf)
+      local i = 0
+      local token
+      while not input:isEOB() do
+        input:skip("ws") -- skip leading spaces
+        token = input:scan_one("hex") or
+                input:scan_one("integer") or
+                self:parse_register_name(input) or
+                input:scan_one("atom")
+
+        if token_name(token) == "atom" then
+          local constant_name = token_value(token)
+          local constant_buffer = self.m_constants[constant_name]
+          if constant_buffer then
+            constant_buffer:reopen("r")
+            token =
+              constant_buffer:scan_one("hex")
+              or constant_buffer:scan_one("integer")
+              or self:parse_register_name(constant_buffer)
+          else
+            error("unresolved constant name=" .. constant_name)
+          end
+        end
+
         if token then
-          table.insert(result, token)
-          token_buf:skip("ws")
-          if token_buf:skip(",") then
+          i = i + 1
+          result[i] = token
+          input:skip("ws")
+          if input:skip(",") then
             -- can continue
           else
             break
@@ -291,60 +370,50 @@ do
         end
       end
 
-      token_buf:skip("ws") -- skip trailing spaces
+      input:skip("ws") -- skip trailing spaces
 
-      if token_buf:skip(")") then
-        if #result == 2 then
-          if match_tokens(result, 1, #result, {"hex", "register_x"}) then
-            return {"indirect_x", hex_token_to_byte(result[1])}
-          elseif match_tokens(result, 1, #result, {"integer", "register_x"}) then
-            return {"indirect_x", result[1][2]}
+      if input:skip(")") then
+        local argc = #result
+        if argc == 2 then
+          if match_tokens(result, 1, 2, {"hex", "register_x"}) then
+            local debug_info = token_debug(result[1])
+            return {"indirect_x", hex_token_to_byte(result[1]), debug_info}
+          elseif match_tokens(result, 1, 2, {"integer", "register_x"}) then
+            local debug_info = token_debug(result[1])
+            return {"indirect_x", token_value(result[1]), debug_info}
           else
             error("unexpected indirect args")
           end
-        elseif #result == 1 then
-          if match_tokens(result, 1, #result, {"hex"}) then
-            return {"indirect", hex_token_to_num(result[1])}
-          elseif match_tokens(result, 1, #result, {"integer"}) then
-            return {"indirect", result[1][2]}
+        elseif argc == 1 then
+          local debug_info = token_debug(result[1])
+          if match_tokens(result, 1, 1, {"hex"}) then
+            return {"indirect", hex_token_to_num(result[1]), debug_info}
+          elseif match_tokens(result, 1, 1, {"integer"}) then
+            return {"indirect", token_value(result[1]), debug_info}
           else
             error("unexpected token")
           end
         else
-          error("invalid number of arguments expected 1 or 2 got " .. #result)
+          error("invalid number of arguments expected 1 or 2 (got " .. argc .. ")")
         end
       else
-        error("invalid indirect syntax, expected (hex | integer[,atom])")
+        error("invalid indirect syntax, expected (hex | integer[,X|Y])")
       end
     end
 
+    input:seek(pos)
     return nil
   end
 
-  function ic:parse_ins_arg(token_buf)
-    local next_token = token_buf:peek_token()
-    if next_token and next_token[1] == "atom" then
-      local name = next_token[2]
-      local const_buffer = self.m_constants[name]
-      if const_buffer then
-        const_buffer:reopen("r")
-        return self:parse_ins_arg(const_buffer)
-      end
-    end
-
-    return self:parse_register_name_or_atom(token_buf) or
-           self:parse_absolute_or_zeropage_address(token_buf) or
-           self:parse_immediate(token_buf) or
-           self:parse_indirect_offset(token_buf)
+  --- @spec #parse_ins_arg(input: TokenBuffer): Token
+  function ic:parse_ins_arg(input)
+    return self:parse_register_name(input) or
+           self:parse_absolute_or_zeropage_address(input) or
+           self:parse_immediate(input) or
+           self:parse_indirect_offset(input)
   end
 
-  function ic:tokens_to_addressing_mode(result)
-    --
-    -- TODO: Support variable substitution
-    --   Example:
-    --     ADC #word
-    --     ADC word
-    --
+  local function tokens_to_addressing_mode(result)
     local argc = #result
     if argc == 0 then
       return {}
@@ -360,19 +429,19 @@ do
       elseif match_tokens(result, 1, 1, {"register_a"}) then
         return result
       else
-        error("invalid 1 argument pattern")
+        error("invalid 1 argument pattern (got " .. token_name(result[1]) .. ")")
       end
     elseif argc == 2 then
       if match_tokens(result, 1, 2, {"absolute", "register_x"}) then
-        return {{"absolute_x", result[1][2]}}
+        return {{"absolute_x", result[1][2], result[1][3]}}
       elseif match_tokens(result, 1, 2, {"absolute", "register_y"}) then
-        return {{"absolute_y", result[1][2]}}
+        return {{"absolute_y", result[1][2], result[1][3]}}
       elseif match_tokens(result, 1, 2, {"indirect", "register_y"}) then
-        return {{"indirect_y", result[1][2]}}
+        return {{"indirect_y", result[1][2], result[1][3]}}
       elseif match_tokens(result, 1, 2, {"zeropage", "register_y"}) then
-        return {{"zeropage_y", result[1][2]}}
+        return {{"zeropage_y", result[1][2], result[1][3]}}
       elseif match_tokens(result, 1, 2, {"zeropage", "register_x"}) then
-        return {{"zeropage_x", result[1][2]}}
+        return {{"zeropage_x", result[1][2], result[1][3]}}
       else
         error("invalid 2 argument pattern")
       end
@@ -381,74 +450,76 @@ do
     end
   end
 
-  function ic:parse_ins_args(token_buf)
+  function ic:parse_ins_args(input)
     local result = {}
     local i = 0
     local token
-    while not token_buf:isEOB() do
-      token_buf:skip("ws")
-      token = self:parse_ins_arg(token_buf)
+    while not input:isEOB() do
+      input:skip("ws")
+      token = self:parse_ins_arg(input)
       if token then
         i = i + 1
         result[i] = token
-        token_buf:skip("ws")
-        if token_buf:skip(",") then
-          --
-        else
+        input:skip("ws")
+        if not input:skip(",") then
+          -- there are no more args
           break
         end
       else
+        -- there are no more tokens
         break
       end
     end
 
-    return self:tokens_to_addressing_mode(result)
+    return tokens_to_addressing_mode(result)
   end
 
-  function ic:parse_ins(token_buf, result)
-    token_buf:skip("ws")
-    local ins = token_buf:scan_one("atom")
+  --- @spec #parse_ins(input: TokenBuffer, output: TokenBuffer): Boolean
+  function ic:parse_ins(input, output)
+    local ins = input:scan_one("atom")
     if ins then
-      local args = self:parse_ins_args(token_buf)
-      self:parse_line_term(token_buf, result)
-      result:push_token("ins", {
+      local args = self:parse_ins_args(input)
+      self:parse_line_term(input, output)
+      output:push_token("ins", {
         name = string.lower(token_value(ins)),
         args = args
-      }, {})
+      }, token_debug(ins))
       return true
     end
     return false
   end
 
-  function ic:parse_directive(token_buf, result)
-    local token = token_buf:peek_token()
-    if token and token_name(token) == "directive" then
-      token_buf:skip("directive")
+  function ic:parse_directive(input, output)
+    local token = input:scan_one("directive")
+    if token then
       local directive = token_value(token)
       directive = string.upper(directive)
       if directive == ".ORG" then
-        token_buf:skip("ws") -- skip trailing spaces
-        local value = self:parse_number(token_buf)
-        result:push_token("set_origin", value, token[3])
+        input:skip("ws") -- skip trailing spaces
+        local value = self:parse_number(input)
+        output:push_token("set_origin", value, token_debug(token))
         return true
       elseif directive == ".BYTE" then
-        token_buf:skip("ws") -- skip trailing spaces
-        local value = self:parse_value(token_buf)
-        result:push_token("emit_byte", value, token[3])
+        input:skip("ws") -- skip trailing spaces
+        local value = self:parse_value(input)
+        output:push_token("emit_byte", value, token_debug(token))
         return true
       elseif directive == ".WORD" then
-        token_buf:skip("ws") -- skip trailing spaces
-        local value = self:parse_value(token_buf)
-        result:push_token("emit_word", value, token[3])
+        input:skip("ws") -- skip trailing spaces
+        local value = self:parse_value(input)
+        output:push_token("emit_word", value, token_debug(token))
         return true
       elseif directive == ".CONST" then
-        token_buf:skip("ws") -- skip trailing spaces
-        local name_token = token_buf:scan_one("atom")
+        input:skip("ws") -- skip trailing spaces
+        local name_token = input:scan_one("atom")
         if name_token then
           local name = token_value(name_token)
           assert(name, "expected a constant name")
-          token_buf:skip("ws") -- skip trailing spaces
-          local tokens = token_buf:scan_upto("nl") or token_buf:rest()
+          input:skip("ws") -- skip trailing spaces
+          local tokens = input:scan_upto("nl") or input:rest()
+          if self.m_reserved[name] then
+            error("reserved atom name=" .. name)
+          end
           if self.m_constants[name] then
             error("constant already assigned name=" .. name)
           end
@@ -464,31 +535,32 @@ do
     return false
   end
 
-  function ic:parse_next(token_buf, result)
-    if self:parse_line_term(token_buf, result) then
+  --- @spec #parse_next(input: TokenBuffer, output: TokenBuffer): Boolean
+  function ic:parse_next(input, output)
+    if self:parse_line_term(input, output) then
       return true
-    elseif self:parse_label(token_buf, result) then
+    elseif self:parse_label(input, output) then
       return true
-    elseif self:parse_directive(token_buf, result) then
+    elseif self:parse_directive(input, output) then
       return true
-    elseif self:parse_ins(token_buf, result) then
+    elseif self:parse_ins(input, output) then
       return true
     else
       return false
     end
   end
 
-  --- @spec parse(Buffer): TokenBuffer
-  function ic:parse(token_buf)
-    local result = TokenBuffer:new({}, 'w')
+  --- @spec parse(input: TokenBuffer): TokenBuffer
+  function ic:parse(input)
+    local output = TokenBuffer:new({}, 'w')
 
-    while not token_buf:isEOB() do
-      token_buf:skip("ws")
-      if not self:parse_next(token_buf, result) then
-        error("could not complete parsing, next token is " .. dump(token_buf:peek_token()))
+    while not input:isEOB() do
+      input:skip("ws")
+      if not self:parse_next(input, output) then
+        error("could not complete parsing, next token is " .. dump(input:peek_token()))
       end
     end
-    return result
+    return output
   end
 end
 
