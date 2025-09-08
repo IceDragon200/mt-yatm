@@ -49,6 +49,12 @@ return {
         -- Modules
         --
         bit = {},
+        ByteDecoder = {
+          fields = {
+            d_u8 = {},
+            d_u16 = {},
+          },
+        },
         Color = {
           fields = {},
         },
@@ -150,6 +156,12 @@ return {
             new = {},
           },
         },
+        TokenBuffer = {
+          fields = {
+            new = {},
+            match_tokens = {},
+          },
+        },
         MinHeap = {
           fields = {
             new = {},
@@ -225,6 +237,7 @@ return {
         number_truncate = {},
         number_truncate_by_sign = {},
         --
+        random_string = {},
         random_string16 = {},
         random_string32 = {},
         random_string36 = {},
