@@ -34,9 +34,13 @@ do
   --- @spec #initialize(size: Integer): void
   function ic:initialize(size)
     self.size = size
-    self.m_data_size = math.floor(self.size / UNION_BYTE_SIZE) -- the data size is a 1/4 of the given size
+    -- the data size is a 1/4 of the given size
+    self.m_data_size = math.floor(self.size / UNION_BYTE_SIZE)
 
-    assert((self.m_data_size * UNION_BYTE_SIZE) == self.size, "expected size to be a factor of " .. UNION_BYTE_SIZE)
+    assert(
+      (self.m_data_size * UNION_BYTE_SIZE) == self.size,
+      "expected size to be a factor of " .. UNION_BYTE_SIZE
+    )
     self.m_data = assert(ffi.new("union yatm_oku_aligned_memory_cell32[?]", self.m_data_size))
     ffi.fill(self.m_data, self.size, 0)
   end

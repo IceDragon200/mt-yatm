@@ -77,21 +77,6 @@ do
     return self
   end
 
-  local types = {
-    i8 = 1,
-    i16 = 2,
-    i32 = 4,
-    i64 = 8,
-
-    u8 = 1,
-    u16 = 2,
-    u32 = 4,
-    u64 = 8,
-
-    f = 4,
-    d = 8,
-  }
-
   --- @spec #w_i8(index: Integer, value: Integer): self
   function ic:w_i8(index, value)
     assert(index, "expected index")
@@ -220,11 +205,14 @@ do
   --- @spec #binload(Stream): (self, bytes_read: Integer)
   function ic:binload(stream)
     local bytes_read = 0
+    local memory_bo
+    local memory_size
+    local br
 
-    local memory_bo, br = ByteBuf:read(stream, 2)
+    memory_bo, br = ByteBuf:read(stream, 2)
     bytes_read = bytes_read + br
 
-    local memory_size, br = ByteBuf:r_u32(stream)
+    memory_size, br = ByteBuf:r_u32(stream)
     bytes_read = bytes_read + br
 
     if memory_size ~= self.m_size then

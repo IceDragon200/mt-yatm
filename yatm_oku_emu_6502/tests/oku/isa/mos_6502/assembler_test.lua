@@ -23,11 +23,11 @@ do
 
       t3:assert_eq("", rest)
 
-      t3:assert_deep_eq({
-        {"label", "main"},
-        {"ins", { name = "lda", args = { {"immediate", 0} } }},
-        {"ins", { name = "adc", args = { {"immediate", 20} } }},
-      }, tokens:to_list())
+      t3:assert_matches(tokens:to_list(), {
+        {"label", "main", {}},
+        {"ins", { name = "lda", args = { {"immediate", 0, {}} } }, {}},
+        {"ins", { name = "adc", args = { {"immediate", 20, {}} } }, {}},
+      })
     end)
   end)
 
@@ -35,9 +35,9 @@ do
     t2:test("can assemble a program with directives", function (t3)
       local prog = [[
       .org $0800
-      .const VALUE #$00
+      .const VALUE $00
       main:
-        lda VALUE
+        lda #VALUE
         adc #20
       ]]
 
@@ -68,5 +68,3 @@ do
   case:display_stats()
   case:maybe_error()
 end
-
-error("NOPE")

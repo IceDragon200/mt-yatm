@@ -19,14 +19,16 @@ local function render_formspec(pos, user, assigns)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local meta = get_meta(pos)
 
-  return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "computer" }, function (loc, rect)
-    if loc == "main_body" then
+  return yatm.formspec_render_split_inv_panel(
+    user, nil, 4, { bg = "computer" }, function (loc, rect)
+      if loc == "main_body" then
+        return ""
+      elseif loc == "footer" then
+        return fspec.list_ring("current_player", "main")
+      end
       return ""
-    elseif loc == "footer" then
-      return fspec.list_ring("current_player", "main")
     end
-    return ""
-  end)
+  )
 end
 
 local function on_receive_fields(player, formname, fields, assigns)

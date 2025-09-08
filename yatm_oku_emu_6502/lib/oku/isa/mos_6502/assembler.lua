@@ -33,6 +33,18 @@ local Assembler = {
 
 local m = Assembler
 
+local function token_name(token)
+  return token[1]
+end
+
+local function token_value(token)
+  return token[2]
+end
+
+local function token_debug(token)
+  return token[3]
+end
+
 --- @spec parse(String | TokenBuffer): (TokenBuffer, rest: String | nil)
 function m.parse(prog)
   local token_buf
@@ -97,7 +109,7 @@ function m.assemble_tokens(input)
             binary = AssemblyBuilder[leaf]()
             output:write(binary)
           else
-            error("invalid instruction " .. ins_name .. " with arg pattern " .. arg[1])
+            error("invalid instruction " .. ins_name .. " with no arg pattern")
           end
         else
           arg = assert(ins_args[1])
@@ -115,11 +127,12 @@ function m.assemble_tokens(input)
     elseif name == "label" then
       context.jump_table[value] = context.pos
     else
-      error("unexpected token " .. token_name)
+      error("unexpected token " .. name)
     end
   end
 
-  return table.concat(result), context
+  output:flush()
+  return output:to_string(), context
 end
 
 --- @spec assemble(blob: String): (binary: String, context: AssemblerContext, error: String)

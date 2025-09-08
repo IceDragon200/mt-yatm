@@ -18,8 +18,10 @@ local random_string62 = assert(foundation.com.random_string62)
 local data_network = assert(yatm.data_network)
 local get_node = assert(tetra.get_node)
 local get_meta = assert(tetra.get_meta)
+local sf = assert(string.format)
 
--- need at least 256 for the zero-page and then another for the stack, so addressable memory is really only
+-- need at least 256 for the zero-page and then another for the stack,
+-- so addressable memory is really only
 -- 512 bytes
 local MEMORY_SIZE = 256 * 4
 local PORT_COUNT = 16
@@ -36,10 +38,11 @@ local function get_micro_controller_formspec(pos, user)
     local y = 0.5 + math.floor(i / 4)
     local port_id = i + 1
     local port_value = meta:get_int("p" .. port_id)
+    local field_id = sf("p%d", port_id)
     formspec =
-      formspec ..
-      "field[" .. x .. "," .. y .. ";1,1;p" .. port_id .. ";Port " .. port_id .. ";" .. port_value .. "]" ..
-      "field_close_on_enter[p" .. port_id .. ",false]"
+      formspec
+      .. fspec.field(x, y, 1, 1, field_id, sf("Port %d", port_id), port_value)
+      .. fspec.field_close_on_enter(field_id, false)
   end
 
   formspec =
