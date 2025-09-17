@@ -3,8 +3,14 @@
 --
 local mod = foundation.new_module("yatm_core", "2.3.0")
 
+local table_freeze = assert(foundation.com.table_freeze)
+
 -- This is yatm's shared namespace, use the apis from this instead of the module's name when possible
+
+--- @namespace yatm
 yatm = rawget(_G, "yatm") or {}
+
+--- @namespace yatm.config
 yatm.config = yatm.config or {}
 
 mod:require("config.lua")

@@ -1,26 +1,18 @@
-local materials = {
-  {"copper", "Copper"},
-  {"bronze", "Bronze"},
-  {"gold", "Gold"},
-  {"iron", "Iron"},
-  {"tin", "Tin"},
-  {"silver", "Silver"},
-  {"carbon_steel", "Carbon Steel"},
-}
+local mod = assert(yatm_core)
 
-for _,material_pair in ipairs(materials) do
+for _,material_pair in ipairs(yatm.config.metals) do
   local material_basename = material_pair[1]
   local material_name = material_pair[2]
 
   core.register_craftitem("yatm_core:ingot_" .. material_basename, {
     basename = "yatm_core:ingot",
-    base_description = "Metal Ingot",
+    base_description = mod.S("Metal Ingot"),
 
-    description = material_name .. " Ingot",
+    description = mod.S(material_name .. " Ingot"),
     inventory_image = "yatm_materials_ingot." .. material_basename .. ".png",
     groups = {
-      ingot = 1,
-      ["ingot_" .. material_basename] = 1,
+      mat_ingot = 1,
+      ["mat_ingot_" .. material_basename] = 1,
     },
 
     material_name = material_basename,

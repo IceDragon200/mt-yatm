@@ -7,15 +7,21 @@ local Color = assert(foundation.com.Color)
 
 local maybe_to_colorstring = assert(Color.maybe_to_colorstring)
 
--- @namespace yatm
+--- @namespace yatm
 
 yatm.bg_name = {}
 yatm.bg9_name = {}
 
 yatm.bg_base =
-  "no_prepend[]" ..
-  "bgcolor[#080808BB;true]" ..
-  "listcolors[#00000069;#5A5A5A;#141318;#30434C;#FFF]"
+  fspec.no_prepend()
+  .. fspec.bg_color("#080808BB", true)
+  .. fspec.list_colors(
+    "#00000069",
+    "#5A5A5A",
+    "#141318",
+    "#30434C",
+    "#FFF"
+  )
 
 yatm.bg_name.default = "yatm_gui_formbg_default.png"
 yatm.bg_name.computer = "yatm_gui_formbg_default.computer.png"
