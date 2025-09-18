@@ -1,4 +1,5 @@
 local Color = assert(foundation.com.Color)
+local table_freeze = assert(foundation.com.table_freeze)
 --
 
 --- @namespace yatm
