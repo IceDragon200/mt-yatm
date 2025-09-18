@@ -532,6 +532,7 @@ for _,row in ipairs(yatm.colors_with_default) do
       oddly_breakable_by_hand = nokore.dig_class("hand"),
       --
       barrel_lid = 1,
+      not_in_creative_inventory = 1,
     },
     sounds = yatm.node_sounds:build("metal"),
     tiles = {
