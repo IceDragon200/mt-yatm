@@ -311,7 +311,7 @@ do
   end
 
   function ic:generate_network_id()
-    return self.m_addr .. ":" .. random_addr16(16, 4, ":")
+    return self.m_abbr .. ":" .. random_addr16(16, 4, ":")
   end
 
   function ic:resolve_invalid_networks(counter, delta, trace)
