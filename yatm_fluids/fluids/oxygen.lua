@@ -1,7 +1,7 @@
 local mod = yatm_fluids
 
 yatm.fluids.fluid_registry.register("yatm_fluids", "oxygen", {
-  description = mod.S("oxygen"),
+  description = mod.S("Oxygen"),
 
   color = "#FFFFFF",
 
@@ -12,12 +12,11 @@ yatm.fluids.fluid_registry.register("yatm_fluids", "oxygen", {
   groups = {
     gas = 1,
     oxygen = 1,
-    water_based = 1,
   },
 
   tiles = {
-    source = "yatm_hydrogen_source.png",
-    flowing = "yatm_hydrogen_source.png",
+    source = "yatm_oxygen_source.png",
+    flowing = "yatm_oxygen_source.png",
   },
 
   fluid_tank = {
