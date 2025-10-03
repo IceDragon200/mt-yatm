@@ -13,11 +13,38 @@ do
   ItemIngredient.ERR_ITEM_STACK_EMPTY = "ERR_ITEM_STACK_EMPTY"
   ItemIngredient.ERR_ITEM_STACK_SMALL = "ERR_ITEM_STACK_SMALL"
 
-  --- @spec #initialize(Table): void
+  --- @spec #initialize(String | Table): void
   function ic:initialize(def)
-    self.name = assertions.is_string(def.name, "expected an item name")
-    self.amount = assertions.is_number(def.amount or 1, "expected amount to be a integer")
-    self.metadata = def.metadata
+    --- The item's full name, in the form "domain:local" (e.g. yatm_brewery:apple)
+    ---
+    --- @member name: String
+
+    --- To be consistent with FluidIngredient, amount acts as the item count
+    ---
+    --- @member amount: Integer
+
+    --- Optional item metadata
+    ---
+    --- @member metadata: Table
+    if type(def) == "table" then
+      self.name = assertions.is_string(def.name, "expected an item name")
+      self.amount = assertions.is_number(def.amount or 1, "expected amount to be a integer")
+      self.metadata = def.metadata
+    elseif type(def) == "string" then
+      local name, amount
+      name, amount = def:match("(%g+:%g+)%s+(%d+)")
+
+      if not name then
+        amount = 1
+        name = def:match("(%g+:%g+)")
+      end
+
+      self.name = assertions.is_string(name, "expected an item name")
+      self.amount = tonumber(amount)
+      self.metadata = nil
+    else
+      error("expected def to be String or Table")
+    end
   end
 
   --- @spec #matches_item_stack(ItemStack): (Boolean, ErrorCode)
