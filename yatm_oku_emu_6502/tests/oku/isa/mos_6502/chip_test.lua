@@ -1,4 +1,5 @@
 local mod = assert(yatm_oku_emu_6502)
+local path_join = assert(foundation.com.path_join)
 
 local Luna = assert(foundation.com.Luna)
 local isa = assert(yatm_oku.OKU.isa.MOS6502)
@@ -55,25 +56,36 @@ case:describe("#step (opcodes)", function (t2)
 end)
 
 case:describe("#step with 6502 test", function (t2)
-  t2:test("can execute 6502 tests", function (t3)
-    -- https://github.com/Klaus2m5/6502_65C02_functional_tests
-    local f = io.open(mod.modpath .. "/data/6502_functional_test.bin", "r")
-    local blob = f:read()
-    io.close(f)
+  local data_filename = path_join(mod.modpath, "/data/6502_functional_test.bin")
 
-    local memory = Memory:new(0xFFFF)
+  local f = io.open(data_filename, "r")
+  if f then
+    f:close()
 
-    memory:w_blob(0, blob)
-    local chip = subject:new({
-      memory = memory,
-    })
+    t2:test("can execute 6502 tests", function (t3)
+      -- https://github.com/Klaus2m5/6502_65C02_functional_tests
+      local f = io.open(data_filename, "r")
+      local blob = f:read()
+      io.close(f)
 
-    run_startup(t3, chip)
+      if blob then
+        local memory = Memory:new(0xFFFF)
 
-    print(dump(chip.m_chip))
+        memory:w_blob(0, blob)
+        local chip = subject:new({
+          memory = memory,
+        })
 
-    t3:assert_eq(chip:step(), isa.OK_CODE)
-  end)
+        run_startup(t3, chip)
+
+        print(dump(chip.m_chip))
+
+        t3:assert_eq(chip:step(), isa.OK_CODE)
+      else
+        core.log("error", "functional test is unavailable")
+      end
+    end)
+  end
 end)
 
 case:execute()
