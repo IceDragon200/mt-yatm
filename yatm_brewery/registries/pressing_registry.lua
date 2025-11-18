@@ -6,12 +6,11 @@ local list_map = assert(foundation.com.list_map)
 local list_sort_by = assert(foundation.com.list_sort_by)
 local ItemIngredient = assert(yatm.recipe_component.ItemIngredient)
 local FluidOutput = assert(yatm.recipe_component.FluidOutput)
-local get_content_id = assert(core.get_content_id)
 
 --- @namespace yatm_brewery
 
 --- @class PressingRegistry
-local PressingRegistry = foundation.com.Class:extends('yatm.brewery.PressingRegistry')
+local PressingRegistry = foundation.com.Class:extends("yatm.brewery.PressingRegistry")
 
 PressingRegistry.ERR_OK = "ERR_OK"
 PressingRegistry.ERR_NO_RECIPE = "ERR_NO_RECIPE"
@@ -32,6 +31,8 @@ do
   ---
   --- @spec #initialize(): void
   function ic:initialize()
+    ic._super.initialize(self)
+
     --- @member m_g_recipe_id: Integer
     self.m_g_recipe_id = 0
 
@@ -53,19 +54,22 @@ do
       recipes = {}, -- root recipes should ALWAYS be empty
       children = {},
     }
+
+    self.m_ingredient_id = 0
+    self.m_ingredient_ids = {}
   end
 
   --- @spec #sort_item_stacks_by_content_id(ItemIngredient[]): ItemIngredient[]
   function ic:sort_item_ingredients_by_content_id(items)
     return list_sort_by(items, function (item)
-      return get_content_id(item.name)
+      return self.m_ingredient_ids[item.name]
     end)
   end
 
   --- @spec #sort_item_stacks_by_content_id(ItemStack[]): ItemStack[]
   function ic:sort_item_stacks_by_content_id(item_stacks)
     return list_sort_by(item_stacks, function (item_stack)
-      return get_content_id(item_stack:get_name())
+      return self.m_ingredient_ids[item_stack:get_name()]
     end)
   end
 
@@ -115,6 +119,14 @@ do
     recipe_def.input.items = list_map(recipe_def.input.items, function (item)
       return ItemIngredient:new(item)
     end)
+
+    for _,ingredient in pairs(recipe_def.input.items) do
+      if not self.m_ingredient_ids[ingredient.name] then
+        self.m_ingredient_id = self.m_ingredient_id + 1
+        self.m_ingredient_ids[ingredient.name] = self.m_ingredient_id
+      end
+    end
+
     recipe_def.input.items = self:sort_item_ingredients_by_content_id(recipe_def.input.items)
 
     recipe_def.output.fluids = list_map(recipe_def.output.fluids, function (item)
@@ -124,7 +136,7 @@ do
     local root = self.m_ingredient_tree
     local cid
     for i,item in ipairs(recipe_def.input.items) do
-      cid = assert(get_content_id(item.name))
+      cid = self.m_ingredient_ids[item.name]
       if not root.children[cid] then
         root.children[cid] = {
           recipes = {},
@@ -178,9 +190,13 @@ do
     local cid
     for _,item_stack in ipairs(input.items) do
       name = item_stack:get_name()
-      cid = get_content_id(name)
-      root = root.children[cid]
-      if not root then
+      cid = self.m_ingredient_ids[name]
+      if cid then
+        root = root.children[cid]
+        if not root then
+          return nil, PressingRegistry.ERR_NO_RECIPE
+        end
+      else
         return nil, PressingRegistry.ERR_NO_RECIPE
       end
     end

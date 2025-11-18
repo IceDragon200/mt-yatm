@@ -8,8 +8,6 @@ case:describe("register_pressing_recipe/2", function (t2)
   t2:test("can register a new pressing recipe", function (t3)
     local subject = Subject:new()
 
-    local cid = assert(core.get_content_id("yatm_brewery:yeast_brewers"))
-
     -- just some garbage recipe
     local reg_recipe = subject:register_pressing_recipe("my_mod:new_recipe", {
       input = {
@@ -33,6 +31,7 @@ case:describe("register_pressing_recipe/2", function (t2)
       duration = 1,
     })
 
+    local cid = subject.m_ingredient_ids["yatm_brewery:yeast_brewers"]
     local root = subject.m_ingredient_tree
     t3:assert(root)
     for _ = 1,4 do
