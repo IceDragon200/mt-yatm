@@ -1,6 +1,6 @@
 local mod = assert(yatm_core)
 
-for _,material_pair in ipairs(yatm.config.metals) do
+for _,material_pair in ipairs(yatm.config.ingot_metals) do
   local material_basename = material_pair[1]
   local material_name = material_pair[2]
 

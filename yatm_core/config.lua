@@ -59,6 +59,9 @@ end
 --- @const metals: { String, String }[]
 yatm.config.metals = yatm.config.metals or yatm.supported_metals
 
+--- @const ingot_metals: { String, String }[]
+yatm.config.ingot_metals = table.copy(yatm.config.metals)
+
 -- Dump all YATM nodes in a TOML file for further refinement
 yatm.config.dump_nodes = true
 
