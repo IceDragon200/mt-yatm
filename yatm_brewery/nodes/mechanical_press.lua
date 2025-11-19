@@ -17,7 +17,12 @@ local get_node_or_nil = assert(tetra.get_node_or_nil)
 local maybe_start_node_timer = assert(foundation.com.maybe_start_node_timer)
 
 -- we can just use gravity for now
-local plunger_speed = hsw.config.GRAVITY
+local plunger_speed
+if core.global_exists("hsw") and hsw.config then
+  plunger_speed = hsw.config.GRAVITY
+else
+  plunger_speed = 9.8
+end
 
 local plunger_entity_name = mod:make_name("mechanical_press_plunger_ent")
 local mechanical_press_node_off = mod:make_name("mechanical_press_off")
