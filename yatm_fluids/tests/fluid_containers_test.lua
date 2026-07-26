@@ -143,7 +143,8 @@ case:describe("decrease_fluid/3", function (t2)
     )
 
     t3:assert_matches(a, {
-      amount = 0,
+      name = "yatm_fluids:crude_oil",
+      amount = 1000,
     })
     t3:assert_matches(b, {
       name = "yatm_fluids:crude_oil",
@@ -185,8 +186,8 @@ case:describe("increase_fluid/3", function (t2)
       amount = 0,
     })
     t3:assert_matches(b, {
-      name = nil,
-      amount = 0,
+      name = "yatm_fluids:crude_oil",
+      amount = 500,
     })
   end)
 
@@ -223,11 +224,12 @@ case:describe("drain_fluid/3", function (t2)
     )
 
     t3:assert_matches(a, {
-      amount = 0,
+      name = "yatm_fluids:crude_oil",
+      amount = 1000,
     })
     t3:assert_matches(b, {
       name = "yatm_fluids:crude_oil",
-      amount = 500,
+      amount = 1000,
     })
 
     local a, b = FluidContainers.drain_fluid(
@@ -237,7 +239,8 @@ case:describe("drain_fluid/3", function (t2)
     )
 
     t3:assert_matches(a, {
-      amount = 0,
+      name = "yatm_fluids:crude_oil",
+      amount = 1000,
     })
     t3:assert_matches(b, {
       name = "yatm_fluids:crude_oil",
@@ -276,11 +279,12 @@ case:describe("fill_fluid/3", function (t2)
     )
 
     t3:assert_matches(a, {
+      name = nil,
       amount = 0,
     })
     t3:assert_matches(b, {
-      name = nil,
-      amount = 0,
+      name = "yatm_fluids:crude_oil",
+      amount = 500,
     })
   end)
 

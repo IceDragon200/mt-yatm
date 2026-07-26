@@ -3,6 +3,7 @@
 --
 local fluid_registry = assert(yatm_fluids.fluid_registry)
 local FluidUtils = assert(yatm_fluids.Utils)
+local math_max = assert(math.max)
 
 --- @namespace yatm_fluids
 
@@ -161,11 +162,11 @@ do
   end
 
   function FluidStack.inc_amount(fluid_stack, amount)
-    return FluidStack.set_amount(fluid_stack, math.max(0, fluid_stack.amount + amount))
+    return FluidStack.set_amount(fluid_stack, math_max(0, fluid_stack.amount + amount))
   end
 
   function FluidStack.dec_amount(fluid_stack, amount)
-    return FluidStack.set_amount(fluid_stack, math.max(0, fluid_stack.amount - amount))
+    return FluidStack.set_amount(fluid_stack, math_max(0, fluid_stack.amount - amount))
   end
 
   --- Merges any varidic number of fluid stacks into the resulting fluid stack
@@ -210,27 +211,43 @@ do
   --- @spec add(result: FluidStack, ...FluidStack): FluidStack
   FluidStack.add = FluidStack.merge
 
+  --- Subtracts fluid stacks from the varargs from `a`, storing the result in `result`.
+  ---
   --- @mutative result
-  --- @spec subtract(FluidStack, ...FluidStack): FluidStack
-  function FluidStack.subtract(result, ...)
-    assert(result, "expected a fluid stack")
+  --- @spec subtract(result: FluidStack, a: FluidStack, ...FluidStack): FluidStack
+  function FluidStack.subtract(result, a, ...)
+    assert(result, "expected a destination fluid stack")
+    if not a then
+      return result
+    end
     local len = select('#', ...)
+
+    result.name = a.name
+    result.amount = a.amount
+
     if len > 0 then
+      local is_same_fluid = FluidStack.is_same_fluid
       local b
       local bname
+      local matches = false
       for i = 1,len do
         b = select(i, ...)
         if b then
-          bname = fluid_registry.normalize_fluid_name(b.name)
           if not result.name then
-            result.name = bname
+            result.name = b.name
           end
-          if bname == result.name then
-            result.amount = math.max(result.amount - b.amount, 0)
+          if b.name then
+            matches = is_same_fluid(result, b)
+          else
+            matches = true
+          end
+          if matches then
+            result.amount = math_max(result.amount - b.amount, 0)
           end
         end
       end
     end
+
     return result
   end
 
@@ -271,13 +288,13 @@ do
   --- @since "2.6.0"
   --- @spec metatable.__add(a: FluidStack, b: FluidStack): FluidStack
   function FluidStack.metatable.__add(a, b)
-    return FluidStack.add(FluidStack.copy(a), b)
+    return FluidStack.add(FluidStack.new_empty(), a, b)
   end
 
   --- @since "2.6.0"
   --- @spec metatable.__sub(a: FluidStack, b: FluidStack): FluidStack
   function FluidStack.metatable.__sub(a, b)
-    return FluidStack.subtract(FluidStack.copy(a), b)
+    return FluidStack.subtract(FluidStack.new_empty(), a, b)
   end
 
   local ic = FluidStack.metatable.__index

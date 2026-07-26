@@ -55,7 +55,7 @@ case:describe("set_amount/2", function (t2)
       amount = 1000
     })
 
-    t3:assert_matches(fluid_stack, {
+    t3:assert_matches(new_stack, {
       name = "default:water",
       amount = 2000,
     })

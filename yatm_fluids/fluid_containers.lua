@@ -200,10 +200,10 @@ end
 
 --- @spec decrease_fluid(
 ---   item_stack: ItemStack,
----   fluid_stack: FluidStack,
+---   drain_stack: FluidStack,
 ---   commit: Boolean
 --- ): (drained_stack: FluidStack | nil, requested_drain: FluidStack)
-function FluidContainers.decrease_fluid(item_stack, fluid_stack, commit)
+function FluidContainers.decrease_fluid(item_stack, drain_stack, commit)
   if item_stack then
     local def = item_stack:get_definition()
 
@@ -212,19 +212,19 @@ function FluidContainers.decrease_fluid(item_stack, fluid_stack, commit)
 
       if fluid_container then
         if type(fluid_container.decrease_fluid) == "function" then
-          return fluid_container:decrease_fluid(item_stack, fluid_stack, commit)
+          return fluid_container:decrease_fluid(item_stack, drain_stack, commit)
         elseif fluid_container.type == "dynamic" then
           local meta = item_stack:get_meta()
           return FluidMeta.decrease_fluid(
             meta,
             fluid_container.key,
-            fluid_stack,
+            drain_stack,
             fluid_container.capacity,
             commit
           )
         elseif fluid_container.type == "static" then
           local existing = FluidContainers.get_fluid_stack(item_stack)
-          local new_stack = existing - fluid_stack
+          local new_stack = existing - drain_stack
           local a, b = FluidContainers.set_fluid_stack(item_stack, new_stack, commit)
           local diff = existing - a
           return diff, b
