@@ -19,7 +19,8 @@ else
 end
 
 for _,m in ipairs(modules) do
-  local case = Luna:new(m.name)
+  local name = assert(m._name, "expected module to have a name")
+  local case = Luna:new(name)
 
   case:describe("#initialize", function (t2)
     t2:test("can initialize memory with 256 bytes of space", function (t3)

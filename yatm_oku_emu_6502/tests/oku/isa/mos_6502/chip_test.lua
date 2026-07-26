@@ -6,7 +6,7 @@ local isa = assert(yatm_oku.OKU.isa.MOS6502)
 local subject = assert(isa.LuaChip)
 local Memory = assert(yatm_oku.OKU.Memory)
 
-local case = Luna:new(subject.name)
+local case = Luna:new(subject._name)
 
 case:describe("#initialize", function (t2)
   t2:test("can initialize a new chip", function (t3)

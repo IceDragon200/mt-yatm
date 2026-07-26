@@ -4,7 +4,7 @@ local Luna = assert(foundation.com.Luna)
 local isa = assert(yatm_oku.OKU.isa.MOS6502)
 local Subject = assert(isa.Lexer)
 
-local case = Luna:new(Subject.name)
+local case = Luna:new(Subject._name)
 
 case:describe("#initialize/0", function (t2)
   t2:test("will initialize a new lexer", function (t3)
@@ -54,7 +54,7 @@ case:describe("#tokenize/1", function (t2)
       { pos = 17, len = 1 },
     })
     t3:assert_matches(tokens:next_token(), {
-      "int",
+      "integer",
       25,
       { pos = 18, len = 2 },
     })
@@ -76,7 +76,7 @@ case:describe("#tokenize/1", function (t2)
     t3:assert_matches(tokens:next_token(), {
       "dquote",
       "A",
-      { pos = 18, len = 2 },
+      { pos = 27, len = 3 },
     })
     t3:assert(tokens:isEOB())
   end)

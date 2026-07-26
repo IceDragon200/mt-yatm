@@ -2,6 +2,7 @@ local TokenBuffer = assert(yatm_oku.TokenBuffer)
 local match_tokens = assert(yatm_oku.match_tokens)
 local string_pad_leading = assert(foundation.com.string_pad_leading)
 local string_rsub = assert(foundation.com.string_rsub)
+local string_sub = assert(string.sub)
 local string_hex_pair_to_byte = assert(foundation.com.string_hex_pair_to_byte)
 
 --- @namespace yatm_oku.OKU.isa.MOS6502.Parser
@@ -120,8 +121,8 @@ do
     if #hex_value > 2 then
       hex_value = string_pad_leading(hex_value, 4, "0")
       hex_value = string_rsub(hex_value, 4)
-      local hipair = string.sub(hex_value, 1, 2)
-      local lopair = string.sub(hex_value, 3, 4)
+      local hipair = string_hex_pair_to_byte(string_sub(hex_value, 1, 2))
+      local lopair = string_hex_pair_to_byte(string_sub(hex_value, 3, 4))
       return hipair * 256 + lopair
     end
 
@@ -165,8 +166,8 @@ do
         else
           hex_value = string_pad_leading(hex_value, 4, "0")
           hex_value = string_rsub(hex_value, 4)
-          local hipair = string.sub(hex_value, 1, 2)
-          local lopair = string.sub(hex_value, 3, 4)
+          local hipair = string_hex_pair_to_byte(string_sub(hex_value, 1, 2))
+          local lopair = string_hex_pair_to_byte(string_sub(hex_value, 3, 4))
           return {"absolute", hipair * 256 + lopair, debug_info}
         end
       else

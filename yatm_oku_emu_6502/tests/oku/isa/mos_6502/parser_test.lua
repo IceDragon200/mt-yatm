@@ -5,7 +5,7 @@ local isa = assert(yatm_oku.OKU.isa.MOS6502)
 local Lexer = assert(isa.Lexer)
 local Subject = assert(isa.Parser)
 
-local case = Luna:new(Subject.name)
+local case = Luna:new(Subject._name)
 
 case:describe("#initialize/0", function (t2)
   t2:test("can initialize a new parser", function (t3)
@@ -145,7 +145,7 @@ case:describe("#parse/1", function (t2)
         args = {
           {
             "indirect_y",
-            2580,
+            4128,
             {},
           }
         }
@@ -196,7 +196,7 @@ case:describe("#parse/1", function (t2)
         args = {
           {
             "indirect_x",
-            4128,
+            32, -- truncation
             {},
           }
         }
