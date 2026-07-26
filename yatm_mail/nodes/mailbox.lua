@@ -70,8 +70,7 @@ local function mailbox_get_formspec(user, assigns)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = bg }, function (slot, rect)
     if slot == "main_body" then
-      local formspec =
-        fspec.label(0, 0, "Mailbox")
+      local formspec = fspec.label(rect.x, rect.y, "Mailbox")
 
       if yatm_security.is_lockable_node(pos) then
         -- if it's lockable, show the access key slot
