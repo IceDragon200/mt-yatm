@@ -12,21 +12,21 @@ A `WorldVector` can be:
 ### Node Subscribers
 
 * `subscribe_for_messages(pos: WorldVector, addr: String, ttl: Number): void` - to subscribe a node to receive radio events, ttl is in seconds, try to keep the ttl values low to avoid zombie registrations
-* `unsubscribe_for_messages(pos: WorldVector, addr: String)` - immediately unsubcribe a node from the network, TTLs checks can continue
+* `unsubscribe_for_messages(pos: WorldVector, addr: String)` - immediately unsubscribe a node from the network, TTLs checks can continue
 * `has_subscribers(): Boolean` - reports if the network has any node subscribers
 
 ### Mailbox
 
-* `request_mailbox_id(): Any` - Requests a new mailbox_id from the network, this value should be treated as opaque and never interpeted otherwise.
+* `request_mailbox_id(): Any` - Requests a new mailbox_id from the network, this value should be treated as opaque and never interpreted otherwise.
 * `request_mailbox_id(addr: String, ttl: Number): Any` - Same as `request_mailbox_id/0` + `subscribe_mailbox/3`
 * `subscribe_mailbox(mailbox_id: Any, addr: String, ttl: Number): void` - Using a mailbox id, setup a mailbox to capture messages
-* `unsubscribe_mailbox(mailbox_id: Any, addr: String): void` - Removes existing mailbox for the mailbox_id + addr pair, all messages are dropped for tha mailbox as well.
+* `unsubscribe_mailbox(mailbox_id: Any, addr: String): void` - Removes existing mailbox for the mailbox_id + addr pair, all messages are dropped for that mailbox as well.
 * `get_next_mailbox_message(mailbox_id: Any, addr: String): (message: Any, meta: Any) | nil` - Pops and returns the next message in the mailbox
 * `has_mailboxes(): Boolean` - reports if the network has any mailboxes
 
 ### Publish
 
-* `publish_message(addr: String, message: Any, meta: Any): void` - schedules a message to be published on the NEXT tick of the network, despite it's name it's delayed
+* `publish_message(addr: String, message: Any, meta: Any): void` - schedules a message to be published on the NEXT tick of the network, despite its name it's delayed
 
 ## Usage
 
