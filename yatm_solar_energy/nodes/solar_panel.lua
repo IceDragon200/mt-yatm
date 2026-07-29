@@ -33,7 +33,7 @@ function yatm_network.energy.produce_energy(pos, node, dtime, ot)
   local meta = get_meta(pos)
   local light = get_natural_light(pos, nil)
   local energy = 0
-  if light > 5 then
+  if light and light > 5 then
     energy = light * 3 * dtime
   end
   yatm.queue_refresh_infotext(pos, node)
