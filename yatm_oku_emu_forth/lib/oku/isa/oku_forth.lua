@@ -6,10 +6,11 @@
 local StringBuffer = assert(foundation.com.StringBuffer)
 local List = assert(foundation.com.List)
 local table_merge = assert(foundation.com.table_merge)
-local ByteBuf = assert(foundation.com.ByteBuf.little)
+local ByteBuf = assert(foundation.com.ByteBuf)
 
 --
-local Marshall = foundation.com.binary_types.MarshallValue:new()
+local BB_LE = assert(ByteBuf.LE)
+local MarshallV1 = foundation.com.binary_types.MarshallValue.V1:new()
 
 --- @namespace yatm_oku.OKU.isa._OKU_FORTH
 yatm_oku.OKU.isa._OKU_FORTH = {}
@@ -952,7 +953,7 @@ function ISA:make(word_size, isa_def)
     local bytes_read = 0
     local br
     local version
-    version, br = ByteBuf:r_u32(stream)
+    version, br = BB_LE:r_u32(stream)
     if version == 1 then
       local stdout
       local dict
@@ -962,25 +963,25 @@ function ISA:make(word_size, isa_def)
       local return_stack
       local stack_index
 
-      stdout, br = Marshall:read(stream)
+      stdout, br = MarshallV1:read(BB_LE, stream)
       bytes_read = bytes_read + br
 
-      dict, br = Marshall:read(stream)
+      dict, br = MarshallV1:read(BB_LE, stream)
       bytes_read = bytes_read + br
 
-      execution_stack_size, br = Marshall:read(stream)
+      execution_stack_size, br = MarshallV1:read(BB_LE, stream)
       bytes_read = bytes_read + br
 
-      execution_stack, br = Marshall:read(stream)
+      execution_stack, br = MarshallV1:read(BB_LE, stream)
       bytes_read = bytes_read + br
 
-      return_stack_size, br = Marshall:read(stream)
+      return_stack_size, br = MarshallV1:read(BB_LE, stream)
       bytes_read = bytes_read + br
 
-      return_stack, br = Marshall:read(stream)
+      return_stack, br = MarshallV1:read(BB_LE, stream)
       bytes_read = bytes_read + br
 
-      stack_index, br = Marshall:read(stream)
+      stack_index, br = MarshallV1:read(BB_LE, stream)
       bytes_read = bytes_read + br
 
       -- Restore
@@ -1008,53 +1009,53 @@ function ISA:make(word_size, isa_def)
   function isa.bindump(oku, assigns, stream)
     local bytes_written = 0
     local bw, err
-    bw, err = ByteBuf:w_u32(stream, 1)
+    bw, err = BB_LE:w_u32(stream, 1)
     bytes_written = bytes_written + bw
     if err then
       goto after
     end
 
     --- STDOUT
-    bw, err = Marshall:write(stream, assigns.stdout:blob())
+    bw, err = MarshallV1:write(BB_LE, stream, assigns.stdout:blob())
     bytes_written = bytes_written + bw
     if err then
       goto after
     end
 
     --- DICTIONARY
-    bw, err = Marshall:write(stream, assigns.dict)
+    bw, err = MarshallV1:write(BB_LE, stream, assigns.dict)
     bytes_written = bytes_written + bw
     if err then
       goto after
     end
 
     --- EXECUTION STACK
-    bw, err = Marshall:write(stream, assigns.execution_stack:size())
+    bw, err = MarshallV1:write(BB_LE, stream, assigns.execution_stack:size())
     bytes_written = bytes_written + bw
     if err then
       goto after
     end
 
-    bw, err = Marshall:write(stream, assigns.execution_stack:to_table())
+    bw, err = MarshallV1:write(BB_LE, stream, assigns.execution_stack:to_table())
     bytes_written = bytes_written + bw
     if err then
       goto after
     end
 
     --- RETURN STACK
-    bw, err = Marshall:write(stream, assigns.return_stack:size())
+    bw, err = MarshallV1:write(BB_LE, stream, assigns.return_stack:size())
     bytes_written = bytes_written + bw
     if err then
       goto after
     end
 
-    bw, err = Marshall:write(stream, assigns.return_stack:to_table())
+    bw, err = MarshallV1:write(BB_LE, stream, assigns.return_stack:to_table())
     bytes_written = bytes_written + bw
     if err then
       goto after
     end
 
-    bw, err = Marshall:write(stream, assigns.stack_index)
+    bw, err = MarshallV1:write(BB_LE, stream, assigns.stack_index)
     bytes_written = bytes_written + bw
     if err then
       goto after
