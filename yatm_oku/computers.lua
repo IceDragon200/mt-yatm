@@ -1,21 +1,11 @@
 --
 -- Computers service, allows registering computers
 --
-local OKU = yatm_oku.OKU
-if not OKU then
-  yatm.error("Cannot create computer service, OKU not available!")
-  return
-end
-
-local BinSchema = foundation.com.BinSchema
-if not BinSchema then
-  yatm.error("computers service not available, foundation.com.BinSchema is unavailable")
-  return
-end
-
+local OKU = assert(yatm_oku.OKU)
+local BinSchema = assert(foundation.com.BinSchema)
 local path_join = assert(foundation.com.path_join)
 local Trace = foundation.com.Trace
-local Vector3 = foundation.com.Vector3
+local Vector3 = assert(foundation.com.Vector3)
 
 -- Pick a buffer module, prefer binary or string, as it's faster
 local Buffer

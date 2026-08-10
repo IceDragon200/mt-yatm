@@ -10,7 +10,7 @@ if not ffi then
   return
 end
 
-local ByteBuf = assert(foundation.com.ByteBuf.little)
+local BB_LE = assert(foundation.com.ByteBuf.LE)
 local StringBuffer = assert(foundation.com.StringBuffer)
 
 yatm_oku.OKU.isa.RISCV = {}
@@ -118,7 +118,7 @@ end
 function isa.load_elf_binary(oku, assigns, blob)
   local stream = StringBuffer:new(blob)
 
-  local elf_prog = yatm_oku.elf:read(stream)
+  local elf_prog = yatm_oku.elf:read(BB_LE, stream)
 
   elf_prog:reduce_segments(nil, function (segment, _unused)
     if segment.header.type == "PT_LOAD" then
@@ -162,7 +162,7 @@ end
 function isa.bindump(oku, assigns, stream)
   local bytes_written = 0
   -- Write Version
-  local bw, err = ByteBuf:w_u32(stream, 1)
+  local bw, err = BB_LE:w_u32(stream, 1)
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err
@@ -179,7 +179,7 @@ end
 
 function isa.binload(oku, assigns, stream)
   local bytes_read = 0
-  local version, br = ByteBuf:r_u32(stream)
+  local version, br = BB_LE:r_u32(stream)
   bytes_read = bytes_read + br
 
   init_riscv_assigns(assigns)
@@ -199,11 +199,11 @@ end
 function isa._binload_registers(oku, assigns, stream)
   local bytes_read = 0
   for i = 0,31 do
-    local rv, br = ByteBuf:r_i32(stream)
+    local rv, br = BB_LE:r_i32(stream)
     bytes_read = bytes_read + br
     assigns.registers.x[i].i32 = rv
   end
-  assigns.registers.pc.u32 = ByteBuf:r_u32(stream)
+  assigns.registers.pc.u32 = BB_LE:r_u32(stream)
   return bytes_read
 end
 
@@ -212,7 +212,7 @@ function isa._bindump_registers(oku, assigns, stream)
 
   for i = 0,31 do
     local rv = assigns.registers.x[i].i32
-    local bw, err = ByteBuf:w_i32(stream, rv)
+    local bw, err = BB_LE:w_i32(stream, rv)
     bytes_written = bytes_written + bw
 
     if err then
@@ -220,7 +220,7 @@ function isa._bindump_registers(oku, assigns, stream)
     end
   end
 
-  local bw, err = ByteBuf:w_u32(stream, assigns.registers.pc.u32)
+  local bw, err = BB_LE:w_u32(stream, assigns.registers.pc.u32)
   bytes_written = bytes_written + bw
   if err then
     return bytes_written, err

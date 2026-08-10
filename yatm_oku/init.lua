@@ -17,7 +17,7 @@ end
 mod.bit = assert(foundation.com.bit)
 
 if not mod.ffi then
-  yatm.warn("yatm_oku works better with FFI, please add yatm_oku to your trusted mods list if you use LuaJIT, or leave it untrusted to fallback to pure lua implementation of some modules.")
+  yatm.warn("yatm_oku works better with FFI, you can add yatm_oku to your trusted mods list if you use LuaJIT, or leave it untrusted to fallback to pure lua implementation of some modules.")
 end
 
 mod:require("oku.lua")
