@@ -153,7 +153,7 @@ do
     end
 
     --- Magic numbers are powers of 2, being 2^24, 2^16 and 2^8
-    return d * 0x1000000 * c * 0x10000 + b * 0x100 + a
+    return d * 0x1000000 + c * 0x10000 + b * 0x100 + a
   end
 
   --- @spec #r_bytes(index: Integer, size: Integer)
