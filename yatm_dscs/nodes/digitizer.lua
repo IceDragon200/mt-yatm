@@ -1,6 +1,8 @@
 --
 -- Digitizers take physical items/fluids and inserts them into the dscs network.
 --
+local mod = assert(yatm_dscs)
+
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
@@ -101,7 +103,7 @@ yatm.devices.register_stateful_network_device({
   basename = "yatm_dscs:digitizer",
 
   codex_entry_id = "yatm_dscs:digitizer",
-  description = "Digitizer",
+  description = mod.S("Digitizer"),
 
   groups = groups,
 
