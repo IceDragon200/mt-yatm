@@ -2,6 +2,7 @@
 -- Computers service, allows registering computers
 --
 local OKU = assert(yatm_oku.OKU)
+local BB_LE = assert(foundation.com.ByteBuf.LE)
 local BinSchema = assert(foundation.com.BinSchema)
 local path_join = assert(foundation.com.path_join)
 local Trace = foundation.com.Trace
@@ -197,14 +198,14 @@ do
     local err
 
     bw, err =
-      ComputerStateHeaderBaseSchema:write(stream, {
+      ComputerStateHeaderBaseSchema:write(BB_LE, stream, {
         magic = "OCS1",
         version = 2,
       })
     bytes_written = bytes_written + bw
 
     bw, err =
-      ComputerStateHeaderSchemaV2:write(stream, {
+      ComputerStateHeaderSchemaV2:write(BB_LE, stream, {
         active = state.active,
         secret = state.secret,
         reserved0 = 0,
