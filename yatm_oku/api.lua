@@ -1,10 +1,12 @@
---- @namespace yatm_oku
-
+local path_join = assert(foundation.com.path_join)
 local Groups = assert(foundation.com.Groups)
-
 local Computers = assert(yatm_oku.Computers)
-yatm_oku.computers = Computers:new()
-yatm.computers = assert(yatm_oku.computers)
+
+--- @namespace yatm_oku
+--- @const computers: Computers
+yatm_oku.computers = Computers:new({
+  root_dir = path_join(core.get_worldpath(), "/yatm/oku")
+})
 
 --- @spec get_floppy_disk_size(ItemStack): Integer
 function yatm_oku.get_floppy_disk_size(item_stack)
@@ -27,3 +29,7 @@ function yatm_oku.is_stack_floppy_disk(item_stack)
   end
   return false
 end
+
+--- @namespace yatm
+--- @const computers: Computers
+yatm.computers = assert(yatm_oku.computers)

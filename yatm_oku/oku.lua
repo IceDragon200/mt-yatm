@@ -1,5 +1,5 @@
 --- @namespace yatm_oku
-local ByteBuf = assert(foundation.com.ByteBuf.little)
+local BB_LE = assert(foundation.com.ByteBuf.LE)
 
 local ffi = yatm_oku.ffi
 if not ffi then
@@ -13,18 +13,9 @@ yatm_oku.OKU.isa = {}
 yatm_oku:require("lib/oku/registers.lua")
 yatm_oku:require("lib/oku/token_buffer.lua")
 yatm_oku:require("lib/oku/memory.lua")
-yatm_oku:require("lib/oku/isa.lua")
 
 local OKU = yatm_oku.OKU
-local Memory
-
-if OKU.Memory then
-  Memory = OKU.Memory
-else
-  core.log("warn", "OKU requires Memory module")
-  yatm_oku.OKU = nil
-  return
-end
+local Memory = OKU.Memory
 
 --- @const DEFAULT_ARCH: String = "mos6502"
 OKU.DEFAULT_ARCH = "mos6502"
@@ -32,10 +23,6 @@ OKU.DEFAULT_ARCH = "mos6502"
 --- @const AVAILABLE_ARCH: { [String]: Any }
 do
   local archs = {
-    rv32i = {
-      engine = yatm_oku.OKU.isa.RISCV,
-      default_memory_size = 0x20000, --[[ Roughly 128Kb ]]
-    },
     ["8086"] = {
       engine = yatm_oku.OKU.isa.I8086,
       default_memory_size = 0x20000, --[[ Roughly 128Kb ]]
@@ -59,7 +46,7 @@ OKU.ERR_NO_MEMORY = 2
 ---
 --- @spec &has_arch(arch: String): Boolean
 function OKU:has_arch(arch)
-  if OKU.AVAILABLE_ARCH[arch] then
+  if OKU.AVAILABLE_ARCH[arch] ~= nil then
     return true
   end
   return false
@@ -89,8 +76,10 @@ do
   --- * `label` -
   --- * `memory_size` -
   ---
+  --- @override
   --- @spec #initialize(Options): void
   function ic:initialize(options)
+    ic._super.initialize(self)
     options = options or {}
 
     self.disposed = false
@@ -213,12 +202,14 @@ do
   --- @spec #put_memory_u64(index: Integer, value: Integer/64): Integer/64
 
   for _,key in ipairs({"i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64"}) do
+    local reader_name = "r_" .. key
+    local writer_name = "w_" .. key
     ic["get_memory_" .. key] = function (self, index)
-      return self.memory["r_" .. key](self.memory, index)
+      return self.memory[reader_name](self.memory, index)
     end
 
     ic["put_memory_" .. key] = function (self, index, value)
-      self.memory["w_" .. key](self.memory, index, value)
+      self.memory[writer_name](self.memory, index, value)
       return self
     end
   end
@@ -259,14 +250,14 @@ do
     local bytes_written = 0
     local bw, err
     -- Write the magic bytes
-    bw, err = ByteBuf:write(stream, "OKU2")
+    bw, err = BB_LE:write(stream, "OKU2")
     bytes_written = bytes_written + bw
     if err then
       return bytes_written, err
     end
 
     -- Write the version
-    bw, err = ByteBuf:w_u32(stream, 2)
+    bw, err = BB_LE:w_u32(stream, 2)
     bytes_written = bytes_written + bw
     if err then
       return bytes_written, err
@@ -274,7 +265,7 @@ do
 
     -- Write the label
     assert(self.label, 'label is missing')
-    bw, err = ByteBuf:w_u8string(stream, self.label)
+    bw, err = BB_LE:w_u8string(stream, self.label)
     bytes_written = bytes_written + bw
     if err then
       return bytes_written, err
@@ -282,7 +273,7 @@ do
 
     -- Write the arch
     assert(self.arch, 'arch is missing')
-    bw, err = ByteBuf:w_u8string(stream, self.arch)
+    bw, err = BB_LE:w_u8string(stream, self.arch)
     bytes_written = bytes_written + bw
     if err then
       return bytes_written, err
@@ -324,12 +315,12 @@ do
     local br
     -- First thing is to read the magic bytes
     local mahou
-    mahou, br = ByteBuf:read(stream, 4)
+    mahou, br = BB_LE:read(stream, 4)
     bytes_read = bytes_read + br
     if mahou == "OKU1" then
       -- next we read the arch, normally just rv32i
       local arch
-      arch, br = ByteBuf:r_u8string(stream)
+      arch, br = BB_LE:r_u8string(stream)
       bytes_read = bytes_read + br
 
       self.label = ""
@@ -343,19 +334,19 @@ do
     elseif mahou == "OKU2" then
       -- read the version
       local version
-      version, br = ByteBuf:r_u32(stream)
+      version, br = BB_LE:r_u32(stream)
       bytes_read = bytes_read + br
 
       if version == 1 then
         -- read the label
         local label
-        label, br = ByteBuf:r_u8string(stream)
+        label, br = BB_LE:r_u8string(stream)
         bytes_read = bytes_read + br
         self.label = label or ""
 
         -- next we read the arch
         local arch
-        arch, br = ByteBuf:r_u8string(stream)
+        arch, br = BB_LE:r_u8string(stream)
         bytes_read = bytes_read + br
 
         self.arch = arch
@@ -373,13 +364,13 @@ do
       elseif version == 2 then
         -- read the label
         local label
-        label, br = ByteBuf:r_u8string(stream)
+        label, br = BB_LE:r_u8string(stream)
         bytes_read = bytes_read + br
         self.label = label or ""
 
         -- next we read the arch
         local arch
-        arch, br = ByteBuf:r_u8string(stream)
+        arch, br = BB_LE:r_u8string(stream)
         bytes_read = bytes_read + br
 
         self.arch = arch
@@ -409,13 +400,13 @@ do
     local bytes_written = 0
     local bw
     local err
-    bw, err = ByteBuf:w_u32(stream, self.memory:size())
+    bw, err = BB_LE:w_u32(stream, self.memory:size())
     bytes_written = bytes_written + bw
     if err then
       return bytes_written, err
     end
 
-    bw, err = ByteBuf:w_u8bool(stream, true)
+    bw, err = BB_LE:w_u8bool(stream, true)
     bytes_written = bytes_written + bw
     if err then
       return bytes_written, err
@@ -433,11 +424,11 @@ do
   function ic:_binload_registers(stream, registers)
     local bytes_read = 0
     for i = 0,31 do
-      local rv, br = ByteBuf:r_i32(stream)
+      local rv, br = BB_LE:r_i32(stream)
       bytes_read = bytes_read + br
       registers.x[i].i32 = rv
     end
-    registers.pc.u32 = ByteBuf:r_u32(stream)
+    registers.pc.u32 = BB_LE:r_u32(stream)
     return bytes_read
   end
 
@@ -446,7 +437,7 @@ do
     local br
     -- time to figure out what the memory size was
     local memory_size
-    memory_size, br = ByteBuf:r_u32(stream)
+    memory_size, br = BB_LE:r_u32(stream)
 
     bytes_read = bytes_read + br
     check_memory_size(memory_size) -- make sure someone isn't trying something funny.
@@ -454,7 +445,7 @@ do
 
     -- okay, now determine if the memory should be reloaded, or was it volatile
     local has_state
-    has_state, br = ByteBuf:r_u8bool(stream)
+    has_state, br = BB_LE:r_u8bool(stream)
     bytes_read = bytes_read + br
     if has_state then
       -- the state was persisted, attempt to reload it
