@@ -24,23 +24,19 @@ mod:require("oku.lua")
 mod:require("lib/elf.lua")
 mod:require("computers.lua")
 
-if yatm_oku.Computers then
-  mod:require("api.lua")
+mod:require("api.lua")
 
-  mod:require("nodes.lua")
-  mod:require("items.lua")
+mod:require("nodes.lua")
+mod:require("items.lua")
 
-  mod:require("hooks.lua")
+mod:require("hooks.lua")
 
-  if foundation.com.Luna then
-    mod:require("tests.lua")
-  end
-
-  mod.ffi = nil
-  mod.bit = nil
-else
-  core.log("warning", "oku failed to initialize properly: computers are unavailable")
+if foundation.com.Luna then
+  mod:require("tests.lua")
 end
+
+mod.ffi = nil
+mod.bit = nil
 
 if core.global_exists("yatm_codex") then
   mod:require("codex.lua")

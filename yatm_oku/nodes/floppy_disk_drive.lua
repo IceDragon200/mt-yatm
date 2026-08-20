@@ -1,6 +1,7 @@
 -- TODO: Drive memory needs to be written back to floppy disk before being removed from inventory
 --
 --
+local mod = assert(yatm_oku)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local random_string = assert(foundation.com.random_string)
@@ -11,15 +12,10 @@ local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local data_network = assert(yatm.data_network)
 local Energy = assert(yatm.energy)
-local ByteDecoder = foundation.com.ByteDecoder
+local BD_LE = assert(foundation.com.ByteDecoder.LE)
 local fspec = assert(foundation.com.formspec.api)
 local get_meta = assert(tetra.get_meta)
 local get_node = assert(tetra.get_node)
-
-if not ByteDecoder then
-  core.log("warning", "Memory module requires foundation.com.ByteDecoder")
-  return
-end
 
 local MAX_DISK_SIZE = 0x4000
 
@@ -135,7 +131,7 @@ local floppy_disk_drive_yatm_network = {
 yatm.devices.register_stateful_network_device({
   basename = "yatm_oku:floppy_disk_drive",
 
-  description = "Floppy Drive",
+  description = mod.S("Floppy Drive"),
 
   codex_entry_id = "yatm_oku:floppy_disk_drive",
 
@@ -195,8 +191,8 @@ yatm.devices.register_stateful_network_device({
         local seek_type = string.sub(blob, 1, 1)
         local offset = string.sub(blob, 2, 3)
 
-        seek_type = ByteDecoder:d_u8(seek_type)
-        offset = ByteDecoder:d_u16(offset) -- offset is 0-offset, not 1
+        seek_type = BD_LE:d_u8(seek_type)
+        offset = BD_LE:d_u16(offset) -- offset is 0-offset, not 1
 
         if seek_type == 0 then -- SEEK_SET
           meta:set_int("seek_offset", offset)
