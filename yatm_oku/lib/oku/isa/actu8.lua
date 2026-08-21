@@ -8,6 +8,8 @@ local ffi = yatm_oku.ffi
 local ACTU8 = {
   has_native = false,
 
+  PAGE_SIZE = 0x100,
+
   --
   -- Fault Codes
   --
@@ -20,8 +22,40 @@ local ACTU8 = {
   FAULT_SEGFAULT = 255,
 }
 yatm_oku.OKU.isa.ACTU8 = ACTU8
+
+--- @spec io_start(memory_size: Integer): Integer
+function ACTU8.io_start(memory_size)
+  return memory_size - ACTU8.PAGE_SIZE * 3
+end
+
+--- @spec ram_start(memory_size: Integer): Integer
+function ACTU8.ram_start(memory_size)
+  return memory_size - ACTU8.PAGE_SIZE * 2
+end
+
+--- @spec stack_start(memory_size: Integer): Integer
+function ACTU8.stack_start(memory_size)
+  return memory_size - ACTU8.PAGE_SIZE
+end
+
+--- @spec io_address(memory_size: Integer, offset: Integer): Integer
+function ACTU8.io_address(memory_size, offset)
+  return ACTU8.io_start(memory_size) + offset
+end
+
+--- @spec ram_address(memory_size: Integer, offset: Integer): Integer
+function ACTU8.ram_address(memory_size, offset)
+  return ACTU8.ram_start(memory_size) + offset
+end
+
+--- @spec stack_address(memory_size: Integer, offset: Integer): Integer
+function ACTU8.stack_address(memory_size, offset)
+  return ACTU8.stack_start(memory_size) + offset
+end
+
 yatm_oku:require("lib/oku/isa/actu8/impl/lua.lua")
 yatm_oku:require("lib/oku/isa/actu8/builder.lua")
+yatm_oku:require("lib/oku/isa/actu8/assembler.lua")
 ACTU8.Chip = assert(ACTU8.NativeChip or ACTU8.LuaChip, "expected a chip implementation")
 local Chip = ACTU8.Chip
 

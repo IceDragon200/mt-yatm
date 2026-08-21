@@ -1,3 +1,4 @@
+yatm_oku:require("tests/oku/isa/actu8_assembler_test.lua")
 yatm_oku:require("tests/oku/isa/actu8_test.lua")
 yatm_oku:require("tests/oku/memory_test.lua")
 yatm_oku:require("tests/oku_test.lua")

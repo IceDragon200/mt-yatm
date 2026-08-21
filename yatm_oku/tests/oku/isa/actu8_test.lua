@@ -1,5 +1,6 @@
 local Luna = assert(foundation.com.Luna)
-local ACTU8_Builder = assert(yatm_oku.OKU.isa.ACTU8.Builder)
+local ACTU8 = assert(yatm_oku.OKU.isa.ACTU8)
+local ACTU8_Builder = assert(ACTU8.Builder)
 local OKU = assert(yatm_oku.OKU)
 
 local case = Luna:new("yatm_oku.OKU.isa.ACTU8")
@@ -12,6 +13,15 @@ case:describe("#initialize/1", function (t2)
 
     t3:assert_eq("actu8", oku.arch)
     t3:assert_eq(0x800, oku.memory:size())
+    t3:assert_eq(0x500, ACTU8.io_start(oku.memory:size()))
+    t3:assert_eq(0x600, ACTU8.ram_start(oku.memory:size()))
+    t3:assert_eq(0x700, ACTU8.stack_start(oku.memory:size()))
+    t3:assert_eq(0x5FF, ACTU8.io_address(oku.memory:size(), 0xFF))
+    t3:assert_eq(0x6FF, ACTU8.ram_address(oku.memory:size(), 0xFF))
+    t3:assert_eq(0x7FF, ACTU8.stack_address(oku.memory:size(), 0xFF))
+    t3:assert_eq(0x500, chip:io_start(oku.memory))
+    t3:assert_eq(0x600, chip:ram_start(oku.memory))
+    t3:assert_eq(0x700, chip:stack_start(oku.memory))
 
     oku.memory:w_blob(
       0,
@@ -22,6 +32,53 @@ case:describe("#initialize/1", function (t2)
     oku:step(2)
     t3:assert_eq(true, oku:call_arch("is_halted"))
     t3:assert_eq(2, chip.pc)
+  end)
+end)
+
+case:describe("instruction fetch", function (t2)
+  t2:test("faults on an unrecognized instruction", function (t3)
+    local oku = OKU:new({ arch = "actu8" })
+    local chip = oku.isa_assigns.chip
+    oku.memory:w_u8(0, 0xff)
+
+    oku:step(1)
+
+    t3:assert_eq(1, chip.flags.fault)
+    t3:assert_eq(ACTU8.FAULT_UNRECOGNIZED_INSTRUCTION, chip.fc)
+    t3:assert_eq(0, chip.pc)
+
+    -- A faulted chip remains suspended until it is reset or externally repaired.
+    oku:step(1)
+    t3:assert_eq(1, chip.flags.fault)
+    t3:assert_eq(ACTU8.FAULT_UNRECOGNIZED_INSTRUCTION, chip.fc)
+    t3:assert_eq(0, chip.pc)
+  end)
+
+  t2:test("segfaults outside physical memory", function (t3)
+    local oku = OKU:new({ arch = "actu8" })
+    local chip = oku.isa_assigns.chip
+    local invalid_address = oku.memory:size()
+    chip.pc = invalid_address
+
+    oku:step(1)
+
+    t3:assert_eq(1, chip.flags.fault)
+    t3:assert_eq(ACTU8.FAULT_SEGFAULT, chip.fc)
+    t3:assert_eq(invalid_address, chip.pc)
+  end)
+
+  t2:test("rejects an instruction crossing into the IO page", function (t3)
+    local oku = OKU:new({ arch = "actu8" })
+    local chip = oku.isa_assigns.chip
+    local last_program_address = ACTU8.io_start(oku.memory:size()) - 1
+    oku.memory:w_u8(last_program_address, 0x10) -- LDI needs one more byte.
+    chip.pc = last_program_address
+
+    oku:step(1)
+
+    t3:assert_eq(1, chip.flags.fault)
+    t3:assert_eq(ACTU8.FAULT_ACCESS_VIOLATION, chip.fc)
+    t3:assert_eq(last_program_address, chip.pc)
   end)
 end)
 

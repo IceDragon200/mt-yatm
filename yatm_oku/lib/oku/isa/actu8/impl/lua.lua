@@ -6,10 +6,35 @@ local floor = assert(math.floor)
 local ACTU8 = assert(yatm_oku.OKU.isa.ACTU8)
 --- @namespace yatm_oku.OKU.isa.ACTU8
 
+local INSTRUCTION_SIZE = {
+  [0x10] = 2, [0x11] = 2, [0x12] = 2,
+  [0x20] = 2, [0x21] = 2, [0x22] = 2,
+  [0x30] = 2, [0x31] = 2, [0x32] = 2,
+  [0x50] = 3, [0x51] = 3,
+  [0x60] = 3, [0x61] = 3, [0x62] = 3, [0x63] = 3,
+  [0x64] = 3, [0x65] = 3, [0x66] = 3, [0x67] = 3,
+  [0x70] = 2, [0x71] = 2,
+}
+
 --- @class LuaChip
 ACTU8.LuaChip = foundation.com.Class:extends("yatm_oku.OKU.isa.ACTU8.LuaChip")
 do
   local ic = ACTU8.LuaChip.instance_class
+
+  --- @spec #io_start(memory: Memory): Integer
+  function ic:io_start(memory)
+    return ACTU8.io_start(memory:size())
+  end
+
+  --- @spec #ram_start(memory: Memory): Integer
+  function ic:ram_start(memory)
+    return ACTU8.ram_start(memory:size())
+  end
+
+  --- @spec #stack_start(memory: Memory): Integer
+  function ic:stack_start(memory)
+    return ACTU8.stack_start(memory:size())
+  end
 
   --- @override
   --- @spec #initializealize(): void
@@ -57,11 +82,29 @@ do
       return ACTU8.FAULT_HALTED
     end
     local pc = self.pc
+    local memory_size = memory:size()
+    local io_start = self:io_start(memory)
+    if pc < 0 or pc >= memory_size then
+      self.flags.fault = 1
+      self.fc = ACTU8.FAULT_SEGFAULT
+      return self.fc
+    end
+    if pc >= io_start then
+      self.flags.fault = 1
+      self.fc = ACTU8.FAULT_ACCESS_VIOLATION
+      return self.fc
+    end
+
     local ins = memory:r_u8(pc)
-    local size = memory:size()
-    local stack_top = size - 256
-    local ram_start = size - 512
-    local io_start = size - 768
+    local instruction_size = INSTRUCTION_SIZE[ins] or 1
+    if pc + instruction_size > io_start then
+      self.flags.fault = 1
+      self.fc = ACTU8.FAULT_ACCESS_VIOLATION
+      return self.fc
+    end
+
+    local stack_start = self:stack_start(memory)
+    local ram_start = self:ram_start(memory)
     local check_zero = false
 
     if ins == 0x00 then -- NOP
@@ -92,7 +135,7 @@ do
         self.fc = ACTU8.FAULT_STACK_OVERFLOW
       else
         self.sp = sp
-        memory:w_u8(stack_top + sp, self.a)
+        memory:w_u8(stack_start + sp, self.a)
       end
     elseif ins == 0x14 then -- POP
       pc = pc + 1
@@ -101,7 +144,7 @@ do
         self.flags.fault = 1
         self.fc = ACTU8.FAULT_STACK_UNDERFLOW
       else
-        self.a = memory:r_u8(stack_top + self.sp)
+        self.a = memory:r_u8(stack_start + self.sp)
         self.sp = sp
         check_zero = true
       end
@@ -191,8 +234,8 @@ do
         local ret_pc = pc + 3
         local lo = ret_pc % 256
         local hi = floor(ret_pc / 256)
-        memory:w_u8(stack_top + self.sp - 1, lo)
-        memory:w_u8(stack_top + self.sp - 2, hi)
+        memory:w_u8(stack_start + self.sp - 1, lo)
+        memory:w_u8(stack_start + self.sp - 2, hi)
         self.sp = self.sp - 2
         pc = pc + 1
         goto jump
@@ -202,8 +245,8 @@ do
         self.flags.fault = 1
         self.fc = ACTU8.FAULT_STACK_UNDERFLOW
       else
-        local hi = memory:r_u8(stack_top + self.sp)
-        local lo = memory:r_u8(stack_top + self.sp + 1)
+        local hi = memory:r_u8(stack_start + self.sp)
+        local lo = memory:r_u8(stack_start + self.sp + 1)
         pc = hi * 256 + lo
         self.sp = self.sp + 2
       end
@@ -290,7 +333,7 @@ do
     do
       local lo = memory:r_u8(pc)
       local hi = memory:r_u8(pc + 1)
-      self.pc = lo + hi * 256
+      pc = lo + hi * 256
     end
   ::after::
     self.pc = pc

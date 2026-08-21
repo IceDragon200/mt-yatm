@@ -2,6 +2,46 @@
 
 Pronounced "Actuate", is a small instruction set and machine architecture provided by OKU out of the box.
 
+## Assembly Language
+
+ACTU8 assembly uses decimal or modern `0x`, `0b`, and `0o` integer literals.
+The instruction determines the operand's addressing mode; immediate values do
+not need a prefix.
+
+```asm
+const initial_count = 0b1010
+
+section code
+start:
+  ldi initial_count
+  sta counter
+loop:
+  lda counter
+  out console
+  jnz loop
+  halt
+
+section ram
+origin 0x20
+counter:
+  byte 0
+
+section io
+origin 0x02
+console:
+  byte 0
+```
+
+`code`, `ram`, and `io` labels retain their address-space type. The assembler
+therefore rejects uses such as jumping to a RAM label or loading from an I/O
+label. `byte` and little-endian `word` emit comma-separated values. Expressions
+support parentheses, unary `+`, `-`, and `~`, plus `+`, `-`, `*`, `/`, `%`,
+`<<`, `>>`, `&`, `^`, and `|`. Comments begin with `;` or `//`.
+
+`ACTU8.Assembler.assemble(source)` returns the executable code followed by a
+context. Initialized page images are available as `context.sections.ram` and
+`context.sections.io`; resolved symbol information is in `context.symbols`.
+
 ## Machine
 
 ACTU8's encoding SHALL BE little-endian.
@@ -69,7 +109,10 @@ Subsequent resumes SHALL abort immediately, the machine MUST be reset to recover
 * `addr8` SHALL be a unsigned 8-bit integer
 * `addr16` SHALL be a unsigned 16-bit integer
 
-Instructions that use `addr16` for its addressing are normally working only on the `Program` pages, while it is possible to execute from the RAM page, it is discouraged.
+Instructions that use `addr16` for addressing may only target the `Program`
+section. Attempting to execute from the IO, RAM, or Stack pages SHALL set
+`flags.fault` with the Access Violation fault code without executing the target
+byte.
 
 Instructions that use `addr8` are context dependent and are offsets within their respective pages.
 
