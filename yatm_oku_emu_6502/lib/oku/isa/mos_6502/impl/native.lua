@@ -1,4 +1,4 @@
-local ffi = assert(yatm_oku.ffi)
+local ffi = assert(yatm_oku_emu_6502.ffi)
 
 ffi.cdef([[
 struct oku_6502_chip
@@ -28,7 +28,7 @@ int oku_6502_chip_step(struct oku_6502_chip* chip, int32_t mem_size, char* mem);
 
 local oku_6502
 pcall(function ()
-  oku_6502 = ffi.load(yatm_oku.modpath .. "/ext/oku_6502.so")
+  oku_6502 = ffi.load(yatm_oku_emu_6502.modpath .. "/ext/oku_6502.so")
 end)
 
 if not oku_6502 then
@@ -45,10 +45,10 @@ function ic:initialize(options)
   options = options or {}
   self.m_chip = ffi.new("struct oku_6502_chip")
   oku_6502.oku_6502_chip_init(self.m_chip)
-  self.m_mem_size = options.memory_size or 0xFFFF
+  self.m_mem_size = options.memory_size or 0x10000
   self.m_mem = options.memory
   if options.create_memory then
-    self.m_mem = ffi.new("uint8_t[?]", mem_size)
+    self.m_mem = ffi.new("uint8_t[?]", self.m_mem_size)
   end
 end
 

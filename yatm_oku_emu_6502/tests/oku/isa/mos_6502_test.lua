@@ -43,17 +43,15 @@ case:describe("step", function (t2)
 
     t3:assert_eq(512, oku.memory:r_u16(0xFFFC))
 
-    -- reset sequence is roughly 9 steps
-    local steps
-    local err
-    for i = 1,8 do
+    -- NMOS reset performs seven memory accesses.
+    for _ = 1,6 do
       step_and_expect(t3, oku, OKU.isa.MOS6502.STARTUP_CODE)
     end
     -- last step of the startup sequence
     step_ok(t3, oku)
 
     t3:assert_eq(OKU.isa.MOS6502.CPU_STATE_RUN, oku.isa_assigns.chip:get_state())
-    t3:assert_eq(2, oku.isa_assigns.chip:get_register_sr())
+    t3:assert_eq(4, oku.isa_assigns.chip:get_register_sr())
     t3:assert_eq(512, oku.isa_assigns.chip:get_register_pc())
 
     step_ok(t3, oku)

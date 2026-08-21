@@ -168,8 +168,8 @@ extern void oku_6502_push_pc(struct oku_6502_chip* chip, int32_t mem_size, char*
 
 extern void oku_6502_pop_pc(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int16_t lo = (int16_t)oku_6502_pop_stack(chip, mem_size, mem, status);
-  int16_t hi = (int16_t)oku_6502_pop_stack(chip, mem_size, mem, status);
+  uint16_t lo = (uint8_t)oku_6502_pop_stack(chip, mem_size, mem, status);
+  uint16_t hi = (uint8_t)oku_6502_pop_stack(chip, mem_size, mem, status);
 
   chip->pc = (hi << 8) | lo;
 }
@@ -191,19 +191,21 @@ static void opr_immediate_i8(struct oku_6502_chip* chip, int32_t mem_size, char*
 
 static void opr_absolute_i16(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  chip->operand = oku_6502_read_pc_mem_i16(chip, mem_size, mem, status);
+  uint16_t lo = (uint8_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
   increment_pc(chip, "opr_absolute_i16 lo");
+  uint16_t hi = (uint8_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
   increment_pc(chip, "opr_absolute_i16 hi");
+  chip->operand = (int32_t)((hi << 8) | lo);
 }
 
 static void opr_absolute_i16x(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int16_t ol = (int16_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
+  uint16_t ol = (uint8_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
   increment_pc(chip, "opr_absolute_i16x lo");
-  int16_t oh = (int16_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
+  uint16_t oh = (uint8_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
   increment_pc(chip, "opr_absolute_i16x hi");
 
-  ol += chip->x;
+  ol += (uint8_t)chip->x;
 
   // dirty
   chip->operand = (int32_t)((oh << 8) + ol);
@@ -220,14 +222,14 @@ static void opr_absolute_i16x(struct oku_6502_chip* chip, int32_t mem_size, char
 
 static void opr_absolute_i16y(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int16_t ol = (int16_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
+  uint16_t ol = (uint8_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
   increment_pc(chip, "opr_absolute_i16y lo");
-  int16_t oh = (int16_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
+  uint16_t oh = (uint8_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
   increment_pc(chip, "opr_absolute_i16y hi");
 
   oh <<= 8;
 
-  ol += chip->y;
+  ol += (uint8_t)chip->y;
 
   // dirty
   chip->operand = (int32_t)(oh + ol);
@@ -244,30 +246,31 @@ static void opr_absolute_i16y(struct oku_6502_chip* chip, int32_t mem_size, char
 
 static void opr_indirect_i16(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int16_t al = (int16_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
+  uint16_t al = (uint8_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
   increment_pc(chip, "opr_indirect_i16 lo");
-  int16_t ah = (int16_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
+  uint16_t ah = (uint8_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
   increment_pc(chip, "opr_indirect_i16 hi");
 
   ah <<= 8;
 
-  int16_t a = ah | al;
+  uint16_t a = ah | al;
 
-  int16_t ol = (int16_t)oku_6502_chip_read_mem_i8(chip, a, mem_size, mem, status);
-  int16_t oh = (int16_t)oku_6502_chip_read_mem_i8(chip, a + 1, mem_size, mem, status);
+  uint16_t ol = (uint8_t)oku_6502_chip_read_mem_i8(chip, a, mem_size, mem, status);
+  uint16_t high_address = (a & 0xFF00) | ((a + 1) & 0xFF);
+  uint16_t oh = (uint8_t)oku_6502_chip_read_mem_i8(chip, high_address, mem_size, mem, status);
 
   chip->operand = (int32_t)((oh << 8) + ol) & 0xFFFF;
 }
 
 static void opr_indirect_i16x(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int16_t ptr = (int16_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
+  uint16_t ptr = (uint8_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
   increment_pc(chip, "opr_indirect_i16x");
 
-  ptr = (ptr + chip->x) & 0xFF;
+  ptr = (ptr + (uint8_t)chip->x) & 0xFF;
 
-  int16_t ol = (int16_t)oku_6502_chip_read_mem_i8(chip, ptr, mem_size, mem, status);
-  int16_t oh = (int16_t)oku_6502_chip_read_mem_i8(chip, (ptr + 1) & 0xFF, mem_size, mem, status);
+  uint16_t ol = (uint8_t)oku_6502_chip_read_mem_i8(chip, ptr, mem_size, mem, status);
+  uint16_t oh = (uint8_t)oku_6502_chip_read_mem_i8(chip, (ptr + 1) & 0xFF, mem_size, mem, status);
   oh <<= 8;
 
   chip->operand = (int32_t)(oh + ol) & 0xFFFF;
@@ -275,16 +278,16 @@ static void opr_indirect_i16x(struct oku_6502_chip* chip, int32_t mem_size, char
 
 static void opr_indirect_i16y(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int16_t ptr = (int16_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
+  uint16_t ptr = (uint8_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
   increment_pc(chip, "opr_indirect_i16y");
 
-  int16_t ol = (int16_t)oku_6502_chip_read_mem_i8(chip, ptr, mem_size, mem, status);
-  ol += chip->y;
+  uint16_t ol = (uint8_t)oku_6502_chip_read_mem_i8(chip, ptr, mem_size, mem, status);
+  ol += (uint8_t)chip->y;
 
-  int16_t oh = (int16_t)oku_6502_chip_read_mem_i8(chip, (ptr + 1) & 0xFF, mem_size, mem, status);
+  uint16_t oh = (uint8_t)oku_6502_chip_read_mem_i8(chip, (ptr + 1) & 0xFF, mem_size, mem, status);
   oh <<= 8;
 
-  if (ol > 0x100)
+  if (ol >= 0x100)
   {
     oku_6502_chip_read_mem_i8(chip, oh + (ol & 0xFF), mem_size, mem, status);
   }
@@ -294,7 +297,7 @@ static void opr_indirect_i16y(struct oku_6502_chip* chip, int32_t mem_size, char
 
 static void opr_relative_i16(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int16_t offset = (int16_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
+  int16_t offset = (int8_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
   increment_pc(chip, "opr_relative_i16");
 
   chip->operand = (int32_t)(chip->pc + offset) & 0xFFFF;
@@ -302,7 +305,7 @@ static void opr_relative_i16(struct oku_6502_chip* chip, int32_t mem_size, char*
 
 static void opr_zeropage_i16(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int16_t ptr = (int16_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
+  uint16_t ptr = (uint8_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
   increment_pc(chip, "opr_zeropage_i16");
 
   chip->operand = (int32_t)ptr;
@@ -310,18 +313,18 @@ static void opr_zeropage_i16(struct oku_6502_chip* chip, int32_t mem_size, char*
 
 static void opr_zeropage_i16x(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int16_t ptr = (int16_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
+  uint16_t ptr = (uint8_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
   increment_pc(chip, "opr_zeropage_i16x");
 
-  chip->operand = (int32_t)(ptr + chip->x) & 0xFF;
+  chip->operand = (int32_t)(ptr + (uint8_t)chip->x) & 0xFF;
 }
 
 static void opr_zeropage_i16y(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int16_t ptr = (int16_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
+  uint16_t ptr = (uint8_t)oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
   increment_pc(chip, "opr_zeropage_i16y");
 
-  chip->operand = (int32_t)(ptr + chip->y) & 0xFF;
+  chip->operand = (int32_t)(ptr + (uint8_t)chip->y) & 0xFF;
 }
 
 //
@@ -352,8 +355,8 @@ static inline void set_zero_flag(struct oku_6502_chip* chip, int32_t value)
 //
 static void exec_adc(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int16_t op1 = (int16_t)chip->a;
-  int16_t op2 = (int16_t)oku_6502_chip_read_mem_i8(chip, chip->operand, mem_size, mem, status);
+  int16_t op1 = (uint8_t)chip->a;
+  int16_t op2 = (uint8_t)oku_6502_chip_read_mem_i8(chip, chip->operand, mem_size, mem, status);
   int16_t value = op1 + op2 + CARRY_FLAG(chip->sr);
   if (DECIMAL_MODE_FLAG(chip->sr) == 0)
   {
@@ -361,30 +364,25 @@ static void exec_adc(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
     chip->sr = SET_OVERFLOW_FLAG(chip->sr, ((op1 ^ chip->a) & ~(op1 ^ op2) & 0x80) >> 7);
 
     set_carry_flag(chip, (int32_t)value);
-    set_negative_flag(chip, (int32_t)value);
-    set_zero_flag(chip, (int32_t)value);
+    chip->sr = SET_NEGATIVE_FLAG(chip->sr, (chip->a & 0x80) != 0);
+    chip->sr = SET_ZERO_FLAG(chip->sr, chip->a == 0);
   }
   else
   {
-    // decimal mode behavior following Marko Makela's explanations
-    // Stolen from a java based 6502 interpreter
-    // I'll be honest, I have no idea how this works.
-    int16_t tmp;
-    chip->sr = SET_ZERO_FLAG(chip->sr, (value & 0xFF) == 0 ? 1 : 0);
+    int16_t low = (op1 & 0x0F) + (op2 & 0x0F) + CARRY_FLAG(chip->sr);
+    if (low >= 0x0A)
+      low += 0x06;
 
-    tmp = (op1 & 0x0F) + (op2 & 0x0F) + CARRY_FLAG(chip->sr);
-    chip->a = tmp < 0x0A ? tmp : tmp + 6;
+    int16_t high = (op1 & 0xF0) + (op2 & 0xF0) + (low & 0xF0);
+    chip->sr = SET_ZERO_FLAG(chip->sr, (value & 0xFF) == 0);
+    chip->sr = SET_NEGATIVE_FLAG(chip->sr, (high & 0x80) != 0);
+    chip->sr = SET_OVERFLOW_FLAG(chip->sr,
+      ((op1 ^ high) & ~(op1 ^ op2) & 0x80) != 0);
 
-    tmp = (op1 & 0xF0) + (op2 & 0xF0) + (tmp & 0xF0);
-
-    chip->sr = SET_NEGATIVE_FLAG(chip->sr, tmp < 0 ? 1 : 0);
-    chip->sr = SET_OVERFLOW_FLAG(chip->sr, ((op1 ^ tmp) & ~(op1 ^ op2) & 0x80) >> 7);
-
-    tmp = (chip->a & 0x0F) | (tmp < 0xA0 ? tmp : tmp + 0x60);
-
-    chip->sr = SET_CARRY_FLAG(chip->sr, tmp > 0x100 ? 1 : 0);
-
-    chip->a = tmp & 0xFF;
+    if (high >= 0xA0)
+      high += 0x60;
+    chip->sr = SET_CARRY_FLAG(chip->sr, high > 0xFF);
+    chip->a = (low & 0x0F) | (high & 0xF0);
   }
 }
 
@@ -398,27 +396,23 @@ static void exec_and(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 
 static void exec_asl(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int8_t tmp = oku_6502_chip_read_mem_i8(chip, chip->operand, mem_size, mem, status);
-  oku_6502_chip_write_mem_i8(chip, chip->operand, tmp, mem_size, mem, status);
-
-  chip->sr = SET_CARRY_FLAG(chip->sr, tmp < 0 ? 1 : 0);
-
-  tmp <<= 1;
-
-  set_negative_flag(chip, (int32_t)tmp);
-  set_zero_flag(chip, (int32_t)tmp);
-
-  oku_6502_chip_write_mem_i8(chip, chip->operand, tmp, mem_size, mem, status);
+  uint8_t value = (uint8_t)oku_6502_chip_read_mem_i8(chip, chip->operand, mem_size, mem, status);
+  chip->sr = SET_CARRY_FLAG(chip->sr, (value & 0x80) != 0);
+  value <<= 1;
+  chip->sr = SET_NEGATIVE_FLAG(chip->sr, (value & 0x80) != 0);
+  chip->sr = SET_ZERO_FLAG(chip->sr, value == 0);
+  oku_6502_chip_write_mem_i8(chip, chip->operand, (int8_t)value, mem_size, mem, status);
 }
 
 static void exec_asl_a(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int16_t tmp = (int16_t)chip->a << 1;
-  tmp &= 0xFF;
-
-  set_carry_flag(chip, tmp);
-  set_negative_flag(chip, (int32_t)tmp);
-  set_zero_flag(chip, (int32_t)tmp);
+  *status = OK_CODE;
+  uint8_t value = (uint8_t)chip->a;
+  chip->sr = SET_CARRY_FLAG(chip->sr, (value & 0x80) != 0);
+  value <<= 1;
+  chip->a = (int8_t)value;
+  chip->sr = SET_NEGATIVE_FLAG(chip->sr, (value & 0x80) != 0);
+  chip->sr = SET_ZERO_FLAG(chip->sr, value == 0);
 }
 
 static void do_exec_branch(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
@@ -460,7 +454,7 @@ static void exec_beq(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 
 static void exec_bit(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int8_t tmp = oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
+  int8_t tmp = oku_6502_chip_read_mem_i8(chip, chip->operand, mem_size, mem, status);
 
   chip->sr = SET_OVERFLOW_FLAG(chip->sr, (tmp & 0x40) != 0 ? 1 : 0);
   set_negative_flag(chip, tmp);
@@ -496,11 +490,14 @@ static void exec_php(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 static void exec_brk(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
   oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
+  chip->pc++;
   oku_6502_push_pc(chip, mem_size, mem, status);
   exec_php(chip, mem_size, mem, status);
 
   chip->sr = SET_IRQ_DISABLE_FLAG(chip->sr, 1);
-  chip->pc = oku_6502_chip_read_mem_i8(chip, 0xFFFE, mem_size, mem, status);
+  uint16_t lo = (uint8_t)oku_6502_chip_read_mem_i8(chip, 0xFFFE, mem_size, mem, status);
+  uint16_t hi = (uint8_t)oku_6502_chip_read_mem_i8(chip, 0xFFFF, mem_size, mem, status);
+  chip->pc = (hi << 8) | lo;
 }
 
 static void exec_bvc(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
@@ -541,29 +538,32 @@ static void exec_clv(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 
 static void exec_cmp(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int16_t tmp = (int16_t)chip->a - (int16_t)oku_6502_chip_read_mem_i8(chip, chip->operand, mem_size, mem, status);
-
-  set_borrow_flag(chip, (int32_t)tmp);
-  set_negative_flag(chip,(int32_t)tmp);
-  set_zero_flag(chip, (int32_t)tmp);
+  uint8_t reg = (uint8_t)chip->a;
+  uint8_t operand = (uint8_t)oku_6502_chip_read_mem_i8(chip, chip->operand, mem_size, mem, status);
+  uint8_t result = reg - operand;
+  chip->sr = SET_CARRY_FLAG(chip->sr, reg >= operand);
+  chip->sr = SET_NEGATIVE_FLAG(chip->sr, (result & 0x80) != 0);
+  chip->sr = SET_ZERO_FLAG(chip->sr, result == 0);
 }
 
 static void exec_cpx(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int16_t tmp = (int16_t)chip->x - (int16_t)oku_6502_chip_read_mem_i8(chip, chip->operand, mem_size, mem, status);
-
-  set_borrow_flag(chip, (int32_t)tmp);
-  set_negative_flag(chip,(int32_t)tmp);
-  set_zero_flag(chip, (int32_t)tmp);
+  uint8_t reg = (uint8_t)chip->x;
+  uint8_t operand = (uint8_t)oku_6502_chip_read_mem_i8(chip, chip->operand, mem_size, mem, status);
+  uint8_t result = reg - operand;
+  chip->sr = SET_CARRY_FLAG(chip->sr, reg >= operand);
+  chip->sr = SET_NEGATIVE_FLAG(chip->sr, (result & 0x80) != 0);
+  chip->sr = SET_ZERO_FLAG(chip->sr, result == 0);
 }
 
 static void exec_cpy(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int16_t tmp = (int16_t)chip->y - (int16_t)oku_6502_chip_read_mem_i8(chip, chip->operand, mem_size, mem, status);
-
-  set_borrow_flag(chip, (int32_t)tmp);
-  set_negative_flag(chip,(int32_t)tmp);
-  set_zero_flag(chip, (int32_t)tmp);
+  uint8_t reg = (uint8_t)chip->y;
+  uint8_t operand = (uint8_t)oku_6502_chip_read_mem_i8(chip, chip->operand, mem_size, mem, status);
+  uint8_t result = reg - operand;
+  chip->sr = SET_CARRY_FLAG(chip->sr, reg >= operand);
+  chip->sr = SET_NEGATIVE_FLAG(chip->sr, (result & 0x80) != 0);
+  chip->sr = SET_ZERO_FLAG(chip->sr, result == 0);
 }
 
 static void exec_dec(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
@@ -635,15 +635,10 @@ static void exec_jmp(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 
 static void exec_jsr(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int8_t lo = oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
-  increment_pc(chip, "exec_jsr lo");
-
-  oku_6502_chip_read_mem_i8(chip, chip->sp + 0x100, mem_size, mem, status);
+  uint16_t target = (uint16_t)chip->operand;
+  chip->pc--;
   oku_6502_push_pc(chip, mem_size, mem, status);
-
-  int8_t hi = oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
-
-  chip->pc = (hi << 8) + lo;
+  chip->pc = target;
 }
 
 static void exec_lda(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
@@ -678,26 +673,23 @@ static void exec_ldy(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 
 static void exec_lsr(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int8_t tmp = oku_6502_chip_read_mem_i8(chip, chip->operand, mem_size, mem, status);
-  oku_6502_chip_write_mem_i8(chip, chip->operand, tmp, mem_size, mem, status);
-
-  chip->sr = SET_CARRY_FLAG(chip->sr, tmp & 1);
-
-  tmp >>= 1;
-
-  set_negative_flag(chip,(int32_t)tmp);
-  set_zero_flag(chip, (int32_t)tmp);
-
-  oku_6502_chip_write_mem_i8(chip, chip->operand, tmp, mem_size, mem, status);
+  uint8_t value = (uint8_t)oku_6502_chip_read_mem_i8(chip, chip->operand, mem_size, mem, status);
+  chip->sr = SET_CARRY_FLAG(chip->sr, value & 1);
+  value >>= 1;
+  chip->sr = SET_NEGATIVE_FLAG(chip->sr, 0);
+  chip->sr = SET_ZERO_FLAG(chip->sr, value == 0);
+  oku_6502_chip_write_mem_i8(chip, chip->operand, (int8_t)value, mem_size, mem, status);
 }
 
 static void exec_lsr_a(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  chip->sr = SET_CARRY_FLAG(chip->sr, chip->a & 1);
-  chip->a >>= 1;
-
-  set_negative_flag(chip,(int32_t)chip->a);
-  set_zero_flag(chip, (int32_t)chip->a);
+  *status = OK_CODE;
+  uint8_t value = (uint8_t)chip->a;
+  chip->sr = SET_CARRY_FLAG(chip->sr, value & 1);
+  value >>= 1;
+  chip->a = (int8_t)value;
+  chip->sr = SET_NEGATIVE_FLAG(chip->sr, 0);
+  chip->sr = SET_ZERO_FLAG(chip->sr, value == 0);
 }
 
 static void exec_nop(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
@@ -720,7 +712,7 @@ static void exec_pha(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 
 static void exec_php(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  oku_6502_push_stack(chip, chip->sr, mem_size, mem, status);
+  oku_6502_push_stack(chip, chip->sr | 0x30, mem_size, mem, status);
 }
 
 static void exec_pla(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
@@ -735,7 +727,7 @@ static void exec_pla(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 static void exec_plp(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
   oku_6502_read_stack(chip, mem_size, mem, status);
-  chip->sr = oku_6502_pop_stack(chip, mem_size, mem, status);
+  chip->sr = oku_6502_pop_stack(chip, mem_size, mem, status) & 0xCF;
 }
 
 static void exec_rol(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
@@ -754,6 +746,7 @@ static void exec_rol(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 
 static void exec_rol_a(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
+  *status = OK_CODE;
   int16_t tmp = ((int16_t)chip->a << 1) | (CARRY_FLAG(chip->sr));
 
   chip->a = tmp & 0xFF;
@@ -779,10 +772,12 @@ static void exec_ror(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 
 static void exec_ror_a(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int16_t tmp = (int16_t)chip->a | (CARRY_FLAG(chip->sr) == 0 ? 0 : 0x100);
-  chip->sr = SET_CARRY_FLAG(chip->sr, chip->a & 1);
+  *status = OK_CODE;
+  uint16_t tmp = (uint8_t)chip->a |
+                 (CARRY_FLAG(chip->sr) == 0 ? 0 : 0x100);
+  chip->sr = SET_CARRY_FLAG(chip->sr, ((uint8_t)chip->a) & 1);
 
-  chip->a = tmp >> 1;
+  chip->a = (int8_t)(tmp >> 1);
 
   set_negative_flag(chip, (int32_t)chip->a);
   set_zero_flag(chip, (int32_t)chip->a);
@@ -799,13 +794,13 @@ static void exec_rts(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 {
   oku_6502_read_stack(chip, mem_size, mem, status);
   oku_6502_pop_pc(chip, mem_size, mem, status);
-  oku_6502_read_pc_mem_i8(chip, mem_size, mem, status);
+  chip->pc++;
 }
 
 static void exec_sbc(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  int16_t op1 = (int16_t)chip->a;
-  int16_t op2 = (int16_t)oku_6502_chip_read_mem_i8(chip, chip->operand, mem_size, mem, status);
+  int16_t op1 = (uint8_t)chip->a;
+  int16_t op2 = (uint8_t)oku_6502_chip_read_mem_i8(chip, chip->operand, mem_size, mem, status);
   int16_t value = op1 - op2 - ((CARRY_FLAG(chip->sr) ^ 1) & 0x1);
 
   if (DECIMAL_MODE_FLAG(chip->sr) == 0)
@@ -814,28 +809,29 @@ static void exec_sbc(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
     chip->sr = SET_OVERFLOW_FLAG(chip->sr, (((op1 ^ op2) & (op1 ^ chip->a) & 0x80) >> 7));
 
     set_borrow_flag(chip, value);
-    set_negative_flag(chip, (int32_t)value);
-    set_zero_flag(chip, (int32_t)value);
+    chip->sr = SET_NEGATIVE_FLAG(chip->sr, (chip->a & 0x80) != 0);
+    chip->sr = SET_ZERO_FLAG(chip->sr, chip->a == 0);
   }
   else
   {
-    // decimal mode behavior following Marko Makela's explanations
-    // Stolen from a java based 6502 interpreter
-    // I'll be honest, I have no idea how this works.
-    int16_t tmp;
-    tmp = (op1 & 0x0F) - (op2 & 0x0F) - (CARRY_FLAG(chip->sr) ^ 1);
+    int16_t low = (op1 & 0x0F) - (op2 & 0x0F) -
+                  (1 - CARRY_FLAG(chip->sr));
+    int low_borrow = low < 0;
+    if (low_borrow)
+      low -= 0x06;
 
-    chip->a = (tmp & 0x10) == 0 ? tmp : tmp - 6;
+    int16_t high = (op1 & 0xF0) - (op2 & 0xF0) -
+                   (low_borrow ? 0x10 : 0);
+    if (high < 0)
+      high -= 0x60;
+    chip->a = (low & 0x0F) | (high & 0xF0);
 
-    tmp = (op1 & 0xF0) - (op2 & 0xF0) - (chip->a & 0x10);
-
-    chip->a = (chip->a & 0x0F) | ((tmp & 0x100) == 0 ? tmp : tmp - 0x60);
-
-    tmp = op1 - op2 - (CARRY_FLAG(chip->sr) ^ 1);
-
-    set_borrow_flag(chip, tmp);
-    set_negative_flag(chip, (int32_t)tmp);
-    set_zero_flag(chip, (int32_t)tmp);
+    uint8_t binary_result = (uint8_t)value;
+    chip->sr = SET_OVERFLOW_FLAG(chip->sr,
+      ((op1 ^ op2) & (op1 ^ binary_result) & 0x80) != 0);
+    set_borrow_flag(chip, value);
+    chip->sr = SET_NEGATIVE_FLAG(chip->sr, (binary_result & 0x80) != 0);
+    chip->sr = SET_ZERO_FLAG(chip->sr, binary_result == 0);
   }
 }
 
@@ -879,10 +875,10 @@ static void exec_tax(struct oku_6502_chip* chip, int32_t mem_size, char* mem, in
 
 static void exec_tay(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
 {
-  chip->x = chip->a;
+  chip->y = chip->a;
 
-  set_negative_flag(chip, (int32_t)chip->x);
-  set_zero_flag(chip, (int32_t)chip->x);
+  set_negative_flag(chip, (int32_t)chip->y);
+  set_zero_flag(chip, (int32_t)chip->y);
 }
 
 static void exec_tsx(struct oku_6502_chip* chip, int32_t mem_size, char* mem, int* status)
@@ -948,7 +944,6 @@ static int oku_6502_chip_exec(struct oku_6502_chip* chip, int32_t mem_size, char
   switch (chip->ir)
   {
     case 0x00: // BRK impl
-      opr_implied_i8(chip, mem_size, mem, &status);
       exec_brk(chip, mem_size, mem, &status);
       break;
 
@@ -1493,7 +1488,7 @@ static int oku_6502_chip_exec(struct oku_6502_chip* chip, int32_t mem_size, char
       break;
 
     case 0x91: // STA ind,Y
-      opr_indirect_i16x(chip, mem_size, mem, &status);
+      opr_indirect_i16y(chip, mem_size, mem, &status);
       exec_sta(chip, mem_size, mem, &status);
       break;
 
@@ -1990,80 +1985,47 @@ static int oku_6502_chip_startup(struct oku_6502_chip* chip, int32_t mem_size, c
     case 0:
       chip->ab = chip->pc;
       oku_6502_chip_read_mem_i8(chip, chip->ab, mem_size, mem, &status);
-      chip->a = 0xAA;
       chip->ir = 0x00;
-      chip->sr = 0x02;
       chip->state = NEXT_STAGE(chip->state);
       return STARTUP_CODE;
 
     case 1:
       chip->ab = chip->pc;
       oku_6502_chip_read_mem_i8(chip, chip->ab, mem_size, mem, &status);
-      chip->a = 0xAA;
-      chip->ir = 0x00;
-      chip->sr = 0x02;
       chip->state = NEXT_STAGE(chip->state);
       return STARTUP_CODE;
 
     case 2:
-      chip->ab = chip->pc;
+      chip->ab = 0x0100 + chip->sp;
       oku_6502_chip_read_mem_i8(chip, chip->ab, mem_size, mem, &status);
-      chip->pc = 0x00FF;
-      chip->a = 0xAA;
-      chip->ir = 0x00;
-      chip->sr = 0x02;
+      chip->sp--;
       chip->state = NEXT_STAGE(chip->state);
       return STARTUP_CODE;
 
     case 3:
-      chip->ab = 0xFFFF;
+      chip->ab = 0x0100 + chip->sp;
       oku_6502_chip_read_mem_i8(chip, chip->ab, mem_size, mem, &status);
-      chip->a = 0xAA;
-      chip->ir = 0x00;
-      chip->sr = 0x02;
+      chip->sp--;
       chip->state = NEXT_STAGE(chip->state);
       return STARTUP_CODE;
 
     case 4:
-      chip->ab = 0x01F7;
+      chip->ab = 0x0100 + chip->sp;
       oku_6502_chip_read_mem_i8(chip, chip->ab, mem_size, mem, &status);
-      chip->pc = 0x00FF;
-      chip->a = 0xAA;
-      chip->ir = 0x00;
-      chip->sr = 0x02;
+      chip->sp--;
       chip->state = NEXT_STAGE(chip->state);
       return STARTUP_CODE;
 
     case 5:
-      chip->ab = 0x01F6;
-      oku_6502_chip_read_mem_i8(chip, chip->ab, mem_size, mem, &status);
-      chip->pc = 0x00FF;
-      chip->a = 0xAA;
-      chip->ir = 0x00;
-      chip->sr = 0x02;
+      chip->ab = RESET_VECTOR_PTR;
+      chip->pc = (uint16_t)(uint8_t)oku_6502_chip_read_mem_i8(chip, chip->ab, mem_size, mem, &status);
       chip->state = NEXT_STAGE(chip->state);
       return STARTUP_CODE;
 
     case 6:
-      chip->ab = 0x01F5;
-      oku_6502_chip_read_mem_i8(chip, chip->ab, mem_size, mem, &status);
-      chip->pc = 0x00FF;
-      chip->a = 0xAA;
-      chip->ir = 0x00;
-      chip->sr = 0x02;
-      chip->state = NEXT_STAGE(chip->state);
-      return STARTUP_CODE;
-
-    // PC initialize
-    case 7:
-      chip->ab = RESET_VECTOR_PTR;
-      chip->pc = (uint16_t)oku_6502_chip_read_mem_i8(chip, chip->ab, mem_size, mem, &status);
-      chip->state = NEXT_STAGE(chip->state);
-      return STARTUP_CODE;
-
-    case 8:
       chip->ab = RESET_VECTOR_PTR + 1;
-      chip->pc |= ((uint16_t)oku_6502_chip_read_mem_i8(chip, chip->ab, mem_size, mem, &status)) << 8;
+      chip->pc |= ((uint16_t)(uint8_t)oku_6502_chip_read_mem_i8(chip, chip->ab, mem_size, mem, &status)) << 8;
+      chip->sr = SET_IRQ_DISABLE_FLAG(chip->sr, 1);
       chip->state = CPU_STATE_RUN;
       return OK_CODE;
 

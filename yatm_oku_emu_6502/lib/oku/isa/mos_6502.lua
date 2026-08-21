@@ -1,6 +1,6 @@
 local BB_LE = assert(foundation.com.ByteBuf.LE)
 
-local ffi = yatm_oku.ffi
+local ffi = yatm_oku_emu_6502.ffi
 
 local MOS6502 = {
   has_native = false,

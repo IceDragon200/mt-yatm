@@ -213,82 +213,49 @@ do
     if startup_stage == 0 then
       chip.ab = chip.pc
       self:_chip_read_mem_u8(chip.ab)
-      chip.a = 0xAA
       chip.ir = 0x00
-      chip.sr = 0x02
       chip.state = next_stage(chip.state)
       return STARTUP_CODE
 
     elseif startup_stage == 1 then
       chip.ab = chip.pc
       self:_chip_read_mem_u8(chip.ab)
-      chip.a = 0xAA
-      chip.ir = 0x00
-      chip.sr = 0x02
       chip.state = next_stage(chip.state)
       return STARTUP_CODE
 
     elseif startup_stage == 2 then
-      chip.ab = chip.pc
+      chip.ab = 0x0100 + chip.sp
       self:_chip_read_mem_u8(chip.ab)
-      chip.pc = 0x00FF
-      chip.a = 0xAA
-      chip.ir = 0x00
-      chip.sr = 0x02
+      chip.sp = bit.band(chip.sp - 1, 0xFF)
       chip.state = next_stage(chip.state)
       return STARTUP_CODE
 
     elseif startup_stage == 3 then
-      chip.ab = 0xFFFF
+      chip.ab = 0x0100 + chip.sp
       self:_chip_read_mem_u8(chip.ab)
-      chip.pc = 0x00FF
-      chip.a = 0xAA
-      chip.ir = 0x00
-      chip.sr = 0x02
+      chip.sp = bit.band(chip.sp - 1, 0xFF)
       chip.state = next_stage(chip.state)
       return STARTUP_CODE
 
     elseif startup_stage == 4 then
-      chip.ab = 0x01F7
+      chip.ab = 0x0100 + chip.sp
       self:_chip_read_mem_u8(chip.ab)
-      chip.pc = 0x00FF
-      chip.a = 0xAA
-      chip.ir = 0x00
-      chip.sr = 0x02
+      chip.sp = bit.band(chip.sp - 1, 0xFF)
       chip.state = next_stage(chip.state)
       return STARTUP_CODE
 
     elseif startup_stage == 5 then
-      chip.ab = 0x01F6
-      self:_chip_read_mem_u8(chip.ab)
-      chip.pc = 0x00FF
-      chip.a = 0xAA
-      chip.ir = 0x00
-      chip.sr = 0x02
-      chip.state = next_stage(chip.state)
-      return STARTUP_CODE
-
-    elseif startup_stage == 6 then
-      chip.ab = 0x01F5
-      self:_chip_read_mem_u8(chip.ab)
-      chip.pc = 0x00FF
-      chip.a = 0xAA
-      chip.ir = 0x00
-      chip.sr = 0x02
-      chip.state = next_stage(chip.state)
-      return STARTUP_CODE
-
-    elseif startup_stage == 7 then
       chip.ab = RESET_VECTOR_PTR
-      local status, val = self:_chip_read_mem_u8(chip.ab)
+      local _, val = self:_chip_read_mem_u8(chip.ab)
       chip.pc = val
       chip.state = next_stage(chip.state)
       return STARTUP_CODE
 
-    elseif startup_stage == 8 then
+    elseif startup_stage == 6 then
       chip.ab = RESET_VECTOR_PTR + 1
-      local status, val = self:_chip_read_mem_u8(chip.ab)
+      local _, val = self:_chip_read_mem_u8(chip.ab)
       chip.pc = chip.pc + val * 256
+      chip.sr = bit.bor(chip.sr, 0x04)
       chip.state = CPU_STATE_RUN
       return OK_CODE
 
@@ -495,7 +462,7 @@ do
     local chip = self.m_chip
     local status = self:_chip_write_mem_u8(chip.sp + 0x100, value)
     if status == OK_CODE then
-      chip.sp = chip.sp - 1
+      chip.sp = (chip.sp - 1) % 256
     end
     return status
   end
@@ -507,7 +474,7 @@ do
 
   function ic:_chip_pop_stack_u8()
     local chip = self.m_chip
-    chip.sp = chip.sp + 1
+    chip.sp = (chip.sp + 1) % 256
     return self:_chip_read_mem_u8(chip.sp + 0x100)
   end
 
@@ -516,7 +483,7 @@ do
     local chip = self.m_chip
     local status = self:_chip_write_mem_i8(chip.sp + 0x100, value)
     if status == OK_CODE then
-      chip.sp = chip.sp - 1
+      chip.sp = (chip.sp - 1) % 256
     end
     return status
   end
@@ -528,14 +495,14 @@ do
 
   function ic:_chip_pop_stack_i8()
     local chip = self.m_chip
-    chip.sp = chip.sp + 1
+    chip.sp = (chip.sp + 1) % 256
     return self:_chip_read_mem_i8(chip.sp + 0x100)
   end
 
   function ic:_chip_push_pc()
     local chip = self.m_chip
-    local hi = math.floor(chip.sp / 256)
-    local lo = chip.sp % 256
+    local hi = math.floor(chip.pc / 256)
+    local lo = chip.pc % 256
 
     local status
     status = self:_chip_push_stack_u8(hi)
@@ -553,11 +520,11 @@ do
 
     local chip = self.m_chip
 
-    lo, status = self:_chip_pop_stack_u8()
+    status, lo = self:_chip_pop_stack_u8()
     if status ~= OK_CODE then
       return status
     end
-    hi, status = self:_chip_pop_stack_u8()
+    status, hi = self:_chip_pop_stack_u8()
     if status ~= OK_CODE then
       return status
     end
@@ -569,7 +536,10 @@ do
   -- operands
   --
   local function opr_implied_i8(self)
-    return self:_chip_read_pc_mem_i8()
+    local chip = self.m_chip
+    chip.cycles = chip.cycles + 1
+    chip.ab = chip.pc
+    return OK_CODE
   end
 
   local function opr_immediate_i8(self)
@@ -582,37 +552,48 @@ do
 
   local function opr_absolute_i16(self)
     local chip = self.m_chip
-    chip.operand = self:_chip_read_pc_mem_i16()
-    chip.pc = chip.pc + 1 -- lo
-    chip.pc = chip.pc + 1 -- hi
-    return OK_CODE
+    local status, lo = self:_chip_read_pc_mem_u8()
+    if status ~= OK_CODE then return status end
+    chip.pc = (chip.pc + 1) % 0x10000
+    local hi
+    status, hi = self:_chip_read_pc_mem_u8()
+    if status ~= OK_CODE then return status end
+    chip.pc = (chip.pc + 1) % 0x10000
+    chip.operand = hi * 0x100 + lo
+    return status
   end
 
   local function opr_absolute_i16x(self)
     local chip = self.m_chip
-    local ol = self:_chip_read_pc_mem_u8()
+    local status, ol = self:_chip_read_pc_mem_u8()
+    if status ~= OK_CODE then return status end
     chip.pc = chip.pc + 1 -- lo
-    local oh = self:_chip_read_pc_mem_u8()
+    local oh
+    status, oh = self:_chip_read_pc_mem_u8()
+    if status ~= OK_CODE then return status end
     chip.pc = chip.pc + 1 -- hi
 
     ol = ol + chip.x
     chip.operand = oh * 256 + ol
 
     if ol >= 0x100 then
-      -- trigger cycle increments for reading additional memory
-      self:_chip_read_mem_u8(chip.operand)
+      chip.cycles = chip.cycles + 1
+      chip.ab = chip.operand
     end
 
     --- mask
     chip.operand = chip.operand % 0x10000
-    return OK_CODE
+    return status
   end
 
   local function opr_absolute_i16y(self)
     local chip = self.m_chip
-    local ol = self:_chip_read_pc_mem_u8()
+    local status, ol = self:_chip_read_pc_mem_u8()
+    if status ~= OK_CODE then return status end
     chip.pc = chip.pc + 1 -- lo
-    local oh = self:_chip_read_pc_mem_u8()
+    local oh
+    status, oh = self:_chip_read_pc_mem_u8()
+    if status ~= OK_CODE then return status end
     chip.pc = chip.pc + 1 -- hi
 
     oh = oh * 256
@@ -620,13 +601,13 @@ do
     chip.operand = oh + ol
 
     if ol >= 0x100 then
-      -- trigger cycle increments for reading additional memory
-      self:_chip_read_mem_u8(chip.operand)
+      chip.cycles = chip.cycles + 1
+      chip.ab = chip.operand
     end
 
     --- mask
     chip.operand = chip.operand % 0x10000
-    return OK_CODE
+    return status
   end
 
   local function opr_indirect_i16(self)
@@ -657,7 +638,8 @@ do
     if status ~= OK_CODE then
       return status, ol
     end
-    status, oh = self:_chip_read_mem_u8(a + 1)
+    local high_address = bit.bor(bit.band(a, 0xFF00), bit.band(a + 1, 0xFF))
+    status, oh = self:_chip_read_mem_u8(high_address)
     if status ~= OK_CODE then
       return status, oh
     end
@@ -677,16 +659,16 @@ do
     end
     chip.pc = chip.pc + 1
 
-    ptr = (ptr + chip.x) % 255
+    ptr = (ptr + chip.x) % 256
 
     local ol
     local oh
 
-    status, ol = self:_chip_read_mem_u8(chip.a)
+    status, ol = self:_chip_read_mem_u8(ptr)
     if status ~= OK_CODE then
       return status, ol
     end
-    status, oh = self:_chip_read_mem_u8(chip.a + 1)
+    status, oh = self:_chip_read_mem_u8((ptr + 1) % 256)
     if status ~= OK_CODE then
       return status, oh
     end
@@ -709,19 +691,20 @@ do
     end
     chip.pc = chip.pc + 1
 
-    status, ol = self:_chip_read_mem_u8(chip.a)
+    status, ol = self:_chip_read_mem_u8(ptr)
     if status ~= OK_CODE then
       return status, ol
     end
     ol = ol + chip.y
 
-    status, oh = self:_chip_read_mem_u8(chip.a + 1)
+    status, oh = self:_chip_read_mem_u8((ptr + 1) % 256)
     if status ~= OK_CODE then
       return status, oh
     end
     oh = oh * 256
-    if ol > 0x100 then
-      self:_chip_read_mem_u8(oh + (ol % 256))
+    if ol >= 0x100 then
+      chip.cycles = chip.cycles + 1
+      chip.ab = oh + (ol % 256)
     end
 
     chip.operand = (oh + ol) % 0x10000
@@ -739,6 +722,7 @@ do
     end
     chip.pc = chip.pc + 1
 
+    if offset >= 0x80 then offset = offset - 0x100 end
     chip.operand = (chip.pc + offset) % 0x10000
 
     return OK_CODE
@@ -834,7 +818,7 @@ do
 
   local function set_negative_flag(self, value)
     local chip = self.m_chip
-    if value < 0 then
+    if bit.band(value, 0x80) ~= 0 then
       chip.sr = bit.bor(chip.sr, NEGATIVE_FLAG_BIT)
     else
       chip.sr = bit.band(chip.sr, NEGATIVE_FLAG_DISABLE_MASK)
@@ -858,7 +842,7 @@ do
     local value
 
     op1 = chip.a
-    status, op2 = self:_chip_read_mem_i8(chip.operand)
+    status, op2 = self:_chip_read_mem_u8(chip.operand)
     if status ~= OK_CODE then
       return status
     end
@@ -884,11 +868,33 @@ do
       end
 
       set_carry_flag(self, value)
-      set_negative_flag(self, value)
-      set_zero_flag(self, value)
+      set_negative_flag(self, chip.a)
+      set_zero_flag(self, chip.a)
     else
       -- decimal mode
-      error("TODO: decimal mode ADC")
+      -- NMOS 6502: N, V, and Z are produced by intermediate binary/BCD
+      -- values, not by the final adjusted accumulator.
+      local low = bit.band(op1, 0x0F) + bit.band(op2, 0x0F) +
+                  bit.band(chip.sr, CARRY_FLAG_BIT)
+      if low >= 0x0A then
+        low = low + 0x06
+      end
+
+      local high = bit.band(op1, 0xF0) + bit.band(op2, 0xF0) +
+                   bit.band(low, 0xF0)
+      local overflow = bit.band(bit.bxor(op1, high),
+                                bit.band(bit.bnot(bit.bxor(op1, op2)), 0x80)) ~= 0
+      if overflow then chip.sr = bit.bor(chip.sr, OVERFLOW_FLAG_BIT)
+      else chip.sr = bit.band(chip.sr, OVERFLOW_FLAG_DISABLE_MASK) end
+      set_negative_flag(self, high)
+      set_zero_flag(self, bit.band(value, 0xFF))
+
+      if high >= 0xA0 then
+        high = high + 0x60
+      end
+      if high > 0xFF then chip.sr = bit.bor(chip.sr, CARRY_FLAG_BIT)
+      else chip.sr = bit.band(chip.sr, CARRY_FLAG_DISABLE_MASK) end
+      chip.a = bit.band(bit.bor(bit.band(low, 0x0F), high), 0xFF)
     end
 
     return OK_CODE
@@ -911,52 +917,37 @@ do
 
   local function exec_asl(self)
     local chip = self.m_chip
-    local status
-    local tmp
-    status, tmp = self:_chip_read_mem_i8(chip.operand)
-    if status ~= OK_CODE then
-      return status
-    end
-
-    status = self:_chip_write_mem_i8(chip.operand, tmp)
-    if status ~= OK_CODE then
-      return status
-    end
-
-    if tmp < 0 then
-      chip.sr = bit.bor(chip.sr, CARRY_FLAG_BIT)
-    else
-      chip.sr = bit.band(chip.sr, CARRY_FLAG_DISABLE_MASK)
-    end
-
-    tmp = bit.lshift(tmp, 1)
-
-    set_negative_flag(self, tmp)
-    set_zero_flag(self, tmp)
-
-    status = self:_chip_write_mem_i8(chip.operand, tmp)
-
-    return status
+    local status, value = self:_chip_read_mem_u8(chip.operand)
+    if status ~= OK_CODE then return status end
+    local carry = bit.band(value, 0x80) ~= 0
+    value = bit.band(bit.lshift(value, 1), 0xFF)
+    if carry then chip.sr = bit.bor(chip.sr, CARRY_FLAG_BIT)
+    else chip.sr = bit.band(chip.sr, CARRY_FLAG_DISABLE_MASK) end
+    set_negative_flag(self, value)
+    set_zero_flag(self, value)
+    return self:_chip_write_mem_u8(chip.operand, value)
   end
 
   local function exec_asl_a(self)
     local chip = self.m_chip
-    local tmp = bit.lshift(chip.a, 1) % 256
-
-    set_carry_flag(self, tmp)
-    set_negative_flag(self, tmp)
-    set_zero_flag(self, tmp)
+    local carry = bit.band(chip.a, 0x80) ~= 0
+    chip.a = bit.band(bit.lshift(chip.a, 1), 0xFF)
+    if carry then chip.sr = bit.bor(chip.sr, CARRY_FLAG_BIT)
+    else chip.sr = bit.band(chip.sr, CARRY_FLAG_DISABLE_MASK) end
+    set_negative_flag(self, chip.a)
+    set_zero_flag(self, chip.a)
     return OK_CODE
   end
 
   local function do_exec_branch(self)
     local chip = self.m_chip
-    self:_chip_read_pc_mem_i8()
+    chip.cycles = chip.cycles + 1
+    chip.ab = chip.pc
 
     if bit.band(chip.pc, 0xFF00) ~= bit.band(chip.operand, 0xFF00) then
       local addr = bit.bor(bit.band(chip.pc, 0xFF00), bit.band(chip.operand, 0xFF))
-
-      self:_chip_read_mem_i8(addr)
+      chip.cycles = chip.cycles + 1
+      chip.ab = addr
     end
 
     chip.pc = chip.operand
@@ -992,7 +983,7 @@ do
     local status
     local tmp
 
-    status, tmp = self:_chip_read_pc_mem_u8()
+    status, tmp = self:_chip_read_mem_u8(chip.operand)
     if status ~= OK_CODE then
       return status
     end
@@ -1042,14 +1033,21 @@ do
 
   local function exec_brk(self)
     local chip = self.m_chip
-    self:_chip_read_pc_mem_i8()
+    chip.cycles = chip.cycles + 1
+    chip.ab = chip.pc
+    chip.pc = (chip.pc + 1) % 0x10000
     self:_chip_push_pc()
     exec_php(self)
 
     --- Enable
     chip.sr = bit.bor(chip.sr, 4)
-    chip.pc = self:_chip_read_mem_u8(0xFFFE)
-    return OK_CODE
+    local status, lo = self:_chip_read_mem_u8(0xFFFE)
+    if status ~= OK_CODE then return status end
+    local hi
+    status, hi = self:_chip_read_mem_u8(0xFFFF)
+    if status ~= OK_CODE then return status end
+    chip.pc = hi * 0x100 + lo
+    return status
   end
 
   local function exec_bvc(self)
@@ -1097,13 +1095,14 @@ do
     local status
     local tmp
 
-    status, tmp = self:_chip_read_mem_i8(chip.operand)
+    status, tmp = self:_chip_read_mem_u8(chip.operand)
     if status ~= OK_CODE then
       return status
     end
-    tmp = chip.a - tmp
-
-    set_borrow_flag(self, tmp)
+    local reg = bit.band(chip.a, 0xFF)
+    if reg >= tmp then chip.sr = bit.bor(chip.sr, CARRY_FLAG_BIT)
+    else chip.sr = bit.band(chip.sr, CARRY_FLAG_DISABLE_MASK) end
+    tmp = (reg - tmp) % 256
     set_negative_flag(self, tmp)
     set_zero_flag(self, tmp)
 
@@ -1115,13 +1114,14 @@ do
     local status
     local tmp
 
-    status, tmp = self:_chip_read_mem_i8(chip.operand)
+    status, tmp = self:_chip_read_mem_u8(chip.operand)
     if status ~= OK_CODE then
       return status
     end
-    tmp = chip.x - tmp
-
-    set_borrow_flag(self, tmp)
+    local reg = bit.band(chip.x, 0xFF)
+    if reg >= tmp then chip.sr = bit.bor(chip.sr, CARRY_FLAG_BIT)
+    else chip.sr = bit.band(chip.sr, CARRY_FLAG_DISABLE_MASK) end
+    tmp = (reg - tmp) % 256
     set_negative_flag(self, tmp)
     set_zero_flag(self, tmp)
 
@@ -1133,13 +1133,14 @@ do
     local status
     local tmp
 
-    status, tmp = self:_chip_read_mem_i8(chip.operand)
+    status, tmp = self:_chip_read_mem_u8(chip.operand)
     if status ~= OK_CODE then
       return status
     end
-    tmp = chip.a - tmp
-
-    set_borrow_flag(self, tmp)
+    local reg = bit.band(chip.y, 0xFF)
+    if reg >= tmp then chip.sr = bit.bor(chip.sr, CARRY_FLAG_BIT)
+    else chip.sr = bit.band(chip.sr, CARRY_FLAG_DISABLE_MASK) end
+    tmp = (reg - tmp) % 256
     set_negative_flag(self, tmp)
     set_zero_flag(self, tmp)
 
@@ -1168,7 +1169,7 @@ do
   local function exec_dex(self)
     local chip = self.m_chip
 
-    chip.x = chip.x - 1
+    chip.x = (chip.x - 1) % 256
 
     set_negative_flag(self, chip.x)
     set_zero_flag(self, chip.x)
@@ -1179,7 +1180,7 @@ do
   local function exec_dey(self)
     local chip = self.m_chip
 
-    chip.y = chip.y - 1
+    chip.y = (chip.y - 1) % 256
 
     set_negative_flag(self, chip.y)
     set_zero_flag(self, chip.y)
@@ -1197,7 +1198,7 @@ do
     if status ~= OK_CODE then
       return status
     end
-    tmp = bit.bxor(tmp)
+    tmp = bit.band(bit.bxor(chip.a, tmp), 0xFF)
 
     set_negative_flag(self, tmp)
     set_zero_flag(self, tmp)
@@ -1217,7 +1218,7 @@ do
     if status ~= OK_CODE then
       return status
     end
-    tmp = tmp + 1
+    tmp = (tmp + 1) % 256
 
     set_negative_flag(self, tmp)
     set_zero_flag(self, tmp)
@@ -1230,10 +1231,9 @@ do
   local function exec_inx(self)
     local chip = self.m_chip
 
-    chip.x = chip.x + 1
-
-    set_negative_flag(self, tmp)
-    set_zero_flag(self, tmp)
+    chip.x = (chip.x + 1) % 256
+    set_negative_flag(self, chip.x)
+    set_zero_flag(self, chip.x)
 
     return OK_CODE
   end
@@ -1241,10 +1241,9 @@ do
   local function exec_iny(self)
     local chip = self.m_chip
 
-    chip.y = chip.y + 1
-
-    set_negative_flag(self, tmp)
-    set_zero_flag(self, tmp)
+    chip.y = (chip.y + 1) % 256
+    set_negative_flag(self, chip.y)
+    set_zero_flag(self, chip.y)
 
     return OK_CODE
   end
@@ -1259,30 +1258,13 @@ do
 
   local function exec_jsr(self)
     local chip = self.m_chip
-    local status
-    local lo
-    local hi
-
-    status, lo = self:_chip_read_pc_mem_u8()
+    local target = chip.operand
+    chip.pc = (chip.pc - 1) % 0x10000
+    local status = self:_chip_push_pc()
     if status ~= OK_CODE then
       return status
     end
-    chip.pc = chip.pc + 1
-
-    status = self:_chip_read_mem_u8(chip.sp + 0x100)
-    if status ~= OK_CODE then
-      return status
-    end
-
-    status = self:_chip_push_pc()
-    if status ~= OK_CODE then
-      return status
-    end
-
-    status, hi = self:_chip_read_pc_mem_u8()
-
-    chip.pc = hi * 256 + lo
-
+    chip.pc = target
     return OK_CODE
   end
 
@@ -1339,28 +1321,15 @@ do
 
   local function exec_lsr(self)
     local chip = self.m_chip
-    local status
-    local value
-
-    status, value = self:_chip_read_mem_u8(chip.operand)
-    if status ~= OK_CODE then
-      return status
-    end
-
-    if tmp % 2 == 1 then
-      chip.sr = bit.bor(chip.sr, CARRY_FLAG_BIT)
-    else
-      chip.sr = bit.band(chip.sr, CARRY_FLAG_DISABLE_MASK)
-    end
-
-    tmp = bit.rshift(tmp, 1)
-
-    set_negative_flag(self, tmp)
-    set_zero_flag(self, tmp)
-
-    status = self:_chip_write_mem_u8(chip.operand, tmp)
-
-    return status
+    local status, value = self:_chip_read_mem_u8(chip.operand)
+    if status ~= OK_CODE then return status end
+    local carry = bit.band(value, 1) ~= 0
+    value = bit.rshift(value, 1)
+    if carry then chip.sr = bit.bor(chip.sr, CARRY_FLAG_BIT)
+    else chip.sr = bit.band(chip.sr, CARRY_FLAG_DISABLE_MASK) end
+    set_negative_flag(self, value)
+    set_zero_flag(self, value)
+    return self:_chip_write_mem_u8(chip.operand, value)
   end
 
   local function exec_lsr_a(self)
@@ -1409,7 +1378,7 @@ do
 
   function exec_php(self)
     local chip = self.m_chip
-    return self:_chip_push_stack_i8(chip.sr)
+    return self:_chip_push_stack_u8(bit.bor(chip.sr, 0x30))
   end
 
   local function exec_pla(self)
@@ -1417,10 +1386,8 @@ do
     local status
     local value
 
-    status = self:_chip_read_stack_i8()
-    if status ~= OK_CODE then
-      return status
-    end
+    chip.cycles = chip.cycles + 1
+    chip.ab = chip.sp + 0x100
 
     status, value = self:_chip_pop_stack_i8()
     if status ~= OK_CODE then
@@ -1440,120 +1407,67 @@ do
     local status
     local value
 
-    status = self:_chip_read_stack_i8()
-    if status ~= OK_CODE then
-      return status
-    end
+    chip.cycles = chip.cycles + 1
+    chip.ab = chip.sp + 0x100
 
     status, value = self:_chip_pop_stack_i8()
     if status ~= OK_CODE then
       return status
     end
 
-    chip.sr = value
+    chip.sr = bit.band(value, 0xCF)
 
     return OK_CODE
   end
 
   local function exec_rol(self)
     local chip = self.m_chip
-    local status
-    local tmp
-    local would_carry
-    local carry_bit
-
-    status, tmp = self:_chip_read_mem_i8(chip.operand)
-    if status ~= OK_CODE then
-      return status
-    end
-
-    if bit.band(chip.sr, CARRY_FLAG_BIT) == CARRY_FLAG_BIT then
-      carry_bit = 1
-    else
-      carry_bit = 0
-    end
-
-    would_carry = tmp < 0
-
-    tmp = bit.bor(bit.lshift(bit.band(tmp, 0xFF), 1), carry_bit)
-
-    set_negative_flag(self, tmp)
-    set_zero_flag(self, tmp)
-
-    status = self:_chip_write_mem_i8(chip.operand, tmp)
-
-    return status
+    local status, value = self:_chip_read_mem_u8(chip.operand)
+    if status ~= OK_CODE then return status end
+    local carry_out = bit.band(value, 0x80) ~= 0
+    local carry_in = bit.band(chip.sr, CARRY_FLAG_BIT)
+    value = bit.band(bit.bor(bit.lshift(value, 1), carry_in), 0xFF)
+    if carry_out then chip.sr = bit.bor(chip.sr, CARRY_FLAG_BIT)
+    else chip.sr = bit.band(chip.sr, CARRY_FLAG_DISABLE_MASK) end
+    set_negative_flag(self, value)
+    set_zero_flag(self, value)
+    return self:_chip_write_mem_u8(chip.operand, value)
   end
 
   local function exec_rol_a(self)
     local chip = self.m_chip
-    local carry_bit
-    if bit.band(chip.sr, CARRY_FLAG_BIT) == CARRY_FLAG_BIT then
-      carry_bit = 1
-    else
-      carry_bit = 0
-    end
-    local tmp = bit.bor(bit.lshift(chip.a, 1), carry_bit)
-
-    tmp = bit.band(tmp, 0xFF)
-
-    set_carry_flag(self, tmp)
-    set_negative_flag(self, tmp)
-    set_zero_flag(self, tmp)
+    local carry_out = bit.band(chip.a, 0x80) ~= 0
+    local carry_in = bit.band(chip.sr, CARRY_FLAG_BIT)
+    chip.a = bit.band(bit.bor(bit.lshift(chip.a, 1), carry_in), 0xFF)
+    if carry_out then chip.sr = bit.bor(chip.sr, CARRY_FLAG_BIT)
+    else chip.sr = bit.band(chip.sr, CARRY_FLAG_DISABLE_MASK) end
+    set_negative_flag(self, chip.a)
+    set_zero_flag(self, chip.a)
 
     return OK_CODE
   end
 
   local function exec_ror(self)
     local chip = self.m_chip
-    local status
-    local tmp
-
-    status, tmp = self:_chip_read_mem_i8(chip.operand)
-    if status ~= OK_CODE then
-      return status
-    end
-
-    status = self:_chip_write_mem_i8(chip.operand, tmp)
-
-    local would_carry = tmp % 2 == 1
-
-    local carry_bit = bit.lshift(bit.band(chip.sr, CARRY_FLAG_BIT), 7)
-
-    tmp = bit.bor(bit.rshift(tmp, 1), carry_bit)
-
-    if would_carry then
-      chip.sr = bit.bor(chip.sr, CARRY_FLAG_BIT)
-    else
-      chip.sr = bit.band(chip.sr, CARRY_FLAG_DISABLE_MASK)
-    end
-
-    set_negative_flag(self, tmp)
-    set_zero_flag(self, tmp)
-
-    status = self:_chip_write_mem_i8(chip.operand, tmp)
-
-    return status
+    local status, value = self:_chip_read_mem_u8(chip.operand)
+    if status ~= OK_CODE then return status end
+    local carry_out = bit.band(value, 1) ~= 0
+    local carry_in = bit.lshift(bit.band(chip.sr, CARRY_FLAG_BIT), 7)
+    value = bit.bor(bit.rshift(value, 1), carry_in)
+    if carry_out then chip.sr = bit.bor(chip.sr, CARRY_FLAG_BIT)
+    else chip.sr = bit.band(chip.sr, CARRY_FLAG_DISABLE_MASK) end
+    set_negative_flag(self, value)
+    set_zero_flag(self, value)
+    return self:_chip_write_mem_u8(chip.operand, value)
   end
 
   local function exec_ror_a(self)
     local chip = self.m_chip
-    local status
-    local value
-
-    value = chip.a
-    if bit.band(chip.sr, CARRY_FLAG_BIT) == CARRY_FLAG_BIT then
-      --- set high byte to 1
-      value = value + 256
-    end
-
-    if bit.band(chip.a, 0x01) == 0x01 then
-      chip.sr = bit.bor(chip.a, CARRY_FLAG_BIT)
-    else
-      chip.sr = bit.band(chip.a, CARRY_FLAG_DISABLE_MASK)
-    end
-
-    chip.a = bit.rshift(chip.a, 1)
+    local carry_out = bit.band(chip.a, 1) ~= 0
+    local carry_in = bit.lshift(bit.band(chip.sr, CARRY_FLAG_BIT), 7)
+    chip.a = bit.bor(bit.rshift(chip.a, 1), carry_in)
+    if carry_out then chip.sr = bit.bor(chip.sr, CARRY_FLAG_BIT)
+    else chip.sr = bit.band(chip.sr, CARRY_FLAG_DISABLE_MASK) end
 
     set_negative_flag(self, chip.a)
     set_zero_flag(self, chip.a)
@@ -1565,10 +1479,8 @@ do
     local chip = self.m_chip
     local status
 
-    status = self:_chip_read_stack_i8()
-    if status ~= OK_CODE then
-      return status
-    end
+    chip.cycles = chip.cycles + 1
+    chip.ab = chip.sp + 0x100
 
     status = exec_plp(self)
     if status ~= OK_CODE then
@@ -1584,19 +1496,16 @@ do
     local chip = self.m_chip
     local status
 
-    status = self:_chip_read_stack_i8()
-    if status ~= OK_CODE then
-      return status
-    end
+    chip.cycles = chip.cycles + 1
+    chip.ab = chip.sp + 0x100
 
     status = self:_chip_pop_pc()
     if status ~= OK_CODE then
       return status
     end
 
-    status = self:_chip_read_pc_mem_i8()
-
-    return status
+    chip.pc = (chip.pc + 1) % 0x10000
+    return OK_CODE
   end
 
   local function exec_sbc(self)
@@ -1607,7 +1516,10 @@ do
     local value
 
     op1 = chip.a
-    status, op2 = self:_chip_read_mem_i8(chip.operand)
+    status, op2 = self:_chip_read_mem_u8(chip.operand)
+    if status ~= OK_CODE then
+      return status
+    end
     value = op1 - op2 - bit.band(bit.bxor(bit.band(chip.sr, CARRY_FLAG_BIT), 0x01), 0x01)
 
     -- check if decimal mode is enabled
@@ -1623,12 +1535,36 @@ do
         chip.sr = bit.band(chip.sr, OVERFLOW_FLAG_DISABLE_MASK)
       end
 
-      set_carry_flag(self, value)
-      set_negative_flag(self, value)
-      set_zero_flag(self, value)
+      set_borrow_flag(self, value)
+      set_negative_flag(self, chip.a)
+      set_zero_flag(self, chip.a)
     else
       -- decimal mode
-      error("TODO: decimal mode ADC")
+      local borrow = 1 - bit.band(chip.sr, CARRY_FLAG_BIT)
+      local low = bit.band(op1, 0x0F) - bit.band(op2, 0x0F) - borrow
+      local low_borrow = low < 0
+      if low_borrow then
+        low = low - 0x06
+      end
+
+      local high = bit.band(op1, 0xF0) - bit.band(op2, 0xF0)
+      if low_borrow then
+        high = high - 0x10
+      end
+      if high < 0 then
+        high = high - 0x60
+      end
+      chip.a = bit.band(bit.bor(bit.band(low, 0x0F), bit.band(high, 0xF0)), 0xFF)
+
+      -- On NMOS, SBC's flags are those of the unadjusted binary subtraction.
+      local binary_result = bit.band(value, 0xFF)
+      local overflow = bit.band(bit.bxor(op1, op2),
+                                bit.band(bit.bxor(op1, binary_result), 0x80)) ~= 0
+      if overflow then chip.sr = bit.bor(chip.sr, OVERFLOW_FLAG_BIT)
+      else chip.sr = bit.band(chip.sr, OVERFLOW_FLAG_DISABLE_MASK) end
+      set_borrow_flag(self, value)
+      set_negative_flag(self, binary_result)
+      set_zero_flag(self, binary_result)
     end
 
     return OK_CODE
@@ -1690,10 +1626,10 @@ do
   local function exec_tay(self)
     local chip = self.m_chip
 
-    chip.x = chip.a
+    chip.y = chip.a
 
-    set_negative_flag(self, chip.x)
-    set_zero_flag(self, chip.x)
+    set_negative_flag(self, chip.y)
+    set_zero_flag(self, chip.y)
 
     return OK_CODE
   end
@@ -1745,11 +1681,7 @@ do
 
   --- BRK impl
   OPS[0x00] = function (self)
-    local status = opr_implied_i8(self)
-    if status == OK_CODE then
-      return exec_brk(self)
-    end
-    return status
+    return exec_brk(self)
   end
 
   --- ORA X, ind
@@ -1917,7 +1849,7 @@ do
 
   --- JSR abs
   OPS[0x20] = function (self)
-    local status = opr_zeropage_i16(self)
+    local status = opr_absolute_i16(self)
     if status == OK_CODE then
       return exec_jsr(self)
     end
@@ -2030,7 +1962,7 @@ do
 
   --- AND ind,Y
   OPS[0x31] = function (self)
-    local status = opr_relative_i16y(self)
+    local status = opr_indirect_i16y(self)
     if status == OK_CODE then
       return exec_and(self)
     end
@@ -2597,7 +2529,7 @@ do
 
   --- STX zpg,X
   OPS[0x96] = function (self)
-    local status = opr_zeropage_i16x(self)
+    local status = opr_zeropage_i16y(self)
     if status == OK_CODE then
       return exec_stx(self)
     end
@@ -2650,7 +2582,7 @@ do
 
   --- LDY #
   OPS[0xA0] = function (self)
-    local status = opr_implied_i8(self)
+    local status = opr_immediate_i8(self)
     if status == OK_CODE then
       return exec_ldy(self)
     end
@@ -3032,7 +2964,7 @@ do
   end
 
   --- CMP abs,Y
-  OPS[0xD8] = function (self)
+  OPS[0xD9] = function (self)
     local status = opr_absolute_i16y(self)
     if status == OK_CODE then
       return exec_cmp(self)
@@ -3246,7 +3178,7 @@ do
   end
 
   --- INC abs,X
-  OPS[0xFD] = function (self)
+  OPS[0xFE] = function (self)
     local status = opr_absolute_i16x(self)
     if status == OK_CODE then
       return exec_inc(self)
