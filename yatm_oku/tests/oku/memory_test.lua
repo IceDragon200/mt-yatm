@@ -82,6 +82,36 @@ for _,m in ipairs(modules) do
     end)
   end)
 
+  if yatm_oku.OKU.FFIMemory and m == yatm_oku.OKU.FFIMemory then
+    case:describe("explicit endian integer access", function (t2)
+      t2:test("reads and writes unrolled 16-bit values", function (t3)
+        local mem = m:new(16)
+
+        mem:w_le_u16(0, 0x1234)
+        t3:assert_table_eq(mem:r_bytes(0, 2), {0x34, 0x12})
+        t3:assert_eq(0x1234, mem:r_le_u16(0))
+        t3:assert_eq(0x3412, mem:r_be_u16(0))
+
+        mem:w_be_i16(2, -2)
+        t3:assert_table_eq(mem:r_bytes(2, 2), {0xFF, 0xFE})
+        t3:assert_eq(-2, mem:r_be_i16(2))
+      end)
+
+      t2:test("reads and writes unrolled 32-bit values", function (t3)
+        local mem = m:new(16)
+
+        mem:w_le_u32(0, 0x89ABCDEF)
+        t3:assert_table_eq(mem:r_bytes(0, 4), {0xEF, 0xCD, 0xAB, 0x89})
+        t3:assert_eq(0x89ABCDEF, mem:r_le_u32(0))
+        t3:assert_eq(0xEFCDAB89, mem:r_be_u32(0))
+
+        mem:w_be_i32(4, -2)
+        t3:assert_table_eq(mem:r_bytes(4, 4), {0xFF, 0xFF, 0xFF, 0xFE})
+        t3:assert_eq(-2, mem:r_be_i32(4))
+      end)
+    end)
+  end
+
   case:describe("#bindump and #binload", function (t2)
     t2:test("can dump and reload memory (256 bytes)", function (t3)
       local mem = m:new(256)

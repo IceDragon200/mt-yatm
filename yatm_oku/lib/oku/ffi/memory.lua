@@ -9,23 +9,8 @@ if not ffi then
   return
 end
 
-ffi.cdef[[
-union yatm_oku_memory_cell32 {
-  char      c[4];
-  int8_t   i8[4];
-  uint8_t  u8[4];
-  int16_t  i16[2];
-  uint16_t u16[2];
-  int32_t  i32[1];
-  uint32_t u32[1];
-  float     f[1];
-
-  int32_t i32s;
-  uint32_t u32s;
-};
-]]
-
 local ByteBuf = assert(foundation.com.ByteBuf.little)
+local floor = assert(math.floor)
 
 ---
 --- Memory model used by OKU
@@ -45,7 +30,6 @@ do
     self.is_ffi = true
     self.m_size = size
     self.m_data = assert(ffi.new("uint8_t[?]", self.m_size))
-    self.m_cell = assert(ffi.new("union yatm_oku_memory_cell32"))
     -- Should indices be wrapped around to fit inside the address space
     -- Or an error raised?
     self.m_circular_access = false
@@ -58,34 +42,174 @@ do
     return self.m_data
   end
 
-  local types = {
-    i8 = 1,
-    i16 = 2,
-    i32 = 4,
-    i64 = 8,
+  --- @spec #r_u8(index: Integer): Integer
+  function ic:r_u8(index)
+    index = self:check_and_adjust_index(index, 1)
+    return self.m_data[index]
+  end
 
-    u8 = 1,
-    u16 = 2,
-    u32 = 4,
-    u64 = 8,
+  --- @spec #w_u8(index: Integer, value: Integer): Integer
+  function ic:w_u8(index, value)
+    index = self:check_and_adjust_index(index, 1)
+    self.m_data[index] = value
+    return self
+  end
 
-    f = 4,
-    d = 8,
-  }
+  function ic:r_i8(index)
+    local value = self:r_u8(index)
+    return value < 0x80 and value or value - 0x100
+  end
+  ic.w_i8 = ic.w_u8
 
-  for type_name, size in pairs(types) do
-    ic["r_" .. type_name] = function (self, index)
-      index = self:check_and_adjust_index(index, size)
-      ffi.copy(self.m_cell, self.m_data + index, size)
-      return self.m_cell[type_name][0]
-    end
+  function ic:r_le_u16(index)
+    index = self:check_and_adjust_index(index, 2)
+    local d = self.m_data
+    return d[index] + d[index + 1] * 0x100
+  end
 
-    ic["w_" .. type_name] = function (self, index, value)
-      index = self:check_and_adjust_index(index, size)
-      self.m_cell[type_name][0] = value
-      ffi.copy(self.m_data + index, self.m_cell, size)
-      return self
-    end
+  function ic:r_be_u16(index)
+    index = self:check_and_adjust_index(index, 2)
+    local d = self.m_data
+    return d[index] * 0x100 + d[index + 1]
+  end
+
+  function ic:w_le_u16(index, value)
+    index = self:check_and_adjust_index(index, 2)
+    local d = self.m_data
+    d[index] = value % 0x100
+    d[index + 1] = floor(value / 0x100) % 0x100
+    return self
+  end
+
+  function ic:w_be_u16(index, value)
+    index = self:check_and_adjust_index(index, 2)
+    local d = self.m_data
+    d[index] = floor(value / 0x100) % 0x100
+    d[index + 1] = value % 0x100
+    return self
+  end
+
+  function ic:r_le_i16(index)
+    local value = self:r_le_u16(index)
+    return value < 0x8000 and value or value - 0x10000
+  end
+
+  function ic:r_be_i16(index)
+    local value = self:r_be_u16(index)
+    return value < 0x8000 and value or value - 0x10000
+  end
+  ic.w_le_i16 = ic.w_le_u16
+  ic.w_be_i16 = ic.w_be_u16
+
+  function ic:r_le_u32(index)
+    index = self:check_and_adjust_index(index, 4)
+    local d = self.m_data
+    return d[index]
+      + d[index + 1] * 0x100
+      + d[index + 2] * 0x10000
+      + d[index + 3] * 0x1000000
+  end
+
+  function ic:r_be_u32(index)
+    index = self:check_and_adjust_index(index, 4)
+    local d = self.m_data
+    return d[index] * 0x1000000
+      + d[index + 1] * 0x10000
+      + d[index + 2] * 0x100
+      + d[index + 3]
+  end
+
+  function ic:w_le_u32(index, value)
+    index = self:check_and_adjust_index(index, 4)
+    local d = self.m_data
+    d[index] = value % 0x100
+    d[index + 1] = floor(value / 0x100) % 0x100
+    d[index + 2] = floor(value / 0x10000) % 0x100
+    d[index + 3] = floor(value / 0x1000000) % 0x100
+    return self
+  end
+
+  function ic:w_be_u32(index, value)
+    index = self:check_and_adjust_index(index, 4)
+    local d = self.m_data
+    d[index] = floor(value / 0x1000000) % 0x100
+    d[index + 1] = floor(value / 0x10000) % 0x100
+    d[index + 2] = floor(value / 0x100) % 0x100
+    d[index + 3] = value % 0x100
+    return self
+  end
+
+  function ic:r_le_i32(index)
+    local value = self:r_le_u32(index)
+    return value < 0x80000000 and value or value - 0x100000000
+  end
+
+  function ic:r_be_i32(index)
+    local value = self:r_be_u32(index)
+    return value < 0x80000000 and value or value - 0x100000000
+  end
+  ic.w_le_i32 = ic.w_le_u32
+  ic.w_be_i32 = ic.w_be_u32
+
+  if ffi.abi("le") then
+    ic.r_u16, ic.w_u16 = ic.r_le_u16, ic.w_le_u16
+    ic.r_i16, ic.w_i16 = ic.r_le_i16, ic.w_le_i16
+    ic.r_u32, ic.w_u32 = ic.r_le_u32, ic.w_le_u32
+    ic.r_i32, ic.w_i32 = ic.r_le_i32, ic.w_le_i32
+  else
+    ic.r_u16, ic.w_u16 = ic.r_be_u16, ic.w_be_u16
+    ic.r_i16, ic.w_i16 = ic.r_be_i16, ic.w_be_i16
+    ic.r_u32, ic.w_u32 = ic.r_be_u32, ic.w_be_u32
+    ic.r_i32, ic.w_i32 = ic.r_be_i32, ic.w_be_i32
+  end
+
+  local int64_ptr = ffi.typeof("int64_t *")
+  local uint64_ptr = ffi.typeof("uint64_t *")
+  local float_ptr = ffi.typeof("float *")
+  local double_ptr = ffi.typeof("double *")
+
+  function ic:r_i64(index)
+    index = self:check_and_adjust_index(index, 8)
+    return ffi.cast(int64_ptr, self.m_data + index)[0]
+  end
+
+  function ic:w_i64(index, value)
+    index = self:check_and_adjust_index(index, 8)
+    ffi.cast(int64_ptr, self.m_data + index)[0] = value
+    return self
+  end
+
+  function ic:r_u64(index)
+    index = self:check_and_adjust_index(index, 8)
+    return ffi.cast(uint64_ptr, self.m_data + index)[0]
+  end
+
+  function ic:w_u64(index, value)
+    index = self:check_and_adjust_index(index, 8)
+    ffi.cast(uint64_ptr, self.m_data + index)[0] = value
+    return self
+  end
+
+  function ic:r_f(index)
+    index = self:check_and_adjust_index(index, 4)
+    return ffi.cast(float_ptr, self.m_data + index)[0]
+  end
+
+  function ic:w_f(index, value)
+    index = self:check_and_adjust_index(index, 4)
+    ffi.cast(float_ptr, self.m_data + index)[0] = value
+    return self
+  end
+
+  function ic:r_d(index)
+    index = self:check_and_adjust_index(index, 8)
+    return ffi.cast(double_ptr, self.m_data + index)[0]
+  end
+
+  function ic:w_d(index, value)
+    index = self:check_and_adjust_index(index, 8)
+    ffi.cast(double_ptr, self.m_data + index)[0] = value
+    return self
   end
 
   function ic:r_blob(index, size)
@@ -135,7 +259,7 @@ do
         local i = 1
         for j = index,end_index do
           j = self:check_and_adjust_index(j, 1)
-          self.m_data.u8[j] = value[i]
+          self.m_data[j] = value[i]
           i = i + 1
         end
       end
