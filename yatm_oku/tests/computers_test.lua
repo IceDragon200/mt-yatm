@@ -15,23 +15,33 @@ case:describe("#create_computer/2", function (t2)
     local m = M:new()
 
     local s = m:create_computer("a_secret", {})
+
+    t3:assert(s.id)
+    t3:assert_raw_eq(s, m:get_computer(s.id))
   end)
 end)
 
 case:describe("#update/2", function (t2)
   t2:test("can update computers", function (t3)
     local m = M:new()
+    local s = m:create_computer("a_secret", {
+      arch = "actu8",
+    })
+    s.active = 1
 
-    local s = m:create_computer("a_secret", {})
+    local chip = s.oku.isa_assigns.chip
+    local memory = s.oku.memory
 
-    s.oku.memory:w_blob(
+    memory:w_blob(
       0,
       ACTU8_Builder.nop()
       .. ACTU8_Builder.halt()
     )
 
-    m:update(1)
+    m:update(1.0)
 
+    t3:assert_eq(2, chip.pc)
+    t3:assert_eq(1, chip.flags.halt)
     t3:assert_eq(true, s.oku:call_arch("is_halted"))
   end)
 end)

@@ -193,6 +193,8 @@ do
   --- @spec #update(dt: Float, trace: Trace): void
   function ic:update(dt, trace)
     --
+    local steps_taken
+    local err
     local clock_speed = floor(dt * 1000)
     local span
     for _id, computer in pairs(self.m_computers) do
@@ -201,7 +203,7 @@ do
       end
 
       if computer.active > 0 then
-        local steps_taken, err = computer.oku:step(clock_speed)
+        steps_taken, err = computer.oku:step(clock_speed)
         -- print("STEPS", computer.label, steps_taken, err)
       end
 

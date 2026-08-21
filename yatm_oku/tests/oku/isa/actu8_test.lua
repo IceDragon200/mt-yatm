@@ -28,6 +28,48 @@ end)
 case:describe("fuzz", function (t2)
   local ITERATIONS = 2048
 
+  t2:test("nop", function (t3)
+    local oku = OKU:new({
+      arch = "actu8"
+    })
+    local chip = oku.isa_assigns.chip
+    local memory = oku.memory
+
+    memory:w_blob(
+      0,
+      ACTU8_Builder.nop()
+    )
+
+    for i = 1,ITERATIONS do
+      oku:reset()
+      t3:assert_eq(0, chip.pc)
+      oku:step(1)
+      t3:assert_eq(1, chip.pc)
+    end
+  end)
+
+  t2:test("halt", function (t3)
+    local oku = OKU:new({
+      arch = "actu8"
+    })
+    local chip = oku.isa_assigns.chip
+    local memory = oku.memory
+
+    memory:w_blob(
+      0,
+      ACTU8_Builder.halt()
+    )
+
+    for i = 1,ITERATIONS do
+      oku:reset()
+      t3:assert_eq(0, chip.pc)
+      t3:assert_eq(0, chip.flags.halt)
+      oku:step(2)
+      t3:assert_eq(1, chip.pc)
+      t3:assert_eq(1, chip.flags.halt)
+    end
+  end)
+
   t2:test("add <addr8>", function (t3)
     local oku = OKU:new({
       arch = "actu8"
@@ -212,5 +254,3 @@ end)
 case:execute()
 case:display_stats()
 case:maybe_error()
-
-error("nope")
