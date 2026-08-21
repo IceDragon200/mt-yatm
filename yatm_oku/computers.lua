@@ -107,10 +107,11 @@ do
   --- @override
   --- @spec #initialize(options: Table): void
   function ic:initialize(options)
+    options = options or {}
     ic._super.initialize(self)
 
     --- @member m_root_dir: Path
-    self.m_root_dir = options.root_dir
+    self.m_root_dir = options.root_dir or false
 
     --- @member m_fixed_computers: { [hash: Number]: ID }
     self.m_fixed_computers = {}
@@ -118,7 +119,9 @@ do
     --- @member m_computers: { [id: Any]: ComputerState }
     self.m_computers = {}
 
-    core.mkdir(self.m_root_dir)
+    if self.m_root_dir then
+      core.mkdir(self.m_root_dir)
+    end
   end
 
   local function id_to_basename(id)
@@ -320,6 +323,18 @@ do
     end
   end
 
+  --- @spec #update_computer(id: ID, secret: String, options: Table): nil | ComputerState
+  function ic:update_computer(id, secret, options)
+    local computer = self.m_computers[id]
+
+    if computer then
+      computer.secret = secret
+      -- TODO: maybe update oku state
+      return computer
+    end
+    return nil
+  end
+
   --- @spec #update_computer_at_pos(
   ---   pos: Vector3,
   ---   node: NodeRef,
@@ -331,18 +346,26 @@ do
     local hash = core.hash_node_position(pos)
     local id = self.m_fixed_computers[hash]
     if id then
-      local computer = self.m_computers[id]
-
+      local computer = self:update_computer(id, secret, options)
       if computer then
-        computer.node = node
-        computer.secret = secret
-        -- TODO: maybe update oku state
+        computer.node = table_copy(node)
         return computer
-      else
-        return nil
       end
     end
     return nil
+  end
+
+  --- @spec #upsert_computer(
+  ---   id: ID,
+  ---   secret: String,
+  ---   options: Table
+  --- ): ComputerState
+  function ic:upsert_computer(id, secret, options)
+    if self.m_computers[id] then
+      return self:update_computer(id, secret, options)
+    else
+      return self:register_computer_at_pos(id, secret, options)
+    end
   end
 
   --- @spec #upsert_computer_at_pos(
@@ -418,10 +441,13 @@ do
   ---
   --- @spec #load_computer_state_by_id(id: ID, trace: Trace): (ComputerState | nil, Error)
   function ic:load_computer_state_by_id(id, trace)
-    local basename = id_to_basename(id)
-    local filename = path_join(self.m_root_dir, basename)
+    if self.m_root_dir then
+      local basename = id_to_basename(id)
+      local filename = path_join(self.m_root_dir, basename)
 
-    return self:load_computer_from_file(filename, trace)
+      return self:load_computer_from_file(filename, trace)
+    end
+    return nil, "no root dir"
   end
 
   --- Attempts to load a computer based on its pos in the world, this may load two states,
@@ -430,19 +456,22 @@ do
   ---
   --- @spec #load_computer_state_at_pos(pos: Vector3, trace: Trace): (ComputerState | nil, Error)
   function ic:load_computer_state_at_pos(pos, trace)
-    local basename = pos_to_basename(pos)
-    local filename = path_join(self.m_root_dir, basename)
+    if self.m_root_dir then
+      local basename = pos_to_basename(pos)
+      local filename = path_join(self.m_root_dir, basename)
 
-    local state, err = self:load_computer_from_file(filename, trace)
-    if err then
-      return nil, err
-    end
-    if state.oku then
-      return state
-    end
+      local state, err = self:load_computer_from_file(filename, trace)
+      if err then
+        return nil, err
+      end
+      if state.oku then
+        return state
+      end
 
-    -- the state was shallow, we'll need to load the actual computer by its ID instead.
-    return self:load_computer_state_by_id(state.id, trace)
+      -- the state was shallow, we'll need to load the actual computer by its ID instead.
+      return self:load_computer_state_by_id(state.id, trace)
+    end
+    return nil, "no root dir"
   end
 
   --- @spec #load_computer_from_file(filename: Path, trace?: Trace): (ComputerState, nil) | (nil, Error)
@@ -547,6 +576,9 @@ do
   ---
   --- @spec #save_computer_state(ComputerState, Trace): (bytes_written: Integer, error: Error)
   function ic:save_computer_state(state, trace)
+    if not self.m_root_dir then
+      return 0, "no root dir"
+    end
     core.log("debug", "Saving Computer State " .. core.pos_to_string(state.id))
     local basename
     local fixed_filename
@@ -678,6 +710,10 @@ do
   --- Deletes a computer's state files by its ID, this leaves the computer in memory however.
   --- @spec #delete_computer_state_by_id(id: ID): (Boolean, Integer)
   function ic:delete_computer_state_by_id(id)
+    if not self.m_root_dir then
+      return false, 0
+    end
+
     local state = self.m_computers[id]
     if state then
       local count = 0

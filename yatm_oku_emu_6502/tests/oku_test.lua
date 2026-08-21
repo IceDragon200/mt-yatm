@@ -2,17 +2,7 @@ local Luna = assert(foundation.com.Luna)
 local m = yatm_oku.OKU
 local Buffer = assert(foundation.com.BinaryBuffer or foundation.com.StringBuffer)
 
-if not m then
-  yatm.warn("OKU not available for tests")
-  return
-end
-
 local case = Luna:new("yatm_oku.OKU")
-
-case:describe("step_ins", function (t2)
-  t2:describe("arithi/ADDI", function (t3)
-  end)
-end)
 
 case:describe("bindump/1", function (t2)
   t2:test("can dump a mos6502 machine", function (t3)
