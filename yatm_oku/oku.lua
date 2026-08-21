@@ -13,19 +13,20 @@ yatm_oku.OKU.isa = {}
 yatm_oku:require("lib/oku/registers.lua")
 yatm_oku:require("lib/oku/token_buffer.lua")
 yatm_oku:require("lib/oku/memory.lua")
+yatm_oku:require("lib/oku/isa/actu8.lua")
 
 local OKU = yatm_oku.OKU
 local Memory = OKU.Memory
 
---- @const DEFAULT_ARCH: String = "mos6502"
-OKU.DEFAULT_ARCH = "mos6502"
+--- @const DEFAULT_ARCH: String = "actu8"
+OKU.DEFAULT_ARCH = "actu8"
 
 --- @const AVAILABLE_ARCH: { [String]: Any }
 do
   local archs = {
-    ["8086"] = {
-      engine = yatm_oku.OKU.isa.I8086,
-      default_memory_size = 0x20000, --[[ Roughly 128Kb ]]
+    ["actu8"] = {
+      engine = yatm_oku.OKU.isa.ACTU8,
+      default_memory_size = 0x800, -- Roughly 2Kb
     },
   }
   OKU.AVAILABLE_ARCH = {}
@@ -66,15 +67,14 @@ do
 
   ---
   --- @type Options: {
-  ---   arch: String,
+  ---   arch: "actu8" | "mos6502" | "rv32i",
   ---   label: String,
   ---   memory_size: Integer,
   --- }
 
-  --- Options:
-  --- * `arch` - "mos6502" or "rv32i"
-  --- * `label` -
-  --- * `memory_size` -
+  --- @option arch
+  --- @option label
+  --- @option memory_size
   ---
   --- @override
   --- @spec #initialize(Options): void

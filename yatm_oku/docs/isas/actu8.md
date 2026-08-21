@@ -108,6 +108,39 @@ For example: ADD, SUB, etc... operate on RAM, while IN and OUT operate on the IO
 * [SUB](#sub)
 * [XOR](#xor)
 
+| Opcode | Name          | Operand |
+| ------ | ----          | ---     |
+| 0x00   | [NOP](#nop)   |         |
+| 0x01   | [HALT](#halt) |         |
+| 0x10   | [LDI](#ldi)   | imm:u8  |
+| 0x11   | [LDA](#lda)   | addr8   |
+| 0x12   | [STA](#sta)   | addr8   |
+| 0x13   | [PUSH](#push) |         |
+| 0x14   | [POP](#pop)   |         |
+| 0x20   | [ADD](#add)   | addr8   |
+| 0x21   | [SUB](#sub)   | addr8   |
+| 0x22   | [CMP](#cmp)   | addr8   |
+| 0x30   | [AND](#and)   | addr8   |
+| 0x31   | [OR](#or)     | addr8   |
+| 0x32   | [XOR](#xor)   | addr8   |
+| 0x40   | [CLZ](#clz)   |         |
+| 0x41   | [CLC](#clc)   |         |
+| 0x42   | [CLB](#clb)   |         |
+| 0x43   | [CLI](#cli)   |         |
+| 0x50   | [JMP](#jmp)   | addr16  |
+| 0x51   | [CALL](#call) | addr16  |
+| 0x52   | [RET](#ret)   |         |
+| 0x60   | [JZ](#jz)     | addr16  |
+| 0x61   | [JNZ](#jnz)   | addr16  |
+| 0x62   | [JC](#jc)     | addr16  |
+| 0x63   | [JNC](#jnc)   | addr16  |
+| 0x64   | [JB](#jb)     | addr16  |
+| 0x65   | [JNB](#jnb)   | addr16  |
+| 0x66   | [JI](#ji)     | addr16  |
+| 0x67   | [JNI](#jni)   | addr16  |
+| 0x70   | [IN](#in)     | addr8   |
+| 0x71   | [OUT](#out)   | addr8   |
+
 ### ADD
 
 `ADD <addr8>`
