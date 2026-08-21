@@ -67,7 +67,7 @@ do
 
   ---
   --- @type Options: {
-  ---   arch: "actu8" | "mos6502" | "rv32i",
+  ---   arch: "actu8" | "mos6502" | "oku_forth8" | "oku_forth16" | "oku_forth32",
   ---   label: String,
   ---   memory_size: Integer,
   --- }
@@ -86,6 +86,12 @@ do
     self.arch = options.arch or OKU.DEFAULT_ARCH
     local entry = OKU.AVAILABLE_ARCH[self.arch]
     assert(entry, "arch=" .. self.arch .. " not available")
+
+    self.dictionary_size = options.dictionary_size or entry.default_dictionary_size
+    if self.dictionary_size then
+      assert(self.dictionary_size > 0, "dictionary_size must be positive")
+      assert(self.dictionary_size <= 0x100000, "dictionary_size cannot exceed 1Mb")
+    end
 
     if not options.memory_size then
       options.memory_size = assert(entry.default_memory_size)
@@ -321,13 +327,14 @@ do
     mahou, br = BB_LE:read(stream, 4)
     bytes_read = bytes_read + br
     if mahou == "OKU1" then
-      -- next we read the arch, normally just rv32i
+      -- next we read the arch
       local arch
       arch, br = BB_LE:r_u8string(stream)
       bytes_read = bytes_read + br
 
       self.label = ""
 
+      -- risc-v support was dropped on 2026-08-21, but we can still load the machine state
       if arch == "rv32i" then
         self.arch = arch
         bytes_read = bytes_read + self:_binload_arch_rv32i_oku1(stream)
@@ -386,7 +393,7 @@ do
         error("invalid version, got=" .. version)
       end
     else
-      error("expected an OKU1 state got:" .. dump(mahou))
+      error("expected an OKU1 or OKU2 state got:" .. dump(mahou))
     end
     return self, bytes_read
   end
