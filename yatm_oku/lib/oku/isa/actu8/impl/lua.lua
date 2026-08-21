@@ -70,22 +70,19 @@ do
       pc = pc + 1
       self.flags.halt = 1
     elseif ins == 0x10 then -- LDI <imm>
-      pc = pc + 1
-      local imm = memory:r_u8(pc)
-      pc = pc + 1
+      local imm = memory:r_u8(pc + 1)
+      pc = pc + 2
       self.a = imm
       check_zero = true
     elseif ins == 0x11 then -- LDA <addr8>
-      pc = pc + 1
-      local addr8 = memory:r_u8(pc)
-      pc = pc + 1
+      local addr8 = memory:r_u8(pc + 1)
+      pc = pc + 2
       local value = memory:r_u8(ram_start + addr8)
       self.a = value
       check_zero = true
     elseif ins == 0x12 then -- STA <addr8>
-      pc = pc + 1
-      local addr8 = memory:r_u8(pc)
-      pc = pc + 1
+      local addr8 = memory:r_u8(pc + 1)
+      pc = pc + 2
       memory:w_u8(ram_start + addr8, self.a)
     elseif ins == 0x13 then -- PUSH
       pc = pc + 1
@@ -109,9 +106,8 @@ do
         check_zero = true
       end
     elseif ins == 0x20 then -- ADD <addr8>
-      pc = pc + 1
-      local addr8 = memory:r_u8(pc)
-      pc = pc + 1
+      local addr8 = memory:r_u8(pc + 1)
+      pc = pc + 2
       local value = memory:r_u8(ram_start + addr8)
       local a = self.a + value
       self.flags.borrow = 0
@@ -124,9 +120,8 @@ do
       end
       check_zero = true
     elseif ins == 0x21 then -- SUB <addr8>
-      pc = pc + 1
-      local addr8 = memory:r_u8(pc)
-      pc = pc + 1
+      local addr8 = memory:r_u8(pc + 1)
+      pc = pc + 2
       local value = memory:r_u8(ram_start + addr8)
       local a = self.a - value
       self.flags.carry = 0
@@ -139,9 +134,8 @@ do
       end
       check_zero = true
     elseif ins == 0x22 then -- CMP <addr8>
-      pc = pc + 1
-      local addr8 = memory:r_u8(pc)
-      pc = pc + 1
+      local addr8 = memory:r_u8(pc + 1)
+      pc = pc + 2
       local value = memory:r_u8(ram_start + addr8)
       if self.a == value then
         self.flags.zero = 1
@@ -157,23 +151,20 @@ do
         self.flags.carry = 0
       end
     elseif ins == 0x30 then -- AND <addr8>
-      pc = pc + 1
-      local addr8 = memory:r_u8(pc)
-      pc = pc + 1
+      local addr8 = memory:r_u8(pc + 1)
+      pc = pc + 2
       local value = memory:r_u8(ram_start + addr8)
       self.a = band(self.a, value)
       check_zero = true
     elseif ins == 0x31 then -- OR <addr8>
-      pc = pc + 1
-      local addr8 = memory:r_u8(pc)
-      pc = pc + 1
+      local addr8 = memory:r_u8(pc + 1)
+      pc = pc + 2
       local value = memory:r_u8(ram_start + addr8)
       self.a = bor(self.a, value)
       check_zero = true
     elseif ins == 0x32 then -- XOR <addr8>
-      pc = pc + 1
-      local addr8 = memory:r_u8(pc)
-      pc = pc + 1
+      local addr8 = memory:r_u8(pc + 1)
+      pc = pc + 2
       local value = memory:r_u8(ram_start + addr8)
       self.a = bxor(self.a, value)
       check_zero = true
@@ -273,16 +264,14 @@ do
         pc = pc + 3
       end
     elseif ins == 0x70 then -- IN <addr8>
-      pc = pc + 1
-      local addr8 = memory:r_u8(pc)
-      pc = pc + 1
+      local addr8 = memory:r_u8(pc + 1)
+      pc = pc + 2
       local value = memory:r_u8(io_start + addr8)
       self.a = value
       check_zero = true
     elseif ins == 0x71 then -- OUT <addr8>
-      pc = pc + 1
-      local addr8 = memory:r_u8(pc)
-      pc = pc + 1
+      local addr8 = memory:r_u8(pc + 1)
+      pc = pc + 2
       memory:w_u8(io_start + addr8, self.a)
     else
       self.flags.fault = 1
@@ -300,12 +289,8 @@ do
   ::jump::
     do
       local lo = memory:r_u8(pc)
-      pc = pc + 1
-      local hi = memory:r_u8(pc)
-      pc = pc + 1
-
-      local addr16 = lo + hi * 256
-      self.pc = addr16
+      local hi = memory:r_u8(pc + 1)
+      self.pc = lo + hi * 256
     end
   ::after::
     self.pc = pc

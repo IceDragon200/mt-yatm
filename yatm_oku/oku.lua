@@ -155,17 +155,20 @@ do
       return 0, OKU.ERR_NO_MEMORY
     end
 
-    assert(steps, "expected steps to a number")
+    local err
+    if steps > 0 then
+      local okay
+      local entry = OKU.AVAILABLE_ARCH[self.arch]
+      local step = entry.engine.step
+      local assigns = self.isa_assigns
+      for step_i = 1,steps do
+        okay, err = step(self, assigns)
 
-    local okay, err
-    for step_i = 1,steps do
-      okay, err = self:call_arch('step')
-
-      if not okay then
-        return step_i, err
+        if not okay then
+          return step_i, err
+        end
       end
     end
-
     return steps, err
   end
 
