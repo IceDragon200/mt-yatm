@@ -581,7 +581,7 @@ do
     if not self.m_root_dir then
       return 0, "no root dir"
     end
-    core.log("debug", "Saving Computer State " .. core.pos_to_string(state.id))
+    core.log("debug", "Saving Computer State " .. state.id)
     local basename
     local fixed_filename
     if state.type == Computers.TYPE_FIXED then
@@ -633,9 +633,9 @@ do
     end
 
     if state.node then
-      heder.node_name = state.node.name
-      heder.node_param1 = state.node.param1
-      heder.node_param2 = state.node.param2
+      header.node_name = state.node.name
+      header.node_param1 = state.node.param1
+      header.node_param2 = state.node.param2
     end
 
   ::dump_state::
