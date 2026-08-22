@@ -133,6 +133,30 @@ do
     return hi * 256 + lo
   end
 
+  --- @spec #w_u16(index: Integer, value: Integer): self
+  function ic:w_u16(index, value)
+    index = self:check_and_adjust_index(index, 2)
+    value = value % 0x10000
+    local lo = value % 0x100
+    local hi = math.floor(value / 0x100)
+    if self.endian == LuaMemory.Endian.LITTLE then
+      self.m_data[index] = lo
+      self.m_data[index + 1] = hi
+    else
+      self.m_data[index] = hi
+      self.m_data[index + 1] = lo
+    end
+    return self
+  end
+
+  --- @spec #r_i16(index: Integer): Integer
+  function ic:r_i16(index)
+    local value = self:r_u16(index)
+    return value < 0x8000 and value or value - 0x10000
+  end
+
+  ic.w_i16 = ic.w_u16
+
   --- @spec #r_u32(index: Integer): Integer
   function ic:r_u32(index)
     index = self:check_and_adjust_index(index, 4)
@@ -155,6 +179,36 @@ do
     --- Magic numbers are powers of 2, being 2^24, 2^16 and 2^8
     return d * 0x1000000 + c * 0x10000 + b * 0x100 + a
   end
+
+  --- @spec #w_u32(index: Integer, value: Integer): self
+  function ic:w_u32(index, value)
+    index = self:check_and_adjust_index(index, 4)
+    value = value % 0x100000000
+    local a = value % 0x100
+    local b = math.floor(value / 0x100) % 0x100
+    local c = math.floor(value / 0x10000) % 0x100
+    local d = math.floor(value / 0x1000000) % 0x100
+    if self.endian == LuaMemory.Endian.LITTLE then
+      self.m_data[index] = a
+      self.m_data[index + 1] = b
+      self.m_data[index + 2] = c
+      self.m_data[index + 3] = d
+    else
+      self.m_data[index] = d
+      self.m_data[index + 1] = c
+      self.m_data[index + 2] = b
+      self.m_data[index + 3] = a
+    end
+    return self
+  end
+
+  --- @spec #r_i32(index: Integer): Integer
+  function ic:r_i32(index)
+    local value = self:r_u32(index)
+    return value < 0x80000000 and value or value - 0x100000000
+  end
+
+  ic.w_i32 = ic.w_u32
 
   --- @spec #r_bytes(index: Integer, size: Integer)
   function ic:r_bytes(index, size)

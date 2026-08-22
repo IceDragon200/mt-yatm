@@ -66,6 +66,30 @@ for _,m in ipairs(modules) do
     end)
   end)
 
+  case:describe("native-endian integer access", function (t2)
+    t2:test("round trips signed and unsigned 16-bit values", function (t3)
+      local mem = m:new(16)
+      mem:w_u16(0, 0xFEDC)
+      t3:assert_eq(0xFEDC, mem:r_u16(0))
+      t3:assert_eq(-0x124, mem:r_i16(0))
+
+      mem:w_i16(2, -2)
+      t3:assert_eq(-2, mem:r_i16(2))
+      t3:assert_eq(0xFFFE, mem:r_u16(2))
+    end)
+
+    t2:test("round trips signed and unsigned 32-bit values", function (t3)
+      local mem = m:new(16)
+      mem:w_u32(0, 0xFEDCBA98)
+      t3:assert_eq(0xFEDCBA98, mem:r_u32(0))
+      t3:assert_eq(-0x01234568, mem:r_i32(0))
+
+      mem:w_i32(4, -2)
+      t3:assert_eq(-2, mem:r_i32(4))
+      t3:assert_eq(0xFFFFFFFE, mem:r_u32(4))
+    end)
+  end)
+
   case:describe("#r_bytes", function (t2)
     t2:test("can retrieve a list of bytes", function (t3)
       local mem = m:new(256)
