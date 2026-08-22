@@ -7,15 +7,21 @@ local Color = assert(foundation.com.Color)
 
 local maybe_to_colorstring = assert(Color.maybe_to_colorstring)
 
--- @namespace yatm
+--- @namespace yatm
 
 yatm.bg_name = {}
 yatm.bg9_name = {}
 
 yatm.bg_base =
-  "no_prepend[]" ..
-  "bgcolor[#080808BB;true]" ..
-  "listcolors[#00000069;#5A5A5A;#141318;#30434C;#FFF]"
+  fspec.no_prepend()
+  .. fspec.bg_color("#080808BB", true)
+  .. fspec.list_colors(
+    "#00000069",
+    "#5A5A5A",
+    "#141318",
+    "#30434C",
+    "#FFF"
+  )
 
 yatm.bg_name.default = "yatm_gui_formbg_default.png"
 yatm.bg_name.computer = "yatm_gui_formbg_default.computer.png"
@@ -79,7 +85,7 @@ function yatm.formspec.bg_for_player(player_name, background_id, x, y, w, h, aut
     auto_clip = false
   end
 
-  local info = minetest.get_player_information(player_name)
+  local info = core.get_player_information(player_name)
   local texture_name
 
   if info.formspec_version then
@@ -262,22 +268,46 @@ function yatm.formspec.render_gauge(options)
     )
 
   local formspec =
-    fspec.box(x, y, w, h, base_color) ..
-    fspec.box(gauge_x, gauge_y, gauge_w, gauge_h, gauge_color)
+    fspec.box(x, y, w, h, base_color)
+
+  if amount > 0 then
+    formspec =
+      formspec
+      .. fspec.box(gauge_x, gauge_y, gauge_w, gauge_h, gauge_color)
+  end
 
   if tooltip then
     formspec =
-      formspec ..
-      fspec.tooltip_area(x, y, w, h, tooltip)
+      formspec
+      .. fspec.tooltip_area(x, y, w, h, tooltip)
   end
 
   if border_name then
     formspec =
-      formspec ..
-      fspec.image(x, y, w, h, border_name .. "^[multiply:" .. Color.to_string32(overlay_color), 16)
+      formspec
+      .. yatm.formspec.render_item_border(x, y, w, h, border_name, overlay_color)
   end
 
   return formspec
+end
+
+--- @spec render_item_border(
+---   x: Number,
+---   y: Number,
+---   w: Number,
+---   h: Number,
+---   border_name: String,
+---   color: Color,
+--- ): String
+function yatm.formspec.render_item_border(x, y, w, h, border_name, color)
+  return fspec.image(
+    x,
+    y,
+    w,
+    h,
+    border_name .. "^[multiply:" .. Color.maybe_to_colorstring(color),
+    16
+  )
 end
 
 --- Renders a small switch button.

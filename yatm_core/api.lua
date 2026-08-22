@@ -7,33 +7,34 @@ local table_merge = assert(foundation.com.table_merge)
 local fspec = assert(foundation.com.formspec.api)
 local Groups = assert(foundation.com.Groups)
 
--- @namespace yatm
+--- @namespace yatm
 
--- alias foundation modules into yatm, they were originally yatm modules to begin with
--- @alias Luna = foundation.com.Luna
+--- alias foundation modules into yatm, they were originally yatm modules to begin with
+--- @alias Luna = foundation.com.Luna
 yatm.Luna = foundation.com.Luna
--- @alias MetaSchema = foundation.com.MetaSchema
+
+--- @alias MetaSchema = foundation.com.MetaSchema
 yatm.MetaSchema = foundation.com.MetaSchema
--- @alias BinSchema = foundation.com.BinSchema
+
+--- @alias BinSchema = foundation.com.BinSchema
 yatm.BinSchema = foundation.com.BinSchema
--- @alias ByteDecoder = foundation.com.ByteDecoder
-yatm.ByteDecoder = foundation.com.ByteDecoder
--- @alias ByteEncoder = foundation.com.ByteEncoder
-yatm.ByteEncoder = foundation.com.ByteEncoder
--- @alias Vector2 = foundation.com.Vector2
+
+--- @alias Vector2 = foundation.com.Vector2
 yatm.Vector2 = foundation.com.Vector2
--- @alias Vector3 = foundation.com.Vector3
+
+--- @alias Vector3 = foundation.com.Vector3
 yatm.Vector3 = foundation.com.Vector3
--- @alias Vector4 = foundation.com.Vector4
+
+--- @alias Vector4 = foundation.com.Vector4
 yatm.Vector4 = foundation.com.Vector4
 
 local nokore_player_inv = rawget(_G, "nokore_player_inv")
 
---
--- @spec player_inventory_lists_fragment(player: Player, x: Number, y: Number): (String, dimensions: Vector2)
+---
+--- @spec player_inventory_lists_fragment(player: Player, x: Number, y: Number): (String, dimensions: Vector2)
 
---
--- @spec player_inventory_size2(Player): Vector2
+---
+--- @spec player_inventory_size2(Player): Vector2
 
 if nokore_player_inv then
   yatm.player_inventory_lists_fragment = nokore_player_inv.player_inventory_lists_fragment
@@ -67,7 +68,7 @@ else
       result = result .. fspec.list("current_player", "main", x, y + 1.5, size.x, size.y - 1, size.x)
     end
 
-    return result, { x = cols, y = rows }
+    return result, { x = size.x, y = size.y }
   end
 end
 
@@ -77,7 +78,7 @@ function yatm.register_stateful_node(basename, base, states)
     local nodedef = table_merge(base, changes)
     nodedef.basename = nodedef.basename or basename
     local node_name = basename .. "_" .. name
-    minetest.register_node(node_name, nodedef)
+    core.register_node(node_name, nodedef)
     result[name] = {node_name, nodedef}
   end
   return result
@@ -89,7 +90,7 @@ function yatm.register_stateful_tool(basename, base, states)
     local tooldef = table_merge(base, changes)
     tooldef.basename = tooldef.basename or basename
     local tool_name = basename .. "_" .. name
-    minetest.register_tool(tool_name, tooldef)
+    core.register_tool(tool_name, tooldef)
     result[name] = {tool_name, tooldef}
   end
   return result
@@ -101,7 +102,7 @@ function yatm.register_stateful_craftitem(basename, base, states)
     local craftitemdef = table_merge(base, changes)
     craftitemdef.basename = craftitemdef.basename or basename
     local craftitem_name = basename .. "_" .. name
-    minetest.register_craftitem(craftitem_name, craftitemdef)
+    core.register_craftitem(craftitem_name, craftitemdef)
     result[name] = {craftitem_name, craftitemdef}
   end
   return result
@@ -119,7 +120,7 @@ function yatm.is_item_solid_fuel(item_stack)
     ingredient_stack:set_count(1)
 
     local recipe, decremented_input =
-      minetest.get_craft_result({
+      core.get_craft_result({
         method = "fuel",
         width = 1,
         items = { ingredient_stack }
@@ -135,3 +136,4 @@ yatm_core:require("api/wrench.lua")
 yatm_core:require("api/building_blocks.lua")
 yatm_core:require("api/colors.lua")
 yatm_core:require("api/formspec_backgrounds.lua")
+yatm_core:require("api/units.lua")

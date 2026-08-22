@@ -9,10 +9,12 @@ local string_hex_escape = assert(foundation.com.string_hex_escape)
 local string_sub_join = assert(foundation.com.string_sub_join)
 local binary_splice = assert(foundation.com.binary_splice)
 local data_network = assert(yatm.data_network)
-local ByteDecoder = yatm.ByteDecoder
+local ByteDecoder = assert(foundation.com.ByteDecoder)
+local get_node = assert(tetra.get_node)
+local get_meta = assert(tetra.get_meta)
 
 if not ByteDecoder then
-  minetest.log("warning", "Memory module requires yatm.ByteDecoder")
+  core.log("warning", "Memory module requires foundation.com.ByteDecoder")
   return
 end
 
@@ -23,12 +25,14 @@ end
 local function set_memory_blob(meta, memory)
   memory = string_hex_clean(memory) -- remove any non-hex characters from the blob
   memory = string_hex_decode(memory) -- decode it as binary
-  memory = string_pad_trailing(string.sub(memory, 1, 256), 256, "\x00") -- limit it to 256 characters
+  memory = string_pad_trailing(
+    string.sub(memory, 1, 256), 256, "\x00"
+  ) -- limit it to 256 characters
   memory = string_hex_encode(memory) -- re-encode the result
   meta:set_string("memory", memory) -- store it
 end
 
-minetest.register_node("yatm_data_logic:data_memory", {
+core.register_node("yatm_data_logic:data_memory", {
   description = "DATA Memory",
 
   codex_entry_id = "yatm_data_logic:data_memory",
@@ -62,10 +66,10 @@ minetest.register_node("yatm_data_logic:data_memory", {
   },
 
   on_construct = function (pos)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     set_memory_blob(meta, "")
 
-    local node = minetest.get_node(pos)
+    local node = get_node(pos)
     data_network:add_node(pos, node)
   end,
 
@@ -84,7 +88,7 @@ minetest.register_node("yatm_data_logic:data_memory", {
     end,
 
     receive_pdu = function (self, pos, node, dir, port, value)
-      local meta = minetest.get_meta(pos)
+      local meta = get_meta(pos)
       local blob = string_hex_unescape(value)
 
       if yatm_data_logic.get_matrix_port(pos, "port", "address", dir) == port then
@@ -114,7 +118,7 @@ minetest.register_node("yatm_data_logic:data_memory", {
 
     get_programmer_formspec = function (self, pos, user, pointed_thing, assigns)
       --
-      local meta = minetest.get_meta(pos)
+      local meta = get_meta(pos)
       assigns.tab = assigns.tab or 1
 
       local formspec =
@@ -142,9 +146,9 @@ minetest.register_node("yatm_data_logic:data_memory", {
       elseif assigns.tab == 2 then
         local memory_blob = meta:get_string("memory")
         memory_blob = string_sub_join(memory_blob, 32, "\n")
-        memory_blob = minetest.formspec_escape(memory_blob)
+        memory_blob = core.formspec_escape(memory_blob)
 
-        local address_blob = minetest.formspec_escape(meta:get_int("address_offset"))
+        local address_blob = core.formspec_escape(meta:get_int("address_offset"))
 
         formspec =
           formspec ..
@@ -157,7 +161,7 @@ minetest.register_node("yatm_data_logic:data_memory", {
     end,
 
     receive_programmer_fields = function (self, player, form_name, fields, assigns)
-      local meta = minetest.get_meta(assigns.pos)
+      local meta = get_meta(assigns.pos)
 
       local needs_refresh = false
 
@@ -208,7 +212,7 @@ minetest.register_node("yatm_data_logic:data_memory", {
   },
 
   refresh_infotext = function (pos)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     local infotext =
       data_network:get_infotext(pos)
 

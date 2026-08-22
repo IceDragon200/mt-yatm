@@ -2,9 +2,10 @@ local mod = yatm_machines
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
+local get_meta = assert(tetra.get_meta)
 
 local function pylon_refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..

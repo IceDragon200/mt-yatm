@@ -1,9 +1,10 @@
 local Directions = assert(foundation.com.Directions)
-local is_table_empty = assert(foundation.com.is_table_empty)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
-
 local data_network = assert(yatm.data_network)
+local get_node = assert(tetra.get_node)
+local get_meta = assert(tetra.get_meta)
+local swap_node = assert(tetra.swap_node)
 
 local function mesecon_rules(node)
   local result = {}
@@ -40,7 +41,7 @@ yatm.register_stateful_node("yatm_data_to_mesecon:mesecon_to_data", {
   },
 
   on_construct = function (pos)
-    local node = minetest.get_node(pos)
+    local node = get_node(pos)
     data_network:add_node(pos, node)
   end,
 
@@ -132,7 +133,7 @@ yatm.register_stateful_node("yatm_data_to_mesecon:mesecon_to_data", {
   },
 
   refresh_infotext = function (pos)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     local infotext =
       data_network:get_infotext(pos)
 
@@ -146,7 +147,7 @@ yatm.register_stateful_node("yatm_data_to_mesecon:mesecon_to_data", {
 
         action_on = function (pos, node)
           node.name = "yatm_data_to_mesecon:mesecon_to_data_on"
-          minetest.swap_node(pos, node)
+          swap_node(pos, node)
           yatm_data_logic.emit_output_data(pos, "on")
         end,
       },
@@ -176,7 +177,7 @@ yatm.register_stateful_node("yatm_data_to_mesecon:mesecon_to_data", {
 
         action_off = function (pos, node)
           node.name = "yatm_data_to_mesecon:mesecon_to_data_off"
-          minetest.swap_node(pos, node)
+          swap_node(pos, node)
           yatm_data_logic.emit_output_data(pos, "off")
         end,
       },

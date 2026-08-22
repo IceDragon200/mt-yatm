@@ -1,9 +1,11 @@
-local mod = yatm_machines
+local mod = assert(yatm_machines)
+
 local Directions = assert(foundation.com.Directions)
 local is_blank = assert(foundation.com.is_blank)
 local itemstack_split = assert(foundation.com.itemstack_split)
 local format_pretty_time = assert(foundation.com.format_pretty_time)
 local cluster_devices = assert(yatm.cluster.devices)
+local cluster_energy = assert(yatm.cluster.energy)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local Energy = assert(yatm.energy)
 local grinding_registry = assert(yatm.grinding.grinding_registry)
@@ -11,6 +13,8 @@ local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
 local player_service = assert(nokore.player_service)
 local Vector3 = assert(foundation.com.Vector3)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
 
 local yatm_network = {
   kind = "machine",
@@ -38,7 +42,7 @@ local yatm_network = {
 
 local item_interface =
   ItemInterface.new_directional(function (self, pos, dir)
-    local node = minetest.get_node(pos)
+    local node = get_node(pos)
     local new_dir = Directions.facedir_to_face(node.param2, dir)
     if new_dir == Directions.D_UP or new_dir == Directions.D_DOWN then
       return "grinder_input"
@@ -132,18 +136,20 @@ function yatm_network:work(ctx)
   return energy_consumed
 end
 
-local function refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
+local function refresh_infotext(pos, node)
+  local nodedef = core.registered_nodes[node.name]
+  local meta = get_meta(pos)
 
   local recipe_name = meta:get_string("active_recipe") or ""
   local work_time = meta:get_float("work_time")
   local duration = meta:get_float("duration")
 
   local infotext =
-    cluster_devices:get_node_infotext(pos) .. "\n" ..
-    "Energy: " .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "\n" ..
-    "Recipe: " .. recipe_name .. "\n" ..
-    "Time: " .. format_pretty_time(work_time) .. " / " .. format_pretty_time(duration)
+    nodedef.short_description .. "\n"
+    .. cluster_devices:get_node_infotext(pos) .. "\n"
+    .. cluster_energy:get_node_infotext(pos) .. " [".. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "]\n"
+    .. "Recipe: " .. recipe_name .. "\n"
+    .. "Time: " .. format_pretty_time(work_time) .. " / " .. format_pretty_time(duration)
 
   meta:set_string("infotext", infotext)
 end
@@ -151,7 +157,7 @@ end
 local function on_construct(pos)
   yatm.devices.device_on_construct(pos)
   --
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
   --
   inv:set_size("grinder_input", 1)
@@ -165,7 +171,7 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine" }, function (loc, rect)
     if loc == "main_body" then
@@ -248,6 +254,7 @@ yatm.devices.register_stateful_network_device({
   basename = mod:make_name("auto_grinder"),
 
   description = mod.S("Auto Grinder"),
+  short_description = mod.S("Auto Grinder"),
 
   groups = groups,
 

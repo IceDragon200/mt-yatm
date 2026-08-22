@@ -1,9 +1,11 @@
-minetest.register_node("yatm_armoury:turret_base", {
-  codex_entry_id = "yatm_armoury:turret_base",
+local mod = assert(yatm_armoury)
 
-  basename = "yatm_armoury:turret_base",
+mod:register_node("turret_base", {
+  codex_entry_id = mod.S("turret_base"),
+  basename = mod.S("turret_base"),
 
-  description = "Turret Base",
+  short_description = mod.S("Turret Base"),
+  description = mod.S("Turret Base"),
 
   groups = {
     cracky = nokore.dig_class("copper"),
@@ -27,11 +29,11 @@ minetest.register_node("yatm_armoury:turret_base", {
   is_ground_content = false,
 
   on_construct = function (pos)
-    local entity = minetest.add_entity(pos, "yatm_armoury:turret")
+    local entity = core.add_entity(pos, "yatm_armoury:turret")
   end,
 
   on_destruct = function (pos)
-    for _, object in ipairs(minetest.get_objects_inside_radius(pos, 0.75)) do
+    for _, object in ipairs(core.get_objects_inside_radius(pos, 0.75)) do
       if not object:is_player() then
         local lua_entity = object:get_luaentity()
         if lua_entity then

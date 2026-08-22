@@ -8,9 +8,12 @@ local Groups = assert(foundation.com.Groups)
 local table_merge = assert(foundation.com.table_merge)
 local Directions = assert(foundation.com.Directions)
 local Color = assert(foundation.com.Color)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
+local set_node = assert(tetra.set_node)
 
 --- @namespace yatm_fluids.fluid_registry
 local FluidRegistry = {
+  BUCKET_VOLUME = 1000,
   m_buckets = {},
   m_fluid_name_to_bucket_name = {},
   m_item_name_to_fluid_name = {},
@@ -46,7 +49,7 @@ function FluidRegistry.register_fluid(fluid_name, def)
     end
   else
     local msg = "suggestion: add a color to registered fluid name=" .. fluid_name
-    minetest.log("warning", msg)
+    core.log("warning", msg)
     --error(msg)
   end
 
@@ -62,9 +65,9 @@ local function on_use_bucket(item_stack, user, pointed_thing)
     return nil
   end
 
-  local node = minetest.get_node_or_nil(pointed_thing.under)
+  local node = get_node_or_nil(pointed_thing.under)
   if node then
-    local nodedef = minetest.registered_nodes[node.name]
+    local nodedef = core.registered_nodes[node.name]
 
     local is_sneaking = user and user:is_player() and user:get_player_control().sneak
 
@@ -94,8 +97,8 @@ local function on_use_bucket(item_stack, user, pointed_thing)
           -- check if the node above can be replaced
 
           pos = pointed_thing.above
-          node = minetest.get_node_or_nil(pos)
-          local above_ndef = node and minetest.registered_nodes[node.name]
+          node = get_node_or_nil(pos)
+          local above_ndef = node and core.registered_nodes[node.name]
 
           if not above_ndef or not above_ndef.buildable_to then
             -- do not remove the bucket with the liquid
@@ -103,12 +106,12 @@ local function on_use_bucket(item_stack, user, pointed_thing)
           end
         end
 
-        if minetest.is_protected(pointed_thing.under, user:get_player_name()) then
-          minetest.record_protection_violation(pos, name)
+        if core.is_protected(pointed_thing.under, user:get_player_name()) then
+          core.record_protection_violation(pos, name)
           return nil
         end
 
-        minetest.set_node(pos, {
+        set_node(pos, {
           name = fluid_bucket_def.nodes.source,
         })
 
@@ -132,6 +135,26 @@ function FluidRegistry.register_fluid_bucket(bucket_name, bucket_def)
     bucket_def.texture = "yatm_bucket_empty.png^(yatm_bucket_fluid.mask.png^[multiply:"..bucket_def.fluid_color..")"
   end
 
+  local fluid_container =
+    {
+      type = "static",
+      fluid_name = bucket_def.fluid_name,
+      volume = FluidRegistry.BUCKET_VOLUME,
+      capacity = FluidRegistry.BUCKET_VOLUME,
+      fluid_table = {
+        [""] = "yatm_fluids:empty_bucket",
+      },
+    }
+
+  local fluid_bucket =
+    {
+      fluid_name = bucket_def.fluid_name,
+      fluid_nodes = table.copy(bucket_def.nodes),
+    }
+
+  FluidRegistry.m_buckets[bucket_name] = bucket_def
+  FluidRegistry.m_fluid_name_to_bucket_name[bucket_def.fluid_name] = bucket_name
+
   if rawget(_G, "bucket") and rawget(_G, "default") then
     bucket.register_liquid(
       assert(bucket_def.nodes.source),
@@ -142,11 +165,13 @@ function FluidRegistry.register_fluid_bucket(bucket_name, bucket_def)
       bucket_def.groups,
       bucket_def.force_renew
     )
-  else
-    FluidRegistry.m_buckets[bucket_name] = bucket_def
-    FluidRegistry.m_fluid_name_to_bucket_name[bucket_def.fluid_name] = bucket_name
 
-    minetest.register_tool(bucket_name, {
+    core.override_item(bucket_name, {
+      fluid_container = fluid_container,
+      fluid_bucket = fluid_bucket,
+    })
+  else
+    core.register_craftitem(bucket_name, {
       description = bucket_def.description or bucket_name,
 
       groups = bucket_def.groups or {},
@@ -157,17 +182,24 @@ function FluidRegistry.register_fluid_bucket(bucket_name, bucket_def)
 
       inventory_image = bucket_def.texture,
 
-      fluid_bucket = {
-        fluid_name = bucket_def.fluid_name,
-        fluid_nodes = table.copy(bucket_def.nodes),
-      },
+      fluid_container = fluid_container,
+      fluid_bucket = fluid_bucket,
 
       on_use = on_use_bucket,
     })
   end
 end
 
---- @spec fluid_item_to_bucket(item_name: String): (bucket_name: String)
+--- @spec fluid_name_to_bucket(fluid_name: String): (bucket: Table)
+function FluidRegistry.fluid_name_to_bucket(fluid_name)
+  local bucket_name = FluidRegistry.m_fluid_name_to_bucket_name[fluid_name]
+  if bucket_name then
+    return FluidRegistry.m_buckets[bucket_name]
+  end
+  return nil
+end
+
+--- @spec fluid_item_to_bucket(item_name: String): (bucket: Table)
 function FluidRegistry.fluid_item_to_bucket(item_name)
   local fluid_name = FluidRegistry.m_item_name_to_fluid_name[item_name]
   if fluid_name then
@@ -185,7 +217,7 @@ local function get_fluid_tile(fluid)
     return assert(fluid.tiles.source)
   elseif fluid.nodes then
     local name = assert(fluid.nodes.source, "expected a source " .. fluid.name)
-    local node = assert(minetest.registered_nodes[name], "expected node to exist " .. name)
+    local node = assert(core.registered_nodes[name], "expected node to exist " .. name)
     return node.tiles[1]
   else
     error("fluid .. " .. dump(fluid.name) ..
@@ -262,13 +294,13 @@ function FluidRegistry.register_fluid_tank(modname, fluid_name, nodedef)
 
   local fluid_tank_name = modname .. ":fluid_tank_" .. assert(fluiddef.safe_name)
   print("FluidRegistry", "register_fluid_tank", fluid_tank_name)
-  minetest.register_node(fluid_tank_name, fluid_tank_def)
+  core.register_node(fluid_tank_name, fluid_tank_def)
   FluidRegistry.m_fluid_name_to_tank_name[fluid_name] = fluid_tank_name
   FluidRegistry.m_tank_name_to_fluid_name[fluid_tank_name] = fluid_name
 end
 
 function FluidRegistry.register_fluid_nodes(basename, def)
-  minetest.register_node(basename .. "_source", {
+  core.register_node(basename .. "_source", {
     description = def.description_base .. " Source",
     groups = def.groups or {},
     drawtype = "liquid",
@@ -310,7 +342,7 @@ function FluidRegistry.register_fluid_nodes(basename, def)
     sounds = yatm.node_sounds:build("water"),
   })
 
-  minetest.register_node(basename .. "_flowing", {
+  core.register_node(basename .. "_flowing", {
     description = "Flowing " .. def.description_base,
     groups = table_merge(def.groups or {}, {not_in_creative_inventory = 1}),
     drawtype = "flowingliquid",

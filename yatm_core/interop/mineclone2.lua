@@ -1,4 +1,4 @@
-minetest.log("info", "yatm is running in a mineclone2 environment")
+core.log("info", "yatm is running in a mineclone2 environment")
 
 local node_sounds = assert(yatm.node_sounds)
 

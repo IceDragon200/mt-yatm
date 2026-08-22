@@ -11,6 +11,8 @@ local node_to_string = assert(foundation.com.node_to_string)
 local DIR6_TO_VEC3 = assert(foundation.com.Directions.DIR6_TO_VEC3)
 local clusters = assert(yatm.clusters)
 local list = assert(foundation.com.List)
+local get_node = assert(tetra.get_node)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
 
 local SimpleCluster = foundation.com.Class:extends("SimpleCluster")
 do
@@ -118,7 +120,7 @@ do
   function ic:get_node_infotext(pos)
     assert(pos, "expected node position")
 
-    local node_id = minetest.hash_node_position(pos)
+    local node_id = core.hash_node_position(pos)
 
     return clusters:reduce_node_clusters(pos, '', function (cluster, acc)
       if cluster.groups[self.m_cluster_group] then
@@ -131,7 +133,7 @@ do
 
   --- @overridable
   function ic:get_node_groups(node)
-    local nodedef = minetest.registered_nodes[node.name]
+    local nodedef = core.registered_nodes[node.name]
     if nodedef and nodedef.simple_network then
       return nodedef.simple_network.groups or {}
     else
@@ -141,8 +143,8 @@ do
 
   --- @spec #schedule_add_node(pos: Vector3, node: NodeRef): void
   function ic:schedule_add_node(pos, node)
-    self:log("schedule_add_node", minetest.pos_to_string(pos), node.name)
-    local nodedef = minetest.registered_nodes[node.name]
+    self:log("schedule_add_node", core.pos_to_string(pos), node.name)
+    local nodedef = core.registered_nodes[node.name]
     if nodedef.groups[self.m_node_group] then
       local groups = self:get_node_groups(node)
       clusters:schedule_node_event(
@@ -166,7 +168,7 @@ do
   -- * `node` - the NodeRef
   -- * `new_state` - some kind of identifier for the new state, could be anything
   function ic:schedule_transition_node(pos, node, new_state, reason)
-    self:log("schedule_transition_node", minetest.pos_to_string(pos), node.name)
+    self:log("schedule_transition_node", core.pos_to_string(pos), node.name)
     local groups = self:get_node_groups(node)
     clusters:schedule_node_event(
       self.m_cluster_group,
@@ -178,7 +180,7 @@ do
   end
 
   function ic:schedule_load_node(pos, node, reason)
-    self:log("schedule_load_node", minetest.pos_to_string(pos), node.name)
+    self:log("schedule_load_node", core.pos_to_string(pos), node.name)
     local groups = self:get_node_groups(node)
     clusters:schedule_node_event(
       self.m_cluster_group,
@@ -190,7 +192,7 @@ do
   end
 
   function ic:schedule_update_node(pos, node, reason)
-    self:log("schedule_update_node", minetest.pos_to_string(pos), node.name)
+    self:log("schedule_update_node", core.pos_to_string(pos), node.name)
     local groups = self:get_node_groups(node)
     clusters:schedule_node_event(
       self.m_cluster_group,
@@ -202,7 +204,7 @@ do
   end
 
   function ic:schedule_remove_node(pos, node, reason)
-    self:log("schedule_remove_node", minetest.pos_to_string(pos), node.name)
+    self:log("schedule_remove_node", core.pos_to_string(pos), node.name)
     clusters:schedule_node_event(
       self.m_cluster_group,
       "remove_node",
@@ -215,7 +217,7 @@ do
   function ic:handle_node_event(cls, generation_id, event, cluster_ids, trace)
     local span
 
-    self:log("event", event.event_name, generation_id, minetest.pos_to_string(event.pos))
+    self:log("event", event.event_name, generation_id, core.pos_to_string(event.pos))
 
     if trace then
       span = trace:span_start(event.event_name)
@@ -247,7 +249,7 @@ do
   end
 
   function ic:get_node_color(node)
-    local nodedef = minetest.registered_nodes[node.name]
+    local nodedef = core.registered_nodes[node.name]
     if nodedef and nodedef.yatm_network then
       return nodedef.yatm_network.color or 'default'
     end
@@ -301,12 +303,12 @@ do
   end
 
   function ic:_handle_load_node(cls, generation_id, event, given_cluster_ids)
-    self:log('_handle_load_node', minetest.pos_to_string(event.pos))
+    self:log('_handle_load_node', core.pos_to_string(event.pos))
     return self:_handle_add_node(cls, generation_id, event, given_cluster_ids)
   end
 
   function ic:_handle_add_node(cls, generation_id, event, given_cluster_ids)
-    self:log('_handle_add_node', minetest.pos_to_string(event.pos))
+    self:log('_handle_add_node', core.pos_to_string(event.pos))
     local neighbours = self:find_compatible_neighbours(cls, event.pos, event.node, given_cluster_ids)
 
     local needs_full_refresh = false
@@ -351,7 +353,7 @@ do
   end
 
   function ic:_handle_update_node(cls, generation_id, event, given_cluster_ids)
-    self:log('_handle_update_node', minetest.pos_to_string(event.pos))
+    self:log('_handle_update_node', core.pos_to_string(event.pos))
     local cluster
     local other_cluster
 
@@ -370,7 +372,7 @@ do
         cls:update_node_in_cluster(cluster.id, event.pos, event.node, event.params.groups)
 
       -- if not updated then
-        -- minetest.log("warning", "failed to update node " .. dump(event) .. err)
+        -- core.log("warning", "failed to update node " .. dump(event) .. err)
       -- end
     end
     return cluster
@@ -385,10 +387,10 @@ do
 
     for dir6, vec3 in pairs(DIR6_TO_VEC3) do
       npos = vector.add(pos, vec3)
-      nnode = minetest.get_node_or_nil(npos)
+      nnode = get_node_or_nil(npos)
 
       if nnode then
-        rating = minetest.get_item_group(nnode.name, self.m_node_group)
+        rating = core.get_item_group(nnode.name, self.m_node_group)
         if rating and rating > 0 then
           other_color = self:get_node_color(nnode)
 
@@ -396,7 +398,7 @@ do
             -- okay
           else
             --print("dir is inaccesible, not a compatible color",
-            --      minetest.pos_to_string(npos), nnode.name, dump(color), dump(other_color))
+            --      core.pos_to_string(npos), nnode.name, dump(color), dump(other_color))
             accessible_dirs[dir6] = false
           end
         else
@@ -413,7 +415,7 @@ do
   function ic:scan_for_branches(scan_origin, _scan_node)
     local all_nodes = {}
     local branches = {}
-    local hash_node_position = minetest.hash_node_position
+    local hash_node_position = core.hash_node_position
 
     local origin = scan_origin
     local g_branch_id = 0
@@ -439,7 +441,7 @@ do
           return false, acc
         end
 
-        nodedef = minetest.registered_nodes[node.name]
+        nodedef = core.registered_nodes[node.name]
         if nodedef then
           if nodedef.groups[self.m_node_group] then
             if all_nodes[current_node_id] then
@@ -486,7 +488,7 @@ do
   end
 
   function ic:_handle_remove_node(cls, generation_id, event, _cluster_ids)
-    self:log('_handle_remove_node', minetest.pos_to_string(event.pos))
+    self:log('_handle_remove_node', core.pos_to_string(event.pos))
 
     local current_cluster = self:get_node_cluster(event.pos)
 
@@ -505,7 +507,7 @@ do
 
     for branch_id, nodes in pairs(branches) do
       for node_id, _ in pairs(nodes) do
-        pos = minetest.get_position_from_hash(node_id)
+        pos = core.get_position_from_hash(node_id)
 
         cluster_id =
           cls:reduce_node_clusters(pos, nil, function (cluster, acc)
@@ -533,8 +535,8 @@ do
         cluster = cls:create_cluster(self:get_cluster_groups())
 
         for node_id, _ in pairs(nodes) do
-          pos = minetest.get_position_from_hash(node_id)
-          node = minetest.get_node(pos)
+          pos = core.get_position_from_hash(node_id)
+          node = get_node(pos)
 
           cls:add_node_to_cluster(cluster.id, pos, node, self:get_node_groups(node))
           yatm.queue_refresh_infotext(pos, node)
@@ -549,9 +551,9 @@ do
   end
 
   function ic:_handle_transition_node(cls, generation_id, event, _cluster_ids)
-    local node = minetest.get_node_or_nil(event.pos)
+    local node = get_node_or_nil(event.pos)
     if node then
-      local nodedef = minetest.registered_nodes[node.name]
+      local nodedef = core.registered_nodes[node.name]
       if nodedef.transition_device_state then
         nodedef.transition_device_state(event.pos, node, event.params.state, "simple_cluster:transition_node")
       else
@@ -560,7 +562,7 @@ do
       end
     else
       self.log("_handle_transition_node",
-               "WARN: node does not exist pos=" .. minetest.pos_to_string(event.pos))
+               "WARN: node does not exist pos=" .. core.pos_to_string(event.pos))
     end
   end
 

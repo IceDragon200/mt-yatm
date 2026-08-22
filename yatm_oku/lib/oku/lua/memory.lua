@@ -77,21 +77,6 @@ do
     return self
   end
 
-  local types = {
-    i8 = 1,
-    i16 = 2,
-    i32 = 4,
-    i64 = 8,
-
-    u8 = 1,
-    u16 = 2,
-    u32 = 4,
-    u64 = 8,
-
-    f = 4,
-    d = 8,
-  }
-
   --- @spec #w_i8(index: Integer, value: Integer): self
   function ic:w_i8(index, value)
     assert(index, "expected index")
@@ -148,6 +133,30 @@ do
     return hi * 256 + lo
   end
 
+  --- @spec #w_u16(index: Integer, value: Integer): self
+  function ic:w_u16(index, value)
+    index = self:check_and_adjust_index(index, 2)
+    value = value % 0x10000
+    local lo = value % 0x100
+    local hi = math.floor(value / 0x100)
+    if self.endian == LuaMemory.Endian.LITTLE then
+      self.m_data[index] = lo
+      self.m_data[index + 1] = hi
+    else
+      self.m_data[index] = hi
+      self.m_data[index + 1] = lo
+    end
+    return self
+  end
+
+  --- @spec #r_i16(index: Integer): Integer
+  function ic:r_i16(index)
+    local value = self:r_u16(index)
+    return value < 0x8000 and value or value - 0x10000
+  end
+
+  ic.w_i16 = ic.w_u16
+
   --- @spec #r_u32(index: Integer): Integer
   function ic:r_u32(index)
     index = self:check_and_adjust_index(index, 4)
@@ -168,8 +177,38 @@ do
     end
 
     --- Magic numbers are powers of 2, being 2^24, 2^16 and 2^8
-    return d * 0x1000000 * c * 0x10000 + b * 0x100 + a
+    return d * 0x1000000 + c * 0x10000 + b * 0x100 + a
   end
+
+  --- @spec #w_u32(index: Integer, value: Integer): self
+  function ic:w_u32(index, value)
+    index = self:check_and_adjust_index(index, 4)
+    value = value % 0x100000000
+    local a = value % 0x100
+    local b = math.floor(value / 0x100) % 0x100
+    local c = math.floor(value / 0x10000) % 0x100
+    local d = math.floor(value / 0x1000000) % 0x100
+    if self.endian == LuaMemory.Endian.LITTLE then
+      self.m_data[index] = a
+      self.m_data[index + 1] = b
+      self.m_data[index + 2] = c
+      self.m_data[index + 3] = d
+    else
+      self.m_data[index] = d
+      self.m_data[index + 1] = c
+      self.m_data[index + 2] = b
+      self.m_data[index + 3] = a
+    end
+    return self
+  end
+
+  --- @spec #r_i32(index: Integer): Integer
+  function ic:r_i32(index)
+    local value = self:r_u32(index)
+    return value < 0x80000000 and value or value - 0x100000000
+  end
+
+  ic.w_i32 = ic.w_u32
 
   --- @spec #r_bytes(index: Integer, size: Integer)
   function ic:r_bytes(index, size)
@@ -220,11 +259,14 @@ do
   --- @spec #binload(Stream): (self, bytes_read: Integer)
   function ic:binload(stream)
     local bytes_read = 0
+    local memory_bo
+    local memory_size
+    local br
 
-    local memory_bo, br = ByteBuf:read(stream, 2)
+    memory_bo, br = ByteBuf:read(stream, 2)
     bytes_read = bytes_read + br
 
-    local memory_size, br = ByteBuf:r_u32(stream)
+    memory_size, br = ByteBuf:r_u32(stream)
     bytes_read = bytes_read + br
 
     if memory_size ~= self.m_size then

@@ -24,7 +24,9 @@ yatm_debug:register_tool("transport_network_debug_tool", {
         if network then
           network.debug = not network.debug
 
-          minetest.chat_send_player(user:get_player_name(), "Toggled network debug: " .. tostring(network.debug))
+          core.chat_send_player(
+            user:get_player_name(), "Toggled network debug: " .. tostring(network.debug)
+          )
         end
       end
     end
@@ -36,7 +38,9 @@ yatm_debug:register_tool("transport_network_debug_tool", {
         if network then
           network.debug = not network.debug
 
-          minetest.chat_send_player(user:get_player_name(), "Toggled network debug: " .. tostring(network.debug))
+          core.chat_send_player(
+            user:get_player_name(), "Toggled network debug: " .. tostring(network.debug)
+          )
         end
       end
     end

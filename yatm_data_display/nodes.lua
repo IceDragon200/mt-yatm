@@ -3,6 +3,9 @@ local ng = Cuboid.new_fast_node_box
 local string_hex_unescape = assert(foundation.com.string_hex_unescape)
 local is_table_empty = assert(foundation.com.is_table_empty)
 local data_network = assert(yatm.data_network)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local swap_node = assert(tetra.swap_node)
 
 local ASCII_TABLE = {}
 local SPACE = string.byte(" ")
@@ -83,7 +86,7 @@ yatm.register_stateful_node("yatm_data_display:ascii_display", {
   },
 
   on_construct = function (pos)
-    local node = minetest.get_node(pos)
+    local node = get_node(pos)
     data_network:add_node(pos, node)
   end,
 
@@ -103,7 +106,7 @@ yatm.register_stateful_node("yatm_data_display:ascii_display", {
     end,
 
     receive_pdu = function (self, pos, node, dir, port, value)
-      local meta = minetest.get_meta(pos)
+      local meta = get_meta(pos)
 
       local str = string_hex_unescape(value)
       local byte = string.byte(str)
@@ -116,7 +119,7 @@ yatm.register_stateful_node("yatm_data_display:ascii_display", {
             param1 = node.param1,
             param2 = node.param2,
           }
-          minetest.swap_node(pos, new_node)
+          swap_node(pos, new_node)
           data_network:upsert_member(pos, new_node)
           yatm.queue_refresh_infotext(pos, new_node)
         end
@@ -156,9 +159,9 @@ yatm.register_stateful_node("yatm_data_display:ascii_display", {
   },
 
   refresh_infotext = function (pos)
-    local meta = minetest.get_meta(pos)
-    local node = minetest.get_node(pos)
-    local nodedef = minetest.registered_nodes[node.name]
+    local meta = get_meta(pos)
+    local node = get_node(pos)
+    local nodedef = core.registered_nodes[node.name]
 
     local infotext =
       "ASCII Display: " .. nodedef.ascii_char .. "\n" ..

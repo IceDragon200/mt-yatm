@@ -13,7 +13,7 @@ local plate_nodebox = {
 
 for _,color in ipairs(colors) do
   for _,size in ipairs(sizes) do
-    minetest.register_node("yatm_decor:warning_checkers_" .. size .. "_" .. color, {
+    core.register_node("yatm_decor:warning_checkers_" .. size .. "_" .. color, {
       basename = "yatm_decor:warning_checkers",
       base_description = "Warning Checkers",
 
@@ -29,7 +29,7 @@ for _,color in ipairs(colors) do
       paramtype2 = "facedir",
     })
 
-    minetest.register_node("yatm_decor:warning_checkers_slab_" .. size .. "_" .. color, {
+    core.register_node("yatm_decor:warning_checkers_slab_" .. size .. "_" .. color, {
       basename = "yatm_decor:warning_checkers_slab",
       base_description = "Warning Checkers Slab",
 
@@ -48,7 +48,7 @@ for _,color in ipairs(colors) do
       node_box = slab_nodebox,
     })
 
-    minetest.register_node("yatm_decor:warning_checkers_plate_" .. size .. "_" .. color, {
+    core.register_node("yatm_decor:warning_checkers_plate_" .. size .. "_" .. color, {
       basename = "yatm_decor:warning_checkers_plate",
       base_description = "Warning Checkers Panel",
 

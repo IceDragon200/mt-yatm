@@ -31,7 +31,7 @@ local single_node_box = {
   },
 }
 
-minetest.register_node("yatm_armoury_icbm:icbm_guiding_ring", {
+core.register_node("yatm_armoury_icbm:icbm_guiding_ring", {
   description = "ICBM Guiding Ring (Double Band)",
 
   codex_entry_id = "yatm_armoury_icbm:icbm_guiding_ring",
@@ -63,7 +63,7 @@ minetest.register_node("yatm_armoury_icbm:icbm_guiding_ring", {
   sunlight_propagates = true,
 })
 
-minetest.register_node("yatm_armoury_icbm:icbm_guiding_ring_single", {
+core.register_node("yatm_armoury_icbm:icbm_guiding_ring_single", {
   description = "ICBM Guiding Ring (Single Band)",
 
   codex_entry_id = "yatm_armoury_icbm:icbm_guiding_ring",
@@ -95,7 +95,7 @@ minetest.register_node("yatm_armoury_icbm:icbm_guiding_ring_single", {
   sunlight_propagates = true,
 })
 
-minetest.register_node("yatm_armoury_icbm:icbm_guiding_ring_warning_strips", {
+core.register_node("yatm_armoury_icbm:icbm_guiding_ring_warning_strips", {
   description = "ICBM Guiding Ring [Warning Strips] (Double Band)",
 
   codex_entry_id = "yatm_armoury_icbm:icbm_guiding_ring",
@@ -127,7 +127,7 @@ minetest.register_node("yatm_armoury_icbm:icbm_guiding_ring_warning_strips", {
   sunlight_propagates = true,
 })
 
-minetest.register_node("yatm_armoury_icbm:icbm_guiding_ring_single_warning_strips", {
+core.register_node("yatm_armoury_icbm:icbm_guiding_ring_single_warning_strips", {
   description = "ICBM Guiding Ring [Warning Strips] (Single Band)",
 
   codex_entry_id = "yatm_armoury_icbm:icbm_guiding_ring",

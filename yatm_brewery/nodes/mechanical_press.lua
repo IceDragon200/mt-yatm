@@ -10,9 +10,35 @@ local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local Directions = assert(foundation.com.Directions)
 local Vector3 = assert(foundation.com.Vector3)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local swap_node = assert(tetra.swap_node)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
+local maybe_start_node_timer = assert(foundation.com.maybe_start_node_timer)
+
+-- we can just use gravity for now
+local plunger_speed
+if core.global_exists("hsw") and hsw.config then
+  plunger_speed = hsw.config.GRAVITY
+else
+  plunger_speed = 9.8
+end
 
 local plunger_entity_name = mod:make_name("mechanical_press_plunger_ent")
-local mechanical_press_node = mod:make_name("mechanical_press")
+local mechanical_press_node_off = mod:make_name("mechanical_press_off")
+local mechanical_press_node_on = mod:make_name("mechanical_press_on")
+
+local function maybe_swap_node(pos, node, new_name)
+  if node.name ~= new_name then
+    local new_node = {
+      name = new_name,
+      param1 = node.param1,
+      param2 = node.param2,
+    }
+
+    swap_node(pos, new_node)
+  end
+end
 
 local function find_plunger_entity(pos)
   local plunger_id = core.hash_node_position(pos)
@@ -33,7 +59,7 @@ end
 local function add_plunger_entity(pos)
   local plunger_id = core.hash_node_position(pos)
 
-  core.add_entity(pos, plunger_entity_name, minetest.write_json({
+  core.add_entity(pos, plunger_entity_name, core.write_json({
     plunger_pos = pos,
     plunger_id = plunger_id,
   }))
@@ -60,7 +86,7 @@ local function on_load(pos, node)
 end
 
 local function on_construct(pos)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   meta:set_float("plunger_pos", 0.0)
   refresh_plunger_entity(pos)
 end
@@ -75,6 +101,35 @@ end
 
 --- @private.spec on_timer(Vector3, dtime: Float): Boolean
 local function on_timer(pos, dtime)
+  local node = get_node(pos)
+  local meta = get_meta(pos)
+  local d = 0
+  if node.name == mechanical_press_node_on then
+    d = 1
+  elseif node.name == mechanical_press_node_off then
+    d = -1
+  end
+
+  local continue_loop = true
+  local pp = meta:get_float("plunger_pos")
+  if d > 0 then
+    -- the plunger should be progressing towards the basin
+    pp = pp + dtime * plunger_speed
+    if pp >= 1 then
+      -- press can do actual work now, otherwise it needs to wait until the plunger is down
+    end
+  elseif d < 0 then
+    -- the plunger should be retracting and therefore work is halted
+    -- the loop will end when the plunger's position returns to rest (0)
+    pp = pp - dtime * plunger_speed
+    if pp <= 0 then
+      continue_loop = false
+    end
+  end
+
+  meta:set_float("plunger_pos", math.min(math.max(pp, 0), 1))
+
+  return continue_loop
 end
 
 local node_box = {
@@ -85,7 +140,27 @@ local node_box = {
   },
 }
 
-mod:register_node("mechanical_press", {
+local mesecons_def = {
+  effector = {
+    action_on = function (pos, node)
+      local meta = get_meta(pos)
+
+      maybe_swap_node(pos, node, mod:make_name("mechanical_press_on"))
+      maybe_start_node_timer(pos, 0.05)
+    end,
+
+    action_off = function (pos, node)
+      local meta = get_meta(pos)
+
+      maybe_swap_node(pos, node, mod:make_name("mechanical_press_off"))
+      maybe_start_node_timer(pos, 0.05)
+    end,
+
+    rules = assert(mesecon.rules.wallmounted_get),
+  }
+}
+
+yatm.register_stateful_node(mod:make_name("mechanical_press"), {
   description = mod.S("Mechanical Press"),
 
   groups = {
@@ -113,12 +188,19 @@ mod:register_node("mechanical_press", {
   on_destruct = on_destruct,
   on_timer = on_timer,
   after_rotate_node = after_rotate_node,
+
+  mesecons = mesecons_def,
+}, {
+  off = {
+  },
+  on = {
+  }
 })
 
 local node_box = {
   type = "fixed",
   fixed = {
-    ng(6, 0, 6, 4, 13, 4),
+    ng(6, 1, 6, 4, 12, 4),
     ng(1, 13, 1, 14, 3, 14),
   },
 }
@@ -166,9 +248,9 @@ core.register_entity(plunger_entity_name, {
   },
 
   on_step = function (self, delta)
-    local node = core.get_node_or_nil(self.plunger_pos)
+    local node = get_node_or_nil(self.plunger_pos)
     if node then
-      if node.name ~= mechanical_press_node then
+      if node.name ~= mechanical_press_node_off and node.name ~= mechanical_press_node_on then
         self.object:remove()
       end
     else
@@ -176,7 +258,7 @@ core.register_entity(plunger_entity_name, {
       return
     end
 
-    local meta = core.get_meta(self.plunger_pos)
+    local meta = get_meta(self.plunger_pos)
 
     --- retrieve the plunger's intended position from the parent press
     --- this is its 1D position as in how far from the main body it should be extended
@@ -197,7 +279,7 @@ core.register_entity(plunger_entity_name, {
   end,
 
   on_activate = function(self, static_data)
-    local data = minetest.parse_json(static_data)
+    local data = core.parse_json(static_data)
 
     self.plunger_id = data.plunger_id
     self.plunger_pos = data.plunger_pos
@@ -214,11 +296,11 @@ core.register_entity(plunger_entity_name, {
       plunger_id = self.plunger_id,
       plunger_pos = self.plunger_pos,
     }
-    return minetest.write_json(data)
+    return core.write_json(data)
   end,
 
   refresh = function (self)
-    local node = core.get_node(self.plunger_pos)
+    local node = get_node(self.plunger_pos)
     self.object:set_properties({
       node = {
         name = mod:make_name("mechanical_press_plunger"),
@@ -230,9 +312,28 @@ core.register_entity(plunger_entity_name, {
 })
 
 core.register_lbm({
+  label = "Mechanical Press Migration",
+
+  nodenames = {
+    mod:make_name("mechanical_press"),
+  },
+
+  name = mod:make_name("mechanical_press_migration"),
+
+  run_at_every_load = true,
+
+  action = function (pos, node)
+    maybe_swap_node(pos, node, mechanical_press_node_off)
+  end,
+})
+
+core.register_lbm({
   label = "Mechanical Press Plunger Spawn",
 
-  nodenames = {mod:make_name("mechanical_press")},
+  nodenames = {
+    mechanical_press_node_off,
+    mechanical_press_node_on,
+  },
 
   name = mod:make_name("mechanical_press_plunger_spawn"),
 

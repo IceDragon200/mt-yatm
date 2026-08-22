@@ -2,6 +2,7 @@
 -- Utility module for interacting with fluid tanks in the world.
 --
 local FluidStack = assert(yatm_fluids.FluidStack)
+local get_node = assert(tetra.get_node)
 
 --- @namespace yatm_fluids.FluidTanks
 local FluidTanks = {
@@ -9,8 +10,8 @@ local FluidTanks = {
 }
 
 function FluidTanks.has_fluid_interface(pos, dir)
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
+  local node = get_node(pos)
+  local nodedef = core.registered_nodes[node.name]
 
   if nodedef then
     if nodedef.fluid_interface then
@@ -23,8 +24,8 @@ end
 
 --- @since "1.2.0"
 function FluidTanks.get_fluid_interface(pos)
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
+  local node = get_node(pos)
+  local nodedef = core.registered_nodes[node.name]
 
   if nodedef and nodedef.fluid_interface then
     return nodedef.fluid_interface
@@ -37,16 +38,14 @@ function FluidTanks.get_capacity(pos, dir)
   if type(dir) ~= "number" then
     error("expected a number got:" .. type(dir))
   end
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
+  local node = get_node(pos)
+  local nodedef = core.registered_nodes[node.name]
   if nodedef then
     local fi = nodedef.fluid_interface
     if fi and fi.get_capacity then
       return nodedef.fluid_interface:get_capacity(pos, dir)
-    else
-      return "no fluid_interface:get_capacity function"
     end
-    return "no fluid_interface"
+    return "no fluid_interface:get_capacity function"
   end
   return nil, "no nodedef"
 end
@@ -56,8 +55,8 @@ function FluidTanks.get_fluid(pos, dir)
   if type(dir) ~= "number" then
     error("expected a number got:" .. type(dir))
   end
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
+  local node = get_node(pos)
+  local nodedef = core.registered_nodes[node.name]
   if nodedef then
     local fi = nodedef.fluid_interface
     if fi and fi.get then
@@ -72,8 +71,8 @@ function FluidTanks.replace_fluid(pos, dir, fluid_stack, commit)
     error("expected a number got:" .. type(dir))
   end
 
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
+  local node = get_node(pos)
+  local nodedef = core.registered_nodes[node.name]
 
   if nodedef and nodedef.groups.fluid_interface_in then
     local fi = nodedef.fluid_interface
@@ -94,8 +93,8 @@ function FluidTanks.drain_fluid(pos, dir, fluid_stack, commit)
     return nil
   end
 
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
+  local node = get_node(pos)
+  local nodedef = core.registered_nodes[node.name]
 
   if nodedef and nodedef.groups.fluid_interface_out then
     local fi = nodedef.fluid_interface
@@ -128,8 +127,8 @@ function FluidTanks.fill_fluid(pos, dir, fluid_stack, commit)
     return nil, "fluid stack was empty"
   end
 
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
+  local node = get_node(pos)
+  local nodedef = core.registered_nodes[node.name]
 
   if not nodedef then
     return nil, "node definition not found"
@@ -156,8 +155,8 @@ function FluidTanks.trigger_on_fluid_changed(pos, dir, fluid_stack)
     error("expected a number got:" .. type(dir))
   end
 
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
+  local node = get_node(pos)
+  local nodedef = core.registered_nodes[node.name]
   if nodedef and nodedef.fluid_interface and nodedef.fluid_interface.on_fluid_changed then
     return nodedef.fluid_interface:on_fluid_changed(pos, dir, fluid_stack)
   end

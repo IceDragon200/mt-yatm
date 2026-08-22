@@ -36,9 +36,13 @@ do
       return index % self.m_size
     else
       len = len or 1
-      assert(index >= 0, "expected index to greater than or equal to 0")
+      if index < 0 then
+        error("expected index to greater than or equal to 0")
+      end
       local end_index = index + len
-      assert(end_index <= self.m_size, "expected end index to be inside memory (got:" .. end_index .. ")")
+      if end_index > self.m_size then
+        error("expected end index to be inside memory (got:" .. end_index .. ")")
+      end
       return index
     end
   end

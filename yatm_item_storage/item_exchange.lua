@@ -66,9 +66,9 @@ function ItemExchange.transfer_from_device_to_adjacent_device(
   item_stack_or_count,
   commit
 )
-  local node = minetest.get_node_or_nil(from_pos)
+  local node = core.get_node_or_nil(from_pos)
   if node then
-    local nodedef = minetest.registered_nodes[node.name]
+    local nodedef = core.registered_nodes[node.name]
     local dir = local_dir
     if nodedef.paramtype2 == "facedir" then
       dir = Directions.facedir_to_face(node.param2, local_dir)

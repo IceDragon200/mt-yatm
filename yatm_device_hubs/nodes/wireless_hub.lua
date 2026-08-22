@@ -1,3 +1,5 @@
+local get_meta = assert(tetra.get_meta)
+
 local yatm_network = {
   kind = "hub",
   groups = {
@@ -51,7 +53,7 @@ yatm.devices.register_stateful_network_device({
   on_construct = function (pos)
     yatm.devices.device_on_construct(pos)
 
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     --meta:set_string("", "")
   end,
 

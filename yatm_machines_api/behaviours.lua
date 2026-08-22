@@ -10,6 +10,7 @@ local Directions = assert(foundation.com.Directions)
 local ItemExchange = assert(yatm.items.ItemExchange)
 local FluidExchange = assert(yatm.fluids.FluidExchange)
 local FluidStack = assert(yatm.fluids.FluidStack)
+local get_meta = assert(tetra.get_meta)
 
 yatm.devices.behaviours = yatm.devices.behaviours or {}
 local m = yatm.devices.behaviours
@@ -57,7 +58,7 @@ m.fluid_auto_eject = {
 ---
 --- @spec init(pos: Vector3, node: NodeRef): void
 function m.fluid_auto_eject.init(pos, node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   -- i(tem) a(uto) ej(ect)
   local iaej = tonumber(meta:get("faej_code") or 0)
   meta:set_int("faej_code", old)
@@ -157,7 +158,7 @@ m.item_auto_eject = {
 ---
 --- @spec init(pos: Vector3, node: NodeRef): void
 function m.item_auto_eject.init(pos, node)
-  local meta = core.get_meta(pos)
+  local meta = get_meta(pos)
   -- i(tem) a(uto) ej(ect)
   local iaej = tonumber(meta:get("iaej_code") or 0)
   meta:set_int("iaej_code", old)

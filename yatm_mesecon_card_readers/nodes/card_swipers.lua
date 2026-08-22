@@ -3,6 +3,10 @@ local Groups = assert(foundation.com.Groups)
 local HeadlessMetaDataRef = assert(foundation.com.headless.MetaDataRef)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local get_node_timer = assert(tetra.get_node_timer)
+local swap_node = assert(tetra.swap_node)
 
 local swiper_node_box = {
   type = "fixed",
@@ -25,7 +29,7 @@ local function card_swiper_preserve_metadata(pos, oldnode, old_meta_table, drops
 end
 
 local function card_swiper_after_place_node(pos, _placer, itemstack, _pointed_thing)
-  local new_meta = minetest.get_meta(pos)
+  local new_meta = get_meta(pos)
   local old_meta = itemstack:get_meta()
 
   yatm_security.copy_chipped_object(assert(old_meta), new_meta)
@@ -105,8 +109,8 @@ yatm.register_stateful_node("yatm_mesecon_card_readers:mesecon_card_swiper", {
             valid = true
           end
         end
-        minetest.swap_node(pos, new_node)
-        minetest.get_node_timer(pos):start(1.0)
+        swap_node(pos, new_node)
+        get_node_timer(pos):start(1.0)
         if valid then
           mesecon.receptor_on(pos, mesecon.rules.buttonlike_get(new_node))
         end
@@ -138,10 +142,10 @@ yatm.register_stateful_node("yatm_mesecon_card_readers:mesecon_card_swiper", {
     },
 
     on_timer = function (pos, elapsed)
-      local node = minetest.get_node(pos)
+      local node = get_node(pos)
       local new_node = { name = "yatm_mesecon_card_readers:mesecon_card_swiper_off",
                          param1 = node.param1, param2 = node.param2 }
-      minetest.swap_node(pos, new_node)
+      swap_node(pos, new_node)
       mesecon.receptor_off(pos, mesecon.rules.buttonlike_get(node))
       return false
     end,
@@ -171,10 +175,10 @@ yatm.register_stateful_node("yatm_mesecon_card_readers:mesecon_card_swiper", {
     },
 
     on_timer = function (pos, elapsed)
-      local node = minetest.get_node(pos)
+      local node = get_node(pos)
       local new_node = { name = "yatm_mesecon_card_readers:mesecon_card_swiper_off",
                          param1 = node.param1, param2 = node.param2 }
-      minetest.swap_node(pos, new_node)
+      swap_node(pos, new_node)
       mesecon.receptor_off(pos, mesecon.rules.buttonlike_get(node))
       return false
     end,

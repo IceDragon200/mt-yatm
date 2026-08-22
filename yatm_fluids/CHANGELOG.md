@@ -1,3 +1,17 @@
+# 2.7.0
+
+* Added additional FluidExchange functions for dealing with:
+  * tank to container
+  * meta to container
+  * container to container
+  * container to tank
+  * container to meta
+
+# 2.6.0
+
+* Added FluidStack metatable, most functions available on the module are now available on the instance class
+* Changed `FluidStack.merge/1+` behaviour, it now uses the first argument as the result fluid stack, to get the old behaviour please use `merge_new/1+` which always returns a new resultant FluidStack
+
 # 2.5.0
 
 * Added ErrorCodes module

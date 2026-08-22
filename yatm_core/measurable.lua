@@ -31,7 +31,7 @@ function m.register(registry, name, def)
   assert(def, "requires a definition")
   def.groups = def.groups or {}
   def.safe_name = string.gsub(name, ":", "_")
-  def.registered_by = minetest.get_current_modname()
+  def.registered_by = core.get_current_modname()
   registry.members = registry.members or {}
   registry.group_members = registry.group_members or {}
   registry.members[name] = def

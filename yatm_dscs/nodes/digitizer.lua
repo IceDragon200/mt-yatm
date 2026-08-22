@@ -1,11 +1,15 @@
 --
 -- Digitizers take physical items/fluids and inserts them into the dscs network.
 --
+local mod = assert(yatm_dscs)
+
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
+local get_meta = assert(tetra.get_meta)
+local node_dig = assert(tetra.node_dig)
 
 local digitizer_yatm_network = {
   kind = "machine",
@@ -73,7 +77,7 @@ function digitizer_yatm_network:work(ctx)
 end
 
 local function refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local infotext =
     "Digitizer\n" ..
     cluster_devices:get_node_infotext(pos) .. "\n" ..
@@ -99,7 +103,7 @@ yatm.devices.register_stateful_network_device({
   basename = "yatm_dscs:digitizer",
 
   codex_entry_id = "yatm_dscs:digitizer",
-  description = "Digitizer",
+  description = mod.S("Digitizer"),
 
   groups = groups,
 
@@ -121,7 +125,7 @@ yatm.devices.register_stateful_network_device({
   refresh_infotext = refresh_infotext,
 
   on_construct = function (pos)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     local inventory = meta:get_inventory()
 
     inventory:set_size("main", 6)
@@ -130,12 +134,12 @@ yatm.devices.register_stateful_network_device({
   end,
 
   on_dig = function (pos, node, digger)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     local inv = meta:get_inventory()
 
     local fluid_stack = FluidMeta.get_fluid_stack(meta, "tank")
     if inv:is_empty("main") and FluidStack.is_empty(fluid_stack) then
-      return minetest.node_dig(pos, node, digger)
+      return node_dig(pos, node, digger)
     end
 
     return false

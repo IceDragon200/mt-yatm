@@ -9,6 +9,8 @@ local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local data_network = assert(yatm.data_network)
 local string_hex_escape = assert(foundation.com.string_hex_escape)
+local get_node = assert(tetra.get_node)
+local get_meta = assert(tetra.get_meta)
 
 local mod = yatm_data_logic
 
@@ -68,7 +70,7 @@ mod:register_node("data_wave_generator", {
   },
   data_interface = {
     update = function (self, pos, node, dtime)
-      local meta = minetest.get_meta(pos)
+      local meta = get_meta(pos)
 
       local time = meta:get_float("time")
       local interval_option = meta:get_string("interval_option")
@@ -90,9 +92,7 @@ mod:register_node("data_wave_generator", {
         local pulse_value = math.min(math.max(math.floor(val * 255), 0), 255)
         local esc = string_hex_escape(string.char(pulse_value))
         meta:set_string("data_pulse_value", esc)
-        if yatm_data_logic.emit_output_data(pos, "pulse_value") then
-          --
-        end
+        yatm_data_logic.emit_output_data(pos, "pulse_value")
         yatm.queue_refresh_infotext(pos, node)
       end
 
@@ -173,7 +173,7 @@ mod:register_node("data_wave_generator", {
             },
           },
           on_fields_change = function (self, pos, _meta, _assigns)
-            local node = minetest.get_node(pos)
+            local node = get_node(pos)
             yatm.queue_refresh_infotext(pos, node)
           end,
         }
@@ -182,7 +182,7 @@ mod:register_node("data_wave_generator", {
   },
 
   refresh_infotext = function (pos)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     local infotext =
       "Wave Shape: " .. meta:get_string("wave_shape") .. "\n" ..
       "Interval: " .. meta:get_string("interval_option") .. "\n" ..

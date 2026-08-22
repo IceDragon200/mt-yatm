@@ -8,10 +8,13 @@
 
 ]]
 local Directions = assert(foundation.com.Directions)
-local random_string16 = assert(foundation.com.random_string16)
+local random_addr16 = assert(foundation.com.random_addr16)
 local table_keys = assert(foundation.com.table_keys)
 local copy_node = assert(foundation.com.copy_node)
 local node_to_string = assert(foundation.com.node_to_string)
+local hash_node_position = assert(core.hash_node_position)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
 
 local GenericTransportNetwork = foundation.com.Class:extends("GenericTransportNetwork")
 do
@@ -57,7 +60,7 @@ do
 
   -- Call this when trying to use a network member, this will ensure that it hasn't become invalid
   function ic:check_network_member(member, network)
-    local node = minetest.get_node(assert(member.pos))
+    local node = get_node(assert(member.pos))
     if node.name == member.name then
       return true
     else
@@ -71,7 +74,7 @@ do
   end
 
   function ic:get_member(pos)
-    local id = minetest.hash_node_position(pos)
+    local id = hash_node_position(pos)
     return self.m_members[id]
   end
 
@@ -86,19 +89,21 @@ do
     assert(node, "expected a node")
 
     if is_register then
-      print(self.m_description, "update_member/3", "registering", minetest.pos_to_string(pos), node_to_string(node))
+      print(self.m_description,
+        "update_member/3", "registering", core.pos_to_string(pos), node_to_string(node))
     else
-      print(self.m_description, "update_member/3", "updating registration", minetest.pos_to_string(pos), node_to_string(node))
+      print(self.m_description,
+        "update_member/3", "updating registration", core.pos_to_string(pos), node_to_string(node))
     end
 
-    local node_id = minetest.hash_node_position(pos)
-    local nodedef = assert(minetest.registered_nodes[node.name])
+    local node_id = hash_node_position(pos)
+    local nodedef = assert(core.registered_nodes[node.name])
     local interface = nodedef[self.m_node_interface_name]
     if not interface then
       error(
         self.m_description ..
         " update_member/3 missing interface=" .. self.m_node_interface_name ..
-        " at pos=" .. minetest.pos_to_string(pos) ..
+        " at pos=" .. core.pos_to_string(pos) ..
         " for node=" .. node_to_string(node)
       )
     end
@@ -109,9 +114,11 @@ do
 
     if old_record then
       if is_register then
-        print(self.m_description, "WARN", "duplicate registration attempted", minetest.pos_to_string(pos), node.name)
+        print(self.m_description,
+          "WARN", "duplicate registration attempted", core.pos_to_string(pos), node.name)
       else
-        print(self.m_description, "removing old record", minetest.pos_to_string(pos), node.name)
+        print(self.m_description,
+          "removing old record", core.pos_to_string(pos), node.name)
       end
 
       self.m_members_by_type[old_record.device_type][node_id] = nil
@@ -129,10 +136,12 @@ do
           if n.members_by_type[old_record.device_type] then
             n.members_by_type[old_record.device_type][node_id] = nil
           else
-            print(self.m_description, "WARN", "no members of type", old_network_id, old_record.device_type)
+            print(self.m_description,
+              "WARN", "no members of type", old_network_id, old_record.device_type)
           end
         else
-          print(self.m_description, "ERROR", "network does not exist", old_network_id, minetest.pos_to_string(pos), node.name)
+          print(self.m_description,
+            "ERROR", "network does not exist", old_network_id, core.pos_to_string(pos), node.name)
         end
       end
     end
@@ -170,7 +179,7 @@ do
   end
 
   function ic:queue_all_adjacent(pos)
-    local node_id = minetest.hash_node_position(pos)
+    local node_id = hash_node_position(pos)
 
     self.m_queue[node_id] = pos
 
@@ -178,14 +187,14 @@ do
     local neighbour_node_id
     for dir,v3 in pairs(Directions.DIR6_TO_VEC3) do
       neighbour_pos = vector.add(pos, v3)
-      neighbour_node_id = minetest.hash_node_position(neighbour_pos)
+      neighbour_node_id = hash_node_position(neighbour_pos)
       self.m_queue[neighbour_node_id] = neighbour_pos
     end
   end
 
   function ic:unregister_member(pos)
-    print(self.m_description, "unregister_member/1", "unregistering", minetest.pos_to_string(pos))
-    local node_id = minetest.hash_node_position(pos)
+    print(self.m_description, "unregister_member/1", "unregistering", core.pos_to_string(pos))
+    local node_id = hash_node_position(pos)
 
     local record = self.m_members[node_id]
 
@@ -225,7 +234,9 @@ do
       -- unregister will cause a refresh on ALL positions adjacent to the current
       self:queue_all_adjacent(pos)
     else
-      print(self.m_description, "unregister_member/1", "nothing was registered at that position!?", minetest.pos_to_string(pos))
+      print(self.m_description,
+        "unregister_member/1",
+        "nothing was registered at that position!?", core.pos_to_string(pos))
     end
   end
 
@@ -268,8 +279,8 @@ do
     local interface = nodedef[self.m_node_interface_name]
     for _d6,v3 in pairs(Directions.DIR6_TO_VEC3) do
       local npos = vector.add(pos, v3)
-      local neighbour_node = minetest.get_node(npos)
-      local neighbour_nodedef = minetest.registered_nodes[neighbour_node.name]
+      local neighbour_node = get_node(npos)
+      local neighbour_nodedef = core.registered_nodes[neighbour_node.name]
 
       if neighbour_nodedef and neighbour_nodedef[self.m_node_interface_name] then
         local neighbour_interface = neighbour_nodedef[self.m_node_interface_name]
@@ -300,13 +311,7 @@ do
   end
 
   function ic:generate_network_id()
-    local result = {self.m_abbr}
-
-    for i = 1,4 do
-      table.insert(result, random_string16(4))
-    end
-
-    return table.concat(result, ":")
+    return self.m_abbr .. ":" .. random_addr16(16, 4, ":")
   end
 
   function ic:resolve_invalid_networks(counter, delta, trace)
@@ -321,7 +326,7 @@ do
 
         if network then
           for member_hash,member_entry in pairs(network.members) do
-            node = minetest.get_node(member_entry.pos)
+            node = get_node(member_entry.pos)
 
             if node.name ~= member_entry.name then
               print(self.m_description, "expected", member_entry.name, "got", node.name, "unregistrering for refresh")
@@ -367,13 +372,13 @@ do
           to_visit = {}
 
           for _,opos in ipairs(old_to_visit) do
-            local ohash = minetest.hash_node_position(opos)
+            local ohash = hash_node_position(opos)
 
             if not visited[ohash] then
               visited[ohash] = true
 
-              local node = minetest.get_node(opos)
-              local nodedef = minetest.registered_nodes[node.name]
+              local node = get_node(opos)
+              local nodedef = core.registered_nodes[node.name]
 
               if nodedef and nodedef[self.m_node_interface_name] then
                 members[ohash] = {
@@ -406,7 +411,9 @@ do
 
                 if n then
                   -- Remove it from the old network
-                  print(self.m_description, "WARN", "node still exists in a network", minetest.pos_to_string(entry.pos), entry.network_id)
+                  print(self.m_description,
+                    "WARN", "node still exists in a network",
+                    core.pos_to_string(entry.pos), entry.network_id)
 
                   n.members[ohash] = nil
                   local mbt = n.members_by_type[entry.device_type]
@@ -426,11 +433,14 @@ do
               network.members_by_type[entry.device_type] = network.members_by_type[entry.device_type] or {}
               network.members_by_type[entry.device_type][ohash] = entry
 
-              local meta = minetest.get_meta(entry.pos)
+              local meta = get_meta(entry.pos)
 
-              local node_description = minetest.registered_nodes[entry.name].description
+              local node_description = core.registered_nodes[entry.name].description
 
-              meta:set_string("infotext", node_description .. "\n" .. self.m_description .. " ID <" .. network_id .. ">")
+              meta:set_string("infotext",
+                node_description .. "\n"
+                .. self.m_description .. " ID <" .. network_id .. ">"
+              )
             end
           end
 

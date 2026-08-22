@@ -1,4 +1,4 @@
-minetest.register_node("yatm_decor:vent", {
+core.register_node("yatm_decor:vent", {
   description = "Vent",
   groups = {
     cracky = nokore.dig_class("copper"),

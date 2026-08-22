@@ -1,4 +1,6 @@
 local Directions = assert(foundation.com.Directions)
+local swap_node = assert(tetra.swap_node)
+
 local lamp_node_box = {
   type = "fixed",
   fixed = {
@@ -45,7 +47,7 @@ local lamp_mesecons = {
 
     -- Boring lamp stuff
     action_on = function (pos, node)
-      local nodedef = minetest.registered_nodes[node.name]
+      local nodedef = core.registered_nodes[node.name]
       if nodedef and nodedef.yatm then
         local new_state = "on"
         if nodedef.yatm.normal_state == "off" then
@@ -54,12 +56,12 @@ local lamp_mesecons = {
           new_state = "off"
         end
         node.name = nodedef.yatm.lamp_basename .. "_" .. new_state
-        minetest.swap_node(pos, node)
+        swap_node(pos, node)
       end
     end,
 
     action_off = function (pos, node)
-      local nodedef = minetest.registered_nodes[node.name]
+      local nodedef = core.registered_nodes[node.name]
       if nodedef and nodedef.yatm then
         local new_state = "off"
         if nodedef.yatm.normal_state == "off" then
@@ -68,7 +70,7 @@ local lamp_mesecons = {
           new_state = "on"
         end
         node.name = nodedef.yatm.lamp_basename .. "_" .. new_state
-        minetest.swap_node(pos, node)
+        swap_node(pos, node)
       end
     end,
   }
@@ -100,7 +102,7 @@ for _,default_state in ipairs(states) do
 
     -- Regular large lamps
     local lamp_basename = "yatm_decor:lamp_" .. basename .. basename_postfix
-    minetest.register_node(lamp_basename .. "_off", {
+    core.register_node(lamp_basename .. "_off", {
       basename = "yatm_decor:lamp",
       base_description = "Lamp",
 
@@ -127,7 +129,7 @@ for _,default_state in ipairs(states) do
       yatm = { color = basename, lamp_basename = lamp_basename, normal_state = default_state },
     })
 
-    minetest.register_node(lamp_basename .. "_on", {
+    core.register_node(lamp_basename .. "_on", {
       basename = "yatm_decor:lamp",
       base_description = "Lamp",
 
@@ -148,7 +150,7 @@ for _,default_state in ipairs(states) do
       paramtype = "light",
       paramtype2 = "facedir",
       sunlight_propagates = false,
-      light_source = minetest.LIGHT_MAX,
+      light_source = core.LIGHT_MAX,
       drawtype = "nodebox",
       node_box = lamp_node_box,
       after_place_node = lamp_after_place_node,
@@ -158,7 +160,7 @@ for _,default_state in ipairs(states) do
 
     -- The really flat lamps
     lamp_basename = "yatm_decor:flat_lamp_" .. basename .. basename_postfix
-    minetest.register_node(lamp_basename .. "_off", {
+    core.register_node(lamp_basename .. "_off", {
       basename = "yatm_decor:flat_lamp",
       base_description = "Flat Lamp",
 
@@ -185,7 +187,7 @@ for _,default_state in ipairs(states) do
       yatm = { color = basename, lamp_basename = lamp_basename, normal_state = default_state },
     })
 
-    minetest.register_node(lamp_basename .. "_on", {
+    core.register_node(lamp_basename .. "_on", {
       basename = "yatm_decor:flat_lamp",
       base_description = "Flat Lamp",
 
@@ -206,7 +208,7 @@ for _,default_state in ipairs(states) do
       paramtype = "light",
       paramtype2 = "facedir",
       sunlight_propagates = false,
-      light_source = minetest.LIGHT_MAX,
+      light_source = core.LIGHT_MAX,
       drawtype = "nodebox",
       node_box = flat_lamp_node_box,
       after_place_node = lamp_after_place_node,
@@ -218,7 +220,7 @@ for _,default_state in ipairs(states) do
     The really tiny lamp block
     ]]
     lamp_basename = "yatm_decor:small_lamp_" .. basename .. basename_postfix
-    minetest.register_node(lamp_basename .. "_off", {
+    core.register_node(lamp_basename .. "_off", {
       basename = "yatm_decor:small_lamp",
       base_description = "Small Lamp",
 
@@ -245,7 +247,7 @@ for _,default_state in ipairs(states) do
       yatm = { color = basename, lamp_basename = lamp_basename, normal_state = default_state },
     })
 
-    minetest.register_node(lamp_basename .. "_on", {
+    core.register_node(lamp_basename .. "_on", {
       basename = "yatm_decor:small_lamp",
       base_description = "Small Lamp",
 
@@ -266,7 +268,7 @@ for _,default_state in ipairs(states) do
       paramtype = "light",
       paramtype2 = "facedir",
       sunlight_propagates = false,
-      light_source = minetest.LIGHT_MAX,
+      light_source = core.LIGHT_MAX,
       drawtype = "nodebox",
       node_box = small_lamp_node_box,
       after_place_node = lamp_after_place_node,

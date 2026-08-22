@@ -5,17 +5,20 @@ local Cuboid = assert(foundation.com.Cuboid)
 local ng = assert(Cuboid.new_fast_node_box)
 local list_concat = assert(foundation.com.list_concat)
 local Directions = assert(foundation.com.Directions)
-
 local data_network = assert(yatm.data_network)
+local get_node = assert(tetra.get_node)
+local get_meta = assert(tetra.get_meta)
+local swap_node = assert(tetra.swap_node)
+local check_for_falling = assert(tetra.check_for_falling)
 
 local function data_cable_refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local infotext = data_network:get_infotext(pos)
   meta:set_string("infotext", infotext)
 end
 
 local function data_cable_after_place_node(pos, _placer, _itemstack, _pointed_thing)
-  local node = minetest.get_node(pos)
+  local node = get_node(pos)
   data_network:add_node(pos, node)
   yatm.queue_refresh_infotext(pos, node)
 end
@@ -26,11 +29,11 @@ local function data_cable_bracket_after_place_node(pos, placer, itemstack, point
 end
 
 local function data_cable_on_destruct(pos)
-  print("data_cable_on_destruct", minetest.pos_to_string(pos))
+  print("data_cable_on_destruct", core.pos_to_string(pos))
 end
 
 local function data_cable_after_destruct(pos, old_node)
-  print("data_cable_after_destruct", minetest.pos_to_string(pos))
+  print("data_cable_after_destruct", core.pos_to_string(pos))
   data_network:unregister_member(pos, old_node)
 end
 
@@ -167,19 +170,16 @@ local function on_rotate(pos, node, user, mode, new_param2)
     local new_node = { name = node.name,
                        param1 = node.param1,
                        param2 = new_param2 }
-    minetest.swap_node(pos, new_node)
+    swap_node(pos, new_node)
     data_network:upsert_member(pos, new_node, true)
-    minetest.check_for_falling(pos)
+    check_for_falling(pos)
   end
   return true
 end
 
-local colors = list_concat({{name = "multi", description = "Multi"}}, yatm.colors)
 local cables_to_migrate = {}
-for _,row in ipairs(colors) do
-  local color_basename = row.name
-  local color_name = row.description
 
+local function register_straight_bracket(color_basename, color_name)
   local node_name = "yatm_data_cables:data_cable_bracket_straight_" .. color_basename
   table.insert(cables_to_migrate, "data_cable_bracket_straight_"..color_basename)
 
@@ -194,7 +194,7 @@ for _,row in ipairs(colors) do
   }
 
   -- Mounteded Cables can be mounted on walls
-  minetest.register_node(node_name, {
+  core.register_node(node_name, {
     basename = "yatm_data_cables:data_cable_bracket_straight",
     base_description = "Data Cable Mounted Straight",
 
@@ -241,7 +241,9 @@ for _,row in ipairs(colors) do
 
     refresh_infotext = data_cable_refresh_infotext,
   })
+end
 
+local function register_corner_bracket(color_basename, color_name)
   local node_name = "yatm_data_cables:data_cable_bracket_corner_" .. color_basename
   table.insert(cables_to_migrate, "data_cable_bracket_corner_"..color_basename)
 
@@ -255,7 +257,7 @@ for _,row in ipairs(colors) do
     [colored_group_name] = 1
   }
 
-  minetest.register_node(node_name, {
+  core.register_node(node_name, {
     basename = "yatm_data_cables:data_cable_bracket_corner",
     base_description = "Data Cable Mounted Corner",
 
@@ -302,8 +304,10 @@ for _,row in ipairs(colors) do
 
     refresh_infotext = data_cable_refresh_infotext,
   })
+end
 
-  local node_name = "yatm_data_cables:data_cable_bracket_tee_" .. color_basename
+local function register_tee_bracket(color_basename, color_name)
+local node_name = "yatm_data_cables:data_cable_bracket_tee_" .. color_basename
   table.insert(cables_to_migrate, "data_cable_bracket_tee_"..color_basename)
 
   local colored_group_name = "data_cable_bracket_tee_" .. color_basename
@@ -316,7 +320,7 @@ for _,row in ipairs(colors) do
     [colored_group_name] = 1
   }
 
-  minetest.register_node(node_name, {
+  core.register_node(node_name, {
     basename = "yatm_data_cables:data_cable_bracket_tee",
     base_description = "Data Cable Mounted Tee",
 
@@ -364,7 +368,9 @@ for _,row in ipairs(colors) do
 
     refresh_infotext = data_cable_refresh_infotext,
   })
+end
 
+local function register_cross_bracket(color_basename, color_name)
   local node_name = "yatm_data_cables:data_cable_bracket_cross_" .. color_basename
   table.insert(cables_to_migrate, "data_cable_bracket_cross_"..color_basename)
 
@@ -378,7 +384,7 @@ for _,row in ipairs(colors) do
     [colored_group_name] = 1
   }
 
-  minetest.register_node(node_name, {
+  core.register_node(node_name, {
     basename = "yatm_data_cables:data_cable_bracket_cross",
     base_description = "Data Cable Mounted Cross",
 
@@ -427,7 +433,9 @@ for _,row in ipairs(colors) do
 
     refresh_infotext = data_cable_refresh_infotext,
   })
+end
 
+local function register_riser_bracket(color_basename, color_name)
   local node_name = "yatm_data_cables:data_cable_bracket_riser_" .. color_basename
   table.insert(cables_to_migrate, "data_cable_bracket_riser_"..color_basename)
 
@@ -441,7 +449,7 @@ for _,row in ipairs(colors) do
     [colored_group_name] = 1
   }
 
-  minetest.register_node(node_name, {
+  core.register_node(node_name, {
     basename = "yatm_data_cables:data_cable_bracket_riser",
     base_description = "Data Cable Mounted Riser",
 
@@ -457,12 +465,18 @@ for _,row in ipairs(colors) do
     sounds = yatm.node_sounds:build("metal"),
 
     tiles = {
-      "yatm_data_cable_" .. color_basename .. ".riser.front.png^yatm_data_cable_bracket.riser.top.png",
-      "yatm_data_cable_" .. color_basename .. ".riser.front.png^yatm_data_cable_bracket.riser.top.png",
-      "yatm_data_cable_" .. color_basename .. ".riser.side.png^yatm_data_cable_bracket.riser.side.png",
-      "yatm_data_cable_" .. color_basename .. ".riser.side.png^yatm_data_cable_bracket.riser.side.png^[transformFX",
-      "yatm_data_cable_" .. color_basename .. ".riser.front.png^yatm_data_cable_bracket.riser.front.png",
-      "yatm_data_cable_" .. color_basename .. ".riser.front.png^yatm_data_cable_bracket.riser.front.png",
+      "yatm_data_cable_" ..
+        color_basename .. ".riser.front.png^yatm_data_cable_bracket.riser.top.png",
+      "yatm_data_cable_" ..
+        color_basename .. ".riser.front.png^yatm_data_cable_bracket.riser.top.png",
+      "yatm_data_cable_" ..
+        color_basename .. ".riser.side.png^yatm_data_cable_bracket.riser.side.png",
+      "yatm_data_cable_" ..
+        color_basename .. ".riser.side.png^yatm_data_cable_bracket.riser.side.png^[transformFX",
+      "yatm_data_cable_" ..
+        color_basename .. ".riser.front.png^yatm_data_cable_bracket.riser.front.png",
+      "yatm_data_cable_" ..
+        color_basename .. ".riser.front.png^yatm_data_cable_bracket.riser.front.png",
     },
     use_texture_alpha = "clip",
 
@@ -488,7 +502,9 @@ for _,row in ipairs(colors) do
 
     refresh_infotext = data_cable_refresh_infotext,
   })
+end
 
+local function register_straight_bus_bracket(color_basename, color_name)
   local node_name = "yatm_data_cables:data_cable_bus_bracket_straight_" .. color_basename
   table.insert(cables_to_migrate, "data_cable_bus_bracket_straight_"..color_basename)
 
@@ -503,7 +519,7 @@ for _,row in ipairs(colors) do
   }
 
   -- Mounteded Buses can be mounted on walls
-  minetest.register_node(node_name, {
+  core.register_node(node_name, {
     basename = "yatm_data_cables:data_cable_bus_bracket_straight",
     base_description = "Data Cable Bus Mounted Straight",
 
@@ -550,7 +566,9 @@ for _,row in ipairs(colors) do
 
     refresh_infotext = data_cable_refresh_infotext,
   })
+end
 
+local function register_corner_bus_bracket(color_basename, color_name)
   local node_name = "yatm_data_cables:data_cable_bus_bracket_corner_" .. color_basename
   table.insert(cables_to_migrate, "data_cable_bus_bracket_corner_"..color_basename)
 
@@ -564,7 +582,7 @@ for _,row in ipairs(colors) do
     [colored_group_name] = 1
   }
 
-  minetest.register_node(node_name, {
+  core.register_node(node_name, {
     basename = "yatm_data_cables:data_cable_bus_bracket_corner",
     base_description = "Data Cable Bus Mounted Corner",
 
@@ -611,7 +629,9 @@ for _,row in ipairs(colors) do
 
     refresh_infotext = data_cable_refresh_infotext,
   })
+end
 
+local function register_tee_bus_bracket(color_basename, color_name)
   local node_name = "yatm_data_cables:data_cable_bus_bracket_tee_" .. color_basename
   table.insert(cables_to_migrate, "data_cable_bus_bracket_tee_"..color_basename)
 
@@ -625,7 +645,7 @@ for _,row in ipairs(colors) do
     [colored_group_name] = 1
   }
 
-  minetest.register_node(node_name, {
+  core.register_node(node_name, {
     basename = "yatm_data_cables:data_cable_bus_bracket_tee",
     base_description = "Data Cable Bus Mounted Tee",
 
@@ -673,7 +693,9 @@ for _,row in ipairs(colors) do
 
     refresh_infotext = data_cable_refresh_infotext,
   })
+end
 
+local function register_cross_bus_bracket(color_basename, color_name)
   local node_name = "yatm_data_cables:data_cable_bus_bracket_cross_" .. color_basename
   table.insert(cables_to_migrate, "data_cable_bus_bracket_cross_"..color_basename)
 
@@ -687,7 +709,7 @@ for _,row in ipairs(colors) do
     [colored_group_name] = 1
   }
 
-  minetest.register_node(node_name, {
+  core.register_node(node_name, {
     basename = "yatm_data_cables:data_cable_bus_bracket_cross",
     base_description = "Data Cable Bus Mounted Cross",
 
@@ -736,10 +758,9 @@ for _,row in ipairs(colors) do
 
     refresh_infotext = data_cable_refresh_infotext,
   })
+end
 
-  --
-  -- Regular cables can only be placed on the ground
-  --
+local function register_cable(color_basename, color_name)
   local colored_group_name = "data_cable_" .. color_basename
   local groups = {
     cracky = nokore.dig_class("copper"),
@@ -764,7 +785,7 @@ for _,row in ipairs(colors) do
     table.insert(connects_to, "group:data_cable_bus_multi")
   end
 
-  minetest.register_node(node_name, {
+  core.register_node(node_name, {
     basename = "yatm_data_cables:data_cable",
     base_description = "Data Cable",
 
@@ -810,7 +831,9 @@ for _,row in ipairs(colors) do
 
     refresh_infotext = data_cable_refresh_infotext,
   })
+end
 
+local function register_bus_cable(color_basename, color_name)
   local colored_group_name = "data_cable_bus_" .. color_basename
   local groups = {
     cracky = nokore.dig_class("copper"),
@@ -838,7 +861,7 @@ for _,row in ipairs(colors) do
     table.insert(connects_to, "group:data_cable_bus_multi")
   end
 
-  minetest.register_node(node_name, {
+  core.register_node(node_name, {
     basename = "yatm_data_cables:data_cable_bus",
     base_description = "Data Bus",
 
@@ -886,10 +909,33 @@ for _,row in ipairs(colors) do
   })
 end
 
+local colors = list_concat({{name = "multi", description = "Multi"}}, yatm.colors)
+for _,row in ipairs(colors) do
+  local color_basename = row.name
+  local color_name = row.description
+
+  register_straight_bracket(color_basename, color_name)
+  register_corner_bracket(color_basename, color_name)
+  register_tee_bracket(color_basename, color_name)
+  register_cross_bracket(color_basename, color_name)
+  register_riser_bracket(color_basename, color_name)
+
+  register_straight_bus_bracket(color_basename, color_name)
+  register_corner_bus_bracket(color_basename, color_name)
+  register_tee_bus_bracket(color_basename, color_name)
+  register_cross_bus_bracket(color_basename, color_name)
+
+  --
+  -- Regular cables can only be placed on the ground
+  --
+  register_cable(color_basename, color_name)
+  register_bus_cable(color_basename, color_name)
+end
+
 for _, cable_basename in ipairs(cables_to_migrate) do
   local dest = "yatm_data_cables:"..cable_basename
 
-  minetest.register_lbm({
+  core.register_lbm({
     name = "yatm_data_cables:migrate_" .. cable_basename,
 
     nodenames = {
@@ -899,7 +945,7 @@ for _, cable_basename in ipairs(cables_to_migrate) do
 
     action = function (pos, node)
       node.name = dest
-      minetest.swap_node(pos, node)
+      swap_node(pos, node)
     end
   })
 end

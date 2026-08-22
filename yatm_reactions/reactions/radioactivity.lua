@@ -3,7 +3,7 @@
 --
 -- It may also set off other nodes.
 --
-minetest.register_abm({
+core.register_abm({
   name = "yatm_reactions:radioactivity",
   label = "Radioactivity",
 
@@ -17,7 +17,7 @@ minetest.register_abm({
   catch_up = false,
 
   action = function (pos, node)
-    local nodedef = minetest.registered_nodes[node.name]
+    local nodedef = core.registered_nodes[node.name]
     if nodedef.do_radioactive_decay then
       nodedef.do_radioactive_decay(pos, node)
       -- TODO: send out a pulse affecting nodes and entities within range

@@ -6,6 +6,8 @@ local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
 local spacetime_network = assert(yatm.spacetime.network)
 local SpacetimeMeta = assert(yatm.spacetime.SpacetimeMeta)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
 
 local teleporter_port_node_box = {
   type = "fixed",
@@ -14,8 +16,8 @@ local teleporter_port_node_box = {
   }
 }
 
-local function teleporter_port_refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+local function refresh_infotext(pos, node)
+  local meta = get_meta(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
@@ -28,19 +30,20 @@ end
 
 local function teleporter_port_after_place_node(pos, placer, itemstack, pointed_thing)
   print("teleporter_port_after_place_node/4")
-  local new_meta = minetest.get_meta(pos)
+  local new_meta = get_meta(pos)
   local old_meta = itemstack:get_meta()
 
   SpacetimeMeta.copy_address(old_meta, new_meta)
-  local address = SpacetimeMeta.patch_address(new_meta)
-  local node = minetest.get_node(pos)
+  SpacetimeMeta.patch_address(new_meta)
+
+  local node = get_node(pos)
   spacetime_network:maybe_register_node(pos, node)
 
   yatm.devices.device_after_place_node(pos, placer, itemstack, pointed_thing)
 
   yatm.queue_refresh_infotext(pos, node)
 
-  minetest.after(0, mesecon.on_placenode, pos, node)
+  core.after(0, mesecon.on_placenode, pos, node)
 end
 
 local function teleporter_port_on_destruct(pos)
@@ -117,7 +120,7 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
   node_box = teleporter_port_node_box,
 
-  refresh_infotext = teleporter_port_refresh_infotext,
+  refresh_infotext = refresh_infotext,
 
   yatm_network = teleporter_port_yatm_network,
   yatm_spacetime = {},
@@ -229,7 +232,7 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
   node_box = teleporter_port_node_box,
 
-  refresh_infotext = teleporter_port_refresh_infotext,
+  refresh_infotext = refresh_infotext,
 
   yatm_network = teleporter_port_data_yatm_network,
   yatm_spacetime = {},

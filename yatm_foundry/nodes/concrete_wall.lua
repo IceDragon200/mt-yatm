@@ -42,7 +42,7 @@ for _,row in ipairs(yatm.colors) do
   local color_basename = row.name
   local color_name = row.description
 
-  minetest.register_node("yatm_foundry:concrete_wall_" .. color_basename, {
+  core.register_node("yatm_foundry:concrete_wall_" .. color_basename, {
     basename = "yatm_foundry:concrete_wall",
     base_description = "Concrete Wall",
 
@@ -86,7 +86,7 @@ for _,row in ipairs(yatm.colors) do
     collision_box = concrete_wall_collision_box,
   })
 
-  minetest.register_node("yatm_foundry:concrete_wall_corner_" .. color_basename, {
+  core.register_node("yatm_foundry:concrete_wall_corner_" .. color_basename, {
     basename = "yatm_foundry:concrete_wall_corner",
     base_description = "Concrete Wall Corner",
 

@@ -7,11 +7,13 @@ local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
 local Vector3 = assert(foundation.com.Vector3)
 local player_service = assert(nokore.player_service)
+local get_meta = assert(tetra.get_meta)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
 
 -- Common
 
 local function thermal_plate_refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
@@ -66,13 +68,13 @@ function thermal_plate_heating_yatm_network:work(ctx)
   local dir = Directions.facedir_to_face(ctx.node.param2, Directions.D_DOWN)
 
   local target_pos = Vector3.add({}, ctx.pos, Directions.DIR6_TO_VEC3[dir])
-  local target_node = minetest.get_node_or_nil(target_pos)
+  local target_node = get_node_or_nil(target_pos)
 
   if target_node then
-    local target_nodedef = minetest.registered_nodes[target_node.name]
+    local target_nodedef = core.registered_nodes[target_node.name]
 
     if Groups.has_group(target_nodedef, 'uses_heat_modifier') then
-      local target_meta = minetest.get_meta(target_pos)
+      local target_meta = get_meta(target_pos)
 
       local heat_modifier = target_meta:get_float(yatm.devices.HEAT_MODIFIER_KEY)
 
@@ -90,7 +92,7 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine" }, function (loc, rect)
     if loc == "main_body" then
@@ -153,195 +155,201 @@ local function on_rightclick(pos, node, user)
   )
 end
 
-local thermal_plate_side_on_texture = {
-  name = "yatm_thermal_plate_side.heating.on.png",
-  animation = {
-    type = "vertical_frames",
-    aspect_w = 16,
-    aspect_h = 16,
-    length = 1.0
-  },
-}
+do
+  local thermal_plate_side_on_texture = {
+    name = "yatm_thermal_plate_side.heating.on.png",
+    animation = {
+      type = "vertical_frames",
+      aspect_w = 16,
+      aspect_h = 16,
+      length = 1.0
+    },
+  }
 
-yatm.devices.register_stateful_network_device({
-  basename = "yatm_machines:thermal_plate_heating",
+  yatm.devices.register_stateful_network_device({
+    basename = "yatm_machines:thermal_plate_heating",
 
-  description = "Thermal Plate (heating)",
+    description = "Thermal Plate (heating)",
 
-  groups = {
-    cracky = nokore.dig_class("copper"),
-  },
+    groups = {
+      cracky = nokore.dig_class("copper"),
+    },
 
-  drop = thermal_plate_heating_yatm_network.states.off,
+    drop = thermal_plate_heating_yatm_network.states.off,
 
-  use_texture_alpha = "clip",
-  tiles = { "yatm_thermal_plate_side.heating.off.png" },
-  drawtype = "nodebox",
-  node_box = thermal_plate_nodebox,
+    use_texture_alpha = "clip",
+    tiles = { "yatm_thermal_plate_side.heating.off.png" },
+    drawtype = "nodebox",
+    node_box = thermal_plate_nodebox,
 
-  paramtype = "light",
-  paramtype2 = "facedir",
+    paramtype = "light",
+    paramtype2 = "facedir",
 
-  after_place_node = thermal_plate_after_place_node,
+    after_place_node = thermal_plate_after_place_node,
 
-  yatm_network = thermal_plate_heating_yatm_network,
+    yatm_network = thermal_plate_heating_yatm_network,
 
-  refresh_infotext = thermal_plate_refresh_infotext,
+    refresh_infotext = thermal_plate_refresh_infotext,
 
-  on_rightclick = on_rightclick,
-}, {
-  error = {
-    tiles = { "yatm_thermal_plate_side.heating.error.png" },
-  },
-  on = {
-    tiles = { thermal_plate_side_on_texture },
-  },
-})
+    on_rightclick = on_rightclick,
+  }, {
+    error = {
+      tiles = { "yatm_thermal_plate_side.heating.error.png" },
+    },
+    on = {
+      tiles = { thermal_plate_side_on_texture },
+    },
+  })
+end
 
 --
 -- Cooling Plate - increases efficiency of some machines,
 --                 or may decrease effeciency of some machines
 --
-local thermal_plate_cooling_yatm_network = {
-  kind = "hub",
-  groups = {
-    hub = 1,
-    energy_consumer = 1,
-  },
-  default_state = "off",
-  states = {
-    error = "yatm_machines:thermal_plate_cooling_error",
-    conflict = "yatm_machines:thermal_plate_cooling_error",
-    off = "yatm_machines:thermal_plate_cooling_off",
-    on = "yatm_machines:thermal_plate_cooling_on",
-  },
-  energy = {
-    passive_lost = 1,
-    capacity = 4000,
-    network_charge_bandwidth = 200,
-    startup_threshold = 100,
-  },
-}
+do
+  local thermal_plate_cooling_yatm_network = {
+    kind = "hub",
+    groups = {
+      hub = 1,
+      energy_consumer = 1,
+    },
+    default_state = "off",
+    states = {
+      error = "yatm_machines:thermal_plate_cooling_error",
+      conflict = "yatm_machines:thermal_plate_cooling_error",
+      off = "yatm_machines:thermal_plate_cooling_off",
+      on = "yatm_machines:thermal_plate_cooling_on",
+    },
+    energy = {
+      passive_lost = 1,
+      capacity = 4000,
+      network_charge_bandwidth = 200,
+      startup_threshold = 100,
+    },
+  }
 
-local thermal_plate_side_on_texture = {
-  name = "yatm_thermal_plate_side.cooling.on.png",
-  animation = {
-    type = "vertical_frames",
-    aspect_w = 16,
-    aspect_h = 16,
-    length = 1.0
-  },
-}
+  local thermal_plate_side_on_texture = {
+    name = "yatm_thermal_plate_side.cooling.on.png",
+    animation = {
+      type = "vertical_frames",
+      aspect_w = 16,
+      aspect_h = 16,
+      length = 1.0
+    },
+  }
 
-yatm.devices.register_stateful_network_device({
-  basename = "yatm_machines:thermal_plate_cooling",
+  yatm.devices.register_stateful_network_device({
+    basename = "yatm_machines:thermal_plate_cooling",
 
-  description = "Thermal Plate (cooling)",
+    description = "Thermal Plate (cooling)",
 
-  groups = {
-    cracky = nokore.dig_class("copper"),
-  },
+    groups = {
+      cracky = nokore.dig_class("copper"),
+    },
 
-  drop = thermal_plate_cooling_yatm_network.states.off,
+    drop = thermal_plate_cooling_yatm_network.states.off,
 
-  use_texture_alpha = "clip",
-  tiles = {
-    "yatm_thermal_plate_side.cooling.off.png",
-  },
-  drawtype = "nodebox",
-  node_box = thermal_plate_nodebox,
+    use_texture_alpha = "clip",
+    tiles = {
+      "yatm_thermal_plate_side.cooling.off.png",
+    },
+    drawtype = "nodebox",
+    node_box = thermal_plate_nodebox,
 
-  paramtype = "light",
-  paramtype2 = "facedir",
+    paramtype = "light",
+    paramtype2 = "facedir",
 
-  after_place_node = thermal_plate_after_place_node,
+    after_place_node = thermal_plate_after_place_node,
 
-  yatm_network = thermal_plate_cooling_yatm_network,
+    yatm_network = thermal_plate_cooling_yatm_network,
 
-  refresh_infotext = thermal_plate_refresh_infotext,
+    refresh_infotext = thermal_plate_refresh_infotext,
 
-  on_rightclick = on_rightclick,
-}, {
-  error = {
-    tiles = { "yatm_thermal_plate_side.cooling.error.png" },
-  },
-  on = {
-    tiles = { thermal_plate_side_on_texture },
-  },
-})
+    on_rightclick = on_rightclick,
+  }, {
+    error = {
+      tiles = { "yatm_thermal_plate_side.cooling.error.png" },
+    },
+    on = {
+      tiles = { thermal_plate_side_on_texture },
+    },
+  })
+end
 
 --
 -- Nuclear Plate - protects against radioactivity destroying inventory contents
 --
-local thermal_plate_nuclear_yatm_network = {
-  kind = "thermal_plate",
+do
+  local thermal_plate_nuclear_yatm_network = {
+    kind = "thermal_plate",
 
-  groups = {
-    thermal_plate = 1,
-    nuclear_plate = 1,
-    energy_consumer = 1,
-  },
+    groups = {
+      thermal_plate = 1,
+      nuclear_plate = 1,
+      energy_consumer = 1,
+    },
 
-  default_state = "off",
-  states = {
-    error = "yatm_machines:thermal_plate_nuclear_error",
-    conflict = "yatm_machines:thermal_plate_nuclear_error",
-    off = "yatm_machines:thermal_plate_nuclear_off",
-    on = "yatm_machines:thermal_plate_nuclear_on",
-  },
+    default_state = "off",
+    states = {
+      error = "yatm_machines:thermal_plate_nuclear_error",
+      conflict = "yatm_machines:thermal_plate_nuclear_error",
+      off = "yatm_machines:thermal_plate_nuclear_off",
+      on = "yatm_machines:thermal_plate_nuclear_on",
+    },
 
-  energy = {
-    passive_lost = 1,
-    capacity = 4000,
-    network_charge_bandwidth = 200,
-    startup_threshold = 100,
-  },
-}
-
-local thermal_plate_side_on_texture = {
-  name = "yatm_thermal_plate_side.nuclear.on.png",
-  animation = {
-    type = "vertical_frames",
-    aspect_w = 16,
-    aspect_h = 16,
-    length = 1.0
-  },
-}
-
-yatm.devices.register_stateful_network_device({
-  basename = "yatm_machines:thermal_plate_nuclear",
-
-  description = "Thermal Plate (nuclear)",
-
-  groups = {
-    cracky = nokore.dig_class("copper"),
-    nuclear_plate = 1,
-  },
-
-  drop = thermal_plate_nuclear_yatm_network.states.off,
-
-  use_texture_alpha = "clip",
-  tiles = {
-    "yatm_thermal_plate_side.nuclear.off.png",
-  },
-  paramtype = "light",
-  paramtype2 = "facedir",
-  drawtype = "nodebox",
-
-  node_box = thermal_plate_nodebox,
-
-  after_place_node = thermal_plate_after_place_node,
-
-  yatm_network = thermal_plate_nuclear_yatm_network,
-
-  refresh_infotext = thermal_plate_refresh_infotext,
-
-  on_rightclick = on_rightclick,
-}, {
-  error = {
-    tiles = { "yatm_thermal_plate_side.nuclear.error.png" },
-  },
-  on = {
-    tiles = { thermal_plate_side_on_texture },
+    energy = {
+      passive_lost = 1,
+      capacity = 4000,
+      network_charge_bandwidth = 200,
+      startup_threshold = 100,
+    },
   }
-})
+
+  local thermal_plate_side_on_texture = {
+    name = "yatm_thermal_plate_side.nuclear.on.png",
+    animation = {
+      type = "vertical_frames",
+      aspect_w = 16,
+      aspect_h = 16,
+      length = 1.0
+    },
+  }
+
+  yatm.devices.register_stateful_network_device({
+    basename = "yatm_machines:thermal_plate_nuclear",
+
+    description = "Thermal Plate (nuclear)",
+
+    groups = {
+      cracky = nokore.dig_class("copper"),
+      nuclear_plate = 1,
+    },
+
+    drop = thermal_plate_nuclear_yatm_network.states.off,
+
+    use_texture_alpha = "clip",
+    tiles = {
+      "yatm_thermal_plate_side.nuclear.off.png",
+    },
+    paramtype = "light",
+    paramtype2 = "facedir",
+    drawtype = "nodebox",
+
+    node_box = thermal_plate_nodebox,
+
+    after_place_node = thermal_plate_after_place_node,
+
+    yatm_network = thermal_plate_nuclear_yatm_network,
+
+    refresh_infotext = thermal_plate_refresh_infotext,
+
+    on_rightclick = on_rightclick,
+  }, {
+    error = {
+      tiles = { "yatm_thermal_plate_side.nuclear.error.png" },
+    },
+    on = {
+      tiles = { thermal_plate_side_on_texture },
+    }
+  })
+end

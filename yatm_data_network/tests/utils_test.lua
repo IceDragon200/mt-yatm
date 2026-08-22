@@ -1,6 +1,5 @@
 local Luna = assert(foundation.com.Luna)
 
-local Clusters = assert(yatm.Clusters)
 local utils = assert(yatm_data_network.utils)
 
 local case = Luna:new("yatm_data_network.utils")

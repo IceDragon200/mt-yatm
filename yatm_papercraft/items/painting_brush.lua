@@ -10,6 +10,9 @@ local list_get_next = assert(foundation.com.list_get_next)
 
 local Paintings = assert(yatm_papercraft.Paintings)
 local Groups = assert(foundation.com.Groups)
+local get_node = assert(tetra.get_node)
+local swap_node = assert(tetra.swap_node)
+local hash_node_position = assert(core.hash_node_position)
 
 local function find_canvases(root_pos)
   local result = {}
@@ -18,10 +21,10 @@ local function find_canvases(root_pos)
     local old_to_search = to_search
     to_search = {}
     for _,pos in ipairs(old_to_search) do
-      local hash = minetest.hash_node_position(pos)
+      local hash = hash_node_position(pos)
       if not result[hash] then
-        local node = minetest.get_node(pos)
-        local nodedef = minetest.registered_nodes[node.name]
+        local node = get_node(pos)
+        local nodedef = core.registered_nodes[node.name]
         if nodedef then
           if Groups.get_item(nodedef, "painting_canvas") then
             result[hash] = {
@@ -32,7 +35,8 @@ local function find_canvases(root_pos)
 
             -- Canvases explore their 4 cardinals from their top face
             -- That is, if it's placed against the ground it will only explore the x and z axis
-            -- On the wall it will explore the x or z and the y axis, depending on what side it's placed.
+            -- On the wall it will explore the x or z and the y axis,
+            -- depending on what side it's placed.
             for _,code in pairs(Directions.DIR4) do
               local new_code = Directions.facedir_to_face(node.param2, code)
               local vec3 = Directions.DIR6_TO_VEC3[new_code]
@@ -50,8 +54,8 @@ end
 local function painting_brush_on_use(itemstack, user, pointed_thing)
   if pointed_thing.type == "node" then
     local pos = pointed_thing.under
-    local node = minetest.get_node(pos)
-    local nodedef = minetest.registered_nodes[node.name]
+    local node = get_node(pos)
+    local nodedef = core.registered_nodes[node.name]
 
     if not Groups.get_item(nodedef, "painting_canvas") then
       print("Target is not a painting_canvas")
@@ -60,13 +64,22 @@ local function painting_brush_on_use(itemstack, user, pointed_thing)
     -- Floor mounted paintings are all correct now, but not so much for wall ones
     -- TODO: fix wall mounted paintings
     local facing_axis = Directions.facedir_to_face(node.param2, Directions.D_UP)
-    local facing_rotation = Directions.cardinal_direction_from(facing_axis, pointed_thing.under, user:get_pos())
+    local facing_rotation = Directions.cardinal_direction_from(
+      facing_axis,
+      pointed_thing.under,
+      user:get_pos()
+    )
     local new_rotation = Directions.invert_dir(facing_rotation)
     local new_facedir = Directions.facedir_from_axis_and_rotation(facing_axis, new_rotation)
 
-    print("Axis & Rotation", Directions.inspect_axis_and_rotation(facing_axis, facing_rotation),
-                             Directions.facedir_from_axis_and_rotation(facing_axis, facing_rotation))
-    print("Axis & New Rotation", Directions.inspect_axis_and_rotation(facing_axis, new_rotation), new_facedir)
+    print("Axis & Rotation",
+      Directions.inspect_axis_and_rotation(facing_axis, facing_rotation),
+      Directions.facedir_from_axis_and_rotation(facing_axis, facing_rotation)
+    )
+    print("Axis & New Rotation",
+      Directions.inspect_axis_and_rotation(facing_axis, new_rotation),
+      new_facedir
+    )
 
     local canvases = find_canvases(pos)
 
@@ -217,27 +230,39 @@ local function painting_brush_on_use(itemstack, user, pointed_thing)
                 -- needs to have both it's coords flipped
                 cx = h - 1 - cx
                 cy = w - 1 - cy
-              elseif facing_rotation == Directions.D_EAST then
-                -- east is only normal face
+              -- elseif facing_rotation == Directions.D_EAST then
+              --   -- east is only normal face
               end
             elseif facing_axis == Directions.D_DOWN then
               if facing_rotation == Directions.D_NORTH then
                 -- is upside down
                 cy = h - 1 - cy
                 cx = w - 1 - cx
-                cell_facedir = Directions.facedir_from_axis_and_rotation(facing_axis, facing_rotation)
+                cell_facedir = Directions.facedir_from_axis_and_rotation(
+                  facing_axis,
+                  facing_rotation
+                )
               elseif facing_rotation == Directions.D_SOUTH then
                 -- just need to rotate the faces back
-                cell_facedir = Directions.facedir_from_axis_and_rotation(facing_axis, facing_rotation)
+                cell_facedir = Directions.facedir_from_axis_and_rotation(
+                  facing_axis,
+                  facing_rotation
+                )
               elseif facing_rotation == Directions.D_WEST then
                 -- needs to have both it's coords flipped
                 --cy = w - 1 - cy
                 cx = h - 1 - cx
-                cell_facedir = Directions.facedir_from_axis_and_rotation(facing_axis, facing_rotation)
+                cell_facedir = Directions.facedir_from_axis_and_rotation(
+                  facing_axis,
+                  facing_rotation
+                )
               elseif facing_rotation == Directions.D_EAST then
                 -- east is only normal face
                 cy = w - 1 - cy
-                cell_facedir = Directions.facedir_from_axis_and_rotation(facing_axis, facing_rotation)
+                cell_facedir = Directions.facedir_from_axis_and_rotation(
+                  facing_axis,
+                  facing_rotation
+                )
               end
             elseif facing_axis == Directions.D_NORTH then
               if facing_rotation == Directions.D_SOUTH then
@@ -245,7 +270,10 @@ local function painting_brush_on_use(itemstack, user, pointed_thing)
                 -- and invert it's y coord
                 cx = w - 1 - cx
                 cy = h - 1 - cy
-                cell_facedir = Directions.facedir_from_axis_and_rotation(facing_axis, facing_rotation)
+                cell_facedir = Directions.facedir_from_axis_and_rotation(
+                  facing_axis,
+                  facing_rotation
+                )
               end
             elseif facing_axis == Directions.D_SOUTH then
               if facing_rotation == Directions.D_SOUTH then
@@ -274,12 +302,12 @@ local function painting_brush_on_use(itemstack, user, pointed_thing)
               name = cell_name,
               param2 = cell_facedir,
             }
-            minetest.swap_node(canvas_cell_entry.pos, new_node)
+            swap_node(canvas_cell_entry.pos, new_node)
           end
         end
       end
     else
-      print("canvas is not valid!", w, h)
+      print("canvas is not valid!", nw, nh)
     end
   else
     print("Target is not a node, got", pointed_thing.type)
@@ -287,7 +315,7 @@ local function painting_brush_on_use(itemstack, user, pointed_thing)
   return itemstack
 end
 
-minetest.register_tool("yatm_papercraft:painting_brush", {
+core.register_tool("yatm_papercraft:painting_brush", {
   description = "Painting Brush",
 
   inventory_image = "yatm_painting_brush_plain.png",

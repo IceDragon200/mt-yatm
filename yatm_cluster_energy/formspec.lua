@@ -16,7 +16,7 @@ local DEFAULT_ENERGY_COLOR = {
 -- @spec set_default_energy_color(Color): void
 function formspec.set_default_energy_color(color)
   DEFAULT_ENERGY_COLOR = {
-    last_set_by = minetest.get_current_modname(),
+    last_set_by = core.get_current_modname(),
     color = assert(color),
   }
 end

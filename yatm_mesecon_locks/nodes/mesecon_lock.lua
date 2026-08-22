@@ -1,6 +1,8 @@
 local Directions = assert(foundation.com.Directions)
 local HeadlessMetaDataRef = assert(foundation.com.headless.MetaDataRef)
 local table_merge = assert(foundation.com.table_merge)
+local get_meta = assert(tetra.get_meta)
+local swap_node = assert(tetra.swap_node)
 
 local lock_dirs = {
   assert(Directions.D_DOWN),
@@ -33,7 +35,7 @@ end
 local function mesecon_lock_after_place_node(pos, placer, itemstack, pointed_thing)
   Directions.facedir_wallmount_after_place_node(pos, placer, itemstack, pointed_thing)
 
-  local new_meta = minetest.get_meta(pos)
+  local new_meta = get_meta(pos)
   local old_meta = itemstack:get_meta()
 
   yatm_security.copy_lockable_object_pubkey(assert(old_meta), new_meta)
@@ -62,7 +64,7 @@ for _,row in ipairs(yatm.colors) do
   local off_name = "yatm_mesecon_locks:mesecon_lock_" .. color_basename .. "_off"
   local on_name = "yatm_mesecon_locks:mesecon_lock_" .. color_basename .. "_on"
 
-  minetest.register_node(off_name, {
+  core.register_node(off_name, {
     basename = "yatm_mesecon_locks:mesecon_lock",
     base_description = "Mesecon Lock",
 
@@ -104,8 +106,8 @@ for _,row in ipairs(yatm.colors) do
     on_rotate = mesecon.buttonlike_onrotate,
     on_rightclick = function (pos, node, clicker, item_stack, pointed_thing)
       if yatm_security.is_stack_a_key_for_locked_node(item_stack, pos) then
-        minetest.sound_play("mesecons_button_push", {pos=pos})
-        minetest.swap_node(pos, { name = on_name, param2 = node.param2 })
+        core.sound_play("mesecons_button_push", {pos=pos})
+        swap_node(pos, { name = on_name, param2 = node.param2 })
         mesecon.receptor_on(pos, mesecon_lock_rules_get(node))
       end
     end,
@@ -116,7 +118,7 @@ for _,row in ipairs(yatm.colors) do
     preserve_metadata = mesecon_lock_preserve_metadata,
   })
 
-  minetest.register_node(on_name, {
+  core.register_node(on_name, {
     basename = "yatm_mesecon_locks:mesecon_lock",
     base_description = "Mesecon Lock",
 
@@ -158,8 +160,8 @@ for _,row in ipairs(yatm.colors) do
     on_rotate = mesecon.buttonlike_onrotate,
     on_rightclick = function (pos, node, clicker, item_stack, pointed_thing)
       if yatm_security.is_stack_a_key_for_locked_node(item_stack, pos) then
-        minetest.sound_play("mesecons_button_pop", {pos=pos})
-        minetest.swap_node(pos, { name = off_name, param2 = node.param2 })
+        core.sound_play("mesecons_button_pop", {pos=pos})
+        swap_node(pos, { name = off_name, param2 = node.param2 })
         mesecon.receptor_off(pos, mesecon_lock_rules_get(node))
       end
     end,

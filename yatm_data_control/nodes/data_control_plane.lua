@@ -2,8 +2,9 @@ local Vector3 = assert(foundation.com.Vector3)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local fspec = assert(foundation.com.formspec.api)
-
 local data_network = assert(yatm.data_network)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
 
 local function render_pads(inv, meta, assigns)
   local formspec =
@@ -36,11 +37,11 @@ local function render_pads(inv, meta, assigns)
               formspec ..
               "image_button[" .. dx .. "," .. dy ..
                             bd .. ";" ..
-                            minetest.formspec_escape("yatm_button.base.48px.png^" .. spec.images["off"]) ..
+                            core.formspec_escape("yatm_button.base.48px.png^" .. spec.images["off"]) ..
                             ";pad_trigger_" .. i ..
                             ";" ..
                             ";true;false;" ..
-                            minetest.formspec_escape("yatm_button.base.48px.png^" .. spec.images["on"]) .. "]"
+                            core.formspec_escape("yatm_button.base.48px.png^" .. spec.images["on"]) .. "]"
           elseif spec.type == "rotary_button" then
             local state_id = meta:get_int("pad_state_" .. i)
 
@@ -48,11 +49,11 @@ local function render_pads(inv, meta, assigns)
               formspec ..
               "image_button[" .. dx .. "," .. dy ..
                             bd .. ";" ..
-                            minetest.formspec_escape("yatm_button.base.48px.png^" .. spec.images[state_id]) ..
+                            core.formspec_escape("yatm_button.base.48px.png^" .. spec.images[state_id]) ..
                             ";pad_rotate_" .. i ..
                             ";" ..
                             ";true;false;" ..
-                            minetest.formspec_escape("yatm_button.base.48px.png^" .. spec.images[state_id]) .. "]"
+                            core.formspec_escape("yatm_button.base.48px.png^" .. spec.images[state_id]) .. "]"
           elseif spec.type == "switch2" then
             -- 2 state switch
             local state_id = meta:get_int("pad_state_" .. i)
@@ -65,11 +66,11 @@ local function render_pads(inv, meta, assigns)
               formspec ..
               "image_button[" .. dx .. "," .. dy ..
                             bd .. ";" ..
-                            minetest.formspec_escape("yatm_button.base.48px.png^" .. spec.images[state]) ..
+                            core.formspec_escape("yatm_button.base.48px.png^" .. spec.images[state]) ..
                             ";pad_toggle_" .. i ..
                             ";" ..
                             ";true;false;" ..
-                            minetest.formspec_escape("yatm_button.base.48px.png^" .. spec.images[state]) .. "]"
+                            core.formspec_escape("yatm_button.base.48px.png^" .. spec.images[state]) .. "]"
           else
             formspec =
               formspec ..
@@ -91,9 +92,9 @@ local function render_pads(inv, meta, assigns)
 end
 
 local function get_formspec(pos, user, assigns)
-  local meta = minetest.get_meta(pos)
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
+  local meta = get_meta(pos)
+  local node = get_node(pos)
+  local nodedef = core.registered_nodes[node.name]
   local inv = meta:get_inventory()
 
   assigns.scale = 2.5
@@ -104,9 +105,9 @@ local function get_formspec(pos, user, assigns)
   assigns.scale = 10 / assigns.width
 
   local formspec =
-    yatm_data_logic.layout_formspec() ..
-    yatm.formspec_bg_for_player(user:get_player_name(), "module") ..
-    render_pads(inv, meta, assigns)
+    yatm_data_logic.layout_formspec()
+    .. yatm.formspec_bg_for_player(user:get_player_name(), "module")
+    .. render_pads(inv, meta, assigns)
 
   return formspec
 end
@@ -163,7 +164,7 @@ local function check_pad_trigger(pad_id, meta, fields, assigns)
 end
 
 local function receive_fields(player, form_name, fields, assigns)
-  local meta = minetest.get_meta(assigns.pos)
+  local meta = get_meta(assigns.pos)
   local needs_refresh = false
 
   for pad_id = 1,assigns.size do
@@ -191,9 +192,9 @@ local data_interface = {
   get_programmer_formspec = function (self, pos, user, pointed_thing, assigns)
     --
     local spos = pos.x .. "," .. pos.y .. "," .. pos.z
-    local node = minetest.get_node(pos)
-    local nodedef = minetest.registered_nodes[node.name]
-    local meta = minetest.get_meta(pos)
+    local node = get_node(pos)
+    local nodedef = core.registered_nodes[node.name]
+    local meta = get_meta(pos)
     local inv = meta:get_inventory()
 
     local dim = yatm_data_logic.FORMSPEC_SIZE
@@ -285,7 +286,7 @@ local data_interface = {
                          ";"..cw..","..ch..
                          ";pad_state_value_" .. i .. "_1" ..
                          ";T" .. i ..
-                         ";" .. minetest.formspec_escape(meta:get_string("pad_state_value_" .. i .. "_1")) .. "]"
+                         ";" .. core.formspec_escape(meta:get_string("pad_state_value_" .. i .. "_1")) .. "]"
 
               elseif spec.type == "rotary_button" then
                 local rotary_cw = cw / 2
@@ -302,7 +303,7 @@ local data_interface = {
                            ";"..rotary_cw..","..rotary_ch..
                            ";pad_state_value_" .. i .. "_" .. state_id ..
                            ";" ..
-                           ";" .. minetest.formspec_escape(meta:get_string("pad_state_value_" .. i .. "_" .. state_id)) .. "]"
+                           ";" .. core.formspec_escape(meta:get_string("pad_state_value_" .. i .. "_" .. state_id)) .. "]"
                 end
 
               elseif spec.type == "switch2" then
@@ -315,12 +316,12 @@ local data_interface = {
                          ";"..switch_cw..","..switch_ch..
                          ";pad_state_value_" .. i .. "_0" ..
                          ";L" .. i ..
-                         ";" .. minetest.formspec_escape(meta:get_string("pad_state_value_" .. i .. "_0")) .. "]" ..
+                         ";" .. core.formspec_escape(meta:get_string("pad_state_value_" .. i .. "_0")) .. "]" ..
                   "field[" .. (switch_cw + dx) .. "," .. dy ..
                          ";"..switch_cw..","..switch_ch..
                          ";pad_state_value_" .. i .. "_1" ..
                          ";R" .. i ..
-                         ";" .. minetest.formspec_escape(meta:get_string("pad_state_value_" .. i .. "_1")) .. "]"
+                         ";" .. core.formspec_escape(meta:get_string("pad_state_value_" .. i .. "_1")) .. "]"
               end
             end
           end
@@ -332,7 +333,7 @@ local data_interface = {
   end,
 
   receive_programmer_fields = function (self, player, form_name, fields, assigns)
-    local meta = minetest.get_meta(assigns.pos)
+    local meta = get_meta(assigns.pos)
 
     local needs_refresh = false
 
@@ -404,12 +405,11 @@ yatm.register_stateful_node("yatm_data_control:data_control_plane", {
   },
 
   on_construct = function (pos)
-    local meta = minetest.get_meta(pos)
+    local node = get_node(pos)
+    local meta = get_meta(pos)
     local inv = meta:get_inventory()
-    local node = minetest.get_node(pos)
-    local nodedef = minetest.registered_nodes[node.name]
+    local nodedef = core.registered_nodes[node.name]
     inv:set_size("pads", nodedef.control_panel.width * nodedef.control_panel.height)
-    local node = minetest.get_node(pos)
     data_network:add_node(pos, node)
   end,
 
@@ -423,7 +423,7 @@ yatm.register_stateful_node("yatm_data_control:data_control_plane", {
   data_interface = data_interface,
 
   refresh_infotext = function (pos)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     local infotext =
       "Control Panel\n" ..
       data_network:get_infotext(pos)

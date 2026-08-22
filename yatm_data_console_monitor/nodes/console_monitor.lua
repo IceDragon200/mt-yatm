@@ -8,6 +8,8 @@ local cluster_energy = assert(yatm.cluster.energy)
 local data_network = assert(yatm.data_network)
 local Energy = assert(yatm.energy)
 local fspec = assert(foundation.com.formspec.api)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
 
 local function append_history(meta, new_line)
   local history = meta:get_string("history")
@@ -18,7 +20,7 @@ local function append_history(meta, new_line)
 end
 
 local function refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local infotext =
     "Console Monitor\n" ..
     cluster_devices:get_node_infotext(pos) .. "\n" ..
@@ -34,7 +36,7 @@ local function get_formspec_name(pos)
 end
 
 local function get_formspec(pos, player_name, assigns)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local player = nokore.player_service:get_player_by_name(player_name)
   local cio = fspec.calc_inventory_offset
 
@@ -56,7 +58,7 @@ local data_interface = {
   end,
 
   receive_pdu = function (self, pos, node, dir, port, value)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
 
     local str = string_hex_unescape(value)
 
@@ -103,7 +105,7 @@ local data_interface = {
 }
 
 local function receive_fields(player, form_name, fields, assigns)
-  local meta = minetest.get_meta(assigns.pos)
+  local meta = get_meta(assigns.pos)
   local needs_refresh = false
 
   --
@@ -112,7 +114,7 @@ local function receive_fields(player, form_name, fields, assigns)
       local new_line = fields.console_input
       append_history(meta, new_line)
 
-      minetest.log("action", player:get_player_name() .. " sent some data from console")
+      core.log("action", player:get_player_name() .. " sent some data from console")
       yatm_data_logic.emit_output_data_value(assigns.pos, new_line)
       needs_refresh = true
     end
@@ -203,9 +205,9 @@ yatm.devices.register_stateful_network_device({
   refresh_infotext = refresh_infotext,
 
   on_construct = function (pos)
-    local meta = minetest.get_meta(pos)
+    local node = get_node(pos)
+    local meta = get_meta(pos)
     meta:set_string("history", "")
-    local node = minetest.get_node(pos)
     yatm.devices.device_on_construct(pos)
     data_network:add_node(pos, node)
   end,
@@ -314,7 +316,7 @@ yatm.devices.register_stateful_network_device({
   refresh_infotext = refresh_infotext,
 
   on_construct = function (pos)
-    local node = minetest.get_node(pos)
+    local node = get_node(pos)
     yatm.devices.device_on_construct(pos)
     data_network:add_node(pos, node)
   end,

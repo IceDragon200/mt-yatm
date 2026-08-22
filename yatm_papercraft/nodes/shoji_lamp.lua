@@ -5,6 +5,7 @@
 ]]
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
+local swap_node = assert(tetra.swap_node)
 
 local shoji_lamp_node_box = {
   type = "fixed",
@@ -20,7 +21,7 @@ local shoji_lamp_node_box = {
 
 local lamp_sounds = yatm.node_sounds:build("leaves")
 
-minetest.register_node("yatm_papercraft:shoji_lamp_off", {
+core.register_node("yatm_papercraft:shoji_lamp_off", {
   basename = "yatm_papercraft:shoji_lamp",
 
   description = "Shoji Lamp [OFF]",
@@ -54,11 +55,11 @@ minetest.register_node("yatm_papercraft:shoji_lamp_off", {
     local new_node = {
       name = "yatm_papercraft:shoji_lamp_on",
     }
-    minetest.swap_node(pos, new_node)
+    swap_node(pos, new_node)
   end,
 })
 
-minetest.register_node("yatm_papercraft:shoji_lamp_on", {
+core.register_node("yatm_papercraft:shoji_lamp_on", {
   basename = "yatm_papercraft:shoji_lamp",
 
   description = "Shoji Lamp [ON]",
@@ -86,7 +87,7 @@ minetest.register_node("yatm_papercraft:shoji_lamp_on", {
   paramtype = "light",
   paramtype2 = "facedir",
   sunlight_propagates = false,
-  light_source = minetest.LIGHT_MAX,
+  light_source = core.LIGHT_MAX,
 
   drawtype = "nodebox",
   node_box = shoji_lamp_node_box,
@@ -95,6 +96,6 @@ minetest.register_node("yatm_papercraft:shoji_lamp_on", {
     local new_node = {
       name = "yatm_papercraft:shoji_lamp_off",
     }
-    minetest.swap_node(pos, new_node)
+    swap_node(pos, new_node)
   end,
 })

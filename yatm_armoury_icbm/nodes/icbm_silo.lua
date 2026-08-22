@@ -5,7 +5,8 @@
 -- and are safe to use on regular builds.
 --
 -- The Silo has a different data behaviour from those in the data logic series of nodes.
--- While those allowed configuring ports per direction, the silo node has multiple ports for different functions
+-- While those allowed configuring ports per direction, the silo node has multiple ports for
+-- different functions.
 -- And ignores the origin and destination direction for it's receives and emits.
 -- This simplifies the interface a bit.
 --
@@ -13,20 +14,23 @@ local mod = assert(yatm_armoury_icbm)
 local data_network = assert(yatm.data_network)
 
 local Vector3 = assert(foundation.com.Vector3)
-local Cuboid = assert(foundation.com.Cuboid)
-local ng = Cuboid.new_fast_node_box
 local Directions = assert(foundation.com.Directions)
 local Groups = assert(foundation.com.Groups)
 local string_hex_unescape = assert(foundation.com.string_hex_unescape)
 local fspec = assert(foundation.com.formspec.api)
 local player_service = nokore.player_service
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
 
 -- Deadzone
---   The Silo has a deadzone of up to 8 nodes in any direction, this it to prevent it from blowing itself up with a misconfigured ICBM.
+--   The Silo has a deadzone of up to 8 nodes in any direction, this it to prevent it from blowing
+--   itself up with a misconfigured ICBM.
 --
 -- Required Input Ports:
 --   Launch Port - port which commands the silo to launch the icbm to specified offset.
---   Arming Port - port which commands the silo to arm the ICBM, this will consume items in the warhead and shell slots
+--   Arming Port - port which commands the silo to arm the ICBM, this will consume items in the
+--                 warhead and shell slots
 --   Probing Port - port which asks the silo to report it's current status
 --   Offset X Port - The relative X position from the silo to launch the ICBM
 --   Offset Y Port - The relative Y position from the silo to launch the ICBM
@@ -38,29 +42,34 @@ local player_service = nokore.player_service
 --   Armed Port - port which reports when an ICBM has been armed
 --
 -- Values:
---   Launch Code - the launch code is a string of any length that must be matched before an ICBM can be launched
---   Offset X - little-endian i16 (signed 16 bit integer) string representing the X-coord offset from the silo position
---   Offset Y - little-endian i16 (signed 16 bit integer) string representing the Y-coord offset from the silo position
---   Offset Z - little-endian i16 (signed 16 bit integer) string representing the Z-coord offset from the silo position
+--   Launch Code - the launch code is a string of any length that must be matched before an ICBM
+--                 can be launched
+--   Offset X - little-endian i16 (signed 16 bit integer) string representing the X-coord offset
+--              from the silo position
+--   Offset Y - little-endian i16 (signed 16 bit integer) string representing the Y-coord offset
+--              from the silo position
+--   Offset Z - little-endian i16 (signed 16 bit integer) string representing the Z-coord offset
+--              from the silo position
 
 local ProbeSchema = false
 
-if yatm.BinSchema then
+local BinSchema = foundation.com.BinSchema
+if BinSchema then
   ProbeSchema =
-    yatm.BinSchema:new("icbm_silo.probe", {
+    BinSchema:new("icbm_silo.probe", {
       {"offset_x", "i16"},
       {"offset_y", "i16"},
       {"offset_z", "i16"},
       {"status", "i16"},
     })
 else
-  minetest.log("warning", "BinSchema is not available, ICBM probes will be disabled")
+  core.log("warning", "BinSchema is not available, ICBM probes will be disabled")
 end
 
 local function get_icbm_entity(pos, node)
   local new_dir = Directions.facedir_to_face(node.param2, Directions.D_UP)
 
-  local entities = minetest.get_objects_inside_radius(vector.add(pos, Directions.DIR6_TO_VEC3[new_dir]), 0.9)
+  local entities = core.get_objects_inside_radius(vector.add(pos, Directions.DIR6_TO_VEC3[new_dir]), 0.9)
 
   for _, entity in ipairs(entities) do
     local lua_entity = entity:get_luaentity()
@@ -89,7 +98,7 @@ local function count_guiding_rings(pos, node)
   while true do
     local next_pos = vector.add(origin, up_vec)
     origin = next_pos
-    local gnode = minetest.get_node(next_pos)
+    local gnode = get_node(next_pos)
 
     if Groups.has_group(gnode, "icbm_guiding_ring") then
       count = count + 1
@@ -101,7 +110,7 @@ local function count_guiding_rings(pos, node)
 end
 
 local function arm_icbm(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
   local warhead_stack = inv:get_stack("warhead_slot", 1)
   local shell_stack = inv:get_stack("shell_slot", 1)
@@ -121,7 +130,7 @@ local function arm_icbm(pos, node)
   if entity then
     --
   else
-    entity = minetest.add_entity(vector.add(pos, up_vec), "yatm_armoury_icbm:icbm")
+    entity = core.add_entity(vector.add(pos, up_vec), "yatm_armoury_icbm:icbm")
   end
 
   local params = {}
@@ -140,7 +149,7 @@ local function arm_icbm(pos, node)
 end
 
 local function bind_input_port(pos, name)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local port = meta:get_int(name)
   if port > 0 then
     yatm_data_logic.bind_input_port(pos, port, "active")
@@ -148,7 +157,7 @@ local function bind_input_port(pos, name)
 end
 
 local function rebind_input_port(pos, name, new_port)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local old_port = meta:get_int(name)
 
   if old_port > 0 then
@@ -173,7 +182,7 @@ local data_interface = {
   end,
 
   receive_pdu = function (self, pos, node, dir, port, value)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
 
     local blob = string_hex_unescape(value)
 
@@ -200,7 +209,7 @@ local data_interface = {
 
         yatm_data_logic.emit_value(pos, meta:get_int("probe_port"), probe_packet)
       else
-        minetest.log("warning", "ICBM probing is not available")
+        core.log("warning", "ICBM probing is not available")
       end
     elseif port == meta:get_int("offset_x_port") then
       --
@@ -315,15 +324,24 @@ local data_interface = {
     tabs = {
       {
         components = {
-          {component = "port", name = "offset_x_port", meta = true, rebind = "input", bind_mode = "active"},
-          {component = "port", name = "offset_y_port", meta = true, rebind = "input", bind_mode = "active"},
-          {component = "port", name = "offset_z_port", meta = true, rebind = "input", bind_mode = "active"},
-          {component = "port", name = "launch_port", meta = true, rebind = "input", bind_mode = "active"},
-          {component = "port", name = "arming_port", meta = true, rebind = "input", bind_mode = "active"},
-          {component = "port", name = "probing_port", meta = true, rebind = "input", bind_mode = "active"},
-          {component = "port", name = "error_port", meta = true},
-          {component = "port", name = "launched_port", meta = true},
-          {component = "port", name = "armed_port", meta = true},
+          {component = "port", name = "offset_x_port",
+            meta = true, rebind = "input", bind_mode = "active"},
+          {component = "port", name = "offset_y_port",
+            meta = true, rebind = "input", bind_mode = "active"},
+          {component = "port", name = "offset_z_port",
+            meta = true, rebind = "input", bind_mode = "active"},
+          {component = "port", name = "launch_port",
+            meta = true, rebind = "input", bind_mode = "active"},
+          {component = "port", name = "arming_port",
+            meta = true, rebind = "input", bind_mode = "active"},
+          {component = "port", name = "probing_port",
+            meta = true, rebind = "input", bind_mode = "active"},
+          {component = "port", name = "error_port",
+            meta = true},
+          {component = "port", name = "launched_port",
+            meta = true},
+          {component = "port", name = "armed_port",
+            meta = true},
         }
       },
       {
@@ -351,7 +369,7 @@ local function get_formspec_name(pos)
 end
 
 local function render_formspec(pos, player, assigns)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
@@ -359,63 +377,77 @@ local function render_formspec(pos, player, assigns)
 
   local cio = fspec.calc_inventory_offset
 
-  return yatm.formspec_render_split_inv_panel(player, nil, 6, { bg = "machine_radioactive" }, function (loc, rect)
-    if loc == "main_body" then
-      local formspec =
-        fspec.label(rect.x, rect.y, "Shell") ..
-        fspec.list(my_inv_name, "shell_slot", rect.x, rect.y + 0.5, 1, 1) ..
-        fspec.label(rect.x + cio(4), rect.y, "Warhead") ..
-        fspec.list(my_inv_name, "warhead_slot", rect.x + cio(4), rect.y + 0.5, 1, 1)
+  return yatm.formspec_render_split_inv_panel(
+    player, nil, 6, { bg = "machine_radioactive" }, function (loc, rect)
+      if loc == "main_body" then
+        local formspec =
+          fspec.label(rect.x, rect.y, "Shell") ..
+          fspec.list(my_inv_name, "shell_slot", rect.x, rect.y + 0.5, 1, 1) ..
+          fspec.label(rect.x + cio(4), rect.y, "Warhead") ..
+          fspec.list(my_inv_name, "warhead_slot", rect.x + cio(4), rect.y + 0.5, 1, 1)
 
-      if inv:get_size("capsule_inv") > 0 then
+        if inv:get_size("capsule_inv") > 0 then
+          formspec =
+            formspec ..
+            fspec.label(rect.x, rect.y + cio(2.5), "Capsule") ..
+            fspec.list(my_inv_name, "capsule_inv", rect.x, rect.y + cio(3), 8, 2)
+        end
+
+        formspec =
+          formspec
+          .. fspec.field_area(
+            rect.x + cio(1), rect.y + cio(3), 2, 1,
+            "offset_x", "Offset-X", meta:get_int("offset_x")
+          )
+          .. fspec.field_area(
+            rect.x + cio(3), rect.y + cio(3), 2, 1,
+            "offset_y", "Offset-Y", meta:get_int("offset_y")
+          )
+          .. fspec.field_area(
+            rect.x + cio(5), rect.y + cio(3), 2, 1,
+            "offset_z", "Offset-Z", meta:get_int("offset_z")
+          )
+          .. fspec.field_area(
+            rect.x, rect.y + cio(4), 8, 1,
+            "launch_code", "Launch Code", meta:get_string("launch_code")
+          )
+
         formspec =
           formspec ..
-          fspec.label(rect.x, rect.y + cio(2.5), "Capsule") ..
-          fspec.list(my_inv_name, "capsule_inv", rect.x, rect.y + cio(3), 8, 2)
-      end
+          fspec.button(rect.x, rect.y + cio(5), 2, 1, "arm", "Arm") ..
+          fspec.button(rect.x + cio(2), rect.y + cio(5), 2, 1, "disarm", "Disarm") ..
+          fspec.button(rect.x + cio(4), rect.y + cio(5), 4, 1, "launch", "Launch") ..
+          fspec.field_close_on_enter("arm", false) ..
+          fspec.field_close_on_enter("disarm", false) ..
+          fspec.field_close_on_enter("launch", false)
 
-      formspec =
-        formspec ..
-        fspec.field_area(rect.x + cio(1), rect.y + cio(3), 2, 1, "offset_x", "Offset-X", meta:get_int("offset_x")) ..
-        fspec.field_area(rect.x + cio(3), rect.y + cio(3), 2, 1, "offset_y", "Offset-Y", meta:get_int("offset_y")) ..
-        fspec.field_area(rect.x + cio(5), rect.y + cio(3), 2, 1, "offset_z", "Offset-Z", meta:get_int("offset_z")) ..
-        fspec.field_area(rect.x, rect.y + cio(4), 8, 1, "launch_code", "Launch Code", meta:get_string("launch_code"))
+        return formspec
+      elseif loc == "footer" then
+        local formspec = ""
 
-      formspec =
-        formspec ..
-        fspec.button(rect.x, rect.y + cio(5), 2, 1, "arm", "Arm") ..
-        fspec.button(rect.x + cio(2), rect.y + cio(5), 2, 1, "disarm", "Disarm") ..
-        fspec.button(rect.x + cio(4), rect.y + cio(5), 4, 1, "launch", "Launch") ..
-        fspec.field_close_on_enter("arm", false) ..
-        fspec.field_close_on_enter("disarm", false) ..
-        fspec.field_close_on_enter("launch", false)
+        if inv:get_size("capsule_inv") > 0 then
+          formspec =
+            formspec ..
+            fspec.list_ring(my_inv_name, "capsule_inv") ..
+            fspec.list_ring("current_player", "main")
+        end
 
-      return formspec
-    elseif loc == "footer" then
-      local formspec = ""
-
-      if inv:get_size("capsule_inv") > 0 then
         formspec =
           formspec ..
-          fspec.list_ring(my_inv_name, "capsule_inv") ..
+          fspec.list_ring(my_inv_name, "shell_slot") ..
+          fspec.list_ring("current_player", "main") ..
+          fspec.list_ring(my_inv_name, "warhead_slot") ..
           fspec.list_ring("current_player", "main")
+
+        return formspec
       end
-
-      formspec =
-        formspec ..
-        fspec.list_ring(my_inv_name, "shell_slot") ..
-        fspec.list_ring("current_player", "main") ..
-        fspec.list_ring(my_inv_name, "warhead_slot") ..
-        fspec.list_ring("current_player", "main")
-
-      return formspec
+      return ""
     end
-    return ""
-  end)
+  )
 end
 
-local function on_receive_fields(player, form_name, fields, state)
-  local meta = minetest.get_meta(state.pos)
+local function on_receive_fields(player, form_name, fields, assigns)
+  local meta = get_meta(assigns.pos)
   print("on_receive_fields", dump(fields))
   if fields["offset_x"] then
     meta:set_int("offset_x", tonumber(fields["offset_x"]))
@@ -448,7 +480,7 @@ end
 
 --- @spec refresh_formspec(pos: Vector3, player: PlayerRef): void
 local function refresh_formspec(pos, player)
-  minetest.after(0, function ()
+  core.after(0, function ()
     yatm_core.refresh_player_formspec(player, get_formspec_name(pos), function (player_name, assigns)
       local player = player_service:get_player_by_name(player_name)
       return render_formspec(assigns.pos, player, assigns)
@@ -457,7 +489,7 @@ local function refresh_formspec(pos, player)
 end
 
 local function on_rightclick(pos, node, player, item_stack, pointed_thing)
-  local state = {
+  local assigns = {
     pos = assert(vector.copy(pos)),
     node = assert(node)
   }
@@ -469,7 +501,7 @@ local function on_rightclick(pos, node, player, item_stack, pointed_thing)
     formspec_name,
     formspec,
     {
-      state = state,
+      state = assigns,
       on_receive_fields = on_receive_fields
     }
   )
@@ -484,7 +516,7 @@ local groups = {
 
 -- Optional fluid interface
 local fluid_interface
-if yatm_fluids then
+if foundation.is_module_present("yatm_fluids") then
   groups.fluid_interface_in = 1
 
   local FluidInterface = assert(yatm.fluids.FluidInterface)
@@ -504,7 +536,7 @@ if yatm_item_storage then
 
   item_interface =
     ItemInterface.new_directional(function (self, pos, dir)
-      local node = minetest.get_node(pos)
+      local node = get_node(pos)
       local new_dir = Directions.facedir_to_face(node.param2, dir)
 
       if new_dir == Directions.D_DOWN then
@@ -524,7 +556,7 @@ if yatm_item_storage then
 end
 
 local function refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local offset_x = meta:get_int("offset_x")
   local offset_y = meta:get_int("offset_y")
   local offset_z = meta:get_int("offset_z")
@@ -549,7 +581,7 @@ local function refresh_infotext(pos, node)
   meta:set_string("infotext", infotext)
 end
 
-function allow_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
+local function allow_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
   if to_list == "warhead_slot" then
     return 1
   elseif to_list == "shell_slot" then
@@ -561,7 +593,7 @@ function allow_metadata_inventory_move(pos, from_list, from_index, to_list, to_i
   end
 end
 
-function allow_metadata_inventory_put(pos, listname, index, stack, player)
+local function allow_metadata_inventory_put(pos, listname, index, stack, player)
   if listname == "warhead_slot" then
     if yatm.icbm.is_item_stack_icbm_warhead(stack) then
       return 1
@@ -574,20 +606,20 @@ function allow_metadata_inventory_put(pos, listname, index, stack, player)
   return 0
 end
 
-function allow_metadata_inventory_take(pos, listname, index, stack, player)
+local function allow_metadata_inventory_take(pos, listname, index, stack, player)
   return stack:get_count()
 end
 
-function on_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
+local function on_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
 end
 
-function on_metadata_inventory_put(pos, listname, index, stack, player)
+local function on_metadata_inventory_put(pos, listname, index, stack, player)
 end
 
-function on_metadata_inventory_take(pos, listname, index, stack, player)
+local function on_metadata_inventory_take(pos, listname, index, stack, player)
 end
 
-minetest.register_node("yatm_armoury_icbm:icbm_silo", {
+core.register_node("yatm_armoury_icbm:icbm_silo", {
   description = mod.S("ICBM Silo"),
 
   codex_entry_id = "yatm_armoury_icbm:icbm_silo",
@@ -625,8 +657,8 @@ minetest.register_node("yatm_armoury_icbm:icbm_silo", {
   on_metadata_inventory_take = on_metadata_inventory_take,
 
   on_construct = function (pos)
-    local node = minetest.get_node_or_nil(pos)
-    local meta = minetest.get_meta(pos)
+    local node = get_node_or_nil(pos)
+    local meta = get_meta(pos)
     local inv = meta:get_inventory()
 
     inv:set_size("warhead_slot", 1)

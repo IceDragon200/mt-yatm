@@ -1,4 +1,4 @@
-minetest.register_craftitem("yatm_drones:drone_upgrade_speed", {
+core.register_craftitem("yatm_drones:drone_upgrade_speed", {
   base_description = "Drone Upgrade",
   basename = "yatm_drones:drone_upgrade",
 
@@ -11,7 +11,7 @@ minetest.register_craftitem("yatm_drones:drone_upgrade_speed", {
   },
 })
 
-minetest.register_craftitem("yatm_drones:drone_upgrade_jump", {
+core.register_craftitem("yatm_drones:drone_upgrade_jump", {
   base_description = "Drone Upgrade",
   basename = "yatm_drones:drone_upgrade",
 
@@ -24,7 +24,7 @@ minetest.register_craftitem("yatm_drones:drone_upgrade_jump", {
   },
 })
 
-minetest.register_craftitem("yatm_drones:drone_upgrade_vacuum", {
+core.register_craftitem("yatm_drones:drone_upgrade_vacuum", {
   base_description = "Drone Upgrade",
   basename = "yatm_drones:drone_upgrade",
 
@@ -37,7 +37,7 @@ minetest.register_craftitem("yatm_drones:drone_upgrade_vacuum", {
   },
 })
 
-minetest.register_craftitem("yatm_drones:drone_upgrade_efficiency", {
+core.register_craftitem("yatm_drones:drone_upgrade_efficiency", {
   base_description = "Drone Upgrade",
   basename = "yatm_drones:drone_upgrade",
 
@@ -50,7 +50,7 @@ minetest.register_craftitem("yatm_drones:drone_upgrade_efficiency", {
   },
 })
 
-minetest.register_craftitem("yatm_drones:drone_upgrade_solar_charge", {
+core.register_craftitem("yatm_drones:drone_upgrade_solar_charge", {
   base_description = "Drone Upgrade",
   basename = "yatm_drones:drone_upgrade",
 
@@ -63,7 +63,7 @@ minetest.register_craftitem("yatm_drones:drone_upgrade_solar_charge", {
   },
 })
 
-minetest.register_craftitem("yatm_drones:drone_upgrade_teleportation", {
+core.register_craftitem("yatm_drones:drone_upgrade_teleportation", {
   base_description = "Drone Upgrade",
   basename = "yatm_drones:drone_upgrade",
 
@@ -76,7 +76,7 @@ minetest.register_craftitem("yatm_drones:drone_upgrade_teleportation", {
   },
 })
 
-minetest.register_craftitem("yatm_drones:drone_upgrade_voodoo", {
+core.register_craftitem("yatm_drones:drone_upgrade_voodoo", {
   base_description = "Drone Upgrade",
   basename = "yatm_drones:drone_upgrade",
 

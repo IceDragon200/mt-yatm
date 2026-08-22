@@ -1,12 +1,13 @@
 local cluster_reactor = assert(yatm.cluster.reactor)
 local cluster_energy = yatm.cluster.energy
+local get_meta = assert(tetra.get_meta)
 
 if not cluster_energy then
   return
 end
 
 local function energy_bus_refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   local infotext =
     cluster_reactor:get_node_infotext(pos) .. "\n" ..

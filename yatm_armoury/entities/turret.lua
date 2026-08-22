@@ -1,4 +1,4 @@
-minetest.register_entity("yatm_armoury:turret", {
+core.register_entity("yatm_armoury:turret", {
   initial_properties = {
     --drawtype = "mesh",
     visual = "mesh",

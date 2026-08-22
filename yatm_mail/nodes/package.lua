@@ -6,9 +6,10 @@
 local Cuboid = assert(foundation.com.Cuboid)
 local is_blank = assert(foundation.com.is_blank)
 local fspec = assert(foundation.com.formspec.api)
+local get_meta = assert(tetra.get_meta)
 
 function get_package_formspec(pos, entity)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
 
   local w = yatm.get_player_hotbar_size(entity)
@@ -36,7 +37,7 @@ local package_nodebox = {
 }
 
 local function package_on_construct(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   local inv = meta:get_inventory()
 
@@ -47,7 +48,7 @@ local function package_on_construct(pos)
 end
 
 local function package_after_place_node(pos, placer, item_stack, pointed_thing)
-  local new_meta = minetest.get_meta(pos)
+  local new_meta = get_meta(pos)
   local old_meta = item_stack:get_meta()
 
   new_meta:set_string("addressed_to", old_meta:get_string("addressed_to"))
@@ -57,7 +58,7 @@ local function package_after_place_node(pos, placer, item_stack, pointed_thing)
 
   local old_inv_list = old_meta:get_string("inventory_dump")
   if not is_blank(old_inv_list) then
-    local dumped = minetest.deserialize(old_inv_list)
+    local dumped = core.deserialize(old_inv_list)
     local list = new_inv:get_list("main")
     list = yatm.items.InventorySerializer.load_list(dumped, list)
     new_inv:set_list("main", list)
@@ -67,7 +68,7 @@ end
 local function package_preserve_metadata(pos, _old_node, _old_meta_table, drops)
   local stack = drops[1]
 
-  local old_meta = minetest.get_meta(pos)
+  local old_meta = get_meta(pos)
   local new_meta = stack:get_meta()
 
   local old_inv = old_meta:get_inventory()
@@ -78,13 +79,13 @@ local function package_preserve_metadata(pos, _old_node, _old_meta_table, drops)
   --print("preserve_metadata", dump(dumped))
   new_meta:set_string("addressed_to", old_meta:get_string("addressed_to"))
   new_meta:set_string("addressed_from", old_meta:get_string("addressed_from"))
-  new_meta:set_string("inventory_dump", minetest.serialize(dumped))
+  new_meta:set_string("inventory_dump", core.serialize(dumped))
   local description = "Package (to: " .. old_meta:get_string("addressed_to") .. ", from: " .. old_meta:get_string("addressed_from") .. ")"
   new_meta:set_string("description", description)
 end
 
 local function package_on_receive_fields(player, formname, fields, assigns)
-  local meta = minetest.get_meta(assigns.pos)
+  local meta = get_meta(assigns.pos)
 
   if fields["addressed_from"] then
     meta:set_string("addressed_from", fields["addressed_from"])
@@ -98,7 +99,7 @@ local function package_on_receive_fields(player, formname, fields, assigns)
 end
 
 local function package_on_rightclick(pos, node, user)
-  local formspec_name = "yatm_mail:package_formspec:" .. minetest.pos_to_string(pos)
+  local formspec_name = "yatm_mail:package_formspec:" .. core.pos_to_string(pos)
   local assigns = { pos = pos, node = node }
   local formspec = get_package_formspec(pos, user)
 
@@ -109,7 +110,7 @@ local function package_on_rightclick(pos, node, user)
 end
 
 -- Plain package
-minetest.register_node("yatm_mail:package", {
+core.register_node("yatm_mail:package", {
   basename = "yatm_mail:package",
   description = yatm_mail.S("Package"),
 
@@ -150,7 +151,7 @@ for _,row in ipairs(yatm.colors) do
   local basename = row.name
   local name = row.description
 
-  minetest.register_node("yatm_mail:package_with_ribbon_" .. basename, {
+  core.register_node("yatm_mail:package_with_ribbon_" .. basename, {
     basename = "yatm_mail:package_with_ribbon",
 
     base_description = yatm_mail.S("Package (Ribbon)"),

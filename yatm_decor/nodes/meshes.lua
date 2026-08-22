@@ -1,4 +1,4 @@
-minetest.register_node("yatm_decor:mesh_dense", {
+core.register_node("yatm_decor:mesh_dense", {
   description = "Dense Mesh",
 
   groups = {
@@ -17,7 +17,7 @@ minetest.register_node("yatm_decor:mesh_dense", {
   paramtype2 = "facedir",
 })
 
-minetest.register_node("yatm_decor:mesh_wide", {
+core.register_node("yatm_decor:mesh_wide", {
   description = "Wide Mesh",
 
   groups = {

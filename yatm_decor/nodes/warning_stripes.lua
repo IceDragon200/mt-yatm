@@ -15,8 +15,9 @@ for _,color in ipairs(colors) do
   for _,size in ipairs(sizes) do
     if size ~= "2x" and color == "fiber" then
       -- skip it
+      core.log("debug", "not registering size and color type")
     else
-      minetest.register_node("yatm_decor:warning_stripes_" .. size .. "_" .. color, {
+      core.register_node("yatm_decor:warning_stripes_" .. size .. "_" .. color, {
         basename = "yatm_decor:warning_stripes",
         base_description = "Warning Stripes",
 
@@ -36,7 +37,7 @@ for _,color in ipairs(colors) do
         place_param2 = 0,
       })
 
-      minetest.register_node("yatm_decor:warning_stripes_slab_" .. size .. "_" .. color, {
+      core.register_node("yatm_decor:warning_stripes_slab_" .. size .. "_" .. color, {
         basename = "yatm_decor:warning_stripes_slab",
         base_description = "Warning Stripes Slab",
 
@@ -59,7 +60,7 @@ for _,color in ipairs(colors) do
         node_box = slab_nodebox,
       })
 
-      minetest.register_node("yatm_decor:warning_stripes_plate_" .. size .. "_" .. color, {
+      core.register_node("yatm_decor:warning_stripes_plate_" .. size .. "_" .. color, {
         basename = "yatm_decor:warning_stripes_plate",
         base_description = "Warning Stripes Panel",
 

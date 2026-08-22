@@ -3,18 +3,20 @@ local table_merge = assert(foundation.com.table_merge)
 local cluster_reactor = assert(yatm.cluster.reactor)
 local cluster_energy = yatm.cluster.energy
 local cluster_thermal = yatm.cluster.thermal
+local get_node = assert(tetra.get_node)
+local swap_node = assert(tetra.swap_node)
 
 function yatm_reactors.default_on_construct(pos)
-  local node = minetest.get_node(pos)
+  local node = get_node(pos)
   cluster_reactor:schedule_add_node(pos, node)
 
-  if minetest.get_item_group(node.name, "yatm_cluster_thermal") > 0 then
+  if core.get_item_group(node.name, "yatm_cluster_thermal") > 0 then
     if cluster_thermal then
       cluster_thermal:schedule_add_node(pos, node)
     end
   end
 
-  if minetest.get_item_group(node.name, "yatm_cluster_energy") > 0 then
+  if core.get_item_group(node.name, "yatm_cluster_energy") > 0 then
     if cluster_energy then
       cluster_energy:schedule_add_node(pos, node)
     end
@@ -24,13 +26,13 @@ end
 function yatm_reactors.default_after_destruct(pos, old_node)
   cluster_reactor:schedule_remove_node(pos, old_node)
 
-  if minetest.get_item_group(old_node.name, "yatm_cluster_thermal") > 0 then
+  if core.get_item_group(old_node.name, "yatm_cluster_thermal") > 0 then
     if cluster_thermal then
       cluster_thermal:schedule_remove_node(pos, old_node)
     end
   end
 
-  if minetest.get_item_group(old_node.name, "yatm_cluster_energy") > 0 then
+  if core.get_item_group(old_node.name, "yatm_cluster_energy") > 0 then
     if cluster_energy then
       cluster_energy:schedule_remove_node(pos, old_node)
     end
@@ -38,20 +40,20 @@ function yatm_reactors.default_after_destruct(pos, old_node)
 end
 
 function yatm_reactors.default_transition_reactor_state(pos, node, state)
-  local nodedef = minetest.registered_nodes[node.name]
+  local nodedef = core.registered_nodes[node.name]
   node.name = nodedef.reactor_device.states[state] or
               nodedef.reactor_device.states[nodedef.reactor_device.default_state]
-  minetest.swap_node(pos, node)
+  swap_node(pos, node)
 
   cluster_reactor:schedule_update_node(pos, node)
 
-  if minetest.get_item_group(node.name, "yatm_cluster_thermal") > 0 then
+  if core.get_item_group(node.name, "yatm_cluster_thermal") > 0 then
     if cluster_thermal then
       cluster_thermal:schedule_update_node(pos, node)
     end
   end
 
-  if minetest.get_item_group(node.name, "yatm_cluster_energy") > 0 then
+  if core.get_item_group(node.name, "yatm_cluster_energy") > 0 then
     if cluster_energy then
       cluster_energy:schedule_update_node(pos, node)
     end
@@ -83,7 +85,7 @@ function yatm_reactors.register_reactor_node(name, nodedef)
     assert(nodedef.reactor_device.update_fuel_rod, "expected a fuel rod to define a update_fuel_rod function")
   end
 
-  return minetest.register_node(name, nodedef)
+  return core.register_node(name, nodedef)
 end
 
 function yatm_reactors.register_stateful_reactor_node(base_node_def, overrides)

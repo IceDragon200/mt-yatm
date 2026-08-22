@@ -19,7 +19,8 @@ else
 end
 
 for _,m in ipairs(modules) do
-  local case = Luna:new(m.name)
+  local name = assert(m._name, "expected module to have a name")
+  local case = Luna:new(name)
 
   case:describe("#initialize", function (t2)
     t2:test("can initialize memory with 256 bytes of space", function (t3)
@@ -65,6 +66,30 @@ for _,m in ipairs(modules) do
     end)
   end)
 
+  case:describe("native-endian integer access", function (t2)
+    t2:test("round trips signed and unsigned 16-bit values", function (t3)
+      local mem = m:new(16)
+      mem:w_u16(0, 0xFEDC)
+      t3:assert_eq(0xFEDC, mem:r_u16(0))
+      t3:assert_eq(-0x124, mem:r_i16(0))
+
+      mem:w_i16(2, -2)
+      t3:assert_eq(-2, mem:r_i16(2))
+      t3:assert_eq(0xFFFE, mem:r_u16(2))
+    end)
+
+    t2:test("round trips signed and unsigned 32-bit values", function (t3)
+      local mem = m:new(16)
+      mem:w_u32(0, 0xFEDCBA98)
+      t3:assert_eq(0xFEDCBA98, mem:r_u32(0))
+      t3:assert_eq(-0x01234568, mem:r_i32(0))
+
+      mem:w_i32(4, -2)
+      t3:assert_eq(-2, mem:r_i32(4))
+      t3:assert_eq(0xFFFFFFFE, mem:r_u32(4))
+    end)
+  end)
+
   case:describe("#r_bytes", function (t2)
     t2:test("can retrieve a list of bytes", function (t3)
       local mem = m:new(256)
@@ -80,6 +105,36 @@ for _,m in ipairs(modules) do
       t3:assert_table_eq(result, {72, 69, 76, 76, 79})
     end)
   end)
+
+  if yatm_oku.OKU.FFIMemory and m == yatm_oku.OKU.FFIMemory then
+    case:describe("explicit endian integer access", function (t2)
+      t2:test("reads and writes unrolled 16-bit values", function (t3)
+        local mem = m:new(16)
+
+        mem:w_le_u16(0, 0x1234)
+        t3:assert_table_eq(mem:r_bytes(0, 2), {0x34, 0x12})
+        t3:assert_eq(0x1234, mem:r_le_u16(0))
+        t3:assert_eq(0x3412, mem:r_be_u16(0))
+
+        mem:w_be_i16(2, -2)
+        t3:assert_table_eq(mem:r_bytes(2, 2), {0xFF, 0xFE})
+        t3:assert_eq(-2, mem:r_be_i16(2))
+      end)
+
+      t2:test("reads and writes unrolled 32-bit values", function (t3)
+        local mem = m:new(16)
+
+        mem:w_le_u32(0, 0x89ABCDEF)
+        t3:assert_table_eq(mem:r_bytes(0, 4), {0xEF, 0xCD, 0xAB, 0x89})
+        t3:assert_eq(0x89ABCDEF, mem:r_le_u32(0))
+        t3:assert_eq(0xEFCDAB89, mem:r_be_u32(0))
+
+        mem:w_be_i32(4, -2)
+        t3:assert_table_eq(mem:r_bytes(4, 4), {0xFF, 0xFF, 0xFF, 0xFE})
+        t3:assert_eq(-2, mem:r_be_i32(4))
+      end)
+    end)
+  end
 
   case:describe("#bindump and #binload", function (t2)
     t2:test("can dump and reload memory (256 bytes)", function (t3)

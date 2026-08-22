@@ -9,9 +9,11 @@ local ng = Cuboid.new_fast_node_box
 local Groups = assert(foundation.com.Groups)
 local table_merge = assert(foundation.com.table_merge)
 local Directions = assert(foundation.com.Directions)
-
 local ItemInterface = assert(yatm.items.ItemInterface)
 local ItemDevice = assert(yatm.items.ItemDevice)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local swap_node = assert(tetra.swap_node)
 
 local item_interface = ItemInterface.new_simple("main")
 
@@ -21,35 +23,35 @@ function item_interface:allow_insert_item(pos, dir, item_stack)
 end
 
 function item_interface:on_insert_item(pos, dir, item_stack)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   if not inv:is_empty("main") then
-    local node = minetest.get_node(pos)
+    local node = get_node(pos)
     local new_name = "yatm_woodcraft:dust_bin_sawdust"
     if new_name ~= node.name then
       node.name = new_name
-      minetest.swap_node(pos, node)
+      swap_node(pos, node)
     end
   end
 end
 
 function item_interface:on_extract_item(pos, dir, count_or_item_stack)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   if inv:is_empty("main") then
-    local node = minetest.get_node(pos)
+    local node = get_node(pos)
     local new_name = "yatm_woodcraft:dust_bin_empty"
     if new_name ~= node.name then
       node.name = new_name
-      minetest.swap_node(pos, node)
+      swap_node(pos, node)
     end
   end
 end
 
 local function on_construct(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   inv:set_size("main", 9)

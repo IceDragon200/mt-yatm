@@ -3,7 +3,7 @@
 --
 local mod = yatm_rails
 
-minetest.register_entity(mod:make_name("solid_fuel_locomotive"), {
+core.register_entity(mod:make_name("solid_fuel_locomotive"), {
   initial_properties = {
     physical = false,
   },

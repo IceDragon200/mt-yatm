@@ -4,6 +4,7 @@ local table_merge = assert(foundation.com.table_merge)
 local table_keys = assert(foundation.com.table_keys)
 local list_sort = assert(foundation.com.list_sort)
 local string_pad_leading = assert(foundation.com.string_pad_leading)
+local bulk_set_node = assert(tetra.bulk_set_node)
 
 --
 -- Autotest Luna
@@ -12,7 +13,7 @@ local AutotestReporter = {}
 
 function AutotestReporter:report(...)
   print(...)
-  minetest.chat_send_all(table.concat({...}, "\t"))
+  core.chat_send_all(table.concat({...}, "\t"))
 end
 
 -- @class AutotestSuite
@@ -80,12 +81,12 @@ do
       end
     end
 
-    minetest.bulk_set_node(positions, node)
+    bulk_set_node(positions, node)
   end
 
   function ic:clear_test_area(center_pos)
     center_pos = center_pos or { x = 0, y = 0, z = 0 }
-    minetest.chat_send_all("Clearing area 16x32x16 for next test")
+    core.chat_send_all("Clearing area 16x32x16 for next test")
     local cuboid =
       Cuboid.new(
         center_pos.x - 8,
@@ -216,7 +217,7 @@ do
       local active_suites = table_copy(autotest.suites)
 
       for _,suite in pairs(active_suites) do
-        minetest.chat_send_all("Running autotest suite: " .. suite.name)
+        core.chat_send_all("Running autotest suite: " .. suite.name)
 
         local should_run = true
 
@@ -268,7 +269,7 @@ do
     if not self.running then
       self.running = true
       self.co = self:run_suites()
-      minetest.chat_send_all("YATM Autotest is now running")
+      core.chat_send_all("YATM Autotest is now running")
       print("YATM Autotest is now running")
     end
 

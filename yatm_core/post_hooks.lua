@@ -1,15 +1,15 @@
 --
 -- Callbacks when everything has loaded
 --
-local string_starts_with = assert(foundation.com.string_starts_with)
+-- local string_starts_with = assert(foundation.com.string_starts_with)
 
 local function dump_nodes()
   -- Export yatm specific nodes for documentation purposes
   print("Exporting Nodes")
   local i = 0
   local result = {}
-  for name, def in pairs(minetest.registered_nodes) do
-    local blob = minetest.write_json({
+  for name, def in pairs(core.registered_nodes) do
+    local blob = core.write_json({
       codex_entry_id = def.codex_entry_id,
       name = name,
       basename = def.basename or name,
@@ -30,11 +30,11 @@ local function dump_nodes()
 
       result[i] = blob
     else
-      minetest.log("warning", "could not export node name="..name)
+      core.log("warning", "could not export node name="..name)
     end
   end
 
-  minetest.safe_file_write(minetest.get_worldpath() .. "/yatm_exported_nodes.mljson", table.concat(result, "\n"))
+  core.safe_file_write(core.get_worldpath() .. "/yatm_exported_nodes.mljson", table.concat(result, "\n"))
   print("Exported Nodes count=" .. i)
 end
 
@@ -44,9 +44,9 @@ local function dump_craftitems()
   local i = 0
   local result = {}
 
-  for name, def in pairs(minetest.registered_craftitems) do
+  for name, def in pairs(core.registered_craftitems) do
     i = i + 1
-    result[i] = minetest.write_json({
+    result[i] = core.write_json({
       codex_entry_id = def.codex_entry_id,
       name = name,
       basename = def.basename or name,
@@ -57,7 +57,7 @@ local function dump_craftitems()
     })
   end
 
-  minetest.safe_file_write(minetest.get_worldpath() .. "/yatm_exported_craftitems.mljson", table.concat(result, "\n"))
+  core.safe_file_write(core.get_worldpath() .. "/yatm_exported_craftitems.mljson", table.concat(result, "\n"))
   print("Exported Craftitems count=" .. i)
 end
 
@@ -67,9 +67,9 @@ local function dump_tools()
   local i = 0
   local result = {}
 
-  for name, def in pairs(minetest.registered_tools) do
+  for name, def in pairs(core.registered_tools) do
     i = i + 1
-    result[i] = minetest.write_json({
+    result[i] = core.write_json({
       codex_entry_id = def.codex_entry_id,
       name = name,
       basename = def.basename or name,
@@ -80,11 +80,11 @@ local function dump_tools()
     })
   end
 
-  minetest.safe_file_write(minetest.get_worldpath() .. "/yatm_exported_tools.mljson", table.concat(result, "\n"))
+  core.safe_file_write(core.get_worldpath() .. "/yatm_exported_tools.mljson", table.concat(result, "\n"))
   print("Exported Tools count=" .. i)
 end
 
-minetest.register_on_mods_loaded(function ()
+core.register_on_mods_loaded(function ()
   if yatm.config.dump_nodes then
     dump_nodes()
   end

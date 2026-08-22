@@ -1,3 +1,5 @@
+local place_node = assert(tetra.place_node)
+
 local suite = yatm_autotest.att:new_suite("YATM Foundry")
 
 suite:describe("Carbon Steel Block", function (t1)
@@ -7,7 +9,7 @@ suite:describe("Carbon Steel Block", function (t1)
     local pos = vector.new(0, 0, 0)
     local node = { name = "yatm_foundry:carbon_steel_block" }
 
-    minetest.place_node(pos, node)
+    place_node(pos, node)
 
     t2:yield()
   end)
@@ -34,7 +36,7 @@ suite:describe("Concrete", function (t1)
         local pos = vector.new(0, 0, 0)
         local node = { name = "yatm_foundry:concrete_" .. variant_basename .. "_" .. color_basename }
 
-        minetest.place_node(pos, node)
+        place_node(pos, node)
 
         t2:yield()
       end)
@@ -43,7 +45,7 @@ suite:describe("Concrete", function (t1)
         local pos = vector.new(0, 0, 0)
         local node = { name = "yatm_foundry:concrete_plate_" .. variant_basename .. "_" .. color_basename }
 
-        minetest.place_node(pos, node)
+        place_node(pos, node)
 
         t2:yield()
       end)
@@ -55,7 +57,7 @@ suite:describe("Concrete", function (t1)
           local pos = vector.new(0, 0, 0)
           local node = { name = "yatm_foundry:concrete_slab_" .. variant_basename .. "_" .. color_basename }
 
-          minetest.place_node(pos, node)
+          place_node(pos, node)
 
           t2:yield()
         end)

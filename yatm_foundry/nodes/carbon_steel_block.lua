@@ -7,7 +7,7 @@ local groups = {
   magnetic = 1,
 }
 
-minetest.register_node("yatm_foundry:carbon_steel_block", {
+core.register_node("yatm_foundry:carbon_steel_block", {
   basename = "yatm_foundry:carbon_steel_block",
 
   description = mod.S("Carbon Steel Block"),
@@ -27,7 +27,7 @@ minetest.register_node("yatm_foundry:carbon_steel_block", {
   is_ground_content = false,
 })
 
-minetest.register_node("yatm_foundry:carbon_steel_smooth_block", {
+core.register_node("yatm_foundry:carbon_steel_smooth_block", {
   basename = "yatm_foundry:carbon_steel_smooth_block",
 
   description = mod.S("Carbon Steel Smooth Block"),
@@ -47,7 +47,7 @@ minetest.register_node("yatm_foundry:carbon_steel_smooth_block", {
   is_ground_content = false,
 })
 
-minetest.register_node("yatm_foundry:carbon_steel_base_panel_block", {
+core.register_node("yatm_foundry:carbon_steel_base_panel_block", {
   basename = "yatm_foundry:carbon_steel_base_panel_block",
 
   description = mod.S("Carbon Steel Base Panel Block"),
@@ -67,7 +67,7 @@ minetest.register_node("yatm_foundry:carbon_steel_base_panel_block", {
   is_ground_content = false,
 })
 
-minetest.register_node("yatm_foundry:carbon_steel_plain_panel_block", {
+core.register_node("yatm_foundry:carbon_steel_plain_panel_block", {
   basename = "yatm_foundry:carbon_steel_plain_panel_block",
 
   description = mod.S("Carbon Steel Plain Panel Block"),
@@ -96,7 +96,7 @@ local node_names =
   }
 
 for base_node_name,base_description in pairs(node_names) do
-  local node_def = assert(minetest.registered_nodes[base_node_name .. "_block"])
+  local node_def = assert(core.registered_nodes[base_node_name .. "_block"])
 
   yatm.register_decor_nodes(base_node_name, {
     _ = {

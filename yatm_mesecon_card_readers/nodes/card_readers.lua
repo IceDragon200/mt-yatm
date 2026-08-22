@@ -1,8 +1,10 @@
 local is_blank = assert(foundation.com.is_blank)
-local Groups = assert(foundation.com.Groups)
 local HeadlessMetaDataRef = assert(foundation.com.headless.MetaDataRef)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
+local get_meta = assert(tetra.get_meta)
+local node_dig = assert(tetra.node_dig)
+local swap_node = assert(tetra.swap_node)
 
 local reader_node_box = {
   type = "fixed",
@@ -12,7 +14,7 @@ local reader_node_box = {
 }
 
 local function card_reader_on_construct(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   local inv = meta:get_inventory()
 
@@ -31,7 +33,7 @@ local function card_reader_preserve_metadata(pos, oldnode, old_meta_table, drops
 end
 
 local function card_reader_after_place_node(pos, _placer, itemstack, _pointed_thing)
-  local new_meta = minetest.get_meta(pos)
+  local new_meta = get_meta(pos)
   local old_meta = itemstack:get_meta()
 
   yatm_security.copy_chipped_object(assert(old_meta), new_meta)
@@ -40,18 +42,18 @@ local function card_reader_after_place_node(pos, _placer, itemstack, _pointed_th
   new_meta:set_string("infotext", new_meta:get_string("description"))
 end
 
-local function reader_on_rightclick(pos, node, clicker, itemstack, pointed_thing)
+local function reader_on_rightclick(pos, node, user, itemstack, pointed_thing)
   yatm.security.on_rightclick_access_card(pos, node, user, itemstack, pointed_thing)
 end
 
 local function reader_on_dig(pos, node, digger)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
   local access_card = inv:get_stack("access_card_slot", 1)
   if not access_card:is_empty() then
     return false
   end
-  return minetest.node_dig(pos, node, digger)
+  return node_dig(pos, node, digger)
 end
 
 yatm.register_stateful_node("yatm_mesecon_card_readers:mesecon_card_reader", {
@@ -126,7 +128,7 @@ yatm.register_stateful_node("yatm_mesecon_card_readers:mesecon_card_reader", {
           mesecon.receptor_on(pos, mesecon.rules.buttonlike_get(new_node))
         end
       end
-      minetest.swap_node(pos, new_node)
+      swap_node(pos, new_node)
     end,
   },
   on = {
@@ -155,7 +157,7 @@ yatm.register_stateful_node("yatm_mesecon_card_readers:mesecon_card_reader", {
     on_access_card_removed = function (pos, node, access_card)
       local new_node = { name = "yatm_mesecon_card_readers:mesecon_card_reader_off",
                          param1 = node.param1, param2 = node.param2 }
-      minetest.swap_node(pos, new_node)
+      swap_node(pos, new_node)
       mesecon.receptor_off(pos, mesecon.rules.buttonlike_get(node))
     end,
   },
@@ -185,7 +187,7 @@ yatm.register_stateful_node("yatm_mesecon_card_readers:mesecon_card_reader", {
     on_access_card_removed = function (pos, node, access_card)
       local new_node = { name = "yatm_mesecon_card_readers:mesecon_card_reader_off",
                          param1 = node.param1, param2 = node.param2 }
-      minetest.swap_node(pos, new_node)
+      swap_node(pos, new_node)
       mesecon.receptor_off(pos, mesecon.rules.buttonlike_get(node))
     end,
   }

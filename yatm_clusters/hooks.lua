@@ -4,6 +4,7 @@ local table_length = assert(foundation.com.table_length)
 local is_table_empty = assert(foundation.com.is_table_empty)
 local clusters = assert(yatm.clusters)
 local Symbols = assert(foundation.com.Symbols)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
 
 -- Allows the cluster tool to lookup normal clusters
 yatm.cluster_tool.register_cluster_tool_lookup('yatm_clusters/standard', function (pos, state)
@@ -16,54 +17,56 @@ yatm.cluster_tool.register_cluster_tool_lookup('yatm_clusters/standard', functio
   end)
 end)
 
-minetest.register_chatcommand("yatm.networks", {
+core.register_chatcommand("yatm.networks", {
   params = "<command> <params>",
   description = "Issue various commands to yatm networks",
   func = function (player_name, param)
-    minetest.log("action", "yatm.networks " .. param)
+    core.log("action", "yatm.networks " .. param)
     local params = string_split(param, ' ')
     if params[1] == "ls" then
       local network_ids = table_keys(Network.networks)
-      minetest.chat_send_player(player_name, "Network IDs:" .. table.concat(network_ids, ', '))
+      core.chat_send_player(player_name, "Network IDs:" .. table.concat(network_ids, ', '))
     elseif params[1] == "describe" then
       -- describe <network-id>
       local network_id = params[2]
       network_id = string.trim(network_id)
       local network = Network.networks[network_id]
       if network then
-        minetest.chat_send_player(player_name, network.node_name .. ' ' .. minetest.pos_to_string(network.pos) .. "\n" ..
+        core.chat_send_player(player_name, network.node_name .. ' ' .. core.pos_to_string(network.pos) .. "\n" ..
                                                table_length(network.members) .. " Members")
       else
-        minetest.chat_send_player(player_name, 'Network not found')
+        core.chat_send_player(player_name, 'Network not found')
       end
     else
-      minetest.chat_send_player(player_name, 'Invalid command')
+      core.chat_send_player(player_name, 'Invalid command')
     end
   end
 })
 
-minetest.register_on_shutdown(yatm.clusters:method("terminate"))
+core.register_on_shutdown(yatm.clusters:method("terminate"))
 nokore_proxy.register_globalstep("yatm_clusters.update/1", yatm.clusters:method("update"))
+
+function handle_refresh_infotext(_cls, _counter, event, _clusters, trace)
+  local pos = event.pos
+  local node = get_node_or_nil(pos)
+  if node then
+    local nodedef = core.registered_nodes[node.name]
+
+    if nodedef and nodedef.refresh_infotext then
+      local span
+      if trace then
+        span = trace:span_start(node.name)
+      end
+      nodedef.refresh_infotext(pos, node)
+      if span then
+        span:span_end()
+      end
+    end
+  end
+end
 
 yatm.clusters:register_node_event_handler(
   "refresh_infotext",
   "yatm_clusters:refresh_infotext",
-  function (_cls, _counter, event, _clusters, trace)
-    local pos = event.pos
-    local node = minetest.get_node_or_nil(pos)
-    if node then
-      local nodedef = minetest.registered_nodes[node.name]
-
-      if nodedef and nodedef.refresh_infotext then
-        local span
-        if trace then
-          span = trace:span_start(node.name)
-        end
-        nodedef.refresh_infotext(pos, node)
-        if span then
-          span:span_end()
-        end
-      end
-    end
-  end
+  handle_refresh_infotext
 )

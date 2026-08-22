@@ -32,7 +32,7 @@
 local EnergyDevices = {}
 
 local function get_energy_interface_function_safe(pos, node, function_name)
-  local nodedef = minetest.registered_nodes[node.name]
+  local nodedef = core.registered_nodes[node.name]
   if not nodedef then
     return nil, "expected a registered node"
   end
@@ -62,7 +62,7 @@ local function get_energy_interface_function(pos, node, function_name)
     error(
       "get_energy_interface_function error:\n\t" ..
       err ..
-      "\n\tpos: " .. minetest.pos_to_string(pos) ..
+      "\n\tpos: " .. core.pos_to_string(pos) ..
       "\n\tnode: " .. node.name
     )
   end

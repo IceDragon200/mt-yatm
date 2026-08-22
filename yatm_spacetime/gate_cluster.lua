@@ -1,8 +1,3 @@
-local is_table_empty = assert(foundation.com.is_table_empty)
-local table_keys = assert(foundation.com.table_keys)
-local table_length = assert(foundation.com.table_length)
-local DIR6_TO_VEC3 = assert(foundation.com.Directions.DIR6_TO_VEC3)
-
 --- @class GateCluster
 local GateCluster = yatm_clusters.SimpleCluster:extends("GateCluster")
 do
@@ -19,7 +14,7 @@ do
 
   --- @spec #get_node_infotext(pos: Vector3): String
   function ic:get_node_infotext(pos)
-    local node_id = minetest.hash_node_position(pos)
+    -- local node_id = core.hash_node_position(pos)
 
     return yatm.clusters:reduce_node_clusters(pos, "", function (cluster, acc)
       if cluster.groups[self.m_cluster_group] then
@@ -34,7 +29,7 @@ do
   function ic:get_controller_at(pos)
     return yatm.clusters:reduce_node_clusters(pos, nil, function (cluster, acc)
       if cluster.groups[self.m_cluster_group] then
-        return false, cluster:reduce_nodes_of_group("gate_controller", nil, function (entry, acc)
+        return false, cluster:reduce_nodes_of_group("gate_controller", nil, function (entry, acc2)
           return false, entry
         end)
       else
@@ -45,7 +40,7 @@ do
 
   --- @spec #get_node_groups(node: NodeRef): Table
   function ic:get_node_groups(node)
-    local nodedef = minetest.registered_nodes[node.name]
+    local nodedef = core.registered_nodes[node.name]
 
     if nodedef and nodedef.yatm_spacetime then
       return nodedef.yatm_spacetime.groups or {}

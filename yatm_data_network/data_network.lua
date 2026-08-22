@@ -26,8 +26,8 @@ local is_table_empty = assert(foundation.com.is_table_empty)
 local table_equals = assert(foundation.com.table_equals)
 local table_copy = assert(foundation.com.table_copy)
 local Directions = assert(foundation.com.Directions)
-local pos_to_string = assert(minetest.pos_to_string)
-local hash_node_position = assert(minetest.hash_node_position)
+local pos_to_string = assert(core.pos_to_string)
+local hash_node_position = assert(core.hash_node_position)
 local generate_network_id = assert(yatm_data_network.utils.generate_network_id)
 
 --- @namespace yatm_data_network
@@ -346,7 +346,7 @@ do
     if member then
       local node = self.world.get_node_or_nil(member.pos)
       if node then
-        local nodedef = minetest.registered_nodes[node.name]
+        local nodedef = core.registered_nodes[node.name]
         return nodedef.data_interface
       else
         return nil, "node does not exist, or is unavailable"
@@ -370,18 +370,22 @@ do
     local member_id = hash_node_position(pos)
     local member = self.m_members[member_id]
     if member then
-      minetest.log("error", "cannot register " .. pos_to_string(pos) .. " " ..
+      core.log("error", "cannot register " .. pos_to_string(pos) .. " " ..
                                   node.name .. " it was already registered by " ..
                                   member.node.name)
       return false
     end
 
-    local nodedef = minetest.registered_nodes[node.name]
+    local nodedef = core.registered_nodes[node.name]
 
     -- hah dungeons and dragons... I'll see myself out
     local dnd = nodedef.data_network_device
     if not dnd then
-      minetest.log("error", "cannot register " .. node.name .. " it does not have a data_network_device field defined")
+      core.log("error",
+        "cannot register "
+        .. node.name
+        .. " it does not have a data_network_device field defined"
+      )
       return false
     end
 
@@ -409,7 +413,7 @@ do
   end
 
   --- Call this function when the physical node has changed in order to keep the
-  --- information up to date, an example would be after a minetest.swap_node call.
+  --- information up to date, an example would be after a core.swap_node call.
   ---
   --- @spec #update_member(Vector3, NodeRef, Boolean): self
   function ic:update_member(pos, node, force_refresh)
@@ -420,7 +424,7 @@ do
     local member = self.m_members[member_id]
     if member then
       local need_refresh = false
-      local nodedef = minetest.registered_nodes[node.name]
+      local nodedef = core.registered_nodes[node.name]
       local dnd = assert(nodedef.data_network_device)
 
       if dnd.color ~= member.color then
@@ -525,8 +529,6 @@ do
           self:log(member.node.name, "port out of range",
                    local_port, "expected to be between 1 and " .. port_offset.range)
         end
-      else
-        --print("WARN: ", member.node.name, "does not have an attached color; cannot send")
       end
     end
     return self
@@ -581,10 +583,12 @@ do
               end
             end
           else
-            self:log(member.node.name, "port out of range", local_port, "expected to be between 1 and " .. port_offset.range)
+            self:log(member.node.name,
+              "port out of range",
+              local_port,
+              "expected to be between 1 and " .. port_offset.range
+            )
           end
-        else
-          --print("WARN: ", member.node.name, "does not have an attached color; cannot be readied for receive")
         end
       end
     end
@@ -626,10 +630,12 @@ do
             child[dir] = state
           end
         else
-          self:log(member.node.name, "port out of range", local_port, "expected to be between 1 and " .. port_offset.range)
+          self:log(member.node.name,
+            "port out of range",
+            local_port,
+            "expected to be between 1 and " .. port_offset.range
+          )
         end
-      else
-        --print("WARN: ", member.node.name, "does not have an attached color; cannot be readied for receive")
       end
     end
     return self
@@ -759,7 +765,8 @@ do
   end
 
   ---
-  --- Removes a network, with no craps given, please don't use this unless you know what you're doing.
+  --- Removes a network, with no craps given,
+  --- please don't use this unless you know what you're doing.
   ---
   function ic:remove_network(network_id)
     -- I hope you weren't expecting something spectacular.
@@ -848,7 +855,7 @@ do
                         receiver_node = self.world.get_node_or_nil(receiver.pos)
 
                         if receiver_node then
-                          nodedef = minetest.registered_nodes[receiver_node.name]
+                          nodedef = core.registered_nodes[receiver_node.name]
 
                           if nodedef.data_interface then
                             local_port = self:net_port_to_local_port(
@@ -861,7 +868,11 @@ do
                                                                local_port,
                                                                value)
                           else
-                            self:log("WARN: `" ..  receiver_node.name .. "` does not have a data interface")
+                            self:log(
+                              "WARN: `"
+                              ..  receiver_node.name
+                              .. "` does not have a data interface"
+                            )
                           end
                         end
                       end
@@ -900,7 +911,7 @@ do
       for member_id,_is_present in pairs(updatable) do
         member = self.m_members[member_id]
         if member then
-          nodedef = minetest.registered_nodes[member.node.name]
+          nodedef = core.registered_nodes[member.node.name]
           if nodedef.data_interface then
             node = self.world.get_node_or_nil(member.pos)
             if node then
@@ -953,7 +964,8 @@ do
       end
     elseif from_device.type == "bus" or
            from_device.type == "mounted_bus"  then
-      -- buses can connect to cables of the same color, multi or a device and buses of the same color
+      -- buses can connect to cables of the same color,
+      -- multi or a device and buses of the same color
       if to_device.type == "device" then
         return true
       elseif to_device.type == "cable" or
@@ -971,7 +983,10 @@ do
     return false, "incompatible colors"
   end
 
-  local function can_connect_to(from_pos, from_node, from_device, origin_dir, to_pos, to_node, to_device)
+  local function can_connect_to(
+    from_pos, from_node, from_device, origin_dir,
+    to_pos, to_node, to_device
+  )
     assert(origin_dir, "expected a direction")
 
     --[[ Debug
@@ -1022,55 +1037,57 @@ do
     local found = {}
     local to_check = {base_pos}
 
-    local v3
-    local old_to_check
-    local hash
-    local node
-    local nodedef
-    local device
-    local other_pos
-    local other_node
-    local other_nodedef
-    local other_device
-    local valid
-    local err
+    do
+      local v3
+      local old_to_check
+      local hash
+      local node
+      local nodedef
+      local device
+      local other_pos
+      local other_node
+      local other_nodedef
+      local other_device
+      local valid
+      local err
 
-    while not is_table_empty(to_check) do
-      old_to_check = to_check
-      to_check = {}
+      while not is_table_empty(to_check) do
+        old_to_check = to_check
+        to_check = {}
 
-      for _, pos in ipairs(old_to_check) do
-        hash = hash_node_position(pos)
+        for _, pos in ipairs(old_to_check) do
+          hash = hash_node_position(pos)
 
-        if not seen[hash] then
-          seen[hash] = true
+          if not seen[hash] then
+            seen[hash] = true
 
-          node = self.world.get_node(pos)
-          nodedef = minetest.registered_nodes[node.name]
+            node = self.world.get_node(pos)
+            nodedef = core.registered_nodes[node.name]
 
-          if nodedef then
-            device = nodedef.data_network_device
+            if nodedef then
+              device = nodedef.data_network_device
 
-            if device then
-              found[device.type] = found[device.type] or {}
-              found[device.type][hash] = pos
+              if device then
+                found[device.type] = found[device.type] or {}
+                found[device.type][hash] = pos
 
-              for dir,_ in pairs(Directions.DIR6_TO_VEC3) do
-                v3 = Directions.DIR6_TO_VEC3[dir]
-                other_pos = vector.add(pos, v3)
-                other_node = self.world.get_node(other_pos)
-                other_nodedef = minetest.registered_nodes[other_node.name]
+                for dir,_ in pairs(Directions.DIR6_TO_VEC3) do
+                  v3 = Directions.DIR6_TO_VEC3[dir]
+                  other_pos = vector.add(pos, v3)
+                  other_node = self.world.get_node(other_pos)
+                  other_nodedef = core.registered_nodes[other_node.name]
 
-                if other_nodedef then
-                  other_device = other_nodedef.data_network_device
-                  if other_device then
-                    valid, err = can_connect_to(pos, node, device, dir,
-                                                      other_pos, other_node, other_device)
-                    if valid then
-                      table.insert(to_check, other_pos)
-                    else
-                      if err then
-                        self:log(pos_to_string(pos), pos_to_string(other_pos), err)
+                  if other_nodedef then
+                    other_device = other_nodedef.data_network_device
+                    if other_device then
+                      valid, err = can_connect_to(pos, node, device, dir,
+                                                        other_pos, other_node, other_device)
+                      if valid then
+                        table.insert(to_check, other_pos)
+                      else
+                        if err then
+                          self:log(pos_to_string(pos), pos_to_string(other_pos), err)
+                        end
                       end
                     end
                   end
@@ -1115,7 +1132,7 @@ do
           member = self.m_members[member_id] or {}
 
           node = self.world.get_node(pos)
-          nodedef = minetest.registered_nodes[node.name]
+          nodedef = core.registered_nodes[node.name]
           dnd = assert(nodedef.data_network_device)
 
           block_id = yatm.clusters:mark_node_block(pos, node)
@@ -1202,7 +1219,7 @@ do
       for member_id, _ in pairs(network.members) do
         member = self.m_members[member_id]
         node = self.world.get_node(member.pos)
-        nodedef = minetest.registered_nodes[node.name]
+        nodedef = core.registered_nodes[node.name]
 
         if nodedef then
           if nodedef.data_interface then
@@ -1234,14 +1251,13 @@ do
   function ic:_explore_nodes_from_position(network, origin_pos)
     local seen = {}
 
-    local ei = 0
+    local ei
     local explore = {assert(origin_pos)}
     local nodes = {}
 
     local old_explore
     local hash
     local member
-    local vec
     local other_pos
     local other_hash
     local other_member
@@ -1305,15 +1321,15 @@ do
       member.sub_network_id = sub_network_id
 
       if member.type == "bus" then
-        for dir, vec in pairs(Directions.DIR6_TO_VEC3) do
-          pos = vector.add(member.pos, vec)
+        for ddir, dvec in pairs(Directions.DIR6_TO_VEC3) do
+          pos = vector.add(member.pos, dvec)
           hash = hash_node_position(pos)
 
           if network.members[hash] then
             other_member = self.m_members[hash]
             if other_member and other_member.type == "device" then
               sub_network.devices[hash] = true
-              other_dir = Directions.invert_dir(dir)
+              other_dir = Directions.invert_dir(ddir)
               other_member.attached_colors_by_dir[other_dir] = member.color
               other_member.sub_network_ids[other_dir] = sub_network_id
             end

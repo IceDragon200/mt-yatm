@@ -2,10 +2,12 @@ local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local Directions = assert(foundation.com.Directions)
 local table_merge = assert(foundation.com.table_merge)
+local swap_node = assert(tetra.swap_node)
 
 local button_after_place_node = assert(Directions.facedir_wallmount_after_place_node)
 
--- Buttons affect everything below and adjacent to them, however, they do not affect what's directly in front of the button!
+-- Buttons affect everything below and adjacent to them, however,
+-- they do not affect what's directly in front of the button!
 local button_dirs = {
   Directions.D_DOWN,
   Directions.D_NORTH,
@@ -49,7 +51,7 @@ for _,row in ipairs(yatm.colors) do
   local off_name = "yatm_mesecon_buttons:mesecon_toggle_button_" .. color_basename .. "_off"
   local on_name = "yatm_mesecon_buttons:mesecon_toggle_button_" .. color_basename .. "_on"
 
-  minetest.register_node(off_name, {
+  core.register_node(off_name, {
     basename = "yatm_mesecon_buttons:mesecon_toggle_button",
 
     base_description = "Mesecon Toggle Button",
@@ -92,8 +94,8 @@ for _,row in ipairs(yatm.colors) do
 
     on_rotate = mesecon.buttonlike_onrotate,
     on_rightclick = function (pos, node)
-      minetest.sound_play("mesecons_button_push", {pos=pos})
-      minetest.swap_node(pos, { name = on_name, param2 = node.param2 })
+      core.sound_play("mesecons_button_push", {pos=pos})
+      swap_node(pos, { name = on_name, param2 = node.param2 })
       mesecon.receptor_on(pos, mesecon_button_rules_get(node))
     end,
     on_blast = mesecon.on_blastnode,
@@ -101,7 +103,7 @@ for _,row in ipairs(yatm.colors) do
     after_place_node = button_after_place_node,
   })
 
-  minetest.register_node(on_name, {
+  core.register_node(on_name, {
     basename = "yatm_mesecon_buttons:mesecon_toggle_button",
 
     base_description = "Mesecon Toggle Button",
@@ -148,8 +150,8 @@ for _,row in ipairs(yatm.colors) do
 
     on_rotate = mesecon.buttonlike_onrotate,
     on_rightclick = function (pos, node)
-      minetest.sound_play("mesecons_button_pop", {pos=pos})
-      minetest.swap_node(pos, { name = off_name, param2 = node.param2 })
+      core.sound_play("mesecons_button_pop", {pos=pos})
+      swap_node(pos, { name = off_name, param2 = node.param2 })
       mesecon.receptor_off(pos, mesecon_button_rules_get(node))
     end,
     on_blast = mesecon.on_blastnode,

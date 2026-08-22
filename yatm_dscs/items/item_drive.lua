@@ -1,7 +1,7 @@
 --
 --
 --
-minetest.register_craftitem("yatm_dscs:item_drive_t1", {
+core.register_craftitem("yatm_dscs:item_drive_t1", {
   basename = "yatm_dscs:item_drive",
   base_description = "Item Drive",
 
@@ -16,7 +16,7 @@ minetest.register_craftitem("yatm_dscs:item_drive_t1", {
   stack_max = 1,
 })
 
-minetest.register_craftitem("yatm_dscs:item_drive_t2", {
+core.register_craftitem("yatm_dscs:item_drive_t2", {
   basename = "yatm_dscs:item_drive",
   base_description = "Item Drive",
 
@@ -31,7 +31,7 @@ minetest.register_craftitem("yatm_dscs:item_drive_t2", {
   stack_max = 1,
 })
 
-minetest.register_craftitem("yatm_dscs:item_drive_t3", {
+core.register_craftitem("yatm_dscs:item_drive_t3", {
   basename = "yatm_dscs:item_drive",
   base_description = "Item Drive",
 

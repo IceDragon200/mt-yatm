@@ -1,12 +1,13 @@
 local cluster_reactor = assert(yatm.cluster.reactor)
 local cluster_thermal = yatm.cluster.thermal
+local get_meta = assert(tetra.get_meta)
 
 if not cluster_thermal then
   return
 end
 
 local function heat_exchanger_refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   local infotext =
     cluster_reactor:get_node_infotext(pos) .. "\n" ..
@@ -70,7 +71,7 @@ yatm_reactors.register_stateful_reactor_node({
     },
 
     get_heat = function (self, pos, node)
-      local meta = minetest.get_meta(pos)
+      local meta = get_meta(pos)
       return meta:get_float("heat")
     end,
   }

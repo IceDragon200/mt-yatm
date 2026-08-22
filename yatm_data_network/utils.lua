@@ -1,4 +1,4 @@
-local random_string32 = assert(foundation.com.random_string32)
+local random_addr16 = assert(foundation.com.random_addr16)
 
 --- @namespace yatm_data_network.utils
 yatm_data_network.utils = yatm_data_network.utils or {}
@@ -8,8 +8,5 @@ yatm_data_network.utils = yatm_data_network.utils or {}
 ---
 --- @spec generate_network_id(): String
 function yatm_data_network.utils.generate_network_id()
-  return random_string32(2) .. ":" ..
-         random_string32(2) .. ":" ..
-         random_string32(2) .. ":" ..
-         random_string32(2)
+  return random_addr16(16, 4, ":")
 end

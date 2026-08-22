@@ -12,7 +12,7 @@ local variants = {
 local wood_sounds = yatm.node_sounds:build("wood")
 
 for variant_basename, variant_name in pairs(variants) do
-  minetest.register_node("yatm_papercraft:shoji_panel_block" .. variant_basename, {
+  core.register_node("yatm_papercraft:shoji_panel_block" .. variant_basename, {
     basename = "yatm_papercraft:shoji_panel_block",
     base_description = "Shoji Panel Block",
 
@@ -32,7 +32,7 @@ for variant_basename, variant_name in pairs(variants) do
     sounds = wood_sounds,
   })
 
-  minetest.register_node("yatm_papercraft:shoji_panel_" .. variant_basename, {
+  core.register_node("yatm_papercraft:shoji_panel_" .. variant_basename, {
     basename = "yatm_papercraft:shoji_panel",
     base_description = "Shoji Panel",
 

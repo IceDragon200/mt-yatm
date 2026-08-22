@@ -1,6 +1,7 @@
 -- TODO: Drive memory needs to be written back to floppy disk before being removed from inventory
 --
 --
+local mod = assert(yatm_oku)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local random_string = assert(foundation.com.random_string)
@@ -11,19 +12,16 @@ local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local data_network = assert(yatm.data_network)
 local Energy = assert(yatm.energy)
-local ByteDecoder = yatm.ByteDecoder
+local BD_LE = assert(foundation.com.ByteDecoder.LE)
 local fspec = assert(foundation.com.formspec.api)
-
-if not ByteDecoder then
-  minetest.log("warning", "Memory module requires yatm.ByteDecoder")
-  return
-end
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
 
 local MAX_DISK_SIZE = 0x4000
 
 local function get_floppy_disk_drive_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local node_inv_name = "nodemeta:" .. spos
 
   return yatm.formspec_render_split_inv_panel(user, 2, 4, { bg = "computer" }, function (loc, rect)
@@ -38,13 +36,13 @@ local function get_floppy_disk_drive_formspec(pos, user)
 end
 
 local function floppy_disk_drive_on_receive_fields(player, formname, fields, assigns)
-  local meta = minetest.get_meta(assigns.pos)
+  local meta = get_meta(assigns.pos)
 
   return true
 end
 
 local function floppy_disk_drive_refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
     cluster_energy:get_node_infotext(pos) .. "\n" ..
@@ -55,8 +53,8 @@ local function floppy_disk_drive_refresh_infotext(pos, node)
 end
 
 local function floppy_disk_drive_on_construct(pos)
-  local node = minetest.get_node(pos)
-  local meta = minetest.get_meta(pos)
+  local node = get_node(pos)
+  local meta = get_meta(pos)
 
   local inv = meta:get_inventory()
   inv:set_size("floppy_disk", 1)
@@ -73,7 +71,7 @@ local function floppy_disk_drive_on_construct(pos)
 end
 
 local function floppy_disk_drive_after_place_node(pos, _placer, _item_stack, _pointed_thing)
-  local node = minetest.get_node(pos)
+  local node = get_node(pos)
   yatm.devices.device_after_place_node(pos, node)
 end
 
@@ -90,7 +88,7 @@ local function floppy_disk_drive_after_destruct(pos, old_node)
 end
 
 local function get_floppy_disk(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   local inv = meta:get_inventory()
   local stack = inv:get_stack("floppy_disk", 1)
@@ -133,7 +131,7 @@ local floppy_disk_drive_yatm_network = {
 yatm.devices.register_stateful_network_device({
   basename = "yatm_oku:floppy_disk_drive",
 
-  description = "Floppy Drive",
+  description = mod.S("Floppy Drive"),
 
   codex_entry_id = "yatm_oku:floppy_disk_drive",
 
@@ -183,7 +181,7 @@ yatm.devices.register_stateful_network_device({
     end,
 
     receive_pdu = function (self, pos, node, dir, port, value)
-      local meta = minetest.get_meta(pos)
+      local meta = get_meta(pos)
       local blob = string_hex_unescape(value)
 
       local disk_size = get_floppy_disk_size(pos)
@@ -193,8 +191,8 @@ yatm.devices.register_stateful_network_device({
         local seek_type = string.sub(blob, 1, 1)
         local offset = string.sub(blob, 2, 3)
 
-        seek_type = ByteDecoder:d_u8(seek_type)
-        offset = ByteDecoder:d_u16(offset) -- offset is 0-offset, not 1
+        seek_type = BD_LE:d_u8(seek_type)
+        offset = BD_LE:d_u16(offset) -- offset is 0-offset, not 1
 
         if seek_type == 0 then -- SEEK_SET
           meta:set_int("seek_offset", offset)
@@ -244,7 +242,7 @@ yatm.devices.register_stateful_network_device({
 
     get_programmer_formspec = function (self, pos, user, pointed_thing, assigns)
       --
-      local meta = minetest.get_meta(pos)
+      local meta = get_meta(pos)
       assigns.tab = assigns.tab or 1
 
       local formspec =
@@ -270,7 +268,7 @@ yatm.devices.register_stateful_network_device({
             }
           })
       elseif assigns.tab == 2 then
-        local seek_blob = minetest.formspec_escape(meta:get_int("seek_offset"))
+        local seek_blob = core.formspec_escape(meta:get_int("seek_offset"))
 
         formspec =
           formspec ..
@@ -282,7 +280,7 @@ yatm.devices.register_stateful_network_device({
     end,
 
     receive_programmer_fields = function (self, player, form_name, fields, assigns)
-      local meta = minetest.get_meta(assigns.pos)
+      local meta = get_meta(assigns.pos)
 
       local needs_refresh = false
 
@@ -344,7 +342,7 @@ yatm.devices.register_stateful_network_device({
   after_destruct = floppy_disk_drive_after_destruct,
 
   on_rightclick = function (pos, node, user)
-    local formspec_name = "yatm_oku:floppy_disk_drive:" .. minetest.pos_to_string(pos)
+    local formspec_name = "yatm_oku:floppy_disk_drive:" .. core.pos_to_string(pos)
     local assigns = { pos = pos, node = node }
     local formspec = get_floppy_disk_drive_formspec(pos, user)
 
@@ -355,15 +353,20 @@ yatm.devices.register_stateful_network_device({
   end,
 
   register_computer = function (pos, node)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     local secret = meta:get_string("secret")
     if not secret then
       secret = random_string62(8)
       meta:set_string("secret", "flpd." .. secret)
     end
-    yatm.computers:upsert_computer_at_pos(pos, node, meta:get_string("secret"), {
-      memory_size = MAX_DISK_SIZE,
-    })
+    yatm.computers:upsert_computer_at_pos(
+      pos,
+      node,
+      meta:get_string("secret"),
+      {
+        memory_size = MAX_DISK_SIZE,
+      }
+    )
   end,
 
   allow_metadata_inventory_put = function (pos, listname, index, stack, player)
@@ -388,7 +391,7 @@ yatm.devices.register_stateful_network_device({
   on_metadata_inventory_put = function(pos, listname, index, stack, player)
     if listname == "floppy_disk" then
       --
-      local node = minetest.get_node(pos)
+      local node = get_node(pos)
       local meta = stack:get_meta()
       local data = meta:get_string("data")
       local blob = string_hex_unescape(data)
@@ -397,7 +400,7 @@ yatm.devices.register_stateful_network_device({
       computer.oku:fill_memory(0)
       computer.oku:w_memory_blob(0, string.sub(blob, 1, 0x10000))
 
-      local node_meta = minetest.get_meta(pos)
+      local node_meta = get_meta(pos)
       node_meta:set_int("seek_offset", 0)
     end
   end,

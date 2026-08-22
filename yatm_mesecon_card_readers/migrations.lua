@@ -1,12 +1,18 @@
+local swap_node = assert(tetra.swap_node)
+
 local migrations = {
-  ["yatm_mesecon_locks:mesecon_card_reader_off"] = "yatm_mesecon_card_readers:mesecon_card_reader_off",
-  ["yatm_mesecon_locks:mesecon_card_reader_on"] = "yatm_mesecon_card_readers:mesecon_card_reader_on",
-  ["yatm_mesecon_locks:mesecon_card_swiper_off"] = "yatm_mesecon_card_readers:mesecon_card_swiper_off",
-  ["yatm_mesecon_locks:mesecon_card_swiper_on"] = "yatm_mesecon_card_readers:mesecon_card_swiper_on",
+  ["yatm_mesecon_locks:mesecon_card_reader_off"] =
+    "yatm_mesecon_card_readers:mesecon_card_reader_off",
+  ["yatm_mesecon_locks:mesecon_card_reader_on"] =
+    "yatm_mesecon_card_readers:mesecon_card_reader_on",
+  ["yatm_mesecon_locks:mesecon_card_swiper_off"] =
+    "yatm_mesecon_card_readers:mesecon_card_swiper_off",
+  ["yatm_mesecon_locks:mesecon_card_swiper_on"] =
+    "yatm_mesecon_card_readers:mesecon_card_swiper_on",
 }
 
 for from, to in pairs(migrations) do
-  minetest.register_lbm({
+  core.register_lbm({
     name = "yatm_mesecon_card_readers:migrate_" .. string.gsub(from, ":", "_"),
     nodenames = {
       from,
@@ -14,7 +20,7 @@ for from, to in pairs(migrations) do
     run_at_every_load = false,
     action = function (pos, node)
       node.name = to
-      minetest.swap_node(pos, node)
+      swap_node(pos, node)
     end
   })
 end

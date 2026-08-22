@@ -26,9 +26,13 @@ local ic = assert(ItemTransportNetwork.instance_class)
 function ic:initialize(options)
   ic._super.initialize(self, options)
 
-  yatm.clusters:observe('on_block_expired', 'item_transport_network/block_unloader', function (block_id)
-    self:unload_block(block_id)
-  end)
+  yatm.clusters:observe(
+    "on_block_expired",
+    "item_transport_network/block_unloader",
+    function (block_id)
+      self:unload_block(block_id)
+    end
+  )
 end
 
 --- @spec #update_hopper(network: Network, hopper_hash: Integer, hopper: NetworkMember): void
@@ -71,13 +75,13 @@ function ic:update_extractor_duct(network, extractor_hash, extractor, items_avai
     local stack, err = ItemDevice.get_item(new_pos, node_face_dir)
     if err then
       if network.debug then
-        print("ITN: update_extractor_duct error", err, minetest.pos_to_string(new_pos), inspect_axis(node_face_dir))
+        print("ITN: update_extractor_duct error", err, core.pos_to_string(new_pos), inspect_axis(node_face_dir))
       end
     else
       if itemstack_is_blank(stack) then
         --
       else
-        local new_hash = minetest.hash_node_position(new_pos)
+        local new_hash = core.hash_node_position(new_pos)
         if not items_available[extractor_hash] then
           items_available[extractor_hash] = {}
         end
@@ -89,7 +93,7 @@ function ic:update_extractor_duct(network, extractor_hash, extractor, items_avai
         }
 
         if network.debug then
-          print("DEBUG", self.m_description, minetest.pos_to_string(new_pos), inspect_axis(node_face_dir), "found an item stack", stack:to_string())
+          print("DEBUG", self.m_description, core.pos_to_string(new_pos), inspect_axis(node_face_dir), "found an item stack", stack:to_string())
         end
       end
     end
@@ -127,7 +131,7 @@ function ic:update_inserter_duct(network, inserter_hash, inserter, items_availab
           local remaining, err = ItemDevice.insert_item(target_pos, insert_dir, stack, true)
           if err then
             if network.debug then
-              print(self.m_description, "insert_item error", err, minetest.pos_to_string(target_pos), inspect_axis(insert_dir))
+              print(self.m_description, "insert_item error", err, core.pos_to_string(target_pos), inspect_axis(insert_dir))
             end
             new_entries[entry_hash] = entry
           else
@@ -135,8 +139,8 @@ function ic:update_inserter_duct(network, inserter_hash, inserter, items_availab
               local extracted, err = ItemDevice.extract_item(entry.pos, entry.dir, stack, true)
               if extracted then
                 if network.debug then
-                  print(self.m_description, "inserted item", minetest.pos_to_string(target_pos), inspect_axis(insert_dir), itemstack_inspect(stack))
-                  print(self.m_description, "remaining item", minetest.pos_to_string(target_pos), inspect_axis(insert_dir), itemstack_inspect(remaining))
+                  print(self.m_description, "inserted item", core.pos_to_string(target_pos), inspect_axis(insert_dir), itemstack_inspect(stack))
+                  print(self.m_description, "remaining item", core.pos_to_string(target_pos), inspect_axis(insert_dir), itemstack_inspect(remaining))
                 end
 
                 local new_stack = ItemStack(entry.stack)
@@ -151,14 +155,20 @@ function ic:update_inserter_duct(network, inserter_hash, inserter, items_availab
               end
             else
               if network.debug then
-                print(self.m_description, "remaining is not empty", minetest.pos_to_string(target_pos), inspect_axis(insert_dir), itemstack_inspect(stack), itemstack_inspect(remaining))
+                print(
+                  self.m_description,
+                  "remaining is not empty",
+                  core.pos_to_string(target_pos),
+                  inspect_axis(insert_dir),
+                  itemstack_inspect(stack),
+                  itemstack_inspect(remaining))
               end
               new_entries[entry_hash] = entry
             end
           end
         else
           if network.debug then
-            print(self.m_description, "no room for item", err, minetest.pos_to_string(target_pos), inspect_axis(insert_dir))
+            print(self.m_description, "no room for item", err, core.pos_to_string(target_pos), inspect_axis(insert_dir))
           end
           new_entries[entry_hash] = entry
         end
@@ -230,7 +240,7 @@ do
     yatm_item_ducts.item_transport_network:method("update")
   )
 
-  minetest.register_lbm({
+  core.register_lbm({
     name = "yatm_item_ducts:item_transport_network_reload_lbm",
     nodenames = {
       "group:item_network_device",

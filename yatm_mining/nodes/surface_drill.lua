@@ -6,6 +6,9 @@ local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
 local player_service = assert(nokore.player_service)
 local drill_node_to_meta_inventory = assert(yatm.mining.drill_node_to_meta_inventory)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local set_node = assert(tetra.set_node)
 
 local function maybe_initialize_inventory(meta)
   local inv = meta:get_inventory()
@@ -14,7 +17,7 @@ local function maybe_initialize_inventory(meta)
 end
 
 local function on_construct(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   maybe_initialize_inventory(meta)
 
@@ -58,13 +61,13 @@ local function update_bit(ctx)
   }
   while true do
     mine_pos = vector.add(mine_pos, mine_dirv3)
-    local mine_node = minetest.get_node(mine_pos)
+    local mine_node = get_node(mine_pos)
     if mine_node.name == "air" then
       --print("SET NODE", mine_pos.x, mine_pos.y, mine_pos.z, bit_node.name, bit_node.param2)
-      minetest.set_node(mine_pos, bit_node)
+      set_node(mine_pos, bit_node)
       return true
     else
-      local mine_nodedef = minetest.registered_nodes[mine_node.name]
+      local mine_nodedef = core.registered_nodes[mine_node.name]
       if mine_nodedef then
         if mine_nodedef.groups.surface_drill_bit then
           --print("IS BIT", mine_pos.x, mine_pos.y, mine_pos.z)
@@ -111,8 +114,8 @@ function surface_drill_yatm_network:work(ctx)
 
     while true do
       ext_pos = vector.add(ext_pos, up_dirv3)
-      ext_node = minetest.get_node(ext_pos)
-      ext_nodedef = minetest.registered_nodes[ext_node.name]
+      ext_node = get_node(ext_pos)
+      ext_nodedef = core.registered_nodes[ext_node.name]
       if ext_nodedef then
         --print("node def", ext_pos.x, ext_pos.y, ext_pos.z, ext_node.name)
         if ext_nodedef.groups.surface_drill_ext then
@@ -150,7 +153,7 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine" }, function (loc, rect)
     if loc == "main_body" then
@@ -215,7 +218,7 @@ local function on_rightclick(pos, node, user)
     pos = pos,
     node = node,
   }
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   maybe_initialize_inventory(meta)
   local formspec = render_formspec(pos, user, state)
 
@@ -267,6 +270,7 @@ yatm.devices.register_stateful_network_device({
   paramtype2 = "facedir",
   yatm_network = surface_drill_yatm_network,
 
+  on_construct = on_construct,
   on_rightclick = on_rightclick,
 }, {
   error = {
@@ -373,7 +377,7 @@ yatm.devices.register_stateful_network_device({
   }
 })
 
-minetest.register_node("yatm_mining:surface_drill_bit", {
+core.register_node("yatm_mining:surface_drill_bit", {
   description = "Surface Drill Bit",
 
   codex_entry_id = "yatm_mining:surface_drill_bit",

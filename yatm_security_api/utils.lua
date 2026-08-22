@@ -1,8 +1,9 @@
 local Groups = assert(foundation.com.Groups)
+local get_meta = assert(tetra.get_meta)
 
 function yatm.security.on_rightclick_access_card(pos, node, clicker, itemstack, pointed_thing)
-  local meta = minetest.get_meta(pos)
-  local nodedef = minetest.registered_nodes[node.name]
+  local meta = get_meta(pos)
+  local nodedef = core.registered_nodes[node.name]
   local inv = meta:get_inventory()
 
   local access_card = inv:get_stack("access_card_slot", 1)

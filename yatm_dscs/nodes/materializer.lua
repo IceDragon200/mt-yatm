@@ -4,6 +4,7 @@
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
+local get_meta = assert(tetra.get_meta)
 
 local materializer_yatm_network = {
   kind = "machine",
@@ -34,7 +35,7 @@ function materializer_yatm_network:work(ctx)
 end
 
 local function refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local infotext =
     "Materializer\n" ..
     cluster_devices:get_node_infotext(pos) .. "\n" ..

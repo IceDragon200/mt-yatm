@@ -14,6 +14,8 @@ local FluidExchange = assert(yatm.fluids.FluidExchange)
 local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
 local player_service = assert(nokore.player_service)
+local get_node = assert(tetra.get_node)
+local get_meta = assert(tetra.get_meta)
 
 local distillation_unit_yatm_network = {
   kind = "machine",
@@ -49,7 +51,7 @@ local DISTILLED_TANK = "distilled_tank"
 local TANK_CAPACITY = 16000
 
 local function get_fluid_tank_name(self, pos, dir)
-  local node = minetest.get_node(pos)
+  local node = get_node(pos)
   local new_dir = Directions.facedir_to_face(node.param2, dir)
   if new_dir == Directions.D_UP then
     return OUTPUT_STEAM_TANK, self._private.capacity
@@ -66,7 +68,7 @@ fluid_interface._private.capacity = TANK_CAPACITY
 fluid_interface._private.bandwidth = fluid_interface._private.capacity
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  local node = minetest.get_node(pos)
+  local node = get_node(pos)
   yatm.queue_refresh_infotext(pos, node)
 end
 
@@ -252,7 +254,7 @@ function distillation_unit_yatm_network:work(ctx)
 end
 
 local function refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   local output_steam_fluid_stack = FluidMeta.get_fluid_stack(meta, OUTPUT_STEAM_TANK)
   local input_steam_fluid_stack = FluidMeta.get_fluid_stack(meta, INPUT_STEAM_TANK)
@@ -270,11 +272,14 @@ local function refresh_infotext(pos)
   local capacity = fluid_interface._private.capacity
 
   infotext =
-    infotext .. "\n" ..
-    cluster_energy:get_node_infotext(pos) .. "(" .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. " E)" .. "\n" ..
-    "I.Steam Tank: " .. FluidStack.pretty_format(input_steam_fluid_stack, capacity) .. "\n" ..
-    "O.Steam Tank: " .. FluidStack.pretty_format(output_steam_fluid_stack, capacity) .. "\n" ..
-    "Distilled Tank: " .. FluidStack.pretty_format(distilled_fluid_stack, capacity)
+    string.format(
+      "%s\n%s(%s E)\nI.Steam Tank: %s\nO.Steam Tank: %s\nDistilled Tank: %s\n",
+      infotext,
+      cluster_energy:get_node_infotext(pos), Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY),
+      FluidStack.pretty_format(input_steam_fluid_stack, capacity),
+      FluidStack.pretty_format(output_steam_fluid_stack, capacity),
+      FluidStack.pretty_format(distilled_fluid_stack, capacity)
+    )
 
   meta:set_string("infotext", infotext)
 end
@@ -282,7 +287,7 @@ end
 local function render_formspec(pos, user, state)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
 

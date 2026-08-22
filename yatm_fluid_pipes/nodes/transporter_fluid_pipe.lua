@@ -1,15 +1,15 @@
-local list_concat = assert(foundation.com.list_concat)
 local fluid_transport_network = assert(yatm.fluids.fluid_transport_network)
+local get_node = assert(tetra.get_node)
 
 local function on_construct(pos)
-  local node = minetest.get_node(pos)
+  local node = get_node(pos)
   fluid_transport_network:register_member(pos, node)
 end
 
-local function pipe_on_destruct(pos)
+local function on_destruct(pos)
 end
 
-local function pipe_after_destruct(pos, _old_node)
+local function after_destruct(pos, _old_node)
   fluid_transport_network:unregister_member(pos)
 end
 
@@ -45,7 +45,7 @@ for _,row in ipairs(yatm.colors_with_default) do
     table.insert(connects_to, "group:valve_fluid_pipe_default")
   end
 
-  minetest.register_node(node_name, {
+  core.register_node(node_name, {
     basename = "yatm_fluid_pipes:transporter_fluid_pipe",
 
     description = "Transporter Fluid Pipe (" .. color_name .. ")",
@@ -84,6 +84,7 @@ for _,row in ipairs(yatm.colors_with_default) do
     dye_color = color_basename,
 
     on_construct = on_construct,
-    on_destruct = pipe_on_destruct,
+    on_destruct = on_destruct,
+    after_destruct = after_destruct,
   })
 end

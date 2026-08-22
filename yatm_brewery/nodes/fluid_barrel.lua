@@ -17,6 +17,10 @@ local FluidStack = assert(yatm.fluids.FluidStack)
 local player_service = assert(nokore.player_service)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = assert(Cuboid.new_fast_node_box)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
+local swap_node = assert(tetra.swap_node)
 
 local barrel_nodebox = {
   type = "fixed",
@@ -51,7 +55,7 @@ local BARREL_CAPACITY = 36000 -- 36 buckets
 local BARREL_DRAIN_BANDWIDTH = BARREL_CAPACITY
 
 local function on_construct(pos)
-  local node = minetest.get_node(pos)
+  local node = get_node(pos)
   yatm.queue_refresh_infotext(pos, node)
 end
 
@@ -64,10 +68,10 @@ end
 --
 local function lid_on_place(item_stack, user, pointed_thing)
   local under_pos = pointed_thing.under
-  local under_node = minetest.get_node_or_nil(under_pos)
+  local under_node = get_node_or_nil(under_pos)
 
   if under_node then
-    local nodedef = minetest.registered_nodes[under_node.name]
+    local nodedef = core.registered_nodes[under_node.name]
 
     if nodedef then
       local barrel_def = nodedef.barrel_def
@@ -76,16 +80,16 @@ local function lid_on_place(item_stack, user, pointed_thing)
         if barrel_def.states.lid == item_stack:get_name() then
           local playername = user:get_player_name()
 
-          if minetest.is_protected(under_pos, playername) then
-            minetest.log(
+          if core.is_protected(under_pos, playername) then
+            core.log(
               "action",
               playername ..
               " tried to place " ..
-              def.name .. " at protected position " ..
-              minetest.pos_to_string(under_pos)
+              barrel_def.name .. " at protected position " ..
+              core.pos_to_string(under_pos)
             )
 
-            minetest.record_protection_violation(under_pos, playername)
+            core.record_protection_violation(under_pos, playername)
             return item_stack, nil
           end
 
@@ -97,7 +101,7 @@ local function lid_on_place(item_stack, user, pointed_thing)
 
           item_stack:take_item()
 
-          minetest.swap_node(under_pos, new_node)
+          swap_node(under_pos, new_node)
 
           return item_stack, under_pos
         end
@@ -105,7 +109,7 @@ local function lid_on_place(item_stack, user, pointed_thing)
     end
   end
 
-  return minetest.item_place_node(item_stack, user, pointed_thing)
+  return core.item_place_node(item_stack, user, pointed_thing)
 end
 
 -- @spec on_pry(
@@ -117,7 +121,7 @@ end
 local function on_pry(pos, node, user, pointed_thing)
   local drops = {}
 
-  local nodedef = minetest.registered_nodes[node.name]
+  local nodedef = core.registered_nodes[node.name]
 
   if nodedef then
     local barrel_def = nodedef.barrel_def
@@ -128,7 +132,7 @@ local function on_pry(pos, node, user, pointed_thing)
         param2 = node.param2,
       }
 
-      minetest.swap_node(pos, new_node)
+      swap_node(pos, new_node)
 
       if barrel_def.states.lid then
         local lid_stack = ItemStack({ name = barrel_def.states.lid })
@@ -141,7 +145,7 @@ local function on_pry(pos, node, user, pointed_thing)
 end
 
 local function refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local fluid_stack = FluidTanks.get_fluid(pos, Directions.D_NONE)
 
   local infotext =
@@ -154,7 +158,7 @@ end
 local fluid_interface = FluidInterface.new_simple("tank", BARREL_CAPACITY)
 
 function fluid_interface:on_fluid_changed(pos, dir, _fluid_stack)
-  local node = minetest.get_node(pos)
+  local node = get_node(pos)
   yatm.queue_refresh_infotext(pos, node)
 end
 
@@ -163,10 +167,10 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   -- local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   local bg = "wood"
-  local nodedef = minetest.registered_nodes[state.node.name]
+  local nodedef = core.registered_nodes[state.node.name]
 
   if Groups.has_group(nodedef, "metal_fluid_barrel") then
     bg = "default"
@@ -253,7 +257,7 @@ for _,row in ipairs(yatm.colors_with_default) do
     }
   }
 
-  minetest.register_node(closed_name, {
+  core.register_node(closed_name, {
     codex_entry_id = "yatm_brewery:fluid_barrel_wood",
 
     basename = "yatm_brewery:fluid_barrel_wood",
@@ -305,7 +309,7 @@ for _,row in ipairs(yatm.colors_with_default) do
     }),
   })
 
-  minetest.register_node(opened_name, {
+  core.register_node(opened_name, {
     codex_entry_id = "yatm_brewery:fluid_barrel_wood",
 
     basename = "yatm_brewery:fluid_barrel_wood",
@@ -356,7 +360,7 @@ for _,row in ipairs(yatm.colors_with_default) do
     }),
   })
 
-  minetest.register_node(lid_name, {
+  core.register_node(lid_name, {
     codex_entry_id = "yatm_brewery:fluid_barrel_wood_lid",
 
     basename = "yatm_brewery:fluid_barrel_wood_lid",
@@ -412,7 +416,7 @@ for _,row in ipairs(yatm.colors_with_default) do
     }
   }
 
-  minetest.register_node(closed_name, {
+  core.register_node(closed_name, {
     codex_entry_id = "yatm_brewery:fluid_barrel_metal",
 
     basename = "yatm_brewery:fluid_barrel_metal",
@@ -464,7 +468,7 @@ for _,row in ipairs(yatm.colors_with_default) do
     }),
   })
 
-  minetest.register_node(opened_name, {
+  core.register_node(opened_name, {
     codex_entry_id = "yatm_brewery:fluid_barrel_metal",
 
     basename = "yatm_brewery:fluid_barrel_metal",
@@ -515,7 +519,7 @@ for _,row in ipairs(yatm.colors_with_default) do
     }),
   })
 
-  minetest.register_node(lid_name, {
+  core.register_node(lid_name, {
     codex_entry_id = "yatm_brewery:fluid_barrel_metal_lid",
 
     basename = "yatm_brewery:fluid_barrel_metal_lid",
@@ -528,6 +532,7 @@ for _,row in ipairs(yatm.colors_with_default) do
       oddly_breakable_by_hand = nokore.dig_class("hand"),
       --
       barrel_lid = 1,
+      not_in_creative_inventory = 1,
     },
     sounds = yatm.node_sounds:build("metal"),
     tiles = {

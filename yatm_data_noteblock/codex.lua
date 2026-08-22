@@ -14,7 +14,7 @@ yatm.codex.register_demo("yatm_data_noteblock:data_noteblock_demo_1", {
     local base_name
     if yatm_foundry then
       base_name = "yatm_foundry:concrete_bare_white"
-    elseif default then
+    elseif rawget(_G, "default") then
       base_name = "default:stone"
     else
       base_name = "air"

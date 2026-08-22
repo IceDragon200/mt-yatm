@@ -7,7 +7,7 @@ end
 
 local mod = yatm_rails
 
-minetest.register_entity(mod:make_name("fluid_cart"), {
+core.register_entity(mod:make_name("fluid_cart"), {
   initial_properties = {
     physical = false,
   },

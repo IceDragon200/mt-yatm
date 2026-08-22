@@ -1,11 +1,11 @@
 RELEASE_DIR=${TMP_DIR}/yatm
 
 all:
-	make -C yatm_oku
+	make -C yatm_oku_emu_6502
 
 .PHONY : luacheck
 luacheck:
-	luacheck .
+	luacheck --quiet .
 
 # Release step specifically when the modpack is under a game, this will copy
 # the modpack to the RELEASE_DIR
@@ -20,6 +20,7 @@ prepare.release:
 	cp -r --parents yatm_bees "${RELEASE_DIR}"
 	cp -r --parents yatm_blasts "${RELEASE_DIR}"
 	cp -r --parents yatm_blasts_emp "${RELEASE_DIR}"
+	cp -r --parents yatm_blasts_explosive "${RELEASE_DIR}"
 	cp -r --parents yatm_blasts_frost "${RELEASE_DIR}"
 	cp -r --parents yatm_brewery "${RELEASE_DIR}"
 	cp -r --parents yatm_brewery_apple_cider "${RELEASE_DIR}"
@@ -68,11 +69,14 @@ prepare.release:
 	cp -r --parents yatm_mesecon_sequencer "${RELEASE_DIR}"
 	cp -r --parents yatm_mining "${RELEASE_DIR}"
 	cp -r --parents yatm_oku "${RELEASE_DIR}"
-	rm -rf "${RELEASE_DIR}/yatm_oku/ext"
+	cp -r --parents yatm_oku_emu_6502 "${RELEASE_DIR}"
+	rm -rf "${RELEASE_DIR}/yatm_oku_emu_6502/ext"
+	cp -r --parents yatm_oku_emu_forth "${RELEASE_DIR}"
 	cp -r --parents yatm_overhead_rails "${RELEASE_DIR}"
 	cp -r --parents yatm_packs "${RELEASE_DIR}"
 	cp -r --parents yatm_papercraft "${RELEASE_DIR}"
 	cp -r --parents yatm_plastics "${RELEASE_DIR}"
+	cp -r --parents yatm_radio_network "${RELEASE_DIR}"
 	cp -r --parents yatm_rails "${RELEASE_DIR}"
 	cp -r --parents yatm_reactions "${RELEASE_DIR}"
 	cp -r --parents yatm_reactors "${RELEASE_DIR}"

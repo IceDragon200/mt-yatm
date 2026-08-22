@@ -3,6 +3,9 @@ local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
 local EnergyDevices = assert(yatm.energy.EnergyDevices)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local swap_node = assert(tetra.swap_node)
 
 -- network frames * seconds * minutes
 local hours = 20 * 60 * 60
@@ -22,9 +25,9 @@ local cell_types = {
 }
 
 local function energy_cell_refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
+  local meta = get_meta(pos)
+  local node = get_node(pos)
+  local nodedef = core.registered_nodes[node.name]
 
   local usable = EnergyDevices.get_usable_stored_energy(pos, node)
 
@@ -69,20 +72,20 @@ for cell_type, cell_config in pairs(cell_types) do
   }
 
   local function on_energy_changed(pos, node)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     local current_energy = Energy.get_meta_energy(meta, "internal")
     local stage = math.min(num_round(7 * current_energy / cell_config.capacity), 7);
 
     local new_name = energy_cell_yatm_network.basename .. "_" .. stage
     if node.name ~= new_name then
       node.name = new_name
-      minetest.swap_node(pos, node)
+      swap_node(pos, node)
     end
     yatm.queue_refresh_infotext(pos, node)
   end
 
   function energy_cell_yatm_network.energy.receive_energy(pos, node, amount)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     local used_amount = Energy.receive_meta_energy(meta, "internal", amount, cell_config.bandwidth, cell_config.capacity, true)
     if used_amount > 0 then
       on_energy_changed(pos, node)
@@ -91,12 +94,12 @@ for cell_type, cell_config in pairs(cell_types) do
   end
 
   function energy_cell_yatm_network.energy.get_usable_stored_energy(pos, node)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     return Energy.get_meta_energy_throughput(meta, "internal", cell_config.bandwidth)
   end
 
   function energy_cell_yatm_network.energy.use_stored_energy(pos, node, amount)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     local consumed_amount = Energy.consume_meta_energy(meta, "internal", amount, cell_config.bandwidth, cell_config.capacity, true)
     if consumed_amount > 0 then
       on_energy_changed(pos, node)

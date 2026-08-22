@@ -10,7 +10,7 @@ local ng = assert(Cuboid.new_fast_node_box)
 
 local mod = yatm_rails
 
-minetest.register_entity(mod:make_name("battery_cart"), {
+core.register_entity(mod:make_name("battery_cart"), {
   initial_properties = {
     physical = false,
     --collide_with_objects = true,

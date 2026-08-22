@@ -1,7 +1,7 @@
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 
-minetest.register_node("yatm_mining:quarry_wall", {
+core.register_node("yatm_mining:quarry_wall", {
   description = "Quarry Wall",
 
   groups = {

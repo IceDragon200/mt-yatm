@@ -2,13 +2,16 @@ yatm.cables = yatm_cables
 
 local copy_node = assert(foundation.com.copy_node)
 local table_merge = assert(foundation.com.table_merge)
-
+--
+local get_node = assert(tetra.get_node)
+local swap_node = assert(tetra.swap_node)
+--
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 
 function yatm_cables.cable_on_construct(pos)
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
+  local node = get_node(pos)
+  local nodedef = core.registered_nodes[node.name]
   if nodedef.groups["yatm_cluster_device"] then
     cluster_devices:schedule_add_node(pos, node)
   end
@@ -19,7 +22,7 @@ end
 
 function yatm_cables.cable_after_destruct(pos, old_node)
   -- let the system know it needs to refresh the network topography
-  local nodedef = minetest.registered_nodes[old_node.name]
+  local nodedef = core.registered_nodes[old_node.name]
   if nodedef.groups["yatm_cluster_device"] then
     cluster_devices:schedule_remove_node(pos, old_node)
   end
@@ -30,7 +33,7 @@ end
 
 function yatm_cables.cable_transition_device_state(pos, node, state, reason)
   reason = reason or "cable_transition_device_state"
-  local nodedef = minetest.registered_nodes[node.name]
+  local nodedef = core.registered_nodes[node.name]
   if nodedef.yatm_network.states then
     local new_node_name
     if state == "down" then
@@ -47,7 +50,7 @@ function yatm_cables.cable_transition_device_state(pos, node, state, reason)
       if node.name ~= new_node_name then
         local new_node = copy_node(node)
         new_node.name = new_node_name
-        minetest.swap_node(pos, new_node)
+        swap_node(pos, new_node)
 
         if nodedef.groups["yatm_cluster_device"] then
           cluster_devices:schedule_update_node(pos, new_node, reason)
@@ -62,13 +65,16 @@ end
 
 function yatm_cables.register_cable_state(params, size)
   local texture_basename = assert(params.texture_basename, "expected a texture_basename")
-  local texture_name = nil
+  local texture_name
   local name = params.name
 
   local states = {}
 
   if params.state then
-    texture_name = texture_basename .. assert(params.state_postfix) .. assert(params.postfix) .. ".png"
+    texture_name =
+      texture_basename
+      .. assert(params.state_postfix)
+      .. assert(params.postfix) .. ".png"
 
     -- the cable has multiple states
     for _,sub_state in ipairs(params.states) do
@@ -123,7 +129,7 @@ function yatm_cables.register_cable_state(params, size)
     end
   end
 
-  minetest.register_node(name, {
+  core.register_node(name, {
     basename = params.basename,
     base_description = params.base_description or params.description,
 

@@ -1,7 +1,8 @@
 local item_transport_network = assert(yatm.item_transport.item_transport_network)
+local get_node = assert(tetra.get_node)
 
 local function on_construct(pos, _placer, _itemstack, _pointed_thing)
-  local node = minetest.get_node(pos)
+  local node = get_node(pos)
   item_transport_network:register_member(pos, node)
 end
 
@@ -12,7 +13,7 @@ end
 local fsize = (10 / 16.0) / 2
 local size = (8 / 16.0) / 2
 
-minetest.register_node("yatm_item_ducts:extractor_item_duct", {
+core.register_node("yatm_item_ducts:extractor_item_duct", {
   description = "Extractor Item Duct",
 
   codex_entry_id = "yatm_item_ducts:extractor_item_duct",

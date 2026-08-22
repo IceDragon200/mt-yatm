@@ -158,7 +158,7 @@ do
     local list = self.m_lists[list_name]
     if list then
       for _, slot_stack in pairs(list.entries) do
-        if FluidStack.same_fluid(slot_stack, fluid_stack) then
+        if FluidStack.is_same_fluid(slot_stack, fluid_stack) then
           return slot_stack.amount >= fluid_stack.amount, ErrorCodes.ERR_OK
         end
       end
@@ -195,8 +195,8 @@ do
         new_stack = nil
         if FluidStack.is_empty(slot_stack) then
           new_stack = FluidStack.copy(remaining_stack)
-        elseif FluidStack.same_fluid(slot_stack, remaining_stack) then
-          new_stack = FluidStack.merge(slot_stack, remaining_stack)
+        elseif FluidStack.is_same_fluid(slot_stack, remaining_stack) then
+          new_stack = FluidStack.merge_new(slot_stack, remaining_stack)
         end
 
         if new_stack then
@@ -233,18 +233,18 @@ do
 
   --- @spec #deserialize(blob: String): self
   function ic:deserialize(blob)
-    local dumped_data = minetest.deserialize(blob)
+    local dumped_data = core.deserialize(blob)
     return self:from_table(dumped_data)
   end
 
   --- @spec #serialize(): String
   function ic:serialize()
-    return minetest.serialize(self:to_table())
+    return core.serialize(self:to_table())
   end
 
   --- @spec #deserialize_list(list_name: String, blob: String): self
   function ic:deserialize_list(list_name, blob)
-    local dumped_data = minetest.deserialize(blob)
+    local dumped_data = core.deserialize(blob)
     self.m_lists[list_name] = dumped_data
     return self
   end
@@ -252,7 +252,7 @@ do
   --- @spec #serialize_list(list_name: String): String
   function ic:serialize_list(list_name)
     local list = assert(self.m_lists[list_name], "expected list to exist")
-    return minetest.serialize(list)
+    return core.serialize(list)
   end
 end
 

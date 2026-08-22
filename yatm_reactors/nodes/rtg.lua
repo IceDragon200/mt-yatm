@@ -5,6 +5,7 @@
 
 ]]
 local mod = assert(yatm_reactors)
+
 local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
 local cluster_devices = assert(yatm.cluster.devices)
@@ -13,9 +14,10 @@ local Energy = assert(yatm.energy)
 local Vector3 = assert(foundation.com.Vector3)
 local player_service = assert(nokore.player_service)
 local device_swap_node_by_state = assert(yatm.devices.device_swap_node_by_state)
+local get_meta = assert(tetra.get_meta)
 
 local function refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   local burn_time = meta:get_float("burn_time")
   local burn_time_max = meta:get_float("burn_time_max")
@@ -56,7 +58,7 @@ local yatm_network = {
 ---   trace: Trace
 --- ): (energy: Number)
 function yatm_network.energy.produce_energy(pos, node, dtime, trace)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   --- RTGs produce a fixed amount of energy per-second
   local en_amount = 10 * dtime
@@ -70,7 +72,7 @@ end
 
 --- @spec update(pos: Vector3, node: NodeRef, dtime: Float, trace: Trace): void
 function yatm_network.update(pos, node, dtime, trace)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   local inv = meta:get_inventory()
 
@@ -90,7 +92,7 @@ local function maybe_initialize_inventory(meta)
 end
 
 local function on_construct(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   maybe_initialize_inventory(meta)
 end
@@ -101,7 +103,7 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine_electric" }, function (loc, rect)
     if loc == "main_body" then
@@ -136,7 +138,7 @@ local function on_rightclick(pos, node, user)
     pos = pos,
     node = node,
   }
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local formspec = render_formspec(pos, user, state)
 
   maybe_initialize_inventory(meta)

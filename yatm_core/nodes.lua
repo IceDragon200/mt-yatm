@@ -1,5 +1,7 @@
-minetest.register_node("yatm_core:face_debug", {
-  description = "Face Debug",
+local mod = assert(yatm_core)
+
+core.register_node("yatm_core:face_debug", {
+  description = mod.S("Face Debug"),
 
   groups = {
     cracky = nokore.dig_class("wme"),
@@ -22,8 +24,8 @@ minetest.register_node("yatm_core:face_debug", {
   is_ground_content = false,
 })
 
-minetest.register_node("yatm_core:grid_block", {
-  description = "GRID\nDummy Block",
+core.register_node("yatm_core:grid_block", {
+  description = mod.S("GRID\nDummy Block"),
 
   groups = {
     cracky = nokore.dig_class("wme"),

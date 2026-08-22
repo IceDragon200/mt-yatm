@@ -2,11 +2,11 @@ local mod = assert(yatm_item_hoppers)
 
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = assert(Cuboid.new_fast_node_box)
-
+local get_node = assert(tetra.get_node)
 local item_transport_network = assert(yatm.item_transport.item_transport_network)
 
 local function after_place_node(pos, _placer, _itemstack, _pointed_thing)
-  local node = minetest.get_node(pos)
+  local node = get_node(pos)
   item_transport_network:register_member(pos, node)
 end
 

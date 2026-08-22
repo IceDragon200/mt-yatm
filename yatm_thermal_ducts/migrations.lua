@@ -1,3 +1,5 @@
+local swap_node = assert(tetra.swap_node)
+
 local migrations = {
   ["yatm_cluster_thermal:thermal_duct_off"] = "yatm_thermal_ducts:thermal_duct_off",
   ["yatm_cluster_thermal:thermal_duct_heating"] = "yatm_thermal_ducts:thermal_duct_heating",
@@ -10,7 +12,7 @@ local migrations = {
 }
 
 for from, to in pairs(migrations) do
-  minetest.register_lbm({
+  core.register_lbm({
     name = "yatm_thermal_ducts:migrate_" .. string.gsub(from, ":", "_"),
 
     nodenames = {
@@ -20,7 +22,7 @@ for from, to in pairs(migrations) do
 
     action = function (pos, node)
       node.name = to
-      minetest.swap_node(pos, node)
+      swap_node(pos, node)
     end
   })
 end

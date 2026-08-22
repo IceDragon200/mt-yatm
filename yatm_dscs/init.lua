@@ -13,10 +13,10 @@ mod:require("items.lua")
 
 mod:require("migrations.lua")
 
-if minetest.global_exists("yatm_codex") then
+if core.global_exists("yatm_codex") then
   mod:require("codex.lua")
 end
 
-if minetest.global_exists("yatm_autotest") then
+if core.global_exists("yatm_autotest") then
   mod:require("autotest.lua")
 end

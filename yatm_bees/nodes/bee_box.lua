@@ -8,7 +8,7 @@ local table_sample = assert(foundation.com.table_sample)
 local list_sample = assert(foundation.com.list_sample)
 local ItemInterface = assert(yatm.items.ItemInterface)
 local fspec = assert(foundation.com.formspec.api)
-local Vector3 = foundation.com.Vector3
+local Vector3 = assert(foundation.com.Vector3)
 local player_service = assert(nokore.player_service)
 local maybe_start_node_timer = assert(foundation.com.maybe_start_node_timer)
 --
@@ -17,15 +17,18 @@ local itemstack_is_bee = assert(yatm.bees.itemstack_is_bee)
 local itemstack_is_bee_queen = assert(yatm.bees.itemstack_is_bee_queen)
 local itemstack_is_bee_princess = assert(yatm.bees.itemstack_is_bee_princess)
 local itemstack_is_bee_worker = assert(yatm.bees.itemstack_is_bee_worker)
+--
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
 
 local MAX_FRAMES = 4
 
 local function render_formspec(pos, user, _state)
   assert(user, "expected a user")
 
-  local meta = minetest.get_meta(pos)
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
+  local meta = get_meta(pos)
+  local node = get_node(pos)
+  local nodedef = core.registered_nodes[node.name]
 
   local cio = fspec.calc_inventory_offset
 
@@ -107,7 +110,7 @@ local groups = {
 }
 
 local function on_construct(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   -- There are 4 rows of comb slots each with 4 columns
@@ -130,7 +133,7 @@ local function on_construct(pos)
 end
 
 local function on_timer(pos, elapsed)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   -- https://animals.howstuffworks.com/insects/bee
@@ -142,8 +145,10 @@ local function on_timer(pos, elapsed)
   -- It will lay eggs which will produce "brood combs", which will eventually hatch into workers.
   -- Princesses can aid with speeding up the process of hatching brood combs into workers.
   -- Princesses can be hatched directly from brood combs, or nurtured from existing workers.
-  -- If a hive is left without a Queen, but has a princess, the princess can be nutured into a Queen.
-  -- If a hive has neither Queen nor Princesses, workers will slowly die off unless there are existing "brood combs"
+  -- If a hive is left without a Queen, but has a princess, the princess can be nutured into
+  -- a Queen.
+  -- If a hive has neither Queen nor Princesses, workers will slowly die off unless there are
+  -- existing "brood combs"
 
   local hive_death = true
   local can_make_combs = false
@@ -368,7 +373,7 @@ local function on_rightclick(pos, node, user)
 end
 
 local function can_dig(pos, player)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   for i = 1,MAX_FRAMES do
@@ -400,7 +405,7 @@ local function allow_metadata_inventory_put(pos, list_name, index, stack, player
   return 0
 end
 
-local function on_metadata_inventory_move(pos, from_index, to_list, to_index, count, player)
+local function on_metadata_inventory_move(pos, from_index, to_list, to_index, count, placer)
   maybe_start_node_timer(pos, 1.0)
   if list == "frame_slots" then
     nokore.formspec_bindings:refresh_formspecs(make_formspec_name(pos), function (player_name, state)
@@ -410,7 +415,7 @@ local function on_metadata_inventory_move(pos, from_index, to_list, to_index, co
   end
 end
 
-local function on_metadata_inventory_put(pos, list, index, item_stack, player)
+local function on_metadata_inventory_put(pos, list, index, item_stack, placer)
   maybe_start_node_timer(pos, 1.0)
   if list == "queen_slot" then
   elseif list == "frame_slots" then
@@ -421,7 +426,7 @@ local function on_metadata_inventory_put(pos, list, index, item_stack, player)
   end
 end
 
-local function on_metadata_inventory_take(pos, list, index, item_stack, player)
+local function on_metadata_inventory_take(pos, list, index, item_stack, placer)
   maybe_start_node_timer(pos, 1.0)
   if list == "frame_slots" then
     nokore.formspec_bindings:refresh_formspecs(make_formspec_name(pos), function (player_name, state)

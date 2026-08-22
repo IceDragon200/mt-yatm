@@ -5,19 +5,20 @@
 --   Normal mode - input streams are treated as single numbers and will be affected by overflows
 --   Vector mode - input streams are vectors, each byte in the stream is a single
 --                 number and overflow is treated as a loop around
+local mod = assert(yatm_data_logic)
+
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local string_hex_unescape = assert(foundation.com.string_hex_unescape)
-local string_hex_escape = assert(foundation.com.string_hex_escape)
-local string_split = assert(foundation.com.string_split)
 local table_merge = assert(foundation.com.table_merge)
-local table_copy = assert(foundation.com.table_copy)
-local is_table_empty = assert(foundation.com.is_table_empty)
 local list_get_next = assert(foundation.com.list_get_next)
 local Directions = assert(foundation.com.Directions)
 local data_network = assert(yatm.data_network)
 local fspec = assert(foundation.com.formspec.api)
 local data_math = assert(yatm_data_logic.data_math)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local swap_node = assert(tetra.swap_node)
 
 local OPERAND_A = 1
 local OPERAND_X = 2
@@ -89,7 +90,7 @@ end
 
 local function get_input_values(pos)
   local sub_network_ids = data_network:get_sub_network_ids(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local result = {}
 
   for _, dir in ipairs(Directions.DIR6) do
@@ -134,7 +135,7 @@ local data_interface = {
   end,
 
   receive_pdu = function (self, pos, node, dir, port, value)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
 
     local needs_refresh = false
     local should_exec = false
@@ -203,8 +204,8 @@ local data_interface = {
           {
             component = "render",
             render = function (self, rect, pos, player, pointed_thing, assigns)
-              local meta = minetest.get_meta(pos)
-              local node = minetest.get_node(pos)
+              local meta = get_meta(pos)
+              local node = get_node(pos)
 
               local operator_image = OPERATOR_NODE_TO_STAMP[node.name]
 
@@ -307,7 +308,7 @@ local data_interface = {
             handle = function (_self, pos, meta, fields, assigns)
               local should_refresh = false
               if fields["vector_mode_change"] then
-                local node = minetest.get_node(pos)
+                local node = get_node(pos)
 
                 local operator_name = NODE_NAME_TO_OPERATOR[node.name]
                 if operator_name then
@@ -316,11 +317,11 @@ local data_interface = {
                   if data then
                     if data.normal == node.name then
                       node.name = data.vector
-                      minetest.swap_node(pos, node)
+                      swap_node(pos, node)
                       should_refresh = true
                     elseif data.vector == node.name then
                       node.name = data.normal
-                      minetest.swap_node(pos, node)
+                      swap_node(pos, node)
                       should_refresh = true
                     end
                   end
@@ -340,13 +341,13 @@ local data_interface = {
               end
 
               if fields["operator_change"] then
-                local node = minetest.get_node(pos)
+                local node = get_node(pos)
 
                 local next_node = list_get_next(OPERATOR_NODES_LIST, node.name)
 
                 if next_node then
                   node.name = next_node
-                  minetest.swap_node(pos, node)
+                  swap_node(pos, node)
                   should_refresh = true
                 end
               end
@@ -361,7 +362,9 @@ local data_interface = {
 }
 
 yatm.register_stateful_node("yatm_data_logic:data_arith", {
-  base_description = "DATA Arithmetic",
+  base_description = mod.S("DATA Arithmetic"),
+
+  short_description = mod.S("DATA Arithmetic"),
 
   groups = {
     cracky = nokore.dig_class("copper"),
@@ -382,8 +385,8 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   },
 
   on_construct = function (pos)
-    local meta = minetest.get_meta(pos)
-    local node = minetest.get_node(pos)
+    local meta = get_meta(pos)
+    local node = get_node(pos)
 
     data_network:add_node(pos, node)
   end,
@@ -398,16 +401,17 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   data_interface = data_interface,
 
   refresh_infotext = function (pos)
-    local meta = minetest.get_meta(pos)
-    local node = minetest.get_node(pos)
-    local nodedef = minetest.registered_nodes[node.name]
+    local meta = get_meta(pos)
+    local node = get_node(pos)
+    local nodedef = core.registered_nodes[node.name]
     local operator = OPERATOR_SYMBOL[NODE_NAME_TO_OPERATOR[node.name]]
 
     local infotext =
-      string_split(nodedef.description, "\n")[1] .. "\n" ..
-      "Last Output: " .. meta:get_string("last_value") .. "\n" ..
-      "Operation: " .. meta:get_string("operand_left") .. " " .. operator .. " " ..  meta:get_string("operand_right") .. "\n" ..
-      data_network:get_infotext(pos)
+      nodedef.short_description .. "\n"
+      .. "Last Output: " .. meta:get_string("last_value") .. "\n"
+      .. "Operation: " .. meta:get_string("operand_left") .. " " ..
+                          operator .. " " ..  meta:get_string("operand_right") .. "\n"
+      .. data_network:get_infotext(pos)
 
     meta:set_string("infotext", infotext)
   end,
@@ -416,8 +420,9 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   -- Normal Mode
   --
   identity = {
-    description = "DATA Arithmetic [Identity]\nReturns data unchanged, it may replace any missing entries with other data from inputs",
-
+    short_description = mod.S("DATA Arithmetic [Identity]"),
+    description = mod.S("DATA Arithmetic [Identity]") .. "\n"
+      .. "Returns data unchanged, it may replace any missing entries with other data from inputs",
     codex_entry_id = "yatm_data_logic:data_arith_identity",
 
     tiles = {
@@ -438,6 +443,7 @@ yatm.register_stateful_node("yatm_data_logic:data_arith", {
   },
 
   add = {
+    short_description = mod.S("DATA Arithmetic [Addition]"),
     description = "DATA Arithmetic [Addition]\nAdds all input data",
 
     codex_entry_id = "yatm_data_logic:data_arith_add",

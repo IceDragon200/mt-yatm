@@ -69,7 +69,7 @@ if rawget(_G, "nokore_world_tree_willow") then
 end
 
 for wood_basename, wood_config in pairs(wood_types) do
-  minetest.register_node(":yatm_woodcraft:" .. wood_basename .. "_bark", {
+  core.register_node(":yatm_woodcraft:" .. wood_basename .. "_bark", {
     basename = "yatm_woodcraft:wood_bark",
     base_description = "Tree Bark",
 

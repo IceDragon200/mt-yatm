@@ -1,4 +1,4 @@
-minetest.register_tool("yatm_packs:mana_pack_pouch", {
+core.register_tool("yatm_packs:mana_pack_pouch", {
   description = "Mana Pack Pouch",
 
   groups = {

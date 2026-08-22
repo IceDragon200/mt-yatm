@@ -4,6 +4,7 @@ local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
 local Vector3 = assert(foundation.com.Vector3)
 local player_service = assert(nokore.player_service)
+local get_meta = assert(tetra.get_meta)
 
 local server_rack_node_box = {
   type = "fixed",
@@ -39,7 +40,7 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "dscs" }, function (loc, rect)
     if loc == "main_body" then

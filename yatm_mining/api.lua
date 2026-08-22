@@ -1,5 +1,8 @@
 local add_items = assert(foundation.com.InventoryList.add_items)
 local item_list_copy = assert(foundation.com.InventoryList.copy)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
+local remove_node = assert(tetra.remove_node)
+local get_node_drops = assert(tetra.get_node_drops)
 
 --- @namespace yatm.mining
 
@@ -14,12 +17,12 @@ yatm.mining = yatm.mining or {}
 ---   list_name: String
 --- ): NodeRef
 function yatm.mining.drill_node_to_meta_inventory(pos, meta, list_name)
-  local node = minetest.get_node_or_nil(pos)
+  local node = get_node_or_nil(pos)
   if node then
     if node.name == "air" then
       return node
     else
-      local drops = minetest.get_node_drops(node, nil)
+      local drops = get_node_drops(node, nil)
 
       local inv = meta:get_inventory()
       local list = inv:get_list(list_name)
@@ -30,7 +33,7 @@ function yatm.mining.drill_node_to_meta_inventory(pos, meta, list_name)
 
         if not next(leftovers) then
           inv:set_list(list_name, list)
-          minetest.remove_node(pos)
+          remove_node(pos)
           return node
         end
       end

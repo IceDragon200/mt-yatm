@@ -1,6 +1,7 @@
 -- @namespace yatm_armoury
 local Groups = assert(foundation.com.Groups)
 local sounds = assert(yatm.sounds)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
 
 local function play_sound(def)
   return sounds:play(def.name, def.params)
@@ -97,12 +98,12 @@ function yatm_armoury.get_firearm_magazine_size(firearm_stack)
 end
 
 function yatm_armoury.get_firearm_cartridge_count(firearm_stack)
-  local meta = magazine_stack:get_meta()
+  local meta = firearm_stack:get_meta()
   return meta:get_int("cartridge_count")
 end
 
 function yatm_armoury.get_firearm_cartridge_at(firearm_stack, index)
-  local meta = magazine_stack:get_meta()
+  local meta = firearm_stack:get_meta()
   return string.sub(meta:get_string("cartridge_string"), index, index)
 end
 
@@ -113,7 +114,8 @@ end
 --   (leftover_bullets: ItemStack, new_magazine: ItemStack)
 function yatm_armoury.add_cartridges_to_magazine(cartridge_stack, magazine_stack)
   -- need a cartridge and magazine respectvely
-  if yatm_armoury.is_stack_cartridge(cartridge_stack) and yatm_armoury.is_stack_magazine(magazine_stack) then
+  if yatm_armoury.is_stack_cartridge(cartridge_stack) and
+     yatm_armoury.is_stack_magazine(magazine_stack) then
     -- need to be the same calibre
     if yatm_armoury.is_same_calibre_item_stacks(magazine_stack, cartridge_stack) then
       -- and the magazine needs to have space
@@ -143,7 +145,7 @@ function yatm_armoury.add_cartridges_to_magazine(cartridge_stack, magazine_stack
               cartridge_string = cartridge_itemdef.ammo_code .. cartridge_string
             end
             magazine_meta:set_int("cartridge_count", cartridge_count + cartridges_to_take)
-            magazine_meta:set_string("cartridge_string", bullet_string)
+            magazine_meta:set_string("cartridge_string", cartridge_string)
           end
         end
       end
@@ -170,8 +172,6 @@ function yatm_armoury.refresh_magazine_wear(magazine_stack)
 end
 
 function yatm_armoury.calculate_firearm_wear(firearm_stack)
-  local meta = firearm_stack:get_meta()
-
   local size = yatm_armoury.get_firearm_magazine_size(firearm_stack)
   local count = yatm_armoury.get_firearm_cartridge_count(firearm_stack)
 
@@ -352,14 +352,14 @@ function yatm_armoury.handle_projectile_ballistics(item_stack, player, pointed_t
     data = data,
   }
 
-  for pointed_thing in raycast do
-    print("Pointed At", pointed_thing.type, dump(pointed_thing))
+  for pt in raycast do
+    print("Pointed At", pt.type, dump(pt))
 
-    if pointed_thing.type == "object" then
-      entity_on_projectile_hit(pointed_thing.ref, hit_data)
-    elseif pointed_thing.type == "node" then
-      local pos = pointed_thing.under
-      local node = core.get_node_or_nil(pos)
+    if pt.type == "object" then
+      entity_on_projectile_hit(pt.ref, hit_data)
+    elseif pt.type == "node" then
+      local pos = pt.under
+      local node = get_node_or_nil(pos)
 
       if node then
         node_on_projectile_hit(pos, node, hit_data)
@@ -412,7 +412,8 @@ function yatm_armoury.pop_cartridge(item_stack)
 end
 
 function yatm_armoury.firearm_action(item_stack, player, pointed_thing)
-  local code, item_stack = yatm_armoury.pop_cartridge(item_stack)
+  local code
+  code, item_stack = yatm_armoury.pop_cartridge(item_stack)
 
   if code then
     return yatm_armoury.handle_firearm_ballistics(code, item_stack, player, pointed_thing)

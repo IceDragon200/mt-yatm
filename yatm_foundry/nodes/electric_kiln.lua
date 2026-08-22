@@ -5,6 +5,7 @@ local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
 local player_service = assert(nokore.player_service)
 local Vector3 = assert(foundation.com.Vector3)
+local get_meta = assert(tetra.get_meta)
 
 local yatm_network = {
   kind = "machine",
@@ -35,8 +36,8 @@ function yatm_network:work(ctx)
   return 0
 end
 
-function refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
+local function refresh_infotext(pos)
+  local meta = get_meta(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
@@ -49,7 +50,7 @@ end
 local function render_formspec(pos, user, state)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
 
@@ -151,7 +152,7 @@ yatm.devices.register_stateful_network_device({
 
   on_construct = function (pos)
     yatm.devices.device_on_construct(pos)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     local inv = meta:get_inventory()
     --inv:set_size("input_slot", 1)
     --inv:set_size("processing_slot", 1)

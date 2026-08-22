@@ -1,4 +1,8 @@
 local Directions = assert(foundation.com.Directions)
+local get_meta = assert(tetra.get_meta)
+local get_node_timer = assert(tetra.get_node_timer)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
+local swap_node = assert(tetra.swap_node)
 
 local mesecon_hub_node_box = {
   type = "fixed",
@@ -42,12 +46,12 @@ local TILE_DIR_ORDER = {
 local drop = "yatm_mesecon_sequencer:sequencer_i0_d" .. Directions.D_NORTH
 
 local function trigger_receptor_off(pos, node)
-  local nodedef = minetest.registered_nodes[node.name]
+  local nodedef = core.registered_nodes[node.name]
   mesecon.receptor_off(pos, nodedef.mesecons.receptor.rules(node))
 end
 
 local function trigger_receptor_on(pos, node)
-  local nodedef = minetest.registered_nodes[node.name]
+  local nodedef = core.registered_nodes[node.name]
   mesecon.receptor_on(pos, nodedef.mesecons.receptor.rules(node))
 end
 
@@ -96,7 +100,7 @@ for interval,duration in pairs(INTERVALS) do
       end
     end
 
-    minetest.register_node(name, {
+    core.register_node(name, {
       basename = "yatm_mesecon_sequencer:sequencer",
       base_description = "Sequencer",
 
@@ -115,14 +119,14 @@ for interval,duration in pairs(INTERVALS) do
       node_box = mesecon_hub_node_box,
 
       on_construct = function (pos)
-        minetest.get_node_timer(pos):start(duration)
+        get_node_timer(pos):start(duration)
       end,
 
       on_timer = function (pos, elapsed)
-        local meta = minetest.get_meta(pos)
+        local meta = get_meta(pos)
         local direction = meta:get_int("direction")
 
-        local node = minetest.get_node_or_nil(pos)
+        local node = get_node_or_nil(pos)
         if node then
           trigger_receptor_off(pos, node)
 
@@ -133,7 +137,7 @@ for interval,duration in pairs(INTERVALS) do
             -- clockwise
             node.name = next_seq_name
           end
-          minetest.swap_node(pos, node)
+          swap_node(pos, node)
 
           trigger_receptor_on(pos, node)
         end
@@ -142,14 +146,14 @@ for interval,duration in pairs(INTERVALS) do
 
       on_punch = function (pos, node, puncher, pointed_thing)
         node.name = next_interval_name
-        minetest.swap_node(pos, node)
+        swap_node(pos, node)
 
-        local nodedef = minetest.registered_nodes[node.name]
-        minetest.get_node_timer(pos):start(nodedef.sequencer.interval_duration)
+        local nodedef = core.registered_nodes[node.name]
+        get_node_timer(pos):start(nodedef.sequencer.interval_duration)
       end,
 
       on_rightclick = function (pos, node, puncher, pointed_thing)
-        local meta = minetest.get_meta(pos)
+        local meta = get_meta(pos)
         local direction = meta:get_int("direction")
         if direction == 0 then
           meta:set_int("direction", 1)

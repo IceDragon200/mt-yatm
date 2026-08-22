@@ -1,1 +1,1 @@
-dofile(yatm_plastics.modpath .. "/nodes/plastic_panel.lua")
+yatm_plastics:require("/nodes/plastic_panel.lua")

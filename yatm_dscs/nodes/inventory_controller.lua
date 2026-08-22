@@ -12,6 +12,7 @@ local cluster_energy = assert(yatm.cluster.energy)
 local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
 local player_service = assert(nokore.player_service)
+local get_meta = assert(tetra.get_meta)
 
 local yatm_network = {
   kind = "machine",
@@ -41,7 +42,7 @@ local yatm_network = {
 }
 
 local function refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local infotext =
     "Inventory Controller\n" ..
     cluster_devices:get_node_infotext(pos) .. "\n" ..
@@ -57,7 +58,7 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "dscs" }, function (loc, rect)
     if loc == "main_body" then
@@ -88,7 +89,7 @@ end
 
 --- @spec.private on_receive_fields(player: PlayerRef, formname: String, fields: Table, assigns: Table): Boolean
 local function on_receive_fields(player, formname, fields, assigns)
-  local meta = minetest.get_meta(assigns.pos)
+  local meta = get_meta(assigns.pos)
   local inv = meta:get_inventory()
   local needs_refresh = false
 
@@ -99,7 +100,7 @@ end
 
 --- @spec.private make_formspec_name(pos: Vector3): String
 local function make_formspec_name(pos)
-  return "yatm_dscs:inventory_controller:" .. minetest.pos_to_string(pos)
+  return "yatm_dscs:inventory_controller:" .. core.pos_to_string(pos)
 end
 
 --- @spec.private refresh_formspec(pos: Vector3, player: PlayerRef): void

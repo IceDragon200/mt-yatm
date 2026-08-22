@@ -1,6 +1,7 @@
 --[[
 
-  Teleporter relays are neutral nodes that are placed adjacent to a teleporter to expand it's teleportation effect range
+  Teleporter relays are neutral nodes that are placed adjacent to a teleporter to
+  expand it's teleportation effect range.
 
 ]]
 local mod = assert(yatm_spacetime)
@@ -8,9 +9,10 @@ local mod = assert(yatm_spacetime)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
+local get_meta = assert(tetra.get_meta)
 
-local function teleporter_relay_refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+local function refresh_infotext(pos, node)
+  local meta = get_meta(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
@@ -20,14 +22,14 @@ local function teleporter_relay_refresh_infotext(pos, node)
   meta:set_string("infotext", infotext)
 end
 
-local teleporter_node_box = {
+local node_box = {
   type = "fixed",
   fixed = {
     {-0.5, -0.5, -0.5, 0.5, (1 / 16) - 0.5, 0.5},
   }
 }
 
-local teleporter_relay_yatm_network = {
+local yatm_network = {
   kind = "machine",
   groups = {
     teleporter_relay = 1,
@@ -65,7 +67,7 @@ yatm.devices.register_stateful_network_device({
     yatm_cluster_energy = 1,
   },
 
-  drop = teleporter_relay_yatm_network.states.off,
+  drop = yatm_network.states.off,
 
   tiles = {
     "yatm_teleporter_relay_top.off.png",
@@ -79,11 +81,11 @@ yatm.devices.register_stateful_network_device({
   drawtype = "nodebox",
   paramtype = "light",
   paramtype2 = "facedir",
-  node_box = teleporter_node_box,
+  node_box = node_box,
 
-  yatm_network = teleporter_relay_yatm_network,
+  yatm_network = yatm_network,
 
-  refresh_infotext = teleporter_relay_refresh_infotext,
+  refresh_infotext = refresh_infotext,
 }, {
   error = {
     tiles = {

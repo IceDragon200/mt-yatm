@@ -8,18 +8,18 @@ Check each mod for it's own README on what it does.
 
 ## Requirements
 
-* Minetest 5.4.x (optionally with LuaJIT for some mods (needed for `bit` and `ffi` modules))
+* Minetest 5.14.x (now preferably with a luajit environment, but can work without one)
 
 ## Dependencies
 
-* [`foundation`](https://github.com/IceDragon200/mt-foundation)
-* [`nokore`](https://github.com/IceDragon200/mt-nokore-mods)
+* [`foundation`](https://github.com/IceDragon200/mt-foundation) - Base mod or library for all of my mods, don't ask, if I can remove it, the answer is no.
+* [`nokore_srv`](https://github.com/IceDragon200/mt-nokore-srv) - Provides additional "service" features for mods to integrate with, yes, this is required.
 
 ## Optional
 
 * `mesecons`
 * `mobkit`
-* `default`
+* `default` - YATM is compatible with `minetest_game`, but is not actively tested against it to ensure compatibility.
 
 ## Tests
 

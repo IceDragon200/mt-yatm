@@ -1,15 +1,16 @@
 local Cuboid = assert(foundation.com.Cuboid)
-local is_table_empty = assert(foundation.com.is_table_empty)
 local ng = Cuboid.new_fast_node_box
 local sounds = assert(yatm.sounds)
 local data_network = assert(yatm.data_network)
 local fspec = assert(foundation.com.formspec.api)
+local get_node = assert(tetra.get_node)
+local get_meta = assert(tetra.get_meta)
 
 local function create_token_inventory(user)
   local name = foundation.com.make_string_ref("ydlds")
 
   local inv =
-    minetest.create_detached_inventory(name, {
+    core.create_detached_inventory(name, {
       allow_move = function (inv, from_list, from_index, to_list, to_index, count, player)
         print("allow_move", "from_list", from_list, "to_list", to_list)
 
@@ -49,7 +50,7 @@ local function create_token_inventory(user)
   return name
 end
 
-minetest.register_node("yatm_data_logic:data_sequencer", {
+core.register_node("yatm_data_logic:data_sequencer", {
   description = "DATA Sequencer",
 
   codex_entry_id = "yatm_data_logic:data_sequencer",
@@ -84,14 +85,14 @@ minetest.register_node("yatm_data_logic:data_sequencer", {
   },
 
   on_construct = function (pos)
-    local meta = minetest.get_meta(pos)
+    local node = get_node(pos)
+    local meta = get_meta(pos)
 
     -- initialize all data_seq with an empty string
     for i = 1,16 do
       meta:set_string("data_seq" .. i, "")
     end
 
-    local node = minetest.get_node(pos)
     data_network:add_node(pos, node)
   end,
 
@@ -107,7 +108,7 @@ minetest.register_node("yatm_data_logic:data_sequencer", {
   },
   data_interface = {
     update = function (self, pos, node, dtime)
-      local meta = minetest.get_meta(pos)
+      local meta = get_meta(pos)
 
       local time = meta:get_float("time")
       time = time - dtime
@@ -136,9 +137,9 @@ minetest.register_node("yatm_data_logic:data_sequencer", {
     on_load = function (self, pos, node)
       -- sequencers don't need to bind listeners of any sorts
 
-      local meta = minetest.get_meta(pos)
+      local meta = get_meta(pos)
 
-      local _old_version = meta:get_int("version")
+      -- local _old_version = meta:get_int("version")
 
       meta:set_int("version", 2)
       local inv = meta:get_inventory()
@@ -152,7 +153,7 @@ minetest.register_node("yatm_data_logic:data_sequencer", {
 
     on_programmer_formspec_quit = function (self, pos, user, assigns)
       if assigns.token_inventory_name then
-        minetest.remove_detached_inventory(assigns.token_inventory_name)
+        core.remove_detached_inventory(assigns.token_inventory_name)
       end
     end,
 
@@ -202,7 +203,7 @@ minetest.register_node("yatm_data_logic:data_sequencer", {
               assigns.initialized = true
             end
 
-            local meta = minetest.get_meta(pos)
+            local meta = get_meta(pos)
 
             local blob =
               fspec.list("detached:"..assigns.token_inventory_name, "main", 0.5, 1.5, 1, 8) ..
@@ -256,7 +257,7 @@ minetest.register_node("yatm_data_logic:data_sequencer", {
   },
 
   refresh_infotext = function (pos)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     local infotext =
       data_network:get_infotext(pos)
 

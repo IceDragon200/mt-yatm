@@ -14,6 +14,8 @@ local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
 local player_service = assert(nokore.player_service)
 local Vector3 = assert(foundation.com.Vector3)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
 
 local electric_smelter_yatm_network = {
   kind = "machine",
@@ -44,7 +46,7 @@ local TANK_CAPACITY = 4000
 local fluid_interface = FluidInterface.new_simple("molten_tank", TANK_CAPACITY)
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  local node = minetest.get_node(pos)
+  local node = get_node(pos)
   yatm.queue_refresh_infotext(pos, node)
 end
 
@@ -63,8 +65,8 @@ fluid_interface.allow_drain = fluid_interface.allow_replace
 local item_interface = ItemInterface.new_simple("input_slot")
 
 local function refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
-  local node = minetest.get_node(pos)
+  local meta = get_meta(pos)
+  local node = get_node(pos)
 
   local molten_tank_fluid_stack = FluidMeta.get_fluid_stack(meta, "molten_tank")
   local recipe_time = meta:get_float("recipe_time")
@@ -110,7 +112,7 @@ function electric_smelter_yatm_network:work(ctx)
   if itemstack_is_blank(processing_item_stack) then
     ctx:set_up_state("idle")
   else
-    if metaref_dec_float(meta, "recipe_time", dtime) <= 0 then
+    if metaref_dec_float(meta, "recipe_time", ctx.dtime) <= 0 then
       local recipe = smelting_registry:get_smelting_recipe(processing_item_stack)
       if recipe then
         local result_fluid_stack = recipe.results[1]
@@ -133,7 +135,7 @@ end
 local function render_formspec(pos, user, state)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
   local node_inv_name = "nodemeta:" .. spos
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
 
@@ -254,7 +256,7 @@ yatm.devices.register_stateful_network_device({
 
   on_construct = function (pos)
     yatm.devices.device_on_construct(pos)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     local inv = meta:get_inventory()
     inv:set_size("input_slot", 1)
     inv:set_size("processing_slot", 1)

@@ -2,10 +2,8 @@ local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
 local Groups = assert(foundation.com.Groups)
 local Directions = assert(foundation.com.Directions)
-local table_merge = assert(foundation.com.table_merge)
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
-local Energy = assert(yatm.energy)
 local FluidInterface = assert(yatm.fluids.FluidInterface)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local FluidTanks = assert(yatm.fluids.FluidTanks)
@@ -13,6 +11,8 @@ local FluidStack = assert(yatm.fluids.FluidStack)
 local Vector3 = assert(foundation.com.Vector3)
 local player_service = assert(nokore.player_service)
 local device_swap_node_by_state = assert(yatm.devices.device_swap_node_by_state)
+local get_node = assert(tetra.get_node)
+local get_meta = assert(tetra.get_meta)
 
 --
 -- Steam turbines produce energy by consuming steam, they have the byproduct of water which can be cycled again into a boiler.
@@ -41,7 +41,7 @@ local TANK_CAPACITY = 16000
 local WATER_TANK = "water_tank"
 local STEAM_TANK = "steam_tank"
 local function get_fluid_tank_name(_self, pos, dir)
-  local node = minetest.get_node(pos)
+  local node = get_node(pos)
   local new_dir = Directions.facedir_to_face(node.param2, dir)
 
   if new_dir == Directions.D_DOWN then
@@ -60,7 +60,7 @@ fluid_interface._private.capacity = TANK_CAPACITY
 
 --- @spec #allow_fill(pos: Vector3, dir: Integer, FluidStack): Boolean
 function fluid_interface:allow_fill(pos, dir, fluid_stack)
-  local node = minetest.get_node(pos)
+  local node = get_node(pos)
   local new_dir = Directions.facedir_to_face(node.param2, dir)
 
   if new_dir == Directions.D_DOWN then
@@ -77,13 +77,13 @@ function fluid_interface:allow_fill(pos, dir, fluid_stack)
 end
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  local node = minetest.get_node(pos)
+  local node = get_node(pos)
   yatm.queue_refresh_infotext(pos, node)
 end
 
--- @spec refresh_infotext(Vector3): String
-function refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
+--- @private.spec refresh_infotext(pos: Vector3, node: NodeRef): String
+local function refresh_infotext(pos)
+  local meta = get_meta(pos)
 
   local water_tank_fluid_stack = FluidMeta.get_fluid_stack(meta, WATER_TANK)
   local steam_tank_fluid_stack = FluidMeta.get_fluid_stack(meta, STEAM_TANK)
@@ -100,7 +100,7 @@ end
 function yatm_network.energy.produce_energy(pos, node, dtime, ot)
   local need_refresh = false
   local energy_produced = 0
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local drained_stack, new_amount =
     FluidMeta.drain_fluid(
       meta,
@@ -160,8 +160,8 @@ function yatm_network.update(pos, node, dtime, trace)
     new_dir = Directions.facedir_to_face(node.param2, dir)
 
     npos = vector.add(pos, Directions.DIR6_TO_VEC3[new_dir])
-    nnode = minetest.get_node(npos)
-    nnodedef = minetest.registered_nodes[nnode.name]
+    nnode = get_node(npos)
+    nnodedef = core.registered_nodes[nnode.name]
     if nnodedef then
       if Groups.get_item(nnodedef, "fluid_tank") then
         target_dir = Directions.invert_dir(new_dir)
@@ -177,7 +177,7 @@ function yatm_network.update(pos, node, dtime, trace)
     end
   end
 
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   do -- Deposit water to a bottom tank
     local stack, new_amount =
@@ -194,8 +194,8 @@ function yatm_network.update(pos, node, dtime, trace)
     if stack then
       local tank_dir = Directions.facedir_to_face(node.param2, Directions.D_DOWN)
       local tank_pos = vector.add(pos, Directions.DIR6_TO_VEC3[tank_dir])
-      local tank_node = minetest.get_node(tank_pos)
-      local tank_nodedef = minetest.registered_nodes[tank_node.name]
+      local tank_node = get_node(tank_pos)
+      local tank_nodedef = core.registered_nodes[tank_node.name]
       if tank_nodedef then
         if Groups.get_item(tank_nodedef, "fluid_tank") then
           local drained_stack, new_amount = FluidTanks.fill_fluid(tank_pos, Directions.invert_dir(tank_dir), stack, true)
@@ -235,7 +235,7 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine_electric" }, function (loc, rect)
     if loc == "main_body" then

@@ -7,6 +7,11 @@ local string_starts_with = assert(foundation.com.string_starts_with)
 local string_trim_leading = assert(foundation.com.string_trim_leading)
 local ItemExchange = assert(yatm.items.ItemExchange)
 local Vector3 = assert(foundation.com.Vector3)
+local pos_to_string = assert(core.pos_to_string)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
+local get_node_timer = assert(tetra.get_node_timer)
 
 local FILTER_ROWS = 6
 local IO_STATE_INPUT_ONLY = 0
@@ -27,7 +32,7 @@ for idx, dir in pairs(INDEX_TO_DIR) do
 end
 
 local function directional_to_inventory_id(pos, dir)
-  local node = minetest.get_node_or_nil(pos)
+  local node = get_node_or_nil(pos)
   if node then
     local local_dir = Directions.facedir_to_face(node.param2, dir)
     return DIR_TO_INDEX[local_dir]
@@ -58,7 +63,7 @@ function item_interface:allow_extract_item(pos, dir, item_stack)
   local inv_slot = directional_to_inventory_id(pos, dir)
 
   if inv_slot then
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
 
     if meta:get_int("active_"..inv_slot) > 0 then
       return true
@@ -72,7 +77,7 @@ function item_interface:allow_insert_item(pos, dir, item_stack)
   local inv_slot = directional_to_inventory_id(pos, dir)
 
   if inv_slot then
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
 
     local inv = meta:get_inventory()
 
@@ -87,15 +92,15 @@ function item_interface:allow_insert_item(pos, dir, item_stack)
 end
 
 local function refresh_timer(pos)
-  local timer = minetest.get_node_timer(pos)
+  local timer = get_node_timer(pos)
 
   --- 1/4 second
   timer:start(0.25)
 end
 
 local function on_timer(pos, dtime)
-  local node = minetest.get_node(pos)
-  local meta = minetest.get_meta(pos)
+  local node = get_node(pos)
+  local meta = get_meta(pos)
   local inv = meta:get_inventory()
 
   local cache
@@ -199,7 +204,7 @@ local function on_timer(pos, dtime)
 end
 
 local function on_construct(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   local inv = meta:get_inventory()
 
@@ -217,7 +222,7 @@ end
 
 local function render_formspec(pos, player, state)
   local spos = foundation.com.Vector3.to_string(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   local cio = fspec.calc_inventory_offset
   local inv_name = "nodemeta:" .. spos
@@ -340,7 +345,7 @@ end
 
 local function on_receive_fields(player, form_name, fields, state)
   local pos = state.pos
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local should_refresh = false
   local should_refresh_timer = false
 
@@ -405,9 +410,9 @@ end
 
 local function on_rightclick(pos, node, player)
   local formspec_name =
-    mod:make_name("item_filter_box") .. ":" .. minetest.pos_to_string(pos)
+    mod:make_name("item_filter_box") .. ":" .. pos_to_string(pos)
 
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   local state = {
     pos = pos,

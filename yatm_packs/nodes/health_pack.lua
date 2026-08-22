@@ -5,6 +5,8 @@
 --
 local itemstack_has_group = assert(foundation.com.itemstack_has_group)
 local table_merge = assert(foundation.com.table_merge)
+local get_meta = assert(tetra.get_meta)
+local swap_node = assert(tetra.swap_node)
 
 local MAXIMUM_CHARGES = 8
 local HP_PER_CHARGE = 2
@@ -16,7 +18,7 @@ local nodebox = {
   }
 }
 
-minetest.register_node("yatm_packs:health_pack_empty", {
+core.register_node("yatm_packs:health_pack_empty", {
   description = "Health Pack (Empty)",
 
   groups = {
@@ -41,21 +43,21 @@ minetest.register_node("yatm_packs:health_pack_empty", {
 
   on_rightclick = function (pos, node, clicker, itemstack, pointed_thing)
     if itemstack_has_group(itemstack, "health_pack_pouch") then
-      local meta = minetest.get_meta(pos)
+      local meta = get_meta(pos)
       local charges_left = meta:get_int("charges")
       itemstack:take_item(1) -- remove one of the packs
       charges_left = charges_left + 1
       meta:set_int("charges", charges_left)
 
       local new_node = table_merge(node, { name = "yatm_packs:health_pack" })
-      minetest.swap_node(pos, new_node)
+      swap_node(pos, new_node)
     else
-      minetest.chat_send_player(clicker:get_player_name(), "The healthpack is empty")
+      core.chat_send_player(clicker:get_player_name(), "The healthpack is empty")
     end
   end,
 })
 
-minetest.register_node("yatm_packs:health_pack", {
+core.register_node("yatm_packs:health_pack", {
   description = "Health Pack",
 
   groups = {
@@ -79,12 +81,12 @@ minetest.register_node("yatm_packs:health_pack", {
   paramtype2 = "facedir",
 
   on_construct = function (pos)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     meta:set_int("charges", MAXIMUM_CHARGES)
   end,
 
   on_rightclick = function (pos, node, clicker, itemstack, pointed_thing)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     local charges_left = meta:get_int("charges")
 
     if itemstack_has_group(itemstack, "health_pack_pouch") then
@@ -93,25 +95,25 @@ minetest.register_node("yatm_packs:health_pack", {
         charges_left = charges_left + 1
         meta:set_int("charges", charges_left)
       else
-        minetest.chat_send_player(clicker:get_player_name(), "The healthpack is full")
+        core.chat_send_player(clicker:get_player_name(), "The healthpack is full")
       end
     else
       if charges_left > 0 then
         if foundation.com.recover_hp(clicker, HP_PER_CHARGE, "healthpack") > 0 then
           charges_left = charges_left - 1
           meta:set_int("charges", charges_left)
-          minetest.chat_send_player(clicker:get_player_name(), "There are " .. charges_left .. " charges left")
+          core.chat_send_player(clicker:get_player_name(), "There are " .. charges_left .. " charges left")
         else
-          minetest.chat_send_player(clicker:get_player_name(), "You are already at max health")
+          core.chat_send_player(clicker:get_player_name(), "You are already at max health")
         end
       else
-        minetest.chat_send_player(clicker:get_player_name(), "The healthpack is empty")
+        core.chat_send_player(clicker:get_player_name(), "The healthpack is empty")
       end
     end
 
     if charges_left == 0 then
       local new_node = table_merge(node, { name = "yatm_packs:health_pack_empty" })
-      minetest.swap_node(pos, new_node)
+      swap_node(pos, new_node)
     end
 
     return itemstack

@@ -1,8 +1,5 @@
-local hash_node_position = assert(minetest.hash_node_position)
-
-local function set_node_to_air(pos)
-  minetest.set_node(pos, { name = "air" })
-end
+local hash_node_position = assert(core.hash_node_position)
+local set_node = assert(tetra.set_node)
 
 local function random_pos()
   return {
@@ -13,7 +10,6 @@ local function random_pos()
 end
 
 yatm_woodcraft.autotest_suite.utils = {
-  set_node_to_air = set_node_to_air,
   random_pos = random_pos,
 }
 
@@ -24,7 +20,7 @@ yatm_woodcraft.autotest_suite:define_property("is_sawmill", {
   ]],
 
   setup = function (suite, state)
-    local player = assert(minetest.get_player_by_name("singleplayer"))
+    local player = assert(core.get_player_by_name("singleplayer"))
 
     state.player = player
 
@@ -35,7 +31,7 @@ yatm_woodcraft.autotest_suite:define_property("is_sawmill", {
     state.pos = random_pos()
     suite:clear_test_area(state.pos)
     state.node_id = hash_node_position(state.pos)
-    minetest.set_node(state.pos, assert(state.node))
+    set_node(state.pos, assert(state.node))
 
     return state
   end,

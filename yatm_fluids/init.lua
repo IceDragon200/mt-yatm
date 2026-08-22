@@ -1,4 +1,7 @@
-local mod = foundation.new_module("yatm_fluids", "2.5.0")
+--
+-- YATM - Fluids
+--
+local mod = foundation.new_module("yatm_fluids", "2.6.0")
 
 mod:require("error_codes.lua")
 mod:require("fluid_registry.lua")

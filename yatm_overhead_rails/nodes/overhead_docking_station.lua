@@ -6,7 +6,10 @@ local string_split = assert(foundation.com.string_split)
 local table_merge = assert(foundation.com.table_merge)
 local ascii_pack = assert(foundation.com.ascii_pack)
 local ascii_unpack = assert(foundation.com.ascii_unpack)
-local itemstack_is_blank = assert(foundation.com.itemstack_is_blank)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
+local swap_node = assert(tetra.swap_node)
 
 local FluidInterface
 local FluidStack
@@ -96,7 +99,7 @@ local function maybe_change_docking_station_crate_type(pos, node, crate_type)
         param = node.param,
         param2 = node.param2,
       }
-      minetest.swap_node(pos, new_node)
+      swap_node(pos, new_node)
       yatm.queue_refresh_infotext(pos, new_node)
       schedule_update_node(pos, new_node)
     end
@@ -108,7 +111,7 @@ local function node_is_crate_type(pos, node, crate_type)
 end
 
 local function reset_docking_station(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   -- thermal
   meta:set_float("heat", 0)
@@ -130,7 +133,7 @@ local function reset_docking_station(pos, node)
 end
 
 local function reset_crate_contents(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   -- thermal
   meta:set_float("heat", 0)
@@ -152,9 +155,9 @@ local function reset_crate_contents(pos, node)
 end
 
 local function refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
+  local meta = get_meta(pos)
+  local node = get_node(pos)
+  local nodedef = core.registered_nodes[node.name]
 
   local infotext =
     string_split(nodedef.description, "\n")[1] .. "\n"
@@ -187,8 +190,8 @@ local function refresh_infotext(pos)
 end
 
 local function on_construct(pos)
-  local meta = minetest.get_meta(pos)
-  local node = minetest.get_node(pos)
+  local meta = get_meta(pos)
+  local node = get_node(pos)
 
   if data_network then
     data_network:add_node(pos, node)
@@ -208,7 +211,7 @@ local function on_construct(pos)
 end
 
 local function on_destruct(pos)
-  local node = minetest.get_node_or_nil(pos)
+  local node = get_node_or_nil(pos)
 
   if data_network then
     data_network:remove_node(pos, node)
@@ -260,7 +263,7 @@ if FluidInterface then
   fluid_interface = FluidInterface.new_simple("buffer_tank", FLUID_CAPACITY)
 
   function fluid_interface:on_fluid_changed(pos, dir, fluid_stack)
-    local node = minetest.get_node(pos)
+    local node = get_node(pos)
     if FluidStack.is_empty(fluid_stack) then
       -- if the stack is now empty, then transition to empty crate
       maybe_change_docking_station_crate_type(pos, node, "empty")
@@ -271,7 +274,7 @@ if FluidInterface then
   end
 
   function fluid_interface:allow_replace(pos, dir, fluid_stack)
-    local node = minetest.get_node(pos)
+    local node = get_node(pos)
     if node_is_crate_type(pos, node, "empty") or
        node_is_crate_type(pos, node, "fluid") then
       return true
@@ -280,7 +283,7 @@ if FluidInterface then
   end
 
   function fluid_interface:allow_fill(pos, dir, fluid_stack)
-    local node = minetest.get_node(pos)
+    local node = get_node(pos)
     if node_is_crate_type(pos, node, "empty") or
        node_is_crate_type(pos, node, "fluid") then
       return true
@@ -289,7 +292,7 @@ if FluidInterface then
   end
 
   function fluid_interface:allow_drain(pos, dir, fluid_stack)
-    local node = minetest.get_node(pos)
+    local node = get_node(pos)
     if node_is_crate_type(pos, node, "empty") or
        node_is_crate_type(pos, node, "fluid") then
       return true
@@ -303,8 +306,8 @@ if ItemInterface then
   item_interface = ItemInterface.new_simple(INVENTORY_NAME)
 
   local function check_items_transition(pos)
-    local node = minetest.get_node(pos)
-    local meta = minetest.get_meta(pos)
+    local node = get_node(pos)
+    local meta = get_meta(pos)
     local inv = meta:get_inventory()
 
     if inv:is_empty(INVENTORY_NAME) then
@@ -327,7 +330,7 @@ if ItemInterface then
   end
 
   function item_interface:allow_insert_item(pos, dir, itemstack)
-    local node = minetest.get_node(pos)
+    local node = get_node(pos)
     if node_is_crate_type(pos, node, "empty") or
        node_is_crate_type(pos, node, "items") then
       return true
@@ -336,7 +339,7 @@ if ItemInterface then
   end
 
   function item_interface:allow_extract_item(pos, dir, itemstack)
-    local node = minetest.get_node(pos)
+    local node = get_node(pos)
     if node_is_crate_type(pos, node, "empty") or
        node_is_crate_type(pos, node, "items") then
       return true
@@ -360,7 +363,7 @@ if cluster_energy then
 
       get_usable_stored_energy = function (pos, node, dtime, ot)
         if node_is_crate_type(pos, node, "energy") then
-          local meta = minetest.get_meta(pos)
+          local meta = get_meta(pos)
           return Energy.get_meta_energy(meta, ENERGY_BUFFER_NAME)
         end
         return 0
@@ -368,7 +371,7 @@ if cluster_energy then
 
       use_stored_energy = function (pos, node, amount_to_consume, dtime, ot)
         if node_is_crate_type(pos, node, "energy") then
-          local meta = minetest.get_meta(pos)
+          local meta = get_meta(pos)
           local used = Energy.consume_meta_energy(meta, ENERGY_BUFFER_NAME, amount_to_consume, ENERGY_BANDWIDTH, ENERGY_CAPACITY, true)
           if Energy.get_meta_energy(meta, ENERGY_BUFFER_NAME) <= 0 then
             maybe_change_docking_station_crate_type(pos, node, "empty")
@@ -381,7 +384,7 @@ if cluster_energy then
       receive_energy = function (pos, node, energy_left, dtime, ot)
         if node_is_crate_type(pos, node, "energy") or
            node_is_crate_type(pos, node, "empty") then
-          local meta = minetest.get_meta(pos)
+          local meta = get_meta(pos)
           local received = Energy.receive_meta_energy(meta, ENERGY_BUFFER_NAME, energy_left, ENERGY_BANDWIDTH, ENERGY_CAPACITY, true)
           if Energy.get_meta_energy(meta, ENERGY_BUFFER_NAME) > 0 then
             maybe_change_docking_station_crate_type(pos, node, "energy")
@@ -403,13 +406,12 @@ if cluster_thermal then
     },
 
     update_heat = function (self, pos, node, heat, dtime)
-      local meta = minetest.get_meta(pos)
+      local meta = get_meta(pos)
 
       if node_is_crate_type(pos, node, "heat") or
          node_is_crate_type(pos, node, "empty") then
-        if yatm.thermal.update_heat(meta, "heat", heat, 10, dtime) then
-          --
-        end
+        yatm.thermal.update_heat(meta, "heat", heat, 10, dtime)
+
         if yatm.thermal.get_heat(meta, "heat") == 0 then
           maybe_change_docking_station_crate_type(pos, node, "empty")
         else
@@ -445,7 +447,7 @@ local groups = {
   yatm_cluster_thermal = 1,
 }
 
-minetest.register_node("yatm_overhead_rails:overhead_docking_station", {
+core.register_node("yatm_overhead_rails:overhead_docking_station", {
   basename = "yatm_overhead_rails:overhead_docking_station",
 
   base_description = mod.S("Docking Station"),
@@ -505,7 +507,7 @@ minetest.register_node("yatm_overhead_rails:overhead_docking_station", {
             param1 = node.param1,
             param2 = node.param2,
           }
-          local nodedef = minetest.registered_nodes[new_node.name]
+          local nodedef = core.registered_nodes[new_node.name]
           if nodedef.docking_station_spec and nodedef.docking_station_spec.load_from_itemstack then
             local stack = itemstack:take_item(1)
 
@@ -519,7 +521,7 @@ minetest.register_node("yatm_overhead_rails:overhead_docking_station", {
               -- the crate ended up not loading anything, transition the node into a blank crate
               new_node.name = assert(CRATE_TYPE_TO_DOCKING_STATION.empty)
             end
-            minetest.swap_node(pos, new_node)
+            swap_node(pos, new_node)
             schedule_update_node(pos, new_node)
             yatm.queue_refresh_infotext(pos, new_node)
           end
@@ -576,7 +578,7 @@ yatm.register_stateful_node("yatm_overhead_rails:overhead_docking_station", {
 
   on_rightclick = function (pos, node, clicker, itemstack, pointed_thing)
     if itemstack:is_empty() then
-      local nodedef = minetest.registered_nodes[node.name]
+      local nodedef = core.registered_nodes[node.name]
       local crate_stack = nodedef.docking_station_spec.get_crate_stack(pos, node)
       itemstack:add_item(crate_stack)
       local new_node = {
@@ -587,7 +589,7 @@ yatm.register_stateful_node("yatm_overhead_rails:overhead_docking_station", {
       -- with the crate removed, the docking station's state needs to be reset.
       reset_docking_station(pos, new_node)
       schedule_update_node(pos, new_node)
-      minetest.swap_node(pos, new_node)
+      swap_node(pos, new_node)
     else
       -- nothing
     end
@@ -652,7 +654,7 @@ yatm.register_stateful_node("yatm_overhead_rails:overhead_docking_station", {
       load_from_itemstack = function (pos, node, stack)
         -- elemental crates should load any elemental information
         -- but this isn't implemented yet, so...
-        minetest.log("warning", "TODO: load_from_itemstack for elemental type crates")
+        core.log("warning", "TODO: load_from_itemstack for elemental type crates")
         return false
       end,
 
@@ -683,7 +685,7 @@ yatm.register_stateful_node("yatm_overhead_rails:overhead_docking_station", {
 
     docking_station_spec = {
       load_from_itemstack = function (pos, node, stack)
-        local meta = minetest.get_meta(pos)
+        local meta = get_meta(pos)
 
         local stack_meta = stack:get_meta()
 
@@ -698,7 +700,7 @@ yatm.register_stateful_node("yatm_overhead_rails:overhead_docking_station", {
       get_crate_stack = function (pos, node)
         local itemstack = ItemStack(CRATE_TYPE_TO_DOCKING_CRATE.energy)
         local stack_meta = itemstack:get_meta()
-        local meta = minetest.get_meta(pos)
+        local meta = get_meta(pos)
         stack_meta:set_int("stored_energy", Energy.get_meta_energy(meta, ENERGY_BUFFER_NAME))
         return itemstack
       end,
@@ -725,7 +727,7 @@ yatm.register_stateful_node("yatm_overhead_rails:overhead_docking_station", {
 
     docking_station_spec = {
       load_from_itemstack = function (pos, node, stack)
-        local meta = minetest.get_meta(pos)
+        local meta = get_meta(pos)
 
         local stack_meta = stack:get_meta()
         local fluid_stack = FluidMeta.get_fluid_stack(stack_meta, "stored_fluid")
@@ -739,7 +741,7 @@ yatm.register_stateful_node("yatm_overhead_rails:overhead_docking_station", {
       get_crate_stack = function (pos, node)
         local itemstack = ItemStack(CRATE_TYPE_TO_DOCKING_CRATE.fluid)
         local stack_meta = itemstack:get_meta()
-        local meta = minetest.get_meta(pos)
+        local meta = get_meta(pos)
         local fluid_stack = FluidMeta.get_fluid_stack(meta, "buffer_tank")
         FluidMeta.set_fluid(stack_meta, "stored_fluid", fluid_stack, true)
         local infotext = FluidMeta.to_infotext(stack_meta, "stored_fluid", FLUID_CAPACITY)
@@ -769,7 +771,7 @@ yatm.register_stateful_node("yatm_overhead_rails:overhead_docking_station", {
 
     docking_station_spec = {
       load_from_itemstack = function (pos, node, stack)
-        local meta = minetest.get_meta(pos)
+        local meta = get_meta(pos)
 
         local stack_meta = stack:get_meta()
 
@@ -785,7 +787,7 @@ yatm.register_stateful_node("yatm_overhead_rails:overhead_docking_station", {
       get_crate_stack = function (pos, node)
         local itemstack = ItemStack(CRATE_TYPE_TO_DOCKING_CRATE.heat)
         local stack_meta = itemstack:get_meta()
-        local meta = minetest.get_meta(pos)
+        local meta = get_meta(pos)
 
         stack_meta:set_float("stored_heat", meta:get_float("stored_heat"))
 
@@ -814,7 +816,7 @@ yatm.register_stateful_node("yatm_overhead_rails:overhead_docking_station", {
 
     docking_station_spec = {
       load_from_itemstack = function (pos, node, stack)
-        local meta = minetest.get_meta(pos)
+        local meta = get_meta(pos)
 
         local stack_meta = stack:get_meta()
 
@@ -840,7 +842,7 @@ yatm.register_stateful_node("yatm_overhead_rails:overhead_docking_station", {
       get_crate_stack = function (pos, node)
         local itemstack = ItemStack(CRATE_TYPE_TO_DOCKING_CRATE.items)
         local stack_meta = itemstack:get_meta()
-        local meta = minetest.get_meta(pos)
+        local meta = get_meta(pos)
 
         local inv = meta:get_inventory()
         local list = inv:get_list(INVENTORY_NAME)

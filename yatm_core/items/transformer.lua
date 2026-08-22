@@ -9,7 +9,7 @@ for _,material_pair in ipairs(materials) do
   local material_basename = material_pair[1]
   local material_name = material_pair[2]
 
-  minetest.register_craftitem("yatm_core:transformer_" .. material_basename, {
+  core.register_craftitem("yatm_core:transformer_" .. material_basename, {
     basename = "yatm_core:transformer",
     base_description = "Transformer",
 

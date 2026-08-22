@@ -18,6 +18,7 @@ yatm_core:register_tool("wrench", {
     if not is_player_sneaking(user) then
       if pointed_thing.type == "node" then
         if wrench.user_rotate_node_at_pos(user, wrench.ROTATE_FACE, pointed_thing.under, false) then
+          core.log("action", string.format("%s rotated node", user:get_player_name()))
           -- was rotated
         end
       end
@@ -31,6 +32,7 @@ yatm_core:register_tool("wrench", {
     if not is_player_sneaking(user) then
       if pointed_thing.type == "node" then
         if wrench.user_rotate_node_at_pos(user, wrench.ROTATE_AXIS, pointed_thing.under, false) then
+          core.log("action", string.format("%s rotated node", user:get_player_name()))
           -- was rotated
         end
       end

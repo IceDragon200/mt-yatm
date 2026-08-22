@@ -6,6 +6,7 @@ local fspec = assert(foundation.com.formspec.api)
 local yatm_fspec = assert(yatm.formspec)
 local player_service = assert(nokore.player_service)
 local drill_node_to_meta_inventory = assert(yatm.mining.drill_node_to_meta_inventory)
+local get_meta = assert(tetra.get_meta)
 
 local quarry_item_interface = ItemInterface.new_simple("main")
 
@@ -16,7 +17,7 @@ local function maybe_initialize_inventory(meta)
 end
 
 local function on_construct(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   meta:set_int("cx", -8)
   meta:set_int("cy", 0)
@@ -115,7 +116,7 @@ function yatm_network:work(ctx)
     local cursor_pos = vector.add(pos, cursor_relative_pos)
 
     -- TODO: respect permissions
-    print("Digging " .. minetest.pos_to_string(cursor_pos))
+    print("Digging " .. core.pos_to_string(cursor_pos))
 
     local drilled_node = drill_node_to_meta_inventory(cursor_pos, meta, "main")
 
@@ -186,7 +187,7 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine" }, function (loc, rect)
     if loc == "main_body" then
@@ -269,7 +270,7 @@ local function on_rightclick(pos, node, user)
     pos = pos,
     node = node,
   }
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   maybe_initialize_inventory(meta)
   local formspec = render_formspec(pos, user, state)
 

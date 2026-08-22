@@ -1,7 +1,8 @@
 --
 -- Combustion Engine's burn liquid fuels to produce energy
 --
-local mod = yatm_machines
+local mod = assert(yatm_machines)
+
 local Groups = assert(foundation.com.Groups)
 local copy_node = assert(foundation.com.copy_node)
 local fspec = assert(foundation.com.formspec.api)
@@ -16,6 +17,9 @@ local fluid_registry = assert(yatm.fluids.fluid_registry)
 local player_service = assert(nokore.player_service)
 local Vector3 = assert(foundation.com.Vector3)
 local device_swap_node_by_state = assert(yatm.devices.device_swap_node_by_state)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local swap_node = assert(tetra.swap_node)
 
 local REASON_FLUID_CHANGED = table_freeze({ reason = "fluid has changed" })
 local REASON_PRODUCED_ENERGY = table_freeze({ reason = "produced energy" })
@@ -65,7 +69,7 @@ local TANK_CAPACITY = 16000
 local fluid_interface = yatm.fluids.FluidInterface.new_simple(TANK_NAME, TANK_CAPACITY)
 
 function fluid_interface:on_fluid_changed(pos, dir, _new_stack)
-  local node = minetest.get_node(pos)
+  local node = get_node(pos)
   yatm.queue_refresh_infotext(pos, node, REASON_FLUID_CHANGED)
 end
 
@@ -73,10 +77,10 @@ function yatm_network.energy.produce_energy(pos, node, dtime, ot)
   local need_refresh = false
   local should_commit = true
   local energy_produced = 0
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local fluid_stack = FluidMeta.get_fluid_stack(meta, TANK_NAME)
 
-  local nodedef = minetest.registered_nodes[node.name]
+  local nodedef = core.registered_nodes[node.name]
 
   local new_state
   if fluid_stack and fluid_stack.amount > 0 then
@@ -126,26 +130,28 @@ function yatm_network.energy.produce_energy(pos, node, dtime, ot)
   return energy_produced
 end
 
-function refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
+local function refresh_infotext(pos, node)
+  local nodedef = core.registered_nodes[node.name]
+  local meta = get_meta(pos)
 
   local tank_fluid_stack = FluidMeta.get_fluid_stack(meta, TANK_NAME)
   local capacity = fluid_interface._private.capacity
 
   local infotext =
-    cluster_devices:get_node_infotext(pos) .. "\n" ..
-    cluster_energy:get_node_infotext(pos) .. "\n" ..
-    "Tank: " .. FluidStack.pretty_format(tank_fluid_stack, capacity) .. "\n" ..
-    "Energy/t: " .. meta:get_int("last_energy_produced")
+    (nodedef.short_description or "") .. "\n"
+    .. cluster_devices:get_node_infotext(pos) .. "\n"
+    .. cluster_energy:get_node_infotext(pos) .. "\n"
+    .. "Tank: " .. FluidStack.pretty_format(tank_fluid_stack, capacity) .. "\n"
+    .. "Energy/t: " .. meta:get_int("last_energy_produced")
 
   meta:set_string("infotext", infotext)
 end
 
-function combustion_engine_transition_device_state(pos, _node, state, reason)
+local function combustion_engine_transition_device_state(pos, _node, state, reason)
   reason = reason or "combustion_engine_transition_device_state"
-  local node = minetest.get_node(pos)
-  local nodedef = minetest.registered_nodes[node.name]
-  local meta = minetest.get_meta(pos)
+  local node = get_node(pos)
+  local nodedef = core.registered_nodes[node.name]
+  local meta = get_meta(pos)
 
   local tank_fluid_stack = FluidMeta.get_fluid_stack(meta, TANK_NAME)
 
@@ -171,7 +177,7 @@ function combustion_engine_transition_device_state(pos, _node, state, reason)
   if node.name ~= new_node_name then
     local new_node = copy_node(node)
     new_node.name = new_node_name
-    minetest.swap_node(pos, new_node)
+    swap_node(pos, new_node)
     cluster_devices:schedule_update_node(pos, new_node, reason)
     cluster_energy:schedule_update_node(pos, new_node, reason)
   end
@@ -182,7 +188,7 @@ local function render_formspec(pos, user, state)
   local node_inv_name = "nodemeta:" .. spos
   local cio = fspec.calc_inventory_offset
   local cis = fspec.calc_inventory_size
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   return yatm.formspec_render_split_inv_panel(user, nil, 4, { bg = "machine_electric" }, function (loc, rect)
     if loc == "main_body" then
@@ -261,6 +267,7 @@ yatm.devices.register_stateful_network_device({
   basename = mod:make_name("combustion_engine"),
 
   description = mod.S("Combustion Engine"),
+  short_description = mod.S("Combustion Engine"),
 
   groups = {
     cracky = nokore.dig_class("copper"),
@@ -353,7 +360,7 @@ local creative_engine_yatm_network = {
 }
 
 function creative_engine_yatm_network.energy.produce_energy(pos, node, dtime, trace)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local energy_produced = 4096 * dtime
   meta:set_int("last_energy_produced", energy_produced)
   yatm.queue_refresh_infotext(pos, node, REASON_PRODUCED_ENERGY)
@@ -361,7 +368,7 @@ function creative_engine_yatm_network.energy.produce_energy(pos, node, dtime, tr
 end
 
 function creative_engine_refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
@@ -377,6 +384,7 @@ yatm.devices.register_stateful_network_device({
   basename = mod:make_name("creative_engine"),
 
   description = mod.S("Creative Engine"),
+  short_description = mod.S("Creative Engine"),
 
   groups = {
     cracky = nokore.dig_class("copper"),

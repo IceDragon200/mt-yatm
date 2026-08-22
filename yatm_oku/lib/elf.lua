@@ -1,8 +1,6 @@
 --
 -- Utility module for parsing ELF32 binares and possibly ELF64 in the future...
 --
-local ByteBuf = assert(foundation.com.ByteBuf.little)
-
 assert(foundation.com.binary_types)
 local Enum = assert(foundation.com.binary_types.Enum)
 local BitFlags = assert(foundation.com.binary_types.BitFlags)
@@ -44,6 +42,7 @@ ELF32.Ident = BinSchema:new("ELF32.Ident", {
   {"n_ident", "u8"},
 })
 
+assert(ELF32.Ident:find_field("magic"))
 local size = ELF32.Ident:size()
 assert(size == 16, "expected ident field to be 16 bytes got " .. size)
 
@@ -271,8 +270,8 @@ do
   end
 end
 
-function yatm_oku.elf:read(stream)
-  local ehdr = yatm_oku.elf.ELF32.Ehdr:read(stream)
+function yatm_oku.elf:read(byte_buf, stream)
+  local ehdr = yatm_oku.elf.ELF32.Ehdr:read(byte_buf, stream)
 
   local shdrs = {}
   local phdrs = {}
@@ -282,13 +281,13 @@ function yatm_oku.elf:read(stream)
 
   stream:seek(ehdr.phoff + 1)
   for _ = 1,ehdr.phnum do
-    local ph = ELF32.Phdr:read(stream)
+    local ph = ELF32.Phdr:read(byte_buf, stream)
     table.insert(phdrs, ph)
   end
 
   stream:seek(ehdr.shoff + 1)
   for _ = 1,ehdr.shnum do
-    local sh = ELF32.Shdr:read(stream)
+    local sh = ELF32.Shdr:read(byte_buf, stream)
     table.insert(shdrs, sh)
   end
 
@@ -302,11 +301,11 @@ function yatm_oku.elf:read(stream)
         section.symbols = {}
         local count = shdr.size / shdr.entsize
         for _ = 1,count do
-          local data = ELF32.Sym:read(stream)
+          local data = ELF32.Sym:read(byte_buf, stream)
           table.insert(section.symbols, data)
         end
       elseif shdr.type == "SHT_STRTAB" then
-        local blob = ByteBuf:read(stream, shdr.size)
+        local blob = byte_buf:read(stream, shdr.size)
         section.entries = {}
         local offset = 0
         local iter = 0
@@ -323,7 +322,7 @@ function yatm_oku.elf:read(stream)
           end
         end
       else
-        local blob = ByteBuf:read(stream, shdr.size)
+        local blob = byte_buf:read(stream, shdr.size)
         section.blob = blob
       end
     end
@@ -337,7 +336,7 @@ function yatm_oku.elf:read(stream)
     if phdr.filesz > 0 then
       stream:seek(phdr.offset + 1)
 
-      local blob = ByteBuf:read(stream, phdr.filesz)
+      local blob = byte_buf:read(stream, phdr.filesz)
       segment.blob = blob
     end
     table.insert(prog_segments, segment)

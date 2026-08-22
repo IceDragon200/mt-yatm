@@ -3,19 +3,19 @@
 --
 local mod = yatm_rails
 
--- @private.spec place_cart(ItemStack, Player, PointedThing, name: String): ItemStack
+--- @private.spec place_cart(ItemStack, Player, PointedThing, name: String): ItemStack
 local function place_cart(item_stack, user, pointed_thing, name)
-  local cart = minetest.add_entity(pointed_thing.above, name)
+  local cart = core.add_entity(pointed_thing.above, name)
   --cart:get_luaentity():set_owner_name(user:get_player_name())
 
-  itemstack:take_item(1)
-  return itemstack
+  item_stack:take_item(1)
+  return item_stack
 end
 
 mod:register_tool("battery_cart", {
   description = mod.S("Battery Cart"),
 
-  inventory_image = "yatm_cart.battery.png"
+  inventory_image = "yatm_cart.battery.png",
 
   stack_max = 1,
 
@@ -31,7 +31,7 @@ mod:register_tool("battery_cart", {
 mod:register_tool("fluid_cart", {
   description = mod.S("Fluid Cart"),
 
-  inventory_image = "yatm_cart.fluid.png"
+  inventory_image = "yatm_cart.fluid.png",
 
   stack_max = 1,
 
@@ -47,7 +47,7 @@ mod:register_tool("fluid_cart", {
 mod:register_tool("item_cart", {
   description = mod.S("Item Cart"),
 
-  inventory_image = "yatm_cart.item.png"
+  inventory_image = "yatm_cart.item.png",
 
   stack_max = 1,
 
@@ -63,7 +63,7 @@ mod:register_tool("item_cart", {
 mod:register_tool("solid_fuel_locomotive", {
   description = mod.S("Solid Fuel Locomotive"),
 
-  inventory_image = "yatm_locomotive.solid_fuel.png"
+  inventory_image = "yatm_locomotive.solid_fuel.png",
 
   stack_max = 1,
 
@@ -79,7 +79,7 @@ mod:register_tool("solid_fuel_locomotive", {
 mod:register_tool("electric_locomotive", {
   description = mod.S("Electric Locomotive"),
 
-  inventory_image = "yatm_locomotive.electric.png"
+  inventory_image = "yatm_locomotive.electric.png",
 
   stack_max = 1,
 

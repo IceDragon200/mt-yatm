@@ -1,4 +1,4 @@
-minetest.register_craftitem("yatm_bees:honey_comb_empty", {
+core.register_craftitem("yatm_bees:honey_comb_empty", {
   basename = "yatm_bees:honey_comb",
   base_description = "Honey Comb",
 
@@ -13,7 +13,7 @@ minetest.register_craftitem("yatm_bees:honey_comb_empty", {
   inventory_image = "yatm_honey_combs_normal_empty.png",
 })
 
-minetest.register_craftitem("yatm_bees:honey_comb_full", {
+core.register_craftitem("yatm_bees:honey_comb_full", {
   basename = "yatm_bees:honey_comb",
   base_description = "Honey Comb",
 

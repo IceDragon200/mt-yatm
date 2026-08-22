@@ -3,8 +3,10 @@ local is_table_empty = assert(foundation.com.is_table_empty)
 local ng = Cuboid.new_fast_node_box
 local string_hex_escape = assert(foundation.com.string_hex_escape)
 local data_network = assert(yatm.data_network)
+local get_node = assert(tetra.get_node)
+local get_meta = assert(tetra.get_meta)
 
-minetest.register_node("yatm_data_logic:data_node_sensor", {
+core.register_node("yatm_data_logic:data_node_sensor", {
   description = "DATA Node Sensor\nReports various parameters about a neighbour node.",
 
   codex_entry_id = "yatm_data_logic:data_node_sensor",
@@ -37,7 +39,7 @@ minetest.register_node("yatm_data_logic:data_node_sensor", {
   },
 
   on_construct = function (pos)
-    local node = minetest.get_node(pos)
+    local node = get_node(pos)
     data_network:add_node(pos, node)
   end,
 
@@ -53,7 +55,7 @@ minetest.register_node("yatm_data_logic:data_node_sensor", {
   },
   data_interface = {
     update = function (self, pos, node, dtime)
-      local meta = minetest.get_meta(pos)
+      local meta = get_meta(pos)
 
       local time = meta:get_float("time")
       time = time - dtime
@@ -83,7 +85,7 @@ minetest.register_node("yatm_data_logic:data_node_sensor", {
 
     get_programmer_formspec = function (self, pos, user, pointed_thing, assigns)
       --
-      local meta = minetest.get_meta(pos)
+      local meta = get_meta(pos)
 
       local formspec =
         yatm_data_logic.layout_formspec() ..
@@ -95,7 +97,7 @@ minetest.register_node("yatm_data_logic:data_node_sensor", {
     end,
 
     receive_programmer_fields = function (self, player, form_name, fields, assigns)
-      local meta = minetest.get_meta(assigns.pos)
+      local meta = get_meta(assigns.pos)
 
       local needs_refresh = false
 
@@ -110,7 +112,7 @@ minetest.register_node("yatm_data_logic:data_node_sensor", {
   },
 
   refresh_infotext = function (pos)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     local infotext =
       -- TODO: report last seen entity
       data_network:get_infotext(pos)

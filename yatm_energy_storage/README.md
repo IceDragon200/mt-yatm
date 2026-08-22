@@ -35,7 +35,7 @@ local new_energy_level, consumed = invbat.consume_energy(inv, list_name, amount)
 __Item Energy__
 
 ```lua
-minetest.register_tool("modname:itemname", {
+core.register_tool("modname:itemname", {
   ...
   energy = {
     get_capacity = function (item_stack)

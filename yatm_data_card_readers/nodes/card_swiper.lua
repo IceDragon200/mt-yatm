@@ -5,6 +5,10 @@ local HeadlessMetaDataRef = assert(foundation.com.headless.MetaDataRef)
 local is_blank = assert(foundation.com.is_blank)
 local is_table_empty = assert(foundation.com.is_table_empty)
 local data_network = assert(yatm.data_network)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local swap_node = assert(tetra.swap_node)
+local get_node_timer = assert(tetra.get_node_timer)
 
 local swiper_node_box = {
   type = "fixed",
@@ -16,7 +20,7 @@ local swiper_node_box = {
 }
 
 local function card_swiper_refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local infotext =
     meta:get_string("description") .. "\n" ..
     data_network:get_infotext(pos)
@@ -25,7 +29,7 @@ local function card_swiper_refresh_infotext(pos, node)
 end
 
 local function card_swiper_on_construct(pos)
-  local node = minetest.get_node(pos)
+  local node = get_node(pos)
   data_network:add_node(pos, node)
 end
 
@@ -45,7 +49,7 @@ local function data_card_swiper_preserve_metadata(pos, oldnode, old_meta_table, 
 end
 
 local function data_card_swiper_after_place_node(pos, _placer, itemstack, _pointed_thing)
-  local new_meta = minetest.get_meta(pos)
+  local new_meta = get_meta(pos)
   local old_meta = itemstack:get_meta()
 
   yatm_security.copy_chipped_object(assert(old_meta), new_meta)
@@ -169,8 +173,8 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_swiper", {
             yatm_data_logic.emit_output_data_value(pos, prvkey)
           end
         end
-        minetest.swap_node(pos, node)
-        minetest.get_node_timer(pos):start(1.0)
+        swap_node(pos, node)
+        get_node_timer(pos):start(1.0)
       end
     end,
   },
@@ -194,9 +198,9 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_swiper", {
     use_texture_alpha = "opaque",
 
     on_timer = function (pos, elapsed)
-      local node = minetest.get_node(pos)
+      local node = get_node(pos)
       node.name = "yatm_data_card_readers:data_card_swiper_off"
-      minetest.swap_node(pos, node)
+      swap_node(pos, node)
       return false
     end,
   },
@@ -220,9 +224,9 @@ yatm.register_stateful_node("yatm_data_card_readers:data_card_swiper", {
     use_texture_alpha = "opaque",
 
     on_timer = function (pos, elapsed)
-      local node = minetest.get_node(pos)
+      local node = get_node(pos)
       node.name = "yatm_data_card_readers:data_card_swiper_off"
-      minetest.swap_node(pos, node)
+      swap_node(pos, node)
       return false
     end,
   }

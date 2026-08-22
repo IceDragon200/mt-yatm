@@ -1,14 +1,15 @@
 local Cuboid = assert(foundation.com.Cuboid)
-local is_table_empty = assert(foundation.com.is_table_empty)
 local ng = assert(Cuboid.new_fast_node_box)
 local string_hex_escape = assert(foundation.com.string_hex_escape)
 local data_network = assert(yatm.data_network)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
 
 local function scale_value(value, range)
   return math.min(math.max(math.floor(value * range), 0), range)
 end
 
-minetest.register_node("yatm_data_logic:data_clock", {
+core.register_node("yatm_data_logic:data_clock", {
   description = "DATA Clock\nReports the current time of day ranging from 0 to 255 every second",
 
   codex_entry_id = "yatm_data_logic:data_clock",
@@ -42,9 +43,9 @@ minetest.register_node("yatm_data_logic:data_clock", {
   },
 
   on_construct = function (pos)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     meta:set_int("precision", 1)
-    local node = minetest.get_node(pos)
+    local node = get_node(pos)
     data_network:add_node(pos, node)
   end,
 
@@ -60,20 +61,20 @@ minetest.register_node("yatm_data_logic:data_clock", {
   },
   data_interface = {
     update = function (self, pos, node, dtime)
-      local meta = minetest.get_meta(pos)
+      local meta = get_meta(pos)
 
       local time = meta:get_float("time")
       time = time - dtime
 
       if time <= 0 then
         time = time + 1
-        local value = 0
+        local value
 
         -- precision presents how many bytes are used to represent the time
         -- by default it is 1 byte
         local precision = meta:get_int("precision")
 
-        local timeofday = minetest.get_timeofday()
+        local timeofday = core.get_timeofday()
         local output_data
         if precision == 2 then
           value = scale_value(timeofday, 0xFFFF)
@@ -168,7 +169,7 @@ minetest.register_node("yatm_data_logic:data_clock", {
   },
 
   refresh_infotext = function (pos)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     local infotext =
       "Time of Day: " .. meta:get_int("last_timeofday") .. "\n" ..
       data_network:get_infotext(pos)

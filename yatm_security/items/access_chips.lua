@@ -11,7 +11,7 @@ for _,row in ipairs(yatm.colors_with_default) do
   local name = row.description
 
   -- Access chips that have been programmed cannot be stacked
-  minetest.register_craftitem("yatm_security:access_chip_with_pins_" .. basename, {
+  core.register_craftitem("yatm_security:access_chip_with_pins_" .. basename, {
     basename = "yatm_security:access_chip_with_pins",
     base_description = "Access Chip [Programmed]",
 
@@ -29,7 +29,7 @@ for _,row in ipairs(yatm.colors_with_default) do
   })
 
   -- Unprogrammed access chips can be stacked
-  minetest.register_craftitem("yatm_security:access_chip_" .. basename, {
+  core.register_craftitem("yatm_security:access_chip_" .. basename, {
     basename = "yatm_security:access_chip",
     base_description = "Access Chip [Unprogrammed]",
 

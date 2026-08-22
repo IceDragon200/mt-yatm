@@ -1,10 +1,10 @@
 local mod = yatm_data_noteblock
 local string_hex_unescape = assert(foundation.com.string_hex_unescape)
-local is_table_empty = assert(foundation.com.is_table_empty)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
-
 local data_network = assert(yatm.data_network)
+local get_node = assert(tetra.get_node)
+local get_meta = assert(tetra.get_meta)
 
 -- Just like a mesecon noteblock, except triggered by data events
 mod:register_node("data_noteblock", {
@@ -45,9 +45,9 @@ mod:register_node("data_noteblock", {
   },
 
   on_construct = function (pos)
-    local meta = minetest.get_meta(pos)
+    local node = get_node(pos)
+    local meta = get_meta(pos)
     meta:set_int("damper", 0)
-    local node = minetest.get_node(pos)
     data_network:add_node(pos, node)
   end,
 
@@ -64,8 +64,8 @@ mod:register_node("data_noteblock", {
     end,
 
     receive_pdu = function (self, pos, node, dir, local_port, value)
-      --print("receive_pdu", minetest.pos_to_string(pos), node.name, dir, local_port, dump(value))
-      local meta = minetest.get_meta(pos)
+      --print("receive_pdu", core.pos_to_string(pos), node.name, dir, local_port, dump(value))
+      local meta = get_meta(pos)
       local payload = string_hex_unescape(value)
       local key = string.byte(payload, 1)
       if key then
@@ -147,7 +147,7 @@ mod:register_node("data_noteblock", {
   },
 
   refresh_infotext = function (pos)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     local infotext =
       data_network:get_infotext(pos)
 

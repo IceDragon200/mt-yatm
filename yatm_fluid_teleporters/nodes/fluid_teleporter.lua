@@ -1,9 +1,14 @@
 --[[
-Fluid Teleporters behave slightly different from pipes, they will have a 1-frame delay since they will
-take fluids into their internal inventory, and then teleport them to a connected teleporter.
 
-Like all other wireless devices, it has it's own address scheme and registration process.
+  Fluid Teleporters behave slightly different from pipes, they will have a 1-frame delay since
+  they will take fluids into their internal inventory, and then teleport them to a
+  connected teleporter.
+
+  Like all other wireless devices, it has it's own address scheme and registration process.
+
 ]]
+local mod = assert(yatm_fluid_teleporters)
+
 local is_blank = assert(foundation.com.is_blank)
 local Directions = assert(foundation.com.Directions)
 local cluster_devices = assert(yatm.cluster.devices)
@@ -14,16 +19,19 @@ local FluidTanks = assert(yatm.fluids.FluidTanks)
 local FluidStack = assert(yatm.fluids.FluidStack)
 local FluidMeta = assert(yatm.fluids.FluidMeta)
 local Energy = assert(yatm.energy)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local swap_node = assert(tetra.swap_node)
 
 local fluid_interface = FluidInterface.new_simple("tank", 16000)
 
 function fluid_interface:on_fluid_changed(pos, dir, _fluid_stack)
-  local node = minetest.get_node(pos)
+  local node = get_node(pos)
   yatm.queue_refresh_infotext(pos, node)
 end
 
 local function fluid_teleporter_refresh_infotext(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..
@@ -34,7 +42,7 @@ local function fluid_teleporter_refresh_infotext(pos)
   meta:set_string("infotext", infotext)
 end
 
-local fluid_teleporter_yatm_network = {
+local yatm_network = {
   kind = "machine",
   groups = {
     machine_worker = 1,
@@ -55,7 +63,7 @@ local fluid_teleporter_yatm_network = {
   },
 }
 
-function fluid_teleporter_yatm_network:work(ctx)
+function yatm_network:work(ctx)
   local pos = ctx.pos
   local meta = ctx.meta
   local node = ctx.node
@@ -73,16 +81,28 @@ function fluid_teleporter_yatm_network:work(ctx)
     if fluid_stack and fluid_stack.amount > 0 then
       local remaining_stack = FluidStack.copy(fluid_stack)
 
-      SpacetimeNetwork:each_member_in_group_by_address("fluid_receiver", address, function (sp_hash, member)
-        local filled_stack, error_message = FluidTanks.fill_fluid(member.pos, Directions.D_NONE, remaining_stack, true)
-        if filled_stack and filled_stack.amount > 0 then
-          remaining_stack.amount = remaining_stack.amount - filled_stack.amount
+      SpacetimeNetwork:each_member_in_group_by_address(
+        "fluid_receiver", address, function (sp_hash, member)
+          local filled_stack, error_message = FluidTanks.fill_fluid(
+            member.pos,
+            Directions.D_NONE,
+            remaining_stack,
+            true
+          )
+          if filled_stack and filled_stack.amount > 0 then
+            remaining_stack.amount = remaining_stack.amount - filled_stack.amount
+          end
+          return remaining_stack.amount > 0
         end
-        return remaining_stack.amount > 0
-      end)
+      )
 
-      local drained_stack = FluidStack.set_amount(fluid_stack, fluid_stack.amount - remaining_stack.amount)
-      local actual_drained = FluidMeta.drain_fluid(meta, "tank", drained_stack, capacity, capacity, true)
+      local drained_stack = FluidStack.set_amount(
+        fluid_stack,
+        fluid_stack.amount - remaining_stack.amount
+      )
+      local actual_drained = FluidMeta.drain_fluid(
+        meta, "tank", drained_stack, capacity, capacity, true
+      )
       if actual_drained and actual_drained.amount > 0 then
         energy_consumed = energy_consumed + actual_drained.amount / 10
         yatm.queue_refresh_infotext(pos, node)
@@ -92,41 +112,43 @@ function fluid_teleporter_yatm_network:work(ctx)
   return energy_consumed
 end
 
-local function fluid_teleporter_after_place_node(pos, _placer, itemstack, _pointed_thing)
-  local new_meta = minetest.get_meta(pos)
+local function after_place_node(pos, _placer, itemstack, _pointed_thing)
+  local new_meta = get_meta(pos)
   local old_meta = itemstack:get_meta()
   SpacetimeMeta.copy_address(old_meta, new_meta)
-  local address = SpacetimeMeta.patch_address(new_meta)
+  SpacetimeMeta.patch_address(new_meta)
 
-  local node = minetest.get_node(pos)
+  local node = get_node(pos)
   SpacetimeNetwork:maybe_register_node(pos, node)
 
   yatm.devices.device_after_place_node(pos, placer, itemstack, pointed_thing)
   yatm.queue_refresh_infotext(pos)
 end
 
-local function fluid_teleporter_on_destruct(pos)
+local function on_destruct(pos)
   yatm.devices.device_on_destruct(pos)
 end
 
-local function fluid_teleporter_after_destruct(pos, old_node)
+local function after_destruct(pos, old_node)
   SpacetimeNetwork:unregister_device(pos, old_node)
   yatm.devices.device_after_destruct(pos, old_node)
 end
 
-local function fluid_teleporter_change_spacetime_address(pos, node, new_address)
-  local meta = minetest.get_meta(pos)
+local function change_spacetime_address(pos, node, new_address)
+  local meta = get_meta(pos)
 
   SpacetimeMeta.set_address(meta, new_address)
   SpacetimeNetwork:maybe_update_node(pos, node)
 
-  local nodedef = minetest.registered_nodes[node.name]
-  if is_blank(new_address) then
-    node.name = fluid_teleporter_yatm_network.states.off
-    minetest.swap_node(pos, node)
-  else
-    node.name = fluid_teleporter_yatm_network.states.on
-    minetest.swap_node(pos, node)
+  local nodedef = core.registered_nodes[node.name]
+  if nodedef.yatm_network then
+    if is_blank(new_address) then
+      node.name = nodedef.yatm_network.states.off
+      swap_node(pos, node)
+    else
+      node.name = nodedef.yatm_network.states.on
+      swap_node(pos, node)
+    end
   end
   yatm.queue_refresh_infotext(pos, node)
   return new_address
@@ -151,11 +173,12 @@ local groups = {
 yatm.devices.register_stateful_network_device({
   basename = "yatm_fluid_teleporters:fluid_teleporter",
 
-  description = "Fluid Teleporter",
+  short_description = mod.S("Fluid Teleporter"),
+  description = mod.S("Fluid Teleporter"),
 
   codex_entry_id = "yatm_fluid_teleporters:fluid_teleporter",
 
-  drop = fluid_teleporter_yatm_network.states.off,
+  drop = yatm_network.states.off,
 
   groups = groups,
 
@@ -179,16 +202,16 @@ yatm.devices.register_stateful_network_device({
 
   fluid_interface = fluid_interface,
 
-  yatm_network = fluid_teleporter_yatm_network,
+  yatm_network = yatm_network,
   yatm_spacetime = {
     groups = {fluid_teleporter = 1},
   },
 
-  after_place_node = fluid_teleporter_after_place_node,
-  on_destruct = fluid_teleporter_on_destruct,
-  after_destruct = fluid_teleporter_after_destruct,
+  after_place_node = after_place_node,
+  on_destruct = on_destruct,
+  after_destruct = after_destruct,
 
-  change_spacetime_address = fluid_teleporter_change_spacetime_address,
+  change_spacetime_address = change_spacetime_address,
 
   refresh_infotext = fluid_teleporter_refresh_infotext,
 }, {

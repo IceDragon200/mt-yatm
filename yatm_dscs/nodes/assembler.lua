@@ -1,9 +1,12 @@
 --
 -- It looks just like AE2's Molecular Assembler, and has the same function too.
 --
+local mod = assert(yatm_dscs)
+
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
+local get_meta = assert(tetra.get_meta)
 
 local assembler_yatm_network = {
   kind = "machine",
@@ -31,11 +34,13 @@ local assembler_yatm_network = {
 }
 
 local function refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local nodedef = core.registered_nodes[node.name]
+  local meta = get_meta(pos)
   local infotext =
-    "Assembler\n" ..
-    cluster_devices:get_node_infotext(pos) .. "\n" ..
-    cluster_energy:get_node_infotext(pos) .. " [" .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY) .. "]\n"
+    nodedef.short_description .. "\n"
+    .. cluster_devices:get_node_infotext(pos) .. "\n"
+    .. cluster_energy:get_node_infotext(pos) .. "\n"
+    .. Energy.meta_to_infotext(meta, yatm.devices.ENERGY_BUFFER_KEY)
 
   meta:set_string("infotext", infotext)
 end
@@ -92,7 +97,8 @@ yatm.devices.register_stateful_network_device({
 
   codex_entry_id = "yatm_dscs:assembler",
 
-  description = "Item Assembler",
+  description = mod.S("Item Assembler"),
+  short_description = mod.S("Item Assembler"),
 
   groups = groups,
 

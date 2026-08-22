@@ -1,9 +1,11 @@
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local string_hex_unescape = assert(foundation.com.string_hex_unescape)
-local is_table_empty = assert(foundation.com.is_table_empty)
 local number_round = assert(foundation.com.number_round)
 local data_network = assert(yatm.data_network)
+local get_node = assert(tetra.get_node)
+local get_meta = assert(tetra.get_meta)
+local swap_node = assert(tetra.swap_node)
 
 local lamp_levels = {}
 
@@ -26,7 +28,7 @@ for i = 0,13 do
     groups.not_in_creative_inventory = 1
   end
 
-  minetest.register_node(name, {
+  core.register_node(name, {
     basename = "yatm_data_logic:data_levelled_lamp",
 
     base_description = "DATA Levelled Lamp",
@@ -64,7 +66,7 @@ for i = 0,13 do
     use_texture_alpha = "opaque",
 
     on_construct = function (pos)
-      local node = minetest.get_node(pos)
+      local node = get_node(pos)
       data_network:add_node(pos, node)
     end,
 
@@ -92,7 +94,7 @@ for i = 0,13 do
             param1 = node.param1,
             param2 = node.param2,
           }
-          minetest.swap_node(pos, new_node)
+          swap_node(pos, new_node)
           yatm.queue_refresh_infotext(pos, new_node)
         end
       end,
@@ -127,7 +129,7 @@ for i = 0,13 do
     },
 
     refresh_infotext = function (pos)
-      local meta = minetest.get_meta(pos)
+      local meta = get_meta(pos)
       local infotext =
         "Light Level: " .. i .. "\n" ..
         data_network:get_infotext(pos)

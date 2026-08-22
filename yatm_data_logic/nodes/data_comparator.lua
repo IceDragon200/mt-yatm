@@ -9,6 +9,9 @@ local is_table_empty = assert(foundation.com.is_table_empty)
 local string_hex_unescape = assert(foundation.com.string_hex_unescape)
 local Directions = assert(foundation.com.Directions)
 local data_network = assert(yatm.data_network)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local formspec_escape = assert(core.formspec_escape)
 
 local data_interface = {
   on_load = function (self, pos, node)
@@ -16,11 +19,11 @@ local data_interface = {
   end,
 
   receive_pdu = function (self, pos, node, dir, port, value)
-    --print(minetest.pos_to_string(pos), node.name,
+    --print(core.pos_to_string(pos), node.name,
     --      Directions.DIR_TO_STRING[dir], port,
     --      dump(value))
 
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     local sub_network_ids = data_network:get_sub_network_ids(pos)
     local input_port = meta:get_int("input_" .. dir)
     if input_port > 0 then
@@ -41,7 +44,7 @@ local data_interface = {
           local left = string_hex_unescape(meta:get_string("input_value_" .. left_dir))
           local right = string_hex_unescape(meta:get_string("input_value_" .. right_dir))
 
-          --print(minetest.pos_to_string(pos), node.name,
+          --print(core.pos_to_string(pos), node.name,
           --      Directions.DIR_TO_STRING1[left_dir], dump(left),
           --      Directions.DIR_TO_STRING1[right_dir], dump(right))
 
@@ -58,18 +61,14 @@ local data_interface = {
             meta:set_string("last_result", name)
             yatm.queue_refresh_infotext(pos, node)
           end
-        else
-          --print(minetest.pos_to_string(pos), node.name, "no valid directions")
         end
-      else
-        --print(minetest.pos_to_string(pos), node.name, "operands are invalid")
       end
     end
   end,
 
   get_programmer_formspec = function (self, pos, user, pointed_thing, assigns)
     --
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
 
     assigns.tab = assigns.tab or 1
 
@@ -94,18 +93,18 @@ local data_interface = {
         formspec ..
         "label[0,0;Data Configuration]" ..
         "label[0,1;Operands]" ..
-        "field[0.25,2;8,1;operands;Operands;" .. minetest.formspec_escape(meta:get_string("operands")) .. "]" ..
+        "field[0.25,2;8,1;operands;Operands;" .. formspec_escape(meta:get_string("operands")) .. "]" ..
         "label[0,3;Truthy]" ..
-        "field[0.25,4;4,1;data_true;Data;" .. minetest.formspec_escape(meta:get_string("data_true")) .. "]" ..
+        "field[0.25,4;4,1;data_true;Data;" .. formspec_escape(meta:get_string("data_true")) .. "]" ..
         "label[4,3;Falsy]" ..
-        "field[4.25,4;4,1;data_false;Data;" .. minetest.formspec_escape(meta:get_string("data_false")) .. "]"
+        "field[4.25,4;4,1;data_false;Data;" .. formspec_escape(meta:get_string("data_false")) .. "]"
     end
 
     return formspec
   end,
 
   receive_programmer_fields = function (self, player, form_name, fields, assigns)
-    local meta = minetest.get_meta(assigns.pos)
+    local meta = get_meta(assigns.pos)
 
     local needs_refresh = false
 
@@ -193,8 +192,8 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
   },
 
   on_construct = function (pos)
-    local meta = minetest.get_meta(pos)
-    local node = minetest.get_node(pos)
+    local meta = get_meta(pos)
+    local node = get_node(pos)
 
     meta:set_string("operands", "")
     data_network:add_node(pos, node)
@@ -210,7 +209,7 @@ yatm.register_stateful_node("yatm_data_logic:data_comparator", {
   data_interface = data_interface,
 
   refresh_infotext = function (pos)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     local infotext =
       "Last Result: " .. meta:get_string("last_result") .. "\n" ..
       data_network:get_infotext(pos)

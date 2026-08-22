@@ -1,11 +1,20 @@
 local table_key_of = assert(foundation.com.table_key_of)
 local string_hex_unescape = assert(foundation.com.string_hex_unescape)
-local is_table_empty = assert(foundation.com.is_table_empty)
 local Directions = assert(foundation.com.Directions)
+local pos_to_string = assert(core.pos_to_string)
+local hash_node_position = assert(core.hash_node_position)
+local get_position_from_hash = assert(core.get_position_from_hash)
+local get_meta = assert(tetra.get_meta)
+local get_node = assert(tetra.get_node)
+local get_node_timer = assert(tetra.get_node_timer)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
+local swap_node = assert(tetra.swap_node)
+local remove_node = assert(tetra.remove_node)
+local set_node = assert(tetra.set_node)
 
 local function frame_reducer(pos, node, context, accessible_dirs)
-  local node_id = minetest.hash_node_position(pos)
-  local nodedef = minetest.registered_nodes[node.name]
+  local node_id = hash_node_position(pos)
+  local nodedef = core.registered_nodes[node.name]
 
   if nodedef.groups.node_frame then
     context.frames[node_id] = {
@@ -28,12 +37,12 @@ local function frame_reducer(pos, node, context, accessible_dirs)
       local sticky_vec3 = Directions.DIR6_TO_VEC3[new_dir]
       local sticky_pos = vector.add(pos, sticky_vec3)
 
-      local sticky_node_id = minetest.hash_node_position(sticky_pos)
-      local sticky_node = minetest.get_node_or_nil(sticky_pos)
+      local sticky_node_id = hash_node_position(sticky_pos)
+      local sticky_node = get_node_or_nil(sticky_pos)
 
       local sticky_nodedef
       if sticky_node then
-        sticky_nodedef = minetest.registered_nodes[sticky_node.name]
+        sticky_nodedef = core.registered_nodes[sticky_node.name]
 
         if sticky_nodedef and sticky_nodedef.groups.node_frame_wire then
           -- wire prevents other frames from connecting together
@@ -80,17 +89,17 @@ local function frame_reducer(pos, node, context, accessible_dirs)
               }
             end
           else
-            print("no nodedef for " .. minetest.pos_to_string(sticky_pos))
+            print("no nodedef for " .. pos_to_string(sticky_pos))
             accessible_dirs[new_dir] = false
           end
         else
-          print("no node for " .. minetest.pos_to_string(sticky_pos))
+          print("no node for " .. pos_to_string(sticky_pos))
           accessible_dirs[new_dir] = false
         end
       end
 
       if nodedef.wired_faces and table_key_of(nodedef.wired_faces, dir) then
-        print("is an attached wire face " .. minetest.pos_to_string(sticky_pos))
+        print("is an attached wire face " .. pos_to_string(sticky_pos))
         accessible_dirs[new_dir] = false
       end
     end
@@ -105,10 +114,10 @@ local function can_move_nodes(nodes, dir)
   -- Time to check for collisions
   for node_id, pos in pairs(nodes) do
     local next_pos = vector.add(pos, dir_vec3)
-    local next_node_id = minetest.hash_node_position(next_pos)
+    local next_node_id = hash_node_position(next_pos)
 
-    local node = minetest.get_node(pos)
-    local nodedef = minetest.registered_nodes[node.name]
+    local node = get_node(pos)
+    local nodedef = core.registered_nodes[node.name]
 
     if nodedef.can_dig then
       if not nodedef.can_dig(pos) then
@@ -120,9 +129,9 @@ local function can_move_nodes(nodes, dir)
       -- can skip quietly
     else
       -- need to check...
-      local next_node = minetest.get_node_or_nil(next_pos)
+      local next_node = get_node_or_nil(next_pos)
       if next_node then
-        local next_nodedef = minetest.registered_nodes[next_node.name]
+        local next_nodedef = core.registered_nodes[next_node.name]
         if next_nodedef.buildable_to then
           if next_nodedef.can_dig then
             if next_nodedef.can_dig(pos) then
@@ -149,9 +158,9 @@ local function move_nodes(nodes, dir)
 
   for node_id, pos in pairs(nodes) do
     local new_pos = vector.add(pos, dir_vec3)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
 
-    local timer = minetest.get_node_timer(pos)
+    local timer = get_node_timer(pos)
     local timer_state = false
 
     if timer:is_started() then
@@ -161,32 +170,32 @@ local function move_nodes(nodes, dir)
     frozen_state[node_id] = {
       new_pos = new_pos,
       old_pos = pos,
-      node = minetest.get_node(pos),
+      node = get_node(pos),
       meta = meta:to_table(),
       timer_state = timer_state,
     }
   end
 
   for node_id, pos in pairs(nodes) do
-    minetest.remove_node(pos)
+    remove_node(pos)
   end
 
   for node_id, pos in pairs(nodes) do
     local state = frozen_state[node_id]
 
-    minetest.set_node(state.new_pos, state.node)
-    minetest.get_meta(state.new_pos):from_table(state.meta)
+    set_node(state.new_pos, state.node)
+    get_meta(state.new_pos):from_table(state.meta)
 
     if state.timer_state then
-      minetest.get_node_timer(state.new_pos):set(unpack(state.timer_state))
+      get_node_timer(state.new_pos):set(unpack(state.timer_state))
     end
   end
 end
 
 local function maybe_move_frame(pos, dir)
-  local node = minetest.get_node_or_nil(pos)
+  local node = get_node_or_nil(pos)
   if node then
-    local nodedef = minetest.registered_nodes[node.name]
+    local nodedef = core.registered_nodes[node.name]
 
     if nodedef.groups.node_frame then
       local context = {
@@ -203,11 +212,11 @@ local function maybe_move_frame(pos, dir)
       local nodes = {}
 
       for node_id, frame in pairs(context.frames) do
-        nodes[node_id] = minetest.get_position_from_hash(node_id)
+        nodes[node_id] = get_position_from_hash(node_id)
 
         if frame.neighbours then
           for ne_node_id, _ in pairs(frame.neighbours) do
-            nodes[ne_node_id] = minetest.get_position_from_hash(ne_node_id)
+            nodes[ne_node_id] = get_position_from_hash(ne_node_id)
           end
         end
       end
@@ -237,7 +246,7 @@ end
 --
 -- Default Frame Motor
 --
-minetest.register_node("yatm_frames:frame_motor_default_off", {
+core.register_node("yatm_frames:frame_motor_default_off", {
   basename = "yatm_frames:frame_motor_default",
 
   description = "Frame Motor",
@@ -264,7 +273,7 @@ minetest.register_node("yatm_frames:frame_motor_default_off", {
 })
 
 
-minetest.register_node("yatm_frames:frame_motor_default_on", {
+core.register_node("yatm_frames:frame_motor_default_on", {
   basename = "yatm_frames:frame_motor_default",
 
   description = "Frame Motor",
@@ -305,7 +314,7 @@ if mesecon then
         print('off', node.name)
         if node.name == "yatm_frames:frame_motor_mesecon_off" then
           node.name = "yatm_frames:frame_motor_mesecon_on"
-          minetest.swap_node(pos, node)
+          swap_node(pos, node)
 
           motor_move_frame(pos, node)
         end
@@ -315,13 +324,13 @@ if mesecon then
         print('off', node.name)
         if node.name == "yatm_frames:frame_motor_mesecon_on" then
           node.name = "yatm_frames:frame_motor_mesecon_off"
-          minetest.swap_node(pos, node)
+          swap_node(pos, node)
         end
       end,
     },
   }
 
-  minetest.register_node("yatm_frames:frame_motor_mesecon_off", {
+  core.register_node("yatm_frames:frame_motor_mesecon_off", {
     basename = "yatm_frames:frame_motor_mesecon",
 
     description = "Mesecon Frame Motor",
@@ -352,7 +361,7 @@ if mesecon then
   })
 
 
-  minetest.register_node("yatm_frames:frame_motor_mesecon_on", {
+  core.register_node("yatm_frames:frame_motor_mesecon_on", {
     basename = "yatm_frames:frame_motor_mesecon",
 
     description = "Mesecon Frame Motor",
@@ -391,7 +400,7 @@ if yatm_data_logic then
   local data_network = assert(yatm.data_network)
 
   local function refresh_infotext(pos, node)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     local infotext =
       data_network:get_infotext(pos)
 
@@ -399,7 +408,7 @@ if yatm_data_logic then
   end
 
   local function frame_motor_on_construct(pos)
-    local node = minetest.get_node(pos)
+    local node = get_node(pos)
 
     data_network:add_node(pos, node)
   end
@@ -429,18 +438,18 @@ if yatm_data_logic then
       end,
 
       receive_pdu = function (self, pos, node, dir, port, value)
-        local meta = minetest.get_meta(pos)
+        local meta = get_meta(pos)
         local new_value = string_hex_unescape(value)
 
         if node.name == "yatm_frames:frame_motor_data_off" then
           if string_hex_unescape(meta:get_string("data_on")) == new_value then
             node.name = "yatm_frames:frame_motor_data_on"
-            minetest.swap_node(pos, node)
+            swap_node(pos, node)
             motor_move_frame(pos, node)
-            minetest.get_node_timer(pos):start(0.25)
+            get_node_timer(pos):start(0.25)
           end
         elseif node.name == "yatm_frames:frame_motor_data_on" then
-          local timer = minetest.get_node_timer(pos)
+          local timer = get_node_timer(pos)
           if not timer:is_started() then
             timer:start(0.25)
           end
@@ -449,7 +458,7 @@ if yatm_data_logic then
 
       get_programmer_formspec = function (self, pos, user, pointed_thing, assigns)
         --
-        local meta = minetest.get_meta(pos)
+        local meta = get_meta(pos)
 
         assigns.tab = assigns.tab or 1
         local formspec =
@@ -474,9 +483,9 @@ if yatm_data_logic then
             "label[0,0;Data Configuration]" ..
             "label[0,1;Data Trigger]" ..
             "label[4,1;On (Data to trigger ON state)]" ..
-            "field[4.25,2;4,4;data_on;Data;" .. minetest.formspec_escape(meta:get_string("data_on")) .. "]" ..
+            "field[4.25,2;4,4;data_on;Data;" .. core.formspec_escape(meta:get_string("data_on")) .. "]" ..
             "label[0,1;Off (Data when the motor returns to it's off state)]" ..
-            "field[0.25,2;4,4;data_off;Data;" .. minetest.formspec_escape(meta:get_string("data_off")) .. "]" ..
+            "field[0.25,2;4,4;data_off;Data;" .. core.formspec_escape(meta:get_string("data_off")) .. "]" ..
             ""
         end
 
@@ -484,7 +493,7 @@ if yatm_data_logic then
       end,
 
       receive_programmer_fields = function (self, player, form_name, fields, assigns)
-        local meta = minetest.get_meta(assigns.pos)
+        local meta = get_meta(assigns.pos)
 
         local needs_refresh = false
 
@@ -562,9 +571,9 @@ if yatm_data_logic then
       use_texture_alpha = "opaque",
 
       on_timer = function (pos, elapsed)
-        local node = minetest.get_node(pos)
+        local node = get_node(pos)
         node.name = "yatm_frames:frame_motor_data_off"
-        minetest.swap_node(pos, node)
+        swap_node(pos, node)
         yatm_data_logic.emit_output_data(pos, "off")
         return false
       end,

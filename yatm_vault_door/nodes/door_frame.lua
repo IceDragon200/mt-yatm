@@ -9,7 +9,8 @@ local Directions = assert(foundation.com.Directions)
 -- Toggle Slides will move their entire door frame as far as possible in their direction
 -- They are called 'toggle' slides since they are triggered by activating the door segments directly
 -- Toggle steps move their door segments one step in their specified direction,
--- they only change their state once all the segments can no longer move in their specified direction.
+-- they only change their state once all the segments can no longer move in their
+-- specified direction.
 
 -- The maximum number of nodes a slide door will attempt to 'step' on activation
 local MAX_STEP = 64

@@ -8,10 +8,11 @@ end
 
 local Directions = assert(foundation.com.Directions)
 local ItemInterface = assert(yatm.items.ItemInterface)
+local get_node = assert(tetra.get_node)
 
-local magazine_loader_item_interface =
+local item_interface =
   ItemInterface.new_directional(function (self, pos, dir)
-    local node = minetest.get_node(pos)
+    local node = get_node(pos)
     local new_dir = Directions.facedir_to_face(node.param2, dir)
 
     if new_dir == Directions.D_EAST and new_dir == Directions.D_WEST then
@@ -21,7 +22,7 @@ local magazine_loader_item_interface =
     end
   end)
 
-local magazine_loader_yatm_network = {
+local yatm_network = {
   basename = "yatm_armoury:magazine_loader",
   kind = "machine",
   groups = {
@@ -43,7 +44,7 @@ local magazine_loader_yatm_network = {
   },
 }
 
-function magazine_loader_yatm_network:work(ctx)
+function yatm_network:work(ctx)
   return 0
 end
 
@@ -70,7 +71,8 @@ yatm.devices.register_stateful_network_device({
     "yatm_magazine_loader_front.off.png",
   },
 
-  yatm_network = magazine_loader_yatm_network,
+  item_interface = item_interface,
+  yatm_network = yatm_network,
 }, {
   error = {
     tiles = {

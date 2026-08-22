@@ -4,6 +4,8 @@ local table_length = assert(foundation.com.table_length)
 local Directions = assert(foundation.com.Directions)
 local facedir_to_face = assert(Directions.facedir_to_face)
 local DIR6_TO_VEC3 = assert(Directions.DIR6_TO_VEC3)
+local get_node = assert(tetra.get_node)
+local hash_node_position = assert(core.hash_node_position)
 
 local ReactorCluster = yatm_clusters.SimpleCluster:extends("ReactorCluster")
 local ic = ReactorCluster.instance_class
@@ -17,13 +19,17 @@ function ic:initialize(cluster_group)
 end
 
 function ic:schedule_start_reactor(pos, node, player_name)
-  print(self.m_log_group, 'schedule_start_reactor', minetest.pos_to_string(pos), node.name)
-  yatm.clusters:schedule_node_event(self.m_cluster_group, 'start_reactor', pos, node, { player_name = player_name })
+  print(self.m_log_group, 'schedule_start_reactor', core.pos_to_string(pos), node.name)
+  yatm.clusters:schedule_node_event(
+    self.m_cluster_group, 'start_reactor', pos, node, { player_name = player_name }
+  )
 end
 
 function ic:schedule_stop_reactor(pos, node, player_name)
-  print(self.m_log_group, 'schedule_stop_reactor', minetest.pos_to_string(pos), node.name)
-  yatm.clusters:schedule_node_event(self.m_cluster_group, 'stop_reactor', pos, node, { player_name = player_name })
+  print(self.m_log_group, 'schedule_stop_reactor', core.pos_to_string(pos), node.name)
+  yatm.clusters:schedule_node_event(
+    self.m_cluster_group, 'stop_reactor', pos, node, { player_name = player_name }
+  )
 end
 
 function ic:schedule_remove_node(pos, node)
@@ -37,7 +43,7 @@ function ic:handle_node_event(cls, generation_id, event, cluster_ids, trace)
     span = trace:span_start(event.event_name)
   end
 
-  print(self.m_log_group, 'event', event.event_name, generation_id, minetest.pos_to_string(event.pos))
+  print(self.m_log_group, 'event', event.event_name, generation_id, core.pos_to_string(event.pos))
 
   if event.event_name == 'load_node' then
     -- treat loads like adding a node
@@ -81,8 +87,6 @@ function ic:transition_cluster_state(cls, cluster, generation_id, event, state)
 end
 
 local function linear_explore(size_limit, origin, cluster, dir)
-  local hash_node_position = minetest.hash_node_position
-
   local total_distance = 0
   local last_pos = origin
   local to_visit = {origin}
@@ -127,8 +131,6 @@ local function linear_explore(size_limit, origin, cluster, dir)
 end
 
 local function lateral_explore(size_limit, origin, cluster, left_dir, right_dir)
-  local hash_node_position = minetest.hash_node_position
-
   local total_distance = 0
   local reactor_left = origin
   local reactor_right = origin
@@ -213,7 +215,7 @@ function ic:verify_reactor_structure(cls, generation_id, event, cluster)
   local origin = controller_node_entry.pos
 
   -- node_entry.node may be a stale entry
-  local node = minetest.get_node(origin)
+  local node = get_node(origin)
 
   -- Grab all the directions for the reactor controller
   -- the SOUTH face is always the 'front' (the face that you preceive to be the front)
@@ -235,13 +237,13 @@ function ic:verify_reactor_structure(cls, generation_id, event, cluster)
   local up_struct = cluster:get_node_group(vector.add(origin, DIR6_TO_VEC3[up_dir]), 'structure')
   local down_struct = cluster:get_node_group(vector.add(origin, DIR6_TO_VEC3[down_dir]), 'structure')
 
-  local north_node = minetest.get_node(vector.add(origin, DIR6_TO_VEC3[north_dir]))
+  local north_node = get_node(vector.add(origin, DIR6_TO_VEC3[north_dir]))
 
   local north_has_air_or_coolant =
     north_node.name == 'air' or
-    minetest.get_item_group(north_node.name, 'reactor_coolant') or
-    minetest.get_item_group(north_node.name, 'coolant') or
-    minetest.get_item_group(north_node.name, 'air')
+    core.get_item_group(north_node.name, 'reactor_coolant') or
+    core.get_item_group(north_node.name, 'coolant') or
+    core.get_item_group(north_node.name, 'air')
 
   if east_struct and west_struct and up_struct and down_struct then
     if not north_has_air_or_coolant then
@@ -383,13 +385,13 @@ function ic:verify_reactor_structure(cls, generation_id, event, cluster)
   for y = hva.y,hvb.y do
     for z = hva.z,hvb.z do
       for x = hva.x,hvb.x do
-        local inner_node = minetest.get_node(vector.new(x, y, z))
+        local inner_node = get_node(vector.new(x, y, z))
 
         is_hollow =
           inner_node.name == 'air' or
-          minetest.get_item_group(inner_node.name, 'reactor_coolant') or
-          minetest.get_item_group(inner_node.name, 'coolant') or
-          minetest.get_item_group(inner_node.name, 'air')
+          core.get_item_group(inner_node.name, 'reactor_coolant') or
+          core.get_item_group(inner_node.name, 'coolant') or
+          core.get_item_group(inner_node.name, 'air')
 
         if not is_hollow then
           break
@@ -443,17 +445,17 @@ function ic:_handle_start_reactor(cls, generation_id, event, cluster_ids)
       -- Need to determine structural integrity now
       local valid, err = self:verify_reactor_structure(cls, generation_id, event, cluster)
       if valid then
-        minetest.chat_send_player(event.params.player_name, "Reactor started")
+        core.chat_send_player(event.params.player_name, "Reactor started")
         self:transition_cluster_state(cls, cluster, generation_id, event, 'on')
       else
         print("Reactor is invalid reason=" .. err)
-        minetest.chat_send_player(event.params.player_name, "Reactor has failed to start reason=" .. err)
+        core.chat_send_player(event.params.player_name, "Reactor has failed to start reason=" .. err)
         self:transition_cluster_state(cls, cluster, generation_id, event, 'error')
       end
     elseif controller_count > 1 then
       -- Too many reactor controllers, go into a conflict state
       print("Reactor has too many controllers")
-      minetest.chat_send_player(event.params.player_name, "Too many controllers in reactor cluster")
+      core.chat_send_player(event.params.player_name, "Too many controllers in reactor cluster")
       self:transition_cluster_state(cls, cluster, generation_id, event, 'conflict')
     end
   end
@@ -482,8 +484,8 @@ function ic:_handle_transition_state(cls, generation_id, event, cluster_ids)
   if cluster then
     cluster.assigns.state = assert(event.params.state)
     cluster:reduce_nodes(0, function (node_entry, acc)
-      local node = minetest.get_node(node_entry.pos)
-      local nodedef = minetest.registered_nodes[node.name]
+      local node = get_node(node_entry.pos)
+      local nodedef = core.registered_nodes[node.name]
       if nodedef.transition_reactor_state then
         nodedef.transition_reactor_state(node_entry.pos, node, cluster.assigns.state)
       else
@@ -497,7 +499,7 @@ function ic:_handle_transition_state(cls, generation_id, event, cluster_ids)
 end
 
 function ic:get_node_infotext(pos)
-  local node_id = minetest.hash_node_position(pos)
+  local node_id = hash_node_position(pos)
 
   return yatm.clusters:reduce_node_clusters(pos, '', function (cluster, acc)
     if cluster.groups[self.m_cluster_group] then
@@ -509,7 +511,7 @@ function ic:get_node_infotext(pos)
 end
 
 function ic:get_node_groups(node)
-  local nodedef = minetest.registered_nodes[node.name]
+  local nodedef = core.registered_nodes[node.name]
   if nodedef and nodedef.reactor_device then
     return nodedef.reactor_device.groups or {}
   else

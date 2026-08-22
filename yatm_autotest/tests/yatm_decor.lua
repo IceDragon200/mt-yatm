@@ -1,3 +1,5 @@
+local place_node = assert(tetra.place_node)
+
 local suite = yatm_autotest.att:new_suite("YATM Decor")
 
 suite:describe("Jukebox", function (t1)
@@ -7,7 +9,7 @@ suite:describe("Jukebox", function (t1)
     local pos = vector.new(0, 0, 0)
     local node = { name = "yatm_decor:jukebox_off" }
 
-    minetest.place_node(pos, node)
+    place_node(pos, node)
 
     t2:yield()
   end)
@@ -20,7 +22,7 @@ suite:describe("Meshes", function (t1)
     local pos = vector.new(0, 0, 0)
     local node = { name = "yatm_decor:mesh_dense" }
 
-    minetest.place_node(pos, node)
+    place_node(pos, node)
 
     t2:yield()
   end)
@@ -29,7 +31,7 @@ suite:describe("Meshes", function (t1)
     local pos = vector.new(0, 0, 0)
     local node = { name = "yatm_decor:mesh_wide" }
 
-    minetest.place_node(pos, node)
+    place_node(pos, node)
 
     t2:yield()
   end)
@@ -42,7 +44,7 @@ suite:describe("Vents", function (t1)
     local pos = vector.new(0, 0, 0)
     local node = { name = "yatm_decor:vent" }
 
-    minetest.place_node(pos, node)
+    place_node(pos, node)
 
     t2:yield()
   end)
@@ -67,7 +69,7 @@ suite:describe("Warning Stripes", function (t1)
           local pos = vector.new(0, 0, 0)
           local node = { name = "yatm_decor:warning_stripes_" .. size .. "_" .. color }
 
-          minetest.place_node(pos, node)
+          place_node(pos, node)
 
           t2:yield()
         end)

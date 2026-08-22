@@ -3,6 +3,7 @@ local ng = Cuboid.new_fast_node_box
 local cluster_devices = assert(yatm.cluster.devices)
 local cluster_energy = assert(yatm.cluster.energy)
 local Energy = assert(yatm.energy)
+local get_meta = assert(tetra.get_meta)
 
 local docking_station_yatm_network = {
   kind = "machine",
@@ -28,7 +29,7 @@ local docking_station_yatm_network = {
 }
 
 function docking_station_yatm_network.charge_drone(pos, node, drone)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   -- TODO: charge drone
 
   local amount = Energy.consume_meta_energy(meta, yatm.devices.ENERGY_BUFFER_KEY, 500, 500, 16000, false)
@@ -40,7 +41,7 @@ function docking_station_yatm_network.charge_drone(pos, node, drone)
 end
 
 local function docking_station_refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
 
   local infotext =
     cluster_devices:get_node_infotext(pos) .. "\n" ..

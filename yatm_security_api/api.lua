@@ -2,6 +2,8 @@
 local string_empty = assert(foundation.com.string_empty)
 local is_table_empty = assert(foundation.com.is_table_empty)
 local MetaSchema = assert(foundation.com.MetaSchema)
+local get_node_or_nil = assert(tetra.get_node_or_nil)
+local get_meta = assert(tetra.get_meta)
 
 yatm.security = yatm.security or {}
 
@@ -160,7 +162,7 @@ do
     self.held = false
     self.callback = callback
 
-    minetest.log("action", "New SecurityTransaction id=" .. id)
+    core.log("action", "New SecurityTransaction id=" .. id)
 
     for idx, slot_id in ipairs(self.info.slot_ids) do
       self.assigns.slots[slot_id] = {}
@@ -216,7 +218,7 @@ do
         local security_feature = yatm.security:get_security_feature(slot_data.feature_name)
 
         if security_feature then
-          local player = minetest.get_player_by_name(self.info.player_name)
+          local player = core.get_player_by_name(self.info.player_name)
 
           if is_node then
             local pos = self.info.pos
@@ -301,13 +303,13 @@ do
             end
           end
         else
-          minetest.log("warning", "missing security_feature name=" .. slot_data.feature_name)
+          core.log("warning", "missing security_feature name=" .. slot_data.feature_name)
           self.last_status = yatm.security.ERR_INSTALL_FEATURE_NOT_FOUND
           return yatm.security.CONTINUE, yatm.security.ERR_INSTALL_FEATURE_NOT_FOUND
         end
       end
     else
-      minetest.log("action", "Security Transaction completed id=" .. self.id)
+      core.log("action", "Security Transaction completed id=" .. self.id)
       self.callback(self.last_status)
       return yatm.security.OK, yatm.security.COMPLETED
     end
@@ -420,7 +422,7 @@ end
 ---
 --- @spec &get_node_slot_ids(pos: Vector3, node: NodeRef): Table<String> | nil
 function yatm.security:get_node_slot_ids(pos, node)
-  local nodedef = minetest.registered_nodes[node.name]
+  local nodedef = core.registered_nodes[node.name]
 
   if nodedef then
     if nodedef.security then
@@ -469,7 +471,7 @@ end
 ---   callback: Function
 --- ): (result: AccessFlag, extra: Function | nil | String, transaction: SecurityTransaction)
 function yatm.security:check_node_locks(pos, player, slot_ids, callback)
-  local node = minetest.get_node_or_nil(pos)
+  local node = get_node_or_nil(pos)
   if node then
     slot_ids = slot_ids or self:get_node_slot_ids(pos, node)
 
@@ -525,7 +527,7 @@ end
 --- ): void
 function yatm.security:put_node_lock(pos, _node, slot_id, params)
   assert(slot_id, "expected a slot_id")
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   SecuritySlotSchema:set(meta, slot_id, params)
 end
 
@@ -538,7 +540,7 @@ end
 --- ): Table | nil
 function yatm.security:get_node_lock(pos, _node, slot_id)
   assert(slot_id, "expected a slot_id")
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local slot_data = SecuritySlotSchema:get(meta, slot_id)
   return slot_data
 end

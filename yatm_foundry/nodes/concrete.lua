@@ -43,7 +43,7 @@ for _,row in ipairs(yatm.colors) do
 
     local concrete_basename = "yatm_foundry:concrete_" .. variant_basename .. "_" .. color_basename
 
-    minetest.register_node(concrete_basename .. "_block", {
+    core.register_node(concrete_basename .. "_block", {
       basename = "yatm_foundry:concrete_block",
 
       base_description = "Concrete Block",

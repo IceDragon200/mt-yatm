@@ -26,7 +26,8 @@
 --   Capybara [Grenade Launcher]
 --
 -- <Calibre>[AS]+ (e.g. 19A - meaning it uses 9x19mm and fires in Automatic-only)
---                (e.g. 45AS - meaning it uses 5.56x45mm and fires in either Automatic or Semi-Automatic)
+--                (e.g. 45AS - meaning it uses 5.56x45mm and
+--                             fires in either Automatic or Semi-Automatic)
 --
 -- `_ul` at the end of the item name, means 'unloaded'
 -- `_mag` at the end of the item name, means 'loaded with magazine'

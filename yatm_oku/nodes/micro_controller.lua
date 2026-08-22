@@ -11,19 +11,24 @@
 -- Even the designer is baffled by that.
 --
 local mod = assert(yatm_oku)
+local fspec = assert(foundation.com.formspec.api)
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local random_string62 = assert(foundation.com.random_string62)
 local data_network = assert(yatm.data_network)
+local get_node = assert(tetra.get_node)
+local get_meta = assert(tetra.get_meta)
+local sf = assert(string.format)
 
--- need at least 256 for the zero-page and then another for the stack, so addressable memory is really only
+-- need at least 256 for the zero-page and then another for the stack,
+-- so addressable memory is really only
 -- 512 bytes
 local MEMORY_SIZE = 256 * 4
 local PORT_COUNT = 16
 
 local function get_micro_controller_formspec(pos, user)
   local spos = pos.x .. "," .. pos.y .. "," .. pos.z
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local formspec =
     "size[8,9]" ..
     yatm.formspec_bg_for_player(user:get_player_name(), "computer")
@@ -33,10 +38,11 @@ local function get_micro_controller_formspec(pos, user)
     local y = 0.5 + math.floor(i / 4)
     local port_id = i + 1
     local port_value = meta:get_int("p" .. port_id)
+    local field_id = sf("p%d", port_id)
     formspec =
-      formspec ..
-      "field[" .. x .. "," .. y .. ";1,1;p" .. port_id .. ";Port " .. port_id .. ";" .. port_value .. "]" ..
-      "field_close_on_enter[p" .. port_id .. ",false]"
+      formspec
+      .. fspec.field(x, y, 1, 1, field_id, sf("Port %d", port_id), port_value)
+      .. fspec.field_close_on_enter(field_id, false)
   end
 
   formspec =
@@ -48,7 +54,7 @@ local function get_micro_controller_formspec(pos, user)
 end
 
 local function micro_controller_on_receive_fields(player, formname, fields, assigns)
-  local meta = minetest.get_meta(assigns.pos)
+  local meta = get_meta(assigns.pos)
 
   for i = 1,PORT_COUNT do
     local field_name = "p" .. i
@@ -62,7 +68,7 @@ local function micro_controller_on_receive_fields(player, formname, fields, assi
 end
 
 local function micro_controller_refresh_infotext(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local infotext =
     "Micro Controller\n" ..
     data_network:get_infotext(pos)
@@ -78,7 +84,7 @@ local micro_controller_data_network_device = {
 }
 
 local function maybe_initialize_secret(pos)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   local secret = meta:get_string("secret")
   if not secret then
     secret = random_string62(8)
@@ -87,8 +93,8 @@ local function maybe_initialize_secret(pos)
 end
 
 local function on_construct(pos)
-  local node = minetest.get_node(pos)
-  local meta = minetest.get_meta(pos)
+  local node = get_node(pos)
+  local meta = get_meta(pos)
 
   -- Initialize the controller ports
   for i = 1,PORT_COUNT do
@@ -97,6 +103,7 @@ local function on_construct(pos)
 
   -- Initialize secret
   maybe_initialize_secret(pos)
+  local secret = meta:get_string("secret")
   data_network:add_node(pos, node)
 
   yatm.computers:create_computer_at_pos(pos, node, secret, {
@@ -117,14 +124,14 @@ end
 
 function micro_controller_data_interface.update(self, pos, node, dt)
   --
-  --print("Executing micro controller", dt, minetest.pos_to_string(pos), node.name)
+  --print("Executing micro controller", dt, core.pos_to_string(pos), node.name)
 end
 
 function micro_controller_data_interface.receive_pdu(self, pos, node, dir, port, value)
 end
 
 local function register_computer(pos, node)
-  local meta = minetest.get_meta(pos)
+  local meta = get_meta(pos)
   maybe_initialize_secret(pos)
   yatm.computers:upsert_computer_at_pos(pos, node, meta:get_string("secret"), {
     arch = "mos6502",
@@ -133,7 +140,7 @@ local function register_computer(pos, node)
 end
 
 local function on_rightclick(pos, node, user)
-  local formspec_name = "yatm_oku:oku_micro_controller:" .. minetest.pos_to_string(pos)
+  local formspec_name = "yatm_oku:oku_micro_controller:" .. core.pos_to_string(pos)
   local assigns = { pos = pos, node = node }
   local formspec = get_micro_controller_formspec(pos, user, assigns)
 
@@ -178,7 +185,7 @@ local micro_controller_mesecons = {
     rules = rules,
 
     action_on = function (pos, node)
-      local nodedef = minetest.registered_nodes[node.name]
+      local nodedef = core.registered_nodes[node.name]
       -- TODO: pulse computer
     end,
 

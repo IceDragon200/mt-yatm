@@ -1,1 +1,1 @@
-dofile(yatm_codex.modpath .. "/items/codex.lua")
+yatm_codex:require("/items/codex.lua")

@@ -15,7 +15,7 @@ yatm.cluster.energy:register_system("yatm_cluster_energy:energy_logic", yatm_clu
 
 yatm.cluster_tool.register_cluster_tool_render(CLUSTER_GROUP, yatm.cluster.energy:method("cluster_tool_render"))
 
-minetest.register_lbm({
+core.register_lbm({
   name = "yatm_cluster_energy:node_load_lbm",
 
   nodenames = {

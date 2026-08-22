@@ -3,7 +3,7 @@
 --
 local mod = assert(yatm_dscs)
 
-minetest.register_craftitem("yatm_dscs:fluid_drive_t1", {
+core.register_craftitem("yatm_dscs:fluid_drive_t1", {
   basename = "yatm_dscs:fluid_drive",
   base_description = mod.S("Fluid Drive"),
 
@@ -19,7 +19,7 @@ minetest.register_craftitem("yatm_dscs:fluid_drive_t1", {
   stack_max = 1,
 })
 
-minetest.register_craftitem("yatm_dscs:fluid_drive_t2", {
+core.register_craftitem("yatm_dscs:fluid_drive_t2", {
   basename = "yatm_dscs:fluid_drive",
   base_description = mod.S("Fluid Drive"),
 
@@ -35,7 +35,7 @@ minetest.register_craftitem("yatm_dscs:fluid_drive_t2", {
   stack_max = 1,
 })
 
-minetest.register_craftitem("yatm_dscs:fluid_drive_t3", {
+core.register_craftitem("yatm_dscs:fluid_drive_t3", {
   basename = "yatm_dscs:fluid_drive",
   base_description = "Fluid Drive",
 

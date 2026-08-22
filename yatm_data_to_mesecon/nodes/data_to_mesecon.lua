@@ -1,9 +1,11 @@
 local Cuboid = assert(foundation.com.Cuboid)
 local ng = Cuboid.new_fast_node_box
 local Directions = assert(foundation.com.Directions)
-local is_table_empty = assert(foundation.com.is_table_empty)
 local string_hex_unescape = assert(foundation.com.string_hex_unescape)
 local data_network = assert(yatm.data_network)
+local get_node = assert(tetra.get_node)
+local get_meta = assert(tetra.get_meta)
+local swap_node = assert(tetra.swap_node)
 
 local function mesecon_rules(node)
   local result = {}
@@ -46,7 +48,7 @@ yatm.register_stateful_node("yatm_data_to_mesecon:data_to_mesecon", {
   },
 
   on_construct = function (pos)
-    local node = minetest.get_node(pos)
+    local node = get_node(pos)
     data_network:add_node(pos, node)
   end,
 
@@ -63,19 +65,19 @@ yatm.register_stateful_node("yatm_data_to_mesecon:data_to_mesecon", {
     end,
 
     receive_pdu = function (self, pos, node, dir, port, value)
-      local meta = minetest.get_meta(pos)
+      local meta = get_meta(pos)
       local new_value = string_hex_unescape(value)
 
       if node.name == "yatm_data_to_mesecon:data_to_mesecon_off" then
         if string_hex_unescape(meta:get_string("data_on")) == new_value then
           node.name = "yatm_data_to_mesecon:data_to_mesecon_on"
-          minetest.swap_node(pos, node)
+          swap_node(pos, node)
           mesecon.receptor_on(pos, mesecon_rules(node))
         end
       elseif node.name == "yatm_data_to_mesecon:data_to_mesecon_on" then
         if string_hex_unescape(meta:get_string("data_off")) == new_value then
           node.name = "yatm_data_to_mesecon:data_to_mesecon_off"
-          minetest.swap_node(pos, node)
+          swap_node(pos, node)
           mesecon.receptor_off(pos, mesecon_rules(node))
         end
       end
@@ -153,7 +155,7 @@ yatm.register_stateful_node("yatm_data_to_mesecon:data_to_mesecon", {
   },
 
   refresh_infotext = function (pos)
-    local meta = minetest.get_meta(pos)
+    local meta = get_meta(pos)
     local infotext =
       data_network:get_infotext(pos)
 

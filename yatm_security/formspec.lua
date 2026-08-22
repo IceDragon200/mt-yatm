@@ -31,7 +31,17 @@ function mod.render_button_bitmap(x, y, cols, rows, data, prefix, w, h)
 
       body =
         body ..
-        fspec.image_button(x + (col - 1) * w, y + (row - 1) * h, w, h, texture_name, prefix .. "_" .. row .. "_" .. col, "", noclip, drawborder)
+        fspec.image_button(
+          x + (col - 1) * w,
+          y + (row - 1) * h,
+          w,
+          h,
+          texture_name,
+          prefix .. "_" .. row .. "_" .. col,
+          "",
+          noclip,
+          drawborder
+        )
     end
   end
 
